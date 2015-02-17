@@ -1,0 +1,57 @@
+:numbered:
+:toc:
+:toc-placement: manual
+
+= CIP 2014-03-12 - restriction of cross-products to consecutive MATCH clauses
+
+*Author:* Chris Leishman <chris.leishman@neotechnology.com>
+
+toc::[]
+
+== Background
+
+Cypher allows multiple parts to a pattern, separated by a comma (`,`). For example:
+
+    MATCH (a)-->(b), (a)-->(c)
+    ...
+
+Whilst these pattern parts may reference each other, thus constraining what they can individually match, this is not required. For example:
+
+    MATCH (a)-->(b), (c)-->(d)
+    ...
+
+In this latter case, the two pattern parts are entirely independent - no constraint exists that would limit the second part (`(c)-->(d)`) based on the first. In this case, the implementation will search the graph for all matches to both parts, and produce a cartesian product of matches.
+
+This CIP does not propose that this behaviour is incorrect. However, it has been observed that users (especially new users) frequently write disconnected patterns without understanding this characteristic of pattern matching. In these cases, the resulting cartesian product is often a combinatorial explosion of matches - leading to poor query times, overwhelming results, or simple confusion and frustration.
+
+Expressing these disconnected pattern parts for matching is also possible using discrete `MATCH` statements. For example:
+
+    MATCH (a)-->(b)
+    MATCH (c)-->(d)
+    ...
+
+Whilst this suggests an ordering that is, in actuality, not required (or necessarily used by the implementation), it also suggests more strongly to the user that the second `MATCH` builds upon the first - revealing the combinatorial nature more clearly.
+
+This CIP proposes to mandate the use of discrete `MATCH` clauses for disconnected pattern parts.
+
+== Proposal
+
+This CIP proposes to disallow the use of disconnected pattern parts within a single pattern, where “connected” is based on the re-use of node identifiers.
+
+Thus the following `MATCH` clauses would be ok:
+
+    MATCH (a)-->(b), (b)-->(c)
+    ...
+
+    MATCH (a)-->(b)<--(c), (d)-->(b)
+    ...
+
+But the following would be disallowed:
+
+    MATCH (a)-->(b), (c)
+    ...
+
+    MATCH (a)-->(b), (c)-->()
+    ...
+
+It is proposed that the semantic check of these patterns fail with an error similar to +"Pattern part is disconnected from previous parts (it must re-use a previously declared node identifier, or be placed in a separate MATCH clause) (line 1, col 12)"+.
