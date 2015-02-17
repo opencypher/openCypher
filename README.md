@@ -23,7 +23,7 @@ Petra acts as PM for the group, calling meetings and ensuring that notes get tak
 
 ### Improvement Proposals
 
-Ultimately, proposals for improving the Cypher query language should take the form of a Cypher Improvement Proposal (CIP). These should typically be proposed as pull requests against this repository, proposing the addition of a document following a naming scheme of `CIP-{year}-{month}-{day}-{name}.asciidoc`, where "`{name}`" is a very short name of the proposed changed; for instance, the name of the keyword the proposal intends to add or modify, and the date portion of the name is the the initial date of proposing the CIP (typically the same date as the submission of the pull request).
+Ultimately, proposals for improving the Cypher query language should take the form of a Cypher Improvement Proposal (CIP). These should typically be proposed as pull requests against this repository, proposing the addition of a document following a naming scheme of `CIP{year}-{month}-{day}-{name}.asciidoc`, where "`{name}`" is a very short name of the proposed changed; for instance, the name of the keyword the proposal intends to add or modify, and the date portion of the name is the the initial date of proposing the CIP (typically the same date as the submission of the pull request).
 
 CIPs that additionally come with a reference implementation as a pull request submitted towards [Neo4j](https://github.com/neo4j/neo4j) are very much appreciated, as the latter would clarify the workings of the proposed improvement. This would help make the handling of the proposal quicker, or perhaps even make it more likely to be accepted.
 
