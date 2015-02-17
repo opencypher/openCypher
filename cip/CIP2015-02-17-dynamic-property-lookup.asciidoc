@@ -1,0 +1,96 @@
+CIP2015-02-17 Dynamic Property Lookup
+=====================================
+:Title: CIP2015-02-17_Dynamic_Property_Lookup
+:Status: Draft
+:Author: Stefan_Plantikow
+:Email: <stefan.plantikow@neotechnology.com>
+:source-highlighter: pygments
+:toc: manual
+
+Abstract
+--------
+It has been requested by users to be able to lookup the key of an entity or a map using a dynamically computed
+String value as the key.  Currently Cypher does not provide this.  This CIP suggests the introduction of
+new syntax (`n["key"]``) to enable this.  Additionally, this CIP proposes to add a new function (`keys()`) for
+returning the keys of any map or entity.
+
+toc::[]
+
+Examples
+--------
+
+Return all distinct sets of property keys set on nodes with a given label.
+
+[source, cypher]
+----
+MATCH (a:Thing)
+RETURN DISTINCT keys(a) AS properties;
+----
+
+Return a property value based on a property value.
+
+[source, cypher]
+----
+MATCH (a)-[:IS_IN]->(c:Category)
+RETURN a, a["score_" + c.name] AS score ORDER BY score LIMIT 10;
+----
+
+Return all `:Setting` nodes where all property keys whose name starts with `flag` are true.
+
+[source, cypher]
+----
+MATCH (n:Setting) WHERE all([ key in keys(n) WHERE key =~ 'flag.*' | n[key] ])
+RETURN n;
+----
+
+Syntax Changes
+--------------
+
+Extend expressions to include dynamic key expressions:
+
+[source, ebnf]
+----
+dynamic key lookup = expression, "[", expression, "]" ;
+expression = dynamic key lookup | ? current definition of expression ? ;
+----
+
+Also, support the function `keys` which takes a single map-like argument and returns a collection of strings.
+
+Semantics of dynamic key expressions
+------------------------------------
+
+Using a dynamic key expression like `<mapExpr>[<keyExpr>]` requires that `<mapExpr>` evaluates to a map or an entity,
+and that `<keyExpr>` evaluates to a string.  If this is not the case, a type error is produced either at compile time
+or at runtime.
+
+If this is given, evaluating `<mapExpr>[<keyExpr>]` first evaluates `keyExpr` to a string value (the key), and then
+evaluates `<mapExpr>` to a map-like value (the map).  Finally the result of `<mapExpr>[<keyExpr>]` is computed by
+performing a lookup of the key in the map.  If the key is found, the associated value becomes the result. If the
+key is not found, `<mapExpr>[<keyExpr>]` evaluates to `NULL`.
+
+Thus the result of evaluating `<mapExpr>[<keyExpr>]` can be any value (including `NULL`).
+
+Semantics of `keys` function
+----------------------------
+
+`keys(m)` where `m` is a map returns a string collection of all the keys of `m`.
+
+`keys(e)` where `e` is an entity returns a string collection of all the property keys of `e`.
+
+`keys(NULL)` evaluates to `NULL`.
+
+Evaluating `keys` on any other type of value is a type error that may be raised at compile time or at runtime.
+
+Interaction with existing features
+----------------------------------
+
+Planning is more difficult in the presence of dynamic key expressions. It may be worthwhile to generate warnings when
+dynamic key expressions are used in a query.
+
+Alternatives
+------------
+
+* Some SQL vendors supports the use of '@Var' syntax to generate column names using a parameter value. This would be
+  the same as only allowing dynamic key expressions to use query parameters as keys.  This is much less flexible
+  than what has been proposed here based on user requests.
+* Do not add dynamic key expressions
