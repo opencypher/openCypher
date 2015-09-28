@@ -1,6 +1,6 @@
 :numbered:
 :toc:
-:toc-placement: manual
+:toc-placement: macro
 
 = CIP20130911A - cypher language versioning
 
