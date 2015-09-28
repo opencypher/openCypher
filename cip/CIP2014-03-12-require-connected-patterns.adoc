@@ -1,6 +1,6 @@
 :numbered:
 :toc:
-:toc-placement: manual
+:toc-placement: macro
 
 = CIP 2014-03-12 - restriction of cross-products to consecutive MATCH clauses
 
