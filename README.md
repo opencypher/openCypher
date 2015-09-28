@@ -17,6 +17,7 @@ The Cypher Language Group consists of:
 * [Petra Selmer](https://github.com/petraselmer)
 * [Stefan Plantikow](https://github.com/boggle)
 * [Tobias Lindaaker](https://github.com/thobe)
+* [Nigel Small](https://github.com/nigelsmall)
 
 Andrés, in capacity of being the "father of Cypher", has ultimate say, should that ever be necessary.
 Petra acts as PM for the group, calling meetings and ensuring that notes get taken at said meetings.
