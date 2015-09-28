@@ -6,6 +6,7 @@ CIP2015-02-17 Dynamic Property Lookup
 :Email: <stefan.plantikow@neotechnology.com>
 :source-highlighter: pygments
 :toc: manual
+:toc-placement: macro
 
 == Abstract
 
