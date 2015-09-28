@@ -1,6 +1,6 @@
 :numbered:
 :toc:
-:toc-placement: manual
+:toc-placement: macro
 
 = CIP20130906A - algorithmic models for WHERE expression application with consideration to optional portions of patterns
 
