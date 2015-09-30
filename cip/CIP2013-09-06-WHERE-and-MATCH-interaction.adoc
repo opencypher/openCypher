@@ -2,7 +2,7 @@
 :toc:
 :toc-placement: macro
 
-= CIP20130906A - algorithmic models for WHERE expression application with consideration to optional portions of patterns
+= CIP20130906A - WHERE and MATCH interaction
 
 *Author:* Chris Leishman <chris.leishman@neotechnology.com>
 
@@ -13,7 +13,7 @@ Cypher has two keywords, `MATCH` and `WHERE`, that together control how parts of
 
 == Model of Interaction 1: WHERE filters matches
 
-In this model, the `MATCH` clause identifies parts of the graph based solely on the expressed pattern. For example, “++MATCH (a)-\->(b)++” would match every pair of connected nodes in the graph.
+In this model, the `MATCH` clause identifies parts of the graph based solely on the expressed pattern. For example, “++MATCH (a)-->(b)++” would match every pair of connected nodes in the graph.
 
 As a filter, the expression provided in a `WHERE` clause will be evaluated in the context of each match found, and a positive (true) result from that evaluation would allow the selected part of the graph to be used in the following clauses of the query. For example, if “++WHERE a.name = "Bob"++” had been specified, then this expression would be run for every pair of connected nodes in the graph (substituting the first matched node for ‘a’ in the expression), resulting in true only where the first node has a name property of ‘Bob’, and thus only providing those matches to later clauses of the query.
 
@@ -46,7 +46,7 @@ An important observation is that the rest of the query never sees the matches th
 
 In this model, the `MATCH` clause uses both the expressed pattern and the `WHERE` expression to identify matches in the graph, which are then selected for use in the following clauses of the query with no further evaluation. This is done by considering the `WHERE` expression at every step of the matching process.
 
-For example, given the same data as perviously, “++MATCH (a)-\->(b) WHERE a.name = "Bob"++” would only match connected pairs of nodes where the first of that pair has a name propery of ‘Bob’. ie:
+For example, given the same data as perviously, “++MATCH (a)-->(b) WHERE a.name = "Bob"++” would only match connected pairs of nodes where the first of that pair has a name propery of ‘Bob’. ie:
 
 [options="header"]
 |========================================================================
@@ -109,7 +109,7 @@ Given that the only functionally visible result from either approach is the sele
 
 It is helpful to understand the intended behaviour of an optional portion of a pattern. Optional pattern portions ensure that a match is still made available to following clauses in the query even if the nothing can possibly satisfy the optional portion. Specifically, if nothing is found to satisfy the optional portion of the match, then a single match will be provided to later clauses in the query and the use of any expression relying on identifiers declared in the optional portion of the pattern will result in a null.
 
-For example, given the same data as previously, “++MATCH (a)-[?]\->(b) WHERE a.name = "Bob" OR a.name = "Sue" RETURN a, b++” will yield the following results:
+For example, given the same data as previously, “++MATCH (a)-[?]->(b) WHERE a.name = "Bob" OR a.name = "Sue" RETURN a, b++” will yield the following results:
 
 |================================================
 | a _(non-optional)_     | b _(optional)_
@@ -127,7 +127,7 @@ This set of results is consistent for either model under discussion.
 
 === Optional Matching with Model 1: WHERE filters matches
 
-Given the previous example query, “++MATCH (a)-[?]\->(b?) WHERE a.name = "Bob" OR a.name = "Sue" RETURN a, b++”, we can look at how this is evaluated in the model of `WHERE` being a filter.
+Given the previous example query, “++MATCH (a)-[?]->(b?) WHERE a.name = "Bob" OR a.name = "Sue" RETURN a, b++”, we can look at how this is evaluated in the model of `WHERE` being a filter.
 
 [small]#(Note that examples will be using the proposed syntax for indicating optional nodes. Whilst this is not currently valid syntax, it is helpful to avoid having to use an explicit “++START a=node(*)++” statement in every example)#
 
@@ -149,7 +149,7 @@ This is fairly straightforward, and the result is consistent with the intention 
 
 ==== Use of an optional identifier in a filtering WHERE expression
 
-A more interesting and germane example occurs when the `WHERE` expression involves identifiers declared in the optional part of the pattern, for example “++MATCH (a)-[?]\->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") AND b.name = "Sue"++”. In this case, the `WHERE` expression places a constraint on the identifier ‘++b++’, which is optional in the pattern.
+A more interesting and germane example occurs when the `WHERE` expression involves identifiers declared in the optional part of the pattern, for example “++MATCH (a)-[?]->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") AND b.name = "Sue"++”. In this case, the `WHERE` expression places a constraint on the identifier ‘++b++’, which is optional in the pattern.
 
 In this model, the filtering behaviour of `WHERE` requires evaluation of the expression for all the matches (as before). For the last match, this presents an interesting situation: nothing was matched for the optional part of the pattern. How to evaluate this?
 
@@ -178,7 +178,7 @@ Interestingly, this is exactly the same result as would occur if there was no op
 
 ==== IS NULL check of an optional identifier in filtering WHERE expression
 
-Another example would be the use of an explicit NULL check in the where expression, for example “++MATCH (a)-[?]\->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") AND b IS NULL++”. In this case, the `WHERE` clause (in the context of the 4th match) evaluates as follows:
+Another example would be the use of an explicit NULL check in the where expression, for example “++MATCH (a)-[?]->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") AND b IS NULL++”. In this case, the `WHERE` clause (in the context of the 4th match) evaluates as follows:
 
     (a.name = "Bob" OR a.name = "Sue") AND b IS NULL
     ⇒ ("Sue" = "Bob" OR "Sue" = "Sue") AND null IS NULL
@@ -201,7 +201,7 @@ Thus the results from this example are as follows:
 
 === Optional Matching with Model 2: WHERE informs matching
 
-Again using the example query “++MATCH (a)-[?]\->(b?) WHERE a.name = "Bob" OR a.name = "Sue" RETURN a, b++”, we can consider how this is evaluated in the model of `WHERE` informing the matching process.
+Again using the example query “++MATCH (a)-[?]->(b?) WHERE a.name = "Bob" OR a.name = "Sue" RETURN a, b++”, we can consider how this is evaluated in the model of `WHERE` informing the matching process.
 
 In this model, the `MATCH` clause uses both the pattern and the `WHERE` expression to identify matches in the graph. First a match for the non-optional part of the pattern is found in the graph, and this match is then extended to find complete matches over the entire pattern. However, in the case that no matches can be found over the entire pattern, then the non-optional part is still selected and made available to later clauses in the query.
 
@@ -220,7 +220,7 @@ This is fairly straightforward, and the result is consistent with the intention 
 
 ==== Use of an unbound identifier in a WHERE expression informing matching
 
-Let’s now again consider the more complex example “++MATCH (a)-[?]\->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") AND b.name = "Sue"++”, and how it evaluates in the combined `MATCH` and `WHERE` model.
+Let’s now again consider the more complex example “++MATCH (a)-[?]->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") AND b.name = "Sue"++”, and how it evaluates in the combined `MATCH` and `WHERE` model.
 
 As stated, this model supposes that a match is first found for the non-optional portion of the pattern (using the `WHERE` expression to inform what is valid to match). If this is found, then it is extended to match the optional portion. Should no matches for the optional portion be found, then the non-optional portion only is selected. Thus it follows that the results from this example are:
 
@@ -245,7 +245,7 @@ Considering the axiom stated previously, that _the expression not evaluate to fa
 
 ==== IS NULL check of an optional identifier in WHERE expression informing matching
 
-The other example, “++MATCH (a)-[?]\->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") AND b IS NULL++”, shows an interesting effect of the evaluation process used in this model.
+The other example, “++MATCH (a)-[?]->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") AND b IS NULL++”, shows an interesting effect of the evaluation process used in this model.
 
 Considering the match starting with node 5 (Bob), we can look at how the evaluation occurs at the first step by again substituting values:
 
@@ -290,7 +290,7 @@ Importantly, this result again differs from the previous model. In this example 
 
 Whilst performance is largely an implementation concern, it is worth briefly considering the different algorithmic models from the perspective of their search space.
 
-Using the example of “++MATCH (a)-\->(b) WHERE a.name = "Bob" AND b.name = "Sue" RETURN a, b++”, and following the models as described, we can observe a substantial increase in graph exploration when the `WHERE` expression is used to filter after the matching.
+Using the example of “++MATCH (a)-->(b) WHERE a.name = "Bob" AND b.name = "Sue" RETURN a, b++”, and following the models as described, we can observe a substantial increase in graph exploration when the `WHERE` expression is used to filter after the matching.
 
 For the filtering model, the following matches are found and then evaluated:
 
@@ -337,7 +337,7 @@ Given this, it is not obviously possible to achieve the same output as Model 2 w
 
 === Filtering matches whilst using Model 2
 
-As discussed, model 2 (`WHERE` informing matching) produces a superset of the result of the filtering model (model 1). Thus a query interpreted according to model 2 can be trivially made to provide the same result as model 1, by adding an explicit filtering step. For example, take the query “++MATCH (a)-[?]\->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") AND b.name = "Sue"++”. Interpreted according to model 1 gives the following:
+As discussed, model 2 (`WHERE` informing matching) produces a superset of the result of the filtering model (model 1). Thus a query interpreted according to model 2 can be trivially made to provide the same result as model 1, by adding an explicit filtering step. For example, take the query “++MATCH (a)-[?]->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") AND b.name = "Sue"++”. Interpreted according to model 1 gives the following:
 
 [options="headers"]
 |================================================
@@ -354,11 +354,11 @@ The same query, when interpreted according to model 2 gives:
 | `Node[9]{name: "Sue"}` | <nothing matched> (ie. `null`)
 |========================================================
 
-To achieve the same results as model 1, the query could be rewritten such that the part of the `WHERE` expression that uses the optional identifiers is instead made an explicit filter after a `WITH` clause, ie: “++MATCH (a)-[?]\->(b) WHERE (a.name = "Bob" OR a.name = "Sue") WITH a, b WHERE b.name = "Sue"++”.
+To achieve the same results as model 1, the query could be rewritten such that the part of the `WHERE` expression that uses the optional identifiers is instead made an explicit filter after a `WITH` clause, ie: “++MATCH (a)-[?]->(b) WHERE (a.name = "Bob" OR a.name = "Sue") WITH a, b WHERE b.name = "Sue"++”.
 
-[small]#Note: As discussed previously, the use of an optional identifer in a `WHERE` filter for any expression other than an `IS NULL` check, renders the optionality irrelevant. Thus an equally valid alternative for this example is to use the expression “++MATCH (a)-\->(b) WHERE (a.name = "Bob" OR a.name = "Sue") AND b.name = "Sue"++”. This will give the same result in both models of evaluation.#
+[small]#Note: As discussed previously, the use of an optional identifer in a `WHERE` filter for any expression other than an `IS NULL` check, renders the optionality irrelevant. Thus an equally valid alternative for this example is to use the expression “++MATCH (a)-->(b) WHERE (a.name = "Bob" OR a.name = "Sue") AND b.name = "Sue"++”. This will give the same result in both models of evaluation.#
 
-Considering an example that won’t match anything after starting with node 5 (‘Bob’): “++MATCH (a)-[?]\->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") AND b.name = "Lou"++”. This gives the following when evaluated under model 1:
+Considering an example that won’t match anything after starting with node 5 (‘Bob’): “++MATCH (a)-[?]->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") AND b.name = "Lou"++”. This gives the following when evaluated under model 1:
 
 [options="headers"]
 |========================================================
@@ -375,4 +375,8 @@ For model 2:
 | `Node[7]{name: "Sue"}` | <nothing matched> (ie. `null`)
 |========================================================
 
-Again, in the context of model 2, the part of the `WHERE` expression using the optional can be moved to an explicit filter, thus achieving the same results as model 1. The query then becomes “++MATCH (a)-[?]\->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") WITH a, b WHERE b.name = "Lou"++”.
+Again, in the context of model 2, the part of the `WHERE` expression using the optional can be moved to an explicit filter, thus achieving the same results as model 1. The query then becomes “++MATCH (a)-[?]->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") WITH a, b WHERE b.name = "Lou"++”.
+
+== Decision
+
+Cypher uses model 2.
