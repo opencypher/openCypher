@@ -1,0 +1,135 @@
+:numbered:
+:toc:
+:toc-placement: macro
+
+= CIP<CCYY>-<MM>-<DD> - <The title of the CIP>
+
+*Author:* <Author name> <Author email>
+
+**_Guidelines:_**
+
+* **_Please use this template as a guide. To aid clarity and give an idea of what the pertinent section denotes, some headings have example text (in italics)._**
+
+* **_The file naming convention is 'CIP<CCYY>-<MM>-<DD>-short-title-words.adoc'._**
+
+* **_Label the pull request for the CIP with the correct Cypher vocabulary(ies)._**
+
+* **_The CIP may only consider Cypher language features. This means the CIP must make no mention of Neo4j._**
+
+toc::[]
+
+== Abstract
+
+This is a high-level summary of the aim and description of the CIP.
+
+== Motivation
+
+Provide the rationale and justification for the proposed feature(s).
+
+== Background
+
+This is further background regarding the CIP, should it be required or deemed useful.
+
+Please ensure that links to related documents (including other CIPs) are provided.
+
+== Proposal
+
+This comprises the detail of the CIP, and is divided into the sub-sections below.
+
+=== Examples
+
+For each aspect of the proposed feature(s), provide at least one Cypher example query to show how the feature is envisaged to work, along with explanatory text.
+
+*_Example:_* +
+_Find all persons whose name starts with "And"._
+
+----
+MATCH (a:Person) WHERE a.name STARTS WITH “And”
+RETURN a
+----
+
+_Find all persons whose name starts with the parameter prefix._
+
+----
+MATCH (a:Person) WHERE a.name STARTS WITH {prefix}
+RETURN a
+----
+
+_Find all persons whose name ends with "fan"._
+
+----
+MATCH (a:Person) WHERE a.name ENDS WITH "fan"
+RETURN a
+----
+
+_Find all books whose isbn in string form contains "007"._
+
+----
+MATCH (b:Book) WHERE toString(b.isbn) CONTAINS "007"
+RETURN a
+----
+
+=== Syntax
+
+Provide the full range of syntactic additions and modifications in EBNF (https://en.wikipedia.org/wiki/Extended_Backus-Naur_Form) format, along with explanatory text.
+
+*_Example:_* +
+_Extend expressions to support string search operators:_
+
+----
+expression    = current definition of expression
+              | string-search
+              ;
+
+string-search = starts with | ends with | contains ;
+starts-with   = expression, "STARTS", "WITH", expression ;
+ends-with     = expression, "ENDS", "WITH", expression ;
+contains      = expression, "CONTAINS" expression ;
+----
+
+=== Semantics
+
+Provide a description of the expected semantics of the new feature(s).
+
+*_Example:_* +
+_STARTS WITH_
+
+_Using `lhs STARTS WITH rhs` requires both `lhs` and `rhs` to be strings. This new expression evaluates to true if `lhs` textually starts with `rhs`. Otherwise, it is false._
+
+_ENDS WITH_
+
+_Using `lhs ENDS WITH rhs` requires both `lhs` and `rhs` to be strings. This new expression evaluates to true if `lhs` textually ends with `rhs`. Otherwise, it is false._
+
+_CONTAINS_
+
+_Using `lhs CONTAINS rhs` requires both `lhs` and `rhs` to be strings. This new expression evaluates to true if `lhs` textually contains `rhs`. Otherwise, it is false._
+
+_If any argument to `STARTS WITH`, `ENDS WITH`, or `CONTAINS` is NULL, then the result of evaluating the whole predicate is NULL._
+
+_It is a type error to use `STARTS WITH`, `ENDS WITH`, or `CONTAINS` with a value that is not a string._
+
+=== Interaction with existing features
+
+Detail any interactions which need to be considered.
+
+=== Alternatives
+
+List any alternatives here; e.g. new keywords, a smaller feature set etc.
+
+== What others do
+
+If applicable, include a feature comparison table, along with any useful links.
+
+To provide a well-rounded comparison, please ensure the inclusion of at least one SQL-based implementation - such as DB2 or Postgres - as well as SPARQL. If you require any assistance or pointers to the latter, please contact petra.selmer@neotechnology.com.
+
+== Benefits to this proposal
+
+List the benefits here.
+
+== Caveats to this proposal
+
+List any caveats here. These may include omissions, reasons for non-conformance with other features and so on.
+
+== Appendix
+
+Put any supplementary information here.
