@@ -1,0 +1,182 @@
+= CIP2015-06-24 Calling Stored Procedures
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Rickard Öberg <rickard.öberg@neotechnology.com>
+*Author:* Stefan Plantikow <stefan.plantikow@neotechnology.com>
+*Author:* Nigel Small <nigel.small@neotechnology.com>
+*Author:* Petra Selmer <petra.selmer@neotechnology.com>
+
+[abstract]
+.Abstract
+
+This proposal introduces stored procedures as a new concept to Cypher and proposes a new facility
+for calling them.
+
+User-defined functions are a separate concern that might be addressed in a future CIP.
+
+toc::[]
+
+== Motivation & Background
+
+While Cypher is a very expressive graph query language, its declarative nature and scope is currently not sufficient for
+expressing certain classes of graph traversals (e.g. traversals relying on using specialized data structures, like
+certain queues) or accessing third-party functionality.
+
+This CIP proposes to add stored procedures to Cypher in order to address these issues.
+
+== Proposal
+
+This proposal consists of two parts, introducing stored procedures conceptually, and describing how to call them in a
+system that supports Cypher.
+
+=== Stored procedures
+
+A stored procedure has a name and takes a fixed number of named and typed arguments in a fixed sequence and either just
+yields nothing (i.e. causes a side effect) or yields a stream of result records.  Each record yielded contains values for a fixed number of named and typed columns in the same fixed sequence such that each column value in a yielded record
+matches its column's type.
+
+The name of the stored procedure, its argument names, and if applicable any result column names must not contain any
+leading or trailing whitespace characters and must not be empty.
+
+The arguments of the procedure, their types, and their order are called its argument signature. All information about
+what is being returned by the procedure (either if the procedure yields nothing or the result columns, their types, and
+their order) are called the result signature of the procedure. Together, the argument signature and the result signature
+form the (full) signature of the stored procedure.
+
+Note that according to this definition a procedure may take zero arguments and/or may yield zero result columns.
+
+Procedures may be written in different programming languages and provided with APIs for accessing the underlying graph
+database or graph processing system as dictated by the implementation.
+
+=== Calling stored procedures
+
+A procedure call constitutes an entire Cypher statement. According to this CIP, a procedure cannot be used alongside
+other clauses. It is intended that this restriction will be lifted in the future.
+
+Calling a stored procedures requires providing it with argument values. This may be done in one of two ways.
+
+==== Call with arguments
+
+Arguments are provided as a sequence of expressions as required by the procedure's signature. To call the procedure, all
+argument expressions are evaluated to argument values in order. It is an error if the number of provided arguments
+differs from the number of arguments required by the procedure's argument signature. It is an error if the argument
+values are incompatible with the argument types required by the procedure's argument signature.
+
+[source, cypher]
+----
+CALL myProc("Test", 1+2)
+----
+
+==== Call with parameters
+
+Arguments are provided as parameters to the Cypher query. To call the procedure, the argument values are obtained by
+using the parameter in scope with the same name as the argument. If such a parameter does not exist, the argument value
+is assumed to be `NULL`. It is an error, if the resulting argument values are incompatible with the argument types
+required by the procedure's argument signature.
+
+[source, cypher]
+----
+CALL myProc
+----
+
+=== Executing a procedure call
+
+The technical details of how procedure calls are executed are left to the implementation as long as they do not violate
+the following rules:
+
+It is an error if calling a procedure fails to yield results in accordance with its declared result signature.
+
+If calling a procedure yields nothing, the Cypher statement for the procedure call yields no rows and the list of return columns is empty.
+
+If calling a procedure yields records, these records are yielded from the Cypher statement for the procedure call in the same order as they are yielded by the procedure and the list of return columns of the statement is set to be the sequence of result columns of the procedure's result signature.
+
+If a procedure call fails to execute ("throws an exception"), this error is propagated to the user in the same way
+as other runtime errors are propagated to the user by the implementation. The error message should provide the
+user at least with the name of the failed stored procedures, its signature, and all argument values.
+
+If executing a procedure call causes any side effects ("writes to the database"), all such changes must be executed
+before any results are returned to the user. An implementation may provide the user with a way to opt out of this
+behavior for a procedure, however this must be done explicitly (by configuration or annotation of the procedure).
+
+=== Syntax
+
+[source, ebnf]
+----
+statement          = procedure call
+                   | ...
+                   ;
+
+procedure call     = "CALL", procedure name, "(", [ expression,  { ",", expression } ], ")"
+                   | "CALL", procedure name
+                   ;
+
+procedure name     = identifier ;
+----
+
+== What others do
+
+The stored procedures survey (separate google doc) is extremely comprehensive, examining how stored procedures are
+implemented and deployed as well as their API access mechanisms and usage. Products surveyed include PostgreSQL, MS SQL
+Server, Oracle, MySQL, MongoDB, Aerospike and Virtuoso.
+
+== Benefits to this proposal
+
+The benefits of having user-defined procedures is so that users would be able to implement algorithms and functionality
+which Cypher cannot either express or which cannot be executed efficiently by current Cypher implementations. Additionally, users may find procedures to be a useful mechanism to achieve good system design and code abstraction.
+
+== Audience Consultation
+
+CLG and interested internal parties.
+
+== Caveats to this proposal
+
+All of the following shall be dealt with as part of future work, or as part of an upcoming design sprint:
+
+* User-defined functions
+* The extension API
+* The mechanism by which results are delivered
+* Error handling
+
+== Appendix
+
+All content in this appendix is informative only. It serves to capture the discussion around this CIP.
+
+=== Listing procedures
+
+The listing of procedures could be done in various ways, for example via dedicated syntax, a system graph, or a built-in
+procedure.  Any mechanism for listing should also extend to other schema artifacts, like indices or constraints and
+was thus considered out of scope for this CIP. Furthermore, it may be necessary to be able to filter the stored
+procedures listed when there are many.
+
+Suggested syntax for this feature was: `SHOW PROCEDURES` possibly followed by `STARTS WITH`, `CONTAINS`, or
+`ENDS WITH`.
+
+[source,cypher]
+----
+SHOW PROCEDURES
+SHOW PROCEDURES WHERE name STARTS WITH "app."
+SHOW PROCEDURES WHERE name ENDS WITH "Info"
+----
+
+Listing should return
+
+* the name of the procedure
+* the signature as a string
+* the language in which the procedure was written
+* possibly if the procedure is built-in or was user-defined
+
+=== Supporting Procedures with more complex Signatures
+
+We could consider allowing a procedure to be able to accept any of the following:
+
+* Optional and default arguments
+* A variable number of arguments (similar to Java's variadic arguments)
+* Multiple argument groups
+
+Furthermore we could consider supporting calling procedures with explicitly named arguments (similar to Python's
+kwargs).
+
+These features should be introduced in a future CIP, if required.
