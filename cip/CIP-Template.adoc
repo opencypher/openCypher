@@ -1,26 +1,37 @@
+= CIP<CCYY>-<MM>-<DD> - <The title of the CIP>
 :numbered:
 :toc:
 :toc-placement: macro
-
-= CIP<CCYY>-<MM>-<DD> - <The title of the CIP>
+:source-highlighter: codemirror
 
 *Author:* <Author name> <Author email>
 
-**_Guidelines:_**
+[IMPORTANT]
+.Guidelines
+====
+* Please use this template as a guide.
+  To aid clarity and give an idea of what the pertinent section denotes, some headings have example text.
 
-* **_Please use this template as a guide. To aid clarity and give an idea of what the pertinent section denotes, some headings have example text (in italics)._**
+* The file naming convention is _CIP<CCYY>-<MM>-<DD>-short-title-words.adoc_.
 
-* **_The file naming convention is 'CIP<CCYY>-<MM>-<DD>-short-title-words.adoc'._**
+* Label the pull request for the CIP with the correct Cypher vocabulary(ies).
 
-* **_Label the pull request for the CIP with the correct Cypher vocabulary(ies)._**
+* The CIP may only consider Cypher language features.
+  This means the CIP must make no mention of Neo4j.
 
-* **_The CIP may only consider Cypher language features. This means the CIP must make no mention of Neo4j._**
+* Format Cypher and EBNF for readability.
+
+* Write one sentence per line.
+====
+
+[abstract]
+.Abstract
+--
+This is a high-level summary of the aim and description of the CIP.
+--
 
 toc::[]
 
-== Abstract
-
-This is a high-level summary of the aim and description of the CIP.
 
 == Motivation
 
@@ -40,30 +51,31 @@ This comprises the detail of the CIP, and is divided into the sub-sections below
 
 For each aspect of the proposed feature(s), provide at least one Cypher example query to show how the feature is envisaged to work, along with explanatory text.
 
-*_Example:_* +
-_Find all persons whose name starts with "And"._
+_An example of this is shown below:_
 
+[source, cypher]
+.Find all persons whose name starts with "And"
 ----
 MATCH (a:Person) WHERE a.name STARTS WITH “And”
 RETURN a
 ----
 
-_Find all persons whose name starts with the parameter prefix._
-
+[source, cypher]
+.Find all persons whose name starts with the parameter prefix
 ----
 MATCH (a:Person) WHERE a.name STARTS WITH {prefix}
 RETURN a
 ----
 
-_Find all persons whose name ends with "fan"._
-
+[source, cypher]
+.Find all persons whose name ends with "fan"
 ----
 MATCH (a:Person) WHERE a.name ENDS WITH "fan"
 RETURN a
 ----
 
-_Find all books whose isbn in string form contains "007"._
-
+[source, cypher]
+.Find all books whose isbn in string form contains "007"
 ----
 MATCH (b:Book) WHERE toString(b.isbn) CONTAINS "007"
 RETURN a
@@ -73,9 +85,10 @@ RETURN a
 
 Provide the full range of syntactic additions and modifications in EBNF (https://en.wikipedia.org/wiki/Extended_Backus-Naur_Form) format, along with explanatory text.
 
-*_Example:_* +
-_Extend expressions to support string search operators:_
+_An example of this is shown below:_
 
+[source, ebnf]
+.Extend expressions to support string search operators
 ----
 expression    = current definition of expression
               | string-search
@@ -90,27 +103,31 @@ contains      = expression, "CONTAINS" expression ;
 === Semantics
 
 Provide a description of the expected semantics of the new feature(s).
+Use subheadings to structure the content.
 
-*_Example:_* +
-_STARTS WITH_
+_Examples are shown below in sections 3.3.1–3.3.3:_
 
-_Using `lhs STARTS WITH rhs` requires both `lhs` and `rhs` to be strings. This new expression evaluates to true if `lhs` textually starts with `rhs`. Otherwise, it is false._
+==== STARTS WITH
 
-_ENDS WITH_
+Using `lhs STARTS WITH rhs` requires both `lhs` and `rhs` to be strings. This new expression evaluates to true if `lhs` textually starts with `rhs`. Otherwise, it is false.
 
-_Using `lhs ENDS WITH rhs` requires both `lhs` and `rhs` to be strings. This new expression evaluates to true if `lhs` textually ends with `rhs`. Otherwise, it is false._
+==== ENDS WITH
 
-_CONTAINS_
+Using `lhs ENDS WITH rhs` requires both `lhs` and `rhs` to be strings. This new expression evaluates to true if `lhs` textually ends with `rhs`. Otherwise, it is false.
 
-_Using `lhs CONTAINS rhs` requires both `lhs` and `rhs` to be strings. This new expression evaluates to true if `lhs` textually contains `rhs`. Otherwise, it is false._
+==== CONTAINS
 
-_If any argument to `STARTS WITH`, `ENDS WITH`, or `CONTAINS` is NULL, then the result of evaluating the whole predicate is NULL._
+Using `lhs CONTAINS rhs` requires both `lhs` and `rhs` to be strings.
+This new expression evaluates to true if `lhs` textually contains `rhs`.
+Otherwise, it is false.
 
-_It is a type error to use `STARTS WITH`, `ENDS WITH`, or `CONTAINS` with a value that is not a string._
+If any argument to `STARTS WITH`, `ENDS WITH`, or `CONTAINS` is `NULL`, then the result of evaluating the whole predicate is `NULL`.
+
+It is a type error to use `STARTS WITH`, `ENDS WITH`, or `CONTAINS` with a value that is not a string.
 
 === Interaction with existing features
 
-Detail any interactions which need to be considered.
+Provide details on any interactions that need to be considered.
 
 === Alternatives
 
@@ -120,7 +137,8 @@ List any alternatives here; e.g. new keywords, a smaller feature set etc.
 
 If applicable, include a feature comparison table, along with any useful links.
 
-To provide a well-rounded comparison, please ensure the inclusion of at least one SQL-based implementation - such as DB2 or Postgres - as well as SPARQL. If you require any assistance or pointers to the latter, please contact petra.selmer@neotechnology.com.
+To provide a well-rounded comparison, please ensure the inclusion of at least one SQL-based implementation -- such as DB2 or Postgres -- as well as SPARQL.
+If you require any assistance or pointers to the latter, please contact petra.selmer@neotechnology.com.
 
 == Benefits to this proposal
 
@@ -128,7 +146,8 @@ List the benefits here.
 
 == Caveats to this proposal
 
-List any caveats here. These may include omissions, reasons for non-conformance with other features and so on.
+List any caveats here.
+These may include omissions, reasons for non-conformance with other features and so on.
 
 == Appendix
 
