@@ -1,7 +1,7 @@
 :numbered:
 :toc:
 :toc-placement: macro
-
+:source-highlighter: pygments
 
 = CIP2015-09-16
 Public Type System & Type Annotation
@@ -35,43 +35,43 @@ Below we list all currently supported types together with the proposed type lite
 ==== Types
 Cypher currently supports values with the following types:
 
- * +ANY+
+ * `ANY`
  ** Supertype to all other types
- * +BOOLEAN+
+ * `BOOLEAN`
  ** true and false
- * +INTEGER+
+ * `INTEGER`
  ** Exact numbers without decimals, i.e. -3, 0, 4
- * +FLOAT+
+ * `FLOAT`
  ** IEEE-754 64-bit floating point numbers
- * +IDENTITY+
+ * `IDENTITY`
  ** Identities are considered part of the current type system (since the +++<u>Identity type CIP</u>+++ has been accepted), even though it has not been implemented at the time of writing this CIP
- * +MAP+
+ * `MAP`
  ** Maps to values of any type, i.e. { name: "Svensson" }. Note that keys are identifiers, not strings.
- ** This is also the supertype for NODE and RELATIONSHIP
- * +LIST<T>+
+ ** This is also the supertype for `NODE` and `RELATIONSHIP`
+ * `LIST<T>`
  ** Lists (ordered sequences with random access) of a given type T
- ** LIST<T1> is a subtype of LIST<T2> if T1 is a subtype of T2.. This works since values in Cypher are immutable. Adding an element of type T to a LIST<S> would produce a new list of type LIST<R>, where R is the nearest common supertype of T and S
- * +NODE+
+ ** `LIST<T1>`` is a subtype of `LIST<T2>`` if `T1` is a subtype of `T2`. This works since values in Cypher are immutable. Adding an element of type `T` to a `LIST<S>`` would produce a new list of type `LIST<R>``, where `R` is the nearest common supertype of `T` and `S`
+ * `NODE`
  ** Nodes are maps that have labels and relationships
- * +STRING+
- ** Unicode Strings, i.e. "Cypher", and ‘text’
- * +RELATIONSHIP+
+ * `STRING`
+ ** Unicode Strings, i.e. `"Cypher"`, and `‘text’`
+ * `RELATIONSHIP`
  ** Relationships are maps that have a type and end points
- * +PATH+
+ * `PATH`
  ** List of alternating nodes and relationships
- * +NUMBER+
- ** Supertype to both INTEGER and FLOAT
- * +DATETIME+
- ** An instant capturing the date, the time, and the timezone. More information about the various temporal types, see the +++<u>CIP20150806 - Date and Time</u>+++
- * +LOCALDATETIME+
+ * `NUMBER`
+ ** Supertype to both `INTEGER` and `FLOAT`
+ * `DATETIME`
+ ** An instant capturing the date, the time, and the timezone. More information about the various temporal types, see the _CIP20150806 - Date and Time_
+ * `LOCALDATETIME`
  ** An instant capturing the date and the time, but not the time zone.
- * +DATE+
+ * `DATE`
  ** An instant capturing the date, but not the time, nor the time zone.
- * +LOCAL++DATE+
+ * `LOCALDATE`
  ** An instant capturing the date, but not the time, nor the time zone.
- * +LOCALTIME+
+ * `LOCALTIME`
  ** An instant capturing the time of day, but not the date, nor the time zone.
- * +D++URATION+
+ * `DURATION`
  ** A temporal amount. This captures the difference in time between two instants. It only captures the amount of time between two instants, it does not capture a start time and end time. A unit capturing the start time and end time would be a _Time Interval_ and is out of scope for this proposal.
 
 Note that NULL is not a type but a value that inhabits every type.
@@ -79,13 +79,17 @@ Note that NULL is not a type but a value that inhabits every type.
 ==== Type Annotation
 To specify the type type of a term term in future changes to the Cypher grammar, this CIP proposes using the following syntax
 
-	_term_ :: _type_
+[source, ebnf]
+----
+	term :: type
+----
 
 ==== Type Literal Use Outside of Annotations
 Type literals could be used in other production rules as well where this is considered more readable by future CIPs (e.g. a type test operator expr IS NUMBER).
 
 === 3.2 Syntax
 
+[source, ebnf]
 ----
 type = scalar type
      | container type
@@ -114,6 +118,7 @@ container type	= "LIST", "<", type, ">";
 
 type annotation = "::", type ;
 ----
+
 === Semantics
 This CIP only provides syntax for future CIPs, it does not directly change Cypher and therefore does not change semantics.
 
@@ -125,29 +130,31 @@ This CIP adds the following new keywords for all type names. It is expected that
 === Alternatives
 As part of writing this CIP, many syntax alternatives have been considered:
 
- * Alternative name for the STRING type: TEXT, UNICODE, LIST<CHAR>
- * Alternative name for the LIST type: ARRAY, COLLECTION, SEQUENCE, VECTOR
- * Alternative syntax for type parameters: LIST OF T, LIST[T], LIST<T>, LIST T
- * Alternative syntax for type annotations: (STRING) expr, STRING expr, expr: T
+* Alternative name for the `STRING` type: `TEXT`, `UNICODE`, `LIST<CHAR>`
+* Alternative name for the `LIST` type: `ARRAY`, `COLLECTION`, `SEQUENCE`, `VECTOR`
+* Alternative syntax for type parameters: `LIST OF T`, `LIST[T]`, `LIST<T>`, `LIST T`
+* Alternative syntax for type annotations: `(STRING) expr`, `STRING expr`, `expr: `T`
 
 == What others do
 === SQL
 SQL column types are given after the name of the column with no extra punctuation. For example:
-----
 
+[source,sql]
+----
 id INTEGER
 name VARCHAR(40)
-
 ----
+
 The SQL standard has adopted the following syntax for casting or converting values:
 
-	CAST ( <expr> AS <type> )
+	   CAST ( <expr> AS <type> )
 
 There are some variations in how different implementations support casting. This is detailed below.
 
 ==== PostgreSQL
 Casting in PostgreSQL can be achieved by using cast functions in addition to the AS keyword:
 
+[source,sql]
 ----
 CREATE CAST (source_type AS target_type)
 	WITH FUNCTION function_name (argument_type [, ...])
@@ -155,13 +162,15 @@ CREATE CAST (source_type AS target_type)
 
 SELECT CAST(42 AS float8);
 ----
+
 ==== MSSQL
 MSSQL uses a similar notation to PostgreSQL for casting:
 
-+CAST ( expression AS data_type [ ( length ) ] )+
+      CAST ( expression AS data_type [ ( length ) ] )
 
 In addition, similar CONVERT and PARSE functions exist:
 
+[source,sql]
 ----
 CONVERT ( data_type [ ( length ) ] , expression [ , style ] )
 PARSE ( string_value AS data_type [ USING culture ] )
@@ -169,21 +178,22 @@ PARSE ( string_value AS data_type [ USING culture ] )
 
 Function type annotations use a similar syntax to column definitions:
 
-CREATE FUNCTION [dbo].[foo] ( @myNumber INTEGER )
+     CREATE FUNCTION [dbo].[foo] ( @myNumber INTEGER )
 
 === SPARQL
 SPARQL is based on the type system from RDF and XML schema and provides functionality for type testing and conversion. It also supports annotating strings with a language.
- * Use in casts: FILTER(xsd:integer(?time) > 1291908000)
- * Use in type tests: FILTER (datatype(?o)=xsd:datetime)
- * Use in triplet data: <subject> <predicate> "42"^^xsd:integer .
- * Use in literals: "42"^^<+++<u>http://www.w3.org/2001/XMLSchema#integer</u>+++>
- * Language annotated text: "cat"@en
+
+ * Use in casts: `FILTER(xsd:integer(?time) > 1291908000)`
+ * Use in type tests: `FILTER (datatype(?o)=xsd:datetime)`
+ * Use in triplet data: `<subject> <predicate> "42"^^xsd:integer .`
+ * Use in literals: `"42"^^http://www.w3.org/2001/XMLSchema#integer`
+ * Language annotated text: `"cat"@en`
 
 == Benefits to this proposal
 
- * Explicit type syntax allows us to specify the types of arguments and return values in signatures of user defined procedures
- * With further extensions it would enable users of Cypher to be more explicit about the types of values which is beneficial for error reporting, planning, performance, and query readability
- * This allows us to define clear requirements for PackStream serialisation
+* Explicit type syntax allows us to specify the types of arguments and return values in signatures of user defined procedures
+* With further extensions it would enable users of Cypher to be more explicit about the types of values which is beneficial for error reporting, planning, performance, and query readability
+* This allows us to define clear requirements for PackStream serialization
 
 == Caveats to this proposal
 
@@ -191,57 +201,59 @@ Adding explicit syntax for types may lead to a more complex and difficult to lea
 
 == Audience Consultation
 
-Communication with external stakeholders should happen as part of the consultation process for +++<u>CIP2015-06-24 Managing Procedures</u>+++.
+Communication with external stakeholders should happen as part of the consultation process for _CIP2015-06-24 Managing Procedures_.
 
 == References
 
- * Wikipedia on +++<u>type systems</u>+++
- * +++<u>CypherType</u>+++ and +++<u>symbols package object</u>+++ in the implementation
- * SPARQL and SQL standards
+* Wikipedia on _type systems_
+* CypherType and symbols package object in the Neo4j implementation
+* SPARQL and SQL standards
 
 == Appendix
 
 This appendix captures the discussion around type syntax that was part of creating this CIP. It is informative only and not part of the proposal. It merely documents the authors’ ideas for future use of types in Cypher.
 
-=== Appendix A: Internal vs public types
+=== Internal vs public types
 We distinguish between internal types and public types to minimize mental overhead and simplify language mapping. Internal types are tracked by the type checking algorithm. They may contain more sophisticated static analysis information such as nullability, which properties exist on a node, or alternative types for a value (union types). A Cypher user commonly should not be required to be aware of internal types though they may influence behaviour or become visible in error messages. Public types contain less information than internal types. They can be specified in type annotations and there should exist straightforward mappings between the public type system and type systems of target languages of officially supported drivers and the store.
 
 The diagram below gives an overview on the various concepts around the Cypher type system and how they relate to each other as seen by this CIP.
 
-=== Appendix B: Type mapping
+image:CIP2015-09-16-public-type-system-overview.png[Public Type System Overview]
+
+=== Type mapping
 The issue of mapping types from the public type system to other type systems (such as Java, JavaScript or PackStream) is not the concern of this document. While still requiring clear definition, such mapping definitions are not a Cypher language concern.
 
-=== Appendix C: Type aliases
+=== Type aliases
 Some of the type names are very long and thus could be somewhat difficult to type, and perhaps even read in longer function signatures. Introducing a set of predefined and perhaps user defined type aliases, such as REL for RELATIONSHIP might be a remedy to this issue.
 
-=== Appendix D: Possible future use of type syntax
+=== Possible future use of type syntax
 
 ==== Type annotations in declarations and definitions
 It may be helpful to extend definitions that introduce new identifiers (WITH, RETURN) or signatures in procedure declarations with type annotations for improved type checking, planning, and possibly code generation.
 
-*Example* +
-+RETURN expr AS a :: NUMBER+
+*Example*
+`RETURN expr AS a :: NUMBER`
 
 ==== Type ascription ("safe upcast")
 A type ascription annotates an expression with a type such that casting the value at runtime to the given type cannot fail. This may be useful (and in fact is used by Scala for example) to control what types are inferred by a type inferencing algorithm during semantic checking.
 
-*Example* +
-RETURN [1.0, 2.3, 3.0] :: LIST<NUMBER>
+*Example*
+`RETURN [1.0, 2.3, 3.0] :: LIST<NUMBER>`
 
 ==== Type cast ("unsafe downcast")
 Beyond type ascription, a type cast asserts a specific type for an expression such that it cannot be verified at compile time if evaluating that expression will always produce a value of the target  type. Hence type casts may fail at runtime.
 
-*Example* +
-+RETURN ++CAST++ n.prop :: NUMBER+
+*Example*
+`RETURN CAST n.prop :: NUMBER`
 
 ==== Type tests
 Additionally it may be practical to test the type of a value at runtime.
 
-*Example* +
-+RETURN n.prop IS [NOT] NUMBER+
+*Example*
+`RETURN n.prop IS [NOT] NUMBER`
 
 ==== Union Type Support
 Cypher's current type checker tracks sets of possible types for expressions. This could be understood as a form of union typing. Union types do not map easily to the type systems of most common target languages (Java, Javascript, ...), they complicate type checking, and are not required for the work on remoting. This is why they have not been included in this proposal. They could be added instead at a later stage.
 
-*Example* +
-+RETURN [1, "Yo"] :: LIST<STRING | NUMBER>+
+*Example*
+`RETURN [1, "Yo"] :: LIST<STRING | NUMBER>`
