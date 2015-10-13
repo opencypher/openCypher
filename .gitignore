@@ -2,3 +2,5 @@
 \#*
 *.bak
 *.html
+.idea
+.DS_Store
