@@ -14,8 +14,6 @@
 
 * The file naming convention is _CIP<CCYY>-<MM>-<DD>-short-title-words.adoc_.
 
-* Label the pull request for the CIP with the correct Cypher vocabulary(ies).
-
 * The CIP may only consider Cypher language features.
   This means the CIP must make no mention of Neo4j.
 
