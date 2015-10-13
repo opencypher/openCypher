@@ -45,9 +45,9 @@ CREATE (a)-[:KNOWS]->(b)
 ----
 
 [source, cypher]
-.Create two nodes and one relationship between them.
+.Create two nodes, one relationship between them, and sets one property on the relationship.
 ----
-CREATE (me:Source), (you:Destination), (you)<-[:LOVES]-(me)
+CREATE (me:Source), (you:Destination), (you)<-[:LOVES { dearly: true }]-(me)
 ----
 
 [source, cypher]
@@ -64,6 +64,17 @@ SET n = map
 ----
 CREATE (:Cat {catProps})
 CREATE (:Dog {dogProps})
+----
+
+[source, cypher]
+.Create three nodes, connect them with two relationships and return the whole pattern as a path.
+----
+CREATE (andres { name: 'Andres' })
+CREATE (neo)
+CREATE (michael { name: 'Michael' })
+CREATE (andres)-[r1:WORKS_AT]->(neo)
+CREATE (michael)-[r2:WORKS_AT]->(neo)
+RETURN (andres)-[r1]->(neo)<-[r2]-(michael) AS p
 ----
 
 === Syntax
@@ -94,16 +105,19 @@ Each `CREATE` will create exactly one node or one relationship between two pre-e
 
 This proposal drops some functionality around how we handle creating nodes and relationships:
 
-- `CREATE (a {param})` where `{param}` is a list of maps where one node is created for each item  of the list.
-We propose to remove this usage.
+- `CREATE (a {param})` where `{param}` is a list of maps where one node is created for each item in the list.
+See the example with `UNWIND` above for a way to achieve the same behavior.
 
 - `CREATE (a:L {prop: 42})-[:R]->(b:B)` where both nodes and relationships are created from the same pattern.
 With this proposal one would have to be more specific and write `CREATE (a:L {prop:42}), (b:B), (a)-[:R]->(b)`.
 
+- `CREATE p = (andres { name: 'Andres' })-[:WORKS_AT]->(neo)<-[:WORKS_AT]-(michael { name:'Michael' }) RETURN p`, where a full path is created and returned.
+See the final example above for how to achieve the same behaviour.
+
 We believe that the implicit creation of nodes when specifying a relationship pattern is causing more complexity than whatever benefit it provides to the user, and thus forcing the user to be specific about what to create will benefit both users and implementors of Cypher.
 
 === Alternatives
-The main alternative is to leave the functionality the way it is in Neo4j versions prior to 3.0.
+The main alternative is to leave the functionality the way it is in Cypher versions prior to 3.0.
 
 == What others do
 
@@ -117,8 +131,3 @@ Since `CREATE` already exists in the language, this CIP doesn't introduce any ne
 Hopefully this will enable us to clearly specify the behavior we want `CREATE` to have.
 A formal document such as this one could be of good value for a future language specification effort.
 The ideas we present to constrain the `CREATE` syntax could also become valuable changes to the language in being slightly more restrictive and thus slightly easier to understand.
-
-== Caveats to this proposal
-
-Not all syntax changes will have time to become deprecated in Cypher 2.3.0, but will have to be deprecated in a 2.3.x release.
-This may or may not cause disturbance for users.
