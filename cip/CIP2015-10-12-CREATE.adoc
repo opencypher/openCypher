@@ -16,8 +16,7 @@ toc::[]
 
 == Motivation & Background
 `CREATE` is how nodes and relationships are created in Cypher.
-The syntax has been around since the very beginning of Cypher but never properly formalized.
-With 3.0 on the horizon we want to make sure `CREATE` fits with the rest of the language, and make sure it is future proof.
+The syntax has been around since Cypher 1.7 but never properly formalized.
 
 == Proposal
 
@@ -122,7 +121,8 @@ See the final example above for how to achieve the same behaviour.
 We believe that the implicit creation of nodes when specifying a relationship pattern is causing more complexity than whatever benefit it provides to the user, and thus forcing the user to be specific about what to create will benefit both users and implementors of Cypher.
 
 === Alternatives
-The main alternative is to leave the functionality the way it is in Cypher versions prior to 3.0.
+This is a retroactive CIP.
+`CREATE` already exists in the language.
 
 == What others do
 
@@ -132,7 +132,5 @@ The main alternative is to leave the functionality the way it is in Cypher versi
 
 == Benefits to this proposal
 
-Since `CREATE` already exists in the language, this CIP doesn't introduce any new features, the goal is rather to send `CREATE` through a formalization process.
-Hopefully this will enable us to clearly specify the behavior we want `CREATE` to have.
-A formal document such as this one could be of good value for a future language specification effort.
-The ideas we present to constrain the `CREATE` syntax could also become valuable changes to the language in being slightly more restrictive and thus slightly easier to understand.
+This is a retroactive CIP, and proposes no new features.
+The purpose of this proposal is this very CIP, formalizing what we want `CREATE` to be.
