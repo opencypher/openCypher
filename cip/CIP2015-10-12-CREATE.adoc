@@ -21,7 +21,12 @@ With 3.0 on the horizon we want to make sure `CREATE` fits with the rest of the 
 
 == Proposal
 
-`CREATE` will in a lot of aspects work as it does in the current implementation, but this proposal cleans the `CREATE` syntax up a bit.
+`CREATE` is used to create new nodes and relationships into the graph, as well as set initial labels, type, and properties on the new entities.
+The idea is to let each `CREATE` represent exactly one creation of either a node or a relationship, but allow a few variations on how to structure the query for convenience.
+`CREATE` will be allowed to both start and end a query, requiring an additional `WITH` clause to allow further `MATCH` reads after it, and producing an empty result if it ends the query.
+`MATCH` clauses that come after a `CREATE` clause must be able to see and possibly match _all_ entities created by the `CREATE`; not only those created for the same row.
+
+A `CREATE` will always succeed unless it specifically violates some constraint already present in the database.
 
 === Examples
 
