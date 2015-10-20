@@ -1,0 +1,6 @@
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
+
+= The Cypher Improvement Process
+
+Improvements to the Cypher query language are managed through documents describing each feature of the language.
+Such a document is called a _Cypher Improvement Proposal_, or _CIP_ for short.
