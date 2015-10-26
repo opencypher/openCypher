@@ -1,39 +1,55 @@
+= CIP2015-06-16 - Public Type System and Type Annotations
 :numbered:
 :toc:
 :toc-placement: macro
-:source-highlighter: pygments
+:source-highlighter: codemirror
 
-= CIP2015-09-16
-Public Type System & Type Annotation
+*Author:* Stefan Plantikow <stefan.plantikow@neotechnology.com
+*Author:* Nigel Small <nigel.small@neotechnology.com
 
-*Authors:*
-
-Nigel Small <nigel@neotechnology.com> +
-Stefan Plantikow <stefan.plantikow@neotechnology.com>
-
-toc::[]
-
-== Abstract
+[abstract]
+.Abstract
 
 This CIP specifies the public part of the type system of Cypher and introduces literal syntax for writing down types as well as new syntax for type annotations. The proposed type annotation syntax does not change the Cypher grammar right now but rather is intended as a template to be used by future CIPs. This CIP also informatively discusses future syntax that might use the introduced literal type syntax.
 
+toc::[]
+
 == Introduction
+
 === Background and Motivation
-In order to support currently ongoing work for allowing users to define _procedures_ and _functions_ that interact with Cypher, it has become necessary to specify types explicitly, especially as part of procedure and function signatures. It is thus necessary to at least introduce syntax for all valid, supported public types as well as syntax for type ascription.
+
+Cypher today has an undocumented internal type system. In the interest of Cypher standardization and to enable multiple
+semantically consistent implementations, it is necessary to specify and document that type system.
+
+Furthermore, in order to support currently ongoing work for allowing users to define _stored procedures_, it has become
+necessary to specify types explicitly within signatures. This will help with the following:
+
+* In any interaction with an external language, type mapping between the external language and Cypher is necessary. Any
+such type mapping must rest on a well defined type system for Cypher in order to be consistent across different
+implementations. This applies to interaction via an external language supported by the implementation, as well as
+interaction via a remote protocol.
+* To call user defined procedures from within a larger Cypher query the planner needs to know static type signatures to generate efficient plans.
+* Statically typed signatures enable implementations to detect possible errors at query compilation time.
+* Statically typed signatures also enable added support for overloading in the future.
+
+To support these goals, it is necessary to at least introduce syntax for all valid, supported public types as well as syntax for type annotation.
 
 === Overview
 For the purposes of this CIP, a type system is a system of classifying expressions according to what kinds of values they may evaluate to during the execution of a Cypher query. It does *not *include a specification of a type inferencing and checking algorithm for Cypher queries.
 
-Cypher today has a rich type system that unifies Java implementation types into a coherent type hierarchy and an accompanying type checker that supports rich types with generics and type unions. So far it has not been possible to explicitly specify the type of an expression in a query.
+Cypher today has a rich type system that unifies Java implementation types into a coherent type hierarchy and an accompanying type checker that supports rich types with type parameters and union types. So far it has not been possible to explicitly specify the type of an expression in a query.
 
 This CIP proposes to introduce syntax for type literals and for type annotations.
 
 == 3. Proposal
-=== Types and Type Literal Syntax
-Below we list all currently supported types together with the proposed type literal syntax (in *[]*)
 
-==== Types
-Cypher currently supports values with the following types:
+=== Types and Type Literal Syntax
+
+The sections below list all types available at the time of acceptance of this CIP.
+
+==== Core Types
+
+The following should available from any implementation of Cypher
 
  * `ANY`
  ** Supertype to all other types
@@ -43,8 +59,6 @@ Cypher currently supports values with the following types:
  ** Exact numbers without decimals, i.e. -3, 0, 4
  * `FLOAT`
  ** IEEE-754 64-bit floating point numbers
- * `IDENTITY`
- ** Identities are considered part of the current type system (since the +++<u>Identity type CIP</u>+++ has been accepted), even though it has not been implemented at the time of writing this CIP
  * `MAP`
  ** Maps to values of any type, i.e. { name: "Svensson" }. Note that keys are identifiers, not strings.
  ** This is also the supertype for `NODE` and `RELATIONSHIP`
@@ -61,8 +75,13 @@ Cypher currently supports values with the following types:
  ** List of alternating nodes and relationships
  * `NUMBER`
  ** Supertype to both `INTEGER` and `FLOAT`
+
+ === Date and Time Types
+
+The following should available from any implementation of Cypher in accordance with _CIP2015-08-06 - Date and Time_.
+
  * `DATETIME`
- ** An instant capturing the date, the time, and the timezone. More information about the various temporal types, see the _CIP20150806 - Date and Time_
+ ** An instant capturing the date, the time, and the timezone.
  * `LOCALDATETIME`
  ** An instant capturing the date and the time, but not the time zone.
  * `DATE`
@@ -74,9 +93,25 @@ Cypher currently supports values with the following types:
  * `DURATION`
  ** A temporal amount. This captures the difference in time between two instants. It only captures the amount of time between two instants, it does not capture a start time and end time. A unit capturing the start time and end time would be a _Time Interval_ and is out of scope for this proposal.
 
-Note that NULL is not a type but a value that inhabits every type.
+=== Reserved type names
+
+In addition to the types above, the following type names are reserved by this CIP for future use: `IDENTITY`, `POINT`.
+
+=== Nullability
+
+TODO: DECIDE ON WHERE TO PUT "?"
+
+The type system also provides a way to track nullability, i.e. a type may express if a given expression may be `NULL` or not:
+
+* Non-nullable types are all types that do not permit `NULL` as a valid result of evaluating the underlying expression.
+  All types specified above are non-nullable types.
+* Nullable types are all types that permit `NULL` as a valid result of evaluating the underlying expression.
+  Nullable types are formed by prefixing/suffixing a non-nullable type with a question mark.
+
+Note that `NULL` is not a type but a value that inhabits every nullable type.
 
 ==== Type Annotation
+
 To specify the type type of a term term in future changes to the Cypher grammar, this CIP proposes using the following syntax
 
 [source, ebnf]
@@ -85,6 +120,7 @@ To specify the type type of a term term in future changes to the Cypher grammar,
 ----
 
 ==== Type Literal Use Outside of Annotations
+
 Type literals could be used in other production rules as well where this is considered more readable by future CIPs (e.g. a type test operator expr IS NUMBER).
 
 === 3.2 Syntax
@@ -93,30 +129,33 @@ Type literals could be used in other production rules as well where this is cons
 ----
 type = scalar type
      | container type
+     | optional type
      ;
 
-primitive type 	= "ANY"
-                | "BOOLEAN"
-                | "INTEGER"
-                | "FLOAT"
-                | "IDENTITY"
-                | "MAP"
-                | "NODE"
-                | "STRING"
-                | "RELATIONSHIP"
-                | "PATH"
-                | "NUMBER"
-                | "DATETIME"
-                | "LOCALDATETIME"
-                | "DATE"
-                | "LOCALDATE"
-                | "LOCALTIME"
-                | "DURATION”
-                ;
+optional type = "?", type;
+
+scalar type 	= "ANY"
+              | "BOOLEAN"
+              | "INTEGER"
+              | "FLOAT"
+              | "IDENTITY"
+              | "MAP"
+              | "NODE"
+              | "STRING"
+              | "RELATIONSHIP"
+              | "PATH"
+              | "NUMBER"
+              | "DATETIME"
+              | "LOCALDATETIME"
+              | "DATE"
+              | "LOCALDATE"
+              | "LOCALTIME"
+              | "DURATION”
+              ;
 
 container type	= "LIST", "<", type, ">";
 
-type annotation = "::", type ;
+type annotation = term, "::", type ;
 ----
 
 === Semantics
@@ -128,14 +167,20 @@ The intended use of type annotations is that they express that the annotated ter
 This CIP adds the following new keywords for all type names. It is expected that these type name keywords are only valid in specific contexts in the grammar (mostly in type annotations but also possibly in operators). The likelihood of conflict with existing (or future) production rules is therefore minimal.
 
 === Alternatives
-As part of writing this CIP, many syntax alternatives have been considered:
+
+==== Type Literal Syntax
+As part of writing this CIP, many syntax alternatives have been considered for type literal syntax:
 
 * Alternative name for the `STRING` type: `TEXT`, `UNICODE`, `LIST<CHAR>`
 * Alternative name for the `LIST` type: `ARRAY`, `COLLECTION`, `SEQUENCE`, `VECTOR`
 * Alternative syntax for type parameters: `LIST OF T`, `LIST[T]`, `LIST<T>`, `LIST T`
 * Alternative syntax for type annotations: `(STRING) expr`, `STRING expr`, `expr: `T`
 
+=== Type Annotation Syntax
+
+
 == What others do
+
 === SQL
 SQL column types are given after the name of the column with no extra punctuation. For example:
 
@@ -256,4 +301,4 @@ Additionally it may be practical to test the type of a value at runtime.
 Cypher's current type checker tracks sets of possible types for expressions. This could be understood as a form of union typing. Union types do not map easily to the type systems of most common target languages (Java, Javascript, ...), they complicate type checking, and are not required for the work on remoting. This is why they have not been included in this proposal. They could be added instead at a later stage.
 
 *Example*
-`RETURN [1, "Yo"] :: LIST<STRING | NUMBER>`
+`RETURN [1, "Yo"] :: LIST<STRING> | LIST<NUMBER>`
