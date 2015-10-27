@@ -1,0 +1,162 @@
+= CIP2015-05-13 - EXISTENTIAL SUBQUERIES
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Authors:* Andrés Taylor <andres@neotechnology.com>
+
+
+[abstract]
+.Abstract
+--
+This CIP introduces EXISTS, a general function that can test for the existence of properties, simple patterns and full subqueries.
+--
+
+toc::[]
+
+== Background
+
+In a way, Cypher already has existential subqueries - pattern predicates allow checking for the existence of subgraphs. This form is helpful, but not exhaustive in the forms of subqueries that users want to be able to express.
+
+== Proposal
+
+To make this feature more powerful, add a new EXISTS-function, that would exist in two forms:
+ . Property existence checking
+ . Subquery existence checking
+
+=== Syntax
+
+----
+expression = …
+           | property exists
+           | subquery exists
+           | simple subquery exists
+            ;
+
+property exists = "EXISTS", "(", expression, ".", identifier ")"
+                | "EXISTS", "(", expression, "[", expression, "]", ")"
+                ;
+
+subquery exists = "EXISTS", "{", read only clause, { read only clause }, "}" ;
+
+simple subquery exists = "EXISTS", "{", simple match, "}" ;
+
+simple match = pattern, { ",", pattern }, [ "WHERE", predicate ] ;
+
+----
+Note: the read-only clause above includes WITH but not RETURN.
+
+=== Semantics
+
+All forms of +EXIST(...)+ accomplish the same task - check if a particular pattern exists in the database.
+They are expressions, and as such must be side-effect free. That is, the subqueries in +EXIST+ must not be updating queries.
+
+==== Property exists
+
+In the property checking form, either an identifier or a string expression is used to represent the property key name. If the node/relationship returned has a property with the given name, the +EXISTS(...)+ expression should return true, otherwise it should return false. If the node/relationship expression returns a null value, the +EXISTS(...)+ expression should return null as well.
+
+This form of +EXISTS+ replaces the pre-existing +has(...)+ function.
+
+==== Subquery exists
+Identifiers and parameters from the outer query are available in the subquery. Identifiers introduced in the subquery are not available on the outside.
+
+For each matching subgraph evaluated with +EXISTS(...)+, the result value must be true if the subquery finds at least one matching row. If no matches are found, false should be returned.
+
+Regarding nomenclature, +EXISTS(...)+ is a scalar expression - it returns a single boolean value.
+
+==== Simple subquery exists
+When the subquery can be described with a single +MATCH-WHERE+ clause, the +MATCH+ keyword can be omitted.
+
+=== Examples
+_Example 1A:_
+
+Return all nodes that have a property named slogan.
+[source, cypher]
+----
+MATCH (actor)
+WHERE EXISTS(actor.slogan)
+RETURN actor
+----
+
+_Example 1B:_
+[source, cypher]
+----
+MATCH (actor)
+WHERE EXISTS(actor["slogan"])
+RETURN actor
+----
+
+
+_Example 2A:_
+
+Find all actors who have acted together with another actor with the same name.
+
+[source, cypher]
+----
+MATCH (actor:Actor)
+WHERE EXISTS {
+	(other:Actor)-[:ACTED_IN]->(movie)<-[:ACTED_IN]-(actor)
+	WHERE other.name = actor.name
+}
+RETURN actor
+----
+
+_Example 2B:_
+
+Find all actors who have acted together with another actor with the same name.  +
+
+[source, cypher]
+----
+MATCH (actor:Actor)
+WHERE EXISTS {
+	MATCH (other:Actor)-[:ACTED_IN]->(movie)<-[:ACTED_IN]-(actor)
+	WHERE other.name = actor.name
+}
+RETURN actor
+----
+
+=== Interaction with existing features
+This replaces the pre-existing +has(...)+ function.
+
+== What others do
+
+This is very similar to what SQL does with its EXISTS functionality.
+
+This is also very similar in syntax to what SPARQL does with its EXISTS functionality; the rules regarding identifiers are identical, and the inner query also takes a subquery as input.
+
+== Benefits to this proposal
+
+The existing pattern predicate functionality is very useful, but does not cover all cases.
+Pattern predicates do not allow for introducing identifiers, which makes some queries - such as the one below - difficult to express succinctly:
+
+[source, cypher]
+----
+MATCH (person:Person)
+WHERE EXISTS {
+  (person)-[:HAS_DOG]->(dog:Dog)
+  WHERE person.name = dog.name
+}
+RETURN person
+----
+
+This proposal also allows for powerful subqueries, for example using aggregation inside the EXISTS query.
+E.g. find all teams that have at least two members who have worked on successful projects.
+
+[source, cypher]
+----
+MATCH (team:Team)
+WHERE EXISTS {
+  MATCH (team)-[:HAS_MEMBER]->(member:Person)
+  WHERE EXISTS {
+	(member)-[:WORKED_ON]->(p:Project) WHERE p.successful
+  }
+  WITH team, count(*) AS numAPlayers
+  WHERE numAPlayers > 2
+}
+RETURN team
+----
+
+== Caveats to this proposal
+
+Subqueries are powerful constructs. As such they can be difficult to understand, and difficult for a query planner to get right.
