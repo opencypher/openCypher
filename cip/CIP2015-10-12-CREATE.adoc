@@ -10,6 +10,7 @@
 .Abstract
 --
 This proposal formalizes `CREATE` which is used in Cypher to create nodes and relationships.
+Please note that `CREATE UNIQUE` and `CREATE CONSTRAINT` are _not_ considered in this CIP.
 --
 
 toc::[]
@@ -20,7 +21,7 @@ The syntax has been around since Cypher 1.7 but never properly formalized.
 
 == Proposal
 
-`CREATE` is used to create new nodes and relationships into the graph, as well as set initial labels, type, and properties on the new entities.
+`CREATE` is used to add new nodes and relationships to the graph, as well as set initial labels, type, and properties on the new entities.
 The idea is to let each `CREATE` represent exactly one creation of either a node or a relationship, but allow a few variations on how to structure the query for convenience.
 `CREATE` will be allowed to both start and end a query, requiring an additional `WITH` clause to allow further `MATCH` reads after it, and producing an empty result if it ends the query.
 `MATCH` clauses that come after a `CREATE` clause must be able to see and possibly match _all_ entities created by the `CREATE`; not only those created for the same row.
@@ -63,7 +64,6 @@ SET n = map
 ----
 
 [source, cypher]
-// It seems the . operator doesn't allow multiple lines, and we want two sentences here.
 .Create two nodes with properties from two parameter maps. Parameter keys and values will be the same as those of the map.
 ----
 CREATE (:Cat {catProps})
@@ -118,7 +118,7 @@ With this proposal one would have to be more specific and write `CREATE (a:L {pr
 - `CREATE p = (andres { name: 'Andres' })-[:WORKS_AT]->(neo)<-[:WORKS_AT]-(michael { name:'Michael' }) RETURN p`, where a full path is created and returned.
 See the final example above for how to achieve the same behaviour.
 
-We believe that the implicit creation of nodes when specifying a relationship pattern is causing more complexity than whatever benefit it provides to the user, and thus forcing the user to be specific about what to create will benefit both users and implementors of Cypher.
+We believe that the implicit creation of nodes when specifying a relationship pattern is causing more complexity than any benefit provided to the user, and thus forcing the user to be specific about what to create will benefit both users and implementors of Cypher.
 
 === Alternatives
 This is a retroactive CIP.
