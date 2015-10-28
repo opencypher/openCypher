@@ -1,4 +1,4 @@
-= CIP20140109 - State visibility between clauses
+= CIP2015-10-27 - State visibility between clauses
 :numbered:
 :toc:
 :toc-placement: macro
@@ -9,7 +9,8 @@
 [abstract]
 .Abstract
 --
-This CIP tries to formalise how state changes behave while inside a Cypher query. Currently, because this is not explicit enough, the behaviour is implementation dependent.
+This CIP tries to formalise how state changes behave while inside a Cypher query.
+Currently, because this is not explicit enough, the behaviour is implementation dependent.
 --
 
 toc::[]
@@ -20,12 +21,16 @@ Some clauses can also do both - read the graph and write to it at the same time.
 
 To allow the user to understand what the outcome will be at an abstract, logical level, semantics for the visibility of these changes should be clear.
 
+Note:
+This is not about concurrency - even in a single user system this would need to be thought through and defined explicitly._
+
 === Proposal
-Each clause lives in its own state, which includes all the changes of clauses coming before it, including changes performed by itself, *but none of the changes made by clauses listed later in the query.*
+Each clause lives in its own state, which includes all the changes of clauses coming before it, including changes performed by itself,
+*but none of the changes made by clauses listed later in the query.*
 
 The semantical data flow here is such that each clause operates on the entire result set before passing control to any subsequent clause.
 
-Updates between UNION subqueries are also treated in a sequential manner.
+Updates between +UNION+ subqueries are also treated in a sequential manner.
 Therefore subqueries coming later will see updates from subqueries before, but not the other way around.
 
 ==== Examples
@@ -40,7 +45,7 @@ MATCH (a)
 CREATE ()
 ----
 
-.Example query 2
+.Example query 2:
 
 Given a database containing two nodes, and the following query,
 the sequence below describes a non-obvious query execution.
@@ -63,6 +68,19 @@ CREATE ()
 |`CREATE ()`|4|8|8|8
 |_Outcome_|*12 (2+2+8)*||*10*|*8*
 |===
+
+.Example query 3:
+In the following query, the +MATCH+ following the +UNION+ will find the nodes created before the +UNION+.
+
+[source,cypher]
+----
+CREATE (a:X)
+RETURN a AS column
+UNION
+MATCH (x:X)
+CREATE ()
+RETURN x as column
+----
 
 
 === Benefits to this proposal
