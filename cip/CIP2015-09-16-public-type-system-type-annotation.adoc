@@ -18,28 +18,33 @@ toc::[]
 
 === Background and Motivation
 
-Cypher today has an undocumented internal type system. In the interest of Cypher standardization and to enable multiple
-semantically consistent implementations, it is necessary to specify and document that type system.
+Cypher today has an undocumented internal type system.
+In the interest of Cypher standardization and to enable multiple semantically consistent implementations, it is necessary to specify and document that type system.
+Note that this is primarily an exercise of consolidation rather than exploration of the broadest type system we could support.
 
-Furthermore, in order to support currently ongoing work for allowing users to define _stored procedures_, it has become
-necessary to specify types explicitly within signatures. This will help with the following:
+Furthermore, in order to support currently ongoing work for allowing users to define _stored procedures_, it has become necessary to specify types explicitly within signatures.
+This will help with the following:
 
-* In any interaction with an external language, type mapping between the external language and Cypher is necessary. Any
-such type mapping must rest on a well defined type system for Cypher in order to be consistent across different
-implementations. This applies to interaction via an external language supported by the implementation, as well as
-interaction via a remote protocol.
-* To call user defined procedures from within a larger Cypher query the planner needs to know static type signatures to generate efficient plans.
-* Statically typed signatures enable implementations to detect possible errors at query compilation time.
-* Statically typed signatures also enable added support for overloading in the future.
+* In any interaction with an external language, type mapping between the external language and Cypher is necessary.
+Any such type mapping must rest on a well defined type system for Cypher in order to be consistent across different implementations.
+This applies to interaction via an external language supported by the implementation, as well as interaction via a remote protocol.
+* To call user defined procedures from within a larger Cypher query the planner needs to know static type signatures in order to generate efficient plans.
+* Statically typed signatures enable implementations to detect possible type errors at query compilation time.
+* Statically typed signatures also allow us to add support for procedure overloading in the future.
 
 To support these goals, it is necessary to at least introduce syntax for all valid, supported public types as well as syntax for type annotation.
 
 === Overview
-For the purposes of this CIP, a type system is a system of classifying expressions according to what kinds of values they may evaluate to during the execution of a Cypher query. It does *not *include a specification of a type inferencing and checking algorithm for Cypher queries.
+For the purposes of this CIP, a type system is a system of classifying expressions according to what kinds of values they may evaluate to during the execution of a Cypher query.
+It does *not *include a specification of a type inferencing and checking algorithm for Cypher queries.
 
-Cypher today has a rich type system that unifies Java implementation types into a coherent type hierarchy and an accompanying type checker that supports rich types with https://en.wikipedia.org/wiki/TypeParameter[type parameters] and https://en.wikipedia.org/wiki/Union_type[union types]. So far it has not been possible to explicitly specify the type of an expression in a query.
+Cypher today has a rich type system that unifies Java implementation types into a coherent type hierarchy and an accompanying type checker that supports rich types with https://en.wikipedia.org/wiki/TypeParameter[type parameters] and https://en.wikipedia.org/wiki/Union_type[union types].
+So far it has not been possible to explicitly specify the type of an expression in a query.
 
-This CIP proposes to introduce syntax for type literals and for type annotations.
+This CIP proposes to introduce syntax for type literals and for type annotations for public types.
+Any implementation may choose to incorporate a set of internal types beyond those specified here.
+All such internal types must map cleanly onto the public type system and should generally not be made visible to end users.
+The details of internal types are out of scope for the purposes of this document.
 
 == Proposal
 
@@ -167,7 +172,9 @@ This CIP only provides syntax for future CIPs, it does not directly change Cyphe
 The intended use of type annotations is that they express that the annotated term either has, evaluates to, or is coerced to a value of the annotated type.
 
 === Interaction with existing features
-This CIP adds new keywords for all type names. It is expected that these type name keywords are only valid in specific contexts in the grammar (mostly in type annotations but also possibly in operators). The likelihood of conflict with existing (or future) production rules is therefore minimal.
+This CIP adds new keywords for all type names.
+It is expected that these type name keywords are only valid in specific contexts in the grammar (mostly in type annotations but also possibly in operators).
+The likelihood of conflict with existing (or future) production rules is therefore minimal.
 
 === Alternatives
 
@@ -229,7 +236,8 @@ Function type annotations use a similar syntax to column definitions:
      CREATE FUNCTION [dbo].[foo] ( @myNumber INTEGER )
 
 === SPARQL
-SPARQL is based on the type system from RDF and XML schema and provides functionality for type testing and conversion. It also supports annotating strings with a language.
+SPARQL is based on the type system from RDF and XML schema and provides functionality for type testing and conversion.
+It also supports annotating strings with a language.
 
  * Use in casts: `FILTER(xsd:integer(?time) > 1291908000)`
  * Use in type tests: `FILTER (datatype(?o)=xsd:datetime)`
@@ -241,11 +249,12 @@ SPARQL is based on the type system from RDF and XML schema and provides function
 
 * Explicit type syntax allows us to specify the types of arguments and return values in signatures of user defined procedures
 * With further extensions it would enable users of Cypher to be more explicit about the types of values which is beneficial for error reporting, planning, performance, and query readability
-* This allows us to define clear requirements for PackStream serialization
+* This allows clear requirements to be defined for serialization, particularly with respect to network protocols
 
 == Caveats to this proposal
 
-Adding explicit syntax for types may lead to a more complex and difficult to learn language. Since the initial use of type syntax is for specifying the signatures of user defined procedures only, this should not be a strong concern.
+Adding explicit syntax for types may lead to a more complex and difficult to learn language.
+Since the initial use of type syntax is for specifying the signatures of user defined procedures only, this should not be a strong concern.
 
 == Audience Consultation
 
@@ -259,20 +268,28 @@ Communication with external stakeholders should happen as part of the consultati
 
 == Appendix
 
-This appendix captures the discussion around type syntax that was part of creating this CIP. It is informative only and not part of the proposal. It merely documents the authors’ ideas for future use of types in Cypher.
+This appendix captures the discussion around type syntax that was part of creating this CIP. It is informative only and not part of the proposal.
+It merely documents the authors' ideas for future use of types in Cypher.
 
 === Internal vs public types
-We distinguish between internal types and public types to minimize mental overhead and simplify language mapping. Internal types are tracked by the type checking algorithm. They may contain more sophisticated static analysis information such as nullability, which properties exist on a node, or alternative types for a value (union types). A Cypher user commonly should not be required to be aware of internal types though they may influence behaviour or become visible in error messages. Public types contain less information than internal types. They can be specified in type annotations and there should exist straightforward mappings between the public type system and type systems of target languages of officially supported drivers and the store.
+We distinguish between internal types and public types to minimize mental overhead and simplify language mapping.
+Internal types are tracked by the type checking algorithm.
+They may contain more sophisticated static analysis information such as nullability, which properties exist on a node, or alternative types for a value (union types).
+A Cypher user commonly should not be required to be aware of internal types though they may influence behaviour or become visible in error messages.
+Public types contain less information than internal types.
+They can be specified in type annotations and there should exist straightforward mappings between the public type system and type systems of target languages of officially supported drivers and the store.
 
 The diagram below gives an overview on the various concepts around the Cypher type system and how they relate to each other as seen by this CIP.
 
 image:CIP2015-09-16-public-type-system-overview.png[Public Type System Overview]
 
 === Type mapping
-The issue of mapping types from the public type system to other type systems (such as Java, JavaScript or PackStream) is not the concern of this document. While still requiring clear definition, such mapping definitions are not a Cypher language concern.
+The issue of mapping types from the public type system to other type systems (such as Java, JavaScript or PackStream) is not the concern of this document.
+While still requiring clear definition, such mapping definitions are not a Cypher language concern.
 
 === Type aliases
-Some of the type names are very long and thus could be somewhat difficult to type, and perhaps even read in longer function signatures. Introducing a set of predefined and perhaps user defined type aliases, such as REL for RELATIONSHIP might be a remedy to this issue.
+Some of the type names are very long and thus could be somewhat difficult to type, and perhaps even read in longer function signatures.
+Introducing a set of predefined and perhaps user defined type aliases, such as REL for RELATIONSHIP might be a remedy to this issue.
 
 === Possible future use of type syntax
 
@@ -283,13 +300,15 @@ It may be helpful to extend definitions that introduce new identifiers (WITH, RE
 `RETURN expr AS a :: NUMBER`
 
 ==== Type ascription ("safe upcast")
-A type ascription annotates an expression with a type such that casting the value at runtime to the given type cannot fail. This may be useful (and in fact is used by Scala for example) to control what types are inferred by a type inferencing algorithm during semantic checking.
+A type ascription annotates an expression with a type such that casting the value at runtime to the given type cannot fail.
+This may be useful (and in fact is used by Scala for example) to control what types are inferred by a type inferencing algorithm during semantic checking.
 
 *Example*
 `RETURN [1.0, 2.3, 3.0] :: LIST<NUMBER>`
 
 ==== Type cast ("unsafe downcast")
-Beyond type ascription, a type cast asserts a specific type for an expression such that it cannot be verified at compile time if evaluating that expression will always produce a value of the target  type. Hence type casts may fail at runtime.
+Beyond type ascription, a type cast asserts a specific type for an expression such that it cannot be verified at compile time if evaluating that expression will always produce a value of the target type.
+Hence type casts may fail at runtime.
 
 *Example*
 `RETURN CAST n.prop :: NUMBER`
@@ -301,7 +320,11 @@ Additionally it may be practical to test the type of a value at runtime.
 `RETURN n.prop IS [NOT] NUMBER`
 
 ==== Union Type Support
-Cypher's current type checker tracks sets of possible types for expressions. This could be understood as a form of union typing. Union types do not map easily to the type systems of most common target languages (Java, Javascript, ...), they complicate type checking, and are not required for the work on remoting. This is why they have not been included in this proposal. They could be added instead at a later stage.
+Cypher's current type checker tracks sets of possible types for expressions.
+This could be understood as a form of union typing.
+Union types do not map easily to the type systems of most common target languages (Java, Javascript, ...), they complicate type checking, and are not required for the work on remoting.
+This is why they have not been included in this proposal.
+They could be added instead at a later stage.
 
 *Example*
 `RETURN [1, "Yo"] :: LIST<STRING> | LIST<NUMBER>`
