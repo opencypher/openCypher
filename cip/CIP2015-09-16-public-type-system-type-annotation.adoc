@@ -108,16 +108,15 @@ In addition to the types above, the following type names are reserved by this CI
 
 === Nullability
 
-TODO: DECIDE ON WHERE TO PUT "?"
-
 The type system also provides a way to track nullability, i.e. a type may express if a given expression may be `NULL` or not:
 
 * Non-nullable types are all types that do not permit `NULL` as a valid result of evaluating the underlying expression.
   All types specified above are non-nullable types.
 * Nullable types are all types that permit `NULL` as a valid result of evaluating the underlying expression.
-  Nullable types are formed by prefixing/suffixing a non-nullable type with a question mark.
+  Nullable types are formed by suffixing a non-nullable type with a question mark.
+  Note that `NULL` is not a type but a value that inhabits every nullable type.
 
-Note that `NULL` is not a type but a value that inhabits every nullable type.
+As a consequence of this, `ANY?` is the most generic type available within Cypher and is the supertype of every possible value.
 
 ==== Type Annotation
 
@@ -141,7 +140,7 @@ type = scalar type
      | optional type
      ;
 
-optional type = "?", type;
+optional type = type, "?" ;
 
 scalar type   = "Any"
               | "Boolean"
@@ -161,7 +160,7 @@ scalar type   = "Any"
               | "Duration"
               ;
 
-container type = "LIST", "<", type, ">";
+container type = "LIST", "<", type, ">" ;
 
 type annotation = term, "::", type ;
 ----
