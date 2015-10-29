@@ -4,8 +4,8 @@
 :toc-placement: macro
 :source-highlighter: codemirror
 
-*Author:* Stefan Plantikow <stefan.plantikow@neotechnology.com
-*Author:* Nigel Small <nigel.small@neotechnology.com
+*Author:* Stefan Plantikow <stefan.plantikow@neotechnology.com>
+*Author:* Nigel Small <nigel.small@neotechnology.com>
 
 [abstract]
 .Abstract
@@ -37,11 +37,11 @@ To support these goals, it is necessary to at least introduce syntax for all val
 === Overview
 For the purposes of this CIP, a type system is a system of classifying expressions according to what kinds of values they may evaluate to during the execution of a Cypher query. It does *not *include a specification of a type inferencing and checking algorithm for Cypher queries.
 
-Cypher today has a rich type system that unifies Java implementation types into a coherent type hierarchy and an accompanying type checker that supports rich types with type parameters and union types. So far it has not been possible to explicitly specify the type of an expression in a query.
+Cypher today has a rich type system that unifies Java implementation types into a coherent type hierarchy and an accompanying type checker that supports rich types with https://en.wikipedia.org/wiki/TypeParameter[type parameters] and https://en.wikipedia.org/wiki/Union_type[union types]. So far it has not been possible to explicitly specify the type of an expression in a query.
 
 This CIP proposes to introduce syntax for type literals and for type annotations.
 
-== 3. Proposal
+== Proposal
 
 === Types and Type Literal Syntax
 
@@ -51,51 +51,55 @@ The sections below list all types available at the time of acceptance of this CI
 
 The following should available from any implementation of Cypher
 
- * `ANY`
- ** Supertype to all other types
- * `BOOLEAN`
+ * `Any`
+ ** Parent of all types
+ * `Number`
+ ** Parent of all numeric types (i.e. `Integer` and `Float`)
+ * `Boolean`
  ** true and false
- * `INTEGER`
+ * `Integer`
  ** Exact numbers without decimals, i.e. -3, 0, 4
- * `FLOAT`
+ * `Float`
  ** IEEE-754 64-bit floating point numbers
- * `MAP`
+ * `Map`
  ** Maps to values of any type, i.e. { name: "Svensson" }. Note that keys are identifiers, not strings.
- ** This is also the supertype for `NODE` and `RELATIONSHIP`
- * `LIST<T>`
+ ** This is also the supertype for `Node` and `Relationship`
+ * `List<T>`
  ** Lists (ordered sequences with random access) of a given type T
- ** `LIST<T1>`` is a subtype of `LIST<T2>`` if `T1` is a subtype of `T2`. This works since values in Cypher are immutable. Adding an element of type `T` to a `LIST<S>`` would produce a new list of type `LIST<R>``, where `R` is the nearest common supertype of `T` and `S`
- * `NODE`
- ** Nodes are maps that have labels and relationships
- * `STRING`
+ ** `List<T1>`` is a subtype of `List<T2>`` if `T1` is a subtype of `T2`. This works since values in Cypher are immutable. Adding an element of type `T` to a `List<S>`` would produce a new list of type `List<R>``, where `R` is the nearest common supertype of `T` and `S`
+ * `Node`
+ ** A self-contained copy of a graph node containing an identity, a set of textual labels and a set of properties
+ * `String`
  ** Unicode Strings, i.e. `"Cypher"`, and `‘text’`
- * `RELATIONSHIP`
- ** Relationships are maps that have a type and end points
- * `PATH`
- ** List of alternating nodes and relationships
- * `NUMBER`
- ** Supertype to both `INTEGER` and `FLOAT`
+ * `Relationship`
+ ** A self-contained copy of a graph relationship that connects two nodes and contains an identity, a textual type and a set of properties
+ * `Path`
+ ** A sequence of alternating nodes and relationships
 
  === Date and Time Types
 
 The following should available from any implementation of Cypher in accordance with _CIP2015-08-06 - Date and Time_.
 
- * `DATETIME`
+ * `DateTime`
  ** An instant capturing the date, the time, and the timezone.
- * `LOCALDATETIME`
+ * `LocalDateTime`
  ** An instant capturing the date and the time, but not the time zone.
- * `DATE`
+ * `Date`
  ** An instant capturing the date, but not the time, nor the time zone.
- * `LOCALDATE`
+ * `LocalDate`
  ** An instant capturing the date, but not the time, nor the time zone.
- * `LOCALTIME`
+ * `LocalTime`
  ** An instant capturing the time of day, but not the date, nor the time zone.
- * `DURATION`
+ * `Duration`
  ** A temporal amount. This captures the difference in time between two instants. It only captures the amount of time between two instants, it does not capture a start time and end time. A unit capturing the start time and end time would be a _Time Interval_ and is out of scope for this proposal.
 
 === Reserved type names
 
-In addition to the types above, the following type names are reserved by this CIP for future use: `IDENTITY`, `POINT`.
+In addition to the types above, the following type names are reserved by this CIP for future use:
+
+ * `Bytes`
+ * `Identity`
+ * `Point`
 
 === Nullability
 
@@ -116,14 +120,14 @@ To specify the type type of a term term in future changes to the Cypher grammar,
 
 [source, ebnf]
 ----
-	term :: type
+    term :: type
 ----
 
 ==== Type Literal Use Outside of Annotations
 
 Type literals could be used in other production rules as well where this is considered more readable by future CIPs (e.g. a type test operator expr IS NUMBER).
 
-=== 3.2 Syntax
+=== Syntax
 
 [source, ebnf]
 ----
@@ -134,26 +138,25 @@ type = scalar type
 
 optional type = "?", type;
 
-scalar type 	= "ANY"
-              | "BOOLEAN"
-              | "INTEGER"
-              | "FLOAT"
-              | "IDENTITY"
-              | "MAP"
-              | "NODE"
-              | "STRING"
-              | "RELATIONSHIP"
-              | "PATH"
-              | "NUMBER"
-              | "DATETIME"
-              | "LOCALDATETIME"
-              | "DATE"
-              | "LOCALDATE"
-              | "LOCALTIME"
-              | "DURATION”
+scalar type   = "Any"
+              | "Boolean"
+              | "Integer"
+              | "Float"
+              | "Map"
+              | "Node"
+              | "String"
+              | "Relationship"
+              | "Path"
+              | "Number"
+              | "DateTime"
+              | "LocalDateTime"
+              | "Date"
+              | "LocalDate"
+              | "LocalTime"
+              | "Duration"
               ;
 
-container type	= "LIST", "<", type, ">";
+container type = "LIST", "<", type, ">";
 
 type annotation = term, "::", type ;
 ----
@@ -164,7 +167,7 @@ This CIP only provides syntax for future CIPs, it does not directly change Cyphe
 The intended use of type annotations is that they express that the annotated term either has, evaluates to, or is coerced to a value of the annotated type.
 
 === Interaction with existing features
-This CIP adds the following new keywords for all type names. It is expected that these type name keywords are only valid in specific contexts in the grammar (mostly in type annotations but also possibly in operators). The likelihood of conflict with existing (or future) production rules is therefore minimal.
+This CIP adds new keywords for all type names. It is expected that these type name keywords are only valid in specific contexts in the grammar (mostly in type annotations but also possibly in operators). The likelihood of conflict with existing (or future) production rules is therefore minimal.
 
 === Alternatives
 
