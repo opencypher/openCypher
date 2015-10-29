@@ -81,7 +81,7 @@ The following should available from any implementation of Cypher
  * `Path`
  ** A sequence of alternating nodes and relationships
 
- === Date and Time Types
+=== Date and Time Types
 
 The following should available from any implementation of Cypher in accordance with _CIP2015-08-06 - Date and Time_.
 
