@@ -1,0 +1,98 @@
+= CIP2015-11-09 - Type coercions
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Henrik Nyman henrik.nyman@neotechnology.com, Mats Rydberg mats@neotechnology.com
+
+
+[abstract]
+.Abstract
+--
+This is a retroactive CIP aiming to describe the current type coercions that exist in today's Cypher.
+--
+
+toc::[]
+
+
+== Motivation
+
+Due to recent issues with (the lack of) type coercions, the need for a requirements specification has become actualized.
+
+== Background
+
+In the case of a collection with both integer and floating-point numbers, it's type will be a collection of numbers.
+Functions that work on both integers and floats would then accept all elements of this collection one-by-one, but if they do not also accept type number they will not be able to act on the collection itself when used in a comprehension.
+In this type of situation, it is very valuable for a user to know what kinds of coercions that Cypher will perform, and what explicit casting that they will have to do themselves.
+
+== Proposal
+
+The current Cypher behavior is proposed, which consists of two type coercions: `CTCollection` to `CTBoolean`, and `CTInteger` to `CTFloat`.
+
+=== Examples
+
+Here follows a few queries in which types are coerced.
+
+Check if a collection is empty, and if it is not, return the first element:
+[source, cypher]
+----
+WITH [] as coll
+WHERE coll
+RETURN coll[0]
+----
+
+Return the size of a non-empty collection:
+[source, cypher]
+----
+WITH [1,2,3.5] as coll
+WHERE coll
+RETURN size(coll)
+----
+
+Calculate the cosine of a value:
+[source, cypher]
+----
+WITH 1 as int
+RETURN cos(int)
+----
+
+=== Syntax
+
+No syntax changes are proposed.
+
+=== Semantics
+
+There are no new semantics to consider.
+
+=== Alternatives
+
+There are plenty of additional coercions to consider.
+Coercion from `CTNumber` to `CTFloat` would, under the current type system, function exactly the same as the exisiting `CTInteger` to `CTFloat` coercion, and it would solve the issue discussed in the Background section.
+
+[source, cypher]
+----
+WITH [1, 1.01] as numbers RETURN [ x in numbers | cos(x) ]
+----
+
+Pros:
+
+* The coercion could be useful as a pragmatic approach to predict the user intention (e.g. writing 1 when meaning 1.0) rather than strictly enforcing the type.
+
+Cons:
+
+* The coercion could lose precision (e.g. integer to float, but we already have this behavior currently).
+* The addition of a new number type (e.g. complex numbers) could make the coercion nonsensical.
+
+Due to the current precision loss, an alternative could also be to have more restrictions for type coercion, and disallow the current integer-to-float coercion.
+
+== What others do
+
+PostgreSQL link:http://www.postgresql.org/docs/9.0/static/typeconv-overview.html[states three principles] that guide their handling of type conversions:
+
+* Implicit conversions should never have surprising or unpredictable outcomes.
+* There should be no extra overhead in the parser or executor if a query does not need implicit type conversion.
+  That is, if a query is well-formed and the types already match, then the query should execute without spending extra time in the parser and without introducing unnecessary implicit conversion calls in the query.
+* Additionally, if a query usually requires an implicit conversion for a function, and if then the user defines a new function with the correct argument types, the parser should use this new function and no longer do implicit conversion to use the old function.
+
+link:https://msdn.microsoft.com/en-us/library/ms191530.aspx[SQL Server] and link:http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements002.htm#i163326[Oracle DB] has larger type sets and defines many implicit conversion between the types.
