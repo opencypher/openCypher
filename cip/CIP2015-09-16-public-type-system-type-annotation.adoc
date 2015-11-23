@@ -55,6 +55,8 @@ The section below presents presents the new Public Type System (PTS) proposed fo
 ==== Material and nullable types
 
 The type system provides a way to track nullability, i.e. a type may express if a given expression may be `NULL` or not.
+Tracking (non-)nullability helps an implementation to detect and warn about possible user errors during compile time and  it also enables optimizations that rely on values not being `NULL`.
+
 Material types are all types that do not permit `NULL` as a valid result of evaluating the underlying expression.
 In the sections below, generally only the material variants of each type are given.
 
@@ -66,7 +68,7 @@ Note that `NULL` is not a type but a value that inhabits every nullable type.
 Every nullable type is a supertype of its underlying material type, i.e. `T?` is a supertype of `T`.
 By transitivity of subtyping, if `S` is a supertype of `T`, then `S?` is also a supertype of `T`.
 
-==== Super types
+==== Any type
 
 The following super types should be supported by any implementation of Cypher:
 
@@ -114,7 +116,7 @@ The following container types should be supported by any implementation of Cyphe
 a nullable variant:
 
 * `LIST OF T`
-** Lists (ordered sequences with random access) of elements of a given material or nullable type `T`. The syntax for a nullable lists of elements of type `T` is `LIST? OF T`. Note that accessing a list by index always yields a value of type `T` (as opposed to `T?`) since it is considered an error to use an index that is out of bounds.
+** Lists (ordered sequences with random access) of elements of a given material or nullable type `T`. The syntax for a nullable lists of elements of type `T` is `LIST? OF T`. Note that accessing a list by index always yields a value of type `T?` since indexing out of bounds is defined to return `NULL`.
 ** `LIST OF T2` is a subtype of `LIST OF T1` if `T2` is a subtype of `T1`. This is a valid subtyping rule since values in Cypher are immutable. Adding an element of type `T` to a `LIST OF S` would produce a new list of type `LIST OF R`, where `R` is the nearest common supertype of `T` and `S`
 * `MAP`
 ** Maps from string keys to values of any type, i.e. `{ name: "Svensson" }`. The type of map values is `ANY?` since it is unknown to the type system if a given map contains a certain key or not. Note also that maps do not distinguish between missing keys and keys that map to a `NULL` value. `MAP` is a parent to all property containers, like `NODE` and `RELATIONSHIP`.
