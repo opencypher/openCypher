@@ -10,7 +10,7 @@
 [abstract]
 .Abstract
 
-This CIP specifies the Public Type System (PTS) of Cypher and introduces literal syntax for writing down types as well as new syntax for type annotations. The proposed type annotation syntax does not change the Cypher grammar right now but rather is intended as a template to be used by future CIPs. This CIP also informatively discusses future syntax that might use the introduced literal type syntax.
+This CIP specifies the Public Type System of Cypher and introduces literal syntax for writing down types as well as new syntax for type annotations. The proposed type annotation syntax does not change the Cypher grammar right now but rather is intended as a template to be used by future CIPs. This CIP also informatively discusses future syntax that might use the introduced literal type syntax.
 
 toc::[]
 
@@ -55,7 +55,7 @@ The section below presents presents the new Public Type System (PTS) proposed fo
 ==== Material and nullable types
 
 The type system provides a way to track nullability, i.e. a type may express if a given expression may be `NULL` or not.
-Tracking (non-)nullability helps an implementation to detect and warn about possible user errors during compile time and  it also enables optimizations that rely on values not being `NULL`.
+Tracking (non-)nullability helps an implementation to detect and warn about possible user errors during compile time and  it also enables optimizations that rely on values not being `NULL`. As an example, an implementation may infer that `MATCH` will never introduce a nullable variable, but `OPTIONAL MATCH` will only introduce nullable variables.
 
 Material types are all types that do not permit `NULL` as a valid result of evaluating the underlying expression.
 In the sections below, generally only the material variants of each type are given.
@@ -137,14 +137,6 @@ a nullable variant:
 
 This CIP also introduces an additional nullable type called `VOID`. `VOID` is intended to be used as the return type of user defined procedures that execute without producing a result value, i.e. the return type of procedures with side effects. `VOID` is a subtype of `ANY?`. In an expression context, `NULL` is the only value that inhibits the `VOID` type, indicating a missing "real" return value (Note though that Cypher currently does not have any expressions of type `VOID` and this is merely defined here for completeness).
 
-==== Reserved type names
-
-In addition to the types above, the following type names are reserved by this CIP for future use, both in the given material and a nullable variant:
-
- * `BYTES`
- * `IDENTITY`
- * `POINT`
-
 === Type Annotation
 
 To specify the type of a term in future changes to the Cypher grammar, this CIP proposes using the following syntax
@@ -224,18 +216,14 @@ keywords = type keywords
 
 type keywords = material core types
               | container type keywords
-              | reserved type keywords
               ;
 
 container type keywords = "LIST" | "MAP" ;
-
-reserved type keywords = "BYTES" | "IDENTITY" | "POINT" ;
 ----
 
 ==== Reserved keywords
 
-Besides all introduced and reserved type names, this CIP reserves the keyword `OF` for forming
-container types.
+Besides all introduced type names, this CIP reserves the keyword `OF` for forming literal container types.
 
 === Semantics
 
@@ -341,7 +329,7 @@ Communication with external stakeholders should happen as part of the consultati
 
 == References
 
-* Wikipedia on _type systems_
+* Wikipedia on https://en.wikipedia.org/wiki/Type_system[Type System]
 * CypherType and symbols package object in the Neo4j implementation
 * SPARQL and SQL standards
 
@@ -406,4 +394,4 @@ This is why they have not been included in this proposal.
 They could be added instead at a later stage.
 
 *Example*
-`RETURN [1, "Yo"] :: LIST OF STRING | LIST OF NUMBER`
+`RETURN [1, "Yo"] :: LIST OF (STRING | NUMBER)`
