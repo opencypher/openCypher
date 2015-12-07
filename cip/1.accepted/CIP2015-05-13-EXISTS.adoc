@@ -17,13 +17,15 @@ toc::[]
 
 == Background
 
-In a way, Cypher already has existential subqueries - pattern predicates allow checking for the existence of subgraphs. This form is helpful, but not exhaustive in the forms of subqueries that users want to be able to express.
+In a way, Cypher already has existential subqueries - pattern predicates allow checking for the existence of subgraphs.
+This form is helpful, but not exhaustive in the types of subqueries that users want to be able to express.
 
 == Proposal
 
 To make this feature more powerful, add a new EXISTS-function, that would exist in two forms:
- . Property existence checking
- . Subquery existence checking
+
+ * Property existence checking
+ * Subquery existence checking
 
 === Syntax
 
@@ -34,8 +36,7 @@ expression = …
            | simple subquery exists
             ;
 
-property exists = "EXISTS", "(", expression, ".", identifier ")"
-                | "EXISTS", "(", expression, "[", expression, "]", ")"
+property exists = "EXISTS", "(", expression ")"
                 ;
 
 subquery exists = "EXISTS", "{", read only clause, { read only clause }, "}" ;
@@ -51,22 +52,34 @@ Note: the read-only clause above includes WITH but not RETURN.
 
 All forms of +EXIST(...)+ accomplish the same task - check if a particular pattern exists in the database.
 They are expressions, and as such must be side-effect free. That is, the subqueries in +EXIST+ must not be updating queries.
+Regarding nomenclature, all forms of +EXISTS+ are scalar expressions - they return a single boolean value, and this value is never +null+.
 
 ==== Property exists
 
-In the property checking form, either an identifier or a string expression is used to represent the property key name. If the node/relationship returned has a property with the given name, the +EXISTS(...)+ expression should return true, otherwise it should return false. If the node/relationship expression returns a null value, the +EXISTS(...)+ expression should return null as well.
+In the property checking form, any expression is accepted as the input.
+If the input expression returns a +null+ value, +EXIST(...)+ returns false, and for all other values, it will return +true+.
+This form of +EXISTS(...)+ is equivalent to checking for +null+ using +IS NOT NULL+.
+I.e. +EXISTS(expr)+ is equivalent to +expr IS NOT NULL+.
 
-This form of +EXISTS+ replaces the pre-existing +has(...)+ function.
+This form is there to make property existence checking idiomatic in Cypher - we do not want the user thinking of missing properties as checking for +null+ values.
 
 ==== Subquery exists
-Identifiers and parameters from the outer query are available in the subquery. Identifiers introduced in the subquery are not available on the outside.
+When checking for the existence of subqueries, variables and parameters from the outer query are available in the subquery.
+Variables introduced in the subquery are not available on the outside.
 
-For each matching subgraph evaluated with +EXISTS(...)+, the result value must be true if the subquery finds at least one matching row. If no matches are found, false should be returned.
+For each matching subgraph evaluated with +EXISTS{...}+, the result value must be true if the subquery finds at least one matching row.
+If no matches are found, false should be returned.
 
-Regarding nomenclature, +EXISTS(...)+ is a scalar expression - it returns a single boolean value.
+The subquery used in +EXISTS{...}+ has to follow the following rules:
+
+ * It has to be a read-only query. Updating the graph as part of a predicate is not allowed.
+ * It cannot end in a +RETURN+ clause, nor may it contain +UNION+
+ * If +WITH+ ends the subquery, it should be able to change the cardinality of the subquery in an for +EXISTS(...)+ interesting way.
+In other words, they should include +WHERE+ or +SKIP+, since they could turn a query that returns rows into one that does not.
 
 ==== Simple subquery exists
 When the subquery can be described with a single +MATCH-WHERE+ clause, the +MATCH+ keyword can be omitted.
+The difference between this form and a simple pattern predicate, which is already available is that this form allows for introducing new variables inside the +EXISTS(...)+ scope.
 
 === Examples
 _Example 1A:_
@@ -80,13 +93,13 @@ RETURN actor
 ----
 
 _Example 1B:_
+Return all nodes with both first name and second name:
 [source, cypher]
 ----
 MATCH (actor)
-WHERE EXISTS(actor["slogan"])
+WHERE EXISTS(actor.firstName + actor.lastName)
 RETURN actor
 ----
-
 
 _Example 2A:_
 
@@ -104,7 +117,7 @@ RETURN actor
 
 _Example 2B:_
 
-Find all actors who have acted together with another actor with the same name.  +
+Find all actors who have acted together with another actor with the same name.
 
 [source, cypher]
 ----
@@ -117,18 +130,18 @@ RETURN actor
 ----
 
 === Interaction with existing features
-This replaces the pre-existing +has(...)+ function.
+This replaces the pre-existing +HAS(...)+ function.
 
 == What others do
 
 This is very similar to what SQL does with its EXISTS functionality.
 
-This is also very similar in syntax to what SPARQL does with its EXISTS functionality; the rules regarding identifiers are identical, and the inner query also takes a subquery as input.
+This is also very similar in syntax to what SPARQL does with its EXISTS functionality; the rules regarding variables are identical, and the inner query also takes a subquery as input.
 
 == Benefits to this proposal
 
 The existing pattern predicate functionality is very useful, but does not cover all cases.
-Pattern predicates do not allow for introducing identifiers, which makes some queries - such as the one below - difficult to express succinctly:
+Pattern predicates do not allow for introducing variables, which makes some queries - such as the one below - difficult to express succinctly:
 
 [source, cypher]
 ----
