@@ -22,7 +22,7 @@ This form is helpful, but not exhaustive in the types of subqueries that users w
 
 == Proposal
 
-To make this feature more powerful, add a new EXISTS-function, that would exist in two forms:
+To make this feature more powerful, add a new function named +EXISTS+, that would exist in two forms:
 
  * Property existence checking
  * Subquery existence checking
@@ -51,15 +51,14 @@ Note: the read-only clause above includes WITH but not RETURN.
 === Semantics
 
 All forms of +EXIST(...)+ accomplish the same task - check if a particular pattern exists in the database.
-They are expressions, and as such must be side-effect free. That is, the subqueries in +EXIST+ must not be updating queries.
+They are expressions, and as such must be side-effect free; that is, the subqueries in +EXIST+ must not be updating queries.
 Regarding nomenclature, all forms of +EXISTS+ are scalar expressions - they return a single boolean value, and this value is never +null+.
 
 ==== Property exists
 
 In the property checking form, any expression is accepted as the input.
-If the input expression returns a +null+ value, +EXIST(...)+ returns false, and for all other values, it will return +true+.
-This form of +EXISTS(...)+ is equivalent to checking for +null+ using +IS NOT NULL+.
-I.e. +EXISTS(expr)+ is equivalent to +expr IS NOT NULL+.
+If the input expression returns a +null+ value, +EXISTS(...)+ returns false, and for all other values, it will return +true+.
+This form of +EXISTS(...)+ is equivalent to checking for +null+ using +IS NOT NULL+; i.e. +EXISTS(expr)+ is equivalent to +expr IS NOT NULL+.
 
 This form is there to make property existence checking idiomatic in Cypher - we do not want the user thinking of missing properties as checking for +null+ values.
 
