@@ -1,0 +1,972 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE grammar [
+  <!ENTITY WS "<non-terminal ref='WS'/>">
+  <!ENTITY SP "<non-terminal ref='SP'/>">
+  <!ENTITY epsilon "<non-terminal ref='epsilon'/>">
+  <!ENTITY TODO "<non-terminal ref='TODO'/>">
+  <!ENTITY expr "<non-terminal ref='Expression'/>">
+  <!ENTITY var "<non-terminal ref='Variable'/>">
+]>
+<grammar language="Cypher" case-sensitive="false"
+  xmlns="http://thobe.org/grammar"
+  xmlns:rr="http://thobe.org/railroad"
+  xmlns:ast="http://thobe.org/syntaxtree"
+  xmlns:gen="http://thobe.org/stringgeneration">
+
+  <production name="Cypher">
+    <alt>
+      <non-terminal ref="directive"/>
+      <non-terminal ref="pre-parser options"/>
+      <seq>
+        <non-terminal ref="directive"/>
+        <non-terminal ref="pre-parser options"/>
+      </seq>
+      <seq>
+        <non-terminal ref="pre-parser options"/>
+        <non-terminal ref="directive"/>
+      </seq>
+      &epsilon;
+    </alt>
+    <non-terminal ref="Statements"/>
+  </production>
+
+
+  <!-- / EXECUTION MODE \ -->
+
+  <production name="directive">
+    <description>
+      Dictates how the query is to be executed.
+    </description>
+    <alt>EXPLAIN PROFILE</alt>
+  </production>
+
+  <!-- \ EXECUTION MODE / -->
+
+
+  <!-- / PRE-PARSER \ -->
+
+  <production name="pre-parser options">
+    CYPHER &SP;
+    <alt>
+      <seq>
+        <non-terminal ref="UnsignedDecimalInteger"/>.<non-terminal ref="UnsignedDecimalInteger"/>
+        <repeat>&SP;<non-terminal ref="pre-parser key/value pair"/></repeat>
+      </seq>
+      <seq>
+        <non-terminal ref="pre-parser key/value pair"/>
+        <repeat>&SP;<non-terminal ref="pre-parser key/value pair"/></repeat>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="pre-parser key/value pair">
+    <non-terminal ref="SymbolicNameString" ast:entry="key"/>
+    =
+    <non-terminal ref="SymbolicNameString" ast:entry="value"/>
+  </production>
+
+  <!-- \ PRE-PARSER / -->
+
+
+  <!-- / STATEMENTS \ -->
+
+  <production name="Statements">
+    &WS;<non-terminal ref="Statement"/>&WS;
+    <repeat>
+      ;
+      &WS;<non-terminal ref="Statement"/>&WS;
+    </repeat>
+    <opt>;</opt>
+  </production>
+
+  <production name="Statement">
+    <alt>
+      <non-terminal ref="Command"/>
+      <non-terminal ref="Query"/>
+    </alt>
+  </production>
+
+  <production name="Command">
+    <alt>
+      <non-terminal ref="CreateUniqueConstraint"/>
+      <non-terminal ref="CreateNodePropertyExistenceConstraint"/>
+      <non-terminal ref="CreateRelationshipPropertyExistenceConstraint"/>
+      <non-terminal ref="CreateIndex"/>
+      <non-terminal ref="DropUniqueConstraint"/>
+      <non-terminal ref="DropNodePropertyExistenceConstraint"/>
+      <non-terminal ref="DropRelationshipPropertyExistenceConstraint"/>
+      <non-terminal ref="DropIndex"/>
+    </alt>
+  </production>
+
+  <production name="Query">
+    <alt>
+      <non-terminal ref="RegularQuery"/>
+      <non-terminal ref="BulkImportQuery"/>
+    </alt>
+  </production>
+
+  <production name="RegularQuery">
+    <non-terminal ref="SingleQuery"/>
+    <repeat>&WS;<non-terminal ref="Union"/></repeat>
+  </production>
+
+  <production name="BulkImportQuery">
+    <non-terminal ref="PeriodicCommitHint"/>
+    &WS;
+    <non-terminal ref="LoadCSVQuery"/>
+  </production>
+
+  <production name="SingleQuery">
+    <repeat min="1"><non-terminal ref="Clause"/></repeat>
+  </production>
+
+  <production name="PeriodicCommitHint">
+    USING &SP; PERIODIC &SP; COMMIT
+    <opt>&SP;<non-terminal ref="SignedIntegerLiteral"/></opt>
+  </production>
+
+  <production name="LoadCSVQuery">
+    <non-terminal ref="LoadCSV"/>
+    <repeat>&WS;<non-terminal ref="Clause"/></repeat>
+  </production>
+
+  <production name="Union">
+    <alt>
+      <seq>UNION &SP; ALL <non-terminal ref="SingleQuery"/></seq>
+      <seq>UNION <non-terminal ref="SingleQuery"/></seq>
+    </alt>
+  </production>
+
+  <production name="Clause">
+    <alt>
+      <non-terminal ref="LoadCSV"/>
+      <non-terminal ref="Start"/>
+      <non-terminal ref="Match"/>
+      <non-terminal ref="Unwind"/>
+      <non-terminal ref="Merge"/>
+      <non-terminal ref="Create"/>
+      <non-terminal ref="SetClause"/>
+      <non-terminal ref="Delete"/>
+      <non-terminal ref="Remove"/>
+      <non-terminal ref="Foreach"/>
+      <non-terminal ref="With"/>
+      <non-terminal ref="Return"/>
+      <non-terminal ref="Pragma"/>
+    </alt>
+  </production>
+
+  <!-- \ STATEMENTS / -->
+
+
+  <!-- / COMMANDS \ -->
+
+  <production name="CreateUniqueConstraint">
+    &TODO;
+  </production>
+
+  <production name="CreateNodePropertyExistenceConstraint">
+    &TODO;
+  </production>
+
+  <production name="CreateRelationshipPropertyExistenceConstraint">
+    &TODO;
+  </production>
+
+  <production name="CreateIndex">
+    &TODO;
+  </production>
+
+  <production name="DropUniqueConstraint">
+    &TODO;
+  </production>
+
+  <production name="DropNodePropertyExistenceConstraint">
+    &TODO;
+  </production>
+
+  <production name="DropRelationshipPropertyExistenceConstraint">
+    &TODO;
+  </production>
+
+  <production name="DropIndex">
+    &TODO;
+  </production>
+
+  <!-- \ COMMANDS / -->
+
+
+  <!-- \ CLAUSES / -->
+
+  <production name="LoadCSV">
+    LOAD &SP; CSV &SP;
+    <opt>WITH &SP; HEADERS &SP;</opt>
+    FROM &SP; &expr; &SP;
+    AS &var; &SP;
+    <opt>FIELDTERMINATOR &SP; <non-terminal ref="StringLiteral"/></opt>
+  </production>
+
+  <production name="Start">
+    START &SP;
+    <non-terminal ref="StartPoint"/>
+    <repeat>&WS;,&WS;<non-terminal ref="StartPoint"/></repeat>
+    <opt><non-terminal ref="Where"/></opt>
+  </production>
+
+  <production name="Match">
+    <opt>OPTIONAL &SP;</opt>MATCH &SP;
+    <non-terminal ref="Pattern"/>
+    <repeat><non-terminal ref="Hint"/></repeat>
+    <opt><non-terminal ref="Where"/></opt>
+  </production>
+
+  <production name="Unwind">
+    UNWIND &SP; &expr; &SP; AS &SP; &var;
+  </production>
+
+  <production name="Merge">
+    MERGE &SP; <non-terminal ref="PatternPart"/>
+    <repeat>
+      &SP; <non-terminal ref="MergeAction"/>
+    </repeat>
+  </production>
+
+  <production name="MergeAction">
+    <alt>
+      <seq>ON &SP; MATCH &SP; <non-terminal ref="SetClause"/></seq>
+      <seq>ON &SP; CREATE &SP; <non-terminal ref="SetClause"/></seq>
+    </alt>
+  </production>
+
+  <production name="Create">
+    <alt>
+      <seq>CREATE UNIQUE &SP; <non-terminal ref="Pattern"/></seq>
+      <seq>CREATE &SP; <non-terminal ref="Pattern"/></seq>
+    </alt>
+  </production>
+
+  <production name="SetClause">
+    SET <non-terminal ref="SetItem"/>
+    <repeat>
+      , <non-terminal ref="SetItem"/>
+    </repeat>
+  </production>
+
+
+  <production name="SetItem">
+    <alt>
+      <seq><non-terminal ref="PropertyExpression"/> = &expr;</seq>
+      <seq>&var; = &expr;</seq>
+      <seq>&var; += &expr;</seq>
+      <seq>&var;<non-terminal ref="NodeLabels"/></seq>
+    </alt>
+  </production>
+
+  <production name="Delete">
+    <alt>
+      <seq>DELETE &expr;<repeat>, &expr;</repeat></seq>
+      <seq>DETACH &SP; DELETE &expr;<repeat>, &expr;</repeat></seq>
+    </alt>
+  </production>
+
+  <production name="Remove">
+    REMOVE &SP; <non-terminal ref="RemoveItem"/>
+    <repeat>&WS;,&WS;<non-terminal ref="RemoveItem"/></repeat>
+  </production>
+
+  <production name="RemoveItem">
+    <alt>
+      <seq>&var;<non-terminal ref="NodeLabels"/></seq>
+      <non-terminal ref="PropertyExpression"/>
+    </alt>
+  </production>
+
+  <production name="Foreach">
+    FOREACH &WS; ( &WS; &var; &SP; IN &SP; &expr; | <repeat min="1">&SP;<non-terminal ref="Clause"/></repeat> &WS; )
+  </production>
+
+  <production name="With">
+    <alt>
+      <seq>WITH DISTINCT
+        <non-terminal ref="ReturnBody"/>
+        <opt><non-terminal ref="Where"/></opt>
+      </seq>
+      <seq>WITH
+        <non-terminal ref="ReturnBody"/>
+        <opt><non-terminal ref="Where"/></opt>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="Return">
+    <alt>
+      <seq>RETURN DISTINCT <non-terminal ref="ReturnBody"/></seq>
+      <seq>RETURN <non-terminal ref="ReturnBody"/></seq>
+    </alt>
+  </production>
+
+  <production name="ReturnBody">
+    <non-terminal ref="ReturnItems"/>
+    <opt><non-terminal ref="Order"/></opt>
+    <opt><non-terminal ref="Skip"/></opt>
+    <opt><non-terminal ref="Limit"/></opt>
+  </production>
+
+  <production name="ReturnItems">
+    <alt>
+      <seq>*<repeat>,<non-terminal ref="ReturnItem"/></repeat></seq>
+      <seq>
+        <non-terminal ref="ReturnItem"/>
+        <repeat>,<non-terminal ref="ReturnItem"/></repeat>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="ReturnItem">
+    <alt> <seq>&expr; AS &var;</seq> &expr; </alt>
+  </production>
+
+
+  <production name="Order">
+    ORDER BY <non-terminal ref="SortItem"/>
+    <repeat> , <non-terminal ref="SortItem"/></repeat>
+  </production>
+
+  <production name="Skip">
+    SKIP &expr;
+  </production>
+
+  <production name="Limit">
+    LIMIT &expr;
+  </production>
+
+  <production name="SortItem">
+    <alt>
+      <seq>&expr;<alt>DESCENDING DESC</alt></seq>
+      <seq>&expr;<opt><alt>ASCENDING ASC</alt></opt></seq>
+    </alt>
+  </production>
+
+  <production name="Pragma">
+    _PRAGMA
+    <alt>
+      <seq>
+        WITH NONE
+        <opt><non-terminal ref="Skip"/></opt>
+        <opt><non-terminal ref="Limit"/></opt>
+        <opt><non-terminal ref="Where"/></opt>
+      </seq>
+      <seq>
+        WITHOUT &var; <repeat> , &var;</repeat>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="Where">
+    WHERE &expr;
+  </production>
+
+  <production name="Hint">
+    <alt>
+      <seq>USING &SP; INDEX &SP; &var; <non-terminal ref="NodeLabel"/>(<non-terminal ref="PropertyKeyName"/>)</seq>
+      <seq>USING &SP; JOIN &SP; ON &SP; &var; <repeat>&WS;,&WS;&var;</repeat></seq>
+      <seq>USING &SP; SCAN &SP; &var; <non-terminal ref="NodeLabel"/></seq>
+    </alt>
+  </production>
+
+  <!-- \ CLAUSES / -->
+
+
+  <!-- / START \ -->
+
+  <production name="StartPoint">
+    &var; &WS; = &WS; <non-terminal ref="Lookup"/>
+  </production>
+
+  <production name="Lookup">
+    <alt>
+      <non-terminal ref="NodeLookup"/>
+      <non-terminal ref="RelationshipLookup"/>
+    </alt>
+  </production>
+
+  <production name="NodeLookup">
+    NODE
+    <alt>
+      <non-terminal ref="IdentifiedIndexLookup"/>
+      <non-terminal ref="IndexQuery"/>
+      <non-terminal ref="IdLookup"/>
+    </alt>
+  </production>
+
+  <production name="RelationshipLookup">
+    <alt>RELATIONSHIP REL</alt>
+    <alt>
+      <non-terminal ref="IdentifiedIndexLookup"/>
+      <non-terminal ref="IndexQuery"/>
+      <non-terminal ref="IdLookup"/>
+    </alt>
+  </production>
+
+  <production name="IdentifiedIndexLookup">
+    : <non-terminal ref="SymbolicNameString"/>
+    ( <non-terminal ref="SymbolicNameString"/> =
+    <alt>
+      <non-terminal ref="StringLiteral"/>
+      <non-terminal ref="Parameter"/>
+    </alt>)
+  </production>
+
+  <production name="IndexQuery">
+    : <non-terminal ref="SymbolicNameString"/>
+    (<alt>
+      <non-terminal ref="StringLiteral"/>
+      <non-terminal ref="Parameter"/>
+    </alt>)
+  </production>
+
+  <production name="IdLookup">
+    (<alt>
+      <non-terminal ref="LiteralIds"/>
+      <non-terminal ref="Parameter"/>
+      *
+    </alt>)
+  </production>
+
+  <production name="LiteralIds">
+    <non-terminal ref="UnsignedIntegerLiteral"/>
+    <repeat>
+      &WS;,&WS;<non-terminal ref="UnsignedIntegerLiteral"/>
+    </repeat>
+  </production>
+
+  <!-- \ START / -->
+
+
+  <!-- / PATTERNS \ -->
+
+  <production name="Pattern">
+    <non-terminal ref="PatternPart"/>
+    <repeat> , <non-terminal ref="PatternPart"/></repeat>
+  </production>
+
+  <production name="PatternPart">
+    <alt>
+      <seq>&var; = <non-terminal ref="AnonymousPatternPart"/></seq>
+      <non-terminal ref="AnonymousPatternPart"/>
+    </alt>
+  </production>
+
+  <production name="AnonymousPatternPart">
+    <alt>
+      <non-terminal ref="ShortestPathPattern"/>
+      <non-terminal ref="PatternElement"/>
+    </alt>
+  </production>
+
+  <production name="ShortestPathPattern">
+    <alt>
+      <seq>shortestPath ( <non-terminal ref="PatternElement"/> )</seq>
+      <seq>allShortestPath ( <non-terminal ref="PatternElement"/> )</seq>
+    </alt>
+  </production>
+
+  <production name="PatternElement">
+    <alt>
+      <seq>
+        <non-terminal ref="NodePattern"/>
+        <repeat>&WS; <non-terminal ref="PatternElementChain"/></repeat>
+      </seq>
+      <seq>( <non-terminal ref="PatternElement"/> )</seq>
+    </alt>
+  </production>
+
+  <production name="NodePattern">
+    (
+    <non-terminal ref="MaybeVariable"/>
+    <non-terminal ref="MaybeNodeLabels"/>
+    <non-terminal ref="MaybeProperties"/>
+    )
+  </production>
+
+  <production name="PatternElementChain">
+    <non-terminal ref="RelationshipPattern"/>
+    <non-terminal ref="NodePattern"/>
+  </production>
+
+  <production name="RelationshipPattern">
+    <alt>
+      <seq>
+        <non-terminal ref="LeftArrowHead"/>
+        <non-terminal ref="Dash"/>
+        <non-terminal ref="RelationshipDetail"/>
+        <non-terminal ref="Dash"/>
+        <non-terminal ref="RightArrowHead"/>
+      </seq>
+      <seq>
+        <non-terminal ref="LeftArrowHead"/>
+        <non-terminal ref="Dash"/>
+        <non-terminal ref="RelationshipDetail"/>
+        <non-terminal ref="Dash"/>
+      </seq>
+      <seq>
+        <non-terminal ref="Dash"/>
+        <non-terminal ref="RelationshipDetail"/>
+        <non-terminal ref="Dash"/>
+        <non-terminal ref="RightArrowHead"/>
+      </seq>
+      <seq>
+        <non-terminal ref="Dash"/>
+        <non-terminal ref="RelationshipDetail"/>
+        <non-terminal ref="Dash"/>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="RelationshipDetail">
+    [
+    <non-terminal ref="MaybeVariable"/>
+    <opt>?</opt>
+    <non-terminal ref="RelationshipTypes"/>
+    <non-terminal ref="MaybeVariableLength"/>
+    <non-terminal ref="MaybeProperties"/>
+    ]
+  </production>
+
+  <production name="MaybeVariable">
+    <opt>&var;</opt>
+  </production>
+
+  <production name="MaybeNodeLabels">
+    <opt><non-terminal ref="NodeLabels"/></opt>
+  </production>
+
+  <production name="MaybeProperties">
+    <opt>&WS;<alt>
+      <non-terminal ref="MapLiteral"/>
+      <non-terminal ref="Parameter"/>
+    </alt></opt>
+  </production>
+
+  <production name="RelationshipTypes">
+    <opt>
+      :<non-terminal ref="RelTypeName"/>
+      <repeat>&WS;|<opt>:</opt>&WS;<non-terminal ref="RelTypeName"/></repeat>
+    </opt>
+  </production>
+
+  <production name="MaybeVariableLength">
+    <opt>*<opt><non-terminal ref="RangeLiteral"/></opt></opt>
+  </production>
+
+  <production name="NodeLabels">
+    <non-terminal ref="NodeLabel"/>
+    <repeat>&WS;<non-terminal ref="NodeLabel"/></repeat>
+  </production>
+
+  <production name="NodeLabel">
+    : <non-terminal ref="LabelName"/>
+  </production>
+
+  <production name="RangeLiteral">
+    <opt><non-terminal ref="UnsignedIntegerLiteral"/>&WS;</opt>
+    ..
+    <opt>&WS;<non-terminal ref="UnsignedIntegerLiteral"/></opt>
+  </production>
+
+  <production name="LabelName">
+    <non-terminal ref="SymbolicNameString"/>
+  </production>
+
+  <production name="RelTypeName">
+    <non-terminal ref="SymbolicNameString"/>
+  </production>
+
+  <!-- \ PATTERNS / -->
+
+
+  <!-- / EXPRESSIONS \ -->
+
+  <production name="Expression">
+    <non-terminal ref="Expression12"/>
+  </production>
+
+  <production name="Expression12">
+    <non-terminal ref="Expression11"/>
+    <repeat>OR <non-terminal ref="Expression11"/></repeat>
+  </production>
+  <production name="Expression11">
+    <non-terminal ref="Expression10"/>
+    <repeat>XOR <non-terminal ref="Expression10"/></repeat>
+  </production>
+  <production name="Expression10">
+    <non-terminal ref="Expression9"/>
+    <repeat>AND <non-terminal ref="Expression9"/></repeat>
+  </production>
+  <production name="Expression9">
+    <alt>
+      <seq>NOT <non-terminal ref="Expression9"/></seq>
+      <non-terminal ref="Expression8"/>
+    </alt>
+  </production>
+  <production name="Expression8">
+    <non-terminal ref="Expression7"/>
+    <repeat>&WS;<non-terminal ref="PartialComparisonExpression"/></repeat>
+  </production>
+  <production name="Expression7">
+    <non-terminal ref="Expression6"/>
+    <repeat><alt>
+      <seq> + <non-terminal ref="Expression6"/></seq>
+      <seq> - <non-terminal ref="Expression6"/></seq>
+    </alt></repeat>
+  </production>
+  <production name="Expression6">
+    <non-terminal ref="Expression5"/>
+    <repeat><alt>
+      <seq> * <non-terminal ref="Expression5"/></seq>
+      <seq> / <non-terminal ref="Expression5"/></seq>
+      <seq> % <non-terminal ref="Expression5"/></seq>
+    </alt></repeat>
+  </production>
+  <production name="Expression5">
+    <non-terminal ref="Expression4"/>
+    <repeat> ^ <non-terminal ref="Expression4"/></repeat>
+  </production>
+  <production name="Expression4">
+    <alt>
+      <non-terminal ref="Expression3"/>
+      <seq> + <non-terminal ref="Expression3"/></seq>
+      <seq> - <non-terminal ref="Expression3"/></seq>
+    </alt>
+  </production>
+  <production name="Expression3">
+    <non-terminal ref="Expression2"/>
+    <repeat><alt>
+      <seq> [ &expr; ] </seq>
+      <seq> [ <opt>&expr;</opt> .. <opt>&expr;</opt> ] </seq>
+      <seq> =~ <non-terminal ref="Expression2"/> </seq>
+      <seq> IN <non-terminal ref="Expression2"/> </seq>
+      <seq> STARTS WITH <non-terminal ref="Expression2"/> </seq>
+      <seq> ENDS WITH <non-terminal ref="Expression2"/> </seq>
+      <seq> CONTAINS <non-terminal ref="Expression2"/> </seq>
+      <seq> IS NULL </seq>
+      <seq> IS NOT NULL </seq>
+    </alt></repeat>
+  </production>
+  <production name="Expression2">
+    <non-terminal ref="Expression1"/>
+    <repeat><alt>
+      <non-terminal ref="PropertyLookup"/>
+      <non-terminal ref="NodeLabels"/>
+    </alt></repeat>
+  </production>
+  <production name="Expression1">
+    <alt>
+      <non-terminal ref="NumberLiteral"/>
+      <non-terminal ref="StringLiteral"/>
+      <non-terminal ref="Parameter"/>
+      TRUE
+      FALSE
+      NULL
+      <non-terminal ref="CaseExpression"/>
+      <seq>COUNT ( * )</seq>
+      <non-terminal ref="MapLiteral"/>
+      <non-terminal ref="ListComprehension"/>
+      <seq> [ &expr; <repeat> , &expr; </repeat> ] </seq>
+      <seq>FILTER  ( <non-terminal ref="FilterExpression"/> ) </seq>
+      <seq>EXTRACT ( <non-terminal ref="FilterExpression"/> <opt>&WS; | &expr;</opt> ) </seq>
+      <seq>REDUCE  ( &var; = &expr; , <non-terminal ref="IdInColl"/> | &expr; ) </seq>
+      <seq>ALL     ( <non-terminal ref="FilterExpression"/> ) </seq>
+      <seq>ANY     ( <non-terminal ref="FilterExpression"/> ) </seq>
+      <seq>NONE    ( <non-terminal ref="FilterExpression"/> ) </seq>
+      <seq>SINGLE  ( <non-terminal ref="FilterExpression"/> ) </seq>
+      <non-terminal ref="ShortestPathPattern"/>
+      <non-terminal ref="RelationshipsPattern"/>
+      <non-terminal ref="parenthesizedExpression"/>
+      <non-terminal ref="FunctionInvocation"/>
+      <non-terminal ref="Variable"/>
+    </alt>
+  </production>
+
+  <production name="PartialComparisonExpression">
+    <alt>
+      <seq> <literal value="="/>  <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&lt;>"/> <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="!="/> <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&lt;"/>  <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value=">"/>  <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&lt;="/> <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value=">="/> <non-terminal ref="Expression7"/> </seq>
+    </alt>
+  </production>
+
+  <production name="parenthesizedExpression">
+    ( &expr; )
+  </production>
+
+  <production name="RelationshipsPattern">
+    <non-terminal ref="NodePattern"/>
+    <repeat min="1">&WS;<non-terminal ref="PatternElementChain"/></repeat>
+  </production>
+
+  <production name="FilterExpression">
+    <non-terminal ref="IdInColl"/>
+    <opt>&WS;<non-terminal ref="Where"/></opt>
+  </production>
+
+  <production name="IdInColl">
+    &var; IN &expr;
+  </production>
+
+  <production name="FunctionInvocation">
+    <non-terminal ref="FunctionName"/>
+    (
+      <opt>DISTINCT</opt>
+      <opt>&expr;<repeat>, &expr;</repeat></opt>
+    )
+  </production>
+
+  <production name="FunctionName">
+    <non-terminal ref="SymbolicNameString"/>
+  </production>
+
+  <production name="ListComprehension">
+    [
+      <non-terminal ref="FilterExpression"/>
+      <opt>&WS; | &expr;</opt>
+    ]
+  </production>
+
+  <production name="PropertyExpression">
+    <non-terminal ref="Expression1"/>
+    <repeat min="1">&WS;<non-terminal ref="PropertyLookup"/></repeat>
+  </production>
+
+  <production name="PropertyLookup">
+    .
+    <alt>
+      <seq><non-terminal ref="PropertyKeyName"/><alt>? !</alt><!-- !OpCharTail --></seq>
+      <non-terminal ref="PropertyKeyName"/>
+    </alt>
+  </production>
+
+  <production name="CaseExpression">
+    <alt>
+      <seq>CASE <repeat min="1"><non-terminal ref="CaseAlternatives"/></repeat></seq>
+      <seq>CASE &expr; <repeat min="1"><non-terminal ref="CaseAlternatives"/></repeat></seq>
+    </alt>
+    <opt>&WS; ELSE &expr;</opt>
+    END
+  </production>
+
+  <production name="CaseAlternatives">
+    WHEN &expr; THEN &expr;
+  </production>
+
+  <production name="Variable">
+    <non-terminal ref="SymbolicNameString"/>
+  </production>
+
+  <production name="StringLiteral">
+    <description>
+      Any character except for the enclosing character, enclosed within a pair of either ' or ".
+    </description>
+    &TODO;
+    <!--
+       ch('\'') ~ StringCharacters('\'') ~ ch('\'')
+     | ch('"') ~ StringCharacters('"') ~ ch('"')
+    -->
+  </production>
+
+  <production name="NumberLiteral">
+    <alt>
+      <non-terminal ref="DoubleLiteral"/>
+      <non-terminal ref="SignedIntegerLiteral"/>
+    </alt>
+  </production>
+
+  <production name="MapLiteral">
+    {<opt>
+      <non-terminal ref="PropertyKeyName"/> : &expr;
+      <repeat>, <non-terminal ref="PropertyKeyName"/> : &expr;</repeat>
+    </opt>}
+  </production>
+
+  <production name="Parameter">
+    {<alt>
+      <non-terminal ref="UnescapedSymbolicNameString"/>
+      <non-terminal ref="EscapedSymbolicNameString"/>
+      <non-terminal ref="UnsignedDecimalInteger"/>
+    </alt>}
+  </production>
+
+  <production name="PropertyKeyName">
+    <non-terminal ref="SymbolicNameString"/>
+  </production>
+
+  <production name="SignedIntegerLiteral">
+    <alt>
+      <non-terminal ref="HexInteger"/>
+      <non-terminal ref="OctalInteger"/>
+      <non-terminal ref="DecimalInteger"/>
+    </alt>
+  </production>
+
+  <production name="UnsignedIntegerLiteral">
+    <non-terminal ref="UnsignedDecimalInteger"/>
+  </production>
+
+  <production name="HexInteger">
+    <opt>-</opt><non-terminal ref="UnsignedHexInteger"/>
+  </production>
+  <production name="DecimalInteger">
+    <opt>-</opt><non-terminal ref="UnsignedDecimalInteger"/>
+  </production>
+  <production name="OctalInteger">
+    <opt>-</opt><non-terminal ref="UnsignedOctalInteger"/>
+  </production>
+
+  <production name="UnsignedHexInteger">
+    0x <non-terminal ref="HexString"/>
+  </production>
+  <production name="UnsignedDecimalInteger">
+    <alt>
+      <seq>
+        <alt>1 2 3 4 5 6 7 8 9</alt>
+        <opt><non-terminal ref="DigitString"/></opt>
+      </seq>
+      0
+    </alt>
+  </production>
+  <production name="UnsignedOctalInteger">
+    0 <non-terminal ref="OctalString"/>
+  </production>
+
+  <production name="HexString">
+    <repeat min="1"><alt>0 1 2 3 4 5 6 7 8 9 a b c d e f</alt></repeat>
+  </production>
+  <production name="DigitString">
+    <repeat min="1"><non-terminal ref="Digit"/></repeat>
+  </production>
+  <production name="OctalString">
+    <repeat min="1"><alt>0 1 2 3 4 5 6 7</alt></repeat>
+  </production>
+
+  <production name="DoubleLiteral">
+    <alt>
+      <non-terminal ref="ExponentDecimalReal"/>
+      <non-terminal ref="RegularDecimalReal"/>
+    </alt>
+  </production>
+
+  <production name="ExponentDecimalReal">
+    <opt>-</opt><repeat min="1"><alt><non-terminal ref="Digit"/>.</alt></repeat>
+    <alt>e E</alt>
+    <opt>-</opt><non-terminal ref="DigitString"/>
+  </production>
+
+  <production name="RegularDecimalReal">
+    <opt>-</opt><repeat><non-terminal ref="Digit"/></repeat>
+    . <non-terminal ref="DigitString"/>
+  </production>
+
+  <!-- \ EXPRESSIONS / -->
+
+
+  <!-- / UTILITY DEFINITIONS \ -->
+
+  <production name="SymbolicNameString">
+    <alt>
+      <non-terminal ref="UnescapedSymbolicNameString"/>
+      <non-terminal ref="EscapedSymbolicNameString"/>
+    </alt>
+  </production>
+
+  <production name="UnescapedSymbolicNameString">
+    <non-terminal ref="IdentifierStart"/>
+    <repeat><non-terminal ref="IdentifierPart"/></repeat>
+  </production>
+
+  <production name="IdentifierStart">
+    <description>
+      Defined using Character.isJavaIdentifierStart(...) in Java.
+    </description>
+    &TODO;
+  </production>
+
+  <production name="IdentifierPart">
+    <description>
+      Defined using Character.isJavaIdentifierPart(...) in Java.
+    </description>
+    &TODO;
+  </production>
+
+  <production name="EscapedSymbolicNameString">
+    <description>
+      Any character except "`", enclosed within "``.
+    </description>
+    &TODO;<!--`<repeat><charset allBut="`"/></repeat>`-->
+  </production>
+
+  <production name="WS">
+    <repeat><non-terminal ref='whitespace'/></repeat>
+  </production>
+
+  <production name="SP">
+    <repeat min="1"><non-terminal ref='whitespace'/></repeat>
+  </production>
+
+  <production name="whitespace">
+    <alt>
+      <literal value=" "/>
+      <literal value="&#9;"/>
+      <literal value="&#10;"/>
+      <literal value="&#13;"/>
+    </alt>
+  </production>
+
+  <production name="Digit">
+    <alt>0 1 2 3 4 5 6 7 8 9</alt>
+  </production>
+
+  <production name="LeftArrowHead">
+    <alt>
+      &#x003c; <!-- '<' less-than sign -->
+      &#x27e8; <!-- '⟨' mathematical left angle bracket -->
+      &#x3008; <!-- '〈' left angle bracket -->
+      &#xfe64; <!-- '﹤' small less-than sign -->
+      &#xff1c; <!-- '＜' full-width less-than sign -->
+    </alt>
+  </production>
+  <production name="RightArrowHead">
+    <alt>
+      &#x003e; <!-- '>' greater-than sign -->
+      &#x27e9; <!-- '⟩' mathematical left angle bracket -->
+      &#x3009; <!-- '〉' right angle bracket -->
+      &#xfe65; <!-- '﹥' small greater-than sign -->
+      &#xff1e; <!-- '＞' full-width greater-than sign -->
+    </alt>
+  </production>
+  <production name="Dash">
+    <alt>
+      &#x002D; <!-- '‑' hyphen-minus -->
+      &#x00AD; <!-- '-' soft hyphen -->
+      &#x2010; <!-- '-' hyphen -->
+      &#x2011; <!-- '‐' non-breaking hyphen -->
+      &#x2012; <!-- '‒' figure dash -->
+      &#x2013; <!-- '–' en dash -->
+      &#x2014; <!-- '—' em dash -->
+      &#x2015; <!-- '―' horizontal bar -->
+      &#x2212; <!-- '−' minus sign -->
+      &#xFE58; <!-- '﹘' small em dash -->
+      &#xFE63; <!-- '﹣' small hyphen-minus -->
+      &#xFF0D; <!-- '－' full-width hyphen-minus -->
+    </alt>
+  </production>
+
+  <production name="epsilon"/>
+  <production name="TODO"/>
+
+  <!-- \ UTILITY DEFINITIONS / -->
+
+</grammar>
