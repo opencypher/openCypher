@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import static java.lang.invoke.MethodHandles.dropArguments;
 import static java.lang.invoke.MethodHandles.filterArguments;
 
 final class AttributeHandler
@@ -32,11 +33,11 @@ final class AttributeHandler
         return this.uri.equalsIgnoreCase( uri ) && this.name.equalsIgnoreCase( name );
     }
 
-    public void apply( Object target, String value )
+    public void apply( Object target, Resolver resolver, String value )
     {
         try
         {
-            setter.invokeWithArguments( target, value );
+            setter.invokeWithArguments( target, resolver, value );
         }
         catch ( RuntimeException | Error e )
         {
@@ -59,7 +60,7 @@ final class AttributeHandler
 
     static
     {
-        CONVERSION.put( String.class, Function.identity() );
+        CONVERSION.put( String.class, ( mh ) -> dropArguments( mh, 1, Resolver.class ) );
         CONVERSION.put( int.class, conversion( Reference.<String>toInt( Integer::parseInt ) ) );
         CONVERSION.put( Integer.class, conversion( Reference.<String, Integer>function( Integer::valueOf ) ) );
         CONVERSION.put( boolean.class, conversion( Reference.<String>toBool( Boolean::parseBoolean ) ) );
@@ -68,11 +69,12 @@ final class AttributeHandler
         CONVERSION.put( Long.class, conversion( Reference.<String, Long>function( Long::valueOf ) ) );
         CONVERSION.put( double.class, conversion( Reference.<String>toDouble( Double::parseDouble ) ) );
         CONVERSION.put( Double.class, conversion( Reference.<String, Double>function( Double::valueOf ) ) );
+        Resolver.initialize( CONVERSION::put );
     }
 
     private static Function<MethodHandle, MethodHandle> conversion( Reference reference )
     {
         MethodHandle filter = reference.mh();
-        return ( mh ) -> filterArguments( mh, 1, filter );
+        return ( mh ) -> dropArguments( filterArguments( mh, 1, filter ), 1, Resolver.class );
     }
 }

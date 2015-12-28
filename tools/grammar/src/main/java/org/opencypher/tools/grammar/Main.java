@@ -8,6 +8,7 @@ import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 
@@ -66,10 +67,7 @@ interface Main extends Serializable
     {
         if ( args.length == 1 )
         {
-            try ( FileInputStream input = new FileInputStream( args[0] ) )
-            {
-                program.write( Grammar.parseXML( input ), System.out );
-            }
+            program.write( Grammar.parseXML( Paths.get( args[0] ), Grammar.ParserOption.from(System.getProperties()) ), System.out );
         }
         else
         {

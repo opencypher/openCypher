@@ -1,7 +1,7 @@
 package org.opencypher.grammar;
 
-import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 import org.opencypher.tools.xml.Attribute;
 import org.opencypher.tools.xml.Element;
@@ -16,12 +16,16 @@ final class NonTerminal extends Node
     private Production production;
 
     @Override
-    void resolve( String origin, Map<String, Production> productions, LogicalErrors errors )
+    void resolve( Production origin, Function<String, Production> productions, Dependencies dependencies )
     {
-        production = productions.get( requireNonNull( ref, "non-terminal reference" ) );
+        production = productions.apply( requireNonNull( ref, "non-terminal reference" ) );
         if ( production == null )
         {
-            errors.missingProduction( ref, origin );
+            dependencies.missingProduction( ref, origin );
+        }
+        else
+        {
+            dependencies.usedFrom( ref, origin );
         }
     }
 

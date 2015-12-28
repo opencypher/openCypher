@@ -3,7 +3,7 @@ package org.opencypher.grammar;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Function;
 
 import org.opencypher.tools.xml.Child;
 
@@ -25,11 +25,11 @@ abstract class Container extends Node
     }
 
     @Override
-    final void resolve( String origin, Map<String, Production> productions, LogicalErrors errors )
+    final void resolve( Production origin, Function<String, Production> productions, Dependencies dependencies )
     {
         for ( Node node : nodes )
         {
-            node.resolve( origin, productions, errors );
+            node.resolve( origin, productions, dependencies );
         }
     }
 

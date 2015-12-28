@@ -1,7 +1,7 @@
 package org.opencypher.grammar;
 
-import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 import org.opencypher.tools.xml.Attribute;
 import org.opencypher.tools.xml.Child;
@@ -10,10 +10,16 @@ import org.opencypher.tools.xml.Element;
 @Element(uri = Grammar.XML_NAMESPACE, name = "production")
 final class Production
 {
+    final String vocabulary;
     @Attribute
     String name;
     private Node definition;
     String description;
+
+    public Production( Root root )
+    {
+        this.vocabulary = root.language;
+    }
 
     @Child({Alternatives.class, Sequence.class, Literal.class, NonTerminal.class, Optional.class, Repetition.class})
     void add( Node node )
@@ -50,11 +56,11 @@ final class Production
         visitor.visitNonTerminal( name, definition );
     }
 
-    void resolve( Map<String, Production> productions, LogicalErrors errors )
+    void resolve( Function<String, Production> productions, Dependencies dependencies )
     {
         if ( definition != null )
         {
-            definition.resolve( name, productions, errors );
+            definition.resolve( this, productions, dependencies );
         }
     }
 
@@ -82,6 +88,6 @@ final class Production
     @Override
     public String toString()
     {
-        return "Production{" + name + " = " + definition + "}";
+        return "Production{" + vocabulary + " / " + name + " = " + definition + "}";
     }
 }

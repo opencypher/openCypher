@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE grammar [
+  <!ENTITY WS "<non-terminal ref='WS'/>">
+  <!ENTITY SP "<non-terminal ref='SP'/>">
+]>
+<grammar language="Cypher Pre-Parser" case-sensitive="false"
+  xmlns="http://thobe.org/grammar"
+  xmlns:rr="http://thobe.org/railroad"
+  xmlns:ast="http://thobe.org/syntaxtree"
+  xmlns:gen="http://thobe.org/stringgeneration">
+
+  <!-- / PRE-PARSER \ -->
+
+  <production name="AllOptions">
+    <repeat><non-terminal ref="AnyCypherOption"/></repeat>
+  </production>
+
+  <production name="AnyCypherOption">
+    <alt>
+      <non-terminal ref="CypherOption"/>
+      <non-terminal ref="Explain"/>
+      <non-terminal ref="Profile"/>
+    </alt>
+  </production>
+
+  <production name="CypherOption">
+    CYPHER
+    <opt><non-terminal ref="VersionNumber"/></opt>
+    <repeat><non-terminal ref="ConfigurationOption"/></repeat>
+  </production>
+
+  <production name="VersionNumber">
+    <non-terminal ref="Digits"/>.<non-terminal ref="Digits"/>
+  </production>
+
+  <production name="Explain">EXPLAIN</production>
+  <production name="Profile">PROFILE</production>
+
+  <production name="ConfigurationOption">
+    <non-terminal ref="SymbolicNameString" ast:entry="key"/>
+    =
+    <non-terminal ref="SymbolicNameString" ast:entry="value"/>
+  </production>
+
+  <!-- \ PRE-PARSER / -->
+
+  <vocabulary file="basic-grammar.xml"/>
+
+</grammar>

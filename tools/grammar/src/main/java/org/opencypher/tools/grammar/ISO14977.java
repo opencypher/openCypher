@@ -67,57 +67,39 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>
     @Override
     public void visitAlternatives( Collection<Grammar.Term> alternatives )
     {
-        boolean group = this.group;
-        this.group = true;
-        boolean prefix = false;
-        if ( group )
-        {
-            output.append( '(' );
-        }
-        for ( Grammar.Term term : alternatives )
-        {
-            if ( prefix )
+        group( () -> {
+            boolean prefix = false;
+            for ( Grammar.Term term : alternatives )
             {
-                output.append( altPrefix ).append( " | " );
+                if ( prefix )
+                {
+                    output.append( altPrefix ).append( " | " );
+                }
+                term.accept( this );
+                prefix = true;
             }
-            term.accept( this );
-            prefix = true;
-        }
-        if ( alternatives.size() > 1 )
-        {
-            output.append( altPrefix );
-        }
-        if ( group )
-        {
-            output.append( ')' );
-        }
-        this.group = group;
+            if ( alternatives.size() > 1 )
+            {
+                output.append( altPrefix );
+            }
+        } );
     }
 
     @Override
     public void visitSequence( Collection<Grammar.Term> sequence )
     {
-        boolean group = this.group;
-        this.group = true;
         String altPrefix = this.altPrefix;
         this.altPrefix = "";
-        String prefix = "";
-        if ( group )
-        {
-            output.append( '(' );
-        }
-        for ( Grammar.Term term : sequence )
-        {
-            output.append( prefix );
-            term.accept( this );
-            prefix = ", ";
-        }
-        if ( group )
-        {
-            output.append( ')' );
-        }
+        group( () -> {
+            String prefix = "";
+            for ( Grammar.Term term : sequence )
+            {
+                output.append( prefix );
+                term.accept( this );
+                prefix = ", ";
+            }
+        } );
         this.altPrefix = altPrefix;
-        this.group = group;
     }
 
     @Override
@@ -138,14 +120,7 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>
         String altPrefix = this.altPrefix;
         this.altPrefix = "";
         {
-            boolean group = this.group;
-            this.group = false;
-            {
-                output.append( '[' );
-                term.accept( this );
-                output.append( ']' );
-            }
-            this.group = group;
+            group( '[', () -> term.accept( this ), ']' );
         }
         this.altPrefix = altPrefix;
     }
@@ -156,59 +131,81 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>
         String altPrefix = this.altPrefix;
         this.altPrefix = "";
         {
-            if ( group && min > 0 && (max == null || max > min) )
-            {
-                output.append( '(' );
-            }
-            if ( min > 0 )
-            {
-                boolean group = this.group;
-                this.group = true;
-                {
-                    if ( min > 1 )
-                    {
-                        output.append( min ).append( " * " );
-                    }
-                    term.accept( this );
-                }
-                this.group = group;
-            }
             if ( max == null )
             {
-                boolean group = this.group;
-                this.group = false;
+                if ( min == 0 || min == 1 )
                 {
-                    if ( min > 0 )
+                    group( '{', () -> term.accept( this ), '}' );
+                    if ( min == 1 )
                     {
-                        output.append( ", " );
+                        output.append( '-' );
                     }
-                    output.append( '{' );
-                    term.accept( this );
-                    output.append( '}' );
                 }
-                this.group = group;
-            }
-            else if ( max > min )
-            {
-                boolean group = this.group;
-                this.group = false;
+                else
                 {
-                    if ( min > 0 )
-                    {
+                    group( () -> {
+                        output.append( min ).append( " * " );
+                        term.accept( this );
                         output.append( ", " );
-                    }
+                        group( '{', () -> term.accept( this ), '}' );
+                    } );
+                }
+            }
+            else if ( max == min )
+            {
+                output.append( min ).append( " * " );
+                grouping( () -> term.accept( this ) );
+            }
+            else if ( min > 0 )
+            {
+                group( () -> {
+                    output.append( min ).append( " * " );
+                    term.accept( this );
+                    output.append( ", " );
                     output.append( max - min ).append( " * " );
-                    output.append( '[' );
-                    term.accept( this );
-                    output.append( ']' );
-                }
-                this.group = group;
+                    group( '[', () -> term.accept( this ), ']' );
+                } );
             }
-            if ( group && min > 0 && (max == null || max > min) )
+            else
             {
-                output.append( ')' );
+                output.append( max - min ).append( " * " );
+                group( '[', () -> term.accept( this ), ']' );
             }
         }
         this.altPrefix = altPrefix;
+    }
+
+    private void grouping( Runnable action )
+    {
+        boolean group = this.group;
+        this.group = true;
+        action.run();
+        this.group = group;
+    }
+
+    private void group( Runnable action )
+    {
+        boolean group = this.group;
+        this.group = true;
+        if ( group )
+        {
+            output.append( '(' );
+        }
+        action.run();
+        if ( group )
+        {
+            output.append( ')' );
+        }
+        this.group = group;
+    }
+
+    private void group( char prefix, Runnable action, char suffix )
+    {
+        boolean group = this.group;
+        this.group = false;
+        output.append( prefix );
+        action.run();
+        output.append( suffix );
+        this.group = group;
     }
 }

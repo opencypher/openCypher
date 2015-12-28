@@ -1,11 +1,12 @@
 package org.opencypher.grammar;
 
+import java.nio.file.Paths;
+
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.opencypher.tools.xml.XmlParser.Option.FAIL_ON_UNKNOWN_ATTRIBUTE;
 
 public class GrammarTest
 {
@@ -15,10 +16,21 @@ public class GrammarTest
     public void shouldParseGrammar() throws Exception
     {
         // when
-        Grammar grammar = Grammar.parseXML( fixture.resourceStream( "/somegrammar.xml" ), FAIL_ON_UNKNOWN_ATTRIBUTE );
+        Grammar grammar = Grammar.parseXML( Paths.get( fixture.resource( "/somegrammar.xml" ).toURI() ),
+                                            Grammar.ParserOption.FAIL_ON_UNKNOWN_XML_ATTRIBUTE );
 
         // then
         assertNotNull( grammar );
         assertEquals( "SomeLanguage", grammar.language() );
+    }
+
+    @Test
+    public void shouldParseCypherGrammar() throws Exception
+    {
+        // given
+        Grammar.parseXML( Paths.get("/Users/tobias/code/neo/cypher/grammar/cypher.xml") );
+        // when
+
+        // then
     }
 }

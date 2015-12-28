@@ -1,7 +1,9 @@
 package org.opencypher.grammar;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -26,33 +28,29 @@ public class Fixture implements TestRule
         return testName;
     }
 
-    public Grammar.Builder grammar()
+    public Grammar grammarResource( String resource, Grammar.ParserOption... options )
+            throws IOException, SAXException, ParserConfigurationException, URISyntaxException
     {
-        return Grammar.grammar( testName() );
+        return Grammar.parseXML( Paths.get( resource( resource ).toURI() ), options );
     }
 
-    public Grammar grammarResource( String resource, XmlParser.Option... options )
-            throws IOException, SAXException, ParserConfigurationException
-    {
-        return Grammar.parseXML( resourceStream( resource ), options );
-    }
-
-    public Document xmlResource( String resource ) throws TransformerException
+    public Document xmlResource( String resource ) throws TransformerException, IOException
     {
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
         DOMResult result = new DOMResult();
-        transformer.transform( new StreamSource( resourceStream( resource ) ), result );
+        URL url = resource( resource );
+        transformer.transform( new StreamSource( url.openStream(), url.toString() ), result );
         return (Document) result.getNode();
     }
 
-    public InputStream resourceStream( String resource )
+    public URL resource( String resource )
     {
-        InputStream stream = testClass.getResourceAsStream( resource );
-        if ( stream == null )
+        URL url = testClass.getResource( resource );
+        if ( url == null )
         {
             throw new IllegalArgumentException( "No such resource: " + resource );
         }
-        return stream;
+        return url;
     }
 
     @Override

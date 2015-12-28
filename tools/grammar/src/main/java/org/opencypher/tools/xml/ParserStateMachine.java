@@ -9,17 +9,19 @@ import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.ext.DefaultHandler2;
 
-class ParserStateMachine extends DefaultHandler
+class ParserStateMachine extends DefaultHandler2
 {
+    private final Resolver resolver;
     private final Set<XmlParser.Option> options;
     private Node node;
     private Map<String, String> prefixToUri, uriToPrefix;
     private Locator locator;
 
-    ParserStateMachine( NodeBuilder builder, Set<XmlParser.Option> options )
+    ParserStateMachine( Resolver resolver, NodeBuilder builder, Set<XmlParser.Option> options )
     {
+        this.resolver = resolver;
         this.options = options;
         node = new BaseNode( builder );
     }
@@ -99,7 +101,7 @@ class ParserStateMachine extends DefaultHandler
         {
             uri = prefixToUri.get( "" );
         }
-        if ( !node.builder.attribute( required, node.value, uri, name, type, value ) )
+        if ( !node.builder.attribute( required, node.value, resolver, uri, name, type, value ) )
         {
             if ( options.contains( XmlParser.Option.FAIL_ON_UNKNOWN_ATTRIBUTE ) )
             {
@@ -132,6 +134,11 @@ class ParserStateMachine extends DefaultHandler
         {
             throw new SAXParseException( e.getMessage(), locator, e );
         }
+    }
+
+    @Override
+    public void comment( char[] buffer, int start, int length ) throws SAXException
+    {
     }
 
     private static class Node

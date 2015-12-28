@@ -21,8 +21,6 @@ import static org.opencypher.tools.output.Output.lines;
 
 public class ISO14977Test
 {
-    public final @Rule Fixture fixture = new Fixture();
-
     @Test
     public void shouldRenderLiteral() throws Exception
     {
@@ -91,7 +89,7 @@ public class ISO14977Test
     public void shouldRenderOneOrMore() throws Exception
     {
         verify( production( "repeat", oneOrMore( literal( "hello" ) ) ),
-                "repeat = \"hello\", {\"hello\"} ;" );
+                "repeat = {\"hello\"}- ;" );
     }
 
     @Test
@@ -127,7 +125,7 @@ public class ISO14977Test
 
     Grammar.Builder production( String name, Grammar.Term first, Grammar.Term... alternatives )
     {
-        return fixture.grammar().production( name, first, alternatives );
+        return Grammar.grammar( name ).production( name, first, alternatives );
     }
 
     static void verify( Grammar.Builder grammar, String... lines )

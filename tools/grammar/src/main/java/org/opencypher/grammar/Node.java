@@ -1,6 +1,6 @@
 package org.opencypher.grammar;
 
-import java.util.Map;
+import java.util.function.Function;
 
 import static java.lang.System.identityHashCode;
 
@@ -27,7 +27,7 @@ abstract class Node extends Grammar.Term
         return sequenced;
     }
 
-    void resolve( String origin, Map<String, Production> productions, LogicalErrors errors )
+    void resolve( Production origin, Function<String, Production> productions, Dependencies dependencies )
     {
     }
 

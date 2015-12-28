@@ -12,7 +12,7 @@ import static java.lang.invoke.MethodHandles.filterReturnValue;
 
 interface Reference extends Serializable
 {
-    static <T,R> Function<T,R> function(Function<T,R> reference)
+    static <T, R> Function<T, R> function( Function<T, R> reference )
     {
         return reference;
     }
@@ -172,6 +172,11 @@ interface Reference extends Serializable
         }
     }
 
+    interface BiFunction<T, U, R> extends Reference
+    {
+        R apply( T t, U u );
+    }
+
     default MethodHandle mh()
     {
         try
@@ -183,11 +188,15 @@ interface Reference extends Serializable
             switch ( lambda.getImplMethodKind() )
             {
             case MethodHandleInfo.REF_invokeStatic:
-                return MethodHandles.publicLookup().findStatic(
+                return MethodHandles.lookup().findStatic(
+                        impl, lambda.getImplMethodName(), MethodType.fromMethodDescriptorString(
+                                lambda.getImplMethodSignature(), impl.getClassLoader() ) );
+            case MethodHandleInfo.REF_invokeVirtual:
+                return MethodHandles.lookup().findVirtual(
                         impl, lambda.getImplMethodName(), MethodType.fromMethodDescriptorString(
                                 lambda.getImplMethodSignature(), impl.getClassLoader() ) );
             default:
-                throw new UnsupportedOperationException( "only static methods supported" );
+                throw new UnsupportedOperationException( "only static and virtual methods supported" );
             }
         }
         catch ( RuntimeException | Error e )

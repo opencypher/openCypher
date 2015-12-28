@@ -48,14 +48,15 @@ class NodeBuilder
         handler.accept( parent, child );
     }
 
-    public boolean attribute( BitSet remaining, Object target, String uri, String name, String type, String value )
+    public boolean attribute(
+            BitSet remaining, Object target, Resolver resolver, String uri, String name, String type, String value )
     {
         for ( int i = 0; i < attributes.length; i++ )
         {
             AttributeHandler attribute = attributes[i];
             if ( attribute.matches( uri, name ) )
             {
-                attribute.apply( target, value );
+                attribute.apply( target, resolver, value );
                 remaining.clear( i );
                 return true;
             }

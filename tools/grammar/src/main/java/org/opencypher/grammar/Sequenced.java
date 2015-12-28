@@ -1,7 +1,7 @@
 package org.opencypher.grammar;
 
-import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 import org.opencypher.tools.xml.Child;
 
@@ -22,11 +22,11 @@ abstract class Sequenced extends Node
     }
 
     @Override
-    final void resolve( String origin, Map<String, Production> productions, LogicalErrors errors )
+    final void resolve( Production origin, Function<String, Production> productions, Dependencies dependencies )
     {
         if ( term != null )
         {
-            term.resolve( origin, productions, errors );
+            term.resolve( origin, productions, dependencies );
         }
     }
 
