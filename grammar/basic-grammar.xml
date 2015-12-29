@@ -2,7 +2,6 @@
 <!DOCTYPE grammar [
   <!ENTITY WS "<non-terminal ref='WS'/>">
   <!ENTITY SP "<non-terminal ref='SP'/>">
-  <!ENTITY TODO "<non-terminal ref='TODO'/>">
   <!ENTITY expr "<non-terminal ref='Expression'/>">
   <!ENTITY var "<non-terminal ref='Variable'/>">
 ]>
@@ -327,14 +326,39 @@
   </production>
 
   <production name="StringLiteral">
-    <description>
-      Any character except for the enclosing character, enclosed within a pair of either ' or ".
-    </description>
-    &TODO;
-    <!--
-       ch('\'') ~ StringCharacters('\'') ~ ch('\'')
-     | ch('"') ~ StringCharacters('"') ~ ch('"')
-    -->
+    <alt>
+      <seq>" <repeat><alt>
+        <character><except literal="\"/><except literal='"'/></character>
+        <non-terminal ref="EscapedChar"/>
+      </alt></repeat> "</seq>
+
+      <seq>' <repeat><alt>
+        <character><except literal="\"/><except literal="'"/></character>
+        <non-terminal ref="EscapedChar"/>
+      </alt></repeat> '</seq>
+    </alt>
+  </production>
+
+  <production name="EscapedChar">
+    \
+    <alt>
+      \  <!-- Encodes a backslash -->
+      '  <!-- Encodes a single quote -->
+      "  <!-- Encodes a double quote -->
+      b  <!-- Encodes backspace -->
+      f  <!-- Encodes page break of "form feed" -->
+      n  <!-- Encodes newline -->
+      r  <!-- Encodes Carriage return -->
+      t  <!-- Encodes a Tab character -->
+      _  <!-- Encodes underscore -->
+      %  <!-- Encodes a precent sign -->
+      <seq>  <!-- UTF16 -->
+        u <repeat min="4" max="4"><non-terminal ref="HexDigit"/></repeat>
+      </seq>
+      <seq>  <!-- UTF32 -->
+        U <repeat min="8" max="8"><non-terminal ref="HexDigit"/></repeat>
+      </seq>
+    </alt>
   </production>
 
   <production name="NumberLiteral">
@@ -402,13 +426,25 @@
   </production>
 
   <production name="HexString">
-    <repeat min="1"><alt>0 1 2 3 4 5 6 7 8 9 a b c d e f</alt></repeat>
+    <repeat min="1"><non-terminal ref="HexDigit"/></repeat>
   </production>
   <production name="DigitString">
     <repeat min="1"><non-terminal ref="Digit"/></repeat>
   </production>
   <production name="OctalString">
-    <repeat min="1"><alt>0 1 2 3 4 5 6 7</alt></repeat>
+    <repeat min="1"><non-terminal ref="OctDigit"/></repeat>
+  </production>
+
+  <production name="HexDigit">
+    <alt>0 1 2 3 4 5 6 7 8 9 a b c d e f</alt>
+  </production>
+
+  <production name="Digit">
+    <alt>0 1 2 3 4 5 6 7 8 9</alt>
+  </production>
+
+  <production name="OctDigit">
+    <alt>0 1 2 3 4 5 6 7</alt>
   </production>
 
   <production name="DoubleLiteral">
@@ -450,21 +486,21 @@
     <description>
       Defined using Character.isJavaIdentifierStart(...) in Java.
     </description>
-    &TODO;
+    <character set="JavaIdentifierStart"/>
   </production>
 
   <production name="IdentifierPart">
     <description>
       Defined using Character.isJavaIdentifierPart(...) in Java.
     </description>
-    &TODO;
+    <character set="JavaIdentifierPart"/>
   </production>
 
   <production name="EscapedSymbolicNameString">
     <description>
-      Any character except "`", enclosed within "``.
+      Any character except "`", enclosed within `backticks`.
     </description>
-    &TODO;<!--`<repeat><charset allBut="`"/></repeat>`-->
+    ` <repeat><character><except literal="`"/></character></repeat> `
   </production>
 
   <production name="WS">
@@ -477,19 +513,23 @@
 
   <production name="whitespace">
     <alt>
-      <literal value=" "/>
-      <literal value="&#9;"/>
-      <literal value="&#10;"/>
-      <literal value="&#13;"/>
+      <character set="JavaWhiteSpace"/>
+      <non-terminal ref="Comment"/>
     </alt>
   </production>
 
-  <production name="Digits">
-    <repeat min="1"><non-terminal ref="Digit"/></repeat>
-  </production>
-
-  <production name="Digit">
-    <alt>0 1 2 3 4 5 6 7 8 9</alt>
+  <production name="Comment">
+    <alt>
+      <seq>/* <character><except literal="*/"/></character> */</seq>
+      <seq>//
+        <character>
+          <except literal="&#10;"/>
+          <except literal="&#13;"/>
+        </character>
+        <opt><literal value="&#13;"/></opt>
+        <alt><literal value="&#10;"/><character set="EOI"/></alt>
+      </seq>
+    </alt>
   </production>
 
   <production name="LeftArrowHead">
@@ -527,7 +567,6 @@
     </alt>
   </production>
 
-  <production name="TODO"/>
 
   <!-- \ UTILITY DEFINITIONS / -->
 

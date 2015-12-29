@@ -3,15 +3,20 @@ package org.opencypher.tools.grammar;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
 import javax.xml.transform.TransformerException;
 
+import org.opencypher.grammar.Exclusion;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.GrammarVisitor;
 import org.opencypher.tools.output.Output;
 import org.opencypher.tools.xml.XmlGenerator;
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-public class Xml extends XmlGenerator implements GrammarVisitor<SAXException>
+public class Xml extends XmlGenerator
+        implements GrammarVisitor<SAXException>, Exclusion.Visitor<Attributes, RuntimeException>
 {
     public static void write( Grammar grammar, Writer writer ) throws TransformerException
     {
@@ -111,6 +116,24 @@ public class Xml extends XmlGenerator implements GrammarVisitor<SAXException>
         {
             println( value );
         }
+    }
+
+    @Override
+    public void visitCharacters( String wellKnownSetName, List<Exclusion> exclusions ) throws SAXException
+    {
+        startElement( "character", attribute( "set", wellKnownSetName ) );
+        for ( Exclusion exclusion : exclusions )
+        {
+            startElement( "except", exclusion.accept( this ) );
+            endElement( "except" );
+        }
+        endElement( "character" );
+    }
+
+    @Override
+    public Attributes excludeLiteral( String literal ) throws RuntimeException
+    {
+        return attribute( "literal", literal );
     }
 
     @Override

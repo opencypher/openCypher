@@ -65,6 +65,42 @@ public interface Grammar
         return literal;
     }
 
+    final class CharacterSet extends Characters
+    {
+        private CharacterSet( String name )
+        {
+            this.set = name;
+        }
+
+        public CharacterSet except( int... codePoints )
+        {
+            for ( int codePoint : codePoints )
+            {
+                exclude( codePoint );
+            }
+            return this;
+        }
+
+        public CharacterSet except( String... literals )
+        {
+            for ( String literal : literals )
+            {
+                exclude( literal );
+            }
+            return this;
+        }
+    }
+
+    static CharacterSet charactersOfSet( String name )
+    {
+        return new CharacterSet( requireNonNull( name, "character set name" ) );
+    }
+
+    static CharacterSet anyCharacter()
+    {
+        return new CharacterSet( Characters.DEFAULT_SET );
+    }
+
     static Term nonTerminal( String production )
     {
         NonTerminal nonTerminal = new NonTerminal();

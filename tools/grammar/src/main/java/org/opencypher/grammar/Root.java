@@ -43,6 +43,11 @@ class Root implements Iterable<Production>
     @Child
     void add( Production production )
     {
+        if ( Characters.isReserved( production.name ) )
+        {
+            throw new IllegalArgumentException( "Invalid production name: '" + production.name +
+                                                "', it is reserved for well known character sets." );
+        }
         if ( productions.put( production.name, production ) != null )
         {
             throw new IllegalArgumentException( "Duplicate definition of '" + production.name + "' production" );

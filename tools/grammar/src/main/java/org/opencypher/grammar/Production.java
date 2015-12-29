@@ -6,9 +6,10 @@ import java.util.function.Function;
 import org.opencypher.tools.xml.Attribute;
 import org.opencypher.tools.xml.Child;
 import org.opencypher.tools.xml.Element;
+import org.opencypher.tools.xml.LocationAware;
 
 @Element(uri = Grammar.XML_NAMESPACE, name = "production")
-final class Production
+final class Production implements LocationAware
 {
     final String vocabulary;
     @Attribute
@@ -21,10 +22,10 @@ final class Production
         this.vocabulary = root.language;
     }
 
-    @Child({Alternatives.class, Sequence.class, Literal.class, NonTerminal.class, Optional.class, Repetition.class})
+    @Child({Alternatives.class, Sequence.class, Literal.class, Characters.class, NonTerminal.class, Optional.class, Repetition.class})
     void add( Node node )
     {
-        definition = Sequence.implicit( definition, node );
+        definition = Sequence.implicit( definition, node.replaceWithVerified() );
     }
 
     @Child
@@ -89,5 +90,11 @@ final class Production
     public String toString()
     {
         return "Production{" + vocabulary + " / " + name + " = " + definition + "}";
+    }
+
+    @Override
+    public void location( String systemId, int lineNumber, int columnNumber )
+    {
+        throw new UnsupportedOperationException( "not implemented" );
     }
 }

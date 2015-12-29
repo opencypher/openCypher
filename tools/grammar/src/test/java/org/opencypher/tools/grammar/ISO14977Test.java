@@ -2,9 +2,7 @@ package org.opencypher.tools.grammar;
 
 import java.io.StringWriter;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.opencypher.grammar.Fixture;
 import org.opencypher.grammar.Grammar;
 
 import static org.junit.Assert.assertEquals;
@@ -25,15 +23,27 @@ public class ISO14977Test
     public void shouldRenderLiteral() throws Exception
     {
         verify( production( "foo", literal( "FOO" ) ),
-                "foo = \"FOO\" ;" );
+                "foo = 'FOO' ;" );
+    }
+
+    @Test
+    public void shouldRenderLiteralContainingMultipleQuotes() throws Exception
+    {
+        verify( production( "literals", literal( "'\"\"'" ) ),
+                "literals = \"'\", '\"\"', \"'\" ;" );
+
+        verify( production( "literals", oneOf( literal( "'\"\"'" ), literal( "\"''\"" ) ) ),
+                "literals = (\"'\", '\"\"', \"'\")",
+                "         | ('\"', \"''\", '\"')",
+                "         ;" );
     }
 
     @Test
     public void shouldRenderAlternativesOfProduction() throws Exception
     {
         verify( production( "one", literal( "A" ), literal( "B" ) ),
-                "one = \"A\"",
-                "    | \"B\"",
+                "one = 'A'",
+                "    | 'B'",
                 "    ;" );
     }
 
@@ -44,7 +54,7 @@ public class ISO14977Test
                 literal( "A" ),
                 oneOf( literal( "B" ), literal( "C" ) ),
                 literal( "D" ) ) ),
-                "something = \"A\", (\"B\" | \"C\"), \"D\" ;" );
+                "something = 'A', ('B' | 'C'), 'D' ;" );
     }
 
     @Test
@@ -52,8 +62,8 @@ public class ISO14977Test
     {
         verify( production( "alts", sequence( literal( "A" ), literal( "B" ) ),
                             sequence( literal( "C" ), literal( "D" ) ) ),
-                "alts = (\"A\", \"B\")",
-                "     | (\"C\", \"D\")",
+                "alts = ('A', 'B')",
+                "     | ('C', 'D')",
                 "     ;" );
     }
 
@@ -61,66 +71,66 @@ public class ISO14977Test
     public void shouldRenderRepetitionWithExactCount() throws Exception
     {
         verify( production( "repeat", repeat( 6, literal( "hello" ) ) ),
-                "repeat = 6 * \"hello\" ;" );
+                "repeat = 6 * 'hello' ;" );
     }
 
     @Test
     public void shouldRenderRepetitionWithMinAndMax() throws Exception
     {
         verify( production( "repeat", repeat( 5, 10, literal( "hello" ) ) ),
-                "repeat = 5 * \"hello\", 5 * [\"hello\"] ;" );
+                "repeat = 5 * 'hello', 5 * ['hello'] ;" );
     }
 
     @Test
     public void shouldRenderRepetitionWithMin() throws Exception
     {
         verify( production( "repeat", atLeast( 3, literal( "hello" ) ) ),
-                "repeat = 3 * \"hello\", {\"hello\"} ;" );
+                "repeat = 3 * 'hello', {'hello'} ;" );
     }
 
     @Test
     public void shouldRenderRepetitionWithMax() throws Exception
     {
         verify( production( "repeat", repeat( 0, 7, literal( "hello" ) ) ),
-                "repeat = 7 * [\"hello\"] ;" );
+                "repeat = 7 * ['hello'] ;" );
     }
 
     @Test
     public void shouldRenderOneOrMore() throws Exception
     {
         verify( production( "repeat", oneOrMore( literal( "hello" ) ) ),
-                "repeat = {\"hello\"}- ;" );
+                "repeat = {'hello'}- ;" );
     }
 
     @Test
     public void shouldRenderZeroOrMore() throws Exception
     {
         verify( production( "repeat", zeroOrMore( literal( "hello" ) ) ),
-                "repeat = {\"hello\"} ;" );
+                "repeat = {'hello'} ;" );
     }
 
     @Test
     public void shouldRenderAlternativeRepetitions() throws Exception
     {
-        verify( production( "stuff", zeroOrMore( literal( "foo"), literal("bar") ),
-                            repeat( 5, literal( "abc" ), literal( "xyz" ) )),
-                "stuff = {\"foo\", \"bar\"}",
-                "      | 5 * (\"abc\", \"xyz\")",
-                "      ;");
+        verify( production( "stuff", zeroOrMore( literal( "foo" ), literal( "bar" ) ),
+                            repeat( 5, literal( "abc" ), literal( "xyz" ) ) ),
+                "stuff = {'foo', 'bar'}",
+                "      | 5 * ('abc', 'xyz')",
+                "      ;" );
     }
 
     @Test
     public void shouldRenderOptional() throws Exception
     {
         verify( production( "opt", optional( literal( "foo" ) ) ),
-                "opt = [\"foo\"] ;" );
+                "opt = ['foo'] ;" );
     }
 
     @Test
     public void shouldRenderRecursiveDefinition() throws Exception
     {
         verify( production( "rec", sequence( literal( "A" ), optional( nonTerminal( "rec" ) ), literal( "B" ) ) ),
-                "rec = \"A\", [rec], \"B\" ;" );
+                "rec = 'A', [rec], 'B' ;" );
     }
 
     Grammar.Builder production( String name, Grammar.Term first, Grammar.Term... alternatives )

@@ -9,10 +9,10 @@ abstract class Sequenced extends Node
 {
     private Node term;
 
-    @Child({Alternatives.class, Sequence.class, Literal.class, NonTerminal.class, Optional.class, Repetition.class})
+    @Child({Alternatives.class, Sequence.class, Literal.class, Characters.class, NonTerminal.class, Optional.class, Repetition.class})
     final void add( Node node )
     {
-        term = Sequence.implicit( term, node );
+        term = Sequence.implicit( term, node.replaceWithVerified() );
     }
 
     @Child

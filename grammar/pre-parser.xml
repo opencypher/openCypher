@@ -30,7 +30,7 @@
   </production>
 
   <production name="VersionNumber">
-    <non-terminal ref="Digits"/>.<non-terminal ref="Digits"/>
+    <non-terminal ref="DigitString"/>.<non-terminal ref="DigitString"/>
   </production>
 
   <production name="Explain">EXPLAIN</production>

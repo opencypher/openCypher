@@ -62,4 +62,10 @@ class Dependencies
             throw new IllegalArgumentException( message.toString() );
         }
     }
+
+    public void invalidCharacterSet( String name, Production origin )
+    {
+        throw new IllegalArgumentException(
+                "Invalid character set: '" + name + "', a production exists with that name." );
+    }
 }

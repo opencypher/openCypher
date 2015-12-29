@@ -2,10 +2,17 @@ package org.opencypher.grammar;
 
 import java.util.function.Function;
 
+import org.opencypher.tools.xml.LocationAware;
+
 import static java.lang.System.identityHashCode;
 
-abstract class Node extends Grammar.Term
+abstract class Node extends Grammar.Term implements LocationAware
 {
+    @Override
+    public void location( String systemId, int lineNumber, int columnNumber )
+    {
+    }
+
     @Override
     final Production addTo( Production production )
     {
@@ -17,7 +24,7 @@ abstract class Node extends Grammar.Term
     final Container addTo( Container container )
     {
         container.add( defensiveCopy() );
-        return  container;
+        return container;
     }
 
     @Override
@@ -29,6 +36,11 @@ abstract class Node extends Grammar.Term
 
     void resolve( Production origin, Function<String, Production> productions, Dependencies dependencies )
     {
+    }
+
+    Node replaceWithVerified()
+    {
+        return this;
     }
 
     @Override
@@ -54,6 +66,11 @@ abstract class Node extends Grammar.Term
 
     static final Node EPSILON = new Node()
     {
+        @Override
+        public void location( String systemId, int lineNumber, int columnNumber )
+        {
+        }
+
         @Override
         public int hashCode()
         {

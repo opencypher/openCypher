@@ -3,14 +3,16 @@ package org.opencypher.tools.grammar;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.List;
 
+import org.opencypher.grammar.Exclusion;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.GrammarVisitor;
 import org.opencypher.tools.output.Output;
 
 import static org.opencypher.tools.output.Output.output;
 
-public class ISO14977 implements GrammarVisitor<RuntimeException>
+public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Visitor<Void, RuntimeException>
 {
     public static void write( Grammar grammar, Writer writer )
     {
@@ -105,7 +107,103 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>
     @Override
     public void visitLiteral( String value )
     {
-        output.append( '"' ).append( value ).append( '"' );
+        char enclose;
+        int sq, dq;
+        if ( (sq = value.indexOf( '\'' )) == -1 )
+        {
+            enclose = '\'';
+        }
+        else if ( (dq = value.indexOf( '"' )) == -1 )
+        {
+            enclose = '"';
+        }
+        else
+        {
+            char other;
+            if ( sq < dq )
+            {
+                sq = dq;
+                enclose = '"';
+                other = '\'';
+            }
+            else
+            {
+                enclose = '\'';
+                other = '"';
+            }
+            if ( group )
+            {
+                output.append( '(' );
+            }
+            int start = 0;
+            for ( int end = sq; end != -1; start = end, end = value.indexOf( enclose, end + 1 ) )
+            {
+                output.append( enclose ).append( value.subSequence( start, end ) ).append( enclose ).append( ", " );
+                char last = enclose;
+                enclose = other;
+                other = last;
+            }
+            output.append( enclose ).append( value.subSequence( start, value.length() ) ).append( enclose );
+            if ( group )
+            {
+                output.append( ')' );
+            }
+            return;
+        }
+        output.append( enclose ).append( value ).append( enclose );
+    }
+
+    @Override
+    public void visitCharacters( String wellKnownSetName, List<Exclusion> exceptions )
+    {
+        output.append( wellKnownSetName );
+        if ( !exceptions.isEmpty() )
+        {
+            if ( exceptions.size() == 1 )
+            {
+                output.append( " - " );
+                exceptions.get( 0 ).accept( this );
+            }
+            else
+            {
+                String sep = " - (";
+                for ( Exclusion exception : exceptions )
+                {
+                    output.append( sep );
+                    exception.accept( this );
+                    sep = " | ";
+                }
+                output.append( ')' );
+            }
+        }
+    }
+
+    @Override
+    public Void excludeLiteral( String literal ) throws RuntimeException
+    {
+        visitLiteral( literal );
+        return null;
+    }
+
+    @Override
+    public Void excludeCodePoint( int cp ) throws RuntimeException
+    {
+        if ( cp == '\'' )
+        {
+            output.append( "\"'\"" );
+        }
+        else
+        {
+            output.append( '\'' ).appendCodePoint( cp ).append( '\'' );
+        }
+        return null;
+    }
+
+    @Override
+    public Void excludeCharacterSet( String wellKnownName ) throws RuntimeException
+    {
+        output.append( wellKnownName );
+        return null;
     }
 
     @Override

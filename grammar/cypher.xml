@@ -2,9 +2,9 @@
 <!DOCTYPE grammar [
   <!ENTITY WS "<non-terminal ref='WS'/>">
   <!ENTITY SP "<non-terminal ref='SP'/>">
-  <!ENTITY TODO "<non-terminal ref='TODO'/>">
   <!ENTITY expr "<non-terminal ref='Expression'/>">
   <!ENTITY var "<non-terminal ref='Variable'/>">
+  <!ENTITY TODO "<non-terminal ref='TODO'/>">
 ]>
 <grammar language="Cypher" case-sensitive="false"
   xmlns="http://thobe.org/grammar"
@@ -115,6 +115,8 @@
 
 
   <!-- / COMMANDS \ -->
+
+  <production name="TODO"/>
 
   <production name="CreateUniqueConstraint">
     &TODO;

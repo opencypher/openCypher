@@ -13,10 +13,10 @@ abstract class Container extends Node
 {
     private final List<Node> nodes = new ArrayList<>();
 
-    @Child({Alternatives.class, Sequence.class, Literal.class, NonTerminal.class, Optional.class, Repetition.class})
+    @Child({Alternatives.class, Sequence.class, Literal.class, Characters.class, NonTerminal.class, Optional.class, Repetition.class})
     final void add( Node node )
     {
-        nodes.add( node );
+        nodes.add( node.replaceWithVerified() );
     }
 
     final Collection<Grammar.Term> terms()

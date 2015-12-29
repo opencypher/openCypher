@@ -1,6 +1,7 @@
 package org.opencypher.grammar;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface GrammarVisitor<EX extends Exception>
 {
@@ -31,6 +32,10 @@ public interface GrammarVisitor<EX extends Exception>
     }
 
     default void visitEpsilon() throws EX
+    {
+    }
+
+    default void visitCharacters( String wellKnownSetName, List<Exclusion> exclusions ) throws EX
     {
     }
 }

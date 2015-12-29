@@ -36,9 +36,58 @@ final class Literal extends Node
 
     private static void literal( Consumer<? super Literal> add, String literal )
     {
-        Literal node = new Literal();
-        node.value = literal;
-        add.accept( node );
+        add.accept( literal( literal ) );
+    }
+
+    @Override
+    Node replaceWithVerified()
+    {
+        if ( value.length() == 1 )
+        {
+            if ( (value.charAt( 0 ) < 0x20 || value.charAt( 0 ) == 0x7F) )
+            {
+                return Characters.codePoint( value.charAt( 0 ) );
+            }
+            else
+            {
+                return this;
+            }
+        }
+        Sequence seq = null;
+        int start = 0;
+        for ( int i = 0, cp; i < value.length(); i += Character.charCount( cp ) )
+        {
+            cp = value.codePointAt( i );
+            if ( cp < 0x20 || cp == 0x7F )
+            {
+                if ( seq == null )
+                {
+                    seq = new Sequence();
+                }
+                if ( start < i )
+                {
+                    seq.add( literal( value.substring( start, i ) ) );
+                }
+                seq.add( Characters.codePoint( cp ) );
+                start = i + 1;
+            }
+        }
+        if ( seq != null )
+        {
+            if ( start < value.length() )
+            {
+                seq.add( literal( value.substring( start ) ) );
+            }
+            return seq;
+        }
+        return this;
+    }
+
+    private static Literal literal( String value )
+    {
+        Literal literal = new Literal();
+        literal.value = value;
+        return literal;
     }
 
     @Override

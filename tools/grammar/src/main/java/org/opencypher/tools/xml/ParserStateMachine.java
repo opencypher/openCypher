@@ -77,7 +77,7 @@ class ParserStateMachine extends DefaultHandler2
     {
         try
         {
-            node = node.child( uri, localName );
+            node = node.child( uri, localName, locator );
             BitSet required = node.builder.requiredAttributes();
             for ( int i = 0, len = attributes.getLength(); i < len; i++ )
             {
@@ -154,7 +154,7 @@ class ParserStateMachine extends DefaultHandler2
             this.value = value;
         }
 
-        Node child( String uri, String name ) throws SAXException
+        Node child( String uri, String name, Locator locator ) throws SAXException
         {
             NodeBuilder child = builder.child( uri, name );
             if ( child == null )
@@ -163,7 +163,13 @@ class ParserStateMachine extends DefaultHandler2
                         "element '" + name + "' in namespace '" + uri + "' is not a valid child of element '" +
                         builder.name + "' in namespace '" + builder.uri + "'" );
             }
-            return new Node( this, child, child.create( value ) );
+            Object value = child.create( this.value );
+            if ( value instanceof LocationAware )
+            {
+                ((LocationAware) value).location(
+                        locator.getSystemId(), locator.getLineNumber(), locator.getColumnNumber() );
+            }
+            return new Node( this, child, value );
         }
 
         void add( Node child )
@@ -189,7 +195,7 @@ class ParserStateMachine extends DefaultHandler2
         }
 
         @Override
-        Node child( String uri, String name ) throws SAXException
+        Node child( String uri, String name, Locator locator ) throws SAXException
         {
             if ( !builder.uri.equalsIgnoreCase( uri ) || !builder.name.equalsIgnoreCase( name ) )
             {
