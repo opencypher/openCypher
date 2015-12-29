@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
-
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.InputSource;
@@ -50,7 +49,7 @@ abstract class Resolver
         try ( InputStream stream = Files.newInputStream( path ) )
         {
             InputSource input = new InputSource( stream );
-            input.setSystemId( path.normalize().toAbsolutePath().toString() );
+            input.setSystemId( XmlFile.canonicalize( path ) );
             return parser.parse( this, input, options );
         }
     }

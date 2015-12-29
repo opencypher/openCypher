@@ -6,10 +6,9 @@ import java.util.function.Function;
 import org.opencypher.tools.xml.Attribute;
 import org.opencypher.tools.xml.Child;
 import org.opencypher.tools.xml.Element;
-import org.opencypher.tools.xml.LocationAware;
 
 @Element(uri = Grammar.XML_NAMESPACE, name = "production")
-final class Production implements LocationAware
+final class Production extends Located
 {
     final String vocabulary;
     @Attribute
@@ -22,7 +21,8 @@ final class Production implements LocationAware
         this.vocabulary = root.language;
     }
 
-    @Child({Alternatives.class, Sequence.class, Literal.class, Characters.class, NonTerminal.class, Optional.class, Repetition.class})
+    @Child({Alternatives.class, Sequence.class, Literal.class, Characters.class, NonTerminal.class, Optional.class,
+            Repetition.class})
     void add( Node node )
     {
         definition = Sequence.implicit( definition, node.replaceWithVerified() );
@@ -49,7 +49,7 @@ final class Production implements LocationAware
 
     <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
     {
-        visitor.visitProduction( name, definition == null ? Node.EPSILON : definition );
+        visitor.visitProduction( name, definition == null ? Node.epsilon() : definition );
     }
 
     <EX extends Exception> void nonTerminalVisit( GrammarVisitor<EX> visitor ) throws EX
@@ -90,11 +90,5 @@ final class Production implements LocationAware
     public String toString()
     {
         return "Production{" + vocabulary + " / " + name + " = " + definition + "}";
-    }
-
-    @Override
-    public void location( String systemId, int lineNumber, int columnNumber )
-    {
-        throw new UnsupportedOperationException( "not implemented" );
     }
 }

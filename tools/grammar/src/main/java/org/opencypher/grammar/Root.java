@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -39,6 +40,7 @@ class Root implements Iterable<Production>
     @Attribute(name = "case-sensitive", optional = true)
     boolean caseSensitive = true;
     private final Map<String, Production> productions = new LinkedHashMap<>();
+    final Map<String, VocabularyReference> referencedFiles = new HashMap<>();
 
     @Child
     void add( Production production )
@@ -57,6 +59,7 @@ class Root implements Iterable<Production>
     @Child
     void addVocabulary( VocabularyReference vocabulary ) throws ParserConfigurationException, SAXException, IOException
     {
+        referencedFiles.put( vocabulary.path(), vocabulary );
         for ( Production production : vocabulary.resolve() )
         {
             add( production );
@@ -119,7 +122,20 @@ class Root implements Iterable<Production>
                 }
             }
         }
-        return new Grammar( this, copy.apply( productions ) );
+        // sort productions
+        ArrayList<Production> ordered = new ArrayList<>( productions.values() );
+        for ( VocabularyReference reference : new ArrayList<>(referencedFiles.values()) )
+        {
+            reference.flattenTo(referencedFiles);
+        }
+        ordered.sort( Located.comparator( referencedFiles ) );
+        Map<String, Production> productions = new LinkedHashMap<>();
+        for ( Production production : ordered )
+        {
+            productions.put( production.name, production );
+        }
+        // create grammar
+        return new Grammar( this, productions );
     }
 
     @Override

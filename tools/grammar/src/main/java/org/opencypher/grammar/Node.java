@@ -8,9 +8,16 @@ import static java.lang.System.identityHashCode;
 
 abstract class Node extends Grammar.Term implements LocationAware
 {
+    private String path;
+    private int lineNumber;
+    private int columnNumber;
+
     @Override
-    public void location( String systemId, int lineNumber, int columnNumber )
+    public final void location( String path, int lineNumber, int columnNumber )
     {
+        this.path = path;
+        this.lineNumber = lineNumber;
+        this.columnNumber = columnNumber;
     }
 
     @Override
@@ -64,35 +71,33 @@ abstract class Node extends Grammar.Term implements LocationAware
         return this;
     }
 
-    static final Node EPSILON = new Node()
+    static Node epsilon()
     {
-        @Override
-        public void location( String systemId, int lineNumber, int columnNumber )
+        return new Node()
         {
-        }
+            @Override
+            public int hashCode()
+            {
+                return identityHashCode( this );
+            }
 
-        @Override
-        public int hashCode()
-        {
-            return identityHashCode( this );
-        }
+            @Override
+            public boolean equals( Object obj )
+            {
+                return this == obj;
+            }
 
-        @Override
-        public boolean equals( Object obj )
-        {
-            return this == obj;
-        }
+            @Override
+            public String toString()
+            {
+                return "EPSILON";
+            }
 
-        @Override
-        public String toString()
-        {
-            return "EPSILON";
-        }
-
-        @Override
-        public <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
-        {
-            visitor.visitEpsilon();
-        }
-    };
+            @Override
+            public <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
+            {
+                visitor.visitEpsilon();
+            }
+        };
+    }
 }

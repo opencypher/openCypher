@@ -33,7 +33,7 @@ abstract class Sequenced extends Node
     @Override
     public final <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
     {
-        accept( term == null ? EPSILON : term, visitor );
+        accept( term == null ? epsilon() : term, visitor );
     }
 
     abstract <EX extends Exception> void accept( Node term, GrammarVisitor<EX> visitor ) throws EX;

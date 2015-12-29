@@ -2,7 +2,7 @@ package org.opencypher.tools.xml;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.function.Supplier;
+import java.util.Optional;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
@@ -24,9 +24,19 @@ public final class XmlFile
         return resolver.parse( path, parser );
     }
 
-    public <T> T parseOnce( XmlParser<? extends T> parser, Supplier<? extends T> onSubsequentParse )
+    public <T> Optional<T> parseOnce( XmlParser<? extends T> parser )
             throws IOException, SAXException, ParserConfigurationException
     {
-        return resolver.parsed( path ) ? onSubsequentParse.get() : parse( parser );
+        return resolver.parsed( path ) ? Optional.empty() : Optional.of( parse( parser ) );
+    }
+
+    public String path()
+    {
+        return canonicalize( path );
+    }
+
+    static String canonicalize( Path path )
+    {
+        return path.toAbsolutePath().normalize().toUri().toString();
     }
 }
