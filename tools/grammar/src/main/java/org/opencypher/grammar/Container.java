@@ -25,11 +25,11 @@ abstract class Container extends Node
     }
 
     @Override
-    final void resolve( Production origin, Function<String, Production> productions, Dependencies dependencies )
+    final void resolve( Production origin, ProductionResolver resolver )
     {
         for ( Node node : nodes )
         {
-            node.resolve( origin, productions, dependencies );
+            node.resolve( origin, resolver );
         }
     }
 

@@ -41,7 +41,7 @@ abstract class Node extends Grammar.Term implements LocationAware
         return sequenced;
     }
 
-    void resolve( Production origin, Function<String, Production> productions, Dependencies dependencies )
+    void resolve( Production origin, ProductionResolver resolver )
     {
     }
 

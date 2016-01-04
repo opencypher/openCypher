@@ -57,11 +57,11 @@ final class Production extends Located
         visitor.visitNonTerminal( name, definition );
     }
 
-    void resolve( Function<String, Production> productions, Dependencies dependencies )
+    void resolve( ProductionResolver resolver )
     {
         if ( definition != null )
         {
-            definition.resolve( this, productions, dependencies );
+            definition.resolve( this, resolver );
         }
     }
 

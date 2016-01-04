@@ -1,7 +1,6 @@
 package org.opencypher.grammar;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 import org.opencypher.tools.xml.Attribute;
 import org.opencypher.tools.xml.Element;
@@ -14,18 +13,15 @@ final class NonTerminal extends Node
     @Attribute
     String ref;
     private Production production;
+    private int index = -1;
 
     @Override
-    void resolve( Production origin, Function<String, Production> productions, Dependencies dependencies )
+    void resolve( Production origin, ProductionResolver resolver )
     {
-        production = productions.apply( requireNonNull( ref, "non-terminal reference" ) );
-        if ( production == null )
+        production = resolver.resolveProduction( origin, requireNonNull( ref, "non-terminal reference" ) );
+        if ( index < 0 )
         {
-            dependencies.missingProduction( ref, origin );
-        }
-        else
-        {
-            dependencies.usedFrom( ref, origin );
+            index = resolver.nextNonTerminalIndex();
         }
     }
 

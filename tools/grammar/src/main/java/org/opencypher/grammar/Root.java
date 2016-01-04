@@ -90,13 +90,10 @@ class Root implements Iterable<Production>
             }
         }
         // Resolve non-terminals in all productions
-        Function<String, Production> lookup = ( name ) -> {
-            unused.remove( name );
-            return productions.get( name );
-        };
+        ProductionResolver resolver = new ProductionResolver( productions, dependencies, unused );
         for ( Production production : productions.values() )
         {
-            production.resolve( lookup, dependencies );
+            production.resolve( resolver );
         }
         // check for errors
         dependencies.reportMissingProductions();

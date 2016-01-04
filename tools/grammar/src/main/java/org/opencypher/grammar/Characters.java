@@ -25,12 +25,9 @@ class Characters extends Node
     private List<Exclusion> exceptions;
 
     @Override
-    void resolve( Production origin, Function<String, Production> productions, Dependencies dependencies )
+    void resolve( Production origin, ProductionResolver resolver )
     {
-        if ( productions.apply( set ) != null )
-        {
-            dependencies.invalidCharacterSet( set, origin );
-        }
+        resolver.verifyCharacterSet( origin, set );
     }
 
     @Override

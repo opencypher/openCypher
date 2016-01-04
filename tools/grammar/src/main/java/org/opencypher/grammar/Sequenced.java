@@ -1,7 +1,6 @@
 package org.opencypher.grammar;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 import org.opencypher.tools.xml.Child;
 
@@ -9,7 +8,8 @@ abstract class Sequenced extends Node
 {
     private Node term;
 
-    @Child({Alternatives.class, Sequence.class, Literal.class, Characters.class, NonTerminal.class, Optional.class, Repetition.class})
+    @Child({Alternatives.class, Sequence.class, Literal.class, Characters.class, NonTerminal.class, Optional.class,
+            Repetition.class})
     final void add( Node node )
     {
         term = Sequence.implicit( term, node.replaceWithVerified() );
@@ -22,11 +22,11 @@ abstract class Sequenced extends Node
     }
 
     @Override
-    final void resolve( Production origin, Function<String, Production> productions, Dependencies dependencies )
+    final void resolve( Production origin, ProductionResolver resolver )
     {
         if ( term != null )
         {
-            term.resolve( origin, productions, dependencies );
+            term.resolve( origin, resolver );
         }
     }
 
