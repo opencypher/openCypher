@@ -1,7 +1,6 @@
 package org.opencypher.grammar;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 import org.opencypher.tools.xml.Attribute;
 import org.opencypher.tools.xml.Child;
@@ -13,7 +12,9 @@ final class Production extends Located
     final String vocabulary;
     @Attribute
     String name;
-    private Node definition;
+    @Attribute(optional = true, uri = Grammar.SCOPE_XML_NAMESPACE, name = "rule")
+    ScopeRule scopeRule;
+    Node definition;
     String description;
 
     public Production( Root root )
@@ -49,12 +50,23 @@ final class Production extends Located
 
     <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
     {
-        visitor.visitProduction( name, definition == null ? Node.epsilon() : definition );
+        visitor.visitProduction( name, definition() );
     }
 
-    <EX extends Exception> void nonTerminalVisit( GrammarVisitor<EX> visitor ) throws EX
+    <R, P, EX extends Exception> R transform( ProductionTransformation<P, R, EX> transformation, P param ) throws EX
     {
-        visitor.visitNonTerminal( name, definition );
+        return transformation.transformProduction( param, name, definition() );
+    }
+
+    <T, P, EX extends Exception> T transformNonTerminal( TermTransformation<P, T, EX> transformation, P param )
+            throws EX
+    {
+        return transformation.transformNonTerminal( param, name, definition() );
+    }
+
+    private Node definition()
+    {
+        return definition == null ? Node.epsilon() : definition;
     }
 
     void resolve( ProductionResolver resolver )
@@ -68,7 +80,7 @@ final class Production extends Located
     @Override
     public int hashCode()
     {
-        return Objects.hashCode( name ) + Objects.hashCode( definition ) * 31;
+        return Objects.hashCode( name );
     }
 
     @Override
@@ -83,7 +95,11 @@ final class Production extends Located
             return false;
         }
         Production that = (Production) obj;
-        return Objects.equals( this.name, that.name ) && Objects.equals( this.definition, that.definition );
+        return Objects.equals( this.name, that.name ) &&
+               Objects.equals( this.vocabulary, that.vocabulary ) &&
+               Objects.equals( this.scopeRule, that.scopeRule ) &&
+               Objects.equals( this.description, that.description ) &&
+               Objects.equals( this.definition, that.definition );
     }
 
     @Override

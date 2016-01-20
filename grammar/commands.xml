@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE grammar [
+  <!ENTITY WS "<non-terminal ref='WS'/>">
+  <!ENTITY SP "<non-terminal ref='SP'/>">
+  <!ENTITY var "<non-terminal ref='Variable'/>">
+  <!ENTITY node "(&WS;)">
+  <!ENTITY dash "<non-terminal ref='Dash'/>">
+  <!ENTITY larrow "<non-terminal ref='LeftArrowHead'/>&dash;">
+  <!ENTITY rarrow "<non-terminal ref='RightArrowHead'/>&dash;">
+  <!ENTITY label "<non-terminal ref='NodeLabel'/>">
+  <!ENTITY type "<non-terminal ref='RelType'/>">
+]>
+<grammar language="Command" case-sensitive="false"
+  xmlns="http://thobe.org/grammar"
+  xmlns:rr="http://thobe.org/railroad"
+  xmlns:ast="http://thobe.org/syntaxtree"
+  xmlns:gen="http://thobe.org/stringgeneration">
+
+  <production name="Command">
+    <alt>
+      <non-terminal ref="CreateUniqueConstraint"/>
+      <non-terminal ref="CreateNodePropertyExistenceConstraint"/>
+      <non-terminal ref="CreateRelationshipPropertyExistenceConstraint"/>
+      <non-terminal ref="CreateIndex"/>
+      <non-terminal ref="DropUniqueConstraint"/>
+      <non-terminal ref="DropNodePropertyExistenceConstraint"/>
+      <non-terminal ref="DropRelationshipPropertyExistenceConstraint"/>
+      <non-terminal ref="DropIndex"/>
+    </alt>
+  </production>
+
+  <!-- / COMMANDS \ -->
+
+  <production name="CreateUniqueConstraint">
+    CREATE <non-terminal ref="UniqueConstraintSyntax"/>
+  </production>
+
+  <production name="CreateNodePropertyExistenceConstraint">
+    CREATE <non-terminal ref="NodePropertyExistenceConstraintSyntax"/>
+  </production>
+
+  <production name="CreateRelationshipPropertyExistenceConstraint">
+    CREATE <non-terminal ref="RelationshipPropertyExistenceConstraintSyntax"/>
+  </production>
+
+  <production name="CreateIndex">
+    CREATE &SP; INDEX &SP; ON &label; (<non-terminal ref="PropertyKeyName"/>)
+  </production>
+
+  <production name="DropUniqueConstraint">
+    DROP <non-terminal ref="UniqueConstraintSyntax"/>
+  </production>
+
+  <production name="DropNodePropertyExistenceConstraint">
+    DROP <non-terminal ref="NodePropertyExistenceConstraintSyntax"/>
+  </production>
+
+  <production name="DropRelationshipPropertyExistenceConstraint">
+    DROP <non-terminal ref="RelationshipPropertyExistenceConstraintSyntax"/>
+  </production>
+
+  <production name="DropIndex">
+    DROP &SP; INDEX &SP; ON &label; (<non-terminal ref="PropertyKeyName"/>)
+  </production>
+
+
+  <production name="UniqueConstraintSyntax">
+    CONSTRAINT &SP; ON ( &var; &label; )
+    ASSERT <non-terminal ref="PropertyExpression"/> IS &SP; UNIQUE
+  </production>
+
+  <production name="NodePropertyExistenceConstraintSyntax">
+    CONSTRAINT &SP; ON ( &var; &label; )
+    ASSERT &SP; EXISTS ( <non-terminal ref="PropertyExpression"/> )
+  </production>
+
+  <production name="RelationshipPropertyExistenceConstraintSyntax">
+    CONSTRAINT &SP; ON <non-terminal ref="RelationshipPatternSyntax"/>
+    ASSERT &SP; EXISTS ( <non-terminal ref="PropertyExpression"/> )
+  </production>
+
+  <production name="RelationshipPatternSyntax">
+    <alt>
+      <seq>&node;&dash;[&var;&type;]&dash;&node;</seq>
+      <seq>&node;&dash;[&var;&type;]&rarrow;&node;</seq>
+      <seq>&node;&larrow;[&var;&type;]&dash;&node;</seq>
+    </alt>
+  </production>
+
+  <!-- \ COMMANDS / -->
+
+  <vocabulary file="basic-grammar.xml"/>
+
+</grammar>

@@ -23,6 +23,31 @@ public abstract class Exclusion
     {
     }
 
+    @Override
+    public String toString()
+    {
+        return accept( new Visitor<String, RuntimeException>()
+        {
+            @Override
+            public String excludeLiteral( String literal ) throws RuntimeException
+            {
+                return "Exclude('" + literal + "')";
+            }
+
+            @Override
+            public String excludeCharacterSet( String wellKnownName ) throws RuntimeException
+            {
+                return "Exclude(" + wellKnownName + ")";
+            }
+
+            @Override
+            public String excludeCodePoint( int cp ) throws RuntimeException
+            {
+                return "Exclude(0x" + Integer.toHexString( cp ) + ")";
+            }
+        } );
+    }
+
     static Exclusion literal( String literal )
     {
         if ( literal.length() >= 1 && literal.length() == Character.charCount( literal.codePointAt( 0 ) ) )

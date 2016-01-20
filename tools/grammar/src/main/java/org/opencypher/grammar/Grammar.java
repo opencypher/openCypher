@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -17,24 +16,24 @@ import org.opencypher.tools.xml.XmlParser;
 import org.xml.sax.SAXException;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.function.Function.identity;
 
 public interface Grammar
 {
     String XML_NAMESPACE = "http://thobe.org/grammar";
+    String SCOPE_XML_NAMESPACE = "http://thobe.org/scope";
 
     static Grammar parseXML( Path input, ParserOption... options )
             throws ParserConfigurationException, SAXException, IOException
     {
         return Root.XML.parse( input, ParserOption.xml( options ) )
-                       .resolve( identity(), ParserOption.resolve( options ) );
+                       .resolve( ParserOption.resolve( options ) );
     }
 
     static Grammar parseXML( InputStream input, ParserOption... options )
             throws ParserConfigurationException, SAXException, IOException
     {
         return Root.XML.parse( input, ParserOption.xml( options ) )
-                       .resolve( identity(), ParserOption.resolve( options ) );
+                       .resolve( ParserOption.resolve( options ) );
     }
 
     String language();
@@ -44,6 +43,11 @@ public interface Grammar
     String productionDescription( String production );
 
     <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX;
+
+    boolean hasProduction( String name );
+
+    <P, R, EX extends Exception> R transform( String production, ProductionTransformation<P, R, EX> xform, P param )
+            throws EX;
 
     static Builder grammar( String language, Option... options )
     {
@@ -56,6 +60,11 @@ public interface Grammar
             }
         }
         return builder;
+    }
+
+    static Term epsilon()
+    {
+        return Node.epsilon();
     }
 
     static Term literal( String value )
@@ -165,6 +174,17 @@ public interface Grammar
 
     class Builder extends Root
     {
+        public enum Option
+        {
+            IGNORE_UNUSED_PRODUCTIONS( Root.ResolutionOption.IGNORE_UNUSED_PRODUCTIONS );
+            private final Root.ResolutionOption option;
+
+            Option( ResolutionOption option )
+            {
+                this.option = option;
+            }
+        }
+
         private Builder( String language )
         {
             this.language = requireNonNull( language, "language name" );
@@ -179,15 +199,23 @@ public interface Grammar
             return this;
         }
 
-        public Grammar build()
+        public Grammar build( Option... options )
         {
-            return resolve( HashMap::new );
+            return resolve( (options == null ? Stream.<Option>empty() : Stream.of( options ))
+                                    .map( x -> x.option )
+                                    .toArray( ResolutionOption[]::new ) );
         }
     }
 
     abstract class Term
     {
-        public abstract <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX;
+        public final <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
+        {
+            transform( Node.visit(), visitor );
+        }
+
+        public abstract <P, T, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param )
+                throws EX;
 
         abstract Container addTo( Container container );
 

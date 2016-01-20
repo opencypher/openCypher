@@ -14,9 +14,10 @@ class Repetition extends Sequenced
     Integer max;
 
     @Override
-    <EX extends Exception> void accept( Node term, GrammarVisitor<EX> visitor ) throws EX
+    <T, P, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param, Node term )
+            throws EX
     {
-        visitor.visitRepetition( min, max, term );
+        return transformation.transformRepetition( param, min, max, term );
     }
 
     @Override

@@ -4,19 +4,11 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Locale;
 
-class WriterOutput implements Output
+class WriterOutput extends BaseOutput<PrintWriter>
 {
-    private final PrintWriter output;
-
-    public WriterOutput( PrintWriter output )
+    WriterOutput( PrintWriter output )
     {
-        this.output = output;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "Output( " +  output + " )";
+        super( output );
     }
 
     // PRINT

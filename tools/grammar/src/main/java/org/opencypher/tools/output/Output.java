@@ -1,15 +1,25 @@
 package org.opencypher.tools.output;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.CharBuffer;
+import java.util.Collections;
+import java.util.Formatter;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.BiConsumer;
 
+import static java.lang.Character.highSurrogate;
+import static java.lang.Character.isBmpCodePoint;
+import static java.lang.Character.isValidCodePoint;
+import static java.lang.Character.lowSurrogate;
+
+@FunctionalInterface
 public interface Output extends Appendable, Closeable
 {
     static Output output( OutputStream stream )
@@ -19,15 +29,19 @@ public interface Output extends Appendable, Closeable
 
     static Output output( Writer writer )
     {
+        if ( writer instanceof OutputWriter )
+        {
+            return ((OutputWriter) writer).output;
+        }
         return new WriterOutput( writer instanceof PrintWriter ? (PrintWriter) writer : new PrintWriter( writer ) );
     }
 
-    static Output output( StringBuilder builder )
+    static Readable output( StringBuilder builder )
     {
         return new StringBuilderOutput( builder );
     }
 
-    static Output output( StringBuffer buffer )
+    static Readable output( StringBuffer buffer )
     {
         return new StringBufferOutput( buffer );
     }
@@ -37,7 +51,7 @@ public interface Output extends Appendable, Closeable
         return new BufferOutput( buffer );
     }
 
-    static Output stringBuilder()
+    static Readable stringBuilder()
     {
         return output( new StringBuilder() );
     }
@@ -45,6 +59,75 @@ public interface Output extends Appendable, Closeable
     static Output stringBuilder( int size )
     {
         return output( new StringBuilder( size ) );
+    }
+
+    static Output stdOut()
+    {
+        return output( System.out );
+    }
+
+    static Output stdErr()
+    {
+        return output( System.err );
+    }
+
+    static Output nowhere()
+    {
+        return Nowhere.OUTPUT;
+    }
+
+    @SuppressWarnings("ManualArrayToCollectionCopy")
+    static Output multiplex( Output... output )
+    {
+        if ( output == null || output.length == 0 )
+        {
+            return nowhere();
+        }
+        if ( output.length == 1 )
+        {
+            return output[0];
+        }
+        Set<Output> flattened = new HashSet<>();
+        boolean altered = false;
+        for ( Output item : output )
+        {
+            if ( item instanceof MultiplexedOutput )
+            {
+                Collections.addAll( flattened, ((MultiplexedOutput) item).output );
+                altered = true;
+            }
+            else if ( item == Nowhere.OUTPUT )
+            {
+                altered = true;
+            }
+            else if ( !flattened.add( item ) )
+            {
+                altered = true;
+            }
+        }
+        if ( !altered )
+        {
+            return new MultiplexedOutput( output );
+        }
+        if ( flattened.size() == 0 )
+        {
+            return nowhere();
+        }
+        if ( flattened.size() == 1 )
+        {
+            return flattened.iterator().next();
+        }
+        return new MultiplexedOutput( flattened.toArray( new Output[flattened.size()] ) );
+    }
+
+    default Output and( Output output )
+    {
+        return multiplex( this, output );
+    }
+
+    static <T> String string( T value, BiConsumer<T, Output> writer )
+    {
+        return stringBuilder().append( value, writer ).toString();
     }
 
     static String lines( String... lines )
@@ -57,16 +140,37 @@ public interface Output extends Appendable, Closeable
         return result.toString();
     }
 
+    interface Readable extends Output, CharSequence
+    {
+        int codePointAt( int index );
+    }
+
     // APPEND
+
+    default <T> Output append( T value, BiConsumer<T, Output> writer )
+    {
+        writer.accept( value, this );
+        return this;
+    }
 
     @Override
     Output append( char x );
 
     @Override
-    Output append( CharSequence str );
+    default Output append( CharSequence str )
+    {
+        return append( str, 0, str.length() );
+    }
 
     @Override
-    Output append( CharSequence str, int start, int end );
+    default Output append( CharSequence str, int start, int end )
+    {
+        for ( int i = start; i < end; i++ )
+        {
+            append( str.charAt( i ) );
+        }
+        return this;
+    }
 
     default Output append( boolean x )
     {
@@ -100,14 +204,14 @@ public interface Output extends Appendable, Closeable
 
     default Output appendCodePoint( int codePoint )
     {
-        if ( Character.isBmpCodePoint( codePoint ) )
+        if ( isBmpCodePoint( codePoint ) )
         {
             append( (char) codePoint );
         }
-        else if ( Character.isValidCodePoint( codePoint ) )
+        else if ( isValidCodePoint( codePoint ) )
         {
-            append( Character.highSurrogate( codePoint ) );
-            append( Character.lowSurrogate( codePoint ) );
+            append( highSurrogate( codePoint ) );
+            append( lowSurrogate( codePoint ) );
         }
         else
         {
@@ -200,83 +304,33 @@ public interface Output extends Appendable, Closeable
         return format( l, format, args );
     }
 
-    Output format( String format, Object... args );
+    default Output format( String format, Object... args )
+    {
+        new Formatter( this ).format( Locale.getDefault(), format, args );
+        return this;
+    }
 
-    Output format( Locale l, String format, Object... args );
+    default Output format( Locale l, String format, Object... args )
+    {
+        new Formatter( this, l ).format( l, format, args );
+        return this;
+    }
 
-    // CLOSE
+    // CONTROL
 
-    void flush();
+    default void flush()
+    {
+    }
 
     @Override
-    void close();
+    default void close()
+    {
+    }
+
+    // CONVERSION
 
     default Writer writer()
     {
-        return new Writer()
-        {
-            @Override
-            public void write( char[] cbuf, int off, int len )
-            {
-                Output.this.append( cbuf, off, len );
-            }
-
-            @Override
-            public void write( int c ) throws IOException
-            {
-                Output.this.append( (char) c );
-            }
-
-            @Override
-            public void write( char[] cbuf ) throws IOException
-            {
-                Output.this.append( cbuf );
-            }
-
-            @Override
-            public void write( String str ) throws IOException
-            {
-                Output.this.append( str );
-            }
-
-            @Override
-            public void write( String str, int off, int len ) throws IOException
-            {
-                Output.this.append( str, off, len );
-            }
-
-            @Override
-            public Writer append( CharSequence csq ) throws IOException
-            {
-                Output.this.append( csq );
-                return this;
-            }
-
-            @Override
-            public Writer append( CharSequence csq, int start, int end ) throws IOException
-            {
-                Output.this.append( csq, start, end );
-                return this;
-            }
-
-            @Override
-            public Writer append( char c ) throws IOException
-            {
-                Output.this.append( c );
-                return this;
-            }
-
-            @Override
-            public void flush()
-            {
-                Output.this.flush();
-            }
-
-            @Override
-            public void close()
-            {
-                Output.this.close();
-            }
-        };
+        return new OutputWriter( this );
     }
 }

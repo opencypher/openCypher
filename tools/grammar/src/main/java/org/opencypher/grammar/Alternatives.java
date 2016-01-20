@@ -6,8 +6,8 @@ import org.opencypher.tools.xml.Element;
 class Alternatives extends Container
 {
     @Override
-    public <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
+    public <P, T, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param ) throws EX
     {
-        visitor.visitAlternatives( terms() );
+        return transformation.transformAlternatives( param, terms() );
     }
 }

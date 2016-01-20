@@ -119,6 +119,10 @@ class ParserStateMachine extends DefaultHandler2
         }
         catch ( Exception e )
         {
+            if ( e.getClass() == RuntimeException.class && e.getCause() instanceof SAXException )
+            {
+                e = (SAXException) e.getCause();
+            }
             throw new SAXParseException( e.getMessage(), locator, e );
         }
     }

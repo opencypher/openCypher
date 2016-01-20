@@ -6,9 +6,9 @@ import org.opencypher.tools.xml.Element;
 class Sequence extends Container
 {
     @Override
-    public <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
+    public <P, T, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param ) throws EX
     {
-        visitor.visitSequence( terms() );
+        return transformation.transformSequence( param, terms() );
     }
 
     static Node implicit( Node current, Node node )

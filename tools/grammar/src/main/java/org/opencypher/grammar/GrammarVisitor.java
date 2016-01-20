@@ -9,10 +9,12 @@ public interface GrammarVisitor<EX extends Exception>
 
     default void visitAlternatives( Collection<Grammar.Term> alternatives ) throws EX
     {
+        each( alternatives, this );
     }
 
     default void visitSequence( Collection<Grammar.Term> sequence ) throws EX
     {
+        each( sequence, this );
     }
 
     default void visitLiteral( String value ) throws EX
@@ -37,5 +39,13 @@ public interface GrammarVisitor<EX extends Exception>
 
     default void visitCharacters( String wellKnownSetName, List<Exclusion> exclusions ) throws EX
     {
+    }
+
+    static <EX extends Exception> void each( Iterable<Grammar.Term> terms, GrammarVisitor<EX> visitor ) throws EX
+    {
+        for ( Grammar.Term term : terms )
+        {
+            term.accept( visitor );
+        }
     }
 }

@@ -117,6 +117,10 @@
     </alt>
   </production>
 
+  <production name="RelType">
+    :<non-terminal ref="RelTypeName"/>
+  </production>
+
   <production name="RelationshipTypes">
     :<non-terminal ref="RelTypeName"/>
     <repeat>&WS;|<opt>:</opt>&WS;<non-terminal ref="RelTypeName"/></repeat>
@@ -238,7 +242,7 @@
       <seq> [ &expr; <repeat> , &expr; </repeat> ] </seq>
       <seq>FILTER  ( <non-terminal ref="FilterExpression"/> ) </seq>
       <seq>EXTRACT ( <non-terminal ref="FilterExpression"/> <opt>&WS; | &expr;</opt> ) </seq>
-      <seq>REDUCE  ( &var; = &expr; , <non-terminal ref="IdInColl"/> | &expr; ) </seq>
+      <non-terminal ref="Reduce"/>
       <seq>ALL     ( <non-terminal ref="FilterExpression"/> ) </seq>
       <seq>ANY     ( <non-terminal ref="FilterExpression"/> ) </seq>
       <seq>NONE    ( <non-terminal ref="FilterExpression"/> ) </seq>
@@ -247,8 +251,12 @@
       <non-terminal ref="RelationshipsPattern"/>
       <non-terminal ref="parenthesizedExpression"/>
       <non-terminal ref="FunctionInvocation"/>
-      <non-terminal ref="Variable"/>
+      &var;
     </alt>
+  </production>
+
+  <production name="Reduce">
+    REDUCE ( &var; = &expr; , <non-terminal ref="IdInColl"/> | &expr; )
   </production>
 
   <production name="PartialComparisonExpression">
@@ -383,6 +391,11 @@
     </alt>}
   </production>
 
+  <production name="PropertyExpression">
+    <non-terminal ref="Expression1"/>
+    <repeat min="1">&WS;<non-terminal ref="PropertyLookup"/></repeat>
+  </production>
+
   <production name="PropertyKeyName">
     <non-terminal ref="SymbolicNameString"/>
   </production>
@@ -513,7 +526,45 @@
 
   <production name="whitespace">
     <alt>
-      <character set="JavaWhiteSpace"/>
+      <!-- The code points accepted by Character.isWhitespace(int) in Java -->
+
+      <!-- ASCII whitespace characters -->
+      <character set="SPACE"/> <!-- SPACE -->
+      <character set="TAB"/> <!-- (Horisontal) Tab -->
+      <character set="LF"/> <!-- Line Feed -->
+      <character set="VT"/> <!-- Vertical Tab -->
+      <character set="FF"/> <!-- Form Feed -->
+      <character set="CR"/> <!-- Carriage Return -->
+      <character set="FS"/> <!-- File Separator -->
+      <character set="GS"/> <!-- Group Separator -->
+      <character set="RS"/> <!-- Record Separator -->
+      <character set="US"/> <!-- Unit Separator -->
+      <!-- Unicode whitespace characters -->
+      <literal value="&#x1680;"/> <!-- OGHAM SPACE MARK -->
+      <literal value="&#x180e;"/> <!-- MONGOLIAN VOWEL SEPARATOR -->
+      <literal value="&#x2000;"/> <!-- EN QUAD -->
+      <literal value="&#x2001;"/> <!-- EM QUAD -->
+      <literal value="&#x2002;"/> <!-- EN SPACE -->
+      <literal value="&#x2003;"/> <!-- EM SPACE -->
+      <literal value="&#x2004;"/> <!-- THREE-PER-EM SPACE -->
+      <literal value="&#x2005;"/> <!-- FOUR-PER-EM SPACE -->
+      <literal value="&#x2006;"/> <!-- SIX-PER-EM SPACE -->
+      <literal value="&#x2008;"/> <!-- PUNCTUATION SPACE -->
+      <literal value="&#x2009;"/> <!-- THIN SPACE -->
+      <literal value="&#x200a;"/> <!-- HAIR SPACE -->
+      <literal value="&#x2028;"/> <!-- LINE SEPARATOR -->
+      <literal value="&#x2029;"/> <!-- PARAGRAPH SEPARATOR -->
+      <literal value="&#x205f;"/> <!-- MEDIUM MATHEMATICAL SPACE -->
+      <literal value="&#x3000;"/> <!-- IDEOGRAPHIC SPACE -->
+
+      <!-- Other whitespace characters -->
+
+      <!-- Non-breaking space characters -->
+      <literal value="&#x00a0;"/> <!-- NO-BREAK SPACE -->
+      <literal value="&#x2007;"/> <!-- FIGURE SPACE -->
+      <literal value="&#x202f;"/> <!-- NARROW NO-BREAK SPACE -->
+
+      <!-- Comments are parsed as whitespace -->
       <non-terminal ref="Comment"/>
     </alt>
   </production>
@@ -566,7 +617,6 @@
       &#xFF0D; <!-- '－' full-width hyphen-minus -->
     </alt>
   </production>
-
 
   <!-- \ UTILITY DEFINITIONS / -->
 

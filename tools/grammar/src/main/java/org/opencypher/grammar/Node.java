@@ -1,6 +1,7 @@
 package org.opencypher.grammar;
 
-import java.util.function.Function;
+import java.util.Collection;
+import java.util.List;
 
 import org.opencypher.tools.xml.LocationAware;
 
@@ -94,10 +95,84 @@ abstract class Node extends Grammar.Term implements LocationAware
             }
 
             @Override
-            public <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
+            public <P, T, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param )
+                    throws EX
             {
-                visitor.visitEpsilon();
+                return transformation.transformEpsilon( param );
             }
         };
     }
+
+    @SuppressWarnings("unchecked")
+    static <EX extends Exception> TermTransformation<GrammarVisitor<EX>, Void, EX> visit()
+    {
+        return VISIT;
+    }
+
+    private static final TermTransformation VISIT = new TermTransformation<GrammarVisitor, Void, Exception>()
+    {
+        @Override
+        public Void transformAlternatives( GrammarVisitor visitor, Collection<Grammar.Term> alternatives )
+                throws Exception
+        {
+            visitor.visitAlternatives( alternatives );
+            return null;
+        }
+
+        @Override
+        public Void transformSequence( GrammarVisitor visitor, Collection<Grammar.Term> sequence )
+                throws Exception
+        {
+            visitor.visitSequence( sequence );
+            return null;
+        }
+
+        @Override
+        public Void transformLiteral( GrammarVisitor visitor, String value )
+                throws Exception
+        {
+            visitor.visitLiteral( value );
+            return null;
+        }
+
+        @Override
+        public Void transformNonTerminal( GrammarVisitor visitor, String productionName, Grammar.Term productionDef )
+                throws Exception
+        {
+            visitor.visitNonTerminal( productionName, productionDef );
+            return null;
+        }
+
+        @Override
+        public Void transformOptional( GrammarVisitor visitor, Grammar.Term term )
+                throws Exception
+        {
+            visitor.visitOptional( term );
+            return null;
+        }
+
+        @Override
+        public Void transformRepetition( GrammarVisitor visitor, int min, Integer max, Grammar.Term term )
+                throws Exception
+        {
+            visitor.visitRepetition( min, max, term );
+            return null;
+        }
+
+        @Override
+        public Void transformEpsilon( GrammarVisitor visitor )
+                throws Exception
+        {
+            visitor.visitEpsilon();
+            return null;
+        }
+
+        @Override
+        public Void transformCharacters( GrammarVisitor visitor, String wellKnownSetName, List<Exclusion> exclusions )
+                throws Exception
+        {
+            visitor.visitCharacters( wellKnownSetName, exclusions );
+            return null;
+        }
+    };
 }

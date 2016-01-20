@@ -6,8 +6,9 @@ import org.opencypher.tools.xml.Element;
 final class Optional extends Sequenced
 {
     @Override
-    <EX extends Exception> void accept( Node term, GrammarVisitor<EX> visitor ) throws EX
+    <T, P, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param, Node term )
+            throws EX
     {
-        visitor.visitOptional( term );
+        return transformation.transformOptional( param, term );
     }
 }

@@ -3,9 +3,16 @@ package org.opencypher.tools.output;
 import java.util.Formatter;
 import java.util.Locale;
 
-abstract class FormattingOutput implements Output
+abstract class FormattingOutput<Target> extends BaseOutput<Target>
 {
+    FormattingOutput( Target output )
+    {
+        super( output );
+    }
+
     private Formatter formatter;
+
+    // FORMAT
 
     @Override
     public final Output format( String format, Object... args )
@@ -29,15 +36,15 @@ abstract class FormattingOutput implements Output
         return this;
     }
 
-    // CONTROL
-
     @Override
-    public void flush()
+    public final Output printf( String format, Object... args )
     {
+        return format( format, args );
     }
 
     @Override
-    public void close()
+    public final Output printf( Locale l, String format, Object... args )
     {
+        return format( l, format, args );
     }
 }

@@ -4,13 +4,13 @@
   <!ENTITY SP "<non-terminal ref='SP'/>">
   <!ENTITY expr "<non-terminal ref='Expression'/>">
   <!ENTITY var "<non-terminal ref='Variable'/>">
-  <!ENTITY TODO "<non-terminal ref='TODO'/>">
 ]>
 <grammar language="Cypher" case-sensitive="false"
   xmlns="http://thobe.org/grammar"
   xmlns:rr="http://thobe.org/railroad"
   xmlns:ast="http://thobe.org/syntaxtree"
-  xmlns:gen="http://thobe.org/stringgeneration">
+  xmlns:gen="http://thobe.org/stringgeneration"
+  xmlns:scope="http://thobe.org/scope">
 
   <production name="Cypher">
     &WS;
@@ -38,19 +38,6 @@
     <alt>
       <non-terminal ref="Command"/>
       <non-terminal ref="Query"/>
-    </alt>
-  </production>
-
-  <production name="Command">
-    <alt>
-      <non-terminal ref="CreateUniqueConstraint"/>
-      <non-terminal ref="CreateNodePropertyExistenceConstraint"/>
-      <non-terminal ref="CreateRelationshipPropertyExistenceConstraint"/>
-      <non-terminal ref="CreateIndex"/>
-      <non-terminal ref="DropUniqueConstraint"/>
-      <non-terminal ref="DropNodePropertyExistenceConstraint"/>
-      <non-terminal ref="DropRelationshipPropertyExistenceConstraint"/>
-      <non-terminal ref="DropIndex"/>
     </alt>
   </production>
 
@@ -114,43 +101,7 @@
   <!-- \ STATEMENTS / -->
 
 
-  <!-- / COMMANDS \ -->
-
-  <production name="TODO"/>
-
-  <production name="CreateUniqueConstraint">
-    &TODO;
-  </production>
-
-  <production name="CreateNodePropertyExistenceConstraint">
-    &TODO;
-  </production>
-
-  <production name="CreateRelationshipPropertyExistenceConstraint">
-    &TODO;
-  </production>
-
-  <production name="CreateIndex">
-    &TODO;
-  </production>
-
-  <production name="DropUniqueConstraint">
-    &TODO;
-  </production>
-
-  <production name="DropNodePropertyExistenceConstraint">
-    &TODO;
-  </production>
-
-  <production name="DropRelationshipPropertyExistenceConstraint">
-    &TODO;
-  </production>
-
-  <production name="DropIndex">
-    &TODO;
-  </production>
-
-  <!-- \ COMMANDS / -->
+  <vocabulary file="commands.xml"/>
 
 
   <!-- / CLAUSES \ -->
@@ -163,14 +114,7 @@
     <opt>FIELDTERMINATOR &SP; <non-terminal ref="StringLiteral"/></opt>
   </production>
 
-  <production name="Start">
-    START &SP;
-    <non-terminal ref="StartPoint"/>
-    <repeat>&WS;,&WS;<non-terminal ref="StartPoint"/></repeat>
-    <opt><non-terminal ref="Where"/></opt>
-  </production>
-
-  <production name="Match">
+  <production name="Match" scope:rule="new">
     <opt>OPTIONAL &SP;</opt>MATCH &SP;
     <non-terminal ref="Pattern"/>
     <repeat><non-terminal ref="Hint"/></repeat>
@@ -209,7 +153,6 @@
     </repeat>
   </production>
 
-
   <production name="SetItem">
     <alt>
       <seq><non-terminal ref="PropertyExpression"/> = &expr;</seq>
@@ -217,11 +160,6 @@
       <seq>&var; += &expr;</seq>
       <seq>&var;<non-terminal ref="NodeLabels"/></seq>
     </alt>
-  </production>
-
-  <production name="PropertyExpression">
-    <non-terminal ref="Expression1"/>
-    <repeat min="1">&WS;<non-terminal ref="PropertyLookup"/></repeat>
   </production>
 
   <production name="Delete">
@@ -243,11 +181,11 @@
     </alt>
   </production>
 
-  <production name="Foreach">
+  <production name="Foreach" scope:rule="nested">
     FOREACH &WS; ( &WS; &var; &SP; IN &SP; &expr; | <repeat min="1">&SP;<non-terminal ref="Clause"/></repeat> &WS; )
   </production>
 
-  <production name="With">
+  <production name="With" scope:rule="new">
     <alt>
       <seq>WITH DISTINCT
         <non-terminal ref="ReturnBody"/>
@@ -332,73 +270,9 @@
     </alt>
   </production>
 
+  <vocabulary file="start.xml"/>
+
   <!-- \ CLAUSES / -->
-
-
-  <!-- / START \ -->
-
-  <production name="StartPoint">
-    &var; &WS; = &WS; <non-terminal ref="Lookup"/>
-  </production>
-
-  <production name="Lookup">
-    <alt>
-      <non-terminal ref="NodeLookup"/>
-      <non-terminal ref="RelationshipLookup"/>
-    </alt>
-  </production>
-
-  <production name="NodeLookup">
-    NODE
-    <alt>
-      <non-terminal ref="IdentifiedIndexLookup"/>
-      <non-terminal ref="IndexQuery"/>
-      <non-terminal ref="IdLookup"/>
-    </alt>
-  </production>
-
-  <production name="RelationshipLookup">
-    <alt>RELATIONSHIP REL</alt>
-    <alt>
-      <non-terminal ref="IdentifiedIndexLookup"/>
-      <non-terminal ref="IndexQuery"/>
-      <non-terminal ref="IdLookup"/>
-    </alt>
-  </production>
-
-  <production name="IdentifiedIndexLookup">
-    : <non-terminal ref="SymbolicNameString"/>
-    ( <non-terminal ref="SymbolicNameString"/> =
-    <alt>
-      <non-terminal ref="StringLiteral"/>
-      <non-terminal ref="Parameter"/>
-    </alt>)
-  </production>
-
-  <production name="IndexQuery">
-    : <non-terminal ref="SymbolicNameString"/>
-    (<alt>
-      <non-terminal ref="StringLiteral"/>
-      <non-terminal ref="Parameter"/>
-    </alt>)
-  </production>
-
-  <production name="IdLookup">
-    (<alt>
-      <non-terminal ref="LiteralIds"/>
-      <non-terminal ref="Parameter"/>
-      *
-    </alt>)
-  </production>
-
-  <production name="LiteralIds">
-    <non-terminal ref="UnsignedIntegerLiteral"/>
-    <repeat>
-      &WS;,&WS;<non-terminal ref="UnsignedIntegerLiteral"/>
-    </repeat>
-  </production>
-
-  <!-- \ START / -->
 
 
   <vocabulary file="basic-grammar.xml"/>

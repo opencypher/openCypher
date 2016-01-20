@@ -118,8 +118,8 @@ final class Literal extends Node
     }
 
     @Override
-    public <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
+    public <P, T, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param ) throws EX
     {
-        visitor.visitLiteral( value );
+        return transformation.transformLiteral( param, value );
     }
 }

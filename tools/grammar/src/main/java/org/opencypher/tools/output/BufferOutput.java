@@ -2,19 +2,11 @@ package org.opencypher.tools.output;
 
 import java.nio.CharBuffer;
 
-class BufferOutput extends FormattingOutput
+class BufferOutput extends FormattingOutput<CharBuffer>
 {
-    private final CharBuffer output;
-
-    public BufferOutput( CharBuffer output )
+    BufferOutput( CharBuffer output )
     {
-        this.output = output;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "Output( " +  output + " )";
+        super( output );
     }
 
     @Override

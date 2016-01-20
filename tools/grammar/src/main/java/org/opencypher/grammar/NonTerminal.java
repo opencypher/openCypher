@@ -53,8 +53,8 @@ final class NonTerminal extends Node
     }
 
     @Override
-    public <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
+    public <P, T, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param ) throws EX
     {
-        production.nonTerminalVisit( visitor );
+        return production.transformNonTerminal( transformation, param );
     }
 }

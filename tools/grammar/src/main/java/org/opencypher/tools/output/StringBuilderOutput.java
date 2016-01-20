@@ -1,12 +1,48 @@
 package org.opencypher.tools.output;
 
-class StringBuilderOutput extends FormattingOutput
-{
-    private final StringBuilder output;
+import java.util.stream.IntStream;
 
+class StringBuilderOutput extends FormattingOutput<StringBuilder> implements Output.Readable
+{
     StringBuilderOutput( StringBuilder output )
     {
-        this.output = output;
+        super( output );
+    }
+
+    @Override
+    public int length()
+    {
+        return output.length();
+    }
+
+    @Override
+    public char charAt( int index )
+    {
+        return output.charAt( index );
+    }
+
+    @Override
+    public int codePointAt( int index )
+    {
+        return output.codePointAt( index );
+    }
+
+    @Override
+    public CharSequence subSequence( int start, int end )
+    {
+        return output.subSequence( start, end );
+    }
+
+    @Override
+    public IntStream chars()
+    {
+        return output.chars();
+    }
+
+    @Override
+    public IntStream codePoints()
+    {
+        return output.codePoints();
     }
 
     @Override

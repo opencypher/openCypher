@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opencypher.tools.xml.Attribute;
@@ -30,7 +29,9 @@ class Root implements Iterable<Production>
 {
     enum ResolutionOption
     {
-        ALLOW_ROOTLESS, SKIP_UNUSED_PRODUCTIONS
+        ALLOW_ROOTLESS,
+        SKIP_UNUSED_PRODUCTIONS,
+        IGNORE_UNUSED_PRODUCTIONS,
     }
 
     static final XmlParser<Root> XML = xmlParser( Root.class );
@@ -66,7 +67,7 @@ class Root implements Iterable<Production>
         }
     }
 
-    final Grammar resolve( Function<Map<String, Production>, Map<String, Production>> copy, ResolutionOption... config )
+    final Grammar resolve( ResolutionOption... config )
     {
         Set<ResolutionOption> options = EnumSet.noneOf( ResolutionOption.class );
         if ( config != null )
@@ -110,7 +111,7 @@ class Root implements Iterable<Production>
                     }
                 }
             }
-            else
+            else if ( !options.contains( ResolutionOption.IGNORE_UNUSED_PRODUCTIONS ) )
             {
                 System.err.println( "WARNING! Unused productions:" );
                 for ( String name : unused )
@@ -121,9 +122,9 @@ class Root implements Iterable<Production>
         }
         // sort productions
         ArrayList<Production> ordered = new ArrayList<>( productions.values() );
-        for ( VocabularyReference reference : new ArrayList<>(referencedFiles.values()) )
+        for ( VocabularyReference reference : new ArrayList<>( referencedFiles.values() ) )
         {
-            reference.flattenTo(referencedFiles);
+            reference.flattenTo( referencedFiles );
         }
         ordered.sort( Located.comparator( referencedFiles ) );
         Map<String, Production> productions = new LinkedHashMap<>();
@@ -184,6 +185,25 @@ class Root implements Iterable<Production>
             {
                 production.accept( visitor );
             }
+        }
+
+        @Override
+        public boolean hasProduction( String name )
+        {
+            return productions.containsKey( name );
+        }
+
+        @Override
+        public <P, R, EX extends Exception> R transform(
+                String name, ProductionTransformation<P, R, EX> transformation, P param ) throws EX
+        {
+            Production production = productions.get( name );
+            if ( production == null )
+            {
+                throw new IllegalArgumentException(
+                        "The grammar for " + language + " has no production for: " + name );
+            }
+            return production.transform( transformation, param );
         }
 
         @Override

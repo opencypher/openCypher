@@ -5,19 +5,11 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.util.Locale;
 
-class StreamOutput implements Output
+class StreamOutput extends BaseOutput<PrintStream>
 {
-    private final PrintStream output;
-
-    public StreamOutput( PrintStream output )
+    StreamOutput( PrintStream output )
     {
-        this.output = output;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "Output( " +  output + " )";
+        super( output );
     }
 
     // PRINT

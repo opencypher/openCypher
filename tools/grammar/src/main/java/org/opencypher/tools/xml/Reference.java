@@ -17,6 +17,11 @@ interface Reference extends Serializable
         return reference;
     }
 
+    static <T,U, R> BiFunction<T,U, R> biFunction( BiFunction<T,U, R> reference )
+    {
+        return reference;
+    }
+
     static <T> ToIntFunction<T> toInt( ToIntFunction<T> reference )
     {
         return reference;

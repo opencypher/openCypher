@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static java.lang.invoke.MethodHandles.dropArguments;
+import static java.lang.invoke.MethodHandles.explicitCastArguments;
 import static java.lang.invoke.MethodHandles.filterArguments;
+import static java.lang.invoke.MethodType.methodType;
 
 final class AttributeHandler
 {
@@ -50,12 +52,12 @@ final class AttributeHandler
     }
 
     private static final Map<Class<?>, Function<MethodHandle, MethodHandle>> CONVERSION = new HashMap<>();
+    private static final MethodHandle ENUM_VALUE_OF = Reference.<Class, String, Enum>biFunction( Enum::valueOf ).mh();
+    private static final MethodHandle UPPER_STRING = Reference.<String, String>function( String::toUpperCase ).mh();
 
     public static MethodHandle conversion( Class<?> type, MethodHandle setter )
     {
-        return CONVERSION.getOrDefault( type, ( mh ) -> {
-            throw new IllegalArgumentException( "Unsupported field type: " + mh.type().parameterArray()[1] );
-        } ).apply( setter );
+        return CONVERSION.computeIfAbsent( type, AttributeHandler::conversion ).apply( setter );
     }
 
     static
@@ -75,6 +77,27 @@ final class AttributeHandler
     private static Function<MethodHandle, MethodHandle> conversion( Reference reference )
     {
         MethodHandle filter = reference.mh();
-        return ( mh ) -> dropArguments( filterArguments( mh, 1, filter ), 1, Resolver.class );
+        return conversion( filter );
+    }
+
+    private static Function<MethodHandle, MethodHandle> conversion( Class<?> type )
+    {
+        if ( type.isEnum() )
+        {
+            return enumConversion( type );
+        }
+        throw new IllegalArgumentException( "Unsupported field type: " + type );
+    }
+
+    private static Function<MethodHandle, MethodHandle> enumConversion( Class<?> enumType )
+    {
+        return conversion( explicitCastArguments(
+                filterArguments( ENUM_VALUE_OF.bindTo( enumType ), 0, UPPER_STRING ),
+                methodType( enumType, String.class ) ) );
+    }
+
+    private static Function<MethodHandle, MethodHandle> conversion( MethodHandle filter )
+    {
+        return mh -> dropArguments( filterArguments( mh, 1, filter ), 1, Resolver.class );
     }
 }

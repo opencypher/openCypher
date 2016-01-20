@@ -31,12 +31,13 @@ abstract class Sequenced extends Node
     }
 
     @Override
-    public final <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
+    public <P, T, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param ) throws EX
     {
-        accept( term == null ? epsilon() : term, visitor );
+        return transform( transformation, param, term == null ? epsilon() : term );
     }
 
-    abstract <EX extends Exception> void accept( Node term, GrammarVisitor<EX> visitor ) throws EX;
+    abstract <T, P, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param, Node term )
+            throws EX;
 
     @Override
     public final int hashCode()

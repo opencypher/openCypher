@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE grammar [
+  <!ENTITY WS "<non-terminal ref='WS'/>">
+  <!ENTITY SP "<non-terminal ref='SP'/>">
+  <!ENTITY var "<non-terminal ref='Variable'/>">
+]>
+<grammar language="Cypher Start Clause" case-sensitive="false"
+  xmlns="http://thobe.org/grammar"
+  xmlns:rr="http://thobe.org/railroad"
+  xmlns:ast="http://thobe.org/syntaxtree"
+  xmlns:gen="http://thobe.org/stringgeneration">
+
+  <!-- / START \ -->
+
+  <production name="Start">
+    START &SP;
+    <non-terminal ref="StartPoint"/>
+    <repeat>&WS;,&WS;<non-terminal ref="StartPoint"/></repeat>
+    <opt><non-terminal ref="Where"/></opt>
+  </production>
+
+  <production name="StartPoint">
+    &var; &WS; = &WS; <non-terminal ref="Lookup"/>
+  </production>
+
+  <production name="Lookup">
+    <alt>
+      <non-terminal ref="NodeLookup"/>
+      <non-terminal ref="RelationshipLookup"/>
+    </alt>
+  </production>
+
+  <production name="NodeLookup">
+    NODE
+    <alt>
+      <non-terminal ref="IdentifiedIndexLookup"/>
+      <non-terminal ref="IndexQuery"/>
+      <non-terminal ref="IdLookup"/>
+    </alt>
+  </production>
+
+  <production name="RelationshipLookup">
+    <alt>RELATIONSHIP REL</alt>
+    <alt>
+      <non-terminal ref="IdentifiedIndexLookup"/>
+      <non-terminal ref="IndexQuery"/>
+      <non-terminal ref="IdLookup"/>
+    </alt>
+  </production>
+
+  <production name="IdentifiedIndexLookup">
+    : <non-terminal ref="SymbolicNameString"/>
+    ( <non-terminal ref="SymbolicNameString"/> =
+    <alt>
+      <non-terminal ref="StringLiteral"/>
+      <non-terminal ref="Parameter"/>
+    </alt>)
+  </production>
+
+  <production name="IndexQuery">
+    : <non-terminal ref="SymbolicNameString"/>
+    (<alt>
+      <non-terminal ref="StringLiteral"/>
+      <non-terminal ref="Parameter"/>
+    </alt>)
+  </production>
+
+  <production name="IdLookup">
+    (<alt>
+      <non-terminal ref="LiteralIds"/>
+      <non-terminal ref="Parameter"/>
+      *
+    </alt>)
+  </production>
+
+  <production name="LiteralIds">
+    <non-terminal ref="UnsignedIntegerLiteral"/>
+    <repeat>
+      &WS;,&WS;<non-terminal ref="UnsignedIntegerLiteral"/>
+    </repeat>
+  </production>
+
+  <!-- \ START / -->
+
+  <vocabulary file="basic-grammar.xml"/>
+
+</grammar>

@@ -14,7 +14,6 @@ import javax.xml.transform.stream.StreamSource;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.opencypher.tools.xml.XmlParser;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -28,10 +27,16 @@ public class Fixture implements TestRule
         return testName;
     }
 
+    public static Grammar grammarResource( Class<?> testClass, String resource, Grammar.ParserOption... options )
+            throws IOException, SAXException, ParserConfigurationException, URISyntaxException
+    {
+        return grammar( resourceURL( testClass, resource ), options );
+    }
+
     public Grammar grammarResource( String resource, Grammar.ParserOption... options )
             throws IOException, SAXException, ParserConfigurationException, URISyntaxException
     {
-        return Grammar.parseXML( Paths.get( resource( resource ).toURI() ), options );
+        return grammar( resource( resource ), options );
     }
 
     public Document xmlResource( String resource ) throws TransformerException, IOException
@@ -44,6 +49,17 @@ public class Fixture implements TestRule
     }
 
     public URL resource( String resource )
+    {
+        return resourceURL( this.testClass, resource );
+    }
+
+    private static Grammar grammar( URL resource, Grammar.ParserOption... options )
+            throws IOException, SAXException, ParserConfigurationException, URISyntaxException
+    {
+        return Grammar.parseXML( Paths.get( resource.toURI() ), options );
+    }
+
+    private static URL resourceURL( Class<?> testClass, String resource )
     {
         URL url = testClass.getResource( resource );
         if ( url == null )
