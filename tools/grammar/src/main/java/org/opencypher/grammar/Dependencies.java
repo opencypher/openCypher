@@ -7,10 +7,10 @@ import java.util.Set;
 
 class Dependencies
 {
-    private Map<String, Set<Production>> missingProductions;
-    private final Map<String, Set<Production>> dependencies = new LinkedHashMap<>();
+    private Map<String, Set<ProductionNode>> missingProductions;
+    private final Map<String, Set<ProductionNode>> dependencies = new LinkedHashMap<>();
 
-    public void missingProduction( String name, Production origin )
+    public void missingProduction( String name, ProductionNode origin )
     {
         if ( missingProductions == null )
         {
@@ -19,14 +19,14 @@ class Dependencies
         update( missingProductions, name, origin );
     }
 
-    public void usedFrom( String name, Production origin )
+    public void usedFrom( String name, ProductionNode origin )
     {
         update( dependencies, name, origin );
     }
 
-    private static void update( Map<String, Set<Production>> productions, String name, Production origin )
+    private static void update( Map<String, Set<ProductionNode>> productions, String name, ProductionNode origin )
     {
-        Set<Production> origins = productions.get( name );
+        Set<ProductionNode> origins = productions.get( name );
         if ( origins == null )
         {
             productions.put( name, origins = Collections.newSetFromMap( new LinkedHashMap<>() ) );
@@ -40,11 +40,11 @@ class Dependencies
         {
             StringBuilder message = new StringBuilder()
                     .append( "Productions used in non-terminals have not been defined:" );
-            for ( Map.Entry<String, Set<Production>> entry : missingProductions.entrySet() )
+            for ( Map.Entry<String, Set<ProductionNode>> entry : missingProductions.entrySet() )
             {
                 message.append( "\n  " ).append( entry.getKey() );
                 String sep = " used from: ";
-                for ( Production origin : entry.getValue() )
+                for ( ProductionNode origin : entry.getValue() )
                 {
                     message.append( sep );
                     if ( origin.name == null )
@@ -63,7 +63,7 @@ class Dependencies
         }
     }
 
-    public void invalidCharacterSet( String name, Production origin )
+    public void invalidCharacterSet( String name, ProductionNode origin )
     {
         throw new IllegalArgumentException(
                 "Invalid character set: '" + name + "', a production exists with that name." );

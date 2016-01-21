@@ -118,16 +118,6 @@ class MultiplexedOutput extends FormattingOutput<Output[]>
     }
 
     @Override
-    public Output append( Object obj )
-    {
-        for ( Output output : this.output )
-        {
-            output.append( obj );
-        }
-        return this;
-    }
-
-    @Override
     public Output append( String str )
     {
         for ( Output output : this.output )
@@ -241,16 +231,6 @@ class MultiplexedOutput extends FormattingOutput<Output[]>
 
     @Override
     public Output println( String x )
-    {
-        for ( Output output : this.output )
-        {
-            output.println( x );
-        }
-        return this;
-    }
-
-    @Override
-    public Output println( Object x )
     {
         for ( Output output : this.output )
         {

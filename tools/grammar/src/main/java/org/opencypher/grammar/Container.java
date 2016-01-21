@@ -2,30 +2,63 @@ package org.opencypher.grammar;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
-import java.util.function.Function;
 
 import org.opencypher.tools.xml.Child;
 
-import static java.util.Collections.unmodifiableCollection;
+import static java.util.Collections.unmodifiableList;
 
-abstract class Container extends Node
+abstract class Container extends Node implements Terms
 {
     private final List<Node> nodes = new ArrayList<>();
 
-    @Child({Alternatives.class, Sequence.class, Literal.class, Characters.class, NonTerminal.class, Optional.class, Repetition.class})
+    @Child({AlternativesNode.class, SequenceNode.class, LiteralNode.class, CharacterSetNode.class,
+            NonTerminalNode.class, OptionalNode.class, RepetitionNode.class})
     final void add( Node node )
     {
         nodes.add( node.replaceWithVerified() );
     }
 
-    final Collection<Grammar.Term> terms()
+    @Override
+    public Iterator<Grammar.Term> iterator()
     {
-        return unmodifiableCollection( nodes );
+        Iterator<Node> iterator = nodes.iterator();
+        return new Iterator<Grammar.Term>()
+        {
+            @Override
+            public boolean hasNext()
+            {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public Grammar.Term next()
+            {
+                return iterator.next();
+            }
+        };
     }
 
     @Override
-    final void resolve( Production origin, ProductionResolver resolver )
+    public int terms()
+    {
+        return nodes.size();
+    }
+
+    @Override
+    public Grammar.Term term( int offset )
+    {
+        return nodes.get( offset );
+    }
+
+    final Collection<Grammar.Term> nodes()
+    {
+        return unmodifiableList( nodes );
+    }
+
+    @Override
+    final void resolve( ProductionNode origin, ProductionResolver resolver )
     {
         for ( Node node : nodes )
         {
@@ -36,7 +69,7 @@ abstract class Container extends Node
     @Child
     final void literal( char[] buffer, int start, int length )
     {
-        Literal.fromCharacters( buffer, start, length, this::add );
+        LiteralNode.fromCharacters( buffer, start, length, this::add );
     }
 
     final Node addAll( Grammar.Term first, Grammar.Term... more )

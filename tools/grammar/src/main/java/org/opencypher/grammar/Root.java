@@ -25,7 +25,7 @@ import static java.util.Objects.requireNonNull;
 import static org.opencypher.tools.xml.XmlParser.xmlParser;
 
 @Element(uri = Grammar.XML_NAMESPACE, name = "grammar")
-class Root implements Iterable<Production>
+class Root implements Iterable<ProductionNode>
 {
     enum ResolutionOption
     {
@@ -40,13 +40,13 @@ class Root implements Iterable<Production>
     String language;
     @Attribute(name = "case-sensitive", optional = true)
     boolean caseSensitive = true;
-    private final Map<String, Production> productions = new LinkedHashMap<>();
+    private final Map<String, ProductionNode> productions = new LinkedHashMap<>();
     final Map<String, VocabularyReference> referencedFiles = new HashMap<>();
 
     @Child
-    void add( Production production )
+    void add( ProductionNode production )
     {
-        if ( Characters.isReserved( production.name ) )
+        if ( CharacterSetNode.isReserved( production.name ) )
         {
             throw new IllegalArgumentException( "Invalid production name: '" + production.name +
                                                 "', it is reserved for well known character sets." );
@@ -61,7 +61,7 @@ class Root implements Iterable<Production>
     void addVocabulary( VocabularyReference vocabulary ) throws ParserConfigurationException, SAXException, IOException
     {
         referencedFiles.put( vocabulary.path(), vocabulary );
-        for ( Production production : vocabulary.resolve() )
+        for ( ProductionNode production : vocabulary.resolve() )
         {
             add( production );
         }
@@ -87,12 +87,12 @@ class Root implements Iterable<Production>
             }
             else
             {
-                dependencies.missingProduction( language, new Production( this ) );
+                dependencies.missingProduction( language, new ProductionNode( this ) );
             }
         }
         // Resolve non-terminals in all productions
         ProductionResolver resolver = new ProductionResolver( productions, dependencies, unused );
-        for ( Production production : productions.values() )
+        for ( ProductionNode production : productions.values() )
         {
             production.resolve( resolver );
         }
@@ -107,7 +107,7 @@ class Root implements Iterable<Production>
                 {
                     for ( String name : new ArrayList<>( unused ) )
                     {
-                        Production production = productions.remove( name );
+                        ProductionNode production = productions.remove( name );
                     }
                 }
             }
@@ -121,14 +121,14 @@ class Root implements Iterable<Production>
             }
         }
         // sort productions
-        ArrayList<Production> ordered = new ArrayList<>( productions.values() );
+        ArrayList<ProductionNode> ordered = new ArrayList<>( productions.values() );
         for ( VocabularyReference reference : new ArrayList<>( referencedFiles.values() ) )
         {
             reference.flattenTo( referencedFiles );
         }
         ordered.sort( Located.comparator( referencedFiles ) );
-        Map<String, Production> productions = new LinkedHashMap<>();
-        for ( Production production : ordered )
+        Map<String, ProductionNode> productions = new LinkedHashMap<>();
+        for ( ProductionNode production : ordered )
         {
             productions.put( production.name, production );
         }
@@ -137,7 +137,7 @@ class Root implements Iterable<Production>
     }
 
     @Override
-    public Iterator<Production> iterator()
+    public Iterator<ProductionNode> iterator()
     {
         return productions.values().iterator();
     }
@@ -145,10 +145,10 @@ class Root implements Iterable<Production>
     private static final class Grammar implements org.opencypher.grammar.Grammar
     {
         private final String language;
-        private final Map<String, Production> productions;
+        private final Map<String, ProductionNode> productions;
         private final boolean caseSensitive;
 
-        Grammar( Root root, Map<String, Production> productions )
+        Grammar( Root root, Map<String, ProductionNode> productions )
         {
             this.language = requireNonNull( root.language, "language" );
             this.caseSensitive = root.caseSensitive;
@@ -168,20 +168,9 @@ class Root implements Iterable<Production>
         }
 
         @Override
-        public String productionDescription( String name )
-        {
-            Production production = productions.get( name );
-            if ( production == null )
-            {
-                throw new NoSuchElementException();
-            }
-            return production.description;
-        }
-
-        @Override
         public <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
         {
-            for ( Production production : productions.values() )
+            for ( ProductionNode production : productions.values() )
             {
                 production.accept( visitor );
             }
@@ -197,7 +186,7 @@ class Root implements Iterable<Production>
         public <P, R, EX extends Exception> R transform(
                 String name, ProductionTransformation<P, R, EX> transformation, P param ) throws EX
         {
-            Production production = productions.get( name );
+            ProductionNode production = productions.get( name );
             if ( production == null )
             {
                 throw new IllegalArgumentException(

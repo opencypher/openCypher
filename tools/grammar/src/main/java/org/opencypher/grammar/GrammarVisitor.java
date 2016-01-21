@@ -1,43 +1,49 @@
 package org.opencypher.grammar;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.function.BiConsumer;
 
 public interface GrammarVisitor<EX extends Exception>
 {
-    void visitProduction( String production, Grammar.Term definition ) throws EX;
+    static GrammarVisitor<RuntimeException> production( BiConsumer<String,Grammar.Term> consumer )
+    {
+        return production -> consumer.accept( production.name(), production.definition() );
+    }
 
-    default void visitAlternatives( Collection<Grammar.Term> alternatives ) throws EX
+    void visitProduction( Production production ) throws EX;
+
+    default void visitAlternatives( Alternatives alternatives ) throws EX
     {
         each( alternatives, this );
     }
 
-    default void visitSequence( Collection<Grammar.Term> sequence ) throws EX
+    default void visitSequence( Sequence sequence ) throws EX
     {
         each( sequence, this );
     }
 
-    default void visitLiteral( String value ) throws EX
+    default void visitLiteral( Literal literal ) throws EX
     {
     }
 
-    default void visitNonTerminal( String productionName, Grammar.Term productionDef ) throws EX
+    default void visitNonTerminal( NonTerminal nonTerminal ) throws EX
     {
     }
 
-    default void visitOptional( Grammar.Term term ) throws EX
+    default void visitOptional( Optional optional ) throws EX
     {
+        optional.term().accept( this );
     }
 
-    default void visitRepetition( int min, Integer max, Grammar.Term term ) throws EX
+    default void visitRepetition( Repetition repetition ) throws EX
     {
+        repetition.term().accept( this );
     }
 
     default void visitEpsilon() throws EX
     {
     }
 
-    default void visitCharacters( String wellKnownSetName, List<Exclusion> exclusions ) throws EX
+    default void visitCharacters( CharacterSet characters ) throws EX
     {
     }
 

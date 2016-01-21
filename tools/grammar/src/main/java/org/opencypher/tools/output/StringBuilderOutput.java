@@ -59,13 +59,6 @@ class StringBuilderOutput extends FormattingOutput<StringBuilder> implements Out
     }
 
     @Override
-    public Output append( Object obj )
-    {
-        output.append( obj );
-        return this;
-    }
-
-    @Override
     public Output append( String str )
     {
         output.append( str );

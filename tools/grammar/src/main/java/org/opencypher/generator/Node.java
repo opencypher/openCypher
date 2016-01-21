@@ -185,13 +185,13 @@ public abstract class Node
             return add( new Tree( this, requireNonNull( name, "name" ) ) );
         }
 
-        public void literal( String literal )
+        public void literal( CharSequence literal )
         {
             if ( last == null )
             {
                 first = last = new Literal( this );
             }
-            last = last.append( literal );
+            last = last.append( literal.toString() );
         }
 
         public void codePoint( int cp )

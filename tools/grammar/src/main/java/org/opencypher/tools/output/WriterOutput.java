@@ -67,13 +67,6 @@ class WriterOutput extends BaseOutput<PrintWriter>
     }
 
     @Override
-    public Output append( Object obj )
-    {
-        output.print( obj );
-        return this;
-    }
-
-    @Override
     public Output append( String str )
     {
         output.print( str );

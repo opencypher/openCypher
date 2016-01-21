@@ -2,13 +2,19 @@ package org.opencypher.tools.grammar;
 
 import java.io.OutputStream;
 import java.io.Writer;
-import java.util.Collection;
-import java.util.List;
 import javax.xml.transform.TransformerException;
 
+import org.opencypher.grammar.Alternatives;
+import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Exclusion;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.GrammarVisitor;
+import org.opencypher.grammar.Literal;
+import org.opencypher.grammar.NonTerminal;
+import org.opencypher.grammar.Optional;
+import org.opencypher.grammar.Production;
+import org.opencypher.grammar.Repetition;
+import org.opencypher.grammar.Sequence;
 import org.opencypher.tools.output.Output;
 import org.opencypher.tools.xml.XmlGenerator;
 import org.xml.sax.Attributes;
@@ -57,23 +63,23 @@ public class Xml extends XmlGenerator
     }
 
     @Override
-    public void visitProduction( String production, Grammar.Term definition ) throws SAXException
+    public void visitProduction( Production production ) throws SAXException
     {
-        startElement( "production", attribute( "name", production )
+        startElement( "production", attribute( "name", production.name() )
                 .attribute( "case-sensitive", Boolean.toString( grammar.caseSensitiveByDefault() ) ) );
-        String description = grammar.productionDescription( production );
+        String description = production.description();
         if ( description != null )
         {
             startElement( "description" );
             println( description );
             endElement( description );
         }
-        definition.accept( this );
+        production.definition().accept( this );
         endElement( "production" );
     }
 
     @Override
-    public void visitAlternatives( Collection<Grammar.Term> alternatives ) throws SAXException
+    public void visitAlternatives( Alternatives alternatives ) throws SAXException
     {
         startElement( "alt" );
         for ( Grammar.Term term : alternatives )
@@ -84,7 +90,7 @@ public class Xml extends XmlGenerator
     }
 
     @Override
-    public void visitSequence( Collection<Grammar.Term> sequence ) throws SAXException
+    public void visitSequence( Sequence sequence ) throws SAXException
     {
         startElement( "seq" );
         for ( Grammar.Term term : sequence )
@@ -95,7 +101,7 @@ public class Xml extends XmlGenerator
     }
 
     @Override
-    public void visitLiteral( String value ) throws SAXException
+    public void visitLiteral( Literal value ) throws SAXException
     {
         boolean whitespace = false;
         for ( int i = 0, len = value.length(), cp; i < len; i += Character.charCount( cp ) )
@@ -108,7 +114,7 @@ public class Xml extends XmlGenerator
         }
         if ( whitespace )
         {
-            startElement( "literal", attribute( "value", value ) );
+            startElement( "literal", attribute( "value", value.toString() ) );
             endElement( "literal" );
         }
         else
@@ -118,10 +124,10 @@ public class Xml extends XmlGenerator
     }
 
     @Override
-    public void visitCharacters( String wellKnownSetName, List<Exclusion> exclusions ) throws SAXException
+    public void visitCharacters( CharacterSet characters ) throws SAXException
     {
-        startElement( "character", attribute( "set", wellKnownSetName ) );
-        for ( Exclusion exclusion : exclusions )
+        startElement( "character", attribute( "set", characters.setName() ) );
+        for ( Exclusion exclusion : characters.exclusions() )
         {
             startElement( "except", exclusion.accept( this ) );
             endElement( "except" );
@@ -136,41 +142,41 @@ public class Xml extends XmlGenerator
     }
 
     @Override
-    public void visitNonTerminal( String productionName, Grammar.Term productionDef ) throws SAXException
+    public void visitNonTerminal( NonTerminal nonTerminal ) throws SAXException
     {
-        startElement( "non-terminal", attribute( "ref", productionName ) );
+        startElement( "non-terminal", attribute( "ref", nonTerminal.productionName() ) );
         endElement( "non-terminal" );
     }
 
     @Override
-    public void visitOptional( Grammar.Term term ) throws SAXException
+    public void visitOptional( Optional optional ) throws SAXException
     {
         startElement( "opt" );
-        term.accept( this );
+        optional.term().accept( this );
         endElement( "opt" );
     }
 
     @Override
-    public void visitRepetition( int min, Integer max, Grammar.Term term ) throws SAXException
+    public void visitRepetition( Repetition repetition ) throws SAXException
     {
-        if ( min > 0 )
+        if ( repetition.minTimes() > 0 )
         {
-            AttributesBuilder attributes = attribute( "min", "" + min );
-            if ( max != null )
+            AttributesBuilder attributes = attribute( "min", "" + repetition.minTimes() );
+            if ( repetition.limited() )
             {
-                attributes = attributes.attribute( "max", max.toString() );
+                attributes = attributes.attribute( "max", "" + repetition.maxTimes() );
             }
             startElement( "repeat", attributes );
         }
-        else if ( max != null )
+        else if ( repetition.limited() )
         {
-            startElement( "repeat", attribute( "max", max.toString() ) );
+            startElement( "repeat", attribute( "max", "" + repetition.maxTimes() ) );
         }
         else
         {
             startElement( "repeat" );
         }
-        term.accept( this );
+        repetition.term().accept( this );
         endElement( "repeat" );
     }
 }

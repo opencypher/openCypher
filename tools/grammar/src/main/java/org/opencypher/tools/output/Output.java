@@ -220,11 +220,6 @@ public interface Output extends Appendable, Closeable
         return this;
     }
 
-    default Output append( Object obj )
-    {
-        return append( Objects.toString( obj ) );
-    }
-
     default Output append( String str )
     {
         return append( (CharSequence) str );
@@ -283,11 +278,6 @@ public interface Output extends Appendable, Closeable
     }
 
     default Output println( String x )
-    {
-        return append( x ).append( '\n' );
-    }
-
-    default Output println( Object x )
     {
         return append( x ).append( '\n' );
     }

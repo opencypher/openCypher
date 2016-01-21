@@ -22,7 +22,7 @@ abstract class Node extends Grammar.Term implements LocationAware
     }
 
     @Override
-    final Production addTo( Production production )
+    final ProductionNode addTo( ProductionNode production )
     {
         production.add( defensiveCopy() );
         return production;
@@ -42,7 +42,7 @@ abstract class Node extends Grammar.Term implements LocationAware
         return sequenced;
     }
 
-    void resolve( Production origin, ProductionResolver resolver )
+    void resolve( ProductionNode origin, ProductionResolver resolver )
     {
     }
 
@@ -112,7 +112,7 @@ abstract class Node extends Grammar.Term implements LocationAware
     private static final TermTransformation VISIT = new TermTransformation<GrammarVisitor, Void, Exception>()
     {
         @Override
-        public Void transformAlternatives( GrammarVisitor visitor, Collection<Grammar.Term> alternatives )
+        public Void transformAlternatives( GrammarVisitor visitor, Alternatives alternatives )
                 throws Exception
         {
             visitor.visitAlternatives( alternatives );
@@ -120,7 +120,7 @@ abstract class Node extends Grammar.Term implements LocationAware
         }
 
         @Override
-        public Void transformSequence( GrammarVisitor visitor, Collection<Grammar.Term> sequence )
+        public Void transformSequence( GrammarVisitor visitor, Sequence sequence )
                 throws Exception
         {
             visitor.visitSequence( sequence );
@@ -128,7 +128,7 @@ abstract class Node extends Grammar.Term implements LocationAware
         }
 
         @Override
-        public Void transformLiteral( GrammarVisitor visitor, String value )
+        public Void transformLiteral( GrammarVisitor visitor, Literal value )
                 throws Exception
         {
             visitor.visitLiteral( value );
@@ -136,26 +136,26 @@ abstract class Node extends Grammar.Term implements LocationAware
         }
 
         @Override
-        public Void transformNonTerminal( GrammarVisitor visitor, String productionName, Grammar.Term productionDef )
+        public Void transformNonTerminal( GrammarVisitor visitor, NonTerminal nonTerminal )
                 throws Exception
         {
-            visitor.visitNonTerminal( productionName, productionDef );
+            visitor.visitNonTerminal( nonTerminal );
             return null;
         }
 
         @Override
-        public Void transformOptional( GrammarVisitor visitor, Grammar.Term term )
+        public Void transformOptional( GrammarVisitor visitor, Optional optional )
                 throws Exception
         {
-            visitor.visitOptional( term );
+            visitor.visitOptional( optional );
             return null;
         }
 
         @Override
-        public Void transformRepetition( GrammarVisitor visitor, int min, Integer max, Grammar.Term term )
+        public Void transformRepetition( GrammarVisitor visitor, Repetition repetition )
                 throws Exception
         {
-            visitor.visitRepetition( min, max, term );
+            visitor.visitRepetition( repetition );
             return null;
         }
 
@@ -168,10 +168,10 @@ abstract class Node extends Grammar.Term implements LocationAware
         }
 
         @Override
-        public Void transformCharacters( GrammarVisitor visitor, String wellKnownSetName, List<Exclusion> exclusions )
+        public Void transformCharacters( GrammarVisitor visitor, CharacterSet characters )
                 throws Exception
         {
-            visitor.visitCharacters( wellKnownSetName, exclusions );
+            visitor.visitCharacters( characters );
             return null;
         }
     };

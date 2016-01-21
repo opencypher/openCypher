@@ -263,7 +263,7 @@ public class TreeBuilderTest
         Grammar.Term nonTerminal = grammar( testName.getMethodName() )
                 .production( testName.getMethodName(), nonTerminal( "other" ) )
                 .production( "other", literal( "done" ) )
-                .build().transform( testName.getMethodName(), ( param, lang, def ) -> def, null );
+                .build().transform( testName.getMethodName(), ( param, prod ) -> prod.definition(), null );
 
         // when
         TreeBuilder.State<Void> next = generate( nonTerminal );

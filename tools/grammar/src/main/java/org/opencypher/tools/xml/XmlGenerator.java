@@ -10,11 +10,9 @@ import javax.xml.transform.Result;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.Node;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
@@ -241,7 +239,7 @@ public abstract class XmlGenerator implements XMLReader
         handler.endElement( uris.get( prefix ), localName, qualify( prefix, localName ) );
     }
 
-    protected final void println( String content ) throws SAXException
+    protected final void println( CharSequence content ) throws SAXException
     {
         newline();
         characters( content );
@@ -252,9 +250,14 @@ public abstract class XmlGenerator implements XMLReader
         characters( WHITESPACE, 0, level * 2 + 1 );
     }
 
-    protected final void characters( String content ) throws SAXException
+    protected final void characters( CharSequence content ) throws SAXException
     {
-        characters( content.toCharArray(), 0, content.length() );
+        char[] chars = new char[content.length()];
+        for ( int i = 0; i < chars.length; i++ )
+        {
+            chars[i] = content.charAt( i );
+        }
+        characters( chars, 0, chars.length );
     }
 
     protected final void characters( char[] ch, int start, int length ) throws SAXException

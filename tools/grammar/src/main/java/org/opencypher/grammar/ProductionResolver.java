@@ -3,21 +3,21 @@ package org.opencypher.grammar;
 import java.util.Map;
 import java.util.Set;
 
-public class ProductionResolver
+class ProductionResolver
 {
-    private final Map<String, Production> productions;
+    private final Map<String, ProductionNode> productions;
     private final Dependencies dependencies;
     private final Set<String> unused;
     private int nonTerminalIndex;
 
-    public ProductionResolver( Map<String, Production> productions, Dependencies dependencies, Set<String> unused )
+    public ProductionResolver( Map<String, ProductionNode> productions, Dependencies dependencies, Set<String> unused )
     {
         this.productions = productions;
         this.dependencies = dependencies;
         this.unused = unused;
     }
 
-    public void verifyCharacterSet( Production origin, String name )
+    public void verifyCharacterSet( ProductionNode origin, String name )
     {
         if ( productions.get( name ) != null )
         {
@@ -25,9 +25,9 @@ public class ProductionResolver
         }
     }
 
-    public Production resolveProduction( Production origin, String name )
+    public ProductionNode resolveProduction( ProductionNode origin, String name )
     {
-        Production production = productions.get( name );
+        ProductionNode production = productions.get( name );
         if ( production == null )
         {
             dependencies.missingProduction( name, origin );

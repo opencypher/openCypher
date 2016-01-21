@@ -2,12 +2,19 @@ package org.opencypher.tools.grammar;
 
 import java.io.OutputStream;
 import java.io.Writer;
-import java.util.Collection;
 import java.util.List;
 
+import org.opencypher.grammar.Alternatives;
+import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Exclusion;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.GrammarVisitor;
+import org.opencypher.grammar.Literal;
+import org.opencypher.grammar.NonTerminal;
+import org.opencypher.grammar.Optional;
+import org.opencypher.grammar.Production;
+import org.opencypher.grammar.Repetition;
+import org.opencypher.grammar.Sequence;
 import org.opencypher.tools.output.Output;
 
 import static org.opencypher.tools.output.Output.output;
@@ -46,28 +53,28 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Vis
     }
 
     @Override
-    public void visitProduction( String production, Grammar.Term definition ) throws RuntimeException
+    public void visitProduction( Production production ) throws RuntimeException
     {
-        StringBuilder altPrefix = new StringBuilder( production.length() + 1 ).append( '\n' );
-        for ( int i = production.length(); i-- > 0; )
+        StringBuilder altPrefix = new StringBuilder( production.name().length() + 1 ).append( '\n' );
+        for ( int i = production.name().length(); i-- > 0; )
         {
             altPrefix.append( ' ' );
         }
-        String description = grammar.productionDescription( production );
+        String description = production.description();
         if ( description != null )
         {
             output.append( "(* " ).append( description ).println( " *)" );
         }
         this.altPrefix = altPrefix.toString();
         group = false;
-        output.append( production ).append( " = " );
-        definition.accept( this );
+        output.append( production.name() ).append( " = " );
+        production.definition().accept( this );
         output.println( " ;" ).println();
         this.altPrefix = "";
     }
 
     @Override
-    public void visitAlternatives( Collection<Grammar.Term> alternatives )
+    public void visitAlternatives( Alternatives alternatives )
     {
         group( () -> {
             boolean prefix = false;
@@ -80,7 +87,7 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Vis
                 term.accept( this );
                 prefix = true;
             }
-            if ( alternatives.size() > 1 )
+            if ( alternatives.terms() > 1 )
             {
                 output.append( altPrefix );
             }
@@ -88,7 +95,7 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Vis
     }
 
     @Override
-    public void visitSequence( Collection<Grammar.Term> sequence )
+    public void visitSequence( Sequence sequence )
     {
         String altPrefix = this.altPrefix;
         this.altPrefix = "";
@@ -105,7 +112,12 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Vis
     }
 
     @Override
-    public void visitLiteral( String value )
+    public void visitLiteral( Literal literal )
+    {
+        literal( literal.toString() );
+    }
+
+    public void literal( String value )
     {
         char enclose;
         int sq, dq;
@@ -154,11 +166,12 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Vis
     }
 
     @Override
-    public void visitCharacters( String wellKnownSetName, List<Exclusion> exceptions )
+    public void visitCharacters( CharacterSet characters )
     {
-        output.append( wellKnownSetName );
-        if ( !exceptions.isEmpty() )
+        output.append( characters.setName() );
+        if ( !characters.hasExclusions() )
         {
+            List<Exclusion> exceptions = characters.exclusions();
             if ( exceptions.size() == 1 )
             {
                 output.append( " - " );
@@ -181,7 +194,7 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Vis
     @Override
     public Void excludeLiteral( String literal ) throws RuntimeException
     {
-        visitLiteral( literal );
+        literal( literal );
         return null;
     }
 
@@ -207,34 +220,34 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Vis
     }
 
     @Override
-    public void visitNonTerminal( String production, Grammar.Term definition )
+    public void visitNonTerminal( NonTerminal nonTerminal )
     {
-        output.append( production );
+        output.append( nonTerminal.productionName() );
     }
 
     @Override
-    public void visitOptional( Grammar.Term term )
+    public void visitOptional( Optional optional )
     {
         String altPrefix = this.altPrefix;
         this.altPrefix = "";
         {
-            group( '[', () -> term.accept( this ), ']' );
+            group( '[', () -> optional.term().accept( this ), ']' );
         }
         this.altPrefix = altPrefix;
     }
 
     @Override
-    public void visitRepetition( int min, Integer max, Grammar.Term term )
+    public void visitRepetition( Repetition repetition )
     {
         String altPrefix = this.altPrefix;
         this.altPrefix = "";
         {
-            if ( max == null )
+            if ( !repetition.limited() )
             {
-                if ( min == 0 || min == 1 )
+                if ( repetition.minTimes() == 0 || repetition.minTimes() == 1 )
                 {
-                    group( '{', () -> term.accept( this ), '}' );
-                    if ( min == 1 )
+                    group( '{', () -> repetition.term().accept( this ), '}' );
+                    if ( repetition.minTimes() == 1 )
                     {
                         output.append( '-' );
                     }
@@ -242,32 +255,32 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Vis
                 else
                 {
                     group( () -> {
-                        output.append( min ).append( " * " );
-                        term.accept( this );
+                        output.append( repetition.minTimes() ).append( " * " );
+                        repetition.term().accept( this );
                         output.append( ", " );
-                        group( '{', () -> term.accept( this ), '}' );
+                        group( '{', () -> repetition.term().accept( this ), '}' );
                     } );
                 }
             }
-            else if ( max == min )
+            else if ( repetition.minTimes() == repetition.maxTimes() )
             {
-                output.append( min ).append( " * " );
-                grouping( () -> term.accept( this ) );
+                output.append( repetition.minTimes() ).append( " * " );
+                grouping( () -> repetition.term().accept( this ) );
             }
-            else if ( min > 0 )
+            else if ( repetition.minTimes() > 0 )
             {
                 group( () -> {
-                    output.append( min ).append( " * " );
-                    term.accept( this );
+                    output.append( repetition.minTimes() ).append( " * " );
+                    repetition.term().accept( this );
                     output.append( ", " );
-                    output.append( max - min ).append( " * " );
-                    group( '[', () -> term.accept( this ), ']' );
+                    output.append( repetition.maxTimes() - repetition.minTimes() ).append( " * " );
+                    group( '[', () -> repetition.term().accept( this ), ']' );
                 } );
             }
             else
             {
-                output.append( max - min ).append( " * " );
-                group( '[', () -> term.accept( this ), ']' );
+                output.append( repetition.maxTimes() - repetition.minTimes() ).append( " * " );
+                group( '[', () -> repetition.term().accept( this ), ']' );
             }
         }
         this.altPrefix = altPrefix;

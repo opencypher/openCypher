@@ -12,7 +12,7 @@ import org.opencypher.tools.xml.Element;
 import static java.util.Collections.unmodifiableList;
 
 @Element(uri = Grammar.XML_NAMESPACE, name = "character")
-class Characters extends Node
+class CharacterSetNode extends Node implements CharacterSet
 {
     private static final String ANY = "ANY", SPACE = "SPACE", DEL = "DEL", EOI = "EOI";
     static final String DEFAULT_SET = ANY;
@@ -24,15 +24,15 @@ class Characters extends Node
     private List<Exclusion> exceptions;
 
     @Override
-    void resolve( Production origin, ProductionResolver resolver )
+    void resolve( ProductionNode origin, ProductionResolver resolver )
     {
         resolver.verifyCharacterSet( origin, set );
     }
 
     @Override
-    Characters defensiveCopy()
+    CharacterSetNode defensiveCopy()
     {
-        Characters characters = new Characters();
+        CharacterSetNode characters = new CharacterSetNode();
         characters.set = set;
         if ( exceptions != null )
         {
@@ -79,11 +79,11 @@ class Characters extends Node
         {
             return true;
         }
-        if ( !(o instanceof Characters) )
+        if ( !(o instanceof CharacterSetNode) )
         {
             return false;
         }
-        Characters that = (Characters) o;
+        CharacterSetNode that = (CharacterSetNode) o;
         return Objects.equals( this.set, that.set ) &&
                Objects.equals( this.exceptions, that.exceptions );
     }
@@ -104,10 +104,16 @@ class Characters extends Node
     @Override
     public <P, T, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param ) throws EX
     {
-        return transformation.transformCharacters( param, set, exclusions() );
+        return transformation.transformCharacters( param, this );
     }
 
-    private List<Exclusion> exclusions()
+    @Override
+    public String setName()
+    {
+        return set;
+    }
+
+    public List<Exclusion> exclusions()
     {
         return exceptions == null ? Collections.<Exclusion>emptyList() : unmodifiableList( exceptions );
     }
@@ -136,14 +142,14 @@ class Characters extends Node
             DLE, DC1, DC2, DC3, DC4, NAK, SYN, ETB,
             CAN, EM, SUB, ESC, FS, GS, RS, US};
 
-    static Characters codePoint( int codePoint )
+    static CharacterSetNode codePoint( int codePoint )
     {
         String name = controlCharName( codePoint );
         if ( name == null )
         {
             name = Character.getName( codePoint );
         }
-        Characters result = new Characters();
+        CharacterSetNode result = new CharacterSetNode();
         result.set = name;
         return result;
     }

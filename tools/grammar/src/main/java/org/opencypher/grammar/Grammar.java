@@ -40,8 +40,6 @@ public interface Grammar
 
     boolean caseSensitiveByDefault();
 
-    String productionDescription( String production );
-
     <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX;
 
     boolean hasProduction( String name );
@@ -69,12 +67,12 @@ public interface Grammar
 
     static Term literal( String value )
     {
-        Literal literal = new Literal();
+        LiteralNode literal = new LiteralNode();
         literal.value = requireNonNull( value, "literal value" );
         return literal;
     }
 
-    final class CharacterSet extends Characters
+    final class CharacterSet extends CharacterSetNode
     {
         private CharacterSet( String name )
         {
@@ -107,19 +105,19 @@ public interface Grammar
 
     static CharacterSet anyCharacter()
     {
-        return new CharacterSet( Characters.DEFAULT_SET );
+        return new CharacterSet( CharacterSetNode.DEFAULT_SET );
     }
 
     static Term nonTerminal( String production )
     {
-        NonTerminal nonTerminal = new NonTerminal();
+        NonTerminalNode nonTerminal = new NonTerminalNode();
         nonTerminal.ref = production;
         return nonTerminal;
     }
 
     static Term optional( Term first, Term... more )
     {
-        return sequence( first, more ).addTo( new Optional() );
+        return sequence( first, more ).addTo( new OptionalNode() );
     }
 
     static Term oneOf( Term first, Term... alternatives )
@@ -128,12 +126,12 @@ public interface Grammar
         {
             return first;
         }
-        return new Alternatives().addAll( first, alternatives );
+        return new AlternativesNode().addAll( first, alternatives );
     }
 
     static Term zeroOrMore( Term first, Term... more )
     {
-        return sequence( first, more ).addTo( new Repetition() );
+        return sequence( first, more ).addTo( new RepetitionNode() );
     }
 
     static Term oneOrMore( Term first, Term... more )
@@ -143,21 +141,21 @@ public interface Grammar
 
     static Term atLeast( int times, Term first, Term... more )
     {
-        Repetition repetition = new Repetition();
+        RepetitionNode repetition = new RepetitionNode();
         repetition.min = times;
         return sequence( first, more ).addTo( repetition );
     }
 
     static Term repeat( int times, Term first, Term... more )
     {
-        Repetition repetition = new Repetition();
+        RepetitionNode repetition = new RepetitionNode();
         repetition.min = repetition.max = times;
         return sequence( first, more ).addTo( repetition );
     }
 
     static Term repeat( int min, int max, Term first, Term... more )
     {
-        Repetition repetition = new Repetition();
+        RepetitionNode repetition = new RepetitionNode();
         repetition.min = min;
         repetition.max = max;
         return sequence( first, more ).addTo( repetition );
@@ -169,7 +167,7 @@ public interface Grammar
         {
             return first;
         }
-        return new Sequence().addAll( first, more );
+        return new SequenceNode().addAll( first, more );
     }
 
     class Builder extends Root
@@ -192,7 +190,7 @@ public interface Grammar
 
         public Builder production( String name, Term first, Term... alternatives )
         {
-            Production production = new Production( this );
+            ProductionNode production = new ProductionNode( this );
             production.name = requireNonNull( name, "name" );
             Grammar.oneOf( first, alternatives ).addTo( production );
             add( production );
@@ -221,7 +219,7 @@ public interface Grammar
 
         abstract Sequenced addTo( Sequenced sequenced );
 
-        abstract Production addTo( Production production );
+        abstract ProductionNode addTo( ProductionNode production );
     }
 
     abstract class Option

@@ -14,7 +14,7 @@ public class CharactersTest
         for ( int cp = 0; cp <= 0x20; cp++ )
         {
             // when
-            Characters charset = Characters.codePoint( cp );
+            CharacterSetNode charset = CharacterSetNode.codePoint( cp );
 
             // then
             assertNotNull( charset );
@@ -22,7 +22,7 @@ public class CharactersTest
             assertNotNull( name );
 
             // when
-            int codePoint = Characters.codePoint( name );
+            int codePoint = CharacterSetNode.codePoint( name );
 
             // then
             assertEquals( cp, codePoint );

@@ -8,21 +8,21 @@ abstract class Sequenced extends Node
 {
     private Node term;
 
-    @Child({Alternatives.class, Sequence.class, Literal.class, Characters.class, NonTerminal.class, Optional.class,
-            Repetition.class})
+    @Child({AlternativesNode.class, SequenceNode.class, LiteralNode.class, CharacterSetNode.class, NonTerminalNode.class,
+            OptionalNode.class, RepetitionNode.class})
     final void add( Node node )
     {
-        term = Sequence.implicit( term, node.replaceWithVerified() );
+        term = SequenceNode.implicit( term, node.replaceWithVerified() );
     }
 
     @Child
     final void literal( char[] buffer, int start, int length )
     {
-        Literal.fromCharacters( buffer, start, length, this::add );
+        LiteralNode.fromCharacters( buffer, start, length, this::add );
     }
 
     @Override
-    final void resolve( Production origin, ProductionResolver resolver )
+    final void resolve( ProductionNode origin, ProductionResolver resolver )
     {
         if ( term != null )
         {
@@ -33,7 +33,12 @@ abstract class Sequenced extends Node
     @Override
     public <P, T, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param ) throws EX
     {
-        return transform( transformation, param, term == null ? epsilon() : term );
+        return transform( transformation, param, term() );
+    }
+
+    public final Node term()
+    {
+        return term == null ? epsilon() : term;
     }
 
     abstract <T, P, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param, Node term )
@@ -57,7 +62,7 @@ abstract class Sequenced extends Node
             return false;
         }
         Sequenced that = (Sequenced) obj;
-        return attributeEquals( that ) && Objects.equals( term, that.term );
+        return attributeEquals( that ) && Objects.equals( this.term, that.term );
     }
 
     @Override

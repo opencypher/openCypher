@@ -13,7 +13,7 @@ public abstract class Exclusion
 
         default R excludeCharacterSet( String wellKnownName ) throws EX
         {
-            return excludeCodePoint( Characters.codePoint( wellKnownName ) );
+            return excludeCodePoint( CharacterSetNode.codePoint( wellKnownName ) );
         }
     }
 
@@ -66,7 +66,7 @@ public abstract class Exclusion
 
     static Exclusion codePoint( int codePoint )
     {
-        String name = Characters.controlCharName( codePoint );
+        String name = CharacterSetNode.controlCharName( codePoint );
         if ( name != null )
         {
             return characterSet( name );

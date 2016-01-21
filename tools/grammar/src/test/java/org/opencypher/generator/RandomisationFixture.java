@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.opencypher.grammar.Alternatives;
 import org.opencypher.grammar.Grammar;
 
 import static org.opencypher.grammar.Grammar.literal;
@@ -112,7 +113,7 @@ public final class RandomisationFixture
 
     private static class State
     {
-        final Set<Object> choices = new HashSet<>();
+        final Set<Grammar.Term> choices = new HashSet<>();
         final Map<Repetition, Integer> repetitions = new HashMap<>();
         public Set<Integer> codepoints = new HashSet<>();
     }
@@ -162,10 +163,10 @@ public final class RandomisationFixture
         }
 
         @Override
-        public <T> T choice( Collection<T> alternatives )
+        public Grammar.Term choice( Alternatives alternatives )
         {
-            T chosen = null;
-            for ( T alternative : alternatives )
+            Grammar.Term chosen = null;
+            for ( Grammar.Term alternative : alternatives )
             {
                 if ( state.get().choices.contains( alternative ) )
                 {

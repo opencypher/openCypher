@@ -11,6 +11,7 @@ import org.opencypher.grammar.Fixture;
 import org.opencypher.grammar.Grammar;
 
 import static org.junit.Assert.assertEquals;
+import static org.opencypher.grammar.GrammarVisitor.production;
 
 public class XmlTest
 {
@@ -35,8 +36,8 @@ public class XmlTest
         catch ( Throwable e )
         {
             Map<String, Grammar.Term> before = new HashMap<>();
-            first.accept( before::put );
-            second.accept( ( name, def ) -> {
+            first.accept( production( before::put ) );
+            second.accept( production( ( name, def ) -> {
                 try
                 {
                     assertEquals( before.get( name ), def );
@@ -45,7 +46,7 @@ public class XmlTest
                 {
                     e.addSuppressed( x );
                 }
-            } );
+            } ) );
             throw e;
         }
     }

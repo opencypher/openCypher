@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.opencypher.grammar.Alternatives;
+import org.opencypher.grammar.Grammar;
+
 public interface Randomisation
 {
     static Randomisation simpleRandomisation()
@@ -31,22 +34,9 @@ public interface Randomisation
             }
 
             @Override
-            public <T> T choice( Collection<T> alternatives )
+            public Grammar.Term choice( Alternatives alternatives )
             {
-                int i = ThreadLocalRandom.current().nextInt( alternatives.size() );
-                if ( alternatives instanceof List<?> )
-                {
-                    return ((List<T>) alternatives).get( i );
-                }
-                else
-                {
-                    Iterator<T> iterator = alternatives.iterator();
-                    while ( i-- > 0 )
-                    {
-                        iterator.next();
-                    }
-                    return iterator.next();
-                }
+                return alternatives.term( ThreadLocalRandom.current().nextInt( alternatives.terms() ) );
             }
 
             @Override
@@ -72,7 +62,7 @@ public interface Randomisation
 
     int repetition( int min );
 
-    <T> T choice( Collection<T> alternatives );
+    Grammar.Term choice( Alternatives alternatives );
 
     int choice( int[] codepoints );
 

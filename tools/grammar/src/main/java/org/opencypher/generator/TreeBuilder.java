@@ -1,14 +1,21 @@
 package org.opencypher.generator;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.opencypher.grammar.Alternatives;
+import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Exclusion;
 import org.opencypher.grammar.Grammar;
+import org.opencypher.grammar.Literal;
+import org.opencypher.grammar.NonTerminal;
+import org.opencypher.grammar.Optional;
+import org.opencypher.grammar.Production;
 import org.opencypher.grammar.ProductionTransformation;
+import org.opencypher.grammar.Repetition;
+import org.opencypher.grammar.Sequence;
 import org.opencypher.grammar.TermTransformation;
 
 import static org.opencypher.generator.Node.root;
@@ -37,9 +44,9 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
     }
 
     @Override
-    public State<T> transformProduction( Void param, String language, Grammar.Term definition )
+    public State<T> transformProduction( Void param, Production production )
     {
-        return state( definition, root( language ), context.get() );
+        return state( production.definition(), root( production.name() ), context.get() );
     }
 
     static <T> State<T> state( Grammar.Term term, Node.Tree root, T context )
@@ -48,47 +55,53 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
     }
 
     @Override
-    public State<T> transformAlternatives( State<T> current, Collection<Grammar.Term> alternatives )
+    public State<T> transformAlternatives( State<T> current, Alternatives alternatives )
     {
         return new State<>( current.node, random.choice( alternatives ), current.context, current.next() );
     }
 
     @Override
-    public State<T> transformSequence( State<T> current, Collection<Grammar.Term> sequence )
+    public State<T> transformSequence( State<T> current, Sequence sequence )
     {
         return sequence( current.node, sequence.iterator(), current.context, current.next() );
     }
 
     @Override
-    public State<T> transformLiteral( State<T> current, String value )
+    public State<T> transformLiteral( State<T> current, Literal value )
     {
         current.node.literal( value );
         return current.next();
     }
 
     @Override
-    public State<T> transformNonTerminal( State<T> current, String productionName, Grammar.Term productionDef )
+    public State<T> transformNonTerminal( State<T> current, NonTerminal nonTerminal )
     {
-        ProductionReplacement<T> replacement = replacements.get( productionName );
+        ProductionReplacement<T> replacement = replacements.get( nonTerminal.productionName() );
         if ( replacement != null )
         {
-            current.node.production( productionName, replacement, current.context,
-                                     node -> buildTree( new State<>( node, productionDef, current.context, null ) ) );
+            current.node.production( nonTerminal.productionName(), replacement, current.context,
+                                     node -> buildTree( new State<>(
+                                             node, nonTerminal.productionDefinition(), current.context, null ) ) );
             return current.next();
         }
-        return new State<>( current.node.child( productionName ), productionDef, current.context, current.next() );
+        return new State<>( current.node.child(
+                nonTerminal.productionName() ), nonTerminal.productionDefinition(), current.context, current.next() );
     }
 
     @Override
-    public State<T> transformOptional( State<T> current, Grammar.Term term )
+    public State<T> transformOptional( State<T> current, Optional optional )
     {
-        return repeat( current.node, times( 0, 1 ), term, current.context, current.next() );
+        return repeat( current.node, random.repetition( 0, 1 ), optional.term(), current.context, current.next() );
     }
 
     @Override
-    public State<T> transformRepetition( State<T> current, int min, Integer max, Grammar.Term term )
+    public State<T> transformRepetition( State<T> current, Repetition repetition )
     {
-        return repeat( current.node, times( min, max ), term, current.context, current.next() );
+        return repeat(
+                current.node,
+                repetition.limited() ? random.repetition( repetition.minTimes(), repetition.maxTimes() )
+                                     : random.repetition( repetition.minTimes() ), repetition.term(),
+                current.context, current.next() );
     }
 
     @Override
@@ -98,9 +111,9 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
     }
 
     @Override
-    public State<T> transformCharacters( State<T> current, String wellKnownSetName, List<Exclusion> exclusions )
+    public State<T> transformCharacters( State<T> current, CharacterSet characters )
     {
-        switch ( wellKnownSetName )
+        switch ( characters.setName() )
         {// <pre>
         case "NUL": case "SOH": case "STX": case "ETX": case "EOT": case "ENQ": case "ACK": case "BEL":
         case "BS": case "TAB": case "LF": case "VT": case "FF": case "CR": case "SO": case "SI":
@@ -108,14 +121,14 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
         case "CAN": case "EM": case "SUB": case "ESC": case "FS": case "GS": case "RS": case "US":
         case "SPACE": case "DEL":
         // </pre>
-            assert exclusions.isEmpty();
-            return codePoint( current, charNamed( wellKnownSetName ) );
+            assert !characters.hasExclusions();
+            return codePoint( current, charNamed( characters.setName() ) );
         case "ANY":
-            return codePoint( current, anyChar( exclusions ) );
+            return codePoint( current, anyChar( characters.exclusions() ) );
         case "EOI":
             throw new IllegalStateException( "Cannot generate end of input." );
         default:
-            throw new UnsupportedOperationException( "unknown character set: " + wellKnownSetName );
+            throw new UnsupportedOperationException( "unknown character set: " + characters.setName() );
         }
     }
 
@@ -128,11 +141,6 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
     private int anyChar( List<Exclusion> exclusions )
     {
         return random.anyChar();
-    }
-
-    private int times( int min, Integer max )
-    {
-        return max == null ? random.repetition( min ) : random.repetition( min, max );
     }
 
     private static char charNamed( String singleCharSet )
@@ -181,12 +189,12 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
 
     private static <T> State<T> sequence( Node.Tree node, Iterator<Grammar.Term> sequence, T context, State<T> next )
     {
-        return new Sequence<>( sequence, node, context, next ).get();
+        return new StateSequence<>( sequence, node, context, next ).get();
     }
 
     private static <T> State<T> repeat( Node.Tree node, int times, Grammar.Term term, T context, State<T> next )
     {
-        return new Repetition<>( node, times, term, context, next ).get();
+        return new StateRepetition<>( node, times, term, context, next ).get();
     }
 
     static final class State<T> implements Supplier<State<T>>
@@ -227,14 +235,14 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
         }
     }
 
-    private static class Sequence<T> implements Supplier<State<T>>
+    private static class StateSequence<T> implements Supplier<State<T>>
     {
         private final Iterator<Grammar.Term> sequence;
         private final Node.Tree node;
         private final T context;
         private final State next;
 
-        Sequence( Iterator<Grammar.Term> sequence, Node.Tree node, T context, State<T> next )
+        StateSequence( Iterator<Grammar.Term> sequence, Node.Tree node, T context, State<T> next )
         {
             this.sequence = sequence;
             this.node = node;
@@ -249,7 +257,7 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
         }
     }
 
-    private static class Repetition<T> implements Supplier<State<T>>
+    private static class StateRepetition<T> implements Supplier<State<T>>
     {
         private final Node.Tree node;
         private final Grammar.Term term;
@@ -257,7 +265,7 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
         private final State next;
         private int count;
 
-        Repetition( Node.Tree node, int times, Grammar.Term term, T context, State<T> next )
+        StateRepetition( Node.Tree node, int times, Grammar.Term term, T context, State<T> next )
         {
             this.node = node;
             this.count = times;

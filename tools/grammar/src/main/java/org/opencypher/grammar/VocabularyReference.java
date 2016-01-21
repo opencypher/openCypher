@@ -18,11 +18,11 @@ final class VocabularyReference extends Located
     XmlFile file;
     private Collection<VocabularyReference> children;
 
-    Iterable<Production> resolve() throws IOException, SAXException, ParserConfigurationException
+    Iterable<ProductionNode> resolve() throws IOException, SAXException, ParserConfigurationException
     {
         return file.parseOnce( Root.XML ).map( ( root ) -> {
             children = root.referencedFiles.values();
-            return (Iterable<Production>) root;
+            return (Iterable<ProductionNode>) root;
         } ).orElseGet( Collections::emptyList );
     }
 

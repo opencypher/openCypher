@@ -59,13 +59,6 @@ class StringBufferOutput extends FormattingOutput<StringBuffer> implements Outpu
     }
 
     @Override
-    public Output append( Object obj )
-    {
-        output.append( obj );
-        return this;
-    }
-
-    @Override
     public Output append( String str )
     {
         output.append( str );

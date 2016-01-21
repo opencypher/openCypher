@@ -17,15 +17,15 @@ public class LiteralTest
         {
             value.setLength( 0 );
             value.appendCodePoint( cp );
-            Literal literal = new Literal();
+            LiteralNode literal = new LiteralNode();
             literal.value = value.toString();
 
             // when
             Node replaced = literal.replaceWithVerified();
 
             // then
-            assertThat( replaced, instanceOf( Characters.class ) );
-            int codepoint = Characters.codePoint( ((Characters) replaced).set );
+            assertThat( replaced, instanceOf( CharacterSetNode.class ) );
+            int codepoint = CharacterSetNode.codePoint( ((CharacterSetNode) replaced).set );
             assertEquals( cp, codepoint );
         }
     }
