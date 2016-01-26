@@ -1,17 +1,14 @@
 package org.opencypher.grammar;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import org.opencypher.tools.xml.Child;
 
-import static java.util.Collections.unmodifiableList;
-
 abstract class Container extends Node implements Terms
 {
-    private final List<Node> nodes = new ArrayList<>();
+    final List<Node> nodes = new ArrayList<>();
 
     @Child({AlternativesNode.class, SequenceNode.class, LiteralNode.class, CharacterSetNode.class,
             NonTerminalNode.class, OptionalNode.class, RepetitionNode.class})
@@ -50,11 +47,6 @@ abstract class Container extends Node implements Terms
     public Grammar.Term term( int offset )
     {
         return nodes.get( offset );
-    }
-
-    final Collection<Grammar.Term> nodes()
-    {
-        return unmodifiableList( nodes );
     }
 
     @Override
@@ -115,6 +107,7 @@ abstract class Container extends Node implements Terms
     public final String toString()
     {
         StringBuilder result = new StringBuilder().append( getClass().getSimpleName() );
+        result.setLength( result.length() - 4 );
         attributeString( result );
         result.append( '[' );
         String sep = "";

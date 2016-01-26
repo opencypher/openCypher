@@ -12,6 +12,8 @@ class RepetitionNode extends Sequenced implements Repetition
     int min;
     @Attribute(optional = true)
     Integer max;
+    @Attribute(optional = true, uri = Grammar.GENERATOR_XML_NAMESPACE)
+    Integer norm;
 
     @Override
     <T, P, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param, Node term )
@@ -40,6 +42,16 @@ class RepetitionNode extends Sequenced implements Repetition
             throw new IllegalStateException( "Unlimited repetition" );
         }
         return max;
+    }
+
+    @Override
+    public int norm()
+    {
+        if ( norm == null )
+        {
+            return min;
+        }
+        return norm;
     }
 
     @Override

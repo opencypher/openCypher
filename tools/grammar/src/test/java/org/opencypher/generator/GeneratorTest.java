@@ -1,5 +1,6 @@
 package org.opencypher.generator;
 
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,6 +9,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.opencypher.grammar.Fixture;
 import org.opencypher.grammar.Grammar;
+import org.opencypher.tools.grammar.CypherGeneratorFactory;
 
 import static java.lang.Character.charCount;
 
@@ -15,7 +17,7 @@ import static org.hamcrest.Matchers.isIn;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.opencypher.generator.GeneratorFixture.assertGenerates;
-import static org.opencypher.generator.RandomisationFixture.onRepetition;
+import static org.opencypher.generator.ChoicesFixture.onRepetition;
 import static org.opencypher.grammar.Grammar.charactersOfSet;
 import static org.opencypher.grammar.Grammar.grammar;
 import static org.opencypher.grammar.Grammar.literal;
@@ -24,6 +26,7 @@ import static org.opencypher.grammar.Grammar.optional;
 import static org.opencypher.grammar.Grammar.sequence;
 import static org.opencypher.grammar.Grammar.zeroOrMore;
 import static org.opencypher.tools.output.Output.output;
+import static org.opencypher.tools.output.Output.stdOut;
 
 public class GeneratorTest
 {
@@ -41,7 +44,16 @@ public class GeneratorTest
         Node tree = generator.generateTree( grammar.language() );
 
         // then
-        tree.sExpression( output( System.out ) );
+        tree.sExpression( stdOut() );
+    }
+
+    @Ignore
+    @Test
+    public void shouldGenerateCypher() throws Exception
+    {
+        Generator cypher = new CypherGeneratorFactory()
+                .generator( Paths.get( "/Users/tobias/code/neo/cypher/grammar/cypher.xml" ) );
+        cypher.generate( stdOut() );
     }
 
     @Test

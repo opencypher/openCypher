@@ -23,13 +23,13 @@ import static org.opencypher.generator.Node.root;
 class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBuilder.State<T>, RuntimeException>,
                                 ProductionTransformation<Void, TreeBuilder.State<T>, RuntimeException>
 {
-    private final Randomisation random;
+    private final Choices choice;
     private final Supplier<T> context;
     private final Map<String, ProductionReplacement<T>> replacements;
 
-    TreeBuilder( Randomisation random, Supplier<T> context, Map<String, ProductionReplacement<T>> replacements )
+    TreeBuilder( Choices choice, Supplier<T> context, Map<String, ProductionReplacement<T>> replacements )
     {
-        this.random = random;
+        this.choice = choice;
         this.context = context;
         this.replacements = replacements;
     }
@@ -57,7 +57,9 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
     @Override
     public State<T> transformAlternatives( State<T> current, Alternatives alternatives )
     {
-        return new State<>( current.node, random.choice( alternatives ), current.context, current.next() );
+        return new State<>( current.node, choice.choose( current.node, alternatives.eligibleForGeneration() ),
+                            current.context,
+                            current.next() );
     }
 
     @Override
@@ -84,14 +86,18 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
                                              node, nonTerminal.productionDefinition(), current.context, null ) ) );
             return current.next();
         }
-        return new State<>( current.node.child(
-                nonTerminal.productionName() ), nonTerminal.productionDefinition(), current.context, current.next() );
+        return new State<>(
+                current.node.child( nonTerminal.productionName() ),
+                nonTerminal.productionDefinition(),
+                current.context,
+                current.next() );
     }
 
     @Override
     public State<T> transformOptional( State<T> current, Optional optional )
     {
-        return repeat( current.node, random.repetition( 0, 1 ), optional.term(), current.context, current.next() );
+        int times = choice.includeOptional( current.node, optional ) ? 1 : 0;
+        return repeat( current.node, times, optional.term(), current.context, current.next() );
     }
 
     @Override
@@ -99,9 +105,10 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
     {
         return repeat(
                 current.node,
-                repetition.limited() ? random.repetition( repetition.minTimes(), repetition.maxTimes() )
-                                     : random.repetition( repetition.minTimes() ), repetition.term(),
-                current.context, current.next() );
+                choice.repetition( current.node, repetition ),
+                repetition.term(),
+                current.context,
+                current.next() );
     }
 
     @Override
@@ -124,7 +131,7 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
             assert !characters.hasExclusions();
             return codePoint( current, charNamed( characters.setName() ) );
         case "ANY":
-            return codePoint( current, anyChar( characters.exclusions() ) );
+            return codePoint( current, choice.anyChar( current.node, characters.exclusions() ) );
         case "EOI":
             throw new IllegalStateException( "Cannot generate end of input." );
         default:
@@ -136,11 +143,6 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
     {
         current.node.codePoint( cp );
         return current.next();
-    }
-
-    private int anyChar( List<Exclusion> exclusions )
-    {
-        return random.anyChar();
     }
 
     private static char charNamed( String singleCharSet )

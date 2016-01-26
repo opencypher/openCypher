@@ -18,28 +18,28 @@ public final class Generator
     @SafeVarargs
     public Generator( Grammar grammar, ProductionReplacement<Void>... replacements )
     {
-        this( Randomisation.simpleRandomisation(), grammar, replacements );
+        this( Choices.SIMPLE, grammar, replacements );
     }
 
     @SafeVarargs
     public <T> Generator( Grammar grammar, Supplier<T> context, ProductionReplacement<T>... replacements )
     {
-        this( Randomisation.simpleRandomisation(), grammar, context, replacements );
+        this( Choices.SIMPLE, grammar, context, replacements );
     }
 
     @SafeVarargs
-    public Generator( Randomisation random, Grammar grammar, ProductionReplacement<Void>... replacements )
+    public Generator( Choices random, Grammar grammar, ProductionReplacement<Void>... replacements )
     {
         this( random, grammar, () -> null, replacements );
     }
 
     @SafeVarargs
-    public <T> Generator( Randomisation random, Grammar grammar, Supplier<T> context,
+    public <T> Generator( Choices random, Grammar grammar, Supplier<T> context,
                           ProductionReplacement<T>... replacements )
     {
         this.grammar = grammar;
         this.builder = new TreeBuilder<>(
-                requireNonNull( Randomisation.class, random ),
+                requireNonNull( Choices.class, random ),
                 requireNonNull( context, "context" ),
                 map( replacement -> {
                     String name = replacement.production();

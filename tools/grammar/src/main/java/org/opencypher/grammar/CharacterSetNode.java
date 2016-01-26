@@ -73,6 +73,12 @@ class CharacterSetNode extends Node implements CharacterSet
     }
 
     @Override
+    boolean isEligibleForGeneration()
+    {
+        return !EOI.equals( set ) && super.isEligibleForGeneration();
+    }
+
+    @Override
     public boolean equals( Object o )
     {
         if ( this == o )

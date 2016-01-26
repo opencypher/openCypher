@@ -1,6 +1,6 @@
 package org.opencypher.grammar;
 
-public enum ScopeRule
+enum ScopeRule
 {
     NESTED
             {

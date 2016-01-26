@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.opencypher.generator.Node.root;
-import static org.opencypher.generator.RandomisationFixture.onRepetition;
+import static org.opencypher.generator.ChoicesFixture.onRepetition;
 import static org.opencypher.generator.TreeBuilder.state;
 import static org.opencypher.grammar.Grammar.charactersOfSet;
 import static org.opencypher.grammar.Grammar.epsilon;
@@ -27,7 +27,7 @@ import static org.opencypher.grammar.Grammar.sequence;
 public class TreeBuilderTest
 {
     public final @Rule TestName testName = new TestName();
-    private final RandomisationFixture random = new RandomisationFixture();
+    private final ChoicesFixture random = new ChoicesFixture();
     private final Map<String, ProductionReplacement<Void>> replacements = new HashMap<>();
     private final TreeBuilder<Void> builder = new TreeBuilder<>( random.random(), () -> null, replacements );
     private Node.Tree actual;

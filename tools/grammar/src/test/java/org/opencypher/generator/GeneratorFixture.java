@@ -43,7 +43,7 @@ public class GeneratorFixture
 
     private GeneratorFixture()
     {
-        this.state = new RandomisationFixture();
+        this.state = new ChoicesFixture();
     }
 
     public GeneratorFixture picking( String literal )
@@ -82,27 +82,27 @@ public class GeneratorFixture
         return this;
     }
 
-    public GeneratorFixture repeat( int times, RandomisationFixture.Repetition invocation )
+    public GeneratorFixture repeat( int times, ChoicesFixture.Repetition invocation )
     {
         state().repeat( times, invocation );
         return this;
     }
 
-    private RandomisationFixture state()
+    private ChoicesFixture state()
     {
-        if ( state instanceof RandomisationFixture )
+        if ( state instanceof ChoicesFixture )
         {
-            return (RandomisationFixture) state;
+            return (ChoicesFixture) state;
         }
         throw new IllegalStateException();
     }
 
-    private Randomisation random()
+    private Choices random()
     {
-        if ( !(state instanceof Randomisation) )
+        if ( !(state instanceof Choices) )
         {
             state = state().random();
         }
-        return (Randomisation) state;
+        return (Choices) state;
     }
 }

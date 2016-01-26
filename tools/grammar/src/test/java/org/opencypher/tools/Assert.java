@@ -32,22 +32,21 @@ public class Assert
 
     public static void assertEquals( Supplier<String> message, Object expected, Object actual )
     {
-        if ( Objects.equals( expected, actual ) )
+        if ( !Objects.equals( expected, actual ) )
         {
-            return;
-        }
-        else if ( expected instanceof String && actual instanceof String )
-        {
-            String cleanMessage = message.get();
-            if ( cleanMessage == null )
+            if ( expected instanceof String && actual instanceof String )
             {
-                cleanMessage = "";
+                String cleanMessage = message.get();
+                if ( cleanMessage == null )
+                {
+                    cleanMessage = "";
+                }
+                throw new ComparisonFailure( cleanMessage, (String) expected, (String) actual );
             }
-            throw new ComparisonFailure( cleanMessage, (String) expected, (String) actual );
-        }
-        else
-        {
-            fail( format( message.get(), expected, actual ) );
+            else
+            {
+                fail( format( message.get(), expected, actual ) );
+            }
         }
     }
 

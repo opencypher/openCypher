@@ -1,31 +1,33 @@
 package org.opencypher.generator;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import org.opencypher.grammar.Alternatives;
+import org.opencypher.grammar.BiasedTerms;
+import org.opencypher.grammar.Exclusion;
 import org.opencypher.grammar.Grammar;
+import org.opencypher.grammar.Optional;
 
 import static org.opencypher.grammar.Grammar.literal;
 
-public final class RandomisationFixture
+public final class ChoicesFixture
 {
-    private final Randomisation random = new Predictable( () -> {
+    private final Choices choices = new Predictable( () -> {
         State state = state();
-        RandomisationFixture.this.state = null;
+        ChoicesFixture.this.state = null;
         return state;
     } );
 
     private State state = new State();
 
-    public Randomisation random()
+    public Choices random()
     {
-        return random;
+        return choices;
     }
 
     public void pick( String literal )
@@ -106,7 +108,7 @@ public final class RandomisationFixture
     {
         if ( state == null )
         {
-            throw new IllegalStateException( Randomisation.class.getSimpleName() + " has already been initialized." );
+            throw new IllegalStateException( Choices.class.getSimpleName() + " has already been initialized." );
         }
         return state;
     }
@@ -118,7 +120,7 @@ public final class RandomisationFixture
         public Set<Integer> codepoints = new HashSet<>();
     }
 
-    private static class Predictable implements Randomisation
+    private static class Predictable implements Choices
     {
         private Supplier<State> state;
 
@@ -151,19 +153,7 @@ public final class RandomisationFixture
         }
 
         @Override
-        public int repetition( int min, int max )
-        {
-            return repetitions( new Repetition( min, max ) );
-        }
-
-        @Override
-        public int repetition( int min )
-        {
-            return repetitions( new Repetition( min, null ) );
-        }
-
-        @Override
-        public Grammar.Term choice( Alternatives alternatives )
+        public Grammar.Term choose( Node location, BiasedTerms alternatives )
         {
             Grammar.Term chosen = null;
             for ( Grammar.Term alternative : alternatives )
@@ -185,29 +175,20 @@ public final class RandomisationFixture
         }
 
         @Override
-        public int choice( int[] codepoints )
+        public int repetition( Node location, org.opencypher.grammar.Repetition repetition )
         {
-            int chosen = -1;
-            for ( int codepoint : codepoints )
-            {
-                if ( state.get().codepoints.contains( codepoint ) )
-                {
-                    if ( chosen != -1 )
-                    {
-                        throw new IllegalStateException();
-                    }
-                    chosen = codepoint;
-                }
-            }
-            if ( chosen == -1 )
-            {
-                throw new IllegalStateException();
-            }
-            return chosen;
+            return repetitions( new Repetition(
+                    repetition.minTimes(), repetition.limited() ? repetition.maxTimes() : null ) );
         }
 
         @Override
-        public int anyChar()
+        public boolean includeOptional( Node location, Optional optional )
+        {
+            return repetitions( Repetition.OPTIONAL ) > 0;
+        }
+
+        @Override
+        public int anyChar( Node location, List<Exclusion> exclusions )
         {
             throw new UnsupportedOperationException( "not implemented" );
         }

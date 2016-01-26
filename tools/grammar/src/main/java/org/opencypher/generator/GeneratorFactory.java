@@ -72,7 +72,12 @@ public abstract class GeneratorFactory<T>
 
     public final Generator generator( Grammar grammar )
     {
-        return new Generator( grammar, this::newContext, replacements );
+        return new Generator( choices(), grammar, this::newContext, replacements );
+    }
+
+    protected Choices choices()
+    {
+        return Choices.SIMPLE;
     }
 
     private final ProductionReplacement<T>[] replacements;

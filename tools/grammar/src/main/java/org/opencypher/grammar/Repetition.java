@@ -9,4 +9,6 @@ public interface Repetition
     int maxTimes();
 
     Grammar.Term term();
+
+    int norm();
 }

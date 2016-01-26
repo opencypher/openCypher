@@ -1,8 +1,6 @@
 package org.opencypher.grammar;
 
-import java.util.Collection;
-import java.util.List;
-
+import org.opencypher.tools.xml.Attribute;
 import org.opencypher.tools.xml.LocationAware;
 
 import static java.lang.System.identityHashCode;
@@ -12,6 +10,8 @@ abstract class Node extends Grammar.Term implements LocationAware
     private String path;
     private int lineNumber;
     private int columnNumber;
+    @Attribute(optional = true, uri = Grammar.GENERATOR_XML_NAMESPACE)
+    double bias = 1.0;
 
     @Override
     public final void location( String path, int lineNumber, int columnNumber )
@@ -59,6 +59,11 @@ abstract class Node extends Grammar.Term implements LocationAware
 
     @Override
     public abstract String toString();
+
+    boolean isEligibleForGeneration()
+    {
+        return bias > 0;
+    }
 
     /**
      * Override to return a defensive copy of this node, to prevent further mutation.
