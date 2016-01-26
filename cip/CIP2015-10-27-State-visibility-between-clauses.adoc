@@ -22,7 +22,7 @@ Some clauses can also do both - read the graph and write to it at the same time.
 To allow the user to understand what the outcome will be at an abstract, logical level, semantics for the visibility of these changes should be clear.
 
 Note:
-This is not about concurrency - even in a single user system this would need to be thought through and defined explicitly._
+This is not about concurrency - even in a single user system this would need to be thought through and defined explicitly.
 
 === Proposal
 Each clause lives in its own state, which includes all the changes of clauses coming before it, including changes performed by itself,
