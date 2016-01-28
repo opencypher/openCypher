@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2015-2016 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.opencypher.tools.xml;
 
 import java.lang.invoke.MethodHandle;
@@ -29,7 +45,7 @@ class Structure
     private final Element element;
     private final Map<Class<?>, Constructor<?>> constructors;
     private final AttributeHandler[] attributes;
-    private final CharactersHandler characters;
+    private final CharactersHandler characters, comments, headers;
     private final List<NestedChild> nested;
     private NodeBuilder[] children;
 
@@ -45,25 +61,31 @@ class Structure
         {
             this.attributes[i] = attributes.get( i ).handler( element.uri() );
         }
-        CharactersHandler characters = null;
+        Map<Class<?>, CharactersHandler> characters = null;
         this.nested = new ArrayList<>( children.size() );
         for ( Nested child : children )
         {
             if ( child instanceof NestedText )
             {
-                if ( characters != null )
+                if ( characters == null )
                 {
-                    throw new IllegalStateException( "Multiple text handling methods." );
+                    characters = new HashMap<>();
                 }
-                characters = ((NestedText) child).handler;
+                NestedText text = (NestedText) child;
+                if ( null != characters.put( text.type, text.handler ) )
+                {
+                    throw new IllegalStateException(
+                            "Multiple text handling methods for type " + text.type.getSimpleName() );
+                }
             }
             else
             {
                 this.nested.add( (NestedChild) child );
             }
         }
-        this.characters = characters != null ? characters : ( target, buffer, start, length ) -> {
-        };
+        this.characters = textHandler( String.class, characters );
+        this.comments = textHandler( Comment.class, characters );
+        this.headers = textHandler( Comment.Header.class, characters );
     }
 
     public NodeBuilder factory( Class<?> parent, BiConsumer<Object, Object> handler )
@@ -109,7 +131,11 @@ class Structure
             this.children = children = new NodeBuilder[this.nested.size()];
         }
         NodeBuilder builder = new NodeBuilder(
-                element.uri(), element.name(), attributes, characters, this.children, factory( create ), handler );
+                element.uri(), element.name(), attributes,
+                characters, comments, headers,
+                this.children, factory( create ), handler );
+        // the array must be assigned before performing recursive lookup to eliminate recursive loops
+        // children != null is the recursion breaker.
         if ( children != null )
         {
             for ( int i = 0; i < children.length; i++ )
@@ -197,7 +223,7 @@ class Structure
                     Class<?>[] parameter = method.getParameterTypes();
                     if ( parameter[0] == char[].class && parameter[1] == int.class && parameter[2] == int.class )
                     {
-                        return singletonList( NestedText.charBuffer( invoker( method ) ) );
+                        return textChild( types, charBuffer( invoker( method ) ) );
                     }
                 }
                 if ( method.getParameterCount() == 1 )
@@ -205,7 +231,7 @@ class Structure
                     Class<?> base = method.getParameterTypes()[0];
                     if ( base == String.class )
                     {
-                        return singletonList( NestedText.string( invoker( method ) ) );
+                        return textChild( types, string( invoker( method ) ) );
                     }
                     else
                     {
@@ -228,6 +254,27 @@ class Structure
                 }
             }
             throw new IllegalArgumentException( "Invalid @Child method: " + method );
+        }
+
+        private Collection<Nested> textChild( Class<?>[] types, CharactersHandler handler )
+        {
+            if ( types.length == 0 || (types.length == 1 && types[0] == String.class) )
+            {
+                return singletonList( new NestedText( String.class, handler ) );
+            }
+            for ( Class<?> type : types )
+            {
+                if ( type != Comment.class && type != Comment.Header.class )
+                {
+                    throw new IllegalArgumentException( "Invalid text @Child type: " + type );
+                }
+            }
+            NestedText[] result = new NestedText[types.length];
+            for ( int i = 0; i < result.length; i++ )
+            {
+                result[i] = new NestedText( types[i], handler );
+            }
+            return Arrays.asList( result );
         }
 
         private Collection<Attr> createAttribute( Field field, Attribute attribute )
@@ -285,48 +332,57 @@ class Structure
 
     private static class NestedText extends Nested
     {
+        private final Class<?> type;
         private final CharactersHandler handler;
 
-        NestedText( CharactersHandler handler )
+        NestedText( Class<?> type, CharactersHandler handler )
         {
+            this.type = type;
             this.handler = handler;
         }
+    }
 
-        static NestedText charBuffer( MethodHandle method )
-        {
-            return new NestedText( ( target, buffer, start, length ) -> {
-                try
-                {
-                    method.invokeWithArguments( target, buffer, start, length );
-                }
-                catch ( RuntimeException | Error e )
-                {
-                    throw e;
-                }
-                catch ( Throwable throwable )
-                {
-                    throw new RuntimeException( throwable );
-                }
-            } );
-        }
+    static CharactersHandler string( MethodHandle method )
+    {
+        return ( target, buffer, start, length ) -> {
+            try
+            {
+                method.invokeExact( target, new String( buffer, start, length ) );
+            }
+            catch ( RuntimeException | Error e )
+            {
+                throw e;
+            }
+            catch ( Throwable throwable )
+            {
+                throw new RuntimeException( throwable );
+            }
+        };
+    }
 
-        static NestedText string( MethodHandle method )
-        {
-            return new NestedText( ( target, buffer, start, length ) -> {
-                try
-                {
-                    method.invokeExact( target, new String( buffer, start, length ) );
-                }
-                catch ( RuntimeException | Error e )
-                {
-                    throw e;
-                }
-                catch ( Throwable throwable )
-                {
-                    throw new RuntimeException( throwable );
-                }
-            } );
-        }
+    static CharactersHandler charBuffer( MethodHandle method )
+    {
+        return ( target, buffer, start, length ) -> {
+            try
+            {
+                method.invokeWithArguments( target, buffer, start, length );
+            }
+            catch ( RuntimeException | Error e )
+            {
+                throw e;
+            }
+            catch ( Throwable throwable )
+            {
+                throw new RuntimeException( throwable );
+            }
+        };
+    }
+
+    private static CharactersHandler textHandler( Class<?> type, Map<Class<?>, CharactersHandler> characters )
+    {
+        CharactersHandler handler = characters == null ? null : characters.get( type );
+        return handler != null ? handler : ( target, buffer, start, length ) -> {
+        };
     }
 
     private static class NestedChild extends Nested

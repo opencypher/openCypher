@@ -25,6 +25,38 @@
           </compilerArgs>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.neo4j.build.plugins</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>3</version>
+        <executions>
+          <execution>
+            <id>check-licenses</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <strictCheck>true</strictCheck>
+          <header>ASL-2-header.txt</header>
+          <includes>
+            <include>src/**/*.java</include>
+            <include>src/**/*.scala</include>
+            <include>src/**/*.feature</include>
+          </includes>
+          <mapping>
+            <java>SLASHSTAR_STYLE</java>
+            <scala>SLASHSTAR_STYLE</scala>
+            <feature>SCRIPT_STYLE</feature>
+          </mapping>
+          <timestampPropertyName>currentYear</timestampPropertyName>
+          <properties>
+            <inceptionYear>2015</inceptionYear>
+          </properties>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

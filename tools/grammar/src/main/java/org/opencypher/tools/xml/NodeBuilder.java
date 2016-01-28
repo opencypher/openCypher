@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2015-2016 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.opencypher.tools.xml;
 
 import java.util.BitSet;
@@ -15,18 +31,22 @@ class NodeBuilder
 
     final String uri, name;
     private final AttributeHandler[] attributes;
-    private final CharactersHandler characters;
+    private final CharactersHandler characters, comments, headers;
     private final NodeBuilder[] children;
     private final Function<Object, Object> factory;
     private final BiConsumer<Object, Object> handler;
 
-    NodeBuilder( String uri, String name, AttributeHandler[] attributes, CharactersHandler characters,
-                 NodeBuilder[] children, Function<Object, Object> factory, BiConsumer<Object, Object> handler )
+    NodeBuilder(
+            String uri, String name, AttributeHandler[] attributes,
+            CharactersHandler characters, CharactersHandler comments, CharactersHandler headers,
+            NodeBuilder[] children, Function<Object, Object> factory, BiConsumer<Object, Object> handler )
     {
         this.uri = uri;
         this.name = name;
         this.attributes = attributes;
         this.characters = characters;
+        this.comments = comments;
+        this.headers = headers;
         this.children = children;
         this.factory = factory;
         this.handler = handler;
@@ -67,6 +87,16 @@ class NodeBuilder
     public void characters( Object target, char[] buffer, int start, int length )
     {
         characters.characters( target, buffer, start, length );
+    }
+
+    public void comment( Object target, char[] buffer, int start, int length )
+    {
+        comments.characters( target, buffer, start, length );
+    }
+
+    public void header( Object target, char[] buffer )
+    {
+        headers.characters( target, buffer, 0, buffer.length );
     }
 
     public NodeBuilder child( String uri, String name )

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2015-2016 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.opencypher.tools.grammar;
 
 import java.io.OutputStream;
@@ -33,7 +49,14 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Vis
 
     public static void write( Grammar grammar, Output output )
     {
-        grammar.accept( new ISO14977( grammar, output ) );
+        String header = grammar.header();
+        if ( header != null )
+        {
+            output.append( "(*\n * " )
+                  .printLines( header, " * " )
+                  .println( " *)" );
+        }
+        grammar.accept( new ISO14977( output ) );
     }
 
     public static void main( String... args ) throws Exception
@@ -41,14 +64,17 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Vis
         Main.execute( ISO14977::write, args );
     }
 
-    private final Grammar grammar;
+    public static void append( Grammar.Term term, Output output )
+    {
+        term.accept( new ISO14977( output ) );
+    }
+
     private final Output output;
     private String altPrefix = "";
     private boolean group;
 
-    private ISO14977( Grammar grammar, Output output )
+    private ISO14977( Output output )
     {
-        this.grammar = grammar;
         this.output = output;
     }
 

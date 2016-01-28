@@ -1,8 +1,26 @@
+/*
+ * Copyright (c) 2015-2016 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.opencypher.tools.xml;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -144,6 +162,7 @@ class ParserStateMachine extends DefaultHandler2
     @Override
     public void comment( char[] buffer, int start, int length ) throws SAXException
     {
+        node.comment( buffer, start, length );
     }
 
     private static class Node
@@ -190,10 +209,17 @@ class ParserStateMachine extends DefaultHandler2
             }
             return parent;
         }
+
+        void comment( char[] buffer, int start, int length )
+        {
+            builder.comment( value, buffer, start, length );
+        }
     }
 
     private static class BaseNode extends Node
     {
+        private Object headers;
+
         BaseNode( NodeBuilder builder )
         {
             super( null, builder, null );
@@ -208,7 +234,43 @@ class ParserStateMachine extends DefaultHandler2
                         "Root element must be '" + builder.name + "' in namespace '" + builder.uri +
                         "', but was '" + name + "' in namespace '" + uri + "'" );
             }
-            return new RootNode( builder, builder.create( null ) );
+            Object value = builder.create( null );
+            if ( headers instanceof char[] )
+            {
+                builder.header( value, (char[]) headers );
+            }
+            else if ( headers instanceof List<?> )
+            {
+                @SuppressWarnings("unchecked")
+                List<char[]> comments = (List<char[]>) headers;
+                for ( char[] comment : comments )
+                {
+                    builder.header( value, comment );
+                }
+            }
+            return new RootNode( builder, value );
+        }
+
+        @Override
+        void comment( char[] buffer, int start, int length )
+        {
+            if ( headers == null )
+            {
+                headers = Arrays.copyOfRange( buffer, start, start + length );
+            }
+            else if ( headers instanceof char[] )
+            {
+                List<char[]> list = new ArrayList<>( 2 );
+                list.add( (char[]) headers );
+                list.add( Arrays.copyOfRange( buffer, start, start + length ) );
+                headers = list;
+            }
+            else
+            {
+                @SuppressWarnings("unchecked")
+                List<char[]> list = (List<char[]>) headers;
+                list.add( Arrays.copyOfRange( buffer, start, start + length ) );
+            }
         }
 
         @Override

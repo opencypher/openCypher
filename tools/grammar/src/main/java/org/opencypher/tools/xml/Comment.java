@@ -16,14 +16,15 @@
  */
 package org.opencypher.tools.xml;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Child
+/**
+ * Marker, used together with the {@link Child @Child(Comment.class)} annotation to mark that the annotated text method
+ * accepts comments rather than regular text elements.
+ */
+public enum Comment
 {
-    Class<?>[] value() default {};
+    ;
+
+    public enum Header
+    {
+    }
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2015-2016 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.opencypher.grammar;
 
 import java.io.IOException;
@@ -9,13 +25,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opencypher.tools.xml.Attribute;
 import org.opencypher.tools.xml.Child;
+import org.opencypher.tools.xml.Comment;
 import org.opencypher.tools.xml.Element;
 import org.opencypher.tools.xml.XmlParser;
 import org.xml.sax.SAXException;
@@ -41,6 +57,7 @@ class Root implements Iterable<ProductionNode>
     @Attribute(name = "case-sensitive", optional = true)
     boolean caseSensitive = true;
     private final Map<String, ProductionNode> productions = new LinkedHashMap<>();
+    private StringBuilder header;
     final Map<String, VocabularyReference> referencedFiles = new HashMap<>();
 
     @Child
@@ -65,6 +82,16 @@ class Root implements Iterable<ProductionNode>
         {
             add( production );
         }
+    }
+
+    @Child(Comment.Header.class)
+    void addHeader( char[] buffer, int start, int length )
+    {
+        if ( header == null )
+        {
+            header = new StringBuilder( length );
+        }
+        Description.extract( header, buffer, start, length );
     }
 
     final Grammar resolve( ResolutionOption... config )
@@ -147,11 +174,13 @@ class Root implements Iterable<ProductionNode>
         private final String language;
         private final Map<String, ProductionNode> productions;
         private final boolean caseSensitive;
+        private final String header;
 
         Grammar( Root root, Map<String, ProductionNode> productions )
         {
             this.language = requireNonNull( root.language, "language" );
             this.caseSensitive = root.caseSensitive;
+            this.header = root.header == null ? null : root.header.toString();
             this.productions = productions;
         }
 
@@ -159,6 +188,12 @@ class Root implements Iterable<ProductionNode>
         public String language()
         {
             return language;
+        }
+
+        @Override
+        public String header()
+        {
+            return header;
         }
 
         @Override

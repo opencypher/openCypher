@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2015-2016 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.opencypher.generator;
 
 import java.util.List;
@@ -7,6 +23,7 @@ import org.opencypher.grammar.Exclusion;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.Optional;
 import org.opencypher.grammar.Repetition;
+import org.opencypher.tools.grammar.ISO14977;
 import org.opencypher.tools.output.Output;
 
 import static java.util.Objects.requireNonNull;
@@ -39,7 +56,7 @@ public class TracingChoices implements Choices
         int result = choices.repetition( location, repetition );
         location( output.append( "At " ), location )
                 .append( " repeat " )
-                .append( repetition.term().toString() )
+                .append( repetition.term(), ISO14977::append )
                 .append( " " )
                 .append( result )
                 .println( " times" );
@@ -52,7 +69,7 @@ public class TracingChoices implements Choices
         boolean result = choices.includeOptional( location, optional );
         location( output.append( "At " ), location )
                 .append( result ? " include optional " : " exclude optional " )
-                .append( optional.term().toString() )
+                .append( optional.term(), ISO14977::append )
                 .println( "." );
         return result;
     }
