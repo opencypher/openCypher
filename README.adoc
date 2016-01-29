@@ -68,4 +68,4 @@ The Cypher Language Group published meeting notes from all the group meetings at
 
 == Copyright
 
-All material in this repository is the exclusive property of Neo Technology.
+© Copyright 2015-2016 Neo Technology, Inc.
