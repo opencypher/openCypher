@@ -69,3 +69,7 @@ The Cypher Language Group published meeting notes from all the group meetings at
 == Copyright
 
 © Copyright 2015-2016 Neo Technology, Inc.
+
+== Feedback
+
+Any feedback you provide to Neo Technology, Inc. through this repository shall be deemed to be non-confidential. You grant Neo Technology, Inc. a perpetual, irrevocable, worldwide, royalty-free license to use, reproduce, modify, publicly perform, publicly display and distribute such feedback on an unrestricted basis.
