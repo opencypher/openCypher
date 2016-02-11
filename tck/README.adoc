@@ -75,8 +75,8 @@ For this reason, the rows of the expected results table are to be considered not
 * Primitives
 ** An integer will be written as a simple string of decimal digits.
 ** A float will be written in decimal form with all present decimals, or in scientific form, or with the strings `NaN`, `Inf`, or `-Inf` for the IEEE 754 special values.
-** A string will be written as a string of unicode characters, wrapped in single quotes.
-*** Note that Cypher makes no difference between single and double quotes, but the TCK will always use single quotes in the expected values.
+** A string will be written as a string of unicode characters, wrapped in double quotes.
+*** Note that Cypher makes no difference between single and double quotes (when used as string indicators), but the TCK will always use double quotes in the expected values.
 ** A boolean will be written as the strings `true` or `false`.
 ** A null value will be written as the string `null`.
 
@@ -87,7 +87,7 @@ For this reason, the rows of the expected results table are to be considered not
 
 * Containers:
 ** A list will be written as `[v0, v1, ..., vn]`, where `vi` are the values that the list contains.
-** A map will be written as `{k0:v0, k1:v1, ..., kn:vn}`, where `ki` are the keys and `vi` the values of the map.
+** A map will be written as `{"k0":v0, "k1":v1, ..., "kn":vn}`, where `ki` are the keys, wrapped in double quotes, and `vi` the values of the map.
 *** Map keys in Cypher are strings (with some constraints), while values may be of any type.
 
 * Temporal types:
