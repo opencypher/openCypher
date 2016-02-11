@@ -68,6 +68,10 @@ A side effect is either the addition (denoted by `+`) or the removal (`-`) of on
 Values that can be returned from Cypher can be categorized into four categories: primitives, graph elements, containers, and temporal values.
 Please refer to the https://github.com/opencypher/openCypher/blob/master/cip/CIP2015-09-16-public-type-system-type-annotation.adoc[Cypher Type System specification] for more information about types and values in Cypher.
 
+Unless there is an `ORDER BY` present in the Cypher query, Cypher leaves no guarantees as to the order in which the values are returned.
+In theory, this means that executing the same query twice could yield the same values returned in different orders.
+For this reason, the rows of the expected results table are to be considered not a list, but a set, unless there is an `ORDER BY` clause in the query.
+
 * Primitives
 ** An integer will be written as a simple string of decimal digits.
 ** A float will be written in decimal form with all present decimals, or in scientific form, or with the strings `NaN`, `Inf`, or `-Inf` for the IEEE 754 special values.
@@ -91,4 +95,4 @@ Please refer to the https://github.com/opencypher/openCypher/blob/master/cip/CIP
 
 === How to implement the TCK
 
-// TODO
+// TODO -- explore deployment options
