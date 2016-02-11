@@ -1,0 +1,98 @@
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
+
+= The Cypher Technology Compliance Kit
+
+This subdirectory contains the Cypher TCK.
+The TCK consists of a number of Cucumber `.feature` files, which specify four things:
+
+* A graph initial state
+* A Cypher query, plus parameter values
+* Expected results from the query
+** See <<Format of the expected results>> for a description of how the results are formatted
+* Expected side effects from the query
+
+
+// TODO: installation instructions
+// To test your implementation of Cypher for compliance with the TCK, you must
+
+== Format of a feature scenario
+
+The Cucumber features are made up of scenarios, and these all follow the schematic setup described here.
+
+[source,gherkin]
+----
+Scenario: Creating a node
+    Given GRAPH graph // <1>
+    When executing query: CREATE ({property: {parameter}}) // <2>
+    And parameters: // <3>
+      | parameter |
+      | 0         |
+    Then expect empty result // <4>
+    And expect side effects: // <5>
+      +nodes: 1
+      +properties: 1
+----
+[source,gherkin]
+----
+Scenario: Returning a single node
+    Given GRAPH graph // <1>
+    When executing query: MATCH (n) RETURN n LIMIT 1 // <2>
+    Then expect result: // <4>
+      | n  |
+      | () |
+----
+<1> `GRAPH` is either the text `empty` for the empty graph, or the name of one of the supplied graphs for initial states (read more below).
+<2> The proper Cypher query.
+<3> This step is only used by queries that use parameters, and provides a two-row table with parameter names and values.
+<4> This step specifies the expected results of the query, in a table format if nonempty. The first row contains the column names, and subsequent rows contain values.
+<5> This step specifies the expected side effects of the query, with the side effect name and the relevant quantity. Read about the possible side effects in <<Side effects of executing a query>>.
+
+
+=== Given graphs for initial states
+
+The keyword `Given` in the TCK's features specifies the initial state assumed for the scenario.
+The initial state is usually simple, to not obfuscate the purpose of the scenario, which is to display the behaviour of the query.
+If the string `empty graph` is given, the empty graph is assumed as initial state.
+
+=== Side effects of executing a query
+
+A Cypher query that contains update clauses may have side effects that are persisted in the graph.
+A side effect is either the addition (denoted by `+`) or the removal (`-`) of one of the following:
+* A node, denoted by `nodes`
+* A relationship, denoted by `relationships`
+* A property, denoted by `properties`
+* A label, denoted by `labels`
+
+=== Format of the expected results
+
+Values that can be returned from Cypher can be categorized into four categories: primitives, graph elements, containers, and temporal values.
+Please refer to the https://github.com/opencypher/openCypher/blob/master/cip/CIP2015-09-16-public-type-system-type-annotation.adoc[Cypher Type System specification] for more information about types and values in Cypher.
+
+Unless there is an `ORDER BY` present in the Cypher query, Cypher leaves no guarantees as to the order in which the values are returned.
+In theory, this means that executing the same query twice could yield the same values returned in different orders.
+For this reason, the rows of the expected results table are to be considered not a list, but a set, unless there is an `ORDER BY` clause in the query.
+
+* Primitives
+** An integer will be written as a simple string of decimal digits.
+** A float will be written in decimal form with all present decimals, or in scientific form, or with the strings `NaN`, `Inf`, or `-Inf` for the IEEE 754 special values.
+** A string will be written as a string of unicode characters, wrapped in double quotes.
+*** Note that Cypher makes no difference between single and double quotes (when used as string indicators), but the TCK will always use double quotes in the expected values.
+** A boolean will be written as the strings `true` or `false`.
+** A null value will be written as the string `null`.
+
+* Graph elements:
+** A node with labels `L1` and `L2`, and properties `p` and `q` with values `0` and `'string'`, respectively, will be written as `(:L1:L2 {p:0, q:'string'})`.
+** A relationship with type `T`, and properties as the node above, will be written as `[:T {p:0, q:'string'}]`.
+** A path will be written as `<n0, r0, n1, r1, ..., rk-1, nk>`, where `ni` and `ri` are the nodes and relationships that make up the path.
+
+* Containers:
+** A list will be written as `[v0, v1, ..., vn]`, where `vi` are the values that the list contains.
+** A map will be written as `{"k0":v0, "k1":v1, ..., "kn":vn}`, where `ki` are the keys, wrapped in double quotes, and `vi` the values of the map.
+*** Map keys in Cypher are strings (with some constraints), while values may be of any type.
+
+* Temporal types:
+// TODO -- should probably await neo4j implementation
+
+=== How to implement the TCK
+
+// TODO -- explore deployment options
