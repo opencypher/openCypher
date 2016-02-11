@@ -83,7 +83,7 @@ For this reason, the rows of the expected results table are to be considered not
 * Graph elements:
 ** A node with labels `L1` and `L2`, and properties `p` and `q` with values `0` and `'string'`, respectively, will be written as `(:L1:L2 {p:0, q:'string'})`.
 ** A relationship with type `T`, and properties as the node above, will be written as `[:T {p:0, q:'string'}]`.
-** A path will be written as `n0, r0, n1, r1, ..., rk-1, nk`, where `ni` and `ri` are the nodes and relationships that make up the path.
+** A path will be written as `<n0, r0, n1, r1, ..., rk-1, nk>`, where `ni` and `ri` are the nodes and relationships that make up the path.
 
 * Containers:
 ** A list will be written as `[v0, v1, ..., vn]`, where `vi` are the values that the list contains.
