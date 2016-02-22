@@ -23,6 +23,7 @@ import static java.lang.Character.charCount;
 import static java.lang.Character.codePointAt;
 import static java.lang.Character.isLowSurrogate;
 import static java.lang.Character.isWhitespace;
+import static java.lang.Math.min;
 
 @Element(uri = Grammar.XML_NAMESPACE, name = "description")
 class Description
@@ -35,29 +36,69 @@ class Description
         extract( text, buffer, start, length );
     }
 
-    static void extract( StringBuilder target, char[] buffer, int start, int length )
+    static void extract( StringBuilder target, char[] buffer, int origin, int length )
     {
-        int cp;
-        while ( isWhitespace( cp = codePointAt( buffer, start ) ) )
+        int end = origin + length;
+        int start = findStart( buffer, origin, end );
+        if ( start >= end ) // all whitespace
         {
-            int chars = charCount( cp );
-            start += chars;
-            length -= chars;
+            return;
         }
-        while ( length > 0 &&
-                (isLowSurrogate( buffer[start + length - 1] )
-                 ? isWhitespace( cp = codePointAt( buffer, start + length - 2 ) )
-                 : isWhitespace( cp = buffer[start + length - 1] )) )
+        // trim whitespace from the end
+        for ( int cp; end > start &&
+                      (isLowSurrogate( buffer[end - 1] )
+                       ? isWhitespace( cp = codePointAt( buffer, end - 2 ) )
+                       : isWhitespace( cp = buffer[end - 1] )); )
         {
-            length -= charCount( cp );
+            end -= charCount( cp );
         }
-        if ( length > 0 )
+        // If the first line starts at the origin, and is not preceded by whitespace,
+        // it is excluded from the indentation detection by emitting it immediately.
+        if ( start == origin && !isWhitespace( codePointAt( buffer, start ) ) )
         {
-            if ( target.length() > 0 )
+            if ( target.length() > 0 && target.charAt( target.length() - 1 ) != '\n' )
             {
                 target.append( '\n' );
             }
-            target.append( buffer, start, length );
+            start = emitLine( target, buffer, start, end, 0 );
+            if ( start >= end )
+            {
+                return;
+            }
+            target.append( '\n' );
+            // emit blank lines
+            for ( int pos = start, cp; pos < end; pos += charCount( cp ) )
+            {
+                cp = codePointAt( buffer, pos );
+                if ( cp == '\n' )
+                {
+                    target.append( '\n' );
+                    start = pos + 1;
+                }
+                else if ( !isWhitespace( cp ) )
+                {
+                    break;
+                }
+            }
+        }
+        // find the shortest indentation (sequence of same WS char as the first) of any of the (remaining) lines
+        int indentation = shortestIndentation( buffer, start, end );
+        // emit all lines
+        if ( target.length() > 0 && target.charAt( target.length() - 1 ) != '\n' )
+        {
+            target.append( '\n' );
+        }
+        for ( int ln = target.length() > 0 ? 2 : 0; start < end; ln++ )
+        {
+            if ( ln == 1 )
+            {
+                target.append( '\n' );
+            }
+            start = emitLine( target, buffer, start, end, indentation );
+            if ( ln > 0 )
+            {
+                target.append( '\n' );
+            }
         }
     }
 
@@ -78,5 +119,93 @@ class Description
             this.text.insert( 0, text ).insert( text.length(), '\n' );
         }
         return toString();
+    }
+
+    /**
+     * Emits the line that starts at {@code start} position, and ends at a newline or the {@code end} position.
+     *
+     * @return the start position of the next line (the {@code end} position
+     */
+    private static int emitLine( StringBuilder target, char[] buffer, int start, int end, int indentation )
+    {
+        int last = start;
+        for ( int pos = start, cp; pos < end; pos += charCount( cp ) )
+        {
+            cp = codePointAt( buffer, pos );
+            if ( cp == '\n' )
+            {
+                end = pos + 1;
+            }
+            if ( indentation > 0 )
+            {
+                if ( --indentation == 0 )
+                {
+                    start = pos + 1;
+                }
+                last = pos;
+            }
+            else if ( !isWhitespace( cp ) )
+            {
+                last = pos + 1;
+            }
+        }
+        target.append( buffer, start, last - start );
+        return end;
+    }
+
+    /**
+     * Finds the shortest indentation of any of the lines in the buffer, starting at {@code start}, ending at {@end}.
+     */
+    private static int shortestIndentation( char[] buffer, int start, int end )
+    {
+        int indentCP = codePointAt( buffer, start );
+        if ( indentCP != ' ' && indentCP != '\t' )
+        {
+            return 0;
+        }
+        int indentation = Integer.MAX_VALUE;
+        for ( int pos = start, cp, cur = 0; pos < end; pos += charCount( cp ) )
+        {
+            cp = codePointAt( buffer, pos );
+            if ( cp == indentCP )
+            {
+                cur++;
+            }
+            else if ( cp == '\n' )
+            {
+                cur = 0;
+            }
+            else
+            {
+                indentation = min( indentation, cur );
+                cur = 0;
+                while ( pos < end )
+                {
+                    cp = codePointAt( buffer, pos );
+                    if ( cp == '\n' )
+                    {
+                        break;
+                    }
+                    pos += charCount( cp );
+                }
+            }
+        }
+        return indentation;
+    }
+
+    /**
+     * Find the beginning of the first line that isn't all whitespace.
+     */
+    private static int findStart( char[] buffer, int start, int end )
+    {
+        int pos, cp;
+        for ( pos = start; pos < end && isWhitespace( cp = codePointAt( buffer, pos ) ); pos += charCount( cp ) )
+        {
+            if ( cp == '\n' )
+            {
+                start = pos + 1;
+            }
+        }
+        return pos >= end ? end : start;
     }
 }

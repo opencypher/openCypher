@@ -89,7 +89,22 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Vis
         String description = production.description();
         if ( description != null )
         {
-            output.append( "(* " ).append( description ).println( " *)" );
+            String prefix = "(* ";
+            for ( int pos = 0, line; pos < description.length(); pos = line )
+            {
+                line = description.indexOf( '\n', pos );
+                if ( line == -1 )
+                {
+                    line = description.length();
+                }
+                else
+                {
+                    line += 1;
+                }
+                output.append( prefix ).append( description, pos, line );
+                prefix = " * ";
+            }
+            output.println( " *)" );
         }
         this.altPrefix = altPrefix.toString();
         group = false;
@@ -212,7 +227,10 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Vis
                     exception.accept( this );
                     sep = " | ";
                 }
-                output.append( ')' );
+                if ( !exceptions.isEmpty() )
+                {
+                    output.append( ')' );
+                }
             }
         }
     }

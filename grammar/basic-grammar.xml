@@ -514,7 +514,7 @@
   <production name="IdentifierStart">
     <description>
       Based on the unicode identifier and pattern syntax
-      http://www.unicode.org/reports/tr31/
+        (http://www.unicode.org/reports/tr31/)
       And extended with a few characters.
     </description>
     <alt>
@@ -536,7 +536,7 @@
   <production name="IdentifierPart">
     <description>
       Based on the unicode identifier and pattern syntax
-      http://www.unicode.org/reports/tr31/
+        (http://www.unicode.org/reports/tr31/)
       And extended with a few characters.
     </description>
     <alt>
@@ -547,7 +547,9 @@
 
   <production name="CurrencySign">
     <description>
-      The unicode characters in the CURRENCY_SYMBOLS block (general category "Sc" in the Unicode specification), plus the currency characters defined in other unicode blocks.
+      The unicode characters in the CURRENCY_SYMBOLS block
+      (general category "Sc" in the Unicode specification),
+      plus the currency characters defined in other unicode blocks.
     </description>
     <alt>
       <character set="UnicodeBlock:CURRENCY_SYMBOLS"/>
