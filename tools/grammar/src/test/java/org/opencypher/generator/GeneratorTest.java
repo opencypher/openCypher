@@ -63,15 +63,6 @@ public class GeneratorTest
         tree.sExpression( stdOut() );
     }
 
-    @Ignore
-    @Test
-    public void shouldGenerateCypher() throws Exception
-    {
-        Generator cypher = new CypherGeneratorFactory()
-                .generator( Paths.get( "/Users/tobias/code/neo/cypher/grammar/cypher.xml" ) );
-        cypher.generate( stdOut() );
-    }
-
     @Test
     public void shouldGenerateLiteral() throws Exception
     {

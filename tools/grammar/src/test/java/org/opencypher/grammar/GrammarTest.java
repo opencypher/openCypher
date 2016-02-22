@@ -39,14 +39,4 @@ public class GrammarTest
         assertNotNull( grammar );
         assertEquals( "SomeLanguage", grammar.language() );
     }
-
-    @Test
-    public void shouldParseCypherGrammar() throws Exception
-    {
-        // given
-        Grammar.parseXML( Paths.get("/Users/tobias/code/neo/cypher/grammar/cypher.xml") );
-        // when
-
-        // then
-    }
 }
