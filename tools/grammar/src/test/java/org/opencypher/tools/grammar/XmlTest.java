@@ -16,8 +16,6 @@
  */
 package org.opencypher.tools.grammar;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +27,9 @@ import org.opencypher.tools.output.Output;
 
 import static org.junit.Assert.assertEquals;
 import static org.opencypher.grammar.GrammarVisitor.production;
+import static org.opencypher.tools.output.Output.lineNumbers;
+import static org.opencypher.tools.output.Output.stdOut;
+import static org.opencypher.tools.output.Output.stringBuilder;
 
 public class XmlTest
 {
@@ -37,24 +38,55 @@ public class XmlTest
     @Test
     public void shouldProduceSameGrammarWhenParsingOutput() throws Exception
     {
+        testRoundTrip( fixture.grammarResource( "/somegrammar.xml" ) );
+    }
+
+    @Test
+    public void shouldGenerateCypher() throws Exception
+    {
         // given
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Grammar first = fixture.grammarResource( "/somegrammar.xml" );
+        Output.Readable out = stringBuilder();
+        Grammar first = fixture.grammarResource( "/cypher.xml" );
 
         // when
         Xml.write( first, out );
 
         // then
-        Grammar second = Grammar.parseXML( new ByteArrayInputStream( out.toByteArray() ) );
+        testRoundTrip( Grammar.parseXML( out.reader() ) );
+    }
+
+    private void testRoundTrip( Grammar grammar ) throws Exception
+    {
+        // given
+        Output.Readable out = stringBuilder();
+
+        // when
+        Xml.write( grammar, out );
+
+        // then
         try
         {
-            assertEquals( first, second );
+            Grammar second = Grammar.parseXML( out.reader() );
+            assertGrammarEquals( grammar, second );
+        }
+        catch ( Throwable e )
+        {
+            lineNumbers( stdOut() ).append( out );
+            throw e;
+        }
+    }
+
+    static void assertGrammarEquals( Grammar expected, Grammar actual )
+    {
+        try
+        {
+            assertEquals( expected, actual );
         }
         catch ( Throwable e )
         {
             Map<String, Grammar.Term> before = new HashMap<>();
-            first.accept( production( before::put ) );
-            second.accept( production( ( name, def ) -> {
+            expected.accept( production( before::put ) );
+            actual.accept( production( ( name, def ) -> {
                 try
                 {
                     assertEquals( before.get( name ), def );

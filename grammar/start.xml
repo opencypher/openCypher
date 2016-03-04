@@ -20,7 +20,7 @@
   <!ENTITY SP "<non-terminal ref='SP'/>">
   <!ENTITY var "<non-terminal ref='Variable'/>">
 ]>
-<grammar language="Cypher Start Clause" case-sensitive="false"
+<grammar language="Cypher Start Clause"
   xmlns="http://thobe.org/grammar"
   xmlns:rr="http://thobe.org/railroad"
   xmlns:ast="http://thobe.org/syntaxtree"

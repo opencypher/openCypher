@@ -54,8 +54,6 @@ class Root implements Iterable<ProductionNode>
 
     @Attribute
     String language;
-    @Attribute(name = "case-sensitive", optional = true)
-    boolean caseSensitive = true;
     private final Map<String, ProductionNode> productions = new LinkedHashMap<>();
     private StringBuilder header;
     final Map<String, VocabularyReference> referencedFiles = new HashMap<>();
@@ -173,13 +171,11 @@ class Root implements Iterable<ProductionNode>
     {
         private final String language;
         private final Map<String, ProductionNode> productions;
-        private final boolean caseSensitive;
         private final String header;
 
         Grammar( Root root, Map<String, ProductionNode> productions )
         {
             this.language = requireNonNull( root.language, "language" );
-            this.caseSensitive = root.caseSensitive;
             this.header = root.header == null ? null : root.header.toString();
             this.productions = productions;
         }
@@ -194,12 +190,6 @@ class Root implements Iterable<ProductionNode>
         public String header()
         {
             return header;
-        }
-
-        @Override
-        public boolean caseSensitiveByDefault()
-        {
-            return caseSensitive;
         }
 
         @Override
@@ -254,8 +244,7 @@ class Root implements Iterable<ProductionNode>
                 return false;
             }
             Grammar that = (Grammar) obj;
-            return this.caseSensitive == that.caseSensitive &&
-                   language.equals( that.language ) &&
+            return language.equals( that.language ) &&
                    productions.equals( that.productions );
         }
     }

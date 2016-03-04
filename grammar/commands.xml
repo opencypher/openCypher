@@ -26,7 +26,7 @@
   <!ENTITY label "<non-terminal ref='NodeLabel'/>">
   <!ENTITY type "<non-terminal ref='RelType'/>">
 ]>
-<grammar language="Command" case-sensitive="false"
+<grammar language="Command"
   xmlns="http://thobe.org/grammar"
   xmlns:rr="http://thobe.org/railroad"
   xmlns:ast="http://thobe.org/syntaxtree"

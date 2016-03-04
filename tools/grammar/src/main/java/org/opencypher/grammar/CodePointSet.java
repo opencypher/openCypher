@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-abstract class CodePointSet
+abstract class CodePointSet implements Comparable<CodePointSet>
 {
     public static CodePointSet single( int codePoint )
     {
@@ -45,6 +45,7 @@ abstract class CodePointSet
                 return Union.flatten( union );
             }
         }
+        Arrays.sort( union );
         return new Union( union );
     }
 
@@ -231,6 +232,12 @@ abstract class CodePointSet
         {
             return Character.isValidCodePoint( cp );
         }
+
+        @Override
+        int firstCodePoint()
+        {
+            return Character.MIN_CODE_POINT;
+        }
     };
     String name;
     private transient volatile int[] encoded;
@@ -250,6 +257,14 @@ abstract class CodePointSet
     public abstract String toString();
 
     abstract boolean contains( int cp );
+
+    @Override
+    public int compareTo( CodePointSet that )
+    {
+        return this.firstCodePoint() - that.firstCodePoint();
+    }
+
+    abstract int firstCodePoint();
 
     @SuppressWarnings("unchecked")
     <EX extends Exception> void accept( CharacterSet.DefinitionVisitor<EX> visitor ) throws EX
@@ -423,6 +438,12 @@ abstract class CodePointSet
         }
 
         @Override
+        int firstCodePoint()
+        {
+            return included.firstCodePoint();
+        }
+
+        @Override
         <EX extends Exception> void accept( CharacterSet.DefinitionVisitor<EX> visitor ) throws EX
         {
             if ( name == null && included.name != null &&
@@ -485,6 +506,12 @@ abstract class CodePointSet
                 }
             }
             return false;
+        }
+
+        @Override
+        int firstCodePoint()
+        {
+            return union[0].firstCodePoint();
         }
 
         @Override
@@ -552,6 +579,12 @@ abstract class CodePointSet
         boolean contains( int cp )
         {
             return start <= cp && cp <= end;
+        }
+
+        @Override
+        int firstCodePoint()
+        {
+            return start;
         }
 
         @Override
@@ -637,6 +670,12 @@ abstract class CodePointSet
         }
 
         @Override
+        int firstCodePoint()
+        {
+            return codePoint;
+        }
+
+        @Override
         public int randomCodePoint( Random random )
         {
             return codePoint;
@@ -663,6 +702,12 @@ abstract class CodePointSet
                 }
             }
             return false;
+        }
+
+        @Override
+        int firstCodePoint()
+        {
+            return codePoints[0];
         }
 
         @Override
@@ -728,6 +773,19 @@ abstract class CodePointSet
         boolean contains( int cp )
         {
             return Character.getType( cp ) == characterType;
+        }
+
+        @Override
+        int firstCodePoint()
+        {
+            for ( int cp = Character.MIN_CODE_POINT; cp < Character.MAX_CODE_POINT; cp++ )
+            {
+                if ( contains( cp ) )
+                {
+                    return cp;
+                }
+            }
+            throw new IllegalStateException( "should contain at least one code point" );
         }
 
         @Override

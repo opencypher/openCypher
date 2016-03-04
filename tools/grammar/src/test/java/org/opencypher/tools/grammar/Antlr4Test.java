@@ -13,6 +13,7 @@ import static org.opencypher.grammar.Grammar.grammar;
 import static org.opencypher.grammar.Grammar.literal;
 import static org.opencypher.grammar.Grammar.nonTerminal;
 import static org.opencypher.grammar.Grammar.optional;
+import static org.opencypher.tools.grammar.Antlr4ToolFacade.assertGeneratesValidParser;
 import static org.opencypher.tools.output.Output.stringBuilder;
 
 public class Antlr4Test
@@ -90,6 +91,12 @@ public class Antlr4Test
                 "",
                 name + " : " + def + " ;",
                 "" );
+    }
+
+    @Test
+    public void shouldGenerateCypherGrammar() throws Exception
+    {
+        assertGeneratesValidParser( "/cypher.xml" );
     }
 
     static void assertGenerates( Grammar.Builder grammar, String... lines )

@@ -1,6 +1,5 @@
 package org.opencypher.tools.grammar;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +11,7 @@ import org.antlr.v4.tool.ANTLRToolListener;
 import org.antlr.v4.tool.ast.GrammarAST;
 import org.antlr.v4.tool.ast.GrammarRootAST;
 import org.antlr.v4.tool.ast.RuleAST;
-import org.opencypher.grammar.Grammar;
+import org.opencypher.grammar.Fixture;
 import org.opencypher.tools.output.Output;
 
 import static org.junit.Assert.fail;
@@ -22,14 +21,14 @@ import static org.opencypher.tools.output.Output.stringBuilder;
 
 public class Antlr4ToolFacade implements ANTLRToolListener
 {
-    public static void assertGeneratesValidParser( Path path ) throws Exception
+    public static void assertGeneratesValidParser( String resource ) throws Exception
     {
         Output.Readable buffer = stringBuilder();
         Tool antlr = new Tool();
         Antlr4ToolFacade facade = new Antlr4ToolFacade( antlr, buffer );
         try
         {
-            Antlr4.write( Grammar.parseXML( path ), buffer );
+            Antlr4.write( Fixture.grammarResource( Antlr4.class, resource ), buffer );
         }
         catch ( Throwable e )
         {
@@ -43,7 +42,7 @@ public class Antlr4ToolFacade implements ANTLRToolListener
             }
         }
         antlr.addListener( facade );
-        GrammarRootAST ast = antlr.parse( path.toString(), new ANTLRReaderStream( buffer.reader() ) );
+        GrammarRootAST ast = antlr.parse( resource, new ANTLRReaderStream( buffer.reader() ) );
         if ( ast.hasErrors )
         {
             RuleAST lastGood = lastGoodRule( ast );

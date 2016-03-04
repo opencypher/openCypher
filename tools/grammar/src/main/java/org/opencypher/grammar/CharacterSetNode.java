@@ -145,7 +145,14 @@ class CharacterSetNode extends Node implements CharacterSet
     {
         if ( set == null )
         {
-            throw new UnsupportedOperationException( "not implemented: visitEOI" );
+            if ( visitor instanceof DefinitionVisitor.NamedSetVisitor )
+            {
+                ((DefinitionVisitor.NamedSetVisitor<EX>) visitor).visitSet( EOI ).close();
+            }
+            else
+            {
+                throw new UnsupportedOperationException( "visitSet(EOI)" );
+            }
         }
         else
         {

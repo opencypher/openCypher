@@ -18,6 +18,7 @@ package org.opencypher.grammar;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.util.EnumSet;
@@ -46,6 +47,13 @@ public interface Grammar
                        .resolve( ParserOption.resolve( options ) );
     }
 
+    static Grammar parseXML( Reader input, ParserOption... options )
+            throws ParserConfigurationException, SAXException, IOException
+    {
+        return Root.XML.parse( input, ParserOption.xml( options ) )
+                       .resolve( ParserOption.resolve( options ) );
+    }
+
     static Grammar parseXML( InputStream input, ParserOption... options )
             throws ParserConfigurationException, SAXException, IOException
     {
@@ -56,8 +64,6 @@ public interface Grammar
     String language();
 
     String header();
-
-    boolean caseSensitiveByDefault();
 
     <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX;
 
@@ -236,15 +242,6 @@ public interface Grammar
     {
         abstract void apply( Root grammar );
     }
-
-    Option CASE_INSENSITIVE = new Option()
-    {
-        @Override
-        void apply( Root grammar )
-        {
-            grammar.caseSensitive = false;
-        }
-    };
 
     enum ParserOption
     {

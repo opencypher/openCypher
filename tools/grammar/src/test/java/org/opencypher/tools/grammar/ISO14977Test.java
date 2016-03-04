@@ -19,9 +19,12 @@ package org.opencypher.tools.grammar;
 import java.io.StringWriter;
 
 import org.junit.Test;
+import org.opencypher.grammar.Fixture;
 import org.opencypher.grammar.Grammar;
+import org.opencypher.tools.output.Output;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.opencypher.grammar.Grammar.atLeast;
 import static org.opencypher.grammar.Grammar.literal;
 import static org.opencypher.grammar.Grammar.nonTerminal;
@@ -31,10 +34,28 @@ import static org.opencypher.grammar.Grammar.optional;
 import static org.opencypher.grammar.Grammar.repeat;
 import static org.opencypher.grammar.Grammar.sequence;
 import static org.opencypher.grammar.Grammar.zeroOrMore;
+import static org.opencypher.tools.output.Output.lineNumbers;
 import static org.opencypher.tools.output.Output.lines;
+import static org.opencypher.tools.output.Output.stdOut;
+import static org.opencypher.tools.output.Output.stringBuilder;
 
 public class ISO14977Test
 {
+    @Test
+    public void shouldGenerateCypher() throws Exception
+    {
+        Output.Readable output = stringBuilder();
+        try
+        {
+            ISO14977.write( Fixture.grammarResource( ISO14977.class, "/cypher.xml" ), output );
+        }
+        catch ( Throwable e )
+        {
+            lineNumbers( stdOut() ).append( output );
+            throw e;
+        }
+    }
+
     @Test
     public void shouldRenderLiteral() throws Exception
     {

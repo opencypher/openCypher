@@ -83,8 +83,8 @@ public class Xml extends XmlGenerator implements GrammarVisitor<SAXException>
         if ( description != null )
         {
             startElement( "description" );
-            println( description );
-            endElement( description );
+            characters( description );
+            endElement( "description" );
         }
         production.definition().accept( this );
         endElement( "production" );
@@ -115,24 +115,8 @@ public class Xml extends XmlGenerator implements GrammarVisitor<SAXException>
     @Override
     public void visitLiteral( Literal value ) throws SAXException
     {
-        boolean whitespace = false;
-        for ( int i = 0, len = value.length(), cp; i < len; i += Character.charCount( cp ) )
-        {
-            if ( Character.isWhitespace( cp = value.codePointAt( i ) ) || cp == '\\' )
-            {
-                whitespace = true;
-                break;
-            }
-        }
-        if ( whitespace )
-        {
             startElement( "literal", attribute( "value", value.toString() ) );
             endElement( "literal" );
-        }
-        else
-        {
-            println( value );
-        }
     }
 
     @Override

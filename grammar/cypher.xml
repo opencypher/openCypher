@@ -21,7 +21,7 @@
   <!ENTITY expr "<non-terminal ref='Expression'/>">
   <!ENTITY var "<non-terminal ref='Variable'/>">
 ]>
-<grammar language="Cypher" case-sensitive="false"
+<grammar language="Cypher"
   xmlns="http://thobe.org/grammar"
   xmlns:rr="http://thobe.org/railroad"
   xmlns:ast="http://thobe.org/syntaxtree"

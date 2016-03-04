@@ -21,7 +21,7 @@
   <!ENTITY expr "<non-terminal ref='Expression'/>">
   <!ENTITY var "<non-terminal ref='Variable'/>">
 ]>
-<grammar language="Cypher Basic Grammar" case-sensitive="false"
+<grammar language="Cypher Basic Grammar"
   xmlns="http://thobe.org/grammar"
   xmlns:rr="http://thobe.org/railroad"
   xmlns:ast="http://thobe.org/syntaxtree"
@@ -278,12 +278,12 @@
   <production name="PartialComparisonExpression">
     <alt>
       <seq> <literal value="="/>  <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value="&lt;>"/> <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&lt;&gt;"/> <non-terminal ref="Expression7"/> </seq>
       <seq> <literal value="!="/> <non-terminal ref="Expression7"/> </seq>
       <seq> <literal value="&lt;"/>  <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value=">"/>  <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&gt;"/>  <non-terminal ref="Expression7"/> </seq>
       <seq> <literal value="&lt;="/> <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value=">="/> <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&gt;="/> <non-terminal ref="Expression7"/> </seq>
     </alt>
   </production>
 

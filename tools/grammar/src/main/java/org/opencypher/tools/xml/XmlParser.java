@@ -18,6 +18,7 @@ package org.opencypher.tools.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -52,6 +53,19 @@ public class XmlParser<Root>
                 return base.resolve( path );
             }
         }.parse( input, this, options );
+    }
+
+    public Root parse( Reader input, Option... options )
+            throws ParserConfigurationException, SAXException, IOException
+    {
+        return parse( new Resolver()
+        {
+            @Override
+            Path path( String path )
+            {
+                throw new IllegalStateException( "Cannot resolve path in input from reader" );
+            }
+        }, new InputSource( input ), options );
     }
 
     public Root parse( InputStream input, Option... options )
