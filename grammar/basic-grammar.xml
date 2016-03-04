@@ -60,7 +60,7 @@
   <production name="ShortestPathPattern">
     <alt>
       <seq>shortestPath ( <non-terminal ref="PatternElement"/> )</seq>
-      <seq>allShortestPath ( <non-terminal ref="PatternElement"/> )</seq>
+      <seq>allShortestPaths ( <non-terminal ref="PatternElement"/> )</seq>
     </alt>
   </production>
 

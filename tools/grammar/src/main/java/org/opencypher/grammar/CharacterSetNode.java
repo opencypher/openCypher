@@ -196,13 +196,8 @@ class CharacterSetNode extends Node implements CharacterSet
         return true;
     }
 
-    static CharacterSetNode codePoint( int codePoint )
+    public static CharacterSetNode charSet( String name )
     {
-        String name = CharacterSet.controlCharName( codePoint );
-        if ( name == null )
-        {
-            name = Character.getName( codePoint );
-        }
         CharacterSetNode result = new CharacterSetNode();
         result.set( name );
         return result;

@@ -24,8 +24,8 @@ import org.opencypher.grammar.Grammar;
 import org.opencypher.tools.output.Output;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.opencypher.grammar.Grammar.atLeast;
+import static org.opencypher.grammar.Grammar.caseInsensitive;
 import static org.opencypher.grammar.Grammar.literal;
 import static org.opencypher.grammar.Grammar.nonTerminal;
 import static org.opencypher.grammar.Grammar.oneOf;
@@ -54,6 +54,7 @@ public class ISO14977Test
             lineNumbers( stdOut() ).append( output );
             throw e;
         }
+        lineNumbers( stdOut() ).append( output );
     }
 
     @Test
@@ -61,6 +62,17 @@ public class ISO14977Test
     {
         verify( production( "foo", literal( "FOO" ) ),
                 "foo = 'FOO' ;" );
+    }
+
+    @Test
+    public void shouldRenderCaseInsensitiveLiteral() throws Exception
+    {
+        verify( production( "foo", caseInsensitive( "FOO" ) ),
+                "foo = F,O,O ;",
+                "",
+                "F = 'F' | 'f';",
+                "",
+                "O = 'O' | 'o';" );
     }
 
     @Test

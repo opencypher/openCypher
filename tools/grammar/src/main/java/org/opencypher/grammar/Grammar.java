@@ -90,10 +90,19 @@ public interface Grammar
         return Node.epsilon();
     }
 
+    static Term caseInsensitive( String value )
+    {
+        LiteralNode literal = new LiteralNode();
+        literal.value = requireNonNull( value, "literal value" );
+        literal.caseSensitive = false;
+        return literal;
+    }
+
     static Term literal( String value )
     {
         LiteralNode literal = new LiteralNode();
         literal.value = requireNonNull( value, "literal value" );
+        literal.caseSensitive = true;
         return literal;
     }
 

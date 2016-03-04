@@ -28,6 +28,8 @@ final class LiteralNode extends Node implements Literal
 {
     @Attribute
     String value;
+    @Attribute(optional = true, name = "case-sensitive")
+    boolean caseSensitive = true;
 
     @Override
     public int length()
@@ -45,6 +47,12 @@ final class LiteralNode extends Node implements Literal
     public int codePointAt( int index )
     {
         return value.codePointAt( index );
+    }
+
+    @Override
+    public boolean caseSensitive()
+    {
+        return caseSensitive;
     }
 
     @Override
@@ -82,20 +90,26 @@ final class LiteralNode extends Node implements Literal
             {
                 if ( start != pos )
                 {
-                    literal( add, new String( buffer, start, pos - start ) );
+                    textLiteral( add, new String( buffer, start, pos - start ) );
                 }
                 start = pos + step;
             }
         }
         if ( start != pos )
         {
-            literal( add, new String( buffer, start, pos - start ) );
+            textLiteral( add, new String( buffer, start, pos - start ) );
         }
     }
 
-    private static void literal( Consumer<? super LiteralNode> add, String literal )
+    /**
+     * Creates a text literal, a case insensitive literal.
+     *
+     * @param add     the adder that adds the literal node to its parent node.
+     * @param literal the literal string.
+     */
+    private static void textLiteral( Consumer<? super LiteralNode> add, String literal )
     {
-        add.accept( literal( literal ) );
+        add.accept( literal( literal, false ) );
     }
 
     @Override
@@ -103,9 +117,10 @@ final class LiteralNode extends Node implements Literal
     {
         if ( value.length() == 1 )
         {
-            if ( (value.charAt( 0 ) < 0x20 || value.charAt( 0 ) == 0x7F) )
+            String control = CharacterSet.controlCharName( value.charAt( 0 ) );
+            if ( control != null )
             {
-                return CharacterSetNode.codePoint( value.charAt( 0 ) );
+                return CharacterSetNode.charSet( control );
             }
             else
             {
@@ -117,7 +132,8 @@ final class LiteralNode extends Node implements Literal
         for ( int i = 0, cp; i < value.length(); i += Character.charCount( cp ) )
         {
             cp = value.codePointAt( i );
-            if ( cp < 0x20 || cp == 0x7F )
+            String control = CharacterSet.controlCharName( cp );
+            if ( control != null )
             {
                 if ( seq == null )
                 {
@@ -125,9 +141,9 @@ final class LiteralNode extends Node implements Literal
                 }
                 if ( start < i )
                 {
-                    seq.add( literal( value.substring( start, i ) ) );
+                    seq.add( literal( value.substring( start, i ), caseSensitive ) );
                 }
-                seq.add( CharacterSetNode.codePoint( cp ) );
+                seq.add( CharacterSetNode.charSet( control ) );
                 start = i + 1;
             }
         }
@@ -135,17 +151,18 @@ final class LiteralNode extends Node implements Literal
         {
             if ( start < value.length() )
             {
-                seq.add( literal( value.substring( start ) ) );
+                seq.add( literal( value.substring( start ), caseSensitive ) );
             }
             return seq;
         }
         return this;
     }
 
-    private static LiteralNode literal( String value )
+    private static LiteralNode literal( String value, boolean caseSensitive )
     {
         LiteralNode literal = new LiteralNode();
         literal.value = value;
+        literal.caseSensitive = caseSensitive;
         return literal;
     }
 
@@ -167,7 +184,8 @@ final class LiteralNode extends Node implements Literal
             return false;
         }
         LiteralNode that = (LiteralNode) obj;
-        return Objects.equals( this.value, that.value );
+        return Objects.equals( this.value, that.value ) &&
+               this.caseSensitive == that.caseSensitive;
     }
 
     @Override

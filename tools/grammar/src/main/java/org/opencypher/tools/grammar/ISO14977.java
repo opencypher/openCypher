@@ -18,6 +18,8 @@ package org.opencypher.tools.grammar;
 
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.opencypher.grammar.Alternatives;
 import org.opencypher.grammar.CharacterSet;
@@ -33,7 +35,7 @@ import org.opencypher.tools.output.Output;
 
 import static org.opencypher.tools.output.Output.output;
 
-public class ISO14977 implements GrammarVisitor<RuntimeException>
+public class ISO14977 implements GrammarVisitor<RuntimeException>, AutoCloseable
 {
     public static void write( Grammar grammar, Writer writer )
     {
@@ -54,7 +56,10 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>
                   .printLines( header, " * " )
                   .println( " *)" );
         }
-        grammar.accept( new ISO14977( output ) );
+        try ( ISO14977 writer = new ISO14977( output ) )
+        {
+            grammar.accept( writer );
+        }
     }
 
     public static void main( String... args ) throws Exception
@@ -70,10 +75,30 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>
     private final Output output;
     private String altPrefix = "";
     private boolean group;
+    private final Set<Integer> caseChars = new HashSet<>();
 
     private ISO14977( Output output )
     {
         this.output = output;
+    }
+
+    @Override
+    public void close()
+    {
+        for ( int chr : caseChars )
+        {
+            int upper = Character.toUpperCase( chr );
+            int lower = Character.toLowerCase( chr );
+            int title = Character.toTitleCase( chr );
+            output.appendCodePoint( chr ).append( " = '" )
+                  .appendCodePoint( upper ).append( "' | '" )
+                  .appendCodePoint( lower );
+            if ( title != upper )
+            {
+                output.append( "' | '" ).appendCodePoint( title );
+            }
+            output.println( "';" ).println();
+        }
     }
 
     @Override
@@ -153,10 +178,51 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>
     @Override
     public void visitLiteral( Literal literal )
     {
-        literal( literal.toString() );
+        String value = literal.toString();
+        if ( value.length() == 0 )
+        {
+            visitEpsilon();
+        }
+        else if ( literal.caseSensitive() ||
+                  (Character.charCount( value.codePointAt( 0 ) ) == value.length() &&
+                   !Character.isLetter( value.codePointAt( 0 ) )) )
+        {
+            literal( value );
+        }
+        else
+        {
+            group( () -> {
+                String sep = "";
+                int start = 0;
+                for ( int i = 0, end = literal.length(), cp; i < end; i += Character.charCount( cp ) )
+                {
+                    cp = value.charAt( i );
+                    if ( Character.isLowerCase( cp ) || Character.isUpperCase( cp ) || Character.isTitleCase( cp ) )
+                    {
+                        if ( start < i )
+                        {
+                            output.append( sep );
+                            sep = ",";
+                            literal( value.substring( start, i ) );
+                        }
+                        output.append( sep );
+                        sep = ",";
+                        start = i + Character.charCount( cp );
+                        cp = Character.toUpperCase( cp );
+                        caseChars.add( cp );
+                        output.appendCodePoint( cp );
+                    }
+                }
+                if ( start < literal.length() )
+                {
+                    output.append( sep );
+                    literal( value.substring( start ) );
+                }
+            } );
+        }
     }
 
-    public void literal( String value )
+    private void literal( String value )
     {
         char enclose;
         int sq, dq;

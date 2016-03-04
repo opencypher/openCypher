@@ -175,10 +175,6 @@ public interface CharacterSet
         Lt( generalCategory( Character.TITLECASE_LETTER ) ),
         /** Letter, Uppercase */
         Lu( generalCategory( Character.UPPERCASE_LETTER ) ),
-        /** Letter, Cased */
-        LC( union( Ll.set, Lt.set, Lu.set ) ),
-        /** Letter */
-        L( union( Ll.set, Lm.set, Lo.set, Lt.set, Lu.set ) ),
 
         /** Mark, Spacing Combining */
         Mc( generalCategory( Character.COMBINING_SPACING_MARK ) ),
@@ -295,7 +291,7 @@ public interface CharacterSet
                 '\u00B7', '\u0387', '\u1369', '\u136A', '\u136B', '\u136C',
                 '\u136D', '\u136E', '\u136F', '\u1370', '\u1371', '\u19DA' ) ),
         /** Characters allowed as initial character of an identifier. http://unicode.org/reports/tr31/ */
-        ID_Start( union( L.set, Nl.set, Other_ID_Start.set )
+        ID_Start( union( Ll.set, Lm.set, Lo.set, Lt.set, Lu.set, Nl.set, Other_ID_Start.set )
                           .except( Pattern_Syntax.set ).except( Pattern_White_Space.set ) ),
         /** Characters allowed in an identifier. http://unicode.org/reports/tr31/ */
         ID_Continue( union( ID_Start.set, Mn.set, Mc.set, Nd.set, Pc.set, Other_ID_Continue.set )
