@@ -18,11 +18,9 @@ package org.opencypher.tools.grammar;
 
 import java.io.OutputStream;
 import java.io.Writer;
-import java.util.List;
 
 import org.opencypher.grammar.Alternatives;
 import org.opencypher.grammar.CharacterSet;
-import org.opencypher.grammar.Exclusion;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.GrammarVisitor;
 import org.opencypher.grammar.Literal;
@@ -35,7 +33,7 @@ import org.opencypher.tools.output.Output;
 
 import static org.opencypher.tools.output.Output.output;
 
-public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Visitor<Void, RuntimeException>
+public class ISO14977 implements GrammarVisitor<RuntimeException>
 {
     public static void write( Grammar grammar, Writer writer )
     {
@@ -209,58 +207,70 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, Exclusion.Vis
     @Override
     public void visitCharacters( CharacterSet characters )
     {
-        output.append( characters.setName() );
-        if ( !characters.hasExclusions() )
+        String name = characters.name();
+        if ( name != null )
         {
-            List<Exclusion> exceptions = characters.exclusions();
-            if ( exceptions.size() == 1 )
-            {
-                output.append( " - " );
-                exceptions.get( 0 ).accept( this );
-            }
-            else
-            {
-                String sep = " - (";
-                for ( Exclusion exception : exceptions )
-                {
-                    output.append( sep );
-                    exception.accept( this );
-                    sep = " | ";
-                }
-                if ( !exceptions.isEmpty() )
-                {
-                    output.append( ')' );
-                }
-            }
-        }
-    }
-
-    @Override
-    public Void excludeLiteral( String literal ) throws RuntimeException
-    {
-        literal( literal );
-        return null;
-    }
-
-    @Override
-    public Void excludeCodePoint( int cp ) throws RuntimeException
-    {
-        if ( cp == '\'' )
-        {
-            output.append( "\"'\"" );
+            output.append( name );
         }
         else
         {
-            output.append( '\'' ).appendCodePoint( cp ).append( '\'' );
-        }
-        return null;
-    }
+            characters.accept( new CharacterSet.DefinitionVisitor.NamedSetVisitor<RuntimeException>()
+            {
+                String sep = "";
 
-    @Override
-    public Void excludeCharacterSet( String wellKnownName ) throws RuntimeException
-    {
-        output.append( wellKnownName );
-        return null;
+                @Override
+                public CharacterSet.ExclusionVisitor<RuntimeException> visitSet( String name )
+                {
+                    output.append( name );
+                    return new CharacterSet.ExclusionVisitor<RuntimeException>()
+                    {
+                        String sep = " - (";
+
+                        @Override
+                        public void excludeCodePoint( int cp ) throws RuntimeException
+                        {
+                            output.append( sep );
+                            codePoint( cp );
+                            sep = " | ";
+                        }
+
+                        @Override
+                        public void close() throws RuntimeException
+                        {
+                            if ( sep.charAt( sep.length() - 1 ) != '(' )
+                            {
+                                output.append( ')' );
+                            }
+                        }
+                    };
+                }
+
+                @Override
+                public void visitCodePoint( int cp )
+                {
+                    output.append( sep );
+                    codePoint( cp );
+                    sep = " | ";
+                }
+
+                private void codePoint( int cp )
+                {
+                    String controlChar = CharacterSet.controlCharName( cp );
+                    if ( controlChar != null )
+                    {
+                        output.append( controlChar );
+                    }
+                    else if ( cp == '\'' )
+                    {
+                        output.append( "\"'\"" );
+                    }
+                    else
+                    {
+                        output.append( '\'' ).appendCodePoint( cp ).append( '\'' );
+                    }
+                }
+            } );
+        }
     }
 
     @Override

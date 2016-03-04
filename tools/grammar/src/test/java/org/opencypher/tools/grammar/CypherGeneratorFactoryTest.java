@@ -100,8 +100,18 @@ public class CypherGeneratorFactoryTest
                                 literal( "`" ),
                                 zeroOrMore( anyCharacter().except( '`' ) ),
                                 literal( "`" ) ) )
-                        .production( "IdentifierStart", charactersOfSet( "JavaIdentifierStart" ) )
-                        .production( "IdentifierPart", charactersOfSet( "JavaIdentifierPart" ) )
+                        .production( "IdentifierStart", charactersOfSet( "ID_Start" ), charactersOfSet( "Sc" ),
+                                     literal( "\u005f;" ),  // '_' - LOW LINE
+                                     literal( "\u203f;" ),  // '‿' - UNDERTIE
+                                     literal( "\u2040;" ),  // '⁀' - CHARACTER TIE
+                                     literal( "\u2054;" ),  // '⁔' - INVERTED UNDERTIE
+                                     literal( "\ufe33;" ),  // '︳' - PRESENTATION FORM FOR VERTICAL LOW LINE
+                                     literal( "\ufe34;" ),  // '︴' - PRESENTATION FORM FOR VERTICAL WAVY LOW LINE
+                                     literal( "\ufe4d;" ),  // '﹍' - DASHED LOW LINE
+                                     literal( "\ufe4e;" ),  // '﹎' - CENTRELINE LOW LINE
+                                     literal( "\ufe4f;" ),  // '﹏' - WAVY LOW LINE
+                                     literal( "\uff3f;" ) ) // '＿' - FULLWIDTH LOW LINE
+                        .production( "IdentifierPart", charactersOfSet( "ID_Continue" ), charactersOfSet( "Sc" ) )
                         .build( IGNORE_UNUSED_PRODUCTIONS ) );
     }
 

@@ -22,7 +22,6 @@ import javax.xml.transform.TransformerException;
 
 import org.opencypher.grammar.Alternatives;
 import org.opencypher.grammar.CharacterSet;
-import org.opencypher.grammar.Exclusion;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.GrammarVisitor;
 import org.opencypher.grammar.Literal;
@@ -33,11 +32,9 @@ import org.opencypher.grammar.Repetition;
 import org.opencypher.grammar.Sequence;
 import org.opencypher.tools.output.Output;
 import org.opencypher.tools.xml.XmlGenerator;
-import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-public class Xml extends XmlGenerator
-        implements GrammarVisitor<SAXException>, Exclusion.Visitor<Attributes, RuntimeException>
+public class Xml extends XmlGenerator implements GrammarVisitor<SAXException>
 {
     public static void write( Grammar grammar, Writer writer ) throws TransformerException
     {
@@ -81,8 +78,7 @@ public class Xml extends XmlGenerator
     @Override
     public void visitProduction( Production production ) throws SAXException
     {
-        startElement( "production", attribute( "name", production.name() )
-                .attribute( "case-sensitive", Boolean.toString( grammar.caseSensitiveByDefault() ) ) );
+        startElement( "production", attribute( "name", production.name() ) );
         String description = production.description();
         if ( description != null )
         {
@@ -142,19 +138,88 @@ public class Xml extends XmlGenerator
     @Override
     public void visitCharacters( CharacterSet characters ) throws SAXException
     {
-        startElement( "character", attribute( "set", characters.setName() ) );
-        for ( Exclusion exclusion : characters.exclusions() )
+        class Writer implements CharacterSet.DefinitionVisitor.NamedSetVisitor<SAXException>, AutoCloseable
         {
-            startElement( "except", exclusion.accept( this ) );
-            endElement( "except" );
-        }
-        endElement( "character" );
-    }
+            Output.Readable set;
 
-    @Override
-    public Attributes excludeLiteral( String literal ) throws RuntimeException
-    {
-        return attribute( "literal", literal );
+            @Override
+            public CharacterSet.ExclusionVisitor<SAXException> visitSet( String name ) throws SAXException
+            {
+                if ( set != null )
+                {
+                    throw new IllegalStateException();
+                }
+                set = Output.nowhere(); // mark as done
+                startElement( "character", attribute( "set", name ) );
+                return new CharacterSet.ExclusionVisitor<SAXException>()
+                {
+                    @Override
+                    public void excludeCodePoint( int cp ) throws SAXException
+                    {
+                        startElement( "except", attribute( "codePoint", Integer.toString( cp ) ) );
+                        endElement( "except" );
+                    }
+
+                    @Override
+                    public void excludeRange( int start, int end ) throws SAXException
+                    {
+                        startElement( "except", attribute( "set", String.format( "&#x%04X;-&#x%04X;", start, end  ) ) );
+                        endElement( "except" );
+                    }
+
+                    @Override
+                    public void close() throws SAXException
+                    {
+                        endElement( "character" );
+                    }
+                };
+            }
+
+            @Override
+            public void visitCodePoint( int cp ) throws SAXException
+            {
+                format( "&#x%04X;", cp );
+            }
+
+            @Override
+            public void visitRange( int start, int end ) throws SAXException
+            {
+                format( "&#x%04X;-&#x%04X;", start, end );
+            }
+
+            @Override
+            public void close() throws SAXException
+            {
+                if ( set == null )
+                {
+                    throw new IllegalStateException();
+                }
+                if ( set.length() > 0 )
+                {
+                    set.append( ']' );
+                    startElement( "character", attribute( "set", set.toString() ) );
+                    endElement( "character" );
+                    set = Output.nowhere(); // mark as done
+                }
+            }
+
+            void format( String format, Object... arguments )
+            {
+                if ( set == null )
+                {
+                    (set = Output.stringBuilder()).append( '[' );
+                }
+                if ( set.length() == 0 )
+                {
+                    throw new IllegalStateException();
+                }
+                set.format( format, arguments );
+            }
+        }
+        try ( Writer writer = new Writer() )
+        {
+            characters.accept( writer );
+        }
     }
 
     @Override

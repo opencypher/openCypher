@@ -106,7 +106,7 @@ abstract class Node extends Grammar.Term implements LocationAware
             @Override
             public boolean equals( Object obj )
             {
-                return this == obj;
+                return this.getClass() == obj.getClass();
             }
 
             @Override

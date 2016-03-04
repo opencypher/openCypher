@@ -20,6 +20,7 @@ import java.io.Closeable;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.nio.CharBuffer;
 import java.util.Collections;
@@ -28,7 +29,9 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.IntFunction;
 
+import static java.lang.Character.charCount;
 import static java.lang.Character.highSurrogate;
 import static java.lang.Character.isBmpCodePoint;
 import static java.lang.Character.isValidCodePoint;
@@ -86,9 +89,14 @@ public interface Output extends Appendable, Closeable
         return output( System.err );
     }
 
-    static Output nowhere()
+    static Output.Readable nowhere()
     {
         return Nowhere.OUTPUT;
+    }
+
+    static Output lineNumbers( Output output )
+    {
+        return new LineNumberingOutput( output );
     }
 
     @SuppressWarnings("ManualArrayToCollectionCopy")
@@ -158,6 +166,59 @@ public interface Output extends Appendable, Closeable
     interface Readable extends Output, CharSequence
     {
         int codePointAt( int index );
+
+        default boolean contentsEquals( CharSequence that )
+        {
+            if ( this.length() != that.length() )
+            {
+                return false;
+            }
+            for ( int i = 0, len = length(); i < len; i++ )
+            {
+                if ( this.charAt( i ) != that.charAt( i ) )
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        default Reader reader()
+        {
+            return new CharSequenceReader( this, 0, length() );
+        }
+    }
+
+    default Output escape( CharSequence str, IntFunction<String> replacement )
+    {
+        return escape( str, 0, str.length(), replacement );
+    }
+
+    default Output escape( CharSequence str, int start, int end, IntFunction<String> replacement )
+    {
+        if ( start < 0 || end > str.length() )
+        {
+            throw new IllegalArgumentException(
+                    String.format( "start=%d, end=%d, length=%d", start, end, str.length() ) );
+        }
+        for ( int i = 0, cp; i < end; i += charCount( cp ) )
+        {
+            String replaced = replacement.apply( cp = codePointAt( str, i ) );
+            if ( replaced != null )
+            {
+                if ( i > start )
+                {
+                    append( str, start, i );
+                }
+                append( replaced );
+                start = i + charCount( cp );
+            }
+        }
+        if ( start < end )
+        {
+            append( str, start, end );
+        }
+        return this;
     }
 
     // APPEND
@@ -255,7 +316,7 @@ public interface Output extends Appendable, Closeable
     default Output printLines( String text, String separator )
     {
         boolean emit = false;
-        for ( int i = 0, cp; i < text.length(); i += Character.charCount( cp ) )
+        for ( int i = 0, cp; i < text.length(); i += charCount( cp ) )
         {
             if ( emit )
             {
@@ -356,5 +417,63 @@ public interface Output extends Appendable, Closeable
     default Writer writer()
     {
         return new OutputWriter( this );
+    }
+
+    // UTILITIES
+
+    static int codePointAt( CharSequence str, int index )
+    {
+        if ( str instanceof String )
+        {
+            return ((String) str).codePointAt( index );
+        }
+        if ( str instanceof Readable )
+        {
+            return ((Readable) str).codePointAt( index );
+        }
+        if ( str instanceof StringBuilder )
+        {
+            return ((StringBuilder) str).codePointAt( index );
+        }
+        if ( str instanceof StringBuffer )
+        {
+            return ((StringBuffer) str).codePointAt( index );
+        }
+        return Character.codePointAt( str, index );
+    }
+
+    static void getChars( CharSequence source, int begin, int end, char[] target, int off )
+    {
+        if ( source instanceof String )
+        {
+            ((String) source).getChars( begin, end, target, off );
+        }
+        else if ( source instanceof StringBuilder )
+        {
+            ((StringBuilder) source).getChars( begin, end, target, off );
+        }
+        else if ( source instanceof StringBuffer )
+        {
+            ((StringBuffer) source).getChars( begin, end, target, off );
+        }
+        else
+        {
+            if ( begin < 0 )
+            {
+                throw new StringIndexOutOfBoundsException( begin );
+            }
+            if ( end > source.length() )
+            {
+                throw new StringIndexOutOfBoundsException( end );
+            }
+            if ( begin > end )
+            {
+                throw new StringIndexOutOfBoundsException( end - begin );
+            }
+            for ( int i = 0, len = end - begin; i < len; i++ )
+            {
+                target[i + off] = source.charAt( begin + i );
+            }
+        }
     }
 }

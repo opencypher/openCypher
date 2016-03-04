@@ -518,8 +518,8 @@
       And extended with a few characters.
     </description>
     <alt>
-      <character set="UnicodeIdentifierStart"/>
-      <non-terminal ref="CurrencySign"/>
+      <character set="ID_Start"/>
+      <character set="Sc"/>
       <literal value="&#x005f;"/> <!-- '_' - LOW LINE -->
       <literal value="&#x203f;"/> <!-- '‿' - UNDERTIE -->
       <literal value="&#x2040;"/> <!-- '⁀' - CHARACTER TIE -->
@@ -540,41 +540,8 @@
       And extended with a few characters.
     </description>
     <alt>
-      <character set="UnicodeIdentifierPart"/>
-      <non-terminal ref="CurrencySign"/>
-    </alt>
-  </production>
-
-  <production name="CurrencySign">
-    <description>
-      The unicode characters in the CURRENCY_SYMBOLS block
-      (general category "Sc" in the Unicode specification),
-      plus the currency characters defined in other unicode blocks.
-    </description>
-    <alt>
-      <character set="UnicodeBlock:CURRENCY_SYMBOLS"/>
-      <literal value="&#x0024;"/> <!-- '$' - DOLLAR SIGN -->
-      <literal value="&#x00a2;"/> <!-- '¢' - CENT SIGN -->
-      <literal value="&#x00a3;"/> <!-- '£' - POUND SIGN -->
-      <literal value="&#x00a4;"/> <!-- '¤' - CURRENCY SIGN -->
-      <literal value="&#x00a5;"/> <!-- '¥' - YEN SIGN -->
-      <literal value="&#x058f;"/> <!-- '֏' - ARMENIAN DRAM SIGN -->
-      <literal value="&#x060b;"/> <!-- '؋' - AFGHANI SIGN -->
-      <literal value="&#x09f2;"/> <!-- '৲' - BENGALI RUPEE MARK -->
-      <literal value="&#x09f3;"/> <!-- '৳' - BENGALI RUPEE SIGN -->
-      <literal value="&#x09fb;"/> <!-- '৻' - BENGALI GANDA MARK -->
-      <literal value="&#x0af1;"/> <!-- '૱' - GUJARATI RUPEE SIGN -->
-      <literal value="&#x0bf9;"/> <!-- '௹' - TAMIL RUPEE SIGN -->
-      <literal value="&#x0e3f;"/> <!-- '฿' - THAI CURRENCY SYMBOL BAHT -->
-      <literal value="&#x17db;"/> <!-- '៛' - KHMER CURRENCY SYMBOL RIEL -->
-      <literal value="&#xa838;"/> <!-- '꠸' - NORTH INDIC RUPEE MARK -->
-      <literal value="&#xfdfc;"/> <!-- '﷼' - RIAL SIGN -->
-      <literal value="&#xfe69;"/> <!-- '﹩' - SMALL DOLLAR SIGN -->
-      <literal value="&#xff04;"/> <!-- '＄' - FULLWIDTH DOLLAR SIGN -->
-      <literal value="&#xffe0;"/> <!-- '￠' - FULLWIDTH CENT SIGN -->
-      <literal value="&#xffe1;"/> <!-- '￡' - FULLWIDTH POUND SIGN -->
-      <literal value="&#xffe5;"/> <!-- '￥' - FULLWIDTH YEN SIGN -->
-      <literal value="&#xffe6;"/> <!-- '￦' - FULLWIDTH WON SIGN -->
+      <character set="ID_Continue"/>
+      <character set="Sc"/>
     </alt>
   </production>
 
@@ -640,7 +607,10 @@
 
   <production name="Comment">
     <alt>
-      <seq>/* <character><except literal="*/"/></character> */</seq>
+      <seq>/* <repeat><alt>
+        <character><except literal="*"/></character>
+        <seq>* <character><except literal="/"/></character></seq>
+      </alt></repeat> */</seq>
       <seq>//
         <character>
           <except literal="&#10;"/>

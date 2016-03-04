@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -37,6 +36,7 @@ import org.opencypher.tools.xml.XmlParser;
 import org.xml.sax.SAXException;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toSet;
 
 import static org.opencypher.tools.xml.XmlParser.xmlParser;
 
@@ -68,7 +68,7 @@ class Root implements Iterable<ProductionNode>
             throw new IllegalArgumentException( "Invalid production name: '" + production.name +
                                                 "', it is reserved for well known character sets." );
         }
-        if ( productions.put( production.name, production ) != null )
+        if ( productions.put( production.name.toLowerCase(), production ) != null )
         {
             throw new IllegalArgumentException( "Duplicate definition of '" + production.name + "' production" );
         }
@@ -102,7 +102,7 @@ class Root implements Iterable<ProductionNode>
             Collections.addAll( options, config );
         }
         Dependencies dependencies = new Dependencies();
-        Set<String> unused = new HashSet<>( productions.keySet() );
+        Set<String> unused = productions.values().stream().map( node -> node.name ).collect( toSet() );
         // find the root production
         if ( !unused.remove( language ) )
         {

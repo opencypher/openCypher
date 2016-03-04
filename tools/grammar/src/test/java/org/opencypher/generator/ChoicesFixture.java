@@ -18,14 +18,13 @@ package org.opencypher.generator;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import org.opencypher.grammar.BiasedTerms;
-import org.opencypher.grammar.Exclusion;
+import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.Optional;
 
@@ -204,9 +203,9 @@ public final class ChoicesFixture
         }
 
         @Override
-        public int anyChar( Node location, List<Exclusion> exclusions )
+        public int codePoint( Node location, CharacterSet characters )
         {
-            throw new UnsupportedOperationException( "not implemented" );
+            return characters.randomCodePoint( null/*since we only expect predictable character sets*/ );
         }
     }
 }

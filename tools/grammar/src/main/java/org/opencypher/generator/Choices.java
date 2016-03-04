@@ -16,11 +16,10 @@
  */
 package org.opencypher.generator;
 
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.opencypher.grammar.BiasedTerms;
-import org.opencypher.grammar.Exclusion;
+import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.Optional;
 import org.opencypher.grammar.Repetition;
@@ -35,7 +34,7 @@ public interface Choices
 
     boolean includeOptional( Node location, Optional optional );
 
-    int anyChar( Node location, List<Exclusion> exclusions );
+    int codePoint( Node location, CharacterSet characters );
 
     Choices SIMPLE = new Choices()
     {
@@ -58,14 +57,9 @@ public interface Choices
         }
 
         @Override
-        public int anyChar( Node location, List<Exclusion> exclusions )
+        public int codePoint( Node location, CharacterSet characters )
         {
-            int cp;
-            do
-            {
-                cp = random( Character.MIN_CODE_POINT, Character.MAX_CODE_POINT );
-            } while ( !Character.isValidCodePoint( cp ) );
-            return cp;
+            return characters.randomCodePoint( ThreadLocalRandom.current());
         }
     };
 

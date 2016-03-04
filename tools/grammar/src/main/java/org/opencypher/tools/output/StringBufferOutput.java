@@ -16,6 +16,7 @@
  */
 package org.opencypher.tools.output;
 
+import java.io.Reader;
 import java.util.stream.IntStream;
 
 class StringBufferOutput extends FormattingOutput<StringBuffer> implements Output.Readable
@@ -41,6 +42,12 @@ class StringBufferOutput extends FormattingOutput<StringBuffer> implements Outpu
     public int codePointAt( int index )
     {
         return output.codePointAt( index );
+    }
+
+    @Override
+    public Reader reader()
+    {
+        return new CharSequenceReader( output, 0, output.length() );
     }
 
     @Override

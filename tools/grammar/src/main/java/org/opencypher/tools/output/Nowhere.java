@@ -18,7 +18,7 @@ package org.opencypher.tools.output;
 
 import java.util.Locale;
 
-enum Nowhere implements Output
+enum Nowhere implements Output.Readable
 {
     OUTPUT;
 
@@ -26,6 +26,40 @@ enum Nowhere implements Output
     public Output and( Output output )
     {
         return output;
+    }
+
+    @Override
+    public int length()
+    {
+        return 0;
+    }
+
+    @Override
+    public char charAt( int index )
+    {
+        throw new IndexOutOfBoundsException();
+    }
+
+    @Override
+    public CharSequence subSequence( int start, int end )
+    {
+        if (start == 0 && end == 0)
+        {
+            return "";
+        }
+        throw new IndexOutOfBoundsException();
+    }
+
+    @Override
+    public int codePointAt( int index )
+    {
+        throw new IndexOutOfBoundsException();
+    }
+
+    @Override
+    public boolean contentsEquals( CharSequence that )
+    {
+        return that.length() == 0;
     }
 
     @Override

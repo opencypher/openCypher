@@ -93,9 +93,9 @@ public interface Grammar
 
     final class CharacterSet extends CharacterSetNode
     {
-        private CharacterSet( String name )
+        private CharacterSet( String set )
         {
-            this.set = name;
+            set( set );
         }
 
         public CharacterSet except( int... codePoints )
@@ -103,15 +103,6 @@ public interface Grammar
             for ( int codePoint : codePoints )
             {
                 exclude( codePoint );
-            }
-            return this;
-        }
-
-        public CharacterSet except( String... literals )
-        {
-            for ( String literal : literals )
-            {
-                exclude( literal );
             }
             return this;
         }

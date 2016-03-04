@@ -26,6 +26,7 @@ class NodeBuilder
     public static NodeBuilder tree( Class<?> root )
     {
         return Structure.tree( root ).factory( null, ( parent, child ) -> {
+            // Add the child (the root root node) to its parent, since there is no parent of the root, do nothing.
         } );
     }
 

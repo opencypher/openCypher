@@ -17,13 +17,11 @@
 package org.opencypher.generator;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import org.opencypher.grammar.Alternatives;
 import org.opencypher.grammar.CharacterSet;
-import org.opencypher.grammar.Exclusion;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.Literal;
 import org.opencypher.grammar.NonTerminal;
@@ -136,73 +134,13 @@ class TreeBuilder<T> implements TermTransformation<TreeBuilder.State<T>, TreeBui
     @Override
     public State<T> transformCharacters( State<T> current, CharacterSet characters )
     {
-        switch ( characters.setName() )
-        {// <pre>
-        case "NUL": case "SOH": case "STX": case "ETX": case "EOT": case "ENQ": case "ACK": case "BEL":
-        case "BS": case "TAB": case "LF": case "VT": case "FF": case "CR": case "SO": case "SI":
-        case "DLE": case "DC1": case "DC2": case "DC3": case "DC4": case "NAK": case "SYN": case "ETB":
-        case "CAN": case "EM": case "SUB": case "ESC": case "FS": case "GS": case "RS": case "US":
-        case "SPACE": case "DEL":
-        // </pre>
-            assert !characters.hasExclusions();
-            return codePoint( current, charNamed( characters.setName() ) );
-        case "ANY":
-            return codePoint( current, choice.anyChar( current.node, characters.exclusions() ) );
-        case "EOI":
-            throw new IllegalStateException( "Cannot generate end of input." );
-        default:
-            throw new UnsupportedOperationException( "unknown character set: " + characters.setName() );
-        }
+        return codePoint( current, choice.codePoint( current.node, characters ) );
     }
 
     private State<T> codePoint( State<T> current, int cp )
     {
         current.node.codePoint( cp );
         return current.next();
-    }
-
-    private static char charNamed( String singleCharSet )
-    {
-        switch ( singleCharSet )
-        {// <pre>
-        case "NUL":   return 0x00;
-        case "SOH":   return 0x01;
-        case "STX":   return 0x02;
-        case "ETX":   return 0x03;
-        case "EOT":   return 0x04;
-        case "ENQ":   return 0x05;
-        case "ACK":   return 0x06;
-        case "BEL":   return 0x07;
-        case "BS":    return 0x08;
-        case "TAB":   return 0x09;
-        case "LF":    return 0x0A;
-        case "VT":    return 0x0B;
-        case "FF":    return 0x0C;
-        case "CR":    return 0x0D;
-        case "SO":    return 0x0E;
-        case "SI":    return 0x0F;
-        case "DLE":   return 0x10;
-        case "DC1":   return 0x11;
-        case "DC2":   return 0x12;
-        case "DC3":   return 0x13;
-        case "DC4":   return 0x14;
-        case "NAK":   return 0x15;
-        case "SYN":   return 0x16;
-        case "ETB":   return 0x17;
-        case "CAN":   return 0x18;
-        case "EM":    return 0x19;
-        case "SUB":   return 0x1A;
-        case "ESC":   return 0x1B;
-        case "FS":    return 0x1C;
-        case "GS":    return 0x1D;
-        case "RS":    return 0x1E;
-        case "US":    return 0x1F;
-        case "SPACE": return 0x20;
-        case "DEL":   return 0x7F;
-        // </pre>
-        default:
-            throw new IllegalArgumentException( singleCharSet );
-        }
     }
 
     private static <T> State<T> sequence( Node.Tree node, Iterator<Grammar.Term> sequence, T context, State<T> next )

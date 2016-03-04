@@ -20,6 +20,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -168,8 +169,10 @@ class Structure
     private static class Lookup extends ClassValue<Structure>
     {
         final MethodHandles.Lookup lookup = MethodHandles.publicLookup();
-        final ClassValue<List<Attr>> attributes = new HierarchicalClassValue<>(
-                Class::getDeclaredFields, Attribute.class, this::createAttribute );
+        final ClassValue<List<Attr>> attributeFields = new HierarchicalClassValue<>(
+                Class::getDeclaredFields, Attribute.class, this::createFieldAttribute );
+        final ClassValue<List<Attr>> attributeMethods = new HierarchicalClassValue<>(
+                Class::getDeclaredMethods, Attribute.class, this::createMethodAttribute );
         final ClassValue<List<Nested>> children = new HierarchicalClassValue<>(
                 Class::getDeclaredMethods, Child.class, this::createNestedChild );
 
@@ -181,8 +184,20 @@ class Structure
             {
                 throw new IllegalArgumentException( "Not an element: " + type );
             }
-            return new Structure( this, type, element, constructors( type ), children.get( type ),
-                                  attributes.get( type ) );
+            List<Attr> attributes, fields = attributeFields.get( type ), methods = attributeMethods.get( type );
+            if ( methods.isEmpty() )
+            {
+                attributes = fields;
+            }
+            else if ( fields.isEmpty() )
+            {
+                attributes = methods;
+            }
+            else
+            {
+                (attributes = new ArrayList<>( methods )).addAll( fields );
+            }
+            return new Structure( this, type, element, constructors( type ), children.get( type ), attributes );
         }
 
         private Map<Class<?>, Constructor<?>> constructors( Class<?> type )
@@ -277,7 +292,22 @@ class Structure
             return Arrays.asList( result );
         }
 
-        private Collection<Attr> createAttribute( Field field, Attribute attribute )
+        private Collection<Attr> createMethodAttribute( Method method, Attribute attribute )
+        {
+            if ( method.getParameterCount() != 1 )
+            {
+                throw new IllegalArgumentException( "Bad attribute method: " + method );
+            }
+            return createAttribute( method, attribute, AttributeHandler.conversion(
+                    method.getParameterTypes()[0], invoker( method ) ) );
+        }
+
+        private Collection<Attr> createFieldAttribute( Field field, Attribute attribute )
+        {
+            return createAttribute( field, attribute, setter( field ) );
+        }
+
+        private <T extends Member> Collection<Attr> createAttribute( T target, Attribute attribute, MethodHandle set )
         {
             String uri = attribute.uri();
             if ( uri.isEmpty() )
@@ -292,9 +322,9 @@ class Structure
             String name = attribute.name();
             if ( name.isEmpty() )
             {
-                name = field.getName();
+                name = target.getName();
             }
-            return singletonList( new Attr( uri, name, attribute.optional(), setter( field ) ) );
+            return singletonList( new Attr( uri, name, attribute.optional(), set ) );
         }
 
         private MethodHandle invoker( Method method )

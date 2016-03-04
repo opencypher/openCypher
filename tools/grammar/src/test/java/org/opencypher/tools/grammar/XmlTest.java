@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.opencypher.grammar.Fixture;
 import org.opencypher.grammar.Grammar;
+import org.opencypher.tools.output.Output;
 
 import static org.junit.Assert.assertEquals;
 import static org.opencypher.grammar.GrammarVisitor.production;

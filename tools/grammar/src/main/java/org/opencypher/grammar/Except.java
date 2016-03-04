@@ -26,20 +26,34 @@ class Except
     String literal;
     @Attribute(optional = true)
     Integer codePoint;
+    @Attribute(optional = true)
+    CharacterSet.Unicode set;
 
-    Exclusion exclusion()
+    CodePointSet set()
     {
-        if ( (literal == null && codePoint == null) || (literal != null && codePoint != null) )
+        if ( (literal == null && codePoint == null && set == null) ||
+             (literal != null && (codePoint != null || set != null))
+             || (codePoint != null && set != null) )
         {
-            throw new IllegalArgumentException( "Must have either 'literal' or 'codePoint', but not both." );
+            throw new IllegalArgumentException(
+                    "<except .../> must have a 'literal', 'codePoint' or 'set' attribute, but not more than one." );
         }
         if ( literal != null )
         {
-            return Exclusion.literal( literal );
+            int cp;
+            if ( literal.isEmpty() || Character.charCount( cp = literal.codePointAt( 0 ) ) != literal.length() )
+            {
+                throw new IllegalArgumentException( "'literal' exception must be a single character" );
+            }
+            return CodePointSet.single( cp );
+        }
+        else if ( codePoint != null )
+        {
+            return CodePointSet.single( codePoint );
         }
         else
         {
-            return Exclusion.codePoint( codePoint );
+            return set.set;
         }
     }
 }

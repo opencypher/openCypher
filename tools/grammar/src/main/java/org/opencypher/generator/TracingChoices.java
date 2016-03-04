@@ -16,10 +16,8 @@
  */
 package org.opencypher.generator;
 
-import java.util.List;
-
 import org.opencypher.grammar.BiasedTerms;
-import org.opencypher.grammar.Exclusion;
+import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.Optional;
 import org.opencypher.grammar.Repetition;
@@ -75,9 +73,9 @@ public class TracingChoices implements Choices
     }
 
     @Override
-    public int anyChar( Node location, List<Exclusion> exclusions )
+    public int codePoint( Node location, CharacterSet characters )
     {
-        int result = choices.anyChar( location, exclusions );
+        int result = choices.codePoint( location, characters );
         location( output.append( "At " ), location )
                 .append( " emit char '" )
                 .appendCodePoint( result )

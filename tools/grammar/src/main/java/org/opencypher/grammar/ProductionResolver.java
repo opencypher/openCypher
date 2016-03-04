@@ -33,25 +33,21 @@ class ProductionResolver
         this.unused = unused;
     }
 
-    public void verifyCharacterSet( ProductionNode origin, String name )
-    {
-        if ( productions.get( name ) != null )
-        {
-            dependencies.invalidCharacterSet( name, origin );
-        }
-    }
-
     public ProductionNode resolveProduction( ProductionNode origin, String name )
     {
-        ProductionNode production = productions.get( name );
+        ProductionNode production = productions.get( name.toLowerCase() );
         if ( production == null )
         {
             dependencies.missingProduction( name, origin );
         }
-        else
+        else if ( production.name.equals( name ) )
         {
             unused.remove( name );
             dependencies.usedFrom( name, origin );
+        }
+        else
+        {
+            production = null;
         }
         return production;
     }

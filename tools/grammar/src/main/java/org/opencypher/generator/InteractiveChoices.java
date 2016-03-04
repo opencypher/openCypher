@@ -16,11 +16,10 @@
  */
 package org.opencypher.generator;
 
-import java.util.List;
 import java.util.function.Function;
 
 import org.opencypher.grammar.BiasedTerms;
-import org.opencypher.grammar.Exclusion;
+import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.Optional;
 import org.opencypher.grammar.Repetition;
@@ -134,22 +133,10 @@ public class InteractiveChoices implements Choices
     }
 
     @Override
-    public int anyChar( Node location, List<Exclusion> exclusions )
+    public int codePoint( Node location, CharacterSet characters )
     {
-        return repl.eval( location, exclusions, Choices::anyChar, InteractiveChoices::character, in -> {
-            if ( in.length() >= 1 && Character.charCount( in.codePointAt( 0 ) ) == in.length() )
-            {
-                return in.codePointAt( 0 );
-            }
-            else if ( in.startsWith( "0x" ) )
-            {
-                return Integer.parseInt( in.substring( 2 ), 16 );
-            }
-            else
-            {
-                return parseUnsignedInt( in );
-            }
-        } );
+        return repl.eval( location, characters, Choices::codePoint, InteractiveChoices::character,
+                          parseChar( characters ) );
     }
 
     private static void alternatives( Output output, BiasedTerms alternatives, Grammar.Term def )
@@ -205,7 +192,7 @@ public class InteractiveChoices implements Choices
         }
     }
 
-    private static void character( Output output, List<Exclusion> exclusions, Integer def )
+    private static void character( Output output, CharacterSet characters, Integer def )
     {
         output.append( ", emit character" );
         if ( def != null )
@@ -213,6 +200,26 @@ public class InteractiveChoices implements Choices
             output.append( " [default: 0x" ).append( Integer.toHexString( def ) ).append( "]" );
         }
         output.append( ": " );
+    }
+
+    private static Function<String, Integer> parseChar( CharacterSet characters )
+    {
+        return in -> {
+            int cp;
+            if ( in.length() >= 1 && Character.charCount( in.codePointAt( 0 ) ) == in.length() )
+            {
+                cp = in.codePointAt( 0 );
+            }
+            else if ( in.startsWith( "0x" ) )
+            {
+                cp = Integer.parseInt( in.substring( 2 ), 16 );
+            }
+            else
+            {
+                cp = parseUnsignedInt( in );
+            }
+            return characters.contains( cp ) ? cp : null;
+        };
     }
 
     private static Function<String, Integer> parseInt( Repetition repetition )
