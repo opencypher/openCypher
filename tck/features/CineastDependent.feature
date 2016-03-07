@@ -36,16 +36,6 @@ Feature: CineastDependent
       | count |
       | 17    |
 
-  Scenario: should accept skip zero
-    When executing query: MATCH (n) WHERE 1 = 0 RETURN n SKIP 0
-    Then the result should be empty
-
-  Scenario: should return collection size
-    When executing query: return size([1,2,3]) as n
-    Then the result should be:
-      | n |
-      | 3 |
-
   Scenario: should support column renaming for aggregates as well
     When executing query: MATCH (a) WHERE id(a) = 0 RETURN count(*) as ColumnName
     Then the result should be:
@@ -58,21 +48,11 @@ Feature: CineastDependent
       | coalesce(a.title, a.name) |
       | 'Emil Eifrem'             |
 
-  Scenario: should allow ordering on aggregate function
-    When executing query: MATCH (n)-[:KNOWS]-(c) WHERE id(n) = 0 RETURN n, count(c) AS cnt ORDER BY cnt
-    Then the result should be empty
-
   Scenario: should allow addition
     When executing query: MATCH (a) WHERE id(a) = 61263 RETURN a.version + 5
     Then the result should be:
       | a.version + 5 |
       | 1863          |
-
-  Scenario: should allow absolute function
-    When executing query: RETURN abs(-1)
-    Then the result should be:
-      | abs(-1) |
-      | 1       |
 
   Scenario: functions should return null if they get path containing unbound
     When executing query: MATCH (a) WHERE id(a) = 1 OPTIONAL MATCH p=(a)-[r]->() RETURN length(nodes(p)), id(r), type(r), nodes(p), rels(p)

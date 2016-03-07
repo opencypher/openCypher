@@ -142,3 +142,17 @@ Feature: ReturnAcceptanceTest
       | [({foo: 3})] |
       | []           |
       | []           |
+
+  Scenario: should allow absolute function
+    Given any graph
+    When executing query: RETURN abs(-1)
+    Then the result should be:
+      | abs(-1) |
+      | 1       |
+
+  Scenario: should return collection size
+    Given any graph
+    When executing query: return size([1,2,3]) as n
+    Then the result should be:
+      | n |
+      | 3 |

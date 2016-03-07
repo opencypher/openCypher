@@ -305,3 +305,8 @@ Feature: MatchAcceptanceTest
       | <(:A {name: 'A'})>                                                        |
       | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})>                             |
       | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})-[:FRIEND]->(:C {name: 'C'})> |
+
+  Scenario: should accept skip zero
+    Given any graph
+    When executing query: MATCH (n) WHERE 1 = 0 RETURN n SKIP 0
+    Then the result should be empty
