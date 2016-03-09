@@ -18,6 +18,7 @@ package org.opencypher.tools.grammar;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.transform.TransformerException;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,6 +26,8 @@ import org.opencypher.grammar.Fixture;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.tools.output.Output;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.opencypher.grammar.GrammarVisitor.production;
 import static org.opencypher.tools.output.Output.lineNumbers;
@@ -39,6 +42,31 @@ public class XmlTest
     public void shouldProduceSameGrammarWhenParsingOutput() throws Exception
     {
         testRoundTrip( fixture.grammarResource( "/somegrammar.xml" ) );
+    }
+
+    @Test
+    public void shouldProduceLiteral() throws TransformerException
+    {
+        StringBuilder builder = new StringBuilder();
+        Output.Readable output = Output.output( builder );
+        Grammar build = Grammar.grammar( "foo" ).production( "bar", Grammar.literal( "literal" ) ).build(
+                Grammar.Builder.Option.ALLOW_ROOTLESS );
+        Xml.write( build, output );
+
+        assertThat( builder.toString(), containsString( "case-sensitive=\"true\"" ) );
+    }
+
+    @Test
+    public void shouldProduceCaseInsensitive() throws TransformerException
+    {
+        StringBuilder builder = new StringBuilder();
+        Output.Readable output = Output.output( builder );
+        Grammar build = Grammar.grammar( "foo" ).production( "bar", Grammar.caseInsensitive( "literal" ) ).build(
+                Grammar.Builder.Option.ALLOW_ROOTLESS );
+        Xml.write( build, output );
+
+        assertThat( builder.toString(), containsString( "case-sensitive=\"false\"" ) );
+
     }
 
     @Test

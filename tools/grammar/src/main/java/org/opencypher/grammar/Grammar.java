@@ -199,7 +199,8 @@ public interface Grammar
     {
         public enum Option
         {
-            IGNORE_UNUSED_PRODUCTIONS( Root.ResolutionOption.IGNORE_UNUSED_PRODUCTIONS );
+            IGNORE_UNUSED_PRODUCTIONS( Root.ResolutionOption.IGNORE_UNUSED_PRODUCTIONS ),
+            ALLOW_ROOTLESS( ResolutionOption.ALLOW_ROOTLESS );
             private final Root.ResolutionOption option;
 
             Option( ResolutionOption option )

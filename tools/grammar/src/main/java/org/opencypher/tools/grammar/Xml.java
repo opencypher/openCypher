@@ -32,6 +32,7 @@ import org.opencypher.grammar.Repetition;
 import org.opencypher.grammar.Sequence;
 import org.opencypher.tools.output.Output;
 import org.opencypher.tools.xml.XmlGenerator;
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class Xml extends XmlGenerator implements GrammarVisitor<SAXException>
@@ -115,8 +116,10 @@ public class Xml extends XmlGenerator implements GrammarVisitor<SAXException>
     @Override
     public void visitLiteral( Literal value ) throws SAXException
     {
-            startElement( "literal", attribute( "value", value.toString() ) );
-            endElement( "literal" );
+        Attributes attributes = attribute( "value", value.toString() )
+                .attribute( "case-sensitive", String.valueOf( value.caseSensitive() ) );
+        startElement( "literal", attributes );
+        endElement( "literal" );
     }
 
     @Override
@@ -147,7 +150,7 @@ public class Xml extends XmlGenerator implements GrammarVisitor<SAXException>
                     @Override
                     public void excludeRange( int start, int end ) throws SAXException
                     {
-                        startElement( "except", attribute( "set", String.format( "&#x%04X;-&#x%04X;", start, end  ) ) );
+                        startElement( "except", attribute( "set", String.format( "&#x%04X;-&#x%04X;", start, end ) ) );
                         endElement( "except" );
                     }
 

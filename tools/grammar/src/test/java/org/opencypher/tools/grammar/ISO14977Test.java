@@ -54,7 +54,6 @@ public class ISO14977Test
             lineNumbers( stdOut() ).append( output );
             throw e;
         }
-        lineNumbers( stdOut() ).append( output );
     }
 
     @Test
