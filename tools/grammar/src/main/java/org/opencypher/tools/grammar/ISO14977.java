@@ -150,59 +150,40 @@ public class ISO14977 extends BnfWriter implements AutoCloseable
     @Override
     protected void literal( String value )
     {
-        if ( value.length() == 0 )
-        {
-            visitEpsilon();
-        }
-        else
-        {
-            enclose( value );
-        }
+        enclose( value );
     }
 
     @Override
     protected void caseInsensitive( String value )
     {
-        if ( value.length() == 0 )
-        {
-            visitEpsilon();
-        }
-        else if ( Character.charCount( value.codePointAt( 0 ) ) == value.length() &&
-                  !Character.isLetter( value.codePointAt( 0 ) ) )
-        {
-            enclose( value );
-        }
-        else
-        {
-            group( () -> {
-                String sep = "";
-                int start = 0;
-                for ( int i = 0, end = value.length(), cp; i < end; i += Character.charCount( cp ) )
+        group( () -> {
+            String sep = "";
+            int start = 0;
+            for ( int i = 0, end = value.length(), cp; i < end; i += Character.charCount( cp ) )
+            {
+                cp = value.charAt( i );
+                if ( Character.isLowerCase( cp ) || Character.isUpperCase( cp ) || Character.isTitleCase( cp ) )
                 {
-                    cp = value.charAt( i );
-                    if ( Character.isLowerCase( cp ) || Character.isUpperCase( cp ) || Character.isTitleCase( cp ) )
+                    if ( start < i )
                     {
-                        if ( start < i )
-                        {
-                            output.append( sep );
-                            sep = ",";
-                            enclose( value.substring( start, i ) );
-                        }
                         output.append( sep );
                         sep = ",";
-                        start = i + Character.charCount( cp );
-                        cp = Character.toUpperCase( cp );
-                        caseChars.add( cp );
-                        output.appendCodePoint( cp );
+                        enclose( value.substring( start, i ) );
                     }
-                }
-                if ( start < value.length() )
-                {
                     output.append( sep );
-                    enclose( value.substring( start ) );
+                    sep = ",";
+                    start = i + Character.charCount( cp );
+                    cp = Character.toUpperCase( cp );
+                    caseChars.add( cp );
+                    output.appendCodePoint( cp );
                 }
-            } );
-        }
+            }
+            if ( start < value.length() )
+            {
+                output.append( sep );
+                enclose( value.substring( start ) );
+            }
+        } );
     }
 
     private void enclose( String value )

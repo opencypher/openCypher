@@ -156,9 +156,15 @@ abstract class BnfWriter implements GrammarVisitor<RuntimeException>
     @Override
     public final void visitLiteral( Literal literal )
     {
-        if ( literal.caseSensitive() )
+        if ( literal.caseSensitive()
+             || Character.charCount( literal.codePointAt( 0 ) ) == literal.length()
+                && !Character.isLetter( literal.codePointAt( 0 ) ) )
         {
             literal( literal.toString() );
+        }
+        else if ( literal.length() == 0 )
+        {
+            visitEpsilon();
         }
         else
         {

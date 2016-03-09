@@ -66,7 +66,6 @@ public class XmlTest
         Xml.write( build, output );
 
         assertThat( builder.toString(), containsString( "case-sensitive=\"false\"" ) );
-
     }
 
     @Test
