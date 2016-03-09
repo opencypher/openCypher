@@ -285,6 +285,13 @@ public class Antlr4 extends BnfWriter implements AutoCloseable
     }
 
     @Override
+    protected void caseInsensitive( String value )
+    {
+        // TODO: Implement case alternatives
+        literal( value );
+    }
+
+    @Override
     protected void epsilon()
     {
     }

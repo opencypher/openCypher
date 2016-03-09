@@ -21,21 +21,15 @@ import java.io.Writer;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.opencypher.grammar.Alternatives;
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
-import org.opencypher.grammar.GrammarVisitor;
-import org.opencypher.grammar.Literal;
 import org.opencypher.grammar.NonTerminal;
-import org.opencypher.grammar.Optional;
 import org.opencypher.grammar.Production;
-import org.opencypher.grammar.Repetition;
-import org.opencypher.grammar.Sequence;
 import org.opencypher.tools.output.Output;
 
 import static org.opencypher.tools.output.Output.output;
 
-public class ISO14977 implements GrammarVisitor<RuntimeException>, AutoCloseable
+public class ISO14977 extends BnfWriter implements AutoCloseable
 {
     public static void write( Grammar grammar, Writer writer )
     {
@@ -53,8 +47,8 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, AutoCloseable
         if ( header != null )
         {
             output.append( "(*\n * " )
-                  .printLines( header, " * " )
-                  .println( " *)" );
+                    .printLines( header, " * " )
+                    .println( " *)" );
         }
         try ( ISO14977 writer = new ISO14977( output ) )
         {
@@ -72,14 +66,11 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, AutoCloseable
         term.accept( new ISO14977( output ) );
     }
 
-    private final Output output;
-    private String altPrefix = "";
-    private boolean group;
     private final Set<Integer> caseChars = new HashSet<>();
 
     private ISO14977( Output output )
     {
-        this.output = output;
+        super( output );
     }
 
     @Override
@@ -91,8 +82,8 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, AutoCloseable
             int lower = Character.toLowerCase( chr );
             int title = Character.toTitleCase( chr );
             output.appendCodePoint( chr ).append( " = '" )
-                  .appendCodePoint( upper ).append( "' | '" )
-                  .appendCodePoint( lower );
+                    .appendCodePoint( upper ).append( "' | '" )
+                    .appendCodePoint( lower );
             if ( title != upper )
             {
                 output.append( "' | '" ).appendCodePoint( title );
@@ -102,99 +93,91 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, AutoCloseable
     }
 
     @Override
-    public void visitProduction( Production production ) throws RuntimeException
+    protected void productionCommentPrefix()
     {
-        StringBuilder altPrefix = new StringBuilder( production.name().length() + 1 ).append( '\n' );
-        for ( int i = production.name().length(); i-- > 0; )
-        {
-            altPrefix.append( ' ' );
-        }
-        String description = production.description();
-        if ( description != null )
-        {
-            String prefix = "(* ";
-            for ( int pos = 0, line; pos < description.length(); pos = line )
-            {
-                line = description.indexOf( '\n', pos );
-                if ( line == -1 )
-                {
-                    line = description.length();
-                }
-                else
-                {
-                    line += 1;
-                }
-                output.append( prefix ).append( description, pos, line );
-                prefix = " * ";
-            }
-            output.println( " *)" );
-        }
-        this.altPrefix = altPrefix.toString();
-        group = false;
+        output.append( "(* " );
+    }
+
+    @Override
+    protected void productionCommentLinePrefix()
+    {
+        output.append( " * " );
+    }
+
+    @Override
+    protected void productionCommentSuffix()
+    {
+        output.append( " *)" );
+    }
+
+    @Override
+    protected void productionStart( Production production )
+    {
         output.append( production.name() ).append( " = " );
-        production.definition().accept( this );
+    }
+
+    @Override
+    protected void productionEnd( Production production )
+    {
         output.println( " ;" ).println();
-        this.altPrefix = "";
     }
 
     @Override
-    public void visitAlternatives( Alternatives alternatives )
+    protected void alternativesLinePrefix( int altPrefix )
     {
-        group( () -> {
-            boolean prefix = false;
-            for ( Grammar.Term term : alternatives )
+        if ( altPrefix > 0 )
+        {
+            output.println();
+            while ( altPrefix-- > 0 )
             {
-                if ( prefix )
-                {
-                    output.append( altPrefix ).append( " | " );
-                }
-                term.accept( this );
-                prefix = true;
+                output.append( ' ' );
             }
-            if ( alternatives.terms() > 1 )
-            {
-                output.append( altPrefix );
-            }
-        } );
+        }
     }
 
     @Override
-    public void visitSequence( Sequence sequence )
+    protected void alternativesSeparator()
     {
-        String altPrefix = this.altPrefix;
-        this.altPrefix = "";
-        group( () -> {
-            String prefix = "";
-            for ( Grammar.Term term : sequence )
-            {
-                output.append( prefix );
-                term.accept( this );
-                prefix = ", ";
-            }
-        } );
-        this.altPrefix = altPrefix;
+        output.append( " | " );
     }
 
     @Override
-    public void visitLiteral( Literal literal )
+    protected void sequenceSeparator()
     {
-        String value = literal.toString();
+        output.append( ", " );
+    }
+
+    @Override
+    protected void literal( String value )
+    {
         if ( value.length() == 0 )
         {
             visitEpsilon();
         }
-        else if ( literal.caseSensitive() ||
-                  (Character.charCount( value.codePointAt( 0 ) ) == value.length() &&
-                   !Character.isLetter( value.codePointAt( 0 ) )) )
+        else
         {
-            literal( value );
+            enclose( value );
+        }
+    }
+
+    @Override
+    protected void caseInsensitive( String value )
+    {
+        if ( value.length() == 0 )
+        {
+            visitEpsilon();
+        }
+        else if ( Character.charCount( value.codePointAt( 0 ) ) == value.length() &&
+                  !Character.isLetter( value.codePointAt( 0 ) ) )
+        {
+            enclose( value );
         }
         else
         {
             group( () -> {
                 String sep = "";
                 int start = 0;
-                for ( int i = 0, end = literal.length(), cp; i < end; i += Character.charCount( cp ) )
+                for ( int i = 0, end = value.length(), cp; i < end; i += Character.charCount( cp ) )
                 {
                     cp = value.charAt( i );
                     if ( Character.isLowerCase( cp ) || Character.isUpperCase( cp ) || Character.isTitleCase( cp ) )
@@ -203,7 +186,7 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, AutoCloseable
                         {
                             output.append( sep );
                             sep = ",";
-                            literal( value.substring( start, i ) );
+                            enclose( value.substring( start, i ) );
                         }
                         output.append( sep );
                         sep = ",";
@@ -213,16 +196,16 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, AutoCloseable
                         output.appendCodePoint( cp );
                     }
                 }
-                if ( start < literal.length() )
+                if ( start < value.length() )
                 {
                     output.append( sep );
-                    literal( value.substring( start ) );
+                    enclose( value.substring( start ) );
                 }
             } );
         }
     }
 
-    private void literal( String value )
+    private void enclose( String value )
     {
         char enclose;
         int sq, dq;
@@ -248,30 +231,33 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, AutoCloseable
                 enclose = '\'';
                 other = '"';
             }
-            if ( group )
-            {
-                output.append( '(' );
-            }
-            int start = 0;
-            for ( int end = sq; end != -1; start = end, end = value.indexOf( enclose, end + 1 ) )
-            {
-                output.append( enclose ).append( value.subSequence( start, end ) ).append( enclose ).append( ", " );
-                char last = enclose;
-                enclose = other;
-                other = last;
-            }
-            output.append( enclose ).append( value.subSequence( start, value.length() ) ).append( enclose );
-            if ( group )
-            {
-                output.append( ')' );
-            }
+            final int _sq = sq;
+            group( () -> encloseGroupElements( value, enclose, _sq, other ) );
             return;
         }
         output.append( enclose ).append( value ).append( enclose );
     }
 
+    private void encloseGroupElements( String value, char enclose, int sq, char other )
+    {
+        int start = 0;
+        for ( int end = sq; end != -1; start = end, end = value.indexOf( enclose, end + 1 ) )
+        {
+            output.append( enclose ).append( value.subSequence( start, end ) ).append( enclose ).append( ", " );
+            char last = enclose;
+            enclose = other;
+            other = last;
+        }
+        output.append( enclose ).append( value.subSequence( start, value.length() ) ).append( enclose );
+    }
+
     @Override
-    public void visitCharacters( CharacterSet characters )
+    protected void epsilon()
+    {
+    }
+
+    @Override
+    protected void characterSet( CharacterSet characters )
     {
         String name = characters.name();
         if ( name != null )
@@ -340,103 +326,78 @@ public class ISO14977 implements GrammarVisitor<RuntimeException>, AutoCloseable
     }
 
     @Override
-    public void visitNonTerminal( NonTerminal nonTerminal )
+    protected void nonTerminal( NonTerminal nonTerminal )
     {
         output.append( nonTerminal.productionName() );
     }
 
     @Override
-    public void visitOptional( Optional optional )
+    protected boolean optionalPrefix()
     {
-        String altPrefix = this.altPrefix;
-        this.altPrefix = "";
-        {
-            group( '[', () -> optional.term().accept( this ), ']' );
-        }
-        this.altPrefix = altPrefix;
+        output.append( "[" );
+        return true;
     }
 
     @Override
-    public void visitRepetition( Repetition repetition )
+    protected void optionalSuffix()
     {
-        String altPrefix = this.altPrefix;
-        this.altPrefix = "";
+        output.append( "]" );
+    }
+
+    @Override
+    protected void repeat( int minTimes, Integer maxTimes, Runnable repeated )
+    {
+        if ( maxTimes == null )
         {
-            if ( !repetition.limited() )
+            if ( minTimes == 0 || minTimes == 1 )
             {
-                if ( repetition.minTimes() == 0 || repetition.minTimes() == 1 )
+                groupWith( '{', repeated, '}' );
+                if ( minTimes == 1 )
                 {
-                    group( '{', () -> repetition.term().accept( this ), '}' );
-                    if ( repetition.minTimes() == 1 )
-                    {
-                        output.append( '-' );
-                    }
+                    output.append( '-' );
                 }
-                else
-                {
-                    group( () -> {
-                        output.append( repetition.minTimes() ).append( " * " );
-                        repetition.term().accept( this );
-                        output.append( ", " );
-                        group( '{', () -> repetition.term().accept( this ), '}' );
-                    } );
-                }
-            }
-            else if ( repetition.minTimes() == repetition.maxTimes() )
-            {
-                output.append( repetition.minTimes() ).append( " * " );
-                grouping( () -> repetition.term().accept( this ) );
-            }
-            else if ( repetition.minTimes() > 0 )
-            {
-                group( () -> {
-                    output.append( repetition.minTimes() ).append( " * " );
-                    repetition.term().accept( this );
-                    output.append( ", " );
-                    output.append( repetition.maxTimes() - repetition.minTimes() ).append( " * " );
-                    group( '[', () -> repetition.term().accept( this ), ']' );
-                } );
             }
             else
             {
-                output.append( repetition.maxTimes() - repetition.minTimes() ).append( " * " );
-                group( '[', () -> repetition.term().accept( this ), ']' );
+                group( () -> {
+                    output.append( minTimes ).append( " * " );
+                    repeated.run();
+                    output.append( ", " );
+                    groupWith( '{', repeated, '}' );
+                } );
             }
         }
-        this.altPrefix = altPrefix;
-    }
-
-    private void grouping( Runnable action )
-    {
-        boolean group = this.group;
-        this.group = true;
-        action.run();
-        this.group = group;
-    }
-
-    private void group( Runnable action )
-    {
-        boolean group = this.group;
-        this.group = true;
-        if ( group )
+        else if ( minTimes == maxTimes )
         {
-            output.append( '(' );
+            output.append( minTimes ).append( " * " );
+            groupWithoutPrefix( repeated );
         }
-        action.run();
-        if ( group )
+        else if ( minTimes > 0 )
         {
-            output.append( ')' );
+            group( () -> {
+                output.append( minTimes ).append( " * " );
+                repeated.run();
+                output.append( ", " );
+                output.append( maxTimes - minTimes ).append( " * " );
+                groupWith( '[', repeated, ']' );
+            } );
         }
-        this.group = group;
+        else
+        {
+            output.append( maxTimes - minTimes ).append( " * " );
+            groupWith( '[', repeated, ']' );
+        }
     }
 
-    private void group( char prefix, Runnable action, char suffix )
+    @Override
+    protected void groupPrefix()
     {
-        boolean group = this.group;
-        this.group = false;
-        output.append( prefix );
-        action.run();
-        output.append( suffix );
-        this.group = group;
+        output.append( '(' );
+    }
+
+    @Override
+    protected void groupSuffix()
+    {
+        output.append( ')' );
     }
 }

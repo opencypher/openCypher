@@ -58,7 +58,19 @@ abstract class BnfWriter implements GrammarVisitor<RuntimeException>
 
     protected abstract void nonTerminal( NonTerminal nonTerminal );
 
+    /**
+     * Writes a case sensitive literal.
+     *
+     * @param value the case sensitive literal to be written.
+     */
     protected abstract void literal( String value );
+
+    /**
+     * Writes a case insensitive literal.
+     *
+     * @param value the case insensitive literal to be written.
+     */
+    protected abstract void caseInsensitive( String value );
 
     protected abstract void epsilon();
 
@@ -144,7 +156,14 @@ abstract class BnfWriter implements GrammarVisitor<RuntimeException>
     @Override
     public final void visitLiteral( Literal literal )
     {
-        literal( literal.toString() );
+        if ( literal.caseSensitive() )
+        {
+            literal( literal.toString() );
+        }
+        else
+        {
+            caseInsensitive( literal.toString() );
+        }
     }
 
     @Override
@@ -214,6 +233,24 @@ abstract class BnfWriter implements GrammarVisitor<RuntimeException>
         {
             groupSuffix();
         }
+        this.group = group;
+    }
+
+    protected final void groupWith( char prefix, Runnable action, char suffix )
+    {
+        boolean group = this.group;
+        this.group = false;
+        output.append( prefix );
+        action.run();
+        output.append( suffix );
+        this.group = group;
+    }
+
+    protected final void groupWithoutPrefix( Runnable action )
+    {
+        boolean group = this.group;
+        this.group = true;
+        action.run();
         this.group = group;
     }
 }
