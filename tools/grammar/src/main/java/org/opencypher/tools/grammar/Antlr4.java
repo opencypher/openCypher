@@ -8,7 +8,6 @@ import java.util.Map;
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.NonTerminal;
-import org.opencypher.grammar.Production;
 import org.opencypher.tools.output.Output;
 
 import static java.lang.Character.charCount;
@@ -21,7 +20,7 @@ import static java.lang.String.format;
 import static org.opencypher.tools.grammar.Main.execute;
 import static org.opencypher.tools.output.Output.output;
 
-public class Antlr4 extends BnfWriter implements AutoCloseable
+public class Antlr4 extends BnfWriter
 {
     public static void write( Grammar grammar, Writer writer )
     {
@@ -65,6 +64,7 @@ public class Antlr4 extends BnfWriter implements AutoCloseable
     @Override
     public void close()
     {
+        super.close();
         for ( Map.Entry<String, CharacterSet> rule : lexerRules.entrySet() )
         {
             CharacterSet set = rule.getValue();
@@ -105,15 +105,15 @@ public class Antlr4 extends BnfWriter implements AutoCloseable
     private int nextLexerRule;
 
     @Override
-    protected void productionStart( Production production )
+    protected void productionStart( String name )
     {
-        currentProduction = production.name();
+        currentProduction = name;
         parserRule( currentProduction ).append( " : " );
         nextLexerRule = 0;
     }
 
     @Override
-    protected void productionEnd( Production production )
+    protected void productionEnd()
     {
         output.println( " ;" ).println();
         currentProduction = null;
@@ -281,14 +281,53 @@ public class Antlr4 extends BnfWriter implements AutoCloseable
     @Override
     protected void literal( String value )
     {
-        output.append( "'" ).escape( value, Antlr4::escapes ).append( "'" );
+        escapeAndEnclose( value );
     }
 
     @Override
     protected void caseInsensitive( String value )
     {
-        // TODO: Implement case alternatives
-        literal( value );
+        group( () -> {
+            String sep = "";
+            int start = 0;
+            for ( int i = 0, end = value.length(), cp; i < end; i += Character.charCount( cp ) )
+            {
+                cp = value.charAt( i );
+                if ( Character.isLowerCase( cp ) || Character.isUpperCase( cp ) || Character.isTitleCase( cp ) )
+                {
+                    if ( start < i )
+                    {
+                        output.append( sep );
+                        sep = " ";
+                        escapeAndEnclose( value.substring( start, i ) );
+                    }
+                    output.append( sep );
+                    sep = " ";
+                    start = i + Character.charCount( cp );
+                    cp = Character.toUpperCase( cp );
+                    addCaseChar( cp );
+                    output.appendCodePoint( cp );
+                }
+            }
+            if ( start < value.length() )
+            {
+                output.append( sep );
+                escapeAndEnclose( value.substring( start ) );
+            }
+        } );
+    }
+
+    private void escapeAndEnclose( String value )
+    {
+        output.append( "'" ).escape( value, Antlr4::escapes ).append( "'" );
+    }
+
+    @Override
+    protected void caseInsensitiveProductionStart( String name )
+    {
+        currentProduction = name;
+        lexerRule( currentProduction ).append( " : " );
+        nextLexerRule = 0;
     }
 
     @Override

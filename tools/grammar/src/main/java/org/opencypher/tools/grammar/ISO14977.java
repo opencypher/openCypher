@@ -18,18 +18,15 @@ package org.opencypher.tools.grammar;
 
 import java.io.OutputStream;
 import java.io.Writer;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.NonTerminal;
-import org.opencypher.grammar.Production;
 import org.opencypher.tools.output.Output;
 
 import static org.opencypher.tools.output.Output.output;
 
-public class ISO14977 extends BnfWriter implements AutoCloseable
+public class ISO14977 extends BnfWriter
 {
     public static void write( Grammar grammar, Writer writer )
     {
@@ -66,30 +63,9 @@ public class ISO14977 extends BnfWriter implements AutoCloseable
         term.accept( new ISO14977( output ) );
     }
 
-    private final Set<Integer> caseChars = new HashSet<>();
-
     private ISO14977( Output output )
     {
         super( output );
-    }
-
-    @Override
-    public void close()
-    {
-        for ( int chr : caseChars )
-        {
-            int upper = Character.toUpperCase( chr );
-            int lower = Character.toLowerCase( chr );
-            int title = Character.toTitleCase( chr );
-            output.appendCodePoint( chr ).append( " = '" )
-                    .appendCodePoint( upper ).append( "' | '" )
-                    .appendCodePoint( lower );
-            if ( title != upper )
-            {
-                output.append( "' | '" ).appendCodePoint( title );
-            }
-            output.println( "';" ).println();
-        }
     }
 
     @Override
@@ -111,13 +87,13 @@ public class ISO14977 extends BnfWriter implements AutoCloseable
     }
 
     @Override
-    protected void productionStart( Production production )
+    protected void productionStart( String name )
     {
-        output.append( production.name() ).append( " = " );
+        output.append( name ).append( " = " );
     }
 
     @Override
-    protected void productionEnd( Production production )
+    protected void productionEnd()
     {
         output.println( " ;" ).println();
     }
@@ -174,7 +150,7 @@ public class ISO14977 extends BnfWriter implements AutoCloseable
                     sep = ",";
                     start = i + Character.charCount( cp );
                     cp = Character.toUpperCase( cp );
-                    caseChars.add( cp );
+                    addCaseChar( cp );
                     output.appendCodePoint( cp );
                 }
             }
@@ -230,6 +206,12 @@ public class ISO14977 extends BnfWriter implements AutoCloseable
             other = last;
         }
         output.append( enclose ).append( value.subSequence( start, value.length() ) ).append( enclose );
+    }
+
+    @Override
+    protected void caseInsensitiveProductionStart( String name )
+    {
+        productionStart( name );
     }
 
     @Override

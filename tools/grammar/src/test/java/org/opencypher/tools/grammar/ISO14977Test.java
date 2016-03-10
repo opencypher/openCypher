@@ -66,12 +66,18 @@ public class ISO14977Test
     @Test
     public void shouldRenderCaseInsensitiveLiteral() throws Exception
     {
-        verify( production( "foo", caseInsensitive( "FOO" ) ),
-                "foo = F,O,O ;",
+        verify( production( "foo", caseInsensitive( "LIteR@L" ) ),
+                "foo = L,I,T,E,R,'@',L ;",
                 "",
-                "F = 'F' | 'f';",
+                "R = 'R' | 'r' ;",
                 "",
-                "O = 'O' | 'o';" );
+                "T = 'T' | 't' ;",
+                "",
+                "E = 'E' | 'e' ;",
+                "",
+                "I = 'I' | 'i' ;",
+                "",
+                "L = 'L' | 'l' ;" );
     }
 
     @Test

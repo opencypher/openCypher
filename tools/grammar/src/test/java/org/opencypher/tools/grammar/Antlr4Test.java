@@ -1,5 +1,7 @@
 package org.opencypher.tools.grammar;
 
+import javax.xml.transform.TransformerException;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -8,6 +10,7 @@ import org.opencypher.grammar.Grammar;
 import org.opencypher.tools.output.Output;
 
 import static org.junit.Assert.assertThat;
+import static org.opencypher.grammar.Grammar.caseInsensitive;
 import static org.opencypher.grammar.Grammar.charactersOfSet;
 import static org.opencypher.grammar.Grammar.grammar;
 import static org.opencypher.grammar.Grammar.literal;
@@ -18,6 +21,42 @@ import static org.opencypher.tools.output.Output.stringBuilder;
 
 public class Antlr4Test
 {
+    @Test
+    public void shouldProduceLiteral() throws TransformerException
+    {
+        assertGenerates(
+                grammar( "foo" )
+                        .production( "bar", literal( "LIteR@L" ) )
+                        .build( Grammar.Builder.Option.ALLOW_ROOTLESS ),
+                "grammar foo;",
+                "",
+                "bar : 'LIteR@L' ;",
+                "" );
+    }
+
+    @Test
+    public void shouldProduceCaseInsensitive() throws TransformerException
+    {
+        assertGenerates(
+                grammar( "foo" )
+                        .production( "bar", caseInsensitive( "LIteR@L" ) )
+                        .build( Grammar.Builder.Option.ALLOW_ROOTLESS ),
+                "grammar foo;",
+                "",
+                "bar : L I T E R '@' L ;",
+                "",
+                "R : 'R' | 'r' ;",
+                "",
+                "T : 'T' | 't' ;",
+                "",
+                "E : 'E' | 'e' ;",
+                "",
+                "I : 'I' | 'i' ;",
+                "",
+                "L : 'L' | 'l' ;",
+                "" );
+    }
+
     @Test
     public void shouldProduceSimpleParserGrammar() throws Exception
     {

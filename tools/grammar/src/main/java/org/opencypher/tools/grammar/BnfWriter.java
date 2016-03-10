@@ -1,5 +1,8 @@
 package org.opencypher.tools.grammar;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.opencypher.grammar.Alternatives;
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
@@ -14,11 +17,12 @@ import org.opencypher.tools.output.Output;
 
 import static org.opencypher.tools.Functions.requireNonNull;
 
-abstract class BnfWriter implements GrammarVisitor<RuntimeException>
+abstract class BnfWriter implements GrammarVisitor<RuntimeException>, AutoCloseable
 {
     private int altPrefix;
     private boolean group;
     protected final Output output;
+    private final Set<Integer> caseChars = new HashSet<>();
 
     BnfWriter( Output output )
     {
@@ -31,9 +35,9 @@ abstract class BnfWriter implements GrammarVisitor<RuntimeException>
 
     protected abstract void productionCommentSuffix();
 
-    protected abstract void productionStart( Production production );
+    protected abstract void productionStart( String name );
 
-    protected abstract void productionEnd( Production production );
+    protected abstract void productionEnd();
 
     protected abstract void alternativesLinePrefix( int altPrefix );
 
@@ -72,6 +76,8 @@ abstract class BnfWriter implements GrammarVisitor<RuntimeException>
      */
     protected abstract void caseInsensitive( String value );
 
+    protected abstract void caseInsensitiveProductionStart( String name );
+
     protected abstract void epsilon();
 
     @Override
@@ -102,9 +108,9 @@ abstract class BnfWriter implements GrammarVisitor<RuntimeException>
         }
         this.altPrefix = production.name().length();
         group = false;
-        productionStart( production );
+        productionStart( production.name() );
         production.definition().accept( this );
-        productionEnd( production );
+        productionEnd();
         this.altPrefix = 0;
     }
 
@@ -226,6 +232,27 @@ abstract class BnfWriter implements GrammarVisitor<RuntimeException>
         epsilon();
     }
 
+    @Override
+    public void close()
+    {
+        for ( int chr : caseChars )
+        {
+            int upper = Character.toUpperCase( chr );
+            int lower = Character.toLowerCase( chr );
+            int title = Character.toTitleCase( chr );
+            caseInsensitiveProductionStart( String.valueOf( (char) upper ) );
+            literal( String.valueOf( (char) upper ) );
+            alternativesSeparator();
+            literal( String.valueOf( (char) lower ) );
+            if ( title != upper )
+            {
+                alternativesSeparator();
+                literal( String.valueOf( (char) title ) );
+            }
+            productionEnd();
+        }
+    }
+
     protected final void group( Runnable action )
     {
         boolean group = this.group;
@@ -258,5 +285,10 @@ abstract class BnfWriter implements GrammarVisitor<RuntimeException>
         this.group = true;
         action.run();
         this.group = group;
+    }
+
+    protected final void addCaseChar( int codePoint )
+    {
+        caseChars.add( codePoint );
     }
 }
