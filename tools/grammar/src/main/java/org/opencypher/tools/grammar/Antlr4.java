@@ -439,9 +439,13 @@ public class Antlr4 extends BnfWriter
             {
                 output.appendCodePoint( cp );
             }
-            else
+            else if ( cp <= 0xFFFF )
             {
                 output.format( "\\u%04X", cp );
+            }
+            else
+            {
+                output.format( "\\U%08X", cp );
             }
         }
     }
