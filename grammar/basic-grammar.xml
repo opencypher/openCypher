@@ -30,7 +30,7 @@
   <!-- / WHERE \ -->
 
   <production name="Where">
-    WHERE &expr;
+    WHERE &SP; &expr;
   </production>
 
   <!-- \ WHERE / -->

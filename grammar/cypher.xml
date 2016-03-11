@@ -31,7 +31,6 @@
   <production name="Cypher">
     &WS;
     <non-terminal ref="AllOptions"/>
-    &WS;
     <non-terminal ref="Statements"/>
   </production>
 
@@ -76,7 +75,8 @@
   </production>
 
   <production name="SingleQuery">
-    <repeat min="1"><non-terminal ref="Clause"/></repeat>
+    <non-terminal ref="Clause"/>
+    <repeat>&WS; <non-terminal ref="Clause"/></repeat>
   </production>
 
   <production name="PeriodicCommitHint">
@@ -131,8 +131,9 @@
   </production>
 
   <production name="Match" scope:rule="new">
-    <opt>OPTIONAL &SP;</opt>MATCH &SP;
+    <opt>OPTIONAL &SP;</opt>MATCH &WS;
     <non-terminal ref="Pattern"/>
+    &WS;
     <repeat><non-terminal ref="Hint"/></repeat>
     <opt><non-terminal ref="Where"/></opt>
   </production>
@@ -203,11 +204,11 @@
 
   <production name="With" scope:rule="new">
     <alt>
-      <seq>WITH DISTINCT
+      <seq>WITH DISTINCT &SP;
         <non-terminal ref="ReturnBody"/>
         <opt><non-terminal ref="Where"/></opt>
       </seq>
-      <seq>WITH
+      <seq>WITH &SP;
         <non-terminal ref="ReturnBody"/>
         <opt><non-terminal ref="Where"/></opt>
       </seq>
@@ -216,8 +217,8 @@
 
   <production name="Return">
     <alt>
-      <seq>RETURN DISTINCT <non-terminal ref="ReturnBody"/></seq>
-      <seq>RETURN <non-terminal ref="ReturnBody"/></seq>
+      <seq>RETURN DISTINCT &SP;<non-terminal ref="ReturnBody"/></seq>
+      <seq>RETURN &SP;<non-terminal ref="ReturnBody"/></seq>
     </alt>
   </production>
 
