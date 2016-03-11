@@ -28,7 +28,7 @@
   <!-- / PRE-PARSER \ -->
 
   <production name="AllOptions">
-    <repeat><non-terminal ref="AnyCypherOption"/></repeat>
+    <repeat><non-terminal ref="AnyCypherOption"/> &WS;</repeat>
   </production>
 
   <production name="AnyCypherOption">
@@ -41,8 +41,8 @@
 
   <production name="CypherOption">
     CYPHER
-    <opt><non-terminal ref="VersionNumber"/></opt>
-    <repeat><non-terminal ref="ConfigurationOption"/></repeat>
+    <opt>&SP;<non-terminal ref="VersionNumber"/></opt>
+    <repeat>&SP;<non-terminal ref="ConfigurationOption"/></repeat>
   </production>
 
   <production name="VersionNumber">
@@ -54,7 +54,7 @@
 
   <production name="ConfigurationOption">
     <non-terminal ref="SymbolicNameString" ast:entry="key"/>
-    =
+    &WS; = &WS;
     <non-terminal ref="SymbolicNameString" ast:entry="value"/>
   </production>
 
