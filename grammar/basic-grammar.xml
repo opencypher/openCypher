@@ -401,8 +401,7 @@
 
   <production name="Parameter">
     {<alt>
-      <non-terminal ref="UnescapedSymbolicNameString"/>
-      <non-terminal ref="EscapedSymbolicNameString"/>
+      <non-terminal ref="SymbolicNameString"/>
       <non-terminal ref="UnsignedDecimalInteger"/>
     </alt>}
   </production>
@@ -547,9 +546,11 @@
 
   <production name="EscapedSymbolicNameString">
     <description>
-      Any character except "`", enclosed within `backticks`.
+      Any character except "`", enclosed within `backticks`. Backticks are escaped with double backticks.
     </description>
-    ` <repeat><character><except literal="`"/></character></repeat> `
+    <repeat min="1">
+      ` <repeat><character><except literal="`"/></character></repeat> `
+    </repeat>
   </production>
 
   <production name="WS">
