@@ -16,11 +16,32 @@ import static org.opencypher.grammar.Grammar.grammar;
 import static org.opencypher.grammar.Grammar.literal;
 import static org.opencypher.grammar.Grammar.nonTerminal;
 import static org.opencypher.grammar.Grammar.optional;
+import static org.opencypher.grammar.Grammar.zeroOrMore;
 import static org.opencypher.tools.grammar.Antlr4ToolFacade.assertGeneratesValidParser;
 import static org.opencypher.tools.output.Output.stringBuilder;
 
 public class Antlr4Test
 {
+    @Test
+    public void shouldGroupRepetitionCorrectly() throws TransformerException
+    {
+        assertGenerates(
+                grammar( "foo" )
+                        .production( "thing1", literal( "1" ) )
+                        .production( "thing2", literal( "2" ) )
+                        .production( "bar",
+                                zeroOrMore( nonTerminal( "thing1" ), nonTerminal( "thing2" ) ) )
+                        .build( Grammar.Builder.Option.ALLOW_ROOTLESS ),
+                "grammar foo;",
+                "",
+                "thing1 : '1' ;",
+                "",
+                "thing2 : '2' ;",
+                "",
+                "bar : ( thing1 thing2 )* ;",
+                "" );
+    }
+
     @Test
     public void shouldProduceLiteral() throws TransformerException
     {

@@ -182,20 +182,20 @@ public class Antlr4 extends BnfWriter
         {
             if ( minTimes == 0 )
             {
-                repeated.run();
+                group( repeated );
                 output.append( "*" );
                 return;
             }
             else if ( minTimes == 1 )
             {
-                repeated.run();
+                group( repeated );
                 output.append( "+" );
                 return;
             }
         }
         else if ( maxTimes == 1 && minTimes == 0 )
         {
-            repeated.run();
+            group( repeated );
             optionalSuffix();
             return;
         }
