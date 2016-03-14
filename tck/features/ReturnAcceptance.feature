@@ -22,7 +22,7 @@ Feature: ReturnAcceptanceTest
 
   Scenario: should limit to two hits
     Given an empty graph
-      And having executed: CREATE ({name: "A"}), ({name: "B"}), ({name: "C"}), ({name: "D"}), ({name: "E"})
+      And having executed: CREATE ({name: 'A'}), ({name: 'B'}), ({name: 'C'}), ({name: 'D'}), ({name: 'E'})
     When executing query: MATCH (n) RETURN n LIMIT 2
     Then the result should be:
       | n             |
@@ -31,7 +31,7 @@ Feature: ReturnAcceptanceTest
 
   Scenario: should start the result from second row
     Given an empty graph
-      And having executed: CREATE ({name: "A"}), ({name: "B"}), ({name: "C"}), ({name: "D"}), ({name: "E"})
+      And having executed: CREATE ({name: 'A'}), ({name: 'B'}), ({name: 'C'}), ({name: 'D'}), ({name: 'E'})
     When executing query: MATCH (n) RETURN n ORDER BY n.name ASC SKIP 2
     Then the result should be, in order:
       | n             |
@@ -41,10 +41,9 @@ Feature: ReturnAcceptanceTest
 
   Scenario: should start the result from second row by param
     Given an empty graph
-      And having executed: CREATE ({name: "A"}), ({name: "B"}), ({name: "C"}), ({name: "D"}), ({name: "E"})
+      And having executed: CREATE ({name: 'A'}), ({name: 'B'}), ({name: 'C'}), ({name: 'D'}), ({name: 'E'})
       And parameters are:
-        | skipAmount |
-        | 2          |
+        | skipAmount | 2 |
     When executing query: MATCH (n) RETURN n ORDER BY n.name ASC SKIP { skipAmount }
     Then the result should be, in order:
       | n             |
@@ -54,7 +53,7 @@ Feature: ReturnAcceptanceTest
 
   Scenario: should get stuff in the middle
     Given an empty graph
-      And having executed: CREATE ({name: "A"}), ({name: "B"}), ({name: "C"}), ({name: "D"}), ({name: "E"})
+      And having executed: CREATE ({name: 'A'}), ({name: 'B'}), ({name: 'C'}), ({name: 'D'}), ({name: 'E'})
     When executing query: MATCH (n) WHERE id(n) IN [0,1,2,3,4] RETURN n ORDER BY n.name ASC SKIP 2 LIMIT 2
     Then the result should be, in order:
       | n             |
@@ -63,10 +62,10 @@ Feature: ReturnAcceptanceTest
 
   Scenario: should get stuff in the middle by param
     Given an empty graph
-      And having executed: CREATE ({name: "A"}), ({name: "B"}), ({name: "C"}), ({name: "D"}), ({name: "E"})
+      And having executed: CREATE ({name: 'A'}), ({name: 'B'}), ({name: 'C'}), ({name: 'D'}), ({name: 'E'})
       And parameters are:
-        | s | l |
-        | 2 | 2 |
+        | s | 2 |
+        | l | 2 |
     When executing query: MATCH (n) WHERE id(n) IN [0,1,2,3,4] RETURN n ORDER BY n.name ASC SKIP { s } LIMIT { l }
     Then the result should be, in order:
       | n             |
@@ -75,7 +74,7 @@ Feature: ReturnAcceptanceTest
 
   Scenario: should sort on aggregated function
     Given an empty graph
-      And having executed: CREATE ({division: "A", age: 22}), ({division: "B", age: 33}), ({division: "B", age: 44}), ({division: "C", age: 55})
+      And having executed: CREATE ({division: 'A', age: 22}), ({division: 'B', age: 33}), ({division: 'B', age: 44}), ({division: 'C', age: 55})
     When executing query: MATCH (n) WHERE id(n) IN [0,1,2,3] RETURN n.division, max(n.age) ORDER BY max(n.age)
     Then the result should be, in order:
       | n.division | max(n.age) |
@@ -85,7 +84,7 @@ Feature: ReturnAcceptanceTest
 
   Scenario: should support sort and distinct
     Given an empty graph
-      And having executed: CREATE ({name: "A"}), ({name: "B"}), ({name: "C"})
+      And having executed: CREATE ({name: 'A'}), ({name: 'B'}), ({name: 'C'})
     When executing query: MATCH (a) WHERE id(a) IN [0,1,2,0] RETURN DISTINCT a ORDER BY a.name
     Then the result should be, in order:
       | a             |
@@ -135,8 +134,8 @@ Feature: ReturnAcceptanceTest
 
   Scenario: filter should work
     Given an empty graph
-      And having executed: CREATE (a { foo: 1 })-[:T]->({ foo: 1 }), (a)-[:T]->({ foo: 2 }), (a)-[:T]->({ foo: 3 })
-    When executing query: MATCH (a { foo: 1 }) MATCH p=(a)-->() RETURN filter(x IN nodes(p) WHERE x.foo > 2) AS n
+      And having executed: CREATE (a {foo: 1})-[:T]->({foo: 1}), (a)-[:T]->({foo: 2}), (a)-[:T]->({foo: 3})
+    When executing query: MATCH (a {foo: 1}) MATCH p=(a)-->() RETURN filter(x IN nodes(p) WHERE x.foo > 2) AS n
     Then the result should be:
       | n            |
       | [({foo: 3})] |
