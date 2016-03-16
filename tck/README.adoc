@@ -23,7 +23,7 @@ Each TCK feature file is made up of scenarios (see the https://cucumber.io/docs/
 .This scenario illustrates the effects of executing a query `Q` which creates a node with one property, where the property value is given by a parameter.
 ----
 Scenario: Creating a node
-    Given an empty graph // <1a>
+    Given an empty graph // <1>
       And after having executed CREATE () // <2>
       And parameter values are: // <3>
         | parameter | 0 |
@@ -37,14 +37,13 @@ Scenario: Creating a node
 .This scenario illustrates the effects of executing a query `Q` - matching all nodes and returning one of them - on the graph <GRAPH_NAME>.
 ----
 Scenario: Returning a single node
-    Given the <GRAPH_NAME> graph // <1b>
+    Given the <GRAPH_NAME> graph // <1>
     When executing query: MATCH (n) RETURN n LIMIT 1 // <4>
     Then the result should be: // <5>
       | n  |
       | () |
 ----
-<1a> This step specifies the required initial state of the graph.
-<1b> `<GRAPH_NAME>` is the name of one of the specified graphs for initial states (read more below).
+<1> This step specifies the required initial state of the graph. `<GRAPH_NAME>` is the name of one of the specified graphs for initial states (read more below).
 <2> This step is used to specify an initialization query by scenarios that require certain patterns to exist in the graph.
 <3> If `Q` uses parameters, this step will specify a two-column table detailing the required parameter names and values. The parameter values are in the same format as the expected results.
 <4> The actual Cypher query, `Q`.
