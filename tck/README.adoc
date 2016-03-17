@@ -101,3 +101,20 @@ For this reason, the rows of the expected results table are to be considered a s
 In order to implement the Cypher TCK, you will have to retrieve the full suite of TCK feature files, hosted at this GitHub repository, https://github.com/opencypher/openCypher/tree/master/tck/features[in this subdirectory].
 
 // TODO: Mention Cucumber ?
+
+
+=== Cypher errors
+
+// these are initially taken from Neo4j kernel's Status.Statement class' ClientErrors
+Cypher defines certain exceptional behaviour, and all errors produced by a Cypher implementation is categorized into one of the following categories:
+
+- SyntaxError                    "The statement contains invalid or unsupported syntax."
+- SemanticError                  "The statement is syntactically valid, but expresses something that the database cannot do."
+- ParameterMissing               "The statement is referring to a parameter that was not provided in the request."
+- ConstraintVerificationFailed   "A constraint imposed by the statement is violated by the data in the database."
+- EntityNotFound                 "The statement is directly referring to an entity that does not exist."
+- PropertyNotFound               "The statement is referring to a property that does not exist."
+- LabelNotFound                  "The statement is referring to a label that does not exist."
+- TypeError                      "The statement is attempting to perform operations on values with types that are not supported by the operation."
+- ArgumentError                  "The statement is attempting to perform operations using invalid arguments."
+- ArithmeticError                "Invalid use of arithmetic, such as dividing by zero."

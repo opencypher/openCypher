@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-Feature: Expressions
+Feature: ExpressionAcceptance
 
   Background:
     Given any graph
@@ -53,8 +53,7 @@ Feature: Expressions
 
   Scenario: Uses dynamic property lookup based on parameters when there is lhs type information
     And parameters are:
-      | idx    |
-      | 'name' |
+      | idx | 'name' |
     When executing query: CREATE (n {name: 'Apa'}) RETURN n[{idx}] AS value
     Then the result should be:
       | value |
@@ -94,3 +93,38 @@ Feature: Expressions
     Then the result should be:
       | value |
       | 'Apa' |
+
+  Scenario: Fails at runtime when attempting to index with an Int into a Map
+    And parameters are:
+      | expr | {name: 'Apa'} |
+      | idx  | 0             |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    Then a TypeError should be raised at runtime: MapElementAccessByNonString
+
+  Scenario: fails at runtime when trying to index into a map with a non-string
+    And parameters are:
+      | expr | {name: 'Apa'} |
+      | idx  | 12.3          |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    Then a TypeError should be raised at runtime: MapElementAccessByNonString
+
+  Scenario: Fails at runtime when attempting to index with a String into a Collection
+    And parameters are:
+      | expr | ['Apa'] |
+      | idx  | 'name'  |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
+
+  Scenario: fails at runtime when trying to index into a list with a list
+    And parameters are:
+      | expr | ['Apa'] |
+      | idx  | ['Apa'] |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
+
+  Scenario: fails at runtime when trying to index into something which is not a map or collection
+    And parameters are:
+      | expr | 1    |
+      | idx  | 12.3 |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    Then a TypeError should be raised at runtime: InvalidElementAccess
