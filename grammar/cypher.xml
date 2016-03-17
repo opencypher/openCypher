@@ -231,10 +231,10 @@
 
   <production name="ReturnItems">
     <alt>
-      <seq>*<repeat>,<non-terminal ref="ReturnItem"/></repeat></seq>
+      <seq>*<repeat>, &WS;<non-terminal ref="ReturnItem"/></repeat></seq>
       <seq>
         <non-terminal ref="ReturnItem"/>
-        <repeat>,<non-terminal ref="ReturnItem"/></repeat>
+        <repeat>, &WS;<non-terminal ref="ReturnItem"/></repeat>
       </seq>
     </alt>
   </production>

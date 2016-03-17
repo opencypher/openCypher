@@ -45,7 +45,7 @@
 
   <production name="PatternPart">
     <alt>
-      <seq>&var; = <non-terminal ref="AnonymousPatternPart"/></seq>
+      <seq>&var; &WS; = &WS;<non-terminal ref="AnonymousPatternPart"/></seq>
       <non-terminal ref="AnonymousPatternPart"/>
     </alt>
   </production>
@@ -75,43 +75,44 @@
   </production>
 
   <production name="NodePattern">
-    (
+    ( &WS;
     <opt>&var;</opt>
     <opt><non-terminal ref="NodeLabels"/></opt>
     <opt><non-terminal ref="Properties"/></opt>
-    )
+    &WS; )
   </production>
 
   <production name="PatternElementChain">
     <non-terminal ref="RelationshipPattern"/>
+    &WS;
     <non-terminal ref="NodePattern"/>
   </production>
 
   <production name="RelationshipPattern">
     <alt>
       <seq>
-        <non-terminal ref="LeftArrowHead"/>
-        <non-terminal ref="Dash"/>
-        <non-terminal ref="RelationshipDetail"/>
-        <non-terminal ref="Dash"/>
-        <non-terminal ref="RightArrowHead"/>
+        &WS; <non-terminal ref="LeftArrowHead"/>
+        &WS; <non-terminal ref="Dash"/>
+        &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
+        &WS; <non-terminal ref="Dash"/>
+        &WS; <non-terminal ref="RightArrowHead"/>
       </seq>
       <seq>
-        <non-terminal ref="LeftArrowHead"/>
-        <non-terminal ref="Dash"/>
-        <non-terminal ref="RelationshipDetail"/>
-        <non-terminal ref="Dash"/>
+        &WS; <non-terminal ref="LeftArrowHead"/>
+        &WS; <non-terminal ref="Dash"/>
+        &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
+        &WS; <non-terminal ref="Dash"/>
       </seq>
       <seq>
-        <non-terminal ref="Dash"/>
-        <non-terminal ref="RelationshipDetail"/>
-        <non-terminal ref="Dash"/>
-        <non-terminal ref="RightArrowHead"/>
+        &WS; <non-terminal ref="Dash"/>
+        &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
+        &WS; <non-terminal ref="Dash"/>
+        &WS; <non-terminal ref="RightArrowHead"/>
       </seq>
       <seq>
-        <non-terminal ref="Dash"/>
-        <non-terminal ref="RelationshipDetail"/>
-        <non-terminal ref="Dash"/>
+        &WS; <non-terminal ref="Dash"/>
+        &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
+        &WS; <non-terminal ref="Dash"/>
       </seq>
     </alt>
   </production>
@@ -176,19 +177,19 @@
 
   <production name="Expression12">
     <non-terminal ref="Expression11"/>
-    <repeat>OR <non-terminal ref="Expression11"/></repeat>
+    <repeat>&SP; OR &SP;<non-terminal ref="Expression11"/></repeat>
   </production>
   <production name="Expression11">
     <non-terminal ref="Expression10"/>
-    <repeat>XOR <non-terminal ref="Expression10"/></repeat>
+    <repeat>&SP; XOR &SP;<non-terminal ref="Expression10"/></repeat>
   </production>
   <production name="Expression10">
     <non-terminal ref="Expression9"/>
-    <repeat>AND <non-terminal ref="Expression9"/></repeat>
+    <repeat>&SP; AND &SP;<non-terminal ref="Expression9"/></repeat>
   </production>
   <production name="Expression9">
     <alt>
-      <seq>NOT <non-terminal ref="Expression9"/></seq>
+      <seq>&SP; NOT &SP;<non-terminal ref="Expression9"/></seq>
       <non-terminal ref="Expression8"/>
     </alt>
   </production>
@@ -225,15 +226,15 @@
   <production name="Expression3">
     <non-terminal ref="Expression2"/>
     <repeat><alt>
-      <seq> [ &expr; ] </seq>
-      <seq> [ <opt>&expr;</opt> .. <opt>&expr;</opt> ] </seq>
-      <seq> =~ <non-terminal ref="Expression2"/> </seq>
-      <seq> IN <non-terminal ref="Expression2"/> </seq>
-      <seq> STARTS WITH <non-terminal ref="Expression2"/> </seq>
-      <seq> ENDS WITH <non-terminal ref="Expression2"/> </seq>
-      <seq> CONTAINS <non-terminal ref="Expression2"/> </seq>
-      <seq> IS NULL </seq>
-      <seq> IS NOT NULL </seq>
+      <seq> &WS; [ &expr; ] </seq>
+      <seq> &WS; [ <opt>&expr;</opt> .. <opt>&expr;</opt> ] </seq>
+      <seq> &WS; =~ <non-terminal ref="Expression2"/> </seq>
+      <seq> &SP; IN <non-terminal ref="Expression2"/> </seq>
+      <seq> &SP; STARTS WITH <non-terminal ref="Expression2"/> </seq>
+      <seq> &SP; ENDS WITH <non-terminal ref="Expression2"/> </seq>
+      <seq> &SP; CONTAINS <non-terminal ref="Expression2"/> </seq>
+      <seq> &SP; IS <non-terminal ref='whitespace'/> NULL </seq>
+      <seq> &SP; IS <non-terminal ref='whitespace'/> NOT <non-terminal ref='whitespace'/> NULL </seq>
     </alt></repeat>
   </production>
   <production name="Expression2">
@@ -256,13 +257,13 @@
       <non-terminal ref="MapLiteral"/>
       <non-terminal ref="ListComprehension"/>
       <seq> [ &expr; <repeat> , &expr; </repeat> ] </seq>
-      <seq>FILTER  ( <non-terminal ref="FilterExpression"/> ) </seq>
-      <seq>EXTRACT ( <non-terminal ref="FilterExpression"/> <opt>&WS; | &expr;</opt> ) </seq>
+      <seq>FILTER  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <seq>EXTRACT &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; <opt>&WS; | &expr;</opt> ) </seq>
       <non-terminal ref="Reduce"/>
-      <seq>ALL     ( <non-terminal ref="FilterExpression"/> ) </seq>
-      <seq>ANY     ( <non-terminal ref="FilterExpression"/> ) </seq>
-      <seq>NONE    ( <non-terminal ref="FilterExpression"/> ) </seq>
-      <seq>SINGLE  ( <non-terminal ref="FilterExpression"/> ) </seq>
+      <seq>ALL     &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <seq>ANY     &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <seq>NONE    &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <seq>SINGLE  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
       <non-terminal ref="ShortestPathPattern"/>
       <non-terminal ref="RelationshipsPattern"/>
       <non-terminal ref="parenthesizedExpression"/>
@@ -272,18 +273,18 @@
   </production>
 
   <production name="Reduce">
-    REDUCE ( &var; = &expr; , <non-terminal ref="IdInColl"/> | &expr; )
+    REDUCE &WS; ( &var; = &expr; , <non-terminal ref="IdInColl"/> | &expr; )
   </production>
 
   <production name="PartialComparisonExpression">
     <alt>
-      <seq> <literal value="="/>  <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value="&lt;&gt;"/> <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value="!="/> <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value="&lt;"/>  <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value="&gt;"/>  <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value="&lt;="/> <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value="&gt;="/> <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="="/>        &WS; <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&lt;&gt;"/> &WS; <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="!="/>       &WS; <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&lt;"/>     &WS; <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&gt;"/>     &WS; <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&lt;="/>    &WS; <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&gt;="/>    &WS; <non-terminal ref="Expression7"/> </seq>
     </alt>
   </production>
 
@@ -302,15 +303,15 @@
   </production>
 
   <production name="IdInColl">
-    &var; IN &expr;
+    &var; &SP; IN &SP; &expr;
   </production>
 
   <production name="FunctionInvocation">
     <non-terminal ref="FunctionName"/>
-    (
+    &WS; ( &WS;
       <opt>DISTINCT</opt>
       <opt>&expr;<repeat>, &expr;</repeat></opt>
-    )
+    &WS; )
   </production>
 
   <production name="FunctionName">
