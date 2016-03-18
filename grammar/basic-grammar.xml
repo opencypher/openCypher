@@ -233,8 +233,8 @@
       <seq> &SP; STARTS WITH <non-terminal ref="Expression2"/> </seq>
       <seq> &SP; ENDS WITH <non-terminal ref="Expression2"/> </seq>
       <seq> &SP; CONTAINS <non-terminal ref="Expression2"/> </seq>
-      <seq> &SP; IS <non-terminal ref='whitespace'/> NULL </seq>
-      <seq> &SP; IS <non-terminal ref='whitespace'/> NOT <non-terminal ref='whitespace'/> NULL </seq>
+      <seq> &SP; IS &SP; NULL </seq>
+      <seq> &SP; IS &SP; NOT &SP; NULL </seq>
     </alt></repeat>
   </production>
   <production name="Expression2">
@@ -326,7 +326,7 @@
   </production>
 
   <production name="PropertyLookup">
-    .
+    &WS; . &WS;
     <alt>
       <seq><non-terminal ref="PropertyKeyName"/><alt>? !</alt><!-- !OpCharTail --></seq>
       <non-terminal ref="PropertyKeyName"/>
