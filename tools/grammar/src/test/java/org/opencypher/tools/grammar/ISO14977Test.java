@@ -132,35 +132,35 @@ public class ISO14977Test
     public void shouldRenderRepetitionWithMinAndMax() throws Exception
     {
         verify( production( "repeat", repeat( 5, 10, literal( "hello" ) ) ),
-                "repeat = 5 * 'hello', 5 * ['hello'] ;" );
+                "repeat = 5 * 'hello', 5 * [ 'hello' ] ;" );
     }
 
     @Test
     public void shouldRenderRepetitionWithMin() throws Exception
     {
         verify( production( "repeat", atLeast( 3, literal( "hello" ) ) ),
-                "repeat = 3 * 'hello', {'hello'} ;" );
+                "repeat = 3 * 'hello', { 'hello' } ;" );
     }
 
     @Test
     public void shouldRenderRepetitionWithMax() throws Exception
     {
         verify( production( "repeat", repeat( 0, 7, literal( "hello" ) ) ),
-                "repeat = 7 * ['hello'] ;" );
+                "repeat = 7 * [ 'hello' ] ;" );
     }
 
     @Test
     public void shouldRenderOneOrMore() throws Exception
     {
         verify( production( "repeat", oneOrMore( literal( "hello" ) ) ),
-                "repeat = {'hello'}- ;" );
+                "repeat = { 'hello' }- ;" );
     }
 
     @Test
     public void shouldRenderZeroOrMore() throws Exception
     {
         verify( production( "repeat", zeroOrMore( literal( "hello" ) ) ),
-                "repeat = {'hello'} ;" );
+                "repeat = { 'hello' } ;" );
     }
 
     @Test
@@ -168,7 +168,7 @@ public class ISO14977Test
     {
         verify( production( "stuff", zeroOrMore( literal( "foo" ), literal( "bar" ) ),
                             repeat( 5, literal( "abc" ), literal( "xyz" ) ) ),
-                "stuff = {'foo', 'bar'}",
+                "stuff = { 'foo', 'bar' }",
                 "      | 5 * ('abc', 'xyz')",
                 "      ;" );
     }

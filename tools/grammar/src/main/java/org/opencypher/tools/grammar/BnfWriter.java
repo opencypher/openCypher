@@ -273,9 +273,9 @@ abstract class BnfWriter implements GrammarVisitor<RuntimeException>, AutoClosea
     {
         boolean group = this.group;
         this.group = false;
-        output.append( prefix );
+        output.append( prefix ).append( " " );
         action.run();
-        output.append( suffix );
+        output.append( " " ).append( suffix );
         this.group = group;
     }
 
