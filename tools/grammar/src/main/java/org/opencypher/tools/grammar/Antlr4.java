@@ -408,15 +408,30 @@ public class Antlr4 extends BnfWriter
         @Override
         public void visitCodePoint( int cp )
         {
-            codePoint( output, cp );
+            if ( cp <= Character.MAX_VALUE )
+            {
+                codePoint( output, cp );
+            }
         }
 
         @Override
         public void visitRange( int start, int end )
         {
-            codePoint( output, start );
-            output.append( '-' );
-            codePoint( output, end );
+            // Antlr only supports unicode literals up to \uFFFF
+            if ( end <= Character.MAX_VALUE )
+            {
+                codePoint( output, start );
+                output.append( '-' );
+                codePoint( output, end );
+            }
+            else if ( start <= Character.MAX_VALUE )
+            {
+                codePoint( output, start );
+                output.append( '-' );
+                // truncate the range
+                codePoint( output, Character.MAX_VALUE );
+            }
+            // just skip larger values
         }
     }
 
@@ -439,13 +454,9 @@ public class Antlr4 extends BnfWriter
             {
                 output.appendCodePoint( cp );
             }
-            else if ( cp <= 0xFFFF )
-            {
-                output.format( "\\u%04X", cp );
-            }
             else
             {
-                output.format( "\\U%08X", cp );
+                output.format( "\\u%04X", cp );
             }
         }
     }
