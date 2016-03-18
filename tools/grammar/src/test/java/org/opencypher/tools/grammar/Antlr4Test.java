@@ -56,6 +56,25 @@ public class Antlr4Test
     }
 
     @Test
+    public void shouldNotMakeRulesForLiteralsWithoutCaseAlternatives() throws TransformerException
+    {
+        assertGenerates(
+                grammar( "foo" )
+                        .production( "other", literal( "abc" ) )
+                        .production( "bar", nonTerminal( "other" ), caseInsensitive( "=>~`$&@" ), nonTerminal( "other" ) )
+                        .build( Grammar.Builder.Option.ALLOW_ROOTLESS ),
+                "grammar foo;",
+                "",
+                "other : 'abc' ;",
+                "",
+                "bar : other",
+                "    | '=>~`$&@'",
+                "    | other",
+                "    ;",
+                "" );
+    }
+
+    @Test
     public void shouldProduceCaseInsensitive() throws TransformerException
     {
         assertGenerates(
@@ -64,17 +83,9 @@ public class Antlr4Test
                         .build( Grammar.Builder.Option.ALLOW_ROOTLESS ),
                 "grammar foo;",
                 "",
-                "bar : L I T E R '@' L ;",
+                "bar : LITER@L ;",
                 "",
-                "R : 'R' | 'r' ;",
-                "",
-                "T : 'T' | 't' ;",
-                "",
-                "E : 'E' | 'e' ;",
-                "",
-                "I : 'I' | 'i' ;",
-                "",
-                "L : 'L' | 'l' ;",
+                "LITER@L : ( 'L' | 'l' ) ( 'I' | 'i' ) ( 'T' | 't' ) ( 'E' | 'e' ) ( 'R' | 'r' ) ( '@' | '@' ) ( 'L' | 'l' )  ;",
                 "" );
     }
 
@@ -136,7 +147,7 @@ public class Antlr4Test
                 "",
                 "test : TEST_0 ;",
                 "",
-                "TEST_0 : [$\\u00A2-\\u00A5\\u20A0-\\u20BA] ;",
+                "fragment TEST_0 : [$\\u00A2-\\u00A5\\u20A0-\\u20BA] ;",
                 "" );
     }
 
@@ -149,7 +160,7 @@ public class Antlr4Test
                 "",
                 "test : " + name + " ;",
                 "",
-                name + " : " + def + " ;",
+                "fragment " + name + " : " + def + " ;",
                 "" );
     }
 

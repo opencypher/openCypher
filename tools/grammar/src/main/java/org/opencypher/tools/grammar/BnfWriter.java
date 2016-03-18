@@ -163,8 +163,9 @@ abstract class BnfWriter implements GrammarVisitor<RuntimeException>, AutoClosea
     public final void visitLiteral( Literal literal )
     {
         if ( literal.caseSensitive()
-             || Character.charCount( literal.codePointAt( 0 ) ) == literal.length()
+             || ( Character.charCount( literal.codePointAt( 0 ) ) == literal.length()
                 && !Character.isLetter( literal.codePointAt( 0 ) ) )
+             || !hasCaseAlternatives( literal.toString() ) )
         {
             literal( literal.toString() );
         }
@@ -176,6 +177,20 @@ abstract class BnfWriter implements GrammarVisitor<RuntimeException>, AutoClosea
         {
             caseInsensitive( literal.toString() );
         }
+    }
+
+    private boolean hasCaseAlternatives( String string )
+    {
+        for ( int i = 0; i < string.length(); ++i )
+        {
+            int upper = Character.toUpperCase( string.codePointAt( i ) );
+            int lower = Character.toLowerCase( string.codePointAt( i ) );
+            if ( upper != lower )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

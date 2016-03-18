@@ -3,6 +3,7 @@ package org.opencypher.tools.grammar;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.opencypher.grammar.CharacterSet;
@@ -55,6 +56,8 @@ public class Antlr4 extends BnfWriter
     }
 
     private final Map<String, CharacterSet> lexerRules = new HashMap<>();
+    // rule name -> rule value
+    private final Map<String, String> keyWords = new LinkedHashMap<>();
 
     private Antlr4( Output output )
     {
@@ -64,10 +67,24 @@ public class Antlr4 extends BnfWriter
     @Override
     public void close()
     {
-        super.close();
-        for ( Map.Entry<String, CharacterSet> rule : lexerRules.entrySet() )
+        for ( Map.Entry<String, String> lexerRule : keyWords.entrySet() )
+        {
+            caseInsensitiveProductionStart( lexerRule.getKey() );
+            for ( char c : lexerRule.getValue().toCharArray() )
+            {
+                groupWith( '(', () -> {
+                    literal( String.valueOf( c ).toUpperCase() );
+                    alternativesSeparator();
+                    literal( String.valueOf( c ).toLowerCase() );
+                }, ')' );
+                sequenceSeparator();
+            }
+            productionEnd();
+        }
+        for ( Map.Entry<String,CharacterSet> rule : lexerRules.entrySet() )
         {
             CharacterSet set = rule.getValue();
+            output.append( "fragment " );
             lexerRule( rule.getKey() ).append( " : " );
             if ( CharacterSet.ANY.equals( set.name() ) )
             {
@@ -104,12 +121,30 @@ public class Antlr4 extends BnfWriter
     private String currentProduction;
     private int nextLexerRule;
 
+    private boolean shouldBeLexerRule( String rule )
+    {
+        return rule.startsWith( "Identifier" )
+               || rule.equalsIgnoreCase( "whitespace" )
+               || rule.equalsIgnoreCase( "comment" )
+               || rule.endsWith( "scapedSymbolicNameString" )
+               || rule.equalsIgnoreCase( "stringliteral" )
+               || rule.equalsIgnoreCase( "escapedchar" )
+               || rule.equalsIgnoreCase( "hexdigit" );
+    }
+
     @Override
     protected void productionStart( String name )
     {
         currentProduction = name;
-        parserRule( currentProduction ).append( " : " );
-        nextLexerRule = 0;
+        if ( shouldBeLexerRule( name ) )
+        {
+            lexerRule( currentProduction ).append( " : " );
+        }
+        else
+        {
+            parserRule( currentProduction ).append( " : " );
+            nextLexerRule = 0;
+        }
     }
 
     @Override
@@ -182,26 +217,26 @@ public class Antlr4 extends BnfWriter
         {
             if ( minTimes == 0 )
             {
-                group( repeated );
+                groupWith( '(', repeated, ')' );
                 output.append( "*" );
                 return;
             }
             else if ( minTimes == 1 )
             {
-                group( repeated );
+                groupWith( '(', repeated, ')' );;
                 output.append( "+" );
                 return;
             }
         }
         else if ( maxTimes == 1 && minTimes == 0 )
         {
-            group( repeated );
+            groupWith( '(', repeated, ')' );
             optionalSuffix();
             return;
         }
         else if ( minTimes == maxTimes )
         {
-            group( () -> {
+            groupWith( '(', () -> {
                 for ( int i = 0; i < minTimes; i++ )
                 {
                     if ( i > 0 )
@@ -210,7 +245,7 @@ public class Antlr4 extends BnfWriter
                     }
                     repeated.run();
                 }
-            } );
+            }, ')' );
             return;
         }
         throw new UnsupportedOperationException(
@@ -239,7 +274,14 @@ public class Antlr4 extends BnfWriter
     @Override
     protected void nonTerminal( NonTerminal nonTerminal )
     {
-        parserRule( nonTerminal.productionName() );
+        if ( shouldBeLexerRule( nonTerminal.productionName() ) )
+        {
+            lexerRule( nonTerminal.productionName() );
+        }
+        else
+        {
+            parserRule( nonTerminal.productionName() );
+        }
     }
 
     private Output parserRule( String name )
@@ -284,8 +326,12 @@ public class Antlr4 extends BnfWriter
         escapeAndEnclose( value );
     }
 
-    @Override
-    protected void caseInsensitive( String value )
+    private boolean reserved( String ruleName )
+    {
+        return ruleName.equals( "SKIP" );
+    }
+
+    private void inline( String value )
     {
         group( () -> {
             String sep = "";
@@ -305,8 +351,10 @@ public class Antlr4 extends BnfWriter
                     sep = " ";
                     start = i + Character.charCount( cp );
                     cp = Character.toUpperCase( cp );
-                    addCaseChar( cp );
-                    output.appendCodePoint( cp );
+                    String upper = String.valueOf( (char) cp );
+                    escapeAndEnclose( upper );
+                    alternativesSeparator();
+                    escapeAndEnclose( upper.toLowerCase() );
                 }
             }
             if ( start < value.length() )
@@ -315,6 +363,25 @@ public class Antlr4 extends BnfWriter
                 escapeAndEnclose( value.substring( start ) );
             }
         } );
+    }
+
+    @Override
+    protected void caseInsensitive( String value )
+    {
+        if ( value.length() == 1 )
+        {
+            inline( value );
+        }
+        else
+        {
+            String lexerRule = value.toUpperCase();
+            if ( !Character.isLetter( value.codePointAt( 0 ) ) || reserved( lexerRule ) )
+            {
+                lexerRule = "L_" + lexerRule;
+            }
+            output.append( lexerRule );
+            keyWords.put( lexerRule, value );
+        }
     }
 
     private void escapeAndEnclose( String value )
