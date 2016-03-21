@@ -1,0 +1,127 @@
+#
+# Copyright 2016 "Neo Technology",
+# Network Engine for Objects in Lund AB (http://neotechnology.com)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+Feature: ExpressionAcceptance
+
+  Background:
+    Given any graph
+
+  Scenario: n[0]
+    When executing query: RETURN [1, 2, 3][0] AS value
+    Then the result should be:
+      | value |
+      | 1     |
+
+  Scenario: n['name'] in read queries
+    And having executed: CREATE ({name: 'Apa'})
+    When executing query: MATCH (n {name: 'Apa'}) RETURN n['nam' + 'e'] AS value
+    Then the result should be:
+      | value |
+      | 'Apa' |
+
+  Scenario: n['name'] in update queries
+    When executing query: CREATE (n {name: 'Apa'}) RETURN n['nam' + 'e'] AS value
+    Then the result should be:
+      | value |
+      | 'Apa' |
+
+  Scenario: Uses dynamic property lookup based on parameters when there is no type information
+    And parameters are:
+      | expr | {name: 'Apa'} |
+      | idx  | 'name'        |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx] AS value
+    Then the result should be:
+      | value |
+      | 'Apa' |
+
+  Scenario: Uses dynamic property lookup based on parameters when there is lhs type information
+    And parameters are:
+      | idx | 'name' |
+    When executing query: CREATE (n {name: 'Apa'}) RETURN n[{idx}] AS value
+    Then the result should be:
+      | value |
+      | 'Apa' |
+
+  Scenario: Uses dynamic property lookup based on parameters when there is rhs type information
+    And parameters are:
+      | expr | {name: 'Apa'} |
+      | idx  | 'name'        |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[toString(idx)] AS value
+    Then the result should be:
+      | value |
+      | 'Apa' |
+
+  Scenario: Uses collection lookup based on parameters when there is no type information
+    And parameters are:
+      | expr | ['Apa'] |
+      | idx  | 0       |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx] AS value
+    Then the result should be:
+      | value |
+      | 'Apa' |
+
+  Scenario: Uses collection lookup based on parameters when there is lhs type information
+    And parameters are:
+      | idx | 0 |
+    When executing query: WITH ['Apa'] AS expr RETURN expr[{idx}] AS value
+    Then the result should be:
+      | value |
+      | 'Apa' |
+
+  Scenario: Uses collection lookup based on parameters when there is rhs type information
+    And parameters are:
+      | expr | ['Apa'] |
+      | idx  | 0       |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[toInt(idx)] AS value
+    Then the result should be:
+      | value |
+      | 'Apa' |
+
+  Scenario: Fails at runtime when attempting to index with an Int into a Map
+    And parameters are:
+      | expr | {name: 'Apa'} |
+      | idx  | 0             |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    Then a TypeError should be raised at runtime: MapElementAccessByNonString
+
+  Scenario: fails at runtime when trying to index into a map with a non-string
+    And parameters are:
+      | expr | {name: 'Apa'} |
+      | idx  | 12.3          |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    Then a TypeError should be raised at runtime: MapElementAccessByNonString
+
+  Scenario: Fails at runtime when attempting to index with a String into a Collection
+    And parameters are:
+      | expr | ['Apa'] |
+      | idx  | 'name'  |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
+
+  Scenario: fails at runtime when trying to index into a list with a list
+    And parameters are:
+      | expr | ['Apa'] |
+      | idx  | ['Apa'] |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
+
+  Scenario: fails at runtime when trying to index into something which is not a map or collection
+    And parameters are:
+      | expr | 1    |
+      | idx  | 12.3 |
+    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    Then a TypeError should be raised at runtime: InvalidElementAccess

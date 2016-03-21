@@ -73,3 +73,8 @@ The Cypher Language Group published meeting notes from all the group meetings at
 == Feedback
 
 Any feedback you provide to Neo Technology, Inc. through this repository shall be deemed to be non-confidential. You grant Neo Technology, Inc. a perpetual, irrevocable, worldwide, royalty-free license to use, reproduce, modify, publicly perform, publicly display and distribute such feedback on an unrestricted basis.
+
+== License
+
+The `openCypher` project is licensed under the http://www.apache.org/licenses/LICENSE-2.0[Apache license 2.0].
+// TODO: I feel like we should flesh this section out a bit -- not sure how

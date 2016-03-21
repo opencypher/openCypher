@@ -7,7 +7,7 @@ The TCK consists of a number of https://cucumber.io/[Cucumber] `.feature` files,
 
 * The required initial state of the graph; i.e. the graph prior to the execution of `Q`, the Cypher query of interest
 * `Q`, along with any required parameter names and values
-* Expected results from executing `Q`
+* Expected results from executing `Q`, or expected errors if `Q` was an invalid query
 ** See <<Format of the expected results>> for a description of how the results are formatted
 * Expected side effects from executing `Q`
 
@@ -43,13 +43,23 @@ Scenario: Returning a single node
       | n  |
       | () |
 ----
-<1> This step specifies the required initial state of the graph. `<GRAPH_NAME>` is the name of one of the specified graphs for initial states (read more below).
+[source,gherkin]
+.This scenario illustrates the effects of executing a query `Q` - matching all nodes and returning one of them - on the graph <GRAPH_NAME>.
+----
+Scenario: Indexing a list with a string
+    Given any graph // <1>
+    When executing query: WITH [0] AS expr, 'x' AS idx RETURN expr[idx] // <4>
+    Then a TypeError should be raised at runtime: ListElementAccessByNonInteger // <7>
+----
+<1> This step specifies the required initial state of the graph. `<GRAPH_NAME>` is the name of one of the specified graphs for initial states (read more in <<named-graphs>>).
 <2> This step is used to specify an initialization query by scenarios that require certain patterns to exist in the graph.
 <3> If `Q` uses parameters, this step will specify a two-column table detailing the required parameter names and values. The parameter values are in the same format as the expected results.
 <4> The actual Cypher query, `Q`.
 <5> This step specifies the expected results of executing `Q`, represented in a table format if not empty. The first row contains the column names, and subsequent rows contain values. If `Q` contained an `ORDER BY` clause, the result table will be ordered accordingly.
-<6> This step specifies the expected side effects of executing `Q`, with the side effect name and the relevant quantity. Read about the possible side effects in <<Side effects of executing a query>>.
+<6> This step specifies the expected side effects of executing `Q`, with the side effect name and the relevant quantity. Read about the possible side effects in <<side-effects>>.
+<7> This step specifies the expected error should be raised by executing the invalid `Q`. This step is described in detail in <<errors>>.
 
+[[named-graphs]]
 === Graphs for initial states
 
 The keyword `Given` in the TCK's scenarios specifies the required initial state for the scenario.
@@ -58,6 +68,7 @@ Certain queries do require a more complex graph structure in order to yield less
 
 // TODO: Come up with good graphs to use for this purpose, and describe them here
 
+[[side-effects]]
 === Side effects of executing a query
 
 A Cypher query that contains write clauses may have side effects that are persisted in the graph.
@@ -101,3 +112,34 @@ For this reason, the rows of the expected results table are to be considered a s
 In order to implement the Cypher TCK, you will have to retrieve the full suite of TCK feature files, hosted at this GitHub repository, https://github.com/opencypher/openCypher/tree/master/tck/features[in this subdirectory].
 
 // TODO: Mention Cucumber ?
+
+[[errors]]
+=== Cypher errors
+
+The `Then` step used to specify expected errors from running a given invalid query follows this schematic setup:
+
+ Then a TYPE should be raised at PHASE: DETAIL
+
+TYPE will be one of the following error types:
+
+// these are initially taken from Neo4j kernel's Status.Statement class' ClientErrors
+- SyntaxError                    "The statement contains invalid or unsupported syntax."
+- SemanticError                  "The statement is syntactically valid, but expresses something that the database cannot do."
+- ParameterMissing               "The statement refers to a parameter that was not provided in the request."
+- ConstraintVerificationFailed   "A constraint imposed by the statement is violated by the data in the database."
+- EntityNotFound                 "The statement refers to a non-existent entity."
+- PropertyNotFound               "The statement refers to a non-existent property."
+- LabelNotFound                  "The statement refers to a non-existent label."
+- TypeError                      "The statement is attempting to perform operations on values with types that are not supported by the operation."
+- ArgumentError                  "The statement is attempting to perform operations using invalid arguments."
+- ArithmeticError                "Invalid use of an arithmetic operation, such as dividing by zero."
+
+PHASE will be either `runtime` or `compile time`.
+
+DETAIL is a more fine-grained categorization of the error, and will describe the actual circumstance that caused the error to happen.
+
+
+== License
+
+The Cypher TCK is licensed with http://www.apache.org/licenses/LICENSE-2.0[Apache license 2.0], which is inherited from the containing `openCypher` project.
+Read more in the link:../README.adoc[`openCypher` README].
