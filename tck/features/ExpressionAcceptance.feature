@@ -121,7 +121,7 @@ Feature: ExpressionAcceptance
 
   Scenario: fails at runtime when trying to index into something which is not a map or collection
     And parameters are:
-      | expr | 1    |
-      | idx  | 12.3 |
+      | expr | 100 |
+      | idx  | 0   |
     When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
     Then a TypeError should be raised at runtime: InvalidElementAccess
