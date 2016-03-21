@@ -137,3 +137,9 @@ TYPE will be one of the following error types:
 PHASE will be either `runtime` or `compile time`.
 
 DETAIL is a more fine-grained categorization of the error, and will describe the actual circumstance that caused the error to happen.
+
+
+== License
+
+The Cypher TCK is licensed with http://www.apache.org/licenses/LICENSE-2.0[Apache license 2.0], which is inherited from the containing `openCypher` project.
+Read more in the link:../README.adoc[`openCypher` README].
