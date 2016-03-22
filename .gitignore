@@ -3,4 +3,7 @@
 *.bak
 *.html
 .idea
+*.iml
+target
+out
 .DS_Store

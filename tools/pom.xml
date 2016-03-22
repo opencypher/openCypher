@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.opencypher</groupId>
+  <artifactId>tools</artifactId>
+  <packaging>pom</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>tools</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.neo4j.build.plugins</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>3</version>
+        <executions>
+          <execution>
+            <id>check-licenses</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <strictCheck>true</strictCheck>
+          <header>ASL-2-header.txt</header>
+          <includes>
+            <include>src/**/*.java</include>
+            <include>src/**/*.scala</include>
+            <include>src/**/*.feature</include>
+          </includes>
+          <mapping>
+            <java>SLASHSTAR_STYLE</java>
+            <scala>SLASHSTAR_STYLE</scala>
+            <feature>SCRIPT_STYLE</feature>
+          </mapping>
+          <timestampPropertyName>currentYear</timestampPropertyName>
+          <properties>
+            <inceptionYear>2015</inceptionYear>
+          </properties>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <modules>
+    <module>grammar</module>
+  </modules>
+</project>

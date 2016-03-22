@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2015-2016 "Neo Technology,"
+    Network Engine for Objects in Lund AB [http://neotechnology.com]
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!DOCTYPE grammar [
+  <!ENTITY WS "<non-terminal ref='WS'/>">
+  <!ENTITY SP "<non-terminal ref='SP'/>">
+  <!ENTITY expr "<non-terminal ref='Expression'/>">
+  <!ENTITY var "<non-terminal ref='Variable'/>">
+]>
+<grammar language="Cypher Basic Grammar"
+  xmlns="http://thobe.org/grammar"
+  xmlns:rr="http://thobe.org/railroad"
+  xmlns:ast="http://thobe.org/syntaxtree"
+  xmlns:gen="http://thobe.org/stringgeneration">
+
+  <!-- / WHERE \ -->
+
+  <production name="Where">
+    WHERE &SP; &expr;
+  </production>
+
+  <!-- \ WHERE / -->
+
+
+  <!-- / PATTERNS \ -->
+
+  <production name="Pattern">
+    <non-terminal ref="PatternPart"/>
+    <repeat> , <non-terminal ref="PatternPart"/></repeat>
+  </production>
+
+  <production name="PatternPart">
+    <alt>
+      <seq>&var; &WS; = &WS;<non-terminal ref="AnonymousPatternPart"/></seq>
+      <non-terminal ref="AnonymousPatternPart"/>
+    </alt>
+  </production>
+
+  <production name="AnonymousPatternPart">
+    <alt>
+      <non-terminal ref="ShortestPathPattern"/>
+      <non-terminal ref="PatternElement"/>
+    </alt>
+  </production>
+
+  <production name="ShortestPathPattern">
+    <alt>
+      <seq>shortestPath ( <non-terminal ref="PatternElement"/> )</seq>
+      <seq>allShortestPaths ( <non-terminal ref="PatternElement"/> )</seq>
+    </alt>
+  </production>
+
+  <production name="PatternElement">
+    <alt>
+      <seq>
+        <non-terminal ref="NodePattern"/>
+        <repeat>&WS; <non-terminal ref="PatternElementChain"/></repeat>
+      </seq>
+      <seq>( <non-terminal ref="PatternElement"/> )</seq>
+    </alt>
+  </production>
+
+  <production name="NodePattern">
+    ( &WS;
+    <opt>&var;</opt>
+    <opt><non-terminal ref="NodeLabels"/></opt>
+    <opt><non-terminal ref="Properties"/></opt>
+    &WS; )
+  </production>
+
+  <production name="PatternElementChain">
+    <non-terminal ref="RelationshipPattern"/>
+    &WS;
+    <non-terminal ref="NodePattern"/>
+  </production>
+
+  <production name="RelationshipPattern">
+    <alt>
+      <seq>
+        &WS; <non-terminal ref="LeftArrowHead"/>
+        &WS; <non-terminal ref="Dash"/>
+        &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
+        &WS; <non-terminal ref="Dash"/>
+        &WS; <non-terminal ref="RightArrowHead"/>
+      </seq>
+      <seq>
+        &WS; <non-terminal ref="LeftArrowHead"/>
+        &WS; <non-terminal ref="Dash"/>
+        &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
+        &WS; <non-terminal ref="Dash"/>
+      </seq>
+      <seq>
+        &WS; <non-terminal ref="Dash"/>
+        &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
+        &WS; <non-terminal ref="Dash"/>
+        &WS; <non-terminal ref="RightArrowHead"/>
+      </seq>
+      <seq>
+        &WS; <non-terminal ref="Dash"/>
+        &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
+        &WS; <non-terminal ref="Dash"/>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="RelationshipDetail">
+    [
+    <opt>&var;</opt>
+    <opt>?</opt>
+    <opt><non-terminal ref="RelationshipTypes"/></opt>
+    <opt>*<opt><non-terminal ref="RangeLiteral"/></opt></opt>
+    <opt><non-terminal ref="Properties"/></opt>
+    ]
+  </production>
+
+  <production name="Properties">
+    <alt>
+      <non-terminal ref="MapLiteral"/>
+      <non-terminal ref="Parameter"/>
+    </alt>
+  </production>
+
+  <production name="RelType">
+    :<non-terminal ref="RelTypeName"/>
+  </production>
+
+  <production name="RelationshipTypes">
+    :<non-terminal ref="RelTypeName"/>
+    <repeat>&WS;|<opt>:</opt>&WS;<non-terminal ref="RelTypeName"/></repeat>
+  </production>
+
+  <production name="NodeLabels">
+    <non-terminal ref="NodeLabel"/>
+    <repeat>&WS;<non-terminal ref="NodeLabel"/></repeat>
+  </production>
+
+  <production name="NodeLabel">
+    : <non-terminal ref="LabelName"/>
+  </production>
+
+  <production name="RangeLiteral">
+    <opt><non-terminal ref="UnsignedIntegerLiteral"/>&WS;</opt>
+    ..
+    <opt>&WS;<non-terminal ref="UnsignedIntegerLiteral"/></opt>
+  </production>
+
+  <production name="LabelName">
+    <non-terminal ref="SymbolicNameString"/>
+  </production>
+
+  <production name="RelTypeName">
+    <non-terminal ref="SymbolicNameString"/>
+  </production>
+
+  <!-- \ PATTERNS / -->
+
+
+  <!-- / EXPRESSIONS \ -->
+
+  <production name="Expression">
+    <non-terminal ref="Expression12"/>
+  </production>
+
+  <production name="Expression12">
+    <non-terminal ref="Expression11"/>
+    <repeat>&SP; OR &SP;<non-terminal ref="Expression11"/></repeat>
+  </production>
+  <production name="Expression11">
+    <non-terminal ref="Expression10"/>
+    <repeat>&SP; XOR &SP;<non-terminal ref="Expression10"/></repeat>
+  </production>
+  <production name="Expression10">
+    <non-terminal ref="Expression9"/>
+    <repeat>&SP; AND &SP;<non-terminal ref="Expression9"/></repeat>
+  </production>
+  <production name="Expression9">
+    <alt>
+      <seq>&SP; NOT &SP;<non-terminal ref="Expression9"/></seq>
+      <non-terminal ref="Expression8"/>
+    </alt>
+  </production>
+  <production name="Expression8">
+    <non-terminal ref="Expression7"/>
+    <repeat>&WS;<non-terminal ref="PartialComparisonExpression"/></repeat>
+  </production>
+  <production name="Expression7">
+    <non-terminal ref="Expression6"/>
+    <repeat><alt>
+      <seq> + <non-terminal ref="Expression6"/></seq>
+      <seq> - <non-terminal ref="Expression6"/></seq>
+    </alt></repeat>
+  </production>
+  <production name="Expression6">
+    <non-terminal ref="Expression5"/>
+    <repeat><alt>
+      <seq> * <non-terminal ref="Expression5"/></seq>
+      <seq> / <non-terminal ref="Expression5"/></seq>
+      <seq> % <non-terminal ref="Expression5"/></seq>
+    </alt></repeat>
+  </production>
+  <production name="Expression5">
+    <non-terminal ref="Expression4"/>
+    <repeat> ^ <non-terminal ref="Expression4"/></repeat>
+  </production>
+  <production name="Expression4">
+    <alt>
+      <non-terminal ref="Expression3"/>
+      <seq> + <non-terminal ref="Expression3"/></seq>
+      <seq> - <non-terminal ref="Expression3"/></seq>
+    </alt>
+  </production>
+  <production name="Expression3">
+    <non-terminal ref="Expression2"/>
+    <repeat><alt>
+      <seq> &WS; [ &expr; ] </seq>
+      <seq> &WS; [ <opt>&expr;</opt> .. <opt>&expr;</opt> ] </seq>
+      <seq> &WS; =~ <non-terminal ref="Expression2"/> </seq>
+      <seq> &SP; IN <non-terminal ref="Expression2"/> </seq>
+      <seq> &SP; STARTS WITH <non-terminal ref="Expression2"/> </seq>
+      <seq> &SP; ENDS WITH <non-terminal ref="Expression2"/> </seq>
+      <seq> &SP; CONTAINS <non-terminal ref="Expression2"/> </seq>
+      <seq> &SP; IS &SP; NULL </seq>
+      <seq> &SP; IS &SP; NOT &SP; NULL </seq>
+    </alt></repeat>
+  </production>
+  <production name="Expression2">
+    <non-terminal ref="Expression1"/>
+    <repeat><alt>
+      <non-terminal ref="PropertyLookup"/>
+      <non-terminal ref="NodeLabels"/>
+    </alt></repeat>
+  </production>
+  <production name="Expression1">
+    <alt>
+      <non-terminal ref="NumberLiteral"/>
+      <non-terminal ref="StringLiteral"/>
+      <non-terminal ref="Parameter"/>
+      TRUE
+      FALSE
+      NULL
+      <non-terminal ref="CaseExpression"/>
+      <seq>COUNT ( * )</seq>
+      <non-terminal ref="MapLiteral"/>
+      <non-terminal ref="ListComprehension"/>
+      <seq> [ &expr; <repeat> , &expr; </repeat> ] </seq>
+      <seq>FILTER  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <seq>EXTRACT &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; <opt>&WS; | &expr;</opt> ) </seq>
+      <non-terminal ref="Reduce"/>
+      <seq>ALL     &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <seq>ANY     &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <seq>NONE    &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <seq>SINGLE  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <non-terminal ref="ShortestPathPattern"/>
+      <non-terminal ref="RelationshipsPattern"/>
+      <non-terminal ref="parenthesizedExpression"/>
+      <non-terminal ref="FunctionInvocation"/>
+      &var;
+    </alt>
+  </production>
+
+  <production name="Reduce">
+    REDUCE &WS; ( &var; = &expr; , <non-terminal ref="IdInColl"/> | &expr; )
+  </production>
+
+  <production name="PartialComparisonExpression">
+    <alt>
+      <seq> <literal value="="/>        &WS; <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&lt;&gt;"/> &WS; <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="!="/>       &WS; <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&lt;"/>     &WS; <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&gt;"/>     &WS; <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&lt;="/>    &WS; <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="&gt;="/>    &WS; <non-terminal ref="Expression7"/> </seq>
+    </alt>
+  </production>
+
+  <production name="parenthesizedExpression">
+    ( &expr; )
+  </production>
+
+  <production name="RelationshipsPattern">
+    <non-terminal ref="NodePattern"/>
+    <repeat min="1">&WS;<non-terminal ref="PatternElementChain"/></repeat>
+  </production>
+
+  <production name="FilterExpression">
+    <non-terminal ref="IdInColl"/>
+    <opt>&WS;<non-terminal ref="Where"/></opt>
+  </production>
+
+  <production name="IdInColl">
+    &var; &SP; IN &SP; &expr;
+  </production>
+
+  <production name="FunctionInvocation">
+    <non-terminal ref="FunctionName"/>
+    &WS; ( &WS;
+      <opt>DISTINCT</opt>
+      <opt>&expr;<repeat>, &expr;</repeat></opt>
+    &WS; )
+  </production>
+
+  <production name="FunctionName">
+    <non-terminal ref="SymbolicNameString"/>
+  </production>
+
+  <production name="ListComprehension">
+    [
+      <non-terminal ref="FilterExpression"/>
+      <opt>&WS; | &expr;</opt>
+    ]
+  </production>
+
+  <production name="PropertyLookup">
+    &WS; . &WS;
+    <alt>
+      <seq><non-terminal ref="PropertyKeyName"/><alt>? !</alt><!-- !OpCharTail --></seq>
+      <non-terminal ref="PropertyKeyName"/>
+    </alt>
+  </production>
+
+  <production name="CaseExpression">
+    <alt>
+      <seq>CASE <repeat min="1"><non-terminal ref="CaseAlternatives"/></repeat></seq>
+      <seq>CASE &expr; <repeat min="1"><non-terminal ref="CaseAlternatives"/></repeat></seq>
+    </alt>
+    <opt>&WS; ELSE &expr;</opt>
+    END
+  </production>
+
+  <production name="CaseAlternatives">
+    WHEN &expr; THEN &expr;
+  </production>
+
+  <production name="Variable">
+    <non-terminal ref="SymbolicNameString"/>
+  </production>
+
+  <production name="StringLiteral">
+    <alt>
+      <seq>" <repeat><alt>
+        <character><except literal="\"/><except literal='"'/></character>
+        <non-terminal ref="EscapedChar"/>
+      </alt></repeat> "</seq>
+
+      <seq>' <repeat><alt>
+        <character><except literal="\"/><except literal="'"/></character>
+        <non-terminal ref="EscapedChar"/>
+      </alt></repeat> '</seq>
+    </alt>
+  </production>
+
+  <production name="EscapedChar">
+    \
+    <alt>
+      \  <!-- Encodes a backslash -->
+      '  <!-- Encodes a single quote -->
+      "  <!-- Encodes a double quote -->
+      b  <!-- Encodes backspace -->
+      f  <!-- Encodes page break of "form feed" -->
+      n  <!-- Encodes newline -->
+      r  <!-- Encodes Carriage return -->
+      t  <!-- Encodes a Tab character -->
+      _  <!-- Encodes underscore -->
+      %  <!-- Encodes a precent sign -->
+      <seq>  <!-- UTF16 -->
+        u <repeat min="4" max="4"><non-terminal ref="HexDigit"/></repeat>
+      </seq>
+      <seq>  <!-- UTF32 -->
+        U <repeat min="8" max="8"><non-terminal ref="HexDigit"/></repeat>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="NumberLiteral">
+    <alt>
+      <non-terminal ref="DoubleLiteral"/>
+      <non-terminal ref="SignedIntegerLiteral"/>
+    </alt>
+  </production>
+
+  <production name="MapLiteral">
+    {<opt>
+      <non-terminal ref="PropertyKeyName"/> : &expr;
+      <repeat>, <non-terminal ref="PropertyKeyName"/> : &expr;</repeat>
+    </opt>}
+  </production>
+
+  <production name="Parameter">
+    {<alt>
+      <non-terminal ref="SymbolicNameString"/>
+      <non-terminal ref="UnsignedDecimalInteger"/>
+    </alt>}
+  </production>
+
+  <production name="PropertyExpression">
+    <non-terminal ref="Expression1"/>
+    <repeat min="1">&WS;<non-terminal ref="PropertyLookup"/></repeat>
+  </production>
+
+  <production name="PropertyKeyName">
+    <non-terminal ref="SymbolicNameString"/>
+  </production>
+
+  <production name="SignedIntegerLiteral">
+    <alt>
+      <non-terminal ref="HexInteger"/>
+      <non-terminal ref="OctalInteger"/>
+      <non-terminal ref="DecimalInteger"/>
+    </alt>
+  </production>
+
+  <production name="UnsignedIntegerLiteral">
+    <non-terminal ref="UnsignedDecimalInteger"/>
+  </production>
+
+  <production name="HexInteger">
+    <opt>-</opt><non-terminal ref="UnsignedHexInteger"/>
+  </production>
+  <production name="DecimalInteger">
+    <opt>-</opt><non-terminal ref="UnsignedDecimalInteger"/>
+  </production>
+  <production name="OctalInteger">
+    <opt>-</opt><non-terminal ref="UnsignedOctalInteger"/>
+  </production>
+
+  <production name="UnsignedHexInteger">
+    0x <non-terminal ref="HexString"/>
+  </production>
+  <production name="UnsignedDecimalInteger">
+    <alt>
+      <seq>
+        <alt>1 2 3 4 5 6 7 8 9</alt>
+        <opt><non-terminal ref="DigitString"/></opt>
+      </seq>
+      0
+    </alt>
+  </production>
+  <production name="UnsignedOctalInteger">
+    0 <non-terminal ref="OctalString"/>
+  </production>
+
+  <production name="HexString">
+    <repeat min="1"><non-terminal ref="HexDigit"/></repeat>
+  </production>
+  <production name="DigitString">
+    <repeat min="1"><non-terminal ref="Digit"/></repeat>
+  </production>
+  <production name="OctalString">
+    <repeat min="1"><non-terminal ref="OctDigit"/></repeat>
+  </production>
+
+  <production name="HexDigit">
+    <alt>0 1 2 3 4 5 6 7 8 9 a b c d e f</alt>
+  </production>
+
+  <production name="Digit">
+    <alt>0 1 2 3 4 5 6 7 8 9</alt>
+  </production>
+
+  <production name="OctDigit">
+    <alt>0 1 2 3 4 5 6 7</alt>
+  </production>
+
+  <production name="DoubleLiteral">
+    <alt>
+      <non-terminal ref="ExponentDecimalReal"/>
+      <non-terminal ref="RegularDecimalReal"/>
+    </alt>
+  </production>
+
+  <production name="ExponentDecimalReal">
+    <opt>-</opt><repeat min="1"><alt><non-terminal ref="Digit"/>.</alt></repeat>
+    <alt>e E</alt>
+    <opt>-</opt><non-terminal ref="DigitString"/>
+  </production>
+
+  <production name="RegularDecimalReal">
+    <opt>-</opt><repeat><non-terminal ref="Digit"/></repeat>
+    . <non-terminal ref="DigitString"/>
+  </production>
+
+  <!-- \ EXPRESSIONS / -->
+
+
+  <!-- / UTILITY DEFINITIONS \ -->
+
+  <production name="SymbolicNameString">
+    <alt>
+      <non-terminal ref="UnescapedSymbolicNameString"/>
+      <non-terminal ref="EscapedSymbolicNameString"/>
+    </alt>
+  </production>
+
+  <production name="UnescapedSymbolicNameString">
+    <non-terminal ref="IdentifierStart"/>
+    <repeat><non-terminal ref="IdentifierPart"/></repeat>
+  </production>
+
+  <production name="IdentifierStart">
+    <description>
+      Based on the unicode identifier and pattern syntax
+        (http://www.unicode.org/reports/tr31/)
+      And extended with a few characters.
+    </description>
+    <alt>
+      <character set="ID_Start"/>
+      <character set="Sc"/>
+      <literal value="&#x005f;"/> <!-- '_' - LOW LINE -->
+      <literal value="&#x203f;"/> <!-- '‿' - UNDERTIE -->
+      <literal value="&#x2040;"/> <!-- '⁀' - CHARACTER TIE -->
+      <literal value="&#x2054;"/> <!-- '⁔' - INVERTED UNDERTIE -->
+      <literal value="&#xfe33;"/> <!-- '︳' - PRESENTATION FORM FOR VERTICAL LOW LINE -->
+      <literal value="&#xfe34;"/> <!-- '︴' - PRESENTATION FORM FOR VERTICAL WAVY LOW LINE -->
+      <literal value="&#xfe4d;"/> <!-- '﹍' - DASHED LOW LINE -->
+      <literal value="&#xfe4e;"/> <!-- '﹎' - CENTRELINE LOW LINE -->
+      <literal value="&#xfe4f;"/> <!-- '﹏' - WAVY LOW LINE -->
+      <literal value="&#xff3f;"/> <!-- '＿' - FULLWIDTH LOW LINE -->
+    </alt>
+  </production>
+
+  <production name="IdentifierPart">
+    <description>
+      Based on the unicode identifier and pattern syntax
+        (http://www.unicode.org/reports/tr31/)
+      And extended with a few characters.
+    </description>
+    <alt>
+      <character set="ID_Continue"/>
+      <character set="Sc"/>
+    </alt>
+  </production>
+
+  <production name="EscapedSymbolicNameString">
+    <description>
+      Any character except "`", enclosed within `backticks`. Backticks are escaped with double backticks.
+    </description>
+    <repeat min="1">
+      ` <repeat><character><except literal="`"/></character></repeat> `
+    </repeat>
+  </production>
+
+  <production name="WS">
+    <repeat><non-terminal ref='whitespace'/></repeat>
+  </production>
+
+  <production name="SP">
+    <repeat min="1"><non-terminal ref='whitespace'/></repeat>
+  </production>
+
+  <production name="whitespace">
+    <alt>
+      <!-- The code points accepted by Character.isWhitespace(int) in Java -->
+
+      <!-- ASCII whitespace characters -->
+      <character set="SPACE"/> <!-- SPACE -->
+      <character set="TAB"/> <!-- (Horisontal) Tab -->
+      <character set="LF"/> <!-- Line Feed -->
+      <character set="VT"/> <!-- Vertical Tab -->
+      <character set="FF"/> <!-- Form Feed -->
+      <character set="CR"/> <!-- Carriage Return -->
+      <character set="FS"/> <!-- File Separator -->
+      <character set="GS"/> <!-- Group Separator -->
+      <character set="RS"/> <!-- Record Separator -->
+      <character set="US"/> <!-- Unit Separator -->
+      <!-- Unicode whitespace characters -->
+      <literal value="&#x1680;"/> <!-- OGHAM SPACE MARK -->
+      <literal value="&#x180e;"/> <!-- MONGOLIAN VOWEL SEPARATOR -->
+      <literal value="&#x2000;"/> <!-- EN QUAD -->
+      <literal value="&#x2001;"/> <!-- EM QUAD -->
+      <literal value="&#x2002;"/> <!-- EN SPACE -->
+      <literal value="&#x2003;"/> <!-- EM SPACE -->
+      <literal value="&#x2004;"/> <!-- THREE-PER-EM SPACE -->
+      <literal value="&#x2005;"/> <!-- FOUR-PER-EM SPACE -->
+      <literal value="&#x2006;"/> <!-- SIX-PER-EM SPACE -->
+      <literal value="&#x2008;"/> <!-- PUNCTUATION SPACE -->
+      <literal value="&#x2009;"/> <!-- THIN SPACE -->
+      <literal value="&#x200a;"/> <!-- HAIR SPACE -->
+      <literal value="&#x2028;"/> <!-- LINE SEPARATOR -->
+      <literal value="&#x2029;"/> <!-- PARAGRAPH SEPARATOR -->
+      <literal value="&#x205f;"/> <!-- MEDIUM MATHEMATICAL SPACE -->
+      <literal value="&#x3000;"/> <!-- IDEOGRAPHIC SPACE -->
+
+      <!-- Other whitespace characters -->
+
+      <!-- Non-breaking space characters -->
+      <literal value="&#x00a0;"/> <!-- NO-BREAK SPACE -->
+      <literal value="&#x2007;"/> <!-- FIGURE SPACE -->
+      <literal value="&#x202f;"/> <!-- NARROW NO-BREAK SPACE -->
+
+      <!-- Comments are parsed as whitespace -->
+      <non-terminal ref="Comment"/>
+    </alt>
+  </production>
+
+  <production name="Comment">
+    <alt>
+      <seq>/* <repeat><alt>
+        <character><except literal="*"/></character>
+        <seq>* <character><except literal="/"/></character></seq>
+      </alt></repeat> */</seq>
+      <seq>//
+        <character>
+          <except literal="&#10;"/>
+          <except literal="&#13;"/>
+        </character>
+        <opt><literal value="&#13;"/></opt>
+        <alt><literal value="&#10;"/><character set="EOI"/></alt>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="LeftArrowHead">
+    <alt>
+      &#x003c; <!-- '<' less-than sign -->
+      &#x27e8; <!-- '⟨' mathematical left angle bracket -->
+      &#x3008; <!-- '〈' left angle bracket -->
+      &#xfe64; <!-- '﹤' small less-than sign -->
+      &#xff1c; <!-- '＜' full-width less-than sign -->
+    </alt>
+  </production>
+  <production name="RightArrowHead">
+    <alt>
+      &#x003e; <!-- '>' greater-than sign -->
+      &#x27e9; <!-- '⟩' mathematical left angle bracket -->
+      &#x3009; <!-- '〉' right angle bracket -->
+      &#xfe65; <!-- '﹥' small greater-than sign -->
+      &#xff1e; <!-- '＞' full-width greater-than sign -->
+    </alt>
+  </production>
+  <production name="Dash">
+    <alt>
+      &#x002D; <!-- '‑' hyphen-minus -->
+      &#x00AD; <!-- '-' soft hyphen -->
+      &#x2010; <!-- '-' hyphen -->
+      &#x2011; <!-- '‐' non-breaking hyphen -->
+      &#x2012; <!-- '‒' figure dash -->
+      &#x2013; <!-- '–' en dash -->
+      &#x2014; <!-- '—' em dash -->
+      &#x2015; <!-- '―' horizontal bar -->
+      &#x2212; <!-- '−' minus sign -->
+      &#xFE58; <!-- '﹘' small em dash -->
+      &#xFE63; <!-- '﹣' small hyphen-minus -->
+      &#xFF0D; <!-- '－' full-width hyphen-minus -->
+    </alt>
+  </production>
+
+  <!-- \ UTILITY DEFINITIONS / -->
+
+</grammar>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2015-2016 "Neo Technology,"
+    Network Engine for Objects in Lund AB [http://neotechnology.com]
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!DOCTYPE grammar [
+  <!ENTITY WS "<non-terminal ref='WS'/>">
+  <!ENTITY SP "<non-terminal ref='SP'/>">
+  <!ENTITY var "<non-terminal ref='Variable'/>">
+]>
+<grammar language="Cypher Start Clause"
+  xmlns="http://thobe.org/grammar"
+  xmlns:rr="http://thobe.org/railroad"
+  xmlns:ast="http://thobe.org/syntaxtree"
+  xmlns:gen="http://thobe.org/stringgeneration">
+
+  <!-- / START \ -->
+
+  <production name="Start">
+    START &SP;
+    <non-terminal ref="StartPoint"/>
+    <repeat>&WS;,&WS;<non-terminal ref="StartPoint"/></repeat>
+    <opt><non-terminal ref="Where"/></opt>
+  </production>
+
+  <production name="StartPoint">
+    &var; &WS; = &WS; <non-terminal ref="Lookup"/>
+  </production>
+
+  <production name="Lookup">
+    <alt>
+      <non-terminal ref="NodeLookup"/>
+      <non-terminal ref="RelationshipLookup"/>
+    </alt>
+  </production>
+
+  <production name="NodeLookup">
+    NODE
+    <alt>
+      <non-terminal ref="IdentifiedIndexLookup"/>
+      <non-terminal ref="IndexQuery"/>
+      <non-terminal ref="IdLookup"/>
+    </alt>
+  </production>
+
+  <production name="RelationshipLookup">
+    <alt>RELATIONSHIP REL</alt>
+    <alt>
+      <non-terminal ref="IdentifiedIndexLookup"/>
+      <non-terminal ref="IndexQuery"/>
+      <non-terminal ref="IdLookup"/>
+    </alt>
+  </production>
+
+  <production name="IdentifiedIndexLookup">
+    : <non-terminal ref="SymbolicNameString"/>
+    ( <non-terminal ref="SymbolicNameString"/> =
+    <alt>
+      <non-terminal ref="StringLiteral"/>
+      <non-terminal ref="Parameter"/>
+    </alt>)
+  </production>
+
+  <production name="IndexQuery">
+    : <non-terminal ref="SymbolicNameString"/>
+    (<alt>
+      <non-terminal ref="StringLiteral"/>
+      <non-terminal ref="Parameter"/>
+    </alt>)
+  </production>
+
+  <production name="IdLookup">
+    (<alt>
+      <non-terminal ref="LiteralIds"/>
+      <non-terminal ref="Parameter"/>
+      *
+    </alt>)
+  </production>
+
+  <production name="LiteralIds">
+    <non-terminal ref="UnsignedIntegerLiteral"/>
+    <repeat>
+      &WS;,&WS;<non-terminal ref="UnsignedIntegerLiteral"/>
+    </repeat>
+  </production>
+
+  <!-- \ START / -->
+
+  <vocabulary file="basic-grammar.xml"/>
+
+</grammar>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE grammar [
+  <!ENTITY SP "<non-terminal ref='whitespace'/>">
+]>
+<grammar language="SomeLanguage" xmlns="http://thobe.org/grammar">
+  <!-- A grammar should contain at least one production, with the same name as the grammar -->
+  <production name="SomeLanguage">
+    <repeat>
+      <non-terminal ref="stmt"/>
+    </repeat>
+  </production>
+  <production name="stmt">
+    <alt>
+      <non-terminal ref="function"/>
+      <non-terminal ref="expr"/>
+    </alt>
+    <literal value="&#10;"/>
+  </production>
+  <production name="function">
+    def&SP;
+    <non-terminal ref="ident"/>
+    (<opt><repeat><non-terminal ref="ident"/>,</repeat><non-terminal ref="ident"/></opt>) :
+    <non-terminal ref="INDENT"/>
+    <repeat min="1"><non-terminal ref="stmt"/></repeat>
+    <non-terminal ref="DEDENT"/>
+  </production>
+  <production name="expr">
+    <alt>
+      <non-terminal ref="call"/>
+      <non-terminal ref="attr"/>
+      <non-terminal ref="ident"/>
+      <non-terminal ref="number"/>
+    </alt>
+  </production>
+  <production name="INDENT"/>
+  <production name="DEDENT"/>
+  <production name="call">
+    <non-terminal ref="expr"/>(<opt><repeat><non-terminal ref="expr"/>,</repeat><non-terminal ref="expr"/></opt>)
+  </production>
+  <production name="attr">
+    <non-terminal ref="expr"/>.<non-terminal ref="ident"/>
+  </production>
+  <production name="ident">
+    <alt><non-terminal ref="alpha"/>_</alt>
+    <repeat><alt><non-terminal ref="alpha"/>_<non-terminal ref="num"/></alt></repeat>
+  </production>
+  <production name="alpha">
+    <alt>a b c d e f g h i j k l m n o p q r s t u v x y z</alt>
+  </production>
+  <production name="num">
+    <alt>1 2 3 4 5 6 7 8 9 0</alt>
+  </production>
+  <production name="number">
+    <repeat min="1"><non-terminal ref="num"/></repeat>
+  </production>
+  <production name="whitespace">
+    <repeat min="1">
+      <alt>
+        <literal value=" "/>
+        <literal value="&#9;"/>
+        <literal value="&#10;"/>
+        <literal value="&#13;"/>
+      </alt>
+    </repeat>
+  </production>
+</grammar>

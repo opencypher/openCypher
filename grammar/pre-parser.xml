@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2015-2016 "Neo Technology,"
+    Network Engine for Objects in Lund AB [http://neotechnology.com]
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!DOCTYPE grammar [
+  <!ENTITY WS "<non-terminal ref='WS'/>">
+  <!ENTITY SP "<non-terminal ref='SP'/>">
+]>
+<grammar language="Cypher Pre-Parser"
+  xmlns="http://thobe.org/grammar"
+  xmlns:rr="http://thobe.org/railroad"
+  xmlns:ast="http://thobe.org/syntaxtree"
+  xmlns:gen="http://thobe.org/stringgeneration">
+
+  <!-- / PRE-PARSER \ -->
+
+  <production name="AllOptions">
+    <repeat><non-terminal ref="AnyCypherOption"/> &WS;</repeat>
+  </production>
+
+  <production name="AnyCypherOption">
+    <alt>
+      <non-terminal ref="CypherOption"/>
+      <non-terminal ref="Explain"/>
+      <non-terminal ref="Profile"/>
+    </alt>
+  </production>
+
+  <production name="CypherOption">
+    CYPHER
+    <opt>&SP;<non-terminal ref="VersionNumber"/></opt>
+    <repeat>&SP;<non-terminal ref="ConfigurationOption"/></repeat>
+  </production>
+
+  <production name="VersionNumber">
+    <non-terminal ref="DigitString"/>.<non-terminal ref="DigitString"/>
+  </production>
+
+  <production name="Explain">EXPLAIN</production>
+  <production name="Profile">PROFILE</production>
+
+  <production name="ConfigurationOption">
+    <non-terminal ref="SymbolicNameString" ast:entry="key"/>
+    &WS; = &WS;
+    <non-terminal ref="SymbolicNameString" ast:entry="value"/>
+  </production>
+
+  <!-- \ PRE-PARSER / -->
+
+  <vocabulary file="basic-grammar.xml"/>
+
+</grammar>

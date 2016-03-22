@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2015-2016 "Neo Technology,"
+    Network Engine for Objects in Lund AB [http://neotechnology.com]
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!DOCTYPE grammar [
+  <!ENTITY WS "<non-terminal ref='WS'/>">
+  <!ENTITY SP "<non-terminal ref='SP'/>">
+  <!ENTITY expr "<non-terminal ref='Expression'/>">
+  <!ENTITY var "<non-terminal ref='Variable'/>">
+]>
+<grammar language="Cypher"
+  xmlns="http://thobe.org/grammar"
+  xmlns:rr="http://thobe.org/railroad"
+  xmlns:ast="http://thobe.org/syntaxtree"
+  xmlns:gen="http://thobe.org/stringgeneration"
+  xmlns:scope="http://thobe.org/scope">
+
+  <production name="Cypher">
+    &WS;
+    <non-terminal ref="AllOptions"/>
+    <non-terminal ref="Statements"/>
+  </production>
+
+
+  <vocabulary file="pre-parser.xml"/>
+
+
+  <!-- / STATEMENTS \ -->
+
+  <production name="Statements">
+    &WS;<non-terminal ref="Statement"/>&WS;
+    <repeat>
+      ;
+      &WS;<non-terminal ref="Statement"/>&WS;
+    </repeat>
+    <opt>;</opt>
+  </production>
+
+  <production name="Statement">
+    <alt>
+      <non-terminal ref="Command"/>
+      <non-terminal ref="Query"/>
+    </alt>
+  </production>
+
+  <production name="Query">
+    <alt>
+      <non-terminal ref="RegularQuery"/>
+      <non-terminal ref="BulkImportQuery"/>
+    </alt>
+  </production>
+
+  <production name="RegularQuery">
+    <non-terminal ref="SingleQuery"/>
+    <repeat>&WS;<non-terminal ref="Union"/></repeat>
+  </production>
+
+  <production name="BulkImportQuery">
+    <non-terminal ref="PeriodicCommitHint"/>
+    &WS;
+    <non-terminal ref="LoadCSVQuery"/>
+  </production>
+
+  <production name="SingleQuery">
+    <non-terminal ref="Clause"/>
+    <repeat>&WS; <non-terminal ref="Clause"/></repeat>
+  </production>
+
+  <production name="PeriodicCommitHint">
+    USING &SP; PERIODIC &SP; COMMIT
+    <opt>&SP;<non-terminal ref="SignedIntegerLiteral"/></opt>
+  </production>
+
+  <production name="LoadCSVQuery">
+    <non-terminal ref="LoadCSV"/>
+    <repeat>&WS;<non-terminal ref="Clause"/></repeat>
+  </production>
+
+  <production name="Union">
+    <alt>
+      <seq>UNION &SP; ALL <non-terminal ref="SingleQuery"/></seq>
+      <seq>UNION <non-terminal ref="SingleQuery"/></seq>
+    </alt>
+  </production>
+
+  <production name="Clause">
+    <alt>
+      <non-terminal ref="LoadCSV"/>
+      <non-terminal ref="Start"/>
+      <non-terminal ref="Match"/>
+      <non-terminal ref="Unwind"/>
+      <non-terminal ref="Merge"/>
+      <non-terminal ref="Create"/>
+      <non-terminal ref="SetClause"/>
+      <non-terminal ref="Delete"/>
+      <non-terminal ref="Remove"/>
+      <non-terminal ref="Foreach"/>
+      <non-terminal ref="With"/>
+      <non-terminal ref="Return"/>
+      <non-terminal ref="Pragma"/>
+    </alt>
+  </production>
+
+  <!-- \ STATEMENTS / -->
+
+
+  <vocabulary file="commands.xml"/>
+
+
+  <!-- / CLAUSES \ -->
+
+  <production name="LoadCSV">
+    LOAD &SP; CSV &SP;
+    <opt>WITH &SP; HEADERS &SP;</opt>
+    FROM &SP; &expr; &SP;
+    AS &var; &SP;
+    <opt>FIELDTERMINATOR &SP; <non-terminal ref="StringLiteral"/></opt>
+  </production>
+
+  <production name="Match" scope:rule="new">
+    <opt>OPTIONAL &SP;</opt>MATCH &WS;
+    <non-terminal ref="Pattern"/>
+    &WS;
+    <repeat><non-terminal ref="Hint"/></repeat>
+    <opt><non-terminal ref="Where"/></opt>
+  </production>
+
+  <production name="Unwind">
+    UNWIND &SP; &expr; &SP; AS &SP; &var;
+  </production>
+
+  <production name="Merge">
+    MERGE &SP; <non-terminal ref="PatternPart"/>
+    <repeat>
+      &SP; <non-terminal ref="MergeAction"/>
+    </repeat>
+  </production>
+
+  <production name="MergeAction">
+    <alt>
+      <seq>ON &SP; MATCH &SP; <non-terminal ref="SetClause"/></seq>
+      <seq>ON &SP; CREATE &SP; <non-terminal ref="SetClause"/></seq>
+    </alt>
+  </production>
+
+  <production name="Create">
+    <alt>
+      <seq>CREATE UNIQUE &SP; <non-terminal ref="Pattern"/></seq>
+      <seq>CREATE &SP; <non-terminal ref="Pattern"/></seq>
+    </alt>
+  </production>
+
+  <production name="SetClause">
+    SET <non-terminal ref="SetItem"/>
+    <repeat>
+      , <non-terminal ref="SetItem"/>
+    </repeat>
+  </production>
+
+  <production name="SetItem">
+    <alt>
+      <seq><non-terminal ref="PropertyExpression"/> = &expr;</seq>
+      <seq>&var; = &expr;</seq>
+      <seq>&var; += &expr;</seq>
+      <seq>&var;<non-terminal ref="NodeLabels"/></seq>
+    </alt>
+  </production>
+
+  <production name="Delete">
+    <alt>
+      <seq>DELETE &expr;<repeat>, &expr;</repeat></seq>
+      <seq>DETACH &SP; DELETE &expr;<repeat>, &expr;</repeat></seq>
+    </alt>
+  </production>
+
+  <production name="Remove">
+    REMOVE &SP; <non-terminal ref="RemoveItem"/>
+    <repeat>&WS;,&WS;<non-terminal ref="RemoveItem"/></repeat>
+  </production>
+
+  <production name="RemoveItem">
+    <alt>
+      <seq>&var;<non-terminal ref="NodeLabels"/></seq>
+      <non-terminal ref="PropertyExpression"/>
+    </alt>
+  </production>
+
+  <production name="Foreach" scope:rule="nested">
+    FOREACH &WS; ( &WS; &var; &SP; IN &SP; &expr; | <repeat min="1">&SP;<non-terminal ref="Clause"/></repeat> &WS; )
+  </production>
+
+  <production name="With" scope:rule="new">
+    <alt>
+      <seq>WITH DISTINCT &SP;
+        <non-terminal ref="ReturnBody"/>
+        <opt><non-terminal ref="Where"/></opt>
+      </seq>
+      <seq>WITH &SP;
+        <non-terminal ref="ReturnBody"/>
+        <opt><non-terminal ref="Where"/></opt>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="Return">
+    <alt>
+      <seq>RETURN DISTINCT &SP;<non-terminal ref="ReturnBody"/></seq>
+      <seq>RETURN &SP;<non-terminal ref="ReturnBody"/></seq>
+    </alt>
+  </production>
+
+  <production name="ReturnBody">
+    <non-terminal ref="ReturnItems"/>
+    <opt><non-terminal ref="Order"/></opt>
+    <opt><non-terminal ref="Skip"/></opt>
+    <opt><non-terminal ref="Limit"/></opt>
+  </production>
+
+  <production name="ReturnItems">
+    <alt>
+      <seq>*<repeat>&WS; , &WS;<non-terminal ref="ReturnItem"/></repeat></seq>
+      <seq>
+        <non-terminal ref="ReturnItem"/>
+        <repeat>&WS; , &WS;<non-terminal ref="ReturnItem"/></repeat>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="ReturnItem">
+    <alt> <seq>&expr; &SP; AS &SP; &var;</seq> &expr; </alt>
+  </production>
+
+
+  <production name="Order">
+    ORDER BY <non-terminal ref="SortItem"/>
+    <repeat> , <non-terminal ref="SortItem"/></repeat>
+  </production>
+
+  <production name="Skip">
+    SKIP &expr;
+  </production>
+
+  <production name="Limit">
+    LIMIT &expr;
+  </production>
+
+  <production name="SortItem">
+    <alt>
+      <seq>&expr;<alt>DESCENDING DESC</alt></seq>
+      <seq>&expr;<opt><alt>ASCENDING ASC</alt></opt></seq>
+    </alt>
+  </production>
+
+  <production name="Pragma">
+    _PRAGMA
+    <alt>
+      <seq>
+        WITH NONE
+        <opt><non-terminal ref="Skip"/></opt>
+        <opt><non-terminal ref="Limit"/></opt>
+        <opt><non-terminal ref="Where"/></opt>
+      </seq>
+      <seq>
+        WITHOUT &var; <repeat> , &var;</repeat>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="Hint">
+    <alt>
+      <seq>USING &SP; INDEX &SP; &var; <non-terminal ref="NodeLabel"/>(<non-terminal ref="PropertyKeyName"/>)</seq>
+      <seq>USING &SP; JOIN &SP; ON &SP; &var; <repeat>&WS;,&WS;&var;</repeat></seq>
+      <seq>USING &SP; SCAN &SP; &var; <non-terminal ref="NodeLabel"/></seq>
+    </alt>
+  </production>
+
+  <vocabulary file="start.xml"/>
+
+  <!-- \ CLAUSES / -->
+
+
+  <vocabulary file="basic-grammar.xml"/>
+
+</grammar>
