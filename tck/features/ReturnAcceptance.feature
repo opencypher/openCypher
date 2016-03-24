@@ -92,7 +92,7 @@ Feature: ReturnAcceptanceTest
   Scenario: should support column renaming
     Given an empty graph
       And having executed: CREATE (:Singleton)
-    When executing query: MATCH (a) WHERE id(a) = 0 RETURN a as ColumnName
+    When executing query: MATCH (a) WHERE id(a) = 0 RETURN a AS ColumnName
     Then the result should be:
       | ColumnName   |
       | (:Singleton) |
@@ -148,7 +148,7 @@ Feature: ReturnAcceptanceTest
 
   Scenario: should return collection size
     Given any graph
-    When executing query: return size([1,2,3]) as n
+    When executing query: RETURN size([1,2,3]) AS n
     Then the result should be:
       | n |
       | 3 |

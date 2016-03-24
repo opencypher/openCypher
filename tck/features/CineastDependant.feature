@@ -28,13 +28,13 @@ Feature: CineastDependant
       | 63084    |
 
   Scenario: should support multiple divisions in aggregate function
-    When executing query: MATCH (n) RETURN count(n)/60/60 as count
+    When executing query: MATCH (n) RETURN count(n)/60/60 AS count
     Then the result should be:
       | count |
       | 17    |
 
   Scenario: should support column renaming for aggregates as well
-    When executing query: MATCH (a) WHERE id(a) = 0 RETURN count(*) as ColumnName
+    When executing query: MATCH (a) WHERE id(a) = 0 RETURN count(*) AS ColumnName
     Then the result should be:
       | ColumnName |
       | 1          |
