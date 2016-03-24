@@ -17,10 +17,8 @@
 package org.opencypher.tools.grammar;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -31,6 +29,9 @@ import java.util.function.BiFunction;
 import org.opencypher.grammar.Grammar;
 
 import static java.lang.String.format;
+
+import static org.opencypher.tools.Reflection.lambdaClass;
+import static org.opencypher.tools.Reflection.pathOf;
 
 interface Main extends Serializable
 {
@@ -95,24 +96,7 @@ interface Main extends Serializable
 
     default String usage( BiFunction<String, String, String> usage )
     {
-        try
-        {
-            Method replace = getClass().getDeclaredMethod( "writeReplace" );
-            replace.setAccessible( true );
-            SerializedLambda lambda = (SerializedLambda) replace.invoke( this );
-            String className = lambda.getImplClass().replace( '/', '.' );
-            Class<?> implClass = Class.forName( className );
-            String path = pathOf( implClass );
-            return usage.apply( path, className );
-        }
-        catch ( Exception e )
-        {
-            throw new RuntimeException( e );
-        }
-    }
-
-    static String pathOf( Class<?> cls )
-    {
-        return cls.getProtectionDomain().getCodeSource().getLocation().getPath();
+        Class<?> implClass = lambdaClass( this );
+        return usage.apply( pathOf( implClass ), implClass.getName() );
     }
 }

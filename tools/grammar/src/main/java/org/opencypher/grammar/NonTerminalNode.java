@@ -38,6 +38,12 @@ final class NonTerminalNode extends Node implements NonTerminal
     }
 
     @Override
+    public boolean inline()
+    {
+        return false;
+    }
+
+    @Override
     void resolve( ProductionNode origin, ProductionResolver resolver )
     {
         production = resolver.resolveProduction( origin, requireNonNull( ref, "non-terminal reference" ) );

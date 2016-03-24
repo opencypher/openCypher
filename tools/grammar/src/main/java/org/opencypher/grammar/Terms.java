@@ -16,9 +16,23 @@
  */
 package org.opencypher.grammar;
 
+import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNull;
+
 public interface Terms extends Iterable<Grammar.Term>
 {
     int terms();
 
     Grammar.Term term( int offset );
+
+    @Override
+    default void forEach( Consumer<? super Grammar.Term> action )
+    {
+        requireNonNull( action, "action" );
+        for ( int i = 0, terms = terms(); i < terms; i++ )
+        {
+            action.accept( term( i ) );
+        }
+    }
 }

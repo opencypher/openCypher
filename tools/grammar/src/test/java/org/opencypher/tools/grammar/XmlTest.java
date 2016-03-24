@@ -29,7 +29,7 @@ import org.opencypher.tools.output.Output;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
-import static org.opencypher.grammar.GrammarVisitor.production;
+import static org.opencypher.grammar.ProductionVisitor.production;
 import static org.opencypher.tools.output.Output.lineNumbers;
 import static org.opencypher.tools.output.Output.stdOut;
 import static org.opencypher.tools.output.Output.stringBuilder;

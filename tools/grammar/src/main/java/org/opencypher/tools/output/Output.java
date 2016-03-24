@@ -17,12 +17,15 @@
 package org.opencypher.tools.output;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.CharBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashSet;
@@ -67,6 +70,18 @@ public interface Output extends Appendable, Closeable
     static Output output( CharBuffer buffer )
     {
         return new BufferOutput( buffer );
+    }
+
+    static Output output( Path path )
+    {
+        try
+        {
+            return output( Files.newOutputStream( path ) );
+        }
+        catch ( IOException e )
+        {
+            throw new IllegalStateException( "Failed to open " + path, e );
+        }
     }
 
     static Readable stringBuilder()

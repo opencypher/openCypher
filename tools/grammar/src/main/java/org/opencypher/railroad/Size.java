@@ -14,26 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.grammar;
+package org.opencypher.railroad;
 
-public interface NonTerminal
+final class Size
 {
-    Production production();
+    final double width, height, linePosition;
 
-    default String productionName()
+    Size( double width, double height, double linePosition )
     {
-        return production().name();
+        this.width = width;
+        this.height = height;
+        this.linePosition = linePosition;
     }
-
-    default Grammar.Term productionDefinition()
-    {
-        return production().definition();
-    }
-
-    default <Scope> Scope productionScope( Scope scope, ScopeRule.Transformation<Scope> transition )
-    {
-        return production().scope( scope, transition );
-    }
-
-    boolean inline();
 }

@@ -26,6 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.stream.Collector;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opencypher.tools.xml.Attribute;
@@ -193,7 +195,7 @@ class Root implements Iterable<ProductionNode>
         }
 
         @Override
-        public <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
+        public <EX extends Exception> void accept( ProductionVisitor<EX> visitor ) throws EX
         {
             for ( ProductionNode production : productions.values() )
             {
@@ -218,6 +220,19 @@ class Root implements Iterable<ProductionNode>
                         "The grammar for " + language + " has no production for: " + name );
             }
             return production.transform( transformation, param );
+        }
+
+        @Override
+        public <P, A, R, T, EX extends Exception> T transform(
+                ProductionTransformation<P, R, EX> transformation, P param, Collector<R, A, T> collector ) throws EX
+        {
+            BiConsumer<A, R> accumulator = collector.accumulator();
+            A result = collector.supplier().get();
+            for ( ProductionNode production : productions.values() )
+            {
+                accumulator.accept( result, production.transform( transformation, param ) );
+            }
+            return collector.finisher().apply( result );
         }
 
         @Override

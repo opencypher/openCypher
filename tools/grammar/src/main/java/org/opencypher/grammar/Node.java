@@ -125,15 +125,15 @@ abstract class Node extends Grammar.Term implements LocationAware
     }
 
     @SuppressWarnings("unchecked")
-    static <EX extends Exception> TermTransformation<GrammarVisitor<EX>, Void, EX> visit()
+    static <EX extends Exception> TermTransformation<TermVisitor<EX>, Void, EX> visit()
     {
         return VISIT;
     }
 
-    private static final TermTransformation VISIT = new TermTransformation<GrammarVisitor, Void, Exception>()
+    private static final TermTransformation VISIT = new TermTransformation<TermVisitor, Void, Exception>()
     {
         @Override
-        public Void transformAlternatives( GrammarVisitor visitor, Alternatives alternatives )
+        public Void transformAlternatives( TermVisitor visitor, Alternatives alternatives )
                 throws Exception
         {
             visitor.visitAlternatives( alternatives );
@@ -141,7 +141,7 @@ abstract class Node extends Grammar.Term implements LocationAware
         }
 
         @Override
-        public Void transformSequence( GrammarVisitor visitor, Sequence sequence )
+        public Void transformSequence( TermVisitor visitor, Sequence sequence )
                 throws Exception
         {
             visitor.visitSequence( sequence );
@@ -149,7 +149,7 @@ abstract class Node extends Grammar.Term implements LocationAware
         }
 
         @Override
-        public Void transformLiteral( GrammarVisitor visitor, Literal value )
+        public Void transformLiteral( TermVisitor visitor, Literal value )
                 throws Exception
         {
             visitor.visitLiteral( value );
@@ -157,7 +157,7 @@ abstract class Node extends Grammar.Term implements LocationAware
         }
 
         @Override
-        public Void transformNonTerminal( GrammarVisitor visitor, NonTerminal nonTerminal )
+        public Void transformNonTerminal( TermVisitor visitor, NonTerminal nonTerminal )
                 throws Exception
         {
             visitor.visitNonTerminal( nonTerminal );
@@ -165,7 +165,7 @@ abstract class Node extends Grammar.Term implements LocationAware
         }
 
         @Override
-        public Void transformOptional( GrammarVisitor visitor, Optional optional )
+        public Void transformOptional( TermVisitor visitor, Optional optional )
                 throws Exception
         {
             visitor.visitOptional( optional );
@@ -173,7 +173,7 @@ abstract class Node extends Grammar.Term implements LocationAware
         }
 
         @Override
-        public Void transformRepetition( GrammarVisitor visitor, Repetition repetition )
+        public Void transformRepetition( TermVisitor visitor, Repetition repetition )
                 throws Exception
         {
             visitor.visitRepetition( repetition );
@@ -181,7 +181,7 @@ abstract class Node extends Grammar.Term implements LocationAware
         }
 
         @Override
-        public Void transformEpsilon( GrammarVisitor visitor )
+        public Void transformEpsilon( TermVisitor visitor )
                 throws Exception
         {
             visitor.visitEpsilon();
@@ -189,7 +189,7 @@ abstract class Node extends Grammar.Term implements LocationAware
         }
 
         @Override
-        public Void transformCharacters( GrammarVisitor visitor, CharacterSet characters )
+        public Void transformCharacters( TermVisitor visitor, CharacterSet characters )
                 throws Exception
         {
             visitor.visitCharacters( characters );

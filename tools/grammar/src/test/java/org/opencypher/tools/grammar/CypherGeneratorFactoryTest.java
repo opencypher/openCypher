@@ -116,7 +116,7 @@ public class CypherGeneratorFactoryTest
     }
 
     @SafeVarargs
-    private final void assertGenerates( Generator generator, Matcher<String>... matches )
+    private final void assertGenerates( Generator generator, Matcher<String>... matches ) throws Exception
     {
         verboseUnit.test( out -> {
             Output.Readable buffer = stringBuilder();

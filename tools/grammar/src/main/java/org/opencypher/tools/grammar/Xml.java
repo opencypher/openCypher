@@ -23,19 +23,20 @@ import javax.xml.transform.TransformerException;
 import org.opencypher.grammar.Alternatives;
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
-import org.opencypher.grammar.GrammarVisitor;
 import org.opencypher.grammar.Literal;
 import org.opencypher.grammar.NonTerminal;
 import org.opencypher.grammar.Optional;
 import org.opencypher.grammar.Production;
+import org.opencypher.grammar.ProductionVisitor;
 import org.opencypher.grammar.Repetition;
 import org.opencypher.grammar.Sequence;
+import org.opencypher.grammar.TermVisitor;
 import org.opencypher.tools.output.Output;
 import org.opencypher.tools.xml.XmlGenerator;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-public class Xml extends XmlGenerator implements GrammarVisitor<SAXException>
+public class Xml extends XmlGenerator implements ProductionVisitor<SAXException>, TermVisitor<SAXException>
 {
     public static void write( Grammar grammar, Writer writer ) throws TransformerException
     {
@@ -150,7 +151,14 @@ public class Xml extends XmlGenerator implements GrammarVisitor<SAXException>
                     @Override
                     public void excludeRange( int start, int end ) throws SAXException
                     {
-                        startElement( "except", attribute( "set", String.format( "&#x%04X;-&#x%04X;", start, end ) ) );
+                        startElement( "except", attribute( "set", String.format( "[&#x%04X;-&#x%04X;]", start, end ) ) );
+                        endElement( "except" );
+                    }
+
+                    @Override
+                    public void excludeSet( String name ) throws SAXException
+                    {
+                        startElement( "except", attribute( "set", name ) );
                         endElement( "except" );
                     }
 
@@ -246,5 +254,10 @@ public class Xml extends XmlGenerator implements GrammarVisitor<SAXException>
         }
         repetition.term().accept( this );
         endElement( "repeat" );
+    }
+
+    @Override
+    public void visitEpsilon() throws SAXException
+    {
     }
 }

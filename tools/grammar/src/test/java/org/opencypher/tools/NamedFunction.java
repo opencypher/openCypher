@@ -17,8 +17,8 @@
 package org.opencypher.tools;
 
 import java.io.Serializable;
-import java.lang.invoke.SerializedLambda;
-import java.lang.reflect.Method;
+
+import static org.opencypher.tools.Reflection.lambdaImplMethodName;
 
 @FunctionalInterface
 public interface NamedFunction<T, R> extends Serializable
@@ -27,20 +27,6 @@ public interface NamedFunction<T, R> extends Serializable
 
     default String name()
     {
-        try
-        {
-            Method replace = getClass().getDeclaredMethod( "writeReplace" );
-            replace.setAccessible( true );
-            SerializedLambda lambda = (SerializedLambda) replace.invoke( this );
-            return lambda.getImplMethodName();
-        }
-        catch ( RuntimeException | Error e )
-        {
-            throw e;
-        }
-        catch ( Exception e )
-        {
-            throw new RuntimeException( e );
-        }
+        return lambdaImplMethodName( this );
     }
 }

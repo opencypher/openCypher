@@ -79,6 +79,36 @@ final class LiteralNode extends Node implements Literal
         return value.codePoints();
     }
 
+    @Override
+    public <EX extends Exception> void accept( Visitor<EX> visitor ) throws EX
+    {
+        if ( caseSensitive )
+        {
+            visitor.visitLiteral( value );
+        }
+        else
+        {
+            int start = 0;
+            for ( int i = 0, end = value.length(), cp; i < end; i += Character.charCount( cp ) )
+            {
+                cp = value.charAt( i );
+                if ( Character.isLowerCase( cp ) || Character.isUpperCase( cp ) || Character.isTitleCase( cp ) )
+                {
+                    if ( start < i )
+                    {
+                        visitor.visitLiteral( value.substring( start, i ) );
+                    }
+                    start = i + Character.charCount( cp );
+                    visitor.visitAnyCase( cp );
+                }
+            }
+            if ( start < value.length() )
+            {
+                visitor.visitLiteral( value.substring( start ) );
+            }
+        }
+    }
+
     static void fromCharacters( char[] buffer, int start, int length, Consumer<? super LiteralNode> add )
     {
         int pos = start;

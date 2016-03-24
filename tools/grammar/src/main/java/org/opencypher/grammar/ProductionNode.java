@@ -82,7 +82,7 @@ final class ProductionNode extends Located implements Production
         return scopeRule == null ? scope : scopeRule.transform( scope, transition );
     }
 
-    <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
+    <EX extends Exception> void accept( ProductionVisitor<EX> visitor ) throws EX
     {
         visitor.visitProduction( this );
     }
@@ -90,6 +90,12 @@ final class ProductionNode extends Located implements Production
     <R, P, EX extends Exception> R transform( ProductionTransformation<P, R, EX> transformation, P param ) throws EX
     {
         return transformation.transformProduction( param, this );
+    }
+
+    @Override
+    public <P, T, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param ) throws EX
+    {
+        return definition().transform( transformation, param );
     }
 
     @Override

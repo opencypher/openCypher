@@ -16,24 +16,21 @@
  */
 package org.opencypher.grammar;
 
-public interface NonTerminal
+public interface TermVisitor<EX extends Exception>
 {
-    Production production();
+    void visitAlternatives( Alternatives alternatives ) throws EX;
 
-    default String productionName()
-    {
-        return production().name();
-    }
+    void visitSequence( Sequence sequence ) throws EX;
 
-    default Grammar.Term productionDefinition()
-    {
-        return production().definition();
-    }
+    void visitLiteral( Literal literal ) throws EX;
 
-    default <Scope> Scope productionScope( Scope scope, ScopeRule.Transformation<Scope> transition )
-    {
-        return production().scope( scope, transition );
-    }
+    void visitNonTerminal( NonTerminal nonTerminal ) throws EX;
 
-    boolean inline();
+    void visitOptional( Optional optional ) throws EX;
+
+    void visitRepetition( Repetition repetition ) throws EX;
+
+    void visitEpsilon() throws EX;
+
+    void visitCharacters( CharacterSet characters ) throws EX;
 }

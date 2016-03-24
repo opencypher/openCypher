@@ -21,7 +21,9 @@ import java.io.Writer;
 
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
+import org.opencypher.grammar.Literal;
 import org.opencypher.grammar.NonTerminal;
+import org.opencypher.grammar.Production;
 import org.opencypher.tools.output.Output;
 
 import static org.opencypher.tools.output.Output.output;
@@ -61,6 +63,11 @@ public class ISO14977 extends BnfWriter
     public static void append( Grammar.Term term, Output output )
     {
         term.accept( new ISO14977( output ) );
+    }
+
+    public static Output string( Output str, Production production )
+    {
+        return str.append( production.definition(), ISO14977::append );
     }
 
     private ISO14977( Output output )
@@ -246,6 +253,13 @@ public class ISO14977 extends BnfWriter
                         {
                             output.append( sep );
                             codePoint( cp );
+                            sep = " | ";
+                        }
+
+                        @Override
+                        public void excludeSet( String name )
+                        {
+                            output.append( sep ).append( name );
                             sep = " | ";
                         }
 

@@ -16,6 +16,8 @@
  */
 package org.opencypher.grammar;
 
+import java.util.Objects;
+
 import org.opencypher.tools.xml.Element;
 
 @Element(uri = Grammar.XML_NAMESPACE, name = "alt")
@@ -37,5 +39,11 @@ class AlternativesNode extends Container implements Alternatives
             eligible = new Nodes( nodes.stream().filter( Node::isEligibleForGeneration ) );
         }
         return eligible;
+    }
+
+    @Override
+    boolean attributeEquals( Container that )
+    {
+        return Objects.equals( eligible, ((AlternativesNode) that).eligible );
     }
 }

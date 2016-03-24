@@ -18,13 +18,11 @@ package org.opencypher.tools.xml;
 
 import java.io.Serializable;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandleInfo;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.invoke.SerializedLambda;
-import java.lang.reflect.Method;
 
 import static java.lang.invoke.MethodHandles.filterReturnValue;
+
+import static org.opencypher.tools.Reflection.methodHandle;
 
 interface Reference extends Serializable
 {
@@ -33,7 +31,7 @@ interface Reference extends Serializable
         return reference;
     }
 
-    static <T,U, R> BiFunction<T,U, R> biFunction( BiFunction<T,U, R> reference )
+    static <T, U, R> BiFunction<T, U, R> biFunction( BiFunction<T, U, R> reference )
     {
         return reference;
     }
@@ -200,33 +198,6 @@ interface Reference extends Serializable
 
     default MethodHandle mh()
     {
-        try
-        {
-            Method replace = getClass().getDeclaredMethod( "writeReplace" );
-            replace.setAccessible( true );
-            SerializedLambda lambda = (SerializedLambda) replace.invoke( this );
-            Class<?> impl = Class.forName( lambda.getImplClass().replace( '/', '.' ) );
-            switch ( lambda.getImplMethodKind() )
-            {
-            case MethodHandleInfo.REF_invokeStatic:
-                return MethodHandles.lookup().findStatic(
-                        impl, lambda.getImplMethodName(), MethodType.fromMethodDescriptorString(
-                                lambda.getImplMethodSignature(), impl.getClassLoader() ) );
-            case MethodHandleInfo.REF_invokeVirtual:
-                return MethodHandles.lookup().findVirtual(
-                        impl, lambda.getImplMethodName(), MethodType.fromMethodDescriptorString(
-                                lambda.getImplMethodSignature(), impl.getClassLoader() ) );
-            default:
-                throw new UnsupportedOperationException( "only static and virtual methods supported" );
-            }
-        }
-        catch ( RuntimeException | Error e )
-        {
-            throw e;
-        }
-        catch ( Exception e )
-        {
-            throw new RuntimeException( e );
-        }
+        return methodHandle( MethodHandles.lookup(), this );
     }
 }

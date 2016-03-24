@@ -25,6 +25,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.parsers.ParserConfigurationException;
@@ -65,12 +66,26 @@ public interface Grammar
 
     String header();
 
-    <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX;
+    <EX extends Exception> void accept( ProductionVisitor<EX> visitor ) throws EX;
 
     boolean hasProduction( String name );
 
     <P, R, EX extends Exception> R transform( String production, ProductionTransformation<P, R, EX> xform, P param )
             throws EX;
+
+    default <P, EX extends Exception> void transform( ProductionTransformation<P, Void, EX> transformation, P param )
+            throws EX
+    {
+        transform( transformation, param, Collector.of( () -> null, ( a, b ) -> {}, ( a, b ) -> null ) );
+    }
+
+    <P, A, R, T, EX extends Exception> T transform(
+            ProductionTransformation<P, R, EX> transformation, P param, Collector<R, A, T> collector ) throws EX;
+
+    default Production production( String name )
+    {
+        return transform( name, ( param, production ) -> production, null );
+    }
 
     static Builder grammar( String language, Option... options )
     {
@@ -233,7 +248,7 @@ public interface Grammar
 
     abstract class Term
     {
-        public final <EX extends Exception> void accept( GrammarVisitor<EX> visitor ) throws EX
+        public final <EX extends Exception> void accept( TermVisitor<EX> visitor ) throws EX
         {
             transform( Node.visit(), visitor );
         }

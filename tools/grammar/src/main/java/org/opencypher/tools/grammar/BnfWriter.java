@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2015-2016 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.opencypher.tools.grammar;
 
 import java.util.HashSet;
@@ -6,18 +22,19 @@ import java.util.Set;
 import org.opencypher.grammar.Alternatives;
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
-import org.opencypher.grammar.GrammarVisitor;
 import org.opencypher.grammar.Literal;
 import org.opencypher.grammar.NonTerminal;
 import org.opencypher.grammar.Optional;
 import org.opencypher.grammar.Production;
+import org.opencypher.grammar.ProductionVisitor;
 import org.opencypher.grammar.Repetition;
 import org.opencypher.grammar.Sequence;
+import org.opencypher.grammar.TermVisitor;
 import org.opencypher.tools.output.Output;
 
 import static org.opencypher.tools.Functions.requireNonNull;
 
-abstract class BnfWriter implements GrammarVisitor<RuntimeException>, AutoCloseable
+abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVisitor<RuntimeException>, AutoCloseable
 {
     private int altPrefix;
     private boolean group;
@@ -176,6 +193,34 @@ abstract class BnfWriter implements GrammarVisitor<RuntimeException>, AutoClosea
         else
         {
             caseInsensitive( literal.toString() );
+//            group( () -> literal.accept( new Literal.Visitor<RuntimeException>()
+//            {
+//                boolean sep;
+//
+//                @Override
+//                public void visitLiteral( String literal )
+//                {
+//                    if ( sep )
+//                    {
+//                        sequenceSeparator();
+//                    }
+//                    sep = true;
+//                    literal( literal );
+//                }
+//
+//                @Override
+//                public void visitAnyCase( int cp )
+//                {
+//                    if ( sep )
+//                    {
+//                        sequenceSeparator();
+//                    }
+//                    sep = true;
+//                    cp = Character.toUpperCase( cp );
+//                    addCaseChar( cp );
+//                    output.appendCodePoint( cp );
+//                }
+//            } ) );
         }
     }
 

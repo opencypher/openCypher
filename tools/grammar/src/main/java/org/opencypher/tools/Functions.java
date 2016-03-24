@@ -44,6 +44,11 @@ public class Functions
         return values == null || values.length == 0 ? emptyMap() : map( asList( values ), key );
     }
 
+    public static <T> T identity( T value )
+    {
+        return value;
+    }
+
     public static <K, V> Map<K, V> map( Collection<V> values, Function<V, K> key )
     {
         if ( Objects.requireNonNull( values, "values" ).size() == 0 )
@@ -55,9 +60,12 @@ public class Functions
         for ( V value : values )
         {
             K k = key.apply( value );
-            if ( result.put( k, value ) != null )
+            if ( k != null )
             {
-                throw new IllegalArgumentException( "Duplicate key: " + k );
+                if ( result.put( k, value ) != null )
+                {
+                    throw new IllegalArgumentException( "Duplicate key: " + k );
+                }
             }
         }
         return result;

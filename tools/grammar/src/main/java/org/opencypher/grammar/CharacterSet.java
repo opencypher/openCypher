@@ -18,11 +18,14 @@ package org.opencypher.grammar;
 
 import java.util.Random;
 
+import org.opencypher.tools.output.Output;
+
 import static org.opencypher.grammar.CodePointSet.codePoints;
 import static org.opencypher.grammar.CodePointSet.generalCategory;
 import static org.opencypher.grammar.CodePointSet.range;
 import static org.opencypher.grammar.CodePointSet.single;
 import static org.opencypher.grammar.CodePointSet.union;
+import static org.opencypher.tools.output.Output.stringBuilder;
 
 public interface CharacterSet
 {
@@ -70,6 +73,8 @@ public interface CharacterSet
                 excludeCodePoint( cp );
             }
         }
+
+        void excludeSet( String name ) throws EX;
 
         @Override
         default void close() throws EX
@@ -396,6 +401,128 @@ public interface CharacterSet
             } //</pre>
             throw new IllegalArgumentException( "Unknown character type: " + type );
         }
+
+        public static String toSetString( CharacterSet characters )
+        {
+            Output.Readable result = stringBuilder();
+            characters.accept( new DefinitionVisitor.NamedSetVisitor<RuntimeException>()
+            {
+                @Override
+                public ExclusionVisitor<RuntimeException> visitSet( String base )
+                {
+                    return new ExclusionVisitor<RuntimeException>()
+                    {
+                        boolean inSet;
+
+                        @Override
+                        public void excludeRange( int start, int end )
+                        {
+                            if ( (end - start) == 1 )
+                            {
+                                excludeCodePoint( start );
+                                excludeCodePoint( end );
+                            }
+                            else
+                            {
+                                init( true );
+                                append( start );
+                                result.append( '-' );
+                                append( end );
+                            }
+                        }
+
+                        @Override
+                        public void excludeCodePoint( int cp )
+                        {
+                            init( true );
+                            append( cp );
+                        }
+
+                        @Override
+                        public void excludeSet( String name )
+                        {
+                            init( false );
+                            result.append( "-[:" ).append( name ).append( ":]" );
+                        }
+
+                        void init( boolean openSet )
+                        {
+                            if ( result.length() == 0 )
+                            {
+                                result.append( "[[:" ).append( base ).append( ":]" );
+                            }
+                            if ( openSet )
+                            {
+                                if ( !inSet )
+                                {
+                                    result.append( "-[" );
+                                    inSet = true;
+                                }
+                            }
+                            else
+                            {
+                                if ( inSet )
+                                {
+                                    result.append( ']' );
+                                    inSet = false;
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void close()
+                        {
+                            if ( result.length() == 0 )
+                            {
+                                result.append( "[:" ).append( base ).append( ":" );
+                            }
+                            else if ( inSet )
+                            {
+                                result.append( ']' );
+                            }
+                        }
+                    };
+                }
+
+                @Override
+                public void visitRange( int start, int end )
+                {
+                    if ( (end - start) == 1 )
+                    {
+                        visitCodePoint( start );
+                        visitCodePoint( end );
+                    }
+                    else
+                    {
+                        init();
+                        append( start );
+                        result.append( '-' );
+                        append( end );
+                    }
+                }
+
+                @Override
+                public void visitCodePoint( int cp )
+                {
+                    init();
+                    append( cp );
+                }
+
+                void init()
+                {
+                    if ( result.length() == 0 )
+                    {
+                        result.append( '[' );
+                    }
+                }
+
+                void append( int cp )
+                {
+                    result.append( escapeCodePoint( cp ) );
+                }
+            } );
+            return result.append( ']' ).toString();
+        }
     }
 
     static String controlCharName( int cp )
@@ -409,5 +536,10 @@ public interface CharacterSet
             return Unicode.DEL.name();
         }
         return null;
+    }
+
+    static String escapeCodePoint( int cp )
+    {
+        return String.format( cp > 0xFFFF ? "\\U%08X" : "\\u%04X", cp );
     }
 }

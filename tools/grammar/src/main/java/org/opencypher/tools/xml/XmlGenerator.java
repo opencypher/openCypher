@@ -26,9 +26,11 @@ import javax.xml.transform.Result;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.Document;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
@@ -62,6 +64,13 @@ public abstract class XmlGenerator implements XMLReader
     protected static void generate( XmlGenerator generator, OutputStream stream ) throws TransformerException
     {
         generate( generator, new StreamResult( stream ) );
+    }
+
+    protected static Document generate( XmlGenerator generator ) throws TransformerException
+    {
+        DOMResult dom = new DOMResult();
+        generate( generator, dom );
+        return (Document) dom.getNode();
     }
 
     static void generate( XmlGenerator generator, Result result ) throws TransformerException
@@ -165,9 +174,9 @@ public abstract class XmlGenerator implements XMLReader
         private static final String CDATA = "CDATA";
         private final Map<String, String> uri;
 
-        private AttributesBuilder( Map<String, String> uri )
+        protected AttributesBuilder( XmlGenerator generator )
         {
-            this.uri = uri;
+            this.uri = generator.uris;
         }
 
         public AttributesBuilder attribute( String name, String value )
@@ -189,7 +198,7 @@ public abstract class XmlGenerator implements XMLReader
 
     protected final AttributesBuilder attribute( String prefix, String name, String value )
     {
-        return new AttributesBuilder( uris ).attribute( prefix, name, value );
+        return new AttributesBuilder( this ).attribute( prefix, name, value );
     }
 
     protected final void startDocument() throws SAXException

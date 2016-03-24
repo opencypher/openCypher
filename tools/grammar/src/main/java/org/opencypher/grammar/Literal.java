@@ -18,7 +18,16 @@ package org.opencypher.grammar;
 
 public interface Literal extends CharSequence
 {
+    interface Visitor<EX extends Exception>
+    {
+        void visitLiteral( String literal ) throws EX;
+
+        void visitAnyCase( int cp ) throws EX;
+    }
+
     int codePointAt( int index );
 
     boolean caseSensitive();
+
+    <EX extends Exception> void accept( Visitor<EX> visitor ) throws EX;
 }

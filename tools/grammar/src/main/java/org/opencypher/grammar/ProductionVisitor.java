@@ -16,24 +16,14 @@
  */
 package org.opencypher.grammar;
 
-public interface NonTerminal
+import java.util.function.BiConsumer;
+
+public interface ProductionVisitor<EX extends Exception>
 {
-    Production production();
-
-    default String productionName()
+    static ProductionVisitor<RuntimeException> production( BiConsumer<String, Grammar.Term> consumer )
     {
-        return production().name();
+        return production -> consumer.accept( production.name(), production.definition() );
     }
 
-    default Grammar.Term productionDefinition()
-    {
-        return production().definition();
-    }
-
-    default <Scope> Scope productionScope( Scope scope, ScopeRule.Transformation<Scope> transition )
-    {
-        return production().scope( scope, transition );
-    }
-
-    boolean inline();
+    void visitProduction( Production production ) throws EX;
 }
