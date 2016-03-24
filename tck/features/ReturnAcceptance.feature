@@ -101,7 +101,7 @@ Feature: ReturnAcceptanceTest
     Given an empty graph
       And having executed: CREATE (:A)-[:T]->(:B)
     When executing query: MATCH (a)-->(b) WHERE id(a) = 0 RETURN DISTINCT b ORDER BY b.name
-    Then the result should be:
+    Then the result should be, in order:
       | b    |
       | (:B) |
 
@@ -123,7 +123,7 @@ Feature: ReturnAcceptanceTest
     Given an empty graph
       And having executed: CREATE (:l1), (:l2), (:l3)
     When executing query: MATCH (a) RETURN a, count(*) ORDER BY count(*)
-    Then the result should be:
+    Then the result should be, in order:
       | a     | count(*) |
       | (:l1) | 1        |
       | (:l2) | 1        |

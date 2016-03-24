@@ -23,6 +23,9 @@ import FeatureFormatChecker._
 
 class FeatureFormatChecker extends ScalaDsl with EN {
 
+  private var lastSeenQuery = ""
+  private val orderBy = "(?i).*ORDER BY.*"
+
   (new Step("Background")) (BACKGROUND) {}
 
   Given(NAMED_GRAPH) { (name: String) =>
@@ -43,10 +46,14 @@ class FeatureFormatChecker extends ScalaDsl with EN {
 
   When(EXECUTING_QUERY) { (query: String) =>
     verifyCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
+    lastSeenQuery = query
   }
 
   Then(EXPECT_RESULT) { (table: DataTable) =>
     verifyResults(table).map(msg => throw new InvalidFeatureFormatException(msg))
+    if (lastSeenQuery.matches(orderBy))
+      throw new InvalidFeatureFormatException(
+        "Queries with `ORDER BY` needs ordered expectations. Please see the readme.")
   }
 
   Then(EXPECT_ERROR) { (status: String, phase: String, detail: String) =>
@@ -55,6 +62,9 @@ class FeatureFormatChecker extends ScalaDsl with EN {
 
   Then(EXPECT_SORTED_RESULT) { (table: DataTable) =>
     verifyResults(table).map(msg => throw new InvalidFeatureFormatException(msg))
+    if (!lastSeenQuery.matches(orderBy))
+      throw new InvalidFeatureFormatException(
+        "Queries with ordered expectations should have `ORDER BY` in them. Please see the readme.")
   }
 
   Then(EXPECT_EMPTY_RESULT) {}
