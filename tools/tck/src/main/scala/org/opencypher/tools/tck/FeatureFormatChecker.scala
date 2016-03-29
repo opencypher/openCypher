@@ -50,9 +50,9 @@ class FeatureFormatChecker extends ScalaDsl with EN {
 
   Then(EXPECT_RESULT) { (table: DataTable) =>
     verifyResults(table).map(msg => throw new InvalidFeatureFormatException(msg))
-    if (lastSeenQuery.matches(orderBy))
-      throw new InvalidFeatureFormatException(
-        "Queries with `ORDER BY` needs ordered expectations. Please see the readme.")
+//    if (lastSeenQuery.matches(orderBy))
+//      throw new InvalidFeatureFormatException(
+//        "Queries with `ORDER BY` needs ordered expectations. Please see the readme.")
   }
 
   Then(EXPECT_ERROR) { (status: String, phase: String, detail: String) =>
@@ -61,9 +61,9 @@ class FeatureFormatChecker extends ScalaDsl with EN {
 
   Then(EXPECT_SORTED_RESULT) { (table: DataTable) =>
     verifyResults(table).map(msg => throw new InvalidFeatureFormatException(msg))
-    if (!lastSeenQuery.matches(orderBy))
-      throw new InvalidFeatureFormatException(
-        "Queries with ordered expectations should have `ORDER BY` in them. Please see the readme.")
+//    if (!lastSeenQuery.matches(orderBy))
+//      throw new InvalidFeatureFormatException(
+//        "Queries with ordered expectations should have `ORDER BY` in them. Please see the readme.")
   }
 
   Then(EXPECT_EMPTY_RESULT) {}

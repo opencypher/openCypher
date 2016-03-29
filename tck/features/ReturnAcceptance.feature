@@ -123,7 +123,7 @@ Feature: ReturnAcceptanceTest
     Given an empty graph
       And having executed: CREATE (:l1), (:l2), (:l3)
     When executing query: MATCH (a) RETURN a, count(*) ORDER BY count(*)
-    Then the result should be, in order:
+    Then the result should be:
       | a     | count(*) |
       | (:l1) | 1        |
       | (:l2) | 1        |

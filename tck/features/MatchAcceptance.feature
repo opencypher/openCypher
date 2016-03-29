@@ -96,8 +96,8 @@ Feature: MatchAcceptanceTest
       And having executed: CREATE ({name: 'Someone'})
     When executing query: MATCH (a) WITH a.name AS a RETURN a
     Then the result should be:
-      | a              |
-      | 'Someone Else' |
+      | a         |
+      | 'Someone' |
 
   Scenario: should filter based on rel prop name
     Given an empty graph
