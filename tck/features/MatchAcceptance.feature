@@ -36,7 +36,7 @@ Feature: MatchAcceptanceTest
   Scenario: Get node degree via length of pattern expression
     Given an empty graph
       And having executed: CREATE (x:X), (x)-[:T]->(), (x)-[:T]->(), (x)-[:T]->()
-    When executing query: MATCH (a:X) RETURN length((a)-->()) as length
+    When executing query: MATCH (a:X) RETURN length((a)-->()) AS length
     Then the result should be:
       | length |
       | 3      |
@@ -44,7 +44,7 @@ Feature: MatchAcceptanceTest
   Scenario: Get node degree via length of pattern expression that specifies a relationship type
     Given an empty graph
       And having executed: CREATE (x:X), (x)-[:T]->(), (x)-[:T]->(), (x)-[:T]->(), (x)-[:OTHER]->()
-    When executing query: MATCH (a:X) RETURN length((a)-[:T]->()) as length
+    When executing query: MATCH (a:X) RETURN length((a)-[:T]->()) AS length
     Then the result should be:
       | length |
       | 3      |
@@ -52,7 +52,7 @@ Feature: MatchAcceptanceTest
   Scenario: Get node degree via length of pattern expression that specifies multiple relationship types
     Given an empty graph
       And having executed: CREATE (x:X), (x)-[:T]->(), (x)-[:T]->(), (x)-[:T]->(), (x)-[:OTHER]->()
-    When executing query: MATCH (a:X) RETURN length((a)-[:T|OTHER]->()) as length
+    When executing query: MATCH (a:X) RETURN length((a)-[:T|OTHER]->()) AS length
     Then the result should be:
       | length |
       | 4      |
@@ -85,15 +85,15 @@ Feature: MatchAcceptanceTest
 
   Scenario: should filter out based on node prop name
     Given an empty graph
-      And having executed: CREATE ({name: 'Someone Else'})<-[:X]-()-[:X]->({name: 'Andres'})
-    When executing query: MATCH (start)-[rel:X]-(a) WHERE a.name = 'Andres' return a
+      And having executed: CREATE ({name: 'Someone'})<-[:X]-()-[:X]->({name: 'Andres'})
+    When executing query: MATCH ()-[rel:X]-(a) WHERE a.name = 'Andres' RETURN a
     Then the result should be:
       | a                  |
       | ({name: 'Andres'}) |
 
   Scenario: should honour the column name for RETURN items
     Given an empty graph
-      And having executed: CREATE ({name: 'Someone Else'})
+      And having executed: CREATE ({name: 'Someone'})
     When executing query: MATCH (a) WITH a.name AS a RETURN a
     Then the result should be:
       | a              |
@@ -102,7 +102,7 @@ Feature: MatchAcceptanceTest
   Scenario: should filter based on rel prop name
     Given an empty graph
       And having executed: CREATE (:A)<-[:KNOWS {name: 'monkey'}]-()-[:KNOWS {name: 'woot'}]->(:B)
-    When executing query: match (node)-[r:KNOWS]->(a) WHERE r.name = 'monkey' RETURN a
+    When executing query: MATCH (node)-[r:KNOWS]->(a) WHERE r.name = 'monkey' RETURN a
     Then the result should be:
       | a    |
       | (:A) |
@@ -127,7 +127,7 @@ Feature: MatchAcceptanceTest
   Scenario: should get two related nodes
     Given an empty graph
       And having executed: CREATE (a:A {value: 1}), (a)-[:KNOWS]->(b:B {value: 2}), (a)-[:KNOWS]->(c:C {value: 3})
-    When executing query: MATCH (start)-[rel:KNOWS]->(x) RETURN x
+    When executing query: MATCH ()-[rel:KNOWS]->(x) RETURN x
     Then the result should be:
       | x               |
       | (:B {value: 2}) |
@@ -153,7 +153,7 @@ Feature: MatchAcceptanceTest
   Scenario: should return two subgraphs with bound undirected relationship
     Given an empty graph
       And having executed: CREATE (a:A {value: 1})-[:REL {name: 'r'}]->(b:B {value: 2})
-    When executing query: match (a)-[r {name: 'r'}]-(b) RETURN a,b
+    When executing query: MATCH (a)-[r {name: 'r'}]-(b) RETURN a, b
     Then the result should be:
       | a               | b               |
       | (:B {value: 2}) | (:A {value: 1}) |
@@ -227,7 +227,7 @@ Feature: MatchAcceptanceTest
   Scenario: should be able to filter on path nodes
     Given an empty graph
       And having executed: CREATE (a:A {foo: 'bar'})-[:REL]->(b:B {foo: 'bar'})-[:REL]->(c:C {foo: 'bar'})-[:REL]->(d:D {foo: 'bar'})
-    When executing query: MATCH p = (pA)-[:REL*3..3]->(pB) WHERE all(i in nodes(p) WHERE i.foo = 'bar') RETURN pB
+    When executing query: MATCH p = (pA)-[:REL*3..3]->(pB) WHERE all(i IN nodes(p) WHERE i.foo = 'bar') RETURN pB
     Then the result should be:
       | pB                |
       | (:D {foo: 'bar'}) |

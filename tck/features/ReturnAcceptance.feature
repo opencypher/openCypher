@@ -92,7 +92,7 @@ Feature: ReturnAcceptanceTest
   Scenario: should support column renaming
     Given an empty graph
       And having executed: CREATE (:Singleton)
-    When executing query: MATCH (a) WHERE id(a) = 0 RETURN a as ColumnName
+    When executing query: MATCH (a) WHERE id(a) = 0 RETURN a AS ColumnName
     Then the result should be:
       | ColumnName   |
       | (:Singleton) |
@@ -101,7 +101,7 @@ Feature: ReturnAcceptanceTest
     Given an empty graph
       And having executed: CREATE (:A)-[:T]->(:B)
     When executing query: MATCH (a)-->(b) WHERE id(a) = 0 RETURN DISTINCT b ORDER BY b.name
-    Then the result should be:
+    Then the result should be, in order:
       | b    |
       | (:B) |
 
@@ -123,7 +123,7 @@ Feature: ReturnAcceptanceTest
     Given an empty graph
       And having executed: CREATE (:l1), (:l2), (:l3)
     When executing query: MATCH (a) RETURN a, count(*) ORDER BY count(*)
-    Then the result should be:
+    Then the result should be, in order:
       | a     | count(*) |
       | (:l1) | 1        |
       | (:l2) | 1        |
@@ -148,7 +148,7 @@ Feature: ReturnAcceptanceTest
 
   Scenario: should return collection size
     Given any graph
-    When executing query: return size([1,2,3]) as n
+    When executing query: RETURN size([1,2,3]) AS n
     Then the result should be:
       | n |
       | 3 |
