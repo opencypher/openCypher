@@ -13,6 +13,10 @@
   <name>grammar</name>
   <url>http://maven.apache.org</url>
 
+  <properties>
+    <license.header>${project.baseUri}../../ASL-2-header.txt</license.header>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>

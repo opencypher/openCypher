@@ -10,6 +10,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <license.header>${project.baseUri}../ASL-2-header.txt</license.header>
   </properties>
 
   <build>
@@ -40,7 +41,7 @@
         </executions>
         <configuration>
           <strictCheck>true</strictCheck>
-          <header>ASL-2-header.txt</header>
+          <header>${license.header}</header>
           <includes>
             <include>src/**/*.java</include>
             <include>src/**/*.scala</include>
