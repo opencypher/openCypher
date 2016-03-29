@@ -7,3 +7,8 @@ script:
   - java -jar tools/grammar/target/grammar-1.0-SNAPSHOT.jar ISO14977 cypher.xml > grammar/generated/cypher.ebnf
   - java -jar tools/grammar/target/grammar-1.0-SNAPSHOT.jar Antlr4 cypher.xml > grammar/generated/Cypher.g4
   - java -DRailRoadDiagrams.outputDir=grammar/generated/railroad -jar tools/grammar/target/grammar-1.0-SNAPSHOT.jar RailRoadDiagrams cypher.xml
+
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
