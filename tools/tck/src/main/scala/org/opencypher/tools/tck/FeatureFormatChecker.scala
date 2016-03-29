@@ -18,8 +18,7 @@ package org.opencypher.tools.tck
 
 import cucumber.api.DataTable
 import cucumber.api.scala.{EN, ScalaDsl}
-
-import FeatureFormatChecker._
+import org.opencypher.tools.tck.TCKStepDefinitions._
 
 class FeatureFormatChecker extends ScalaDsl with EN {
 
@@ -75,34 +74,5 @@ class FeatureFormatChecker extends ScalaDsl with EN {
 
   class InvalidFeatureFormatException(message: String) extends RuntimeException(message)
 
-}
-
-// TODO: This is a copy of a class in neo4j-cypher-compatibility-suite.
-// We need to remove this duplication once we've started publishing these tools.
-// Then these constants may live here, and neo4j can depend on these tools and get the values from here.
-
-object FeatureFormatChecker {
-
-  // for Background
-  val BACKGROUND = "^$"
-
-  // for Given
-  val ANY = "^any graph$"
-  val EMPTY = "^an empty graph$"
-  val NAMED_GRAPH = """^the (.*) graph$"""
-
-  // for And
-  val INIT_QUERY = "^having executed: (.*)$"
-  val PARAMETERS = "^parameters are:$"
-  val SIDE_EFFECTS = "^the side effects should be:$"
-
-  // for When
-  val EXECUTING_QUERY = "^executing query: (.*)$"
-
-  // for Then
-  val EXPECT_RESULT = "^the result should be:$"
-  val EXPECT_SORTED_RESULT = "^the result should be, in order:$"
-  val EXPECT_EMPTY_RESULT = "^the result should be empty$"
-  val EXPECT_ERROR = "^a (.+) should be raised at (.+): (.+)$"
 }
 
