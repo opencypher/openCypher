@@ -7,7 +7,7 @@ addons:
     packages:
       - oracle-java8-installer
 
-install: mvn clean verify
+install: '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && mvn --settings .build/deploy-settings.xml -DaltDeploymentRepository=snapshots::default::http://m2.neo4j.org/content/repositories/snapshots clean deploy || mvn clean verify'
 script:
   - java -jar tools/grammar/target/grammar-1.0-SNAPSHOT.jar ISO14977 cypher.xml > grammar/generated/cypher.ebnf
   - java -jar tools/grammar/target/grammar-1.0-SNAPSHOT.jar Antlr4 cypher.xml > grammar/generated/Cypher.g4

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0                       http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <mirrors>
+    <mirror>
+      <id>UK</id>
+      <name>UK Central</name>
+      <url>http://uk.maven.org/maven2</url>
+      <mirrorOf>central</mirrorOf>
+    </mirror>
+  </mirrors>
+  <profiles>
+    <profile>
+      <id>snapshots</id>
+      <repositories>
+        <repository>
+          <id>snapshots</id>
+          <name>openCypher snapshots</name>
+          <releases>
+            <enabled>false</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+          </snapshots>
+          <url>http://m2.neo4j.org/content/repositories/snapshots</url>
+          <layout>default</layout>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>snapshots</activeProfile>
+  </activeProfiles>
+  <servers>
+    <server>
+      <id>snapshots</id>
+      <username>${env.NEO4J_M2_USERNAME}</username>
+      <password>${env.NEO4J_M2_PASSWORD}</password>
+    </server>
+  </servers>
+</settings>
