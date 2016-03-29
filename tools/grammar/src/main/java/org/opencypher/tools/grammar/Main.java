@@ -22,8 +22,14 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.BiFunction;
 
 import org.opencypher.grammar.Grammar;
@@ -35,6 +41,9 @@ import static org.opencypher.tools.Reflection.pathOf;
 
 interface Main extends Serializable
 {
+    /**
+     * Look up a named (first argument) class in this package, and invoke its main method.
+     */
     static void main( String... args ) throws Throwable
     {
         if ( args == null || args.length < 1 )
@@ -80,16 +89,41 @@ interface Main extends Serializable
 
     void write( Grammar grammar, OutputStream out ) throws Exception;
 
+    /**
+     * Utility method for executing a program that operates on a grammar and produces output.
+     *
+     * Expects a single argument, the path to the grammar specification. If this is just the name of a file, it is
+     * assumed to be a resource file within the jar, otherwise it is assumed to be a path on the file system.
+     */
     static void execute( Main program, String... args ) throws Exception
     {
         if ( args.length == 1 )
         {
-            program.write( Grammar.parseXML( Paths.get( args[0] ), Grammar.ParserOption.from(System.getProperties()) ), System.out );
+            Grammar.ParserOption[] options = Grammar.ParserOption.from( System.getProperties() );
+            Grammar grammar = null;
+            String path = args[0];
+            if ( path.indexOf( '/' ) == -1 )
+            {
+                URL resource = program.getClass().getResource( "/" + path );
+                if ( resource != null )
+                {
+                    URI uri = resource.toURI();
+                    try ( FileSystem fs = FileSystems.newFileSystem( uri, Collections.emptyMap() ) )
+                    {
+                        grammar = Grammar.parseXML( Paths.get( uri ), options );
+                    }
+                }
+            }
+            if ( grammar == null )
+            {
+                grammar = Grammar.parseXML( Paths.get( path ), options );
+            }
+            program.write( grammar, System.out );
         }
         else
         {
-            System.err.println(
-                    program.usage( ( cp, cls ) -> format( "USAGE: java -cp %s %s <grammar.xml>%n", cp, cls ) ) );
+            System.err.println( program.usage( ( cp, cls ) -> format(
+                    "USAGE: java -cp %s %s <grammar.xml>%n", cp, cls ) ) );
             System.exit( 1 );
         }
     }
