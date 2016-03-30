@@ -16,6 +16,7 @@
  */
 package org.opencypher.tools.grammar;
 
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import static java.lang.Character.isUpperCase;
 import static java.lang.Character.toLowerCase;
 import static java.lang.Character.toUpperCase;
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import static org.opencypher.tools.grammar.Main.execute;
 import static org.opencypher.tools.output.Output.output;
@@ -68,7 +70,11 @@ public class Antlr4 extends BnfWriter
 
     public static void main( String... args ) throws Exception
     {
-        execute( Antlr4::write, args );
+        // We need to do some custom post-processing to get the lexer rules right
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        execute( Antlr4::write, out, args );
+
+        System.out.print( Antlr4Massager.postProcess( out.toString( UTF_8.name() ) ) );
     }
 
     private final Map<String, CharacterSet> lexerRules = new HashMap<>();

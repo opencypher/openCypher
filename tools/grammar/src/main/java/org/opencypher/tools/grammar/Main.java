@@ -26,7 +26,6 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
@@ -95,7 +94,7 @@ interface Main extends Serializable
      * Expects a single argument, the path to the grammar specification. If this is just the name of a file, it is
      * assumed to be a resource file within the jar, otherwise it is assumed to be a path on the file system.
      */
-    static void execute( Main program, String... args ) throws Exception
+    static void execute( Main program, OutputStream out, String... args ) throws Exception
     {
         if ( args.length == 1 )
         {
@@ -108,7 +107,7 @@ interface Main extends Serializable
                 if ( resource != null )
                 {
                     URI uri = resource.toURI();
-                    try ( FileSystem fs = FileSystems.newFileSystem( uri, Collections.emptyMap() ) )
+                    try ( FileSystem ignored = FileSystems.newFileSystem( uri, Collections.emptyMap() ) )
                     {
                         grammar = Grammar.parseXML( Paths.get( uri ), options );
                     }
@@ -118,7 +117,7 @@ interface Main extends Serializable
             {
                 grammar = Grammar.parseXML( Paths.get( path ), options );
             }
-            program.write( grammar, System.out );
+            program.write( grammar, out );
         }
         else
         {
@@ -126,6 +125,11 @@ interface Main extends Serializable
                     "USAGE: java -cp %s %s <grammar.xml>%n", cp, cls ) ) );
             System.exit( 1 );
         }
+    }
+
+    static void execute( Main program, String... args ) throws Exception
+    {
+        execute( program, System.out, args );
     }
 
     default String usage( BiFunction<String, String, String> usage )
