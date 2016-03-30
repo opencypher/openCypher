@@ -16,7 +16,7 @@
  */
 grammar Cypher;
 
-cypher : ws allOptions statements ;
+cypher : ws allOptions statement ws ';'? ws ;
 
 allOptions : ( anyCypherOption ws )* ;
 
@@ -34,8 +34,6 @@ explain : EXPLAIN ;
 profile : PROFILE ;
 
 configurationOption : symbolicNameString ws '=' ws symbolicNameString ;
-
-statements : ws statement ws ( ';' ws statement ws )* ';'? ;
 
 statement : command
           | query
@@ -71,7 +69,6 @@ clause : loadCSV
        | foreach
        | with
        | return
-       | pragma
        ;
 
 command : createUniqueConstraint
@@ -111,20 +108,20 @@ relationshipPatternSyntax : ( '(' ws ')' dash '[' variable relType ']' dash '(' 
                           | ( '(' ws ')' leftArrowHead dash '[' variable relType ']' dash '(' ws ')' )
                           ;
 
-loadCSV : LOAD sp CSV sp ( WITH sp HEADERS sp )? FROM sp expression sp AS variable sp ( FIELDTERMINATOR sp StringLiteral )? ;
+loadCSV : LOAD sp CSV sp ( WITH sp HEADERS sp )? FROM sp expression sp AS sp variable sp ( FIELDTERMINATOR sp StringLiteral )? ;
 
 match : ( OPTIONAL sp )? MATCH ws pattern ws ( hint )* where? ;
 
-unwind : UNWIND sp expression sp AS sp variable ;
+unwind : UNWIND ws expression sp AS sp variable ;
 
-merge : MERGE sp patternPart ( sp mergeAction )* ;
+merge : MERGE ws patternPart ( sp mergeAction )* ;
 
 mergeAction : ( ON sp MATCH sp setClause )
             | ( ON sp CREATE sp setClause )
             ;
 
-create : ( CREATE UNIQUE sp pattern )
-       | ( CREATE sp pattern )
+create : ( CREATE sp UNIQUE ws pattern )
+       | ( CREATE ws pattern )
        ;
 
 setClause : SET setItem ( ',' setItem )* ;
@@ -151,11 +148,11 @@ with : ( WITH DISTINCT sp returnBody where? )
      | ( WITH sp returnBody where? )
      ;
 
-return : ( RETURN DISTINCT sp returnBody )
+return : ( RETURN sp DISTINCT sp returnBody )
        | ( RETURN sp returnBody )
        ;
 
-returnBody : returnItems order? skip? limit? ;
+returnBody : returnItems ( sp order )? ( sp skip )? ( sp limit )? ;
 
 returnItems : ( '*' ( ws ',' ws returnItem )* )
             | ( returnItem ( ws ',' ws returnItem )* )
@@ -165,17 +162,15 @@ returnItem : ( expression sp AS sp variable )
            | expression
            ;
 
-order : ORDER BY sortItem ( ',' sortItem )* ;
+order : ORDER sp BY sp sortItem ( ',' ws sortItem )* ;
 
-skip : L_SKIP expression ;
+skip : L_SKIP sp expression ;
 
-limit : LIMIT expression ;
+limit : LIMIT sp expression ;
 
 sortItem : ( expression ( DESCENDING | DESC ) )
          | ( expression ( ASCENDING | ASC )? )
          ;
-
-pragma : L__PRAGMA ( ( WITH NONE skip? limit? where? ) | ( WITHOUT variable ( ',' variable )* ) ) ;
 
 hint : ( USING sp INDEX sp variable nodeLabel '(' propertyKeyName ')' )
      | ( USING sp JOIN sp ON sp variable ( ws ',' ws variable )* )
@@ -222,7 +217,7 @@ patternElement : ( nodePattern ( ws patternElementChain )* )
                | ( '(' patternElement ')' )
                ;
 
-nodePattern : '(' ws variable? nodeLabels? properties? ws ')' ;
+nodePattern : '(' ws ( variable ws )? nodeLabels? properties? ws ')' ;
 
 patternElementChain : relationshipPattern ws nodePattern ;
 
@@ -266,18 +261,18 @@ expression9 : ( sp NOT sp expression9 )
 
 expression8 : expression7 ( ws partialComparisonExpression )* ;
 
-expression7 : expression6 ( ( '+' expression6 ) | ( '-' expression6 ) )* ;
+expression7 : expression6 ( ( ws '+' ws expression6 ) | ( ws '-' ws expression6 ) )* ;
 
-expression6 : expression5 ( ( '*' expression5 ) | ( '/' expression5 ) | ( '%' expression5 ) )* ;
+expression6 : expression5 ( ( ws '*' ws expression5 ) | ( ws '/' ws expression5 ) | ( ws '%' ws expression5 ) )* ;
 
-expression5 : expression4 ( '^' expression4 )* ;
+expression5 : expression4 ( ws '^' ws expression4 )* ;
 
 expression4 : expression3
-            | ( '+' expression3 )
-            | ( '-' expression3 )
+            | ( ws '+' ws expression3 )
+            | ( ws '-' ws expression3 )
             ;
 
-expression3 : expression2 ( ( ws '[' expression ']' ) | ( ws '[' expression? '..' expression? ']' ) | ( ws '=~' expression2 ) | ( sp IN expression2 ) | ( sp STARTS WITH expression2 ) | ( sp ENDS WITH expression2 ) | ( sp CONTAINS expression2 ) | ( sp IS sp NULL ) | ( sp IS sp NOT sp NULL ) )* ;
+expression3 : expression2 ( ( ws '[' expression ']' ) | ( ws '[' expression? '..' expression? ']' ) | ( ws '=~' expression2 ) | ( sp IN expression2 ) | ( sp STARTS sp WITH expression2 ) | ( sp ENDS sp WITH expression2 ) | ( sp CONTAINS expression2 ) | ( sp IS sp NULL ) | ( sp IS sp NOT sp NULL ) )* ;
 
 expression2 : expression1 ( propertyLookup | nodeLabels )* ;
 
@@ -291,7 +286,7 @@ expression1 : numberLiteral
             | ( COUNT '(' '*' ')' )
             | mapLiteral
             | listComprehension
-            | ( '[' expression ( ',' expression )* ']' )
+            | ( '[' ws expression ws ( ',' ws expression ws )* ']' )
             | ( FILTER ws '(' ws filterExpression ws ')' )
             | ( EXTRACT ws '(' ws filterExpression ws ( ws '|' expression )? ')' )
             | reduce
@@ -349,9 +344,9 @@ numberLiteral : doubleLiteral
               | signedIntegerLiteral
               ;
 
-mapLiteral : '{' ( propertyKeyName ':' expression ( ',' propertyKeyName ':' expression )* )? '}' ;
+mapLiteral : '{' ws ( propertyKeyName ws ':' ws expression ws ( ',' ws propertyKeyName ws ':' ws expression ws )* )? '}' ;
 
-parameter : '{' ( symbolicNameString | unsignedDecimalInteger ) '}' ;
+parameter : '{' ws ( symbolicNameString | unsignedDecimalInteger ) ws '}' ;
 
 propertyExpression : expression1 ( ws propertyLookup )+ ;
 
@@ -478,9 +473,6 @@ symbolicNameString : UnescapedSymbolicNameString
                    | DESC
                    | ASCENDING
                    | ASC
-                   | L__PRAGMA
-                   | NONE
-                   | WITHOUT
                    | JOIN
                    | SCAN
                    | START
@@ -504,6 +496,7 @@ symbolicNameString : UnescapedSymbolicNameString
                    | FILTER
                    | EXTRACT
                    | ANY
+                   | NONE
                    | SINGLE
                    | REDUCE
                    | CASE
@@ -602,12 +595,6 @@ ASCENDING : ( 'A' | 'a' ) ( 'S' | 's' ) ( 'C' | 'c' ) ( 'E' | 'e' ) ( 'N' | 'n' 
 
 ASC : ( 'A' | 'a' ) ( 'S' | 's' ) ( 'C' | 'c' )  ;
 
-L__PRAGMA : ( '_' | '_' ) ( 'P' | 'p' ) ( 'R' | 'r' ) ( 'A' | 'a' ) ( 'G' | 'g' ) ( 'M' | 'm' ) ( 'A' | 'a' )  ;
-
-NONE : ( 'N' | 'n' ) ( 'O' | 'o' ) ( 'N' | 'n' ) ( 'E' | 'e' )  ;
-
-WITHOUT : ( 'W' | 'w' ) ( 'I' | 'i' ) ( 'T' | 't' ) ( 'H' | 'h' ) ( 'O' | 'o' ) ( 'U' | 'u' ) ( 'T' | 't' )  ;
-
 JOIN : ( 'J' | 'j' ) ( 'O' | 'o' ) ( 'I' | 'i' ) ( 'N' | 'n' )  ;
 
 SCAN : ( 'S' | 's' ) ( 'C' | 'c' ) ( 'A' | 'a' ) ( 'N' | 'n' )  ;
@@ -653,6 +640,8 @@ FILTER : ( 'F' | 'f' ) ( 'I' | 'i' ) ( 'L' | 'l' ) ( 'T' | 't' ) ( 'E' | 'e' ) (
 EXTRACT : ( 'E' | 'e' ) ( 'X' | 'x' ) ( 'T' | 't' ) ( 'R' | 'r' ) ( 'A' | 'a' ) ( 'C' | 'c' ) ( 'T' | 't' )  ;
 
 ANY : ( 'A' | 'a' ) ( 'N' | 'n' ) ( 'Y' | 'y' )  ;
+
+NONE : ( 'N' | 'n' ) ( 'O' | 'o' ) ( 'N' | 'n' ) ( 'E' | 'e' )  ;
 
 SINGLE : ( 'S' | 's' ) ( 'I' | 'i' ) ( 'N' | 'n' ) ( 'G' | 'g' ) ( 'L' | 'l' ) ( 'E' | 'e' )  ;
 

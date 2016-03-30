@@ -31,7 +31,10 @@
   <production name="Cypher">
     &WS;
     <non-terminal ref="AllOptions"/>
-    <non-terminal ref="Statements"/>
+    <non-terminal ref="Statement"/>
+    &WS;
+    <opt>;</opt>
+    &WS;
   </production>
 
 
@@ -39,15 +42,6 @@
 
 
   <!-- / STATEMENTS \ -->
-
-  <production name="Statements">
-    &WS;<non-terminal ref="Statement"/>&WS;
-    <repeat>
-      ;
-      &WS;<non-terminal ref="Statement"/>&WS;
-    </repeat>
-    <opt>;</opt>
-  </production>
 
   <production name="Statement">
     <alt>
@@ -110,7 +104,6 @@
       <non-terminal ref="Foreach"/>
       <non-terminal ref="With"/>
       <non-terminal ref="Return"/>
-      <non-terminal ref="Pragma"/>
     </alt>
   </production>
 
@@ -126,7 +119,7 @@
     LOAD &SP; CSV &SP;
     <opt>WITH &SP; HEADERS &SP;</opt>
     FROM &SP; &expr; &SP;
-    AS &var; &SP;
+    AS &SP; &var; &SP;
     <opt>FIELDTERMINATOR &SP; <non-terminal ref="StringLiteral"/></opt>
   </production>
 
@@ -139,11 +132,11 @@
   </production>
 
   <production name="Unwind">
-    UNWIND &SP; &expr; &SP; AS &SP; &var;
+    UNWIND &WS; &expr; &SP; AS &SP; &var;
   </production>
 
   <production name="Merge">
-    MERGE &SP; <non-terminal ref="PatternPart"/>
+    MERGE &WS; <non-terminal ref="PatternPart"/>
     <repeat>
       &SP; <non-terminal ref="MergeAction"/>
     </repeat>
@@ -158,8 +151,8 @@
 
   <production name="Create">
     <alt>
-      <seq>CREATE UNIQUE &SP; <non-terminal ref="Pattern"/></seq>
-      <seq>CREATE &SP; <non-terminal ref="Pattern"/></seq>
+      <seq>CREATE &SP; UNIQUE &WS; <non-terminal ref="Pattern"/></seq>
+      <seq>CREATE &WS; <non-terminal ref="Pattern"/></seq>
     </alt>
   </production>
 
@@ -217,16 +210,16 @@
 
   <production name="Return">
     <alt>
-      <seq>RETURN DISTINCT &SP;<non-terminal ref="ReturnBody"/></seq>
+      <seq>RETURN &SP; DISTINCT &SP;<non-terminal ref="ReturnBody"/></seq>
       <seq>RETURN &SP;<non-terminal ref="ReturnBody"/></seq>
     </alt>
   </production>
 
   <production name="ReturnBody">
     <non-terminal ref="ReturnItems"/>
-    <opt><non-terminal ref="Order"/></opt>
-    <opt><non-terminal ref="Skip"/></opt>
-    <opt><non-terminal ref="Limit"/></opt>
+    <opt>&SP;<non-terminal ref="Order"/></opt>
+    <opt>&SP;<non-terminal ref="Skip"/></opt>
+    <opt>&SP;<non-terminal ref="Limit"/></opt>
   </production>
 
   <production name="ReturnItems">
@@ -243,39 +236,23 @@
     <alt> <seq>&expr; &SP; AS &SP; &var;</seq> &expr; </alt>
   </production>
 
-
   <production name="Order">
-    ORDER BY <non-terminal ref="SortItem"/>
-    <repeat> , <non-terminal ref="SortItem"/></repeat>
+    ORDER &SP; BY &SP; <non-terminal ref="SortItem"/>
+    <repeat> , &WS; <non-terminal ref="SortItem"/></repeat>
   </production>
 
   <production name="Skip">
-    SKIP &expr;
+    SKIP &SP; &expr;
   </production>
 
   <production name="Limit">
-    LIMIT &expr;
+    LIMIT &SP; &expr;
   </production>
 
   <production name="SortItem">
     <alt>
       <seq>&expr;<alt>DESCENDING DESC</alt></seq>
       <seq>&expr;<opt><alt>ASCENDING ASC</alt></opt></seq>
-    </alt>
-  </production>
-
-  <production name="Pragma">
-    _PRAGMA
-    <alt>
-      <seq>
-        WITH NONE
-        <opt><non-terminal ref="Skip"/></opt>
-        <opt><non-terminal ref="Limit"/></opt>
-        <opt><non-terminal ref="Where"/></opt>
-      </seq>
-      <seq>
-        WITHOUT &var; <repeat> , &var;</repeat>
-      </seq>
     </alt>
   </production>
 
