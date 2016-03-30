@@ -104,7 +104,6 @@
       <non-terminal ref="Foreach"/>
       <non-terminal ref="With"/>
       <non-terminal ref="Return"/>
-      <non-terminal ref="Pragma"/>
     </alt>
   </production>
 
@@ -237,7 +236,6 @@
     <alt> <seq>&expr; &SP; AS &SP; &var;</seq> &expr; </alt>
   </production>
 
-
   <production name="Order">
     ORDER &SP; BY &SP; <non-terminal ref="SortItem"/>
     <repeat> , &WS; <non-terminal ref="SortItem"/></repeat>
@@ -255,21 +253,6 @@
     <alt>
       <seq>&expr;<alt>DESCENDING DESC</alt></seq>
       <seq>&expr;<opt><alt>ASCENDING ASC</alt></opt></seq>
-    </alt>
-  </production>
-
-  <production name="Pragma">
-    _PRAGMA
-    <alt>
-      <seq>
-        WITH NONE
-        <opt><non-terminal ref="Skip"/></opt>
-        <opt><non-terminal ref="Limit"/></opt>
-        <opt><non-terminal ref="Where"/></opt>
-      </seq>
-      <seq>
-        WITHOUT &var; <repeat> , &var;</repeat>
-      </seq>
     </alt>
   </production>
 
