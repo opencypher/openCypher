@@ -2,6 +2,8 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
 = The Cypher Query Language
 
+image:https://travis-ci.org/opencypher/openCypher.svg?branch=master["Build Status", link="https://travis-ci.org/opencypher/openCypher"]
+
 This repository holds the specification of the Cypher graph database query language.
 Its purpose is to be central to the process of evolving the specification of the language that is Cypher.
 
