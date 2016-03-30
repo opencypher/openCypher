@@ -117,11 +117,14 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
         return line;
     }
 
-    private final boolean expandAnyCase;
+    private final boolean expandAnyCase, skipNone, inlineNone, optimizeDiagram;
 
     private FigureBuilder( Diagram.BuilderOptions options )
     {
         this.expandAnyCase = options.expandAnyCase();
+        this.skipNone = options.skipNone();
+        this.inlineNone = options.inlineNone();
+        this.optimizeDiagram = options.optimizeDiagram();
     }
 
     @Override
@@ -230,13 +233,16 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
     @Override
     public Void transformNonTerminal( Group group, NonTerminal nonTerminal )
     {
-        if ( nonTerminal.inline() )
+        if ( skipNone || !nonTerminal.skip() )
         {
-            nonTerminal.productionDefinition().transform( this, group );
-        }
-        else
-        {
-            group.add( reference( nonTerminal.productionName() ) );
+            if ( !inlineNone && nonTerminal.inline() )
+            {
+                nonTerminal.productionDefinition().transform( this, group );
+            }
+            else
+            {
+                group.add( reference( nonTerminal.productionName() ) );
+            }
         }
         return null;
     }
@@ -361,7 +367,7 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
                 }
                 else
                 {
-                    add( branch );
+                    add( builder.combineAlternatives( branch ) );
                 }
             }
         }
@@ -401,10 +407,134 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
                     maxTimes -= 1;
                 }
             }
-            add( new Loop( forwards, backwards, minTimes, maxTimes, false ) );
+            add( builder.loop( forwards, backwards, minTimes, maxTimes, false ) );
         }
 
         abstract void add( Diagram.Figure child );
+    }
+
+    private Diagram.Figure combineAlternatives( Branch branch )
+    {
+        if ( !optimizeDiagram )
+        {
+            return branch;
+        }
+        List<Line> lines = lines( branch.alt );
+        Line one = lines.remove( lines.size() - 1 ); // pick one as reference (last one is easiest to put back in order)
+        int prefix = 0, suffix = 0;
+        int oneSize = one.seq.size();
+        for ( boolean pre = true, post = true; pre || post; )
+        {
+            for ( Line line : lines )
+            {
+                int lineSize = line.seq.size();
+                if ( pre && !(lineSize <= prefix || oneSize <= prefix ||
+                              line.seq.get( prefix ).equals( one.seq.get( prefix ) )) )
+                {
+                    pre = false;
+                }
+                if ( post && (lineSize <= suffix || oneSize <= suffix ||
+                              !line.seq.get( lineSize - suffix - 1 ).equals(
+                                      one.seq.get( oneSize - suffix - 1 ) )) )
+                {
+                    post = false;
+                }
+                if ( prefix + suffix >= Math.min( oneSize, lineSize ) )
+                {
+                    if ( prefix + suffix > Math.min( oneSize, lineSize ) )
+                    {
+                        suffix--;
+                    }
+                    pre = post = false;
+                }
+            }
+            if ( pre )
+            {
+                prefix++;
+            }
+            if ( post )
+            {
+                suffix++;
+            }
+        }
+        if ( prefix > 0 || suffix > 0 )
+        {
+            Line common = new Line();
+            List<Diagram.Figure> after = new ArrayList<>();
+            for ( int i = 0; i < prefix; i++ )
+            {
+                common.add( one.seq.get( i ) );
+            }
+            for ( int i = suffix; i > 0; i-- )
+            {
+                after.add( one.seq.get( one.seq.size() - i ) );
+            }
+            branch = new Branch();
+            lines.add( one ); // put back the last line and remove the shared prefix & suffix from all lines
+            for ( Line line : lines )
+            {
+                for ( int i = 0; i < suffix; i++ )
+                {
+                    line.seq.remove( line.seq.size() - 1 );
+                }
+                for ( int i = 0; i < prefix; i++ )
+                {
+                    line.seq.remove( 0 );
+                }
+                switch ( line.seq.size() )
+                {
+                case 0:
+                    branch.add( NOTHING );
+                    break;
+                case 1:
+                    branch.add( line.seq.get( 0 ) );
+                    break;
+                default:
+                    branch.add( line );
+                    break;
+                }
+            }
+            common.add( branch );
+            for ( Diagram.Figure figure : after )
+            {
+                common.add( figure );
+            }
+            return common;
+        }
+        return branch;
+    }
+
+    private static List<Line> lines( Collection<Diagram.Figure> figures )
+    {
+        List<Line> lines = new ArrayList<>( figures.size() );
+        for ( Diagram.Figure figure : figures )
+        {
+            if ( figure instanceof Line )
+            {
+                lines.add( (Line) figure );
+            }
+            else
+            {
+                Line line = new Line();
+                line.add( figure );
+                lines.add( line );
+            }
+        }
+        return lines;
+    }
+
+    private Diagram.Figure loop( Diagram.Figure forwards, Diagram.Figure backwards, int min, Integer max, boolean top )
+    {
+        if ( optimizeDiagram && forwards instanceof Loop )
+        {
+            Loop loop = (Loop) forwards;
+            forwards = loop.forward;
+            Branch branch = new Branch();
+            branch.add( loop.backward );
+            branch.add( backwards );
+            backwards = branch;
+        }
+        return new Loop( forwards, backwards, min, max, top );
     }
 
     private static final Diagram.Figure BULLET = new Diagram.Figure()
@@ -645,7 +775,12 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
         @Override
         void add( Diagram.Figure child )
         {
-            if ( child != NOTHING )
+            if ( child instanceof Line )
+            {
+                Line line = (Line) child;
+                seq.addAll( line.seq );
+            }
+            else if ( child != NOTHING )
             {
                 seq.add( child );
             }
@@ -698,7 +833,7 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
             {
                 backward = repeated;
             }
-            add( new Loop( forward, backward, minTimes, maxTimes, false ) );
+            add( builder.loop( forward, backward, minTimes, maxTimes, false ) );
         }
 
         @Override

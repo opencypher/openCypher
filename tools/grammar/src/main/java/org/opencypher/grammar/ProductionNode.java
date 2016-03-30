@@ -32,6 +32,8 @@ final class ProductionNode extends Located implements Production
     ScopeRule scopeRule;
     Node definition;
     String description;
+    @Attribute(uri=Grammar.RAILROAD_XML_NAMESPACE, optional = true)
+    boolean skip, inline;
 
     public ProductionNode( Root root )
     {
@@ -96,6 +98,18 @@ final class ProductionNode extends Located implements Production
     public <P, T, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P param ) throws EX
     {
         return definition().transform( transformation, param );
+    }
+
+    @Override
+    public boolean skip()
+    {
+        return skip;
+    }
+
+    @Override
+    public boolean inline()
+    {
+        return inline;
     }
 
     @Override

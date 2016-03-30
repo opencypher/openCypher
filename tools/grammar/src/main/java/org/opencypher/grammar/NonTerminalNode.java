@@ -28,6 +28,8 @@ final class NonTerminalNode extends Node implements NonTerminal
 {
     @Attribute
     String ref;
+    @Attribute(uri = Grammar.RAILROAD_XML_NAMESPACE, optional = true)
+    Boolean skip, inline;
     private ProductionNode production;
     private int index = -1;
 
@@ -38,9 +40,15 @@ final class NonTerminalNode extends Node implements NonTerminal
     }
 
     @Override
+    public boolean skip()
+    {
+        return skip == null ? production.skip : skip;
+    }
+
+    @Override
     public boolean inline()
     {
-        return false;
+        return inline == null ? production.inline : inline;
     }
 
     @Override

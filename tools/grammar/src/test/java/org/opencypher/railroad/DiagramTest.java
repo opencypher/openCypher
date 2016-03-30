@@ -38,6 +38,7 @@ import static org.opencypher.railroad.Diagram.anyCase;
 import static org.opencypher.railroad.Diagram.branch;
 import static org.opencypher.railroad.Diagram.line;
 import static org.opencypher.railroad.Diagram.loop;
+import static org.opencypher.railroad.Diagram.nothing;
 import static org.opencypher.railroad.Diagram.reference;
 import static org.opencypher.railroad.Diagram.text;
 import static org.opencypher.tools.output.Output.stringBuilder;
@@ -74,6 +75,21 @@ public class DiagramTest
                         oneOf( sequence( literal( "BAR" ), epsilon() ) ),
                         oneOf( epsilon(), epsilon() ) ) ) )
                         .expectDiagram( "bar", text( "BAR" ) ),
+                // combine alternatives
+                givenProduction( "alts", oneOf(
+                        sequence( literal( "kill" ), literal( "all" ), literal( "animals" ) ),
+                        sequence( literal( "kill" ), literal( "no" ), literal( "animals" ) ) ) )
+                        .expectDiagram( "alts", line(
+                                text( "kill" ),
+                                branch( text( "all" ), text( "no" ) ),
+                                text( "animals" ) ) ),
+                // combine alternatives
+                givenProduction( "alts", oneOf(
+                        literal( "FOO" ),
+                        sequence( literal( "FOO" ), literal( "BAR" ) ) ) )
+                        .expectDiagram( "alts", line(
+                                text( "FOO" ),
+                                branch( nothing(), text( "BAR" ) ) ) ),
                 // a, b, {',', a, b}
                 givenProduction( "loop", sequence(
                         literal( "a" ), literal( "b" ),

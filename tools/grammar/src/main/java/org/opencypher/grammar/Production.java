@@ -27,4 +27,8 @@ public interface Production
     <Scope> Scope scope( Scope scope, ScopeRule.Transformation<Scope> transition );
 
     <P, T, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P parameter ) throws EX;
+
+    boolean skip();
+
+    boolean inline();
 }

@@ -19,6 +19,7 @@ package org.opencypher.railroad;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.opencypher.grammar.Grammar;
@@ -26,7 +27,8 @@ import org.opencypher.grammar.Production;
 import org.opencypher.grammar.ProductionTransformation;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
+
+import static org.opencypher.tools.Functions.flatList;
 
 /**
  * Logical representation of a rail road diagram.
@@ -36,6 +38,9 @@ public final class Diagram
     public interface BuilderOptions
     { // <pre>
         default boolean expandAnyCase() { return false; }
+        default boolean skipNone() { return false; }
+        default boolean inlineNone() { return false; }
+        default boolean optimizeDiagram() { return true; }
     } //</pre>
 
     public interface Renderer<Canvas, Text, EX extends Exception>
@@ -96,7 +101,7 @@ public final class Diagram
 
     public static List<Diagram> build( Grammar grammar, BuilderOptions options )
     {
-        return grammar.transform( PRODUCTION, options, toList() );
+        return grammar.transform( PRODUCTION, options, flatList() );
     }
 
     public static Diagram build( Production production, BuilderOptions options )
@@ -186,8 +191,9 @@ public final class Diagram
         abstract void toString( StringBuilder result );
     }
 
-    private static final ProductionTransformation<BuilderOptions, Diagram, RuntimeException> PRODUCTION =
-            ( options, production ) -> build( production, options );
+    private static final ProductionTransformation<BuilderOptions, Optional<Diagram>, RuntimeException> PRODUCTION =
+            ( options, production ) -> ((production.skip() || production.inline()) && !options.skipNone())
+                                       ? Optional.empty() : Optional.of( build( production, options ) );
 
     private final String name;
     private final Figure root;

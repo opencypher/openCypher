@@ -35,5 +35,7 @@ public interface NonTerminal
         return production().scope( scope, transition );
     }
 
+    boolean skip();
+
     boolean inline();
 }

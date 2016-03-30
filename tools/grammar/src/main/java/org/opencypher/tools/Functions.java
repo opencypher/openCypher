@@ -16,12 +16,16 @@
  */
 package org.opencypher.tools;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
@@ -70,4 +74,19 @@ public class Functions
         }
         return result;
     }
+
+    @SuppressWarnings("unchecked")
+    public static <T> Collector<Optional<T>, List<T>, List<T>> flatList()
+    {
+        return (Collector) FLAT_LIST;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static final Collector<Optional, List, List> FLAT_LIST = Collector.of(
+            ArrayList::new, ( result, item ) -> item.ifPresent( result::add ), ( lhs, rhs ) -> {
+                List result = new ArrayList<>( lhs.size() + rhs.size() );
+                result.addAll( lhs );
+                result.addAll( rhs );
+                return result;
+            } );
 }

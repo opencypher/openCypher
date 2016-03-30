@@ -554,11 +554,11 @@
     </repeat>
   </production>
 
-  <production name="WS">
+  <production name="WS" rr:skip="true">
     <repeat><non-terminal ref='whitespace'/></repeat>
   </production>
 
-  <production name="SP">
+  <production name="SP" rr:skip="true">
     <repeat min="1"><non-terminal ref='whitespace'/></repeat>
   </production>
 
