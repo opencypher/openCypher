@@ -31,7 +31,10 @@
   <production name="Cypher">
     &WS;
     <non-terminal ref="AllOptions"/>
-    <non-terminal ref="Statements"/>
+    <non-terminal ref="Statement"/>
+    &WS;
+    <opt>;</opt>
+    &WS;
   </production>
 
 
@@ -39,15 +42,6 @@
 
 
   <!-- / STATEMENTS \ -->
-
-  <production name="Statements">
-    &WS;<non-terminal ref="Statement"/>&WS;
-    <repeat>
-      ;
-      &WS;<non-terminal ref="Statement"/>&WS;
-    </repeat>
-    <opt>;</opt>
-  </production>
 
   <production name="Statement">
     <alt>

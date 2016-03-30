@@ -16,7 +16,7 @@
  */
 grammar Cypher;
 
-cypher : ws allOptions statements ;
+cypher : ws allOptions statement ws ';'? ws ;
 
 allOptions : ( anyCypherOption ws )* ;
 
@@ -34,8 +34,6 @@ explain : EXPLAIN ;
 profile : PROFILE ;
 
 configurationOption : symbolicNameString ws '=' ws symbolicNameString ;
-
-statements : ws statement ws ( ';' ws statement ws )* ';'? ;
 
 statement : command
           | query
