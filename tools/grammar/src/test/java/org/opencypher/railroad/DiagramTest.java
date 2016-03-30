@@ -16,13 +16,11 @@
  */
 package org.opencypher.railroad;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.opencypher.grammar.Grammar;
+import org.opencypher.test.ParameterTest;
 import org.opencypher.tools.grammar.ISO14977;
 
 import static org.junit.Assert.assertEquals;
@@ -43,63 +41,87 @@ import static org.opencypher.railroad.Diagram.reference;
 import static org.opencypher.railroad.Diagram.text;
 import static org.opencypher.tools.output.Output.stringBuilder;
 
-@RunWith(Parameterized.class)
-public class DiagramTest
+public class DiagramTest extends ParameterTest<DiagramTest.Expectation>
 {
-    @Parameterized.Parameters(name = "{0}")
-    public static Iterable<Object[]> given()
+    @Test
+    public static Expectation shouldText() throws Exception
     {
-        return Arrays.asList(
-                // 'FOO'
-                givenProduction( "foo", literal( "FOO" ) )
-                        .expectDiagram( "foo", text( "FOO" ) ),
-                // 'BAR'
-                givenProduction( "bar", caseInsensitive( "BAR" ) )
-                        .expectDiagram( "bar", anyCase( "BAR" ) ),
-                // expand "B,A,Z" to alternative chars
-                givenProduction( "baz", caseInsensitive( "BAZ" ) )
-                        .withExpandAnyCase( true )
-                        .expectDiagram( "baz", line(
-                                branch( text( "B" ), text( "b" ) ),
-                                branch( text( "A" ), text( "a" ) ),
-                                branch( text( "Z" ), text( "z" ) ) ) ),
-                // item, {',', item}
-                given( grammar( "list" )
-                               .production( "list", sequence(
-                                       nonTerminal( "item" ),
-                                       zeroOrMore( literal( "," ), nonTerminal( "item" ) ) ) )
-                               .production( "item", literal( "not interesting" ) ) )
-                        .expectDiagram( "list", loop( reference( "item" ), text( "," ), 0, null ) ),
-                // flatten "('BAR',), (|)" to "'BAR'"
-                givenProduction( "bar", sequence( sequence(
-                        oneOf( sequence( literal( "BAR" ), epsilon() ) ),
-                        oneOf( epsilon(), epsilon() ) ) ) )
-                        .expectDiagram( "bar", text( "BAR" ) ),
-                // combine alternatives
-                givenProduction( "alts", oneOf(
-                        sequence( literal( "kill" ), literal( "all" ), literal( "animals" ) ),
-                        sequence( literal( "kill" ), literal( "no" ), literal( "animals" ) ) ) )
-                        .expectDiagram( "alts", line(
-                                text( "kill" ),
-                                branch( text( "all" ), text( "no" ) ),
-                                text( "animals" ) ) ),
-                // combine alternatives
-                givenProduction( "alts", oneOf(
-                        literal( "FOO" ),
-                        sequence( literal( "FOO" ), literal( "BAR" ) ) ) )
-                        .expectDiagram( "alts", line(
-                                text( "FOO" ),
-                                branch( nothing(), text( "BAR" ) ) ) ),
-                // a, b, {',', a, b}
-                givenProduction( "loop", sequence(
-                        literal( "a" ), literal( "b" ),
-                        zeroOrMore( literal( "," ), literal( "a" ), literal( "b" ) ) ) )
-                        .expectDiagram( "loop", loop( line( text( "a" ), text( "b" ) ), text( "," ), 0, null ) )
-        );
+        return givenProduction( "foo", literal( "FOO" ) )
+                .expectDiagram( "foo", text( "FOO" ) );
     }
 
     @Test
-    public void buildDiagram() throws Exception
+    public static Expectation shouldProduceAnyCase() throws Exception
+    {
+        return givenProduction( "bar", caseInsensitive( "BAR" ) )
+                .expectDiagram( "bar", anyCase( "BAR" ) );
+    }
+
+    @Test
+    public static Expectation shouldExpandAnyCase() throws Exception
+    {
+        return givenProduction( "baz", caseInsensitive( "BAZ" ) )
+                .withExpandAnyCase( true )
+                .expectDiagram( "baz", line(
+                        branch( text( "B" ), text( "b" ) ),
+                        branch( text( "A" ), text( "a" ) ),
+                        branch( text( "Z" ), text( "z" ) ) ) );
+    }
+
+    @Test
+    public static Expectation shouldProduceLoopWithSeparator() throws Exception
+    {
+        return given( grammar( "list" )
+                              .production( "list", sequence(
+                                      nonTerminal( "item" ),
+                                      zeroOrMore( literal( "," ), nonTerminal( "item" ) ) ) )
+                              .production( "item", literal( "not interesting" ) ) )
+                .expectDiagram( "list", loop( reference( "item" ), text( "," ), 0, null ) );
+    }
+
+    @Test
+    public static Expectation shouldEliminateRedundantNothing() throws Exception
+    {
+        return givenProduction( "bar", sequence( sequence(
+                oneOf( sequence( literal( "BAR" ), epsilon() ) ),
+                oneOf( epsilon(), epsilon() ) ) ) )
+                .expectDiagram( "bar", text( "BAR" ) );
+    }
+
+    @Test
+    public static Expectation shouldCombineAlternativeLines() throws Exception
+    {
+        return givenProduction( "alts", oneOf(
+                sequence( literal( "kill" ), literal( "all" ), literal( "animals" ) ),
+                sequence( literal( "kill" ), literal( "no" ), literal( "animals" ) ) ) )
+                .expectDiagram( "alts", line(
+                        text( "kill" ),
+                        branch( text( "all" ), text( "no" ) ),
+                        text( "animals" ) ) );
+    }
+
+    @Test
+    public static Expectation shouldCombineAlternatives() throws Exception
+    {
+        return givenProduction( "alts", oneOf(
+                literal( "FOO" ),
+                sequence( literal( "FOO" ), literal( "BAR" ) ) ) )
+                .expectDiagram( "alts", line(
+                        text( "FOO" ),
+                        branch( nothing(), text( "BAR" ) ) ) );
+    }
+
+    @Test
+    public static Expectation shouldCombineLoopWithPrefix() throws Exception
+    {
+        return givenProduction( "loop", sequence(
+                literal( "a" ), literal( "b" ),
+                zeroOrMore( literal( "," ), literal( "a" ), literal( "b" ) ) ) )
+                .expectDiagram( "loop", loop( line( text( "a" ), text( "b" ) ), text( "," ), 0, null ) );
+    }
+
+    @Override
+    protected void run( Expectation expected )
     {
         // when
         List<Diagram> diagrams = Diagram.build( expected.given.grammar, expected.given );
@@ -117,21 +139,14 @@ public class DiagramTest
         assertEquals( expected.diagram, actual );
     }
 
-    static Given given( Grammar.Builder grammar )
+    private static Given given( Grammar.Builder grammar )
     {
         return new Given( grammar.build() );
     }
 
-    static Given givenProduction( String name, Grammar.Term first, Grammar.Term... alternatives )
+    private static Given givenProduction( String name, Grammar.Term first, Grammar.Term... alternatives )
     {
         return new Given( grammar( name ).production( name, first, alternatives ).build() );
-    }
-
-    private final Expectation expected;
-
-    public DiagramTest( Expectation expected )
-    {
-        this.expected = expected;
     }
 
     private static class Given implements Diagram.BuilderOptions
@@ -144,9 +159,9 @@ public class DiagramTest
             this.grammar = grammar;
         }
 
-        Object[] expectDiagram( String name, Diagram.Figure figure )
+        Expectation expectDiagram( String name, Diagram.Figure figure )
         {
-            return new Object[]{new Expectation( this, Diagram.diagram( name, figure ) )};
+            return new Expectation( this, Diagram.diagram( name, figure ) );
         }
 
         Given withExpandAnyCase( boolean expandAnyCase )
@@ -162,7 +177,7 @@ public class DiagramTest
         }
     }
 
-    private static class Expectation
+    static class Expectation
     {
         final Given given;
         final Diagram diagram;
