@@ -120,7 +120,7 @@
     LOAD &SP; CSV &SP;
     <opt>WITH &SP; HEADERS &SP;</opt>
     FROM &SP; &expr; &SP;
-    AS &var; &SP;
+    AS &SP; &var; &SP;
     <opt>FIELDTERMINATOR &SP; <non-terminal ref="StringLiteral"/></opt>
   </production>
 
@@ -133,11 +133,11 @@
   </production>
 
   <production name="Unwind">
-    UNWIND &SP; &expr; &SP; AS &SP; &var;
+    UNWIND &WS; &expr; &SP; AS &SP; &var;
   </production>
 
   <production name="Merge">
-    MERGE &SP; <non-terminal ref="PatternPart"/>
+    MERGE &WS; <non-terminal ref="PatternPart"/>
     <repeat>
       &SP; <non-terminal ref="MergeAction"/>
     </repeat>
@@ -152,8 +152,8 @@
 
   <production name="Create">
     <alt>
-      <seq>CREATE UNIQUE &SP; <non-terminal ref="Pattern"/></seq>
-      <seq>CREATE &SP; <non-terminal ref="Pattern"/></seq>
+      <seq>CREATE &SP; UNIQUE &WS; <non-terminal ref="Pattern"/></seq>
+      <seq>CREATE &WS; <non-terminal ref="Pattern"/></seq>
     </alt>
   </production>
 
@@ -211,16 +211,16 @@
 
   <production name="Return">
     <alt>
-      <seq>RETURN DISTINCT &SP;<non-terminal ref="ReturnBody"/></seq>
+      <seq>RETURN &SP; DISTINCT &SP;<non-terminal ref="ReturnBody"/></seq>
       <seq>RETURN &SP;<non-terminal ref="ReturnBody"/></seq>
     </alt>
   </production>
 
   <production name="ReturnBody">
     <non-terminal ref="ReturnItems"/>
-    <opt><non-terminal ref="Order"/></opt>
-    <opt><non-terminal ref="Skip"/></opt>
-    <opt><non-terminal ref="Limit"/></opt>
+    <opt>&SP;<non-terminal ref="Order"/></opt>
+    <opt>&SP;<non-terminal ref="Skip"/></opt>
+    <opt>&SP;<non-terminal ref="Limit"/></opt>
   </production>
 
   <production name="ReturnItems">
@@ -239,16 +239,16 @@
 
 
   <production name="Order">
-    ORDER BY <non-terminal ref="SortItem"/>
-    <repeat> , <non-terminal ref="SortItem"/></repeat>
+    ORDER &SP; BY &SP; <non-terminal ref="SortItem"/>
+    <repeat> , &WS; <non-terminal ref="SortItem"/></repeat>
   </production>
 
   <production name="Skip">
-    SKIP &expr;
+    SKIP &SP; &expr;
   </production>
 
   <production name="Limit">
-    LIMIT &expr;
+    LIMIT &SP; &expr;
   </production>
 
   <production name="SortItem">
