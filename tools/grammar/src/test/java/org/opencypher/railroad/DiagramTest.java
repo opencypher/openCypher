@@ -39,7 +39,7 @@ import static org.opencypher.railroad.Diagram.loop;
 import static org.opencypher.railroad.Diagram.nothing;
 import static org.opencypher.railroad.Diagram.reference;
 import static org.opencypher.railroad.Diagram.text;
-import static org.opencypher.tools.output.Output.stringBuilder;
+import static org.opencypher.tools.io.Output.stringBuilder;
 
 public class DiagramTest extends ParameterTest<DiagramTest.Expectation>
 {

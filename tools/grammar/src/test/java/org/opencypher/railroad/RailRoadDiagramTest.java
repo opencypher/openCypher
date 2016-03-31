@@ -184,17 +184,20 @@ public class RailRoadDiagramTest
         return sequence( component, zeroOrMore( delimiter, component ) );
     }
 
-    Map<String, Document> generate( Grammar.Term grammar, Option<?>... options ) throws Exception
+    @SafeVarargs
+    private final Map<String, Document> generate( Grammar.Term grammar, Option<Object>... options ) throws Exception
     {
         return generate( grammar( fixture.testName() ).production( fixture.testName(), grammar ), options );
     }
 
-    Map<String, Document> generate( Grammar.Builder grammar, Option<?>... options ) throws Exception
+    @SafeVarargs
+    private final Map<String, Document> generate( Grammar.Builder grammar, Option<Object>... options ) throws Exception
     {
         return generate( grammar.build(), options );
     }
 
-    Map<String, Document> generate( Grammar grammar, Option<?>... options ) throws Exception
+    @SafeVarargs
+    private final Map<String, Document> generate( Grammar grammar, Option<Object>... options ) throws Exception
     {
         return interactive.test( new RailRoadViewer.Context( grammar, options ) );
     }

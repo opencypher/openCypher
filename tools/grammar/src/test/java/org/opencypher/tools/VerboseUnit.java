@@ -18,10 +18,10 @@ package org.opencypher.tools;
 
 import java.util.function.Consumer;
 
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
-import static org.opencypher.tools.output.Output.nowhere;
-import static org.opencypher.tools.output.Output.stdOut;
+import static org.opencypher.tools.io.Output.nowhere;
+import static org.opencypher.tools.io.Output.stdOut;
 
 public class VerboseUnit extends Interactive<Consumer<Output>, Void>
 {
@@ -66,7 +66,7 @@ public class VerboseUnit extends Interactive<Consumer<Output>, Void>
                 test.accept( nowhere() );
             }
             time = System.nanoTime() - time;
-            out.printf( "%s: %.3fus/invocation%n", methodName, time / 1000.0 / times );
+            out.format( "%s: %.3fus/invocation%n", methodName, time / 1000.0 / times );
         }
     }
 }

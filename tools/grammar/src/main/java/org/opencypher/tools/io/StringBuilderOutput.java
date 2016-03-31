@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools.output;
+package org.opencypher.tools.io;
 
 import java.io.Reader;
 import java.util.stream.IntStream;

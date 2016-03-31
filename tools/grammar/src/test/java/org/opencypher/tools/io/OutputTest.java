@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools.output;
+package org.opencypher.tools.io;
 
 import java.io.Writer;
 
@@ -29,12 +29,12 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.opencypher.tools.output.Output.multiplex;
-import static org.opencypher.tools.output.Output.nowhere;
-import static org.opencypher.tools.output.Output.output;
-import static org.opencypher.tools.output.Output.stdErr;
-import static org.opencypher.tools.output.Output.stdOut;
-import static org.opencypher.tools.output.Output.stringBuilder;
+import static org.opencypher.tools.io.Output.multiplex;
+import static org.opencypher.tools.io.Output.nowhere;
+import static org.opencypher.tools.io.Output.output;
+import static org.opencypher.tools.io.Output.stdErr;
+import static org.opencypher.tools.io.Output.stdOut;
+import static org.opencypher.tools.io.Output.stringBuilder;
 
 public class OutputTest
 {

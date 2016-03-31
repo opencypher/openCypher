@@ -21,7 +21,7 @@ import java.io.StringWriter;
 import org.junit.Test;
 import org.opencypher.grammar.Fixture;
 import org.opencypher.grammar.Grammar;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
 import static org.junit.Assert.assertEquals;
 import static org.opencypher.grammar.Grammar.atLeast;
@@ -34,10 +34,10 @@ import static org.opencypher.grammar.Grammar.optional;
 import static org.opencypher.grammar.Grammar.repeat;
 import static org.opencypher.grammar.Grammar.sequence;
 import static org.opencypher.grammar.Grammar.zeroOrMore;
-import static org.opencypher.tools.output.Output.lineNumbers;
-import static org.opencypher.tools.output.Output.lines;
-import static org.opencypher.tools.output.Output.stdOut;
-import static org.opencypher.tools.output.Output.stringBuilder;
+import static org.opencypher.tools.io.Output.lineNumbers;
+import static org.opencypher.tools.io.Output.lines;
+import static org.opencypher.tools.io.Output.stdOut;
+import static org.opencypher.tools.io.Output.stringBuilder;
 
 public class ISO14977Test
 {

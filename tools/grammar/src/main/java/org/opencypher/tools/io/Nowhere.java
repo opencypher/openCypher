@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools.output;
+package org.opencypher.tools.io;
 
 import java.util.Locale;
 
@@ -57,7 +57,7 @@ enum Nowhere implements Output.Readable
     }
 
     @Override
-    public boolean contentsEquals( CharSequence that )
+    public boolean contentEquals( CharSequence that )
     {
         return that.length() == 0;
     }
@@ -102,11 +102,9 @@ enum Nowhere implements Output.Readable
     {
     }
 
-    private static final String STRING = Output.class.getSimpleName() + ".nowhere()";
-
     @Override
     public String toString()
     {
-        return STRING;
+        return "";
     }
 }

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools.output;
+package org.opencypher.tools.io;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,21 +23,21 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 @FunctionalInterface
-public interface Input
+public interface LineInput
 {
     String read();
 
-    static Input stdIn()
+    static LineInput stdIn()
     {
         return input( System.in );
     }
 
-    static Input input( InputStream input )
+    static LineInput input( InputStream input )
     {
         return input( new BufferedReader( new InputStreamReader( input ) ) );
     }
 
-    static Input input( Reader in )
+    static LineInput input( Reader in )
     {
         BufferedReader input = in instanceof BufferedReader ? (BufferedReader) in : new BufferedReader( in );
         return () -> {

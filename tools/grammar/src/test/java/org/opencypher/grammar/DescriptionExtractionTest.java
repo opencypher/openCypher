@@ -19,7 +19,7 @@ package org.opencypher.grammar;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.opencypher.tools.output.Output.lines;
+import static org.opencypher.tools.io.Output.lines;
 
 public class DescriptionExtractionTest
 {

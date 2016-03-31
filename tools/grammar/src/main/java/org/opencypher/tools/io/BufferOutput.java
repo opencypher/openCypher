@@ -14,33 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools.output;
+package org.opencypher.tools.io;
 
-class LineNumberingOutput implements Output
+import java.nio.CharBuffer;
+
+class BufferOutput extends FormattingOutput<CharBuffer>
 {
-    private final Output output;
-    boolean newLine = true;
-    private int lineNo;
-
-    LineNumberingOutput( Output output )
+    BufferOutput( CharBuffer output )
     {
-        this.output = output;
+        super( output );
     }
 
     @Override
     public Output append( char x )
     {
-        if ( newLine )
-        {
-            output.format( "%5d: ", lineNo );
-            newLine = false;
-        }
         output.append( x );
-        if ( x == '\n' )
-        {
-            newLine = true;
-            lineNo++;
-        }
+        return this;
+    }
+
+    @Override
+    public Output append( CharSequence str )
+    {
+        output.append( str );
+        return this;
+    }
+
+    @Override
+    public Output append( CharSequence str, int start, int end )
+    {
+        output.append( str, start, end );
         return this;
     }
 }

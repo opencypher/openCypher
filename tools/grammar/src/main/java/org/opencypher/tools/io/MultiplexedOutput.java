@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools.output;
+package org.opencypher.tools.io;
 
 class MultiplexedOutput extends FormattingOutput<Output[]>
 {
@@ -236,21 +236,21 @@ class MultiplexedOutput extends FormattingOutput<Output[]>
     }
 
     @Override
-    public Output println( char[] x )
+    public Output println( char[] str )
     {
         for ( Output output : this.output )
         {
-            output.println( x );
+            output.println( str );
         }
         return this;
     }
 
     @Override
-    public Output println( String x )
+    public Output println( String str )
     {
         for ( Output output : this.output )
         {
-            output.println( x );
+            output.println( str );
         }
         return this;
     }

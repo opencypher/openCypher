@@ -30,10 +30,13 @@ import org.opencypher.grammar.ProductionVisitor;
 import org.opencypher.grammar.Repetition;
 import org.opencypher.grammar.Sequence;
 import org.opencypher.grammar.TermVisitor;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
 import static org.opencypher.tools.Functions.requireNonNull;
 
+/**
+ * Shared base for generators that generate BNF-like grammar definitions.
+ */
 abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVisitor<RuntimeException>, AutoCloseable
 {
     private int altPrefix;

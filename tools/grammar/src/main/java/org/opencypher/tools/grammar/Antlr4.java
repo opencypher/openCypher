@@ -26,7 +26,7 @@ import java.util.Map;
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.NonTerminal;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
 import static java.lang.Character.charCount;
 import static java.lang.Character.isLowerCase;
@@ -37,8 +37,11 @@ import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import static org.opencypher.tools.grammar.Main.execute;
-import static org.opencypher.tools.output.Output.output;
+import static org.opencypher.tools.io.Output.output;
 
+/**
+ * Generates an ANTLR (version 4) grammar from a {@link Grammar}.
+ */
 public class Antlr4 extends BnfWriter
 {
     public static void write( Grammar grammar, Writer writer )

@@ -23,7 +23,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 import org.opencypher.grammar.Grammar;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
 import static org.junit.Assert.assertThat;
 import static org.opencypher.grammar.Grammar.caseInsensitive;
@@ -34,7 +34,7 @@ import static org.opencypher.grammar.Grammar.nonTerminal;
 import static org.opencypher.grammar.Grammar.optional;
 import static org.opencypher.grammar.Grammar.zeroOrMore;
 import static org.opencypher.tools.grammar.Antlr4ToolFacade.assertGeneratesValidParser;
-import static org.opencypher.tools.output.Output.stringBuilder;
+import static org.opencypher.tools.io.Output.stringBuilder;
 
 public class Antlr4Test
 {
@@ -206,7 +206,7 @@ public class Antlr4Test
             @Override
             protected boolean matchesSafely( Output.Readable item )
             {
-                return item.contentsEquals( expected );
+                return item.contentEquals( expected );
             }
 
             @Override

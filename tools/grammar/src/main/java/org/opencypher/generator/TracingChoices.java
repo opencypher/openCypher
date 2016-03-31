@@ -22,7 +22,7 @@ import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.Optional;
 import org.opencypher.grammar.Repetition;
 import org.opencypher.tools.grammar.ISO14977;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
 import static java.util.Objects.requireNonNull;
 

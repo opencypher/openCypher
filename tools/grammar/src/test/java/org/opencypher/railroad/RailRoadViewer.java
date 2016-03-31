@@ -58,9 +58,10 @@ class RailRoadViewer implements Interactive.Test<RailRoadViewer.Context, Map<Str
     static final class Context
     {
         private final Grammar grammar;
-        private final Option<?>[] options;
+        private final Option<Object>[] options;
 
-        Context( Grammar grammar, Option<?>... options )
+        @SafeVarargs
+        Context( Grammar grammar, Option<Object>... options )
         {
             this.grammar = grammar;
             this.options = options;

@@ -21,13 +21,16 @@ import java.io.Writer;
 
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
-import org.opencypher.grammar.Literal;
 import org.opencypher.grammar.NonTerminal;
 import org.opencypher.grammar.Production;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
-import static org.opencypher.tools.output.Output.output;
+import static org.opencypher.tools.io.Output.output;
 
+/**
+ * Generates an EBNF grammar according to the <a href="https://www.cl.cam.ac.uk/~mgk25/iso-14977.pdf">ISO14977</a>
+ * notation specification.
+ */
 public class ISO14977 extends BnfWriter
 {
     public static void write( Grammar grammar, Writer writer )
@@ -46,8 +49,8 @@ public class ISO14977 extends BnfWriter
         if ( header != null )
         {
             output.append( "(*\n * " )
-                    .printLines( header, " * " )
-                    .println( " *)" );
+                  .printLines( header, " * " )
+                  .println( " *)" );
         }
         try ( ISO14977 writer = new ISO14977( output ) )
         {

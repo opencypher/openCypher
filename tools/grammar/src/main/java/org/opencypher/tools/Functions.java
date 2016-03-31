@@ -30,29 +30,75 @@ import java.util.stream.Collector;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 
+/**
+ * Utilities for working with Java functions.
+ */
 public class Functions
 {
+    /**
+     * Require an instance not to be null, using the (simple) name of the required type as an error message if it is.
+     *
+     * @param type  the required type.
+     * @param value the value that must not be null.
+     * @param <T>   the type.
+     * @return the value, that is guaranteed not to be null.
+     * @see Objects#requireNonNull(Object, Supplier)
+     */
     public static <T> T requireNonNull( Class<T> type, T value )
     {
         return Objects.requireNonNull( value, type::getSimpleName );
     }
 
+    /**
+     * Convert the value supplied by a {@link Supplier} by passing it through a {@link Function}.
+     *
+     * @param source the source supplier that supplies the original value.
+     * @param map    the function that converts the value of the original supplier.
+     * @param <I>    the type of the value supplied by the original supplier.
+     * @param <O>    the type of the value supplied by the resulting supplier.
+     * @return a converting supplier.
+     */
     public static <I, O> Supplier<O> map( Supplier<I> source, Function<I, O> map )
     {
         return () -> map.apply( source.get() );
     }
 
+    /**
+     * Create a {@link Map} by applying a function that extracts the key from an array of values.
+     *
+     * @param key    the key extraction function.
+     * @param values the values of the map (from which the keys are extracted).
+     * @param <K>    the type of the keys.
+     * @param <V>    the type of the values.
+     * @return a {@link Map} from the keys of the values to the values.
+     */
     @SafeVarargs
     public static <K, V> Map<K, V> map( Function<V, K> key, V... values )
     {
         return values == null || values.length == 0 ? emptyMap() : map( asList( values ), key );
     }
 
+    /**
+     * A method that is useful as a method reference to implement an identity function.
+     *
+     * @param value the input (and output) value of the function.
+     * @param <T>   the type of the value.
+     * @return the value that was passed in.
+     */
     public static <T> T identity( T value )
     {
         return value;
     }
 
+    /**
+     * Create a {@link Map} by applying a function that extracts the key from a collection of values.
+     *
+     * @param values the values of the map (from which the keys are extracted).
+     * @param key    the key extraction function.
+     * @param <K>    the type of the keys.
+     * @param <V>    the type of the values.
+     * @return a {@link Map} from the keys of the values to the values.
+     */
     public static <K, V> Map<K, V> map( Collection<V> values, Function<V, K> key )
     {
         if ( Objects.requireNonNull( values, "values" ).size() == 0 )
@@ -75,6 +121,13 @@ public class Functions
         return result;
     }
 
+    /**
+     * A {@link Collector} that collects {@linkplain Optional optional} values to a list.
+     * The collector only collects values that are {@linkplain Optional#isPresent() present}.
+     *
+     * @param <T> the type of values to collect.
+     * @return a collector that collects optional values to a list.
+     */
     @SuppressWarnings("unchecked")
     public static <T> Collector<Optional<T>, List<T>, List<T>> flatList()
     {

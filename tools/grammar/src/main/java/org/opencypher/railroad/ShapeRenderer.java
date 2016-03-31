@@ -336,7 +336,8 @@ public final class ShapeRenderer<EX extends Exception>
     private final double loopSpacing, loopRadius, loopBefore, loopAfter, loopDescriptionMargin;
     private final Size bulletSize, arrowSize;
 
-    ShapeRenderer( Option<?>... options )
+    @SafeVarargs
+    ShapeRenderer( Option<? super Options>... options )
     {
         this( link -> null,
               new FontRenderContext( new AffineTransform(), true, true ),

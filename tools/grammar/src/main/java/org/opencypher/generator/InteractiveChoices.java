@@ -24,8 +24,8 @@ import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.Optional;
 import org.opencypher.grammar.Repetition;
 import org.opencypher.tools.grammar.ISO14977;
-import org.opencypher.tools.output.Input;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.LineInput;
+import org.opencypher.tools.io.Output;
 
 import static java.lang.Integer.parseUnsignedInt;
 
@@ -35,10 +35,10 @@ public class InteractiveChoices implements Choices
 {
     private final Interface repl;
 
-    public InteractiveChoices( Input input, Output output, Choices defaultChoices )
+    public InteractiveChoices( LineInput input, Output output, Choices defaultChoices )
     {
         repl = new Interface(
-                requireNonNull( Input.class, input ),
+                requireNonNull( LineInput.class, input ),
                 requireNonNull( Output.class, output ),
                 defaultChoices );
     }
@@ -55,11 +55,11 @@ public class InteractiveChoices implements Choices
 
     private static class Interface
     {
-        private final Input input;
+        private final LineInput input;
         private final Output output;
         private final Choices defaultChoices;
 
-        private Interface( Input input, Output output, Choices defaultChoices )
+        private Interface( LineInput input, Output output, Choices defaultChoices )
         {
             this.input = input;
             this.output = output;

@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import org.opencypher.tools.Reflection;
+
 import static java.util.Collections.singletonList;
 
 class Structure
@@ -150,20 +152,7 @@ class Structure
 
     private static Function<Object, Object> factory( MethodHandle create )
     {
-        return ( parent ) -> {
-            try
-            {
-                return create.invokeWithArguments( parent );
-            }
-            catch ( RuntimeException | Error e )
-            {
-                throw e;
-            }
-            catch ( Throwable throwable )
-            {
-                throw new RuntimeException( throwable );
-            }
-        };
+        return ( parent ) -> Reflection.invoke( create, parent );
     }
 
     private static class Lookup extends ClassValue<Structure>

@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.opencypher.generator.Generator;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.tools.VerboseUnit;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
@@ -39,7 +39,7 @@ import static org.opencypher.grammar.Grammar.oneOf;
 import static org.opencypher.grammar.Grammar.sequence;
 import static org.opencypher.grammar.Grammar.zeroOrMore;
 import static org.opencypher.tools.Assert.with;
-import static org.opencypher.tools.output.Output.stringBuilder;
+import static org.opencypher.tools.io.Output.stringBuilder;
 
 public class CypherGeneratorFactoryTest
 {

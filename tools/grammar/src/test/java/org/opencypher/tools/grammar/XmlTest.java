@@ -24,15 +24,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.opencypher.grammar.Fixture;
 import org.opencypher.grammar.Grammar;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.opencypher.grammar.ProductionVisitor.production;
-import static org.opencypher.tools.output.Output.lineNumbers;
-import static org.opencypher.tools.output.Output.stdOut;
-import static org.opencypher.tools.output.Output.stringBuilder;
+import static org.opencypher.tools.io.Output.lineNumbers;
+import static org.opencypher.tools.io.Output.stdOut;
+import static org.opencypher.tools.io.Output.stringBuilder;
 
 public class XmlTest
 {

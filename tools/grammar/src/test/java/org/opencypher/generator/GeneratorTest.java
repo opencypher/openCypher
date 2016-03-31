@@ -16,7 +16,6 @@
  */
 package org.opencypher.generator;
 
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.opencypher.grammar.Fixture;
 import org.opencypher.grammar.Grammar;
-import org.opencypher.tools.grammar.CypherGeneratorFactory;
 
 import static java.lang.Character.charCount;
 
@@ -41,8 +39,8 @@ import static org.opencypher.grammar.Grammar.nonTerminal;
 import static org.opencypher.grammar.Grammar.optional;
 import static org.opencypher.grammar.Grammar.sequence;
 import static org.opencypher.grammar.Grammar.zeroOrMore;
-import static org.opencypher.tools.output.Output.output;
-import static org.opencypher.tools.output.Output.stdOut;
+import static org.opencypher.tools.io.Output.output;
+import static org.opencypher.tools.io.Output.stdOut;
 
 public class GeneratorTest
 {

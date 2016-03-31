@@ -14,35 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools.output;
-
-import java.nio.CharBuffer;
-
-class BufferOutput extends FormattingOutput<CharBuffer>
-{
-    BufferOutput( CharBuffer output )
-    {
-        super( output );
-    }
-
-    @Override
-    public Output append( char x )
-    {
-        output.append( x );
-        return this;
-    }
-
-    @Override
-    public Output append( CharSequence str )
-    {
-        output.append( str );
-        return this;
-    }
-
-    @Override
-    public Output append( CharSequence str, int start, int end )
-    {
-        output.append( str, start, end );
-        return this;
-    }
-}
+/**
+ * This is the entry-point package for the tools in this library.
+ * <p>
+ * {@linkplain org.opencypher.tools.grammar.Main The <code>Main</code> class} is the {@code Main-Class} for the jar
+ * file, and is responsible for dispatching to one of the other utilities in this package.
+ * <p>
+ * The utilities in this package perform some action based on a grammar, typically generating a specific format from
+ * it.
+ */
+package org.opencypher.tools.grammar;

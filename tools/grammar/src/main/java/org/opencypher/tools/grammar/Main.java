@@ -38,6 +38,12 @@ import static java.lang.String.format;
 import static org.opencypher.tools.Reflection.lambdaClass;
 import static org.opencypher.tools.Reflection.pathOf;
 
+/**
+ * {@code Main-Class} for the jar, dispatches to the class (in this package) named (by {@linkplain Class#getSimpleName()
+ * simple name}) in the first command line argument.
+ *
+ * Example: <code>java -jar grammar-tools.jar {@link ISO14977} cypher.xml</code>
+ */
 interface Main extends Serializable
 {
     /**

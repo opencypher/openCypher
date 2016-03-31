@@ -19,7 +19,7 @@ package org.opencypher.generator;
 import java.util.function.Supplier;
 
 import org.opencypher.grammar.Grammar;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
 import static java.util.Objects.requireNonNull;
 

@@ -18,14 +18,14 @@ package org.opencypher.grammar;
 
 import java.util.Random;
 
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
 import static org.opencypher.grammar.CodePointSet.codePoints;
 import static org.opencypher.grammar.CodePointSet.generalCategory;
 import static org.opencypher.grammar.CodePointSet.range;
 import static org.opencypher.grammar.CodePointSet.single;
 import static org.opencypher.grammar.CodePointSet.union;
-import static org.opencypher.tools.output.Output.stringBuilder;
+import static org.opencypher.tools.io.Output.stringBuilder;
 
 public interface CharacterSet
 {

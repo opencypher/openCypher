@@ -14,39 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools.output;
+package org.opencypher.tools.io;
 
-import static java.util.Objects.deepEquals;
-import static java.util.Objects.hash;
-
-abstract class BaseOutput<Target> implements Output
+class LineNumberingOutput implements Output
 {
-    final Target output;
+    private final Output output;
+    boolean newLine = true;
+    private int lineNo;
 
-    BaseOutput( Target output )
+    LineNumberingOutput( Output output )
     {
-        assert output != null : "null output";
         this.output = output;
     }
 
     @Override
-    public String toString()
+    public Output append( char x )
     {
-        return getClass().getSimpleName() + "( " + output + " )";
-    }
-
-    @Override
-    public final boolean equals( Object that )
-    {
-        return this == that || (
-                that != null &&
-                this.getClass() == that.getClass() &&
-                deepEquals( output, ((BaseOutput<?>) that).output ));
-    }
-
-    @Override
-    public final int hashCode()
-    {
-        return hash( output );
+        if ( newLine )
+        {
+            output.format( "%5d: ", lineNo );
+            newLine = false;
+        }
+        output.append( x );
+        if ( x == '\n' )
+        {
+            newLine = true;
+            lineNo++;
+        }
+        return this;
     }
 }

@@ -27,13 +27,11 @@ import javax.xml.transform.Result;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stream.StreamResult;
 
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import static java.lang.String.format;
-
-import static com.sun.javafx.css.SizeUnits.EX;
 
 public class SVGShapes implements ShapeRenderer.Shapes<XMLStreamException>
 {

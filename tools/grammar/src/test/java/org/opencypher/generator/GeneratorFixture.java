@@ -21,7 +21,7 @@ import java.util.function.Function;
 import org.opencypher.grammar.Grammar;
 
 import static org.junit.Assert.assertEquals;
-import static org.opencypher.tools.output.Output.output;
+import static org.opencypher.tools.io.Output.output;
 
 public class GeneratorFixture
 {

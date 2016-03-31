@@ -41,8 +41,17 @@ import static java.util.stream.Collectors.joining;
 import static org.opencypher.tools.TypedArgument.types;
 import static org.opencypher.tools.TypedArgument.values;
 
+/**
+ * Utilities for working with Java reflection.
+ */
 public class Reflection
 {
+    /**
+     * Get the implementation method of a ({@linkplain Serializable serializable}) lambda.
+     *
+     * @param lambda the ({@linkplain Serializable serializable}) lambda to get the implementation for.
+     * @return the {@link Method} that implements the lambda.
+     */
     public static Method lambdaMethod( Serializable lambda )
     {
         SerializedLambda serialized = serializedLambda( lambda );
@@ -55,6 +64,15 @@ public class Reflection
                      .orElseThrow( () -> new IllegalStateException( "Unable to find implementation method." ) );
     }
 
+    /**
+     * Get the parameter name of a ({@linkplain Serializable serializable}) lambda with a single parameter.
+     * <p>
+     * Getting the parameter requires the source to be compiled with the {@code -parameters} flag passed to {@code
+     * javac} and JDK {@code 1.8.0_60} or newer.
+     *
+     * @param lambda the ({@linkplain Serializable serializable}) lambda to get the parameter name from.
+     * @return the name of the sole parameter of the lambda.
+     */
     public static String lambdaParameterName( Serializable lambda )
     {
         Parameter[] parameters = lambdaMethod( lambda ).getParameters();
@@ -72,6 +90,17 @@ public class Reflection
         return parameter.getName();
     }
 
+    /**
+     * Implement a functional interface by a {@link MethodHandle} in the same way that a lambda would.
+     *
+     * @param caller    the lookup context of the caller.
+     * @param type      the functional interface to implement.
+     * @param target    the method handle to implement the method of the functional interface.
+     * @param arguments extra arguments to be passed to the target method handle, in addition to the arguments of the
+     *                  implemented method.
+     * @param <T>       the type of the functional interface.
+     * @return an implementation of the functional interface based on the supplied method handle.
+     */
     public static <T> T lambda( MethodHandles.Lookup caller, Class<T> type, MethodHandle target,
                                 TypedArgument... arguments )
     {
@@ -115,6 +144,12 @@ public class Reflection
         }
     }
 
+    /**
+     * Returns a method handle that invoke a default method of an interface.
+     *
+     * @param method the (default) method to get a method handle for.
+     * @return a method handle that invokes the specific default method.
+     */
     public static MethodHandle defaultInvoker( Method method )
     {
         if ( !method.isDefault() )
@@ -131,6 +166,36 @@ public class Reflection
         }
     }
 
+    /**
+     * Invoke the given method handle with the specified single argument. Handles the exceptions declared by
+     * MethodHandle allowing this method to be used in a context where no checked exceptions may be thrown.
+     *
+     * @param method the method handle to invoke.
+     * @param target the argument to pass to the method.
+     * @return the result of invoking the method.
+     */
+    public static Object invoke( MethodHandle method, Object target )
+    {
+        try
+        {
+            return method.invokeWithArguments( target );
+        }
+        catch ( RuntimeException | Error e )
+        {
+            throw e;
+        }
+        catch ( Throwable e )
+        {
+            throw new RuntimeException( e );
+        }
+    }
+
+    /**
+     * Get the only abstract method of a class (such as a function interface).
+     *
+     * @param type the class (functional interface) to find the only abstract method of.
+     * @return the only abstract method of the given class.
+     */
     private static Method sam( Class<?> type )
     {
         if ( !type.isInterface() )
@@ -144,21 +209,48 @@ public class Reflection
                      } ).orElseThrow( () -> new IllegalStateException( "No methods." ) );
     }
 
+    /**
+     * Get the class where the method of a ({@linkplain Serializable serializable}) lambda is implemented.
+     *
+     * @param lambda the ({@linkplain Serializable serializable}) lambda to get the implementing class of.
+     * @return the class where the ({@linkplain Serializable serializable}) lambda is implemented.
+     */
     public static Class<?> lambdaClass( Serializable lambda )
     {
         return lambdaClass( serializedLambda( lambda ) );
     }
 
+    /**
+     * Get the location in the classpath from where the given class is loaded.
+     *
+     * @param cls the class to find the classpath location of.
+     * @return the classpath location of the given class.
+     */
     public static String pathOf( Class<?> cls )
     {
         return cls.getProtectionDomain().getCodeSource().getLocation().getPath();
     }
 
+    /**
+     * Get the name of the method used to implement a ({@linkplain Serializable serializable}) lambda.
+     * This is mostly useful for lambdas that are implemented by a method reference.
+     *
+     * @param lambda the lambda to get the implementing method name of.
+     * @return the name of the method that implements the given ({@linkplain Serializable serializable}) lambda.
+     */
     public static String lambdaImplMethodName( Serializable lambda )
     {
         return serializedLambda( lambda ).getImplMethodName();
     }
 
+    /**
+     * Get a method handle to the underlying method that implements a given ({@linkplain Serializable serializable})
+     * lambda.
+     *
+     * @param lookup a context that has access to looking up the target method.
+     * @param lambda the ({@linkplain Serializable serializable}) lambda to find the implementing method of.
+     * @return a method handle to the implementing method of the given ({@linkplain Serializable serializable}) lambda.
+     */
     public static MethodHandle methodHandle( MethodHandles.Lookup lookup, Serializable lambda )
     {
         try
@@ -189,6 +281,12 @@ public class Reflection
         }
     }
 
+    /**
+     * Serialize a ({@linkplain Serializable serializable}) lambda.
+     *
+     * @param lambda the ({@linkplain Serializable serializable}) lambda to serialize.
+     * @return the serialized form of the given lambda.
+     */
     private static SerializedLambda serializedLambda( Serializable lambda )
     {
         try
@@ -217,6 +315,17 @@ public class Reflection
 
     private static final MethodHandles.Lookup LOOKUP;
 
+    /**
+     * Find that method of a given instance that implements the specified abstract method of a given base class.
+     * <p>
+     * This is useful for finding the <i>actual</i> type that implements a type parameter of the base class.
+     *
+     * @param instance   the instance to find the implementation method of.
+     * @param base       the base class that declares the abstract method in question.
+     * @param methodName the name of the abstract method.
+     * @param <T>        the base type of the instance (the type of the base class).
+     * @return the method that implements the abstract method of the base class.
+     */
     public static <T> Method implementation( T instance, Class<T> base, String methodName )
     {
         Method proto = Stream.of( base.getDeclaredMethods() )
@@ -256,7 +365,6 @@ public class Reflection
 
     static
     {
-
         try
         {
             final Field field = MethodHandles.Lookup.class.getDeclaredField( "IMPL_LOOKUP" );

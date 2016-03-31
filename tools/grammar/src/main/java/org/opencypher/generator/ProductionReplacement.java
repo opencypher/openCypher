@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.function.Consumer;
 
 import org.opencypher.tools.Reflection;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
 public interface ProductionReplacement<T> extends Serializable
 {

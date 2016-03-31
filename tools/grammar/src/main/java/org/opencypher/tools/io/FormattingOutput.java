@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools.output;
+package org.opencypher.tools.io;
 
 import java.util.Formatter;
 import java.util.Locale;
@@ -50,17 +50,5 @@ abstract class FormattingOutput<Target> extends BaseOutput<Target>
         }
         formatter.format( l, format, args );
         return this;
-    }
-
-    @Override
-    public final Output printf( String format, Object... args )
-    {
-        return format( format, args );
-    }
-
-    @Override
-    public final Output printf( Locale l, String format, Object... args )
-    {
-        return format( l, format, args );
     }
 }

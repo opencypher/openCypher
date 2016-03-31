@@ -28,12 +28,12 @@ import org.antlr.v4.tool.ast.GrammarAST;
 import org.antlr.v4.tool.ast.GrammarRootAST;
 import org.antlr.v4.tool.ast.RuleAST;
 import org.opencypher.grammar.Fixture;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
 import static org.junit.Assert.fail;
-import static org.opencypher.tools.output.Output.lineNumbers;
-import static org.opencypher.tools.output.Output.stdOut;
-import static org.opencypher.tools.output.Output.stringBuilder;
+import static org.opencypher.tools.io.Output.lineNumbers;
+import static org.opencypher.tools.io.Output.stdOut;
+import static org.opencypher.tools.io.Output.stringBuilder;
 
 public class Antlr4ToolFacade implements ANTLRToolListener
 {

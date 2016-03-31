@@ -29,15 +29,18 @@ import org.opencypher.generator.InteractiveChoices;
 import org.opencypher.generator.Node;
 import org.opencypher.generator.ProductionReplacement;
 import org.opencypher.generator.TracingChoices;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 import org.xml.sax.SAXException;
 
 import static org.opencypher.tools.grammar.Main.execute;
-import static org.opencypher.tools.output.Input.stdIn;
-import static org.opencypher.tools.output.Output.output;
-import static org.opencypher.tools.output.Output.stdOut;
-import static org.opencypher.tools.output.Output.stringBuilder;
+import static org.opencypher.tools.io.LineInput.stdIn;
+import static org.opencypher.tools.io.Output.output;
+import static org.opencypher.tools.io.Output.stdOut;
+import static org.opencypher.tools.io.Output.stringBuilder;
 
+/**
+ * Generates sample strings from a language.
+ */
 public class CypherGeneratorFactory extends GeneratorFactory<CypherGeneratorFactory.State>
         implements Supplier<Generator>
 {

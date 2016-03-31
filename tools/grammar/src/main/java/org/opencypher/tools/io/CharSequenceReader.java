@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools.output;
+package org.opencypher.tools.io;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -23,14 +23,14 @@ import java.io.Reader;
  * Inspired by {@link java.io.StringReader}.
  */
 @SuppressWarnings("SynchronizeOnNonFinalField")
-public class CharSequenceReader extends Reader
+class CharSequenceReader extends Reader
 {
     private CharSequence str;
     private int end;
     private int next;
     private int mark = 0;
 
-    public CharSequenceReader( CharSequence str, int start, int end )
+    CharSequenceReader( CharSequence str, int start, int end )
     {
         super( str );
         this.str = str;

@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import static org.opencypher.tools.Assert.assertEquals;
-import static org.opencypher.tools.output.Output.string;
+import static org.opencypher.tools.io.Output.string;
 
 public class NodeWritingTest
 {

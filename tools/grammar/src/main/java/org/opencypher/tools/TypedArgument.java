@@ -18,10 +18,28 @@ package org.opencypher.tools;
 
 import java.util.Objects;
 
+/**
+ * Utility class used in {@link Reflection} to specify the type of a parameter along with the corresponding argument
+ * value. This allows passing an instance of a more derived type, or passing null and still having the type of the
+ * parameter.
+ */
 public final class TypedArgument
 {
+    /**
+     * Factory method.
+     *
+     * @param type  the type of the parameter.
+     * @param value the value of the argument.
+     * @return a new instance.
+     */
     public static TypedArgument typed( Class<?> type, Object value )
     {
+        type = Objects.requireNonNull( type, "type" );
+        if ( value != null && !type.isInstance( value ) )
+        {
+            throw new IllegalArgumentException(
+                    value + " (a " + value.getClass().getName() + ") is not an instance of " + type.getName() );
+        }
         return new TypedArgument( type, value );
     }
 
@@ -30,10 +48,16 @@ public final class TypedArgument
 
     private TypedArgument( Class<?> type, Object value )
     {
-        this.type = Objects.requireNonNull( type, "type" );
+        this.type = type;
         this.value = value;
     }
 
+    /**
+     * Extract the parameter types from an array of {@link TypedArgument}s.
+     *
+     * @param arguments the arguments to extract the types from.
+     * @return the types of the arguments.
+     */
     public static Class<?>[] types( TypedArgument... arguments )
     {
         Class[] types = new Class[arguments.length];
@@ -44,6 +68,12 @@ public final class TypedArgument
         return types;
     }
 
+    /**
+     * Extract the argument values from an array of {@link TypedArgument}s.
+     *
+     * @param arguments the arguments to extract the values from.
+     * @return the values of the arguments.
+     */
     public static Object[] values( TypedArgument... arguments )
     {
         Object[] values = new Object[arguments.length];

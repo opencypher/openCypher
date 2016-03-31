@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools.output;
+package org.opencypher.tools.io;
 
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
@@ -141,15 +141,15 @@ class StreamOutput extends BaseOutput<PrintStream>
         return this;
     }
 
-    public Output println( char[] x )
+    public Output println( char[] str )
     {
-        output.println( x );
+        output.println( str );
         return this;
     }
 
-    public Output println( String x )
+    public Output println( String str )
     {
-        output.println( x );
+        output.println( str );
         return this;
     }
 

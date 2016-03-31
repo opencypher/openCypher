@@ -34,7 +34,7 @@ import org.opencypher.grammar.Grammar;
 import org.opencypher.railroad.Diagram;
 import org.opencypher.railroad.SVGShapes;
 import org.opencypher.railroad.ShapeRenderer;
-import org.opencypher.tools.output.Output;
+import org.opencypher.tools.io.Output;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Byte.parseByte;
@@ -47,8 +47,11 @@ import static java.lang.Short.parseShort;
 import static org.opencypher.railroad.SVGShapes.svgFile;
 import static org.opencypher.tools.Option.dynamicOptions;
 import static org.opencypher.tools.grammar.Main.execute;
-import static org.opencypher.tools.output.Output.output;
+import static org.opencypher.tools.io.Output.output;
 
+/**
+ * Generates railroad diagrams (as SVG files) for each of the productions in a {@link Grammar}.
+ */
 public final class RailRoadDiagrams implements Function<Method, Object>, ShapeRenderer.Linker
 {
     public static void write( Grammar grammar, Writer writer ) throws Exception
@@ -80,10 +83,12 @@ public final class RailRoadDiagrams implements Function<Method, Object>, ShapeRe
         }
         FontRenderContext fonts = new FontRenderContext( new AffineTransform(), true, true );
         ShapeRenderer<XMLStreamException> renderer = new ShapeRenderer<>( this,
-                fonts, dynamicOptions( ShapeRenderer.Options.class, this ) );
+                                                                          fonts,
+                                                                          dynamicOptions( ShapeRenderer.Options.class,
+                                                                                          this ) );
         Diagram.CanvasProvider<SVGShapes, XMLStreamException> canvas = svgFile( name -> {
             Path target = path.resolve( name + ".svg" ).toAbsolutePath();
-            output.printf( "Writing Railroad diagram for %s to %s%n", name, target );
+            output.format( "Writing Railroad diagram for %s to %s%n", name, target );
             return output( target );
         } );
         for ( Diagram diagram : Diagram.build( grammar, dynamicOptions( Diagram.BuilderOptions.class, this ) ) )
