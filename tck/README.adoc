@@ -8,7 +8,7 @@ The TCK consists of a number of https://cucumber.io/[Cucumber] `.feature` files,
 * The required initial state of the graph; i.e. the graph prior to the execution of `Q`, the Cypher query of interest
 * `Q`, along with any required parameter names and values
 * Expected results from executing `Q`, or expected errors if `Q` was an invalid query
-** See <<Format of the expected results>> for a description of how the results are formatted
+** See <<results-format>> for a description of how the results are formatted
 * Expected side effects from executing `Q`
 
 
@@ -78,6 +78,10 @@ A side effect is either the addition (denoted by `+`) or the removal (`-`) of on
 * A property, denoted by `properties`
 * A label, denoted by `labels`
 
+An unspecified quantity implies that it is expected to be zero.
+If the side effects step reads `And no side effects`, this implies that all quantities are expected to be zero.
+
+[[results-format]]
 === Format of the expected results
 
 Values that can be returned from Cypher can be categorized into three groups: primitives (integers, floats, booleans, and strings), containers (lists and maps), and graph elements (nodes, relationships, and paths).
