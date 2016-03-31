@@ -128,10 +128,8 @@ class ScenarioFormatValidator {
     case _ => throw new IllegalArgumentException("Unknown step identifier. Valid identifiers are Given, Query, Results, Error, Side-effects.")
   }
 
-  def checkRequiredSteps() =
-    if (!(hadGiven && hadQuery && (hadResults || hadError) && hadSideEffects))
-      error(s"The scenario setup was incomplete: Given: $hadGiven, Query: $hadQuery, Results or error: ${hadResults || hadError}, Side effects: $hadSideEffects")
-    else reset()
+  def checkRequiredSteps() = if (hadGiven && hadQuery && ((hadResults && hadSideEffects) || hadError)) reset()
+    else error(s"The scenario setup was incomplete: Given: $hadGiven, Query: $hadQuery, Results or error: ${hadResults || hadError}, Side effects: $hadSideEffects")
 
   private def reset() = {
     hadGiven = false

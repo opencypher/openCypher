@@ -25,6 +25,7 @@ Feature: ReturnAcceptanceTest
       | n             |
       | ({name: 'A'}) |
       | ({name: 'B'}) |
+    And no side effects
 
   Scenario: should start the result from second row
     Given an empty graph
@@ -35,6 +36,7 @@ Feature: ReturnAcceptanceTest
       | ({name: 'C'}) |
       | ({name: 'D'}) |
       | ({name: 'E'}) |
+    And no side effects
 
   Scenario: should start the result from second row by param
     Given an empty graph
@@ -47,6 +49,7 @@ Feature: ReturnAcceptanceTest
       | ({name: 'C'}) |
       | ({name: 'D'}) |
       | ({name: 'E'}) |
+    And no side effects
 
   Scenario: should get stuff in the middle
     Given an empty graph
@@ -56,6 +59,7 @@ Feature: ReturnAcceptanceTest
       | n             |
       | ({name: 'C'}) |
       | ({name: 'D'}) |
+    And no side effects
 
   Scenario: should get stuff in the middle by param
     Given an empty graph
@@ -68,6 +72,7 @@ Feature: ReturnAcceptanceTest
       | n             |
       | ({name: 'C'}) |
       | ({name: 'D'}) |
+    And no side effects
 
   Scenario: should sort on aggregated function
     Given an empty graph
@@ -78,6 +83,7 @@ Feature: ReturnAcceptanceTest
       | 'A'        | 22         |
       | 'B'        | 44         |
       | 'C'        | 55         |
+    And no side effects
 
   Scenario: should support sort and distinct
     Given an empty graph
@@ -88,6 +94,7 @@ Feature: ReturnAcceptanceTest
       | ({name: 'A'}) |
       | ({name: 'B'}) |
       | ({name: 'C'}) |
+    And no side effects
 
   Scenario: should support column renaming
     Given an empty graph
@@ -96,6 +103,7 @@ Feature: ReturnAcceptanceTest
     Then the result should be:
       | ColumnName   |
       | (:Singleton) |
+    And no side effects
 
   Scenario: should support ordering by a property after being distinctified
     Given an empty graph
@@ -104,6 +112,7 @@ Feature: ReturnAcceptanceTest
     Then the result should be, in order:
       | b    |
       | (:B) |
+    And no side effects
 
   Scenario: arithmetic precedence test
     Given any graph
@@ -111,6 +120,7 @@ Feature: ReturnAcceptanceTest
     Then the result should be:
       | 12 / 4 * 3 - 2 * 4 |
       | 1                  |
+    And no side effects
 
   Scenario: arithmetic precedence with parenthesis test
     Given any graph
@@ -118,6 +128,7 @@ Feature: ReturnAcceptanceTest
     Then the result should be:
       | 12 / 4 * (3 - 2 * 4) |
       | -15                  |
+    And no side effects
 
   Scenario: count star should count everything in scope
     Given an empty graph
@@ -128,6 +139,7 @@ Feature: ReturnAcceptanceTest
       | (:l1) | 1        |
       | (:l2) | 1        |
       | (:l3) | 1        |
+    And no side effects
 
   Scenario: filter should work
     Given an empty graph
@@ -138,6 +150,7 @@ Feature: ReturnAcceptanceTest
       | [({foo: 3})] |
       | []           |
       | []           |
+    And no side effects
 
   Scenario: should allow absolute function
     Given any graph
@@ -145,6 +158,7 @@ Feature: ReturnAcceptanceTest
     Then the result should be:
       | abs(-1) |
       | 1       |
+    And no side effects
 
   Scenario: should return collection size
     Given any graph
@@ -152,3 +166,4 @@ Feature: ReturnAcceptanceTest
     Then the result should be:
       | n |
       | 3 |
+    And no side effects

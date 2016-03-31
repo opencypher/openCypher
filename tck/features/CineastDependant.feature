@@ -26,39 +26,46 @@ Feature: CineastDependant
     Then the result should be:
       | count(n) |
       | 63084    |
+    And no side effects
 
   Scenario: should support multiple divisions in aggregate function
     When executing query: MATCH (n) RETURN count(n)/60/60 AS count
     Then the result should be:
       | count |
       | 17    |
+    And no side effects
 
   Scenario: should support column renaming for aggregates as well
     When executing query: MATCH (a) WHERE id(a) = 0 RETURN count(*) AS ColumnName
     Then the result should be:
       | ColumnName |
       | 1          |
+    And no side effects
 
   Scenario: should be able to run coalesce
     When executing query: MATCH (a) WHERE id(a) = 0 RETURN coalesce(a.title, a.name)
     Then the result should be:
       | coalesce(a.title, a.name) |
       | 'Emil Eifrem'             |
+    And no side effects
 
   Scenario: should allow addition
     When executing query: MATCH (a) WHERE id(a) = 61263 RETURN a.version + 5
     Then the result should be:
       | a.version + 5 |
       | 1863          |
+    And no side effects
 
   Scenario: functions should return null if they get path containing unbound
     When executing query: MATCH (a) WHERE id(a) = 1 OPTIONAL MATCH p=(a)-[r]->() RETURN length(nodes(p)), id(r), type(r), nodes(p), rels(p)
     Then the result should be:
       | length(nodes(p)) | id(r) | type(r) | nodes(p) | rels(p) |
       | null             | null  | null    | null     | null    |
+    And no side effects
 
   Scenario: aggregates inside normal functions should work
     When executing query: MATCH (a) RETURN length(collect(a))
     Then the result should be:
       | length(collect(a)) |
       | 63084              |
+    And no side effects

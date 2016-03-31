@@ -81,6 +81,8 @@ A side effect is either the addition (denoted by `+`) or the removal (`-`) of on
 An unspecified quantity implies that it is expected to be zero.
 If the side effects step reads `And no side effects`, this implies that all quantities are expected to be zero.
 
+For 'negative' tests, where errors are expected (see <<errors>>), it is implied that the graph suffers no side effects.
+
 [[results-format]]
 === Format of the expected results
 
