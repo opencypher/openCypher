@@ -24,6 +24,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | p                                |
       | [<(:Label1)<-[:TYPE]-(:Label2)>] |
+    And no side effects
 
   Scenario: longer path query should return results in written order
     Given an empty graph
@@ -32,6 +33,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | p                                               |
       | [<(:Label1)<-[:T1]-(:Label2)-[:T2]->(:Label3)>] |
+    And no side effects
 
   Scenario: Get node degree via length of pattern expression
     Given an empty graph
@@ -40,6 +42,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | length |
       | 3      |
+    And no side effects
 
   Scenario: Get node degree via length of pattern expression that specifies a relationship type
     Given an empty graph
@@ -48,6 +51,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | length |
       | 3      |
+    And no side effects
 
   Scenario: Get node degree via length of pattern expression that specifies multiple relationship types
     Given an empty graph
@@ -56,6 +60,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | length |
       | 4      |
+    And no side effects
 
   Scenario: should be able to use multiple MATCH clauses to do a cartesian product
     Given an empty graph
@@ -72,6 +77,7 @@ Feature: MatchAcceptanceTest
       | 3 | 3 |
       | 3 | 1 |
       | 3 | 2 |
+    And no side effects
 
   Scenario: should be able to use params in pattern matching predicates
     Given an empty graph
@@ -82,6 +88,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | b                 |
       | (:B {name: 'me'}) |
+    And no side effects
 
   Scenario: should filter out based on node prop name
     Given an empty graph
@@ -90,6 +97,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | a                  |
       | ({name: 'Andres'}) |
+    And no side effects
 
   Scenario: should honour the column name for RETURN items
     Given an empty graph
@@ -98,6 +106,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | a         |
       | 'Someone' |
+    And no side effects
 
   Scenario: should filter based on rel prop name
     Given an empty graph
@@ -106,6 +115,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | a    |
       | (:A) |
+    And no side effects
 
   Scenario: should cope with shadowed variables
     Given an empty graph
@@ -115,6 +125,7 @@ Feature: MatchAcceptanceTest
       | n            |
       | 'Ann Darrow' |
       | 'King Kong'  |
+    And no side effects
 
   Scenario: should get neighbours
     Given an empty graph
@@ -123,6 +134,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | n1              | n2              |
       | (:A {value: 1}) | (:B {value: 2}) |
+    And no side effects
 
   Scenario: should get two related nodes
     Given an empty graph
@@ -132,6 +144,7 @@ Feature: MatchAcceptanceTest
       | x               |
       | (:B {value: 2}) |
       | (:C {value: 3}) |
+    And no side effects
 
   Scenario: should get related to related to
     Given an empty graph
@@ -140,6 +153,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | b               |
       | (:C {value: 3}) |
+    And no side effects
 
   Scenario: should handle comparison between node properties
     Given an empty graph
@@ -149,6 +163,7 @@ Feature: MatchAcceptanceTest
       | n                       | x                       |
       | (:A {animal: 'monkey'}) | (:C {animal: 'monkey'}) |
       | (:D {animal: 'cow'})    | (:B {animal: 'cow'})    |
+    And no side effects
 
   Scenario: should return two subgraphs with bound undirected relationship
     Given an empty graph
@@ -158,6 +173,7 @@ Feature: MatchAcceptanceTest
       | a               | b               |
       | (:B {value: 2}) | (:A {value: 1}) |
       | (:A {value: 1}) | (:B {value: 2}) |
+    And no side effects
 
   Scenario: should return two subgraphs with bound undirected relationship and optional relationship
     Given an empty graph
@@ -167,6 +183,7 @@ Feature: MatchAcceptanceTest
       | a               | b               | c               |
       | (:A {value: 1}) | (:B {value: 2}) | (:C {value: 3}) |
       | (:B {value: 2}) | (:A {value: 1}) | null            |
+    And no side effects
 
   Scenario: rel type function works as expected
     Given an empty graph
@@ -175,6 +192,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | x                |
       | (:B {name: 'B'}) |
+    And no side effects
 
   Scenario: should walk alternative relationships
     Given an empty graph
@@ -184,6 +202,7 @@ Feature: MatchAcceptanceTest
       | r        |
       | [:KNOWS] |
       | [:HATES] |
+    And no side effects
 
   Scenario: should handle OR in the WHERE clause
     Given an empty graph
@@ -193,6 +212,7 @@ Feature: MatchAcceptanceTest
       | n             |
       | (:A {p1: 12}) |
       | (:B {p2: 13}) |
+    And no side effects
 
   Scenario: should return a simple path
     Given an empty graph
@@ -201,6 +221,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | p                                             |
       | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})> |
+    And no side effects
 
   Scenario: should return a three node path
     Given an empty graph
@@ -209,12 +230,14 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | p                                                                        |
       | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})-[:KNOWS]->(:C {name: 'C'})> |
+    And no side effects
 
   Scenario: should not return anything because path length does not match
     Given an empty graph
       And having executed: CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
     When executing query: MATCH p = (n)-->(x) WHERE length(p) = 10 RETURN x
     Then the result should be empty
+    And no side effects
 
   Scenario: should pass the path length test
     Given an empty graph
@@ -223,6 +246,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | x                |
       | (:B {name: 'B'}) |
+    And no side effects
 
   Scenario: should be able to filter on path nodes
     Given an empty graph
@@ -231,6 +255,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | pB                |
       | (:D {foo: 'bar'}) |
+    And no side effects
 
   Scenario: should return relationships by fetching them from the path - starting from the end
     Given an empty graph
@@ -239,6 +264,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | relationships(p)                       |
       | [[:REL {value: 1}], [:REL {value: 2}]] |
+    And no side effects
 
   Scenario: should return relationships by fetching them from the path
     Given an empty graph
@@ -247,6 +273,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | relationships(p)                       |
       | [[:REL {value: 1}], [:REL {value: 2}]] |
+    And no side effects
 
   Scenario: should return relationships by collecting them as a list - wrong way
     Given an empty graph
@@ -255,6 +282,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | r                                      |
       | [[:REL {value: 1}], [:REL {value: 2}]] |
+    And no side effects
 
   Scenario: should return relationships by collecting them as a list - undirected
     Given an empty graph
@@ -264,6 +292,7 @@ Feature: MatchAcceptanceTest
       | r                                    |
       | [[:REL {value:1}], [:REL {value:2}]] |
       | [[:REL {value:2}], [:REL {value:1}]] |
+    And no side effects
 
   Scenario: should return relationships by collecting them as a list
     Given an empty graph
@@ -272,6 +301,7 @@ Feature: MatchAcceptanceTest
     Then the result should be:
       | r                                      |
       | [[:REL {value: 1}], [:REL {value: 2}]] |
+    And no side effects
 
   Scenario: should return a var length path
     Given an empty graph
@@ -281,6 +311,7 @@ Feature: MatchAcceptanceTest
       | p                                                                                              |
       | <(:A {name: 'A'})-[:KNOWS {value: 1}]->(:B {name: 'B'})>                                       |
       | <(:A {name: 'A'})-[:KNOWS {value: 1}]->(:B {name: 'B'})-[:KNOWS {value: 2}]->(:C {name: 'C'})> |
+    And no side effects
 
   Scenario: a var length path of length zero
     Given an empty graph
@@ -291,6 +322,7 @@ Feature: MatchAcceptanceTest
       | (:A) | (:A) | 0 |
       | (:B) | (:B) | 0 |
       | (:A) | (:B) | 1 |
+    And no side effects
 
   Scenario: a named var length path of length zero
     Given an empty graph
@@ -301,8 +333,10 @@ Feature: MatchAcceptanceTest
       | <(:A {name: 'A'})>                                                        |
       | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})>                             |
       | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})-[:FRIEND]->(:C {name: 'C'})> |
+    And no side effects
 
   Scenario: should accept skip zero
     Given any graph
     When executing query: MATCH (n) WHERE 1 = 0 RETURN n SKIP 0
     Then the result should be empty
+    And no side effects

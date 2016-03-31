@@ -16,19 +16,9 @@
  */
 package org.opencypher.tools.tck
 
-class verifyCodeStyleTest extends TckTestSupport {
+import cucumber.api.scala.{EN, ScalaDsl}
 
-  test("should throw on bad styling") {
-    verifyCodeStyle("match (n) return n") shouldBe
-      Some("""A query did not follow style requirements:
-             |match (n) return n
-             |
-             |Prettified version:
-             |MATCH (n) RETURN n""".stripMargin)
-  }
+trait TCKCucumberTemplate extends ScalaDsl with EN {
 
-  test("should accept good styling") {
-    verifyCodeStyle("MATCH (n) RETURN n") shouldBe None
-  }
-
+  val Background = new Step("Background")
 }

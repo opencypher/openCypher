@@ -25,63 +25,74 @@ Feature: Literals
     Then the result should be:
       | literal |
       | 1       |
+    And no side effects
 
   Scenario: Returning a float
     When executing query: RETURN 1.0 AS literal
     Then the result should be:
       | literal |
       | 1.0     |
+    And no side effects
 
   Scenario: Returning a float in exponent form
     When executing query: RETURN -1e-9 AS literal
     Then the result should be:
       | literal     |
       | -.000000001 |
+    And no side effects
 
   Scenario: Returning a boolean`
     When executing query: RETURN true AS literal
     Then the result should be:
       | literal |
       | true    |
+    And no side effects
 
   Scenario: Returning a single-quoted string
     When executing query: RETURN '' AS literal
     Then the result should be:
       | literal |
       | ''      |
+    And no side effects
 
   Scenario: Returning a double-quoted string
     When executing query: RETURN "" AS literal
     Then the result should be:
       | literal |
       | ''      |
+    And no side effects
 
   Scenario: Returning null
     When executing query: RETURN null AS literal
     Then the result should be:
       | literal |
       | null    |
+    And no side effects
 
   Scenario: Returning an empty list
     When executing query: RETURN [] AS literal
     Then the result should be:
       | literal |
       | []      |
+    And no side effects
 
   Scenario: Returning a nonempty list
     When executing query: RETURN [0,1,2] AS literal
     Then the result should be:
       | literal   |
       | [0, 1, 2] |
+    And no side effects
 
   Scenario: Returning an empty map
     When executing query: RETURN {} AS literal
     Then the result should be:
       | literal |
       | {}      |
+    And no side effects
 
   Scenario: Returning a nonempty map
     When executing query: RETURN {k1: 0, k2: "string"} AS literal
     Then the result should be:
       | literal               |
       | {k1: 0, k2: 'string'} |
+    And no side effects

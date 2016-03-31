@@ -17,10 +17,15 @@
 package org.opencypher.tools.tck
 
 import cucumber.api.DataTable
+import org.opencypher.tools.tck.constants.TCKSideEffects
 
 import scala.collection.JavaConverters._
 
-object verifySideEffects extends (DataTable => Option[String]) {
+/**
+  * Validates side effects expectations. A valid side effect has one of the specified names in TCKSideEffects, and a
+  * quantity that is an integer greater than zero.
+  */
+object validateSideEffects extends (DataTable => Option[String]) {
 
   override def apply(table: DataTable): Option[String] = {
     val keys = table.transpose().topCells().asScala
@@ -34,19 +39,18 @@ object verifySideEffects extends (DataTable => Option[String]) {
   }
 
   def checkKeys(keys: Seq[String]): String = {
-    val badKeys = keys.filterNot { key =>
-      (key.head == '+' || key.head == '-') && ELEMENTS(key.tail)
-    }
+    val badKeys = keys.filterNot(TCKSideEffects.ALL_SIDE_EFFECTS)
+
     if (badKeys.isEmpty) ""
     else s"Invalid side effect keys: ${badKeys.mkString(", ")}"
   }
 
   def checkValues(values: Seq[String]): String = {
-    val badValues = values.filterNot(value => value forall Character.isDigit)
+    val badValues = values.filterNot { value =>
+      value.forall(Character.isDigit) && Integer.valueOf(value) > 0
+    }
     if (badValues.isEmpty) ""
     else s"Invalid side effect values: ${badValues.mkString(", ")}"
   }
-
-  private val ELEMENTS = Set("nodes", "relationships", "labels", "properties")
 
 }

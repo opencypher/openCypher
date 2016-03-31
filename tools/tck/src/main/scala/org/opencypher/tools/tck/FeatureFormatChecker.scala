@@ -17,62 +17,130 @@
 package org.opencypher.tools.tck
 
 import cucumber.api.DataTable
-import cucumber.api.scala.{EN, ScalaDsl}
-import org.opencypher.tools.tck.TCKStepDefinitions._
+import org.opencypher.tools.tck.constants.TCKStepDefinitions._
 
-class FeatureFormatChecker extends ScalaDsl with EN {
+class FeatureFormatChecker extends TCKCucumberTemplate {
 
   private var lastSeenQuery = ""
   private val orderBy = "(?i).*ORDER BY.*"
+  private val stepValidator = new ScenarioFormatValidator
 
-  (new Step("Background")) (BACKGROUND) {}
+  Background(BACKGROUND) {}
 
   Given(NAMED_GRAPH) { (name: String) =>
-    verifyNamedGraph(name).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateNamedGraph(name).map(msg => throw new InvalidFeatureFormatException(msg))
+    stepValidator.reportStep("Given")
   }
 
-  Given(ANY) {}
+  Given(ANY_GRAPH) {
+    stepValidator.reportStep("Given")
+  }
 
-  Given(EMPTY) {}
+  Given(EMPTY_GRAPH) {
+    stepValidator.reportStep("Given")
+  }
 
   And(INIT_QUERY) { (query: String) =>
-    verifyCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
   }
 
   And(PARAMETERS) { (table: DataTable) =>
-    verifyParameters(table).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateParameters(table).map(msg => throw new InvalidFeatureFormatException(msg))
   }
 
   When(EXECUTING_QUERY) { (query: String) =>
-    verifyCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
     lastSeenQuery = query
+    stepValidator.reportStep("Query")
   }
 
   Then(EXPECT_RESULT) { (table: DataTable) =>
-    verifyResults(table).map(msg => throw new InvalidFeatureFormatException(msg))
-//    if (lastSeenQuery.matches(orderBy))
-//      throw new InvalidFeatureFormatException(
-//        "Queries with `ORDER BY` needs ordered expectations. Please see the readme.")
+    validateResults(table).map(msg => throw new InvalidFeatureFormatException(msg))
+    // TODO: Some scenarios have `ORDER BY`, but the values are all equal in the ordered column.
+    // In this instance, we do not want ordered expectations.
+    // We need to find a way to help TCK authors with not forgetting `, in order` for other `ORDER BY` queries, without these false positives.
+    // We could do some regex matching and inspecting the values in the ordered column, but it feels complex.
+
+//     if (lastSeenQuery.matches(orderBy))
+//       throw new InvalidFeatureFormatException(
+//         "Queries with `ORDER BY` needs ordered expectations. Please see the readme.")
+    stepValidator.reportStep("Results")
   }
 
   Then(EXPECT_ERROR) { (status: String, phase: String, detail: String) =>
-    verifyError(status, phase, detail).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateError(status, phase, detail).map(msg => throw new InvalidFeatureFormatException(msg))
+    stepValidator.reportStep("Error")
   }
 
   Then(EXPECT_SORTED_RESULT) { (table: DataTable) =>
-    verifyResults(table).map(msg => throw new InvalidFeatureFormatException(msg))
-//    if (!lastSeenQuery.matches(orderBy))
-//      throw new InvalidFeatureFormatException(
-//        "Queries with ordered expectations should have `ORDER BY` in them. Please see the readme.")
+    validateResults(table).map(msg => throw new InvalidFeatureFormatException(msg))
+    if (!lastSeenQuery.matches(orderBy))
+      throw new InvalidFeatureFormatException(
+        "Queries with ordered expectations should have `ORDER BY` in them. Please see the readme.")
+    stepValidator.reportStep("Results")
   }
 
-  Then(EXPECT_EMPTY_RESULT) {}
+  Then(EXPECT_EMPTY_RESULT) {
+    stepValidator.reportStep("Results")
+  }
 
   And(SIDE_EFFECTS) { (table: DataTable) =>
-    verifySideEffects(table).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateSideEffects(table).map(msg => throw new InvalidFeatureFormatException(msg))
+    stepValidator.reportStep("Side-effects")
   }
 
-  class InvalidFeatureFormatException(message: String) extends RuntimeException(message)
+  And(NO_SIDE_EFFECTS) {
+    stepValidator.reportStep("Side-effects")
+  }
+
+  After(_ => stepValidator.checkRequiredSteps())
 
 }
 
+case class InvalidFeatureFormatException(message: String) extends RuntimeException(message)
+
+class ScenarioFormatValidator {
+  private var hadGiven = false
+  private var hadQuery = false
+  private var hadResults = false
+  private var hadError = false
+  private var hadSideEffects = false
+
+  def reportStep(step: String) = step match {
+    case "Given" =>
+      if (hadGiven) error("Extra `Given` steps specified! Only one is allowed.")
+      else hadGiven = true
+    case "Query" =>
+      if (hadQuery) error("Extra `When executing query` steps specified! Only one is allowed.")
+      else hadQuery = true
+    case "Results" =>
+      if (hadResults) error("Extra `Then expect results` steps specified! Only one is allowed.")
+      else if (hadError) error("Both results and error expectations found; they are mutually exclusive.")
+      else hadResults = true
+    case "Error" =>
+      if (hadError) error("Extra `Then expect error` steps specified! Only one is allowed.")
+      else if (hadResults) error("Both results and error expectations found; they are mutually exclusive.")
+      else hadError = true
+    case "Side-effects" =>
+      if (hadSideEffects) error("Extra `And side effects` steps specified! Only one is allowed.")
+      else hadSideEffects = true
+
+    case _ => throw new IllegalArgumentException("Unknown step identifier. Valid identifiers are Given, Query, Results, Error, Side-effects.")
+  }
+
+  def checkRequiredSteps() = if (hadGiven && hadQuery && ((hadResults && hadSideEffects) || hadError)) reset()
+    else error(s"The scenario setup was incomplete: Given: $hadGiven, Query: $hadQuery, Results or error: ${hadResults || hadError}, Side effects: $hadSideEffects")
+
+  private def reset() = {
+    hadGiven = false
+    hadQuery = false
+    hadResults = false
+    hadError = false
+    hadSideEffects = false
+  }
+
+  private def error(msg: String) = {
+    reset()
+    throw new InvalidFeatureFormatException(msg)
+  }
+}

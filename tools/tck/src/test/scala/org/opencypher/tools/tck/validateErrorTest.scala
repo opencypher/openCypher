@@ -16,14 +16,14 @@
  */
 package org.opencypher.tools.tck
 
-class verifyErrorTest extends TckTestSupport {
+class validateErrorTest extends TckTestSupport {
 
   test("should accept valid error specification") {
-    verifyError("TypeError", "runtime", "InvalidElementAccess") shouldBe None
+    validateError("TypeError", "runtime", "InvalidElementAccess") shouldBe None
   }
 
   test("should report invalid error specification") {
-    verifyError("InvalidType", "unknown", "_-^&*") shouldBe Some(
+    validateError("InvalidType", "unknown", "_-^&*") shouldBe Some(
       """Invalid error type: InvalidType
         |Invalid error phase: unknown
         |Invalid error detail: _-^&*""".stripMargin)

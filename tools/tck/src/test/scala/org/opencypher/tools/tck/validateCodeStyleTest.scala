@@ -16,24 +16,19 @@
  */
 package org.opencypher.tools.tck
 
-import cucumber.api.DataTable
-import org.opencypher.tools.tck.parsing.FormatListener
+class validateCodeStyleTest extends TckTestSupport {
 
-import scala.collection.JavaConverters._
-
-object verifyParameters extends (DataTable => Option[String]) {
-
-  override def apply(table: DataTable): Option[String] = {
-    // TODO: Specify constraints for parameter keys, and enforce these here
-    // val keys = table.transpose().topCells().asScala
-    val values = table.transpose().cells(1).asScala.head.asScala
-
-    val badValues = values.filterNot(this (_))
-    if (badValues.isEmpty) None
-    else Some(s"${badValues.size} parameters had invalid format: ${badValues.mkString(", ")}")
+  test("should throw on bad styling") {
+    validateCodeStyle("match (n) return n") shouldBe
+      Some("""A query did not follow style requirements:
+             |match (n) return n
+             |
+             |Prettified version:
+             |MATCH (n) RETURN n""".stripMargin)
   }
 
-  def apply(value: String): Boolean = {
-    new FormatListener().parseParameter(value)
+  test("should accept good styling") {
+    validateCodeStyle("MATCH (n) RETURN n") shouldBe None
   }
+
 }

@@ -16,7 +16,12 @@
  */
 package org.opencypher.tools.tck
 
-object verifyError extends ((String, String, String) => Option[String]) {
+/**
+  * This function will validate a TCK error specification, which consists of three parts: type, phase and detail. Each
+  * of these parts needs to be one of a pre-defined set of constants in order to be valid. If the triple is invalid, a
+  * message will be returned explaining the invalid part(s), otherwise None will be returned.
+  */
+object validateError extends ((String, String, String) => Option[String]) {
 
   override def apply(typ: String, phase: String, detail: String): Option[String] = {
     val msg = s"""${checkType(typ)}
@@ -42,6 +47,7 @@ object verifyError extends ((String, String, String) => Option[String]) {
     else s"Invalid error detail: $detail"
   }
 
+  // TODO: Move these to become public constants
   private val TYPES = Set("SyntaxError",
                           "SemanticError",
                           "ParameterMissing",

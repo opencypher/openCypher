@@ -16,16 +16,16 @@
  */
 package org.opencypher.tools.tck
 
-class verifySideEffectsTest extends TckTestSupport {
+class validateSideEffectsTest extends TckTestSupport {
 
   test("should accept valid side effects") {
-    verifySideEffects(tableOf(Seq("+nodes", "1"), Seq("-relationships", "2"))) shouldBe None
+    validateSideEffects(tableOf(Seq("+nodes", "1"), Seq("-relationships", "2"))) shouldBe None
   }
 
   test("should report invalid side effects") {
     val sideEffects = tableOf(Seq("+blargh", "1"), Seq("-relationships", "notanumber"))
 
-    verifySideEffects(sideEffects) shouldBe Some(
+    validateSideEffects(sideEffects) shouldBe Some(
         """Invalid side effect keys: +blargh
           |Invalid side effect values: notanumber""".stripMargin)
   }
@@ -33,7 +33,7 @@ class verifySideEffectsTest extends TckTestSupport {
   test("should allow all elements") {
     val allKeys = Seq("+nodes", "-nodes", "+relationships", "-relationships",
                       "+labels", "-labels", "+properties", "-properties")
-    verifySideEffects.checkKeys(allKeys) shouldBe empty
+    validateSideEffects.checkKeys(allKeys) shouldBe empty
   }
 
 }

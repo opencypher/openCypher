@@ -16,62 +16,62 @@
  */
 package org.opencypher.tools.tck
 
-class verifyResultsTest extends TckTestSupport {
+class validateResultsTest extends TckTestSupport {
 
   test("should accept valid values") {
-    verifyResults(tableOf(Seq("column1", "column2"), Seq("1", "2"), Seq("true", "null"), Seq("3.14", "'s'"))) shouldBe None
+    validateResults(tableOf(Seq("column1", "column2"), Seq("1", "2"), Seq("true", "null"), Seq("3.14", "'s'"))) shouldBe None
   }
 
   test("should not accept an invalid value") {
     val table = tableOf(Seq("column1", "column2"), Seq("'foo'", "bar"))
-    verifyResults(table) shouldBe Some("1 expected result values had invalid format: bar")
+    validateResults(table) shouldBe Some("1 expected result values had invalid format: bar")
   }
 
   test("should report all invalid values") {
     val table = tableOf(Seq("column1", "column2"), Seq("'foo", "bar"), Seq("[}", "(::)"))
-    verifyResults(table) shouldBe Some("4 expected result values had invalid format: 'foo, bar, [}, (::)")
+    validateResults(table) shouldBe Some("4 expected result values had invalid format: 'foo, bar, [}, (::)")
   }
 
   // Tests for single result values
 
   test("integer should be ok") {
-    verifyResults("1") shouldBe true
+    validateResults("1") shouldBe true
   }
 
   test("float should be ok") {
-    verifyResults("1.0") shouldBe true
+    validateResults("1.0") shouldBe true
   }
 
   test("boolean should be ok") {
-    verifyResults("false") shouldBe true
+    validateResults("false") shouldBe true
   }
 
   test("string should be ok") {
-    verifyResults("'string'") shouldBe true
+    validateResults("'string'") shouldBe true
   }
 
   test("null should be ok") {
-    verifyResults("null") shouldBe true
+    validateResults("null") shouldBe true
   }
 
   test("list should be ok") {
-    verifyResults("[1, 2, 3]") shouldBe true
+    validateResults("[1, 2, 3]") shouldBe true
   }
 
   test("map should be ok") {
-    verifyResults("{k: 1, k2: true}") shouldBe true
+    validateResults("{k: 1, k2: true}") shouldBe true
   }
 
   test("node should be ok") {
-    verifyResults("()") shouldBe true
+    validateResults("()") shouldBe true
   }
 
   test("relationship should be ok") {
-    verifyResults("[:T]") shouldBe true
+    validateResults("[:T]") shouldBe true
   }
 
   test("path should be ok") {
-    verifyResults("<()>") shouldBe true
+    validateResults("<()>") shouldBe true
   }
 
 }

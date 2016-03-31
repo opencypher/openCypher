@@ -25,6 +25,7 @@ Feature: ExpressionAcceptance
     Then the result should be:
       | value |
       | 1     |
+    And no side effects
 
   Scenario: n['name'] in read queries
     And having executed: CREATE ({name: 'Apa'})
@@ -32,12 +33,14 @@ Feature: ExpressionAcceptance
     Then the result should be:
       | value |
       | 'Apa' |
+    And no side effects
 
   Scenario: n['name'] in update queries
     When executing query: CREATE (n {name: 'Apa'}) RETURN n['nam' + 'e'] AS value
     Then the result should be:
       | value |
       | 'Apa' |
+    And no side effects
 
   Scenario: Uses dynamic property lookup based on parameters when there is no type information
     And parameters are:
@@ -47,6 +50,7 @@ Feature: ExpressionAcceptance
     Then the result should be:
       | value |
       | 'Apa' |
+    And no side effects
 
   Scenario: Uses dynamic property lookup based on parameters when there is lhs type information
     And parameters are:
@@ -55,6 +59,7 @@ Feature: ExpressionAcceptance
     Then the result should be:
       | value |
       | 'Apa' |
+    And no side effects
 
   Scenario: Uses dynamic property lookup based on parameters when there is rhs type information
     And parameters are:
@@ -64,6 +69,7 @@ Feature: ExpressionAcceptance
     Then the result should be:
       | value |
       | 'Apa' |
+    And no side effects
 
   Scenario: Uses collection lookup based on parameters when there is no type information
     And parameters are:
@@ -73,6 +79,7 @@ Feature: ExpressionAcceptance
     Then the result should be:
       | value |
       | 'Apa' |
+    And no side effects
 
   Scenario: Uses collection lookup based on parameters when there is lhs type information
     And parameters are:
@@ -81,6 +88,7 @@ Feature: ExpressionAcceptance
     Then the result should be:
       | value |
       | 'Apa' |
+    And no side effects
 
   Scenario: Uses collection lookup based on parameters when there is rhs type information
     And parameters are:
@@ -90,6 +98,7 @@ Feature: ExpressionAcceptance
     Then the result should be:
       | value |
       | 'Apa' |
+    And no side effects
 
   Scenario: Fails at runtime when attempting to index with an Int into a Map
     And parameters are:

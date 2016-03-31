@@ -16,7 +16,10 @@
  */
 package org.opencypher.tools.tck
 
-object verifyNamedGraph extends (String => Option[String]) {
+/**
+  * This function will check that a given string is one of the pre-defined named graphs to be used in the TCK.
+  */
+object validateNamedGraph extends (String => Option[String]) {
 
   override def apply(name: String): Option[String] = {
     if (GRAPHS(name)) None

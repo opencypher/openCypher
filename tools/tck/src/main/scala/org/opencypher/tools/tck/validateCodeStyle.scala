@@ -16,8 +16,12 @@
  */
 package org.opencypher.tools.tck
 
-
-object verifyCodeStyle extends (String => Option[String]) {
+/**
+  * This function will check that the input query string adheres to the specified code styling rules for Cypher queries.
+  * If the code had bad styling, a message will be returned showing the bad query and a prettified version of it,
+  * otherwise None will be returned.
+  */
+object validateCodeStyle extends (String => Option[String]) {
 
   override def apply(query: String): Option[String] = {
     val prettified1 = upperCased.foldLeft(query) {

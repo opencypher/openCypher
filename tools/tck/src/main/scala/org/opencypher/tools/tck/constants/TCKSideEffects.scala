@@ -14,16 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools.tck
+package org.opencypher.tools.tck.constants
 
-class verifyNamedGraphTest extends TckTestSupport {
+object TCKSideEffects {
 
-  test("should accept the cineast graph") {
-    verifyNamedGraph("cineast") shouldBe None
-  }
+  val ADDED_NODES = "+nodes"
+  val DELETED_NODES = "-nodes"
+  val ADDED_RELATIONSHIPS = "+relationships"
+  val DELETED_RELATIONSHIPS = "-relationships"
+  val ADDED_LABELS = "+labels"
+  val DELETED_LABELS = "-labels"
+  val ADDED_PROPERTIES = "+properties"
+  val DELETED_PROPERTIES = "-properties"
 
-  test("should not accept another graph") {
-    verifyNamedGraph("foo") shouldBe Some("Unknown graph referenced: 'foo'")
-  }
+  val ALL_SIDE_EFFECTS = Set(ADDED_NODES, ADDED_RELATIONSHIPS, ADDED_LABELS, ADDED_PROPERTIES,
+                             DELETED_NODES, DELETED_RELATIONSHIPS, DELETED_LABELS, DELETED_PROPERTIES)
 
 }
