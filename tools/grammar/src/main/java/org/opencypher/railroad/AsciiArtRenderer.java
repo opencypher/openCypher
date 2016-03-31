@@ -129,7 +129,7 @@ public class AsciiArtRenderer extends PositionedText.Renderer
     /**
      * <b>Example:</b>
      * <pre><code>
-     * o->|alpha|->(,)->|beta|->o
+     * o-&gt;|alpha|-&gt;(,)-&gt;|beta|-&gt;o
      * </code></pre>
      */
     @Override
@@ -148,11 +148,11 @@ public class AsciiArtRenderer extends PositionedText.Renderer
     /**
      * <b>Examples:</b>
      * <pre><code>
-     * o-+-->|one|--+->o
+     * o-+--&gt;|one|--+-&gt;o
      *   |          |
-     *   +-->|two|--+
+     *   +--&gt;|two|--+
      *   |          |
-     *   +->|three|-+
+     *   +-&gt;|three|-+
      * </code></pre>
      */
     @Override
@@ -171,9 +171,9 @@ public class AsciiArtRenderer extends PositionedText.Renderer
     /**
      * <b>Example:</b>
      * <pre><code>
-     *   +--|two|<-+
+     *   +--|two|&lt;-+
      *   |         |
-     * o-+->|one|--+->o
+     * o-+-&gt;|one|--+-&gt;o
      * </code></pre>
      */
     @Override
