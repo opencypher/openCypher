@@ -28,7 +28,7 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   Background(BACKGROUND) {}
 
   Given(NAMED_GRAPH) { (name: String) =>
-    verifyNamedGraph(name).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateNamedGraph(name).map(msg => throw new InvalidFeatureFormatException(msg))
     stepValidator.reportStep("Given")
   }
 
@@ -41,21 +41,21 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   }
 
   And(INIT_QUERY) { (query: String) =>
-    verifyCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
   }
 
   And(PARAMETERS) { (table: DataTable) =>
-    verifyParameters(table).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateParameters(table).map(msg => throw new InvalidFeatureFormatException(msg))
   }
 
   When(EXECUTING_QUERY) { (query: String) =>
-    verifyCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
     lastSeenQuery = query
     stepValidator.reportStep("Query")
   }
 
   Then(EXPECT_RESULT) { (table: DataTable) =>
-    verifyResults(table).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateResults(table).map(msg => throw new InvalidFeatureFormatException(msg))
     // TODO: Some scenarios have `ORDER BY`, but the values are all equal in the ordered column.
     // In this instance, we do not want ordered expectations.
     // We need to find a way to help TCK authors with not forgetting `, in order` for other `ORDER BY` queries, without these false positives.
@@ -68,12 +68,12 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   }
 
   Then(EXPECT_ERROR) { (status: String, phase: String, detail: String) =>
-    verifyError(status, phase, detail).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateError(status, phase, detail).map(msg => throw new InvalidFeatureFormatException(msg))
     stepValidator.reportStep("Error")
   }
 
   Then(EXPECT_SORTED_RESULT) { (table: DataTable) =>
-    verifyResults(table).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateResults(table).map(msg => throw new InvalidFeatureFormatException(msg))
     if (!lastSeenQuery.matches(orderBy))
       throw new InvalidFeatureFormatException(
         "Queries with ordered expectations should have `ORDER BY` in them. Please see the readme.")
@@ -85,7 +85,7 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   }
 
   And(SIDE_EFFECTS) { (table: DataTable) =>
-    verifySideEffects(table).map(msg => throw new InvalidFeatureFormatException(msg))
+    validateSideEffects(table).map(msg => throw new InvalidFeatureFormatException(msg))
     stepValidator.reportStep("Side-effects")
   }
 

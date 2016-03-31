@@ -16,12 +16,14 @@
  */
 package org.opencypher.tools.tck
 
-object verifyNamedGraph extends (String => Option[String]) {
+class validateNamedGraphTest extends TckTestSupport {
 
-  override def apply(name: String): Option[String] = {
-    if (GRAPHS(name)) None
-    else Some(s"Unknown graph referenced: '$name'")
+  test("should accept the cineast graph") {
+    validateNamedGraph("cineast") shouldBe None
   }
 
-  private val GRAPHS = Set("cineast")
+  test("should not accept another graph") {
+    validateNamedGraph("foo") shouldBe Some("Unknown graph referenced: 'foo'")
+  }
+
 }

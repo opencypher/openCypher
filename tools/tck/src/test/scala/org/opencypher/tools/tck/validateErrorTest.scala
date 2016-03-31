@@ -16,14 +16,17 @@
  */
 package org.opencypher.tools.tck
 
-class verifyNamedGraphTest extends TckTestSupport {
+class validateErrorTest extends TckTestSupport {
 
-  test("should accept the cineast graph") {
-    verifyNamedGraph("cineast") shouldBe None
+  test("should accept valid error specification") {
+    validateError("TypeError", "runtime", "InvalidElementAccess") shouldBe None
   }
 
-  test("should not accept another graph") {
-    verifyNamedGraph("foo") shouldBe Some("Unknown graph referenced: 'foo'")
+  test("should report invalid error specification") {
+    validateError("InvalidType", "unknown", "_-^&*") shouldBe Some(
+      """Invalid error type: InvalidType
+        |Invalid error phase: unknown
+        |Invalid error detail: _-^&*""".stripMargin)
   }
 
 }

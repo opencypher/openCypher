@@ -21,22 +21,24 @@ import org.opencypher.tools.tck.parsing.FormatListener
 
 import scala.collection.JavaConverters._
 
-object verifyResults extends (DataTable => Option[String]) {
+/**
+  * This function will validate that a given DataTable from a TCK scenario contains parseable parameter representations.
+  * If there are invalid parameter values in the table, a message describing them will be returned, otherwise None is
+  * returned.
+  */
+object validateParameters extends (DataTable => Option[String]) {
 
   override def apply(table: DataTable): Option[String] = {
-    // TODO: Specify constraints for column names, and enforce these here
-    val keys = table.topCells().asScala
-    val cells = table.cells(1).asScala
+    // TODO: Specify constraints for parameter keys, and enforce these here
+    // val keys = table.transpose().topCells().asScala
+    val values = table.transpose().cells(1).asScala.head.asScala
 
-    val badValues = cells.flatMap { list =>
-      list.asScala.filterNot(this (_))
-    }
-
+    val badValues = values.filterNot(this (_))
     if (badValues.isEmpty) None
-    else Some(s"${badValues.size} expected result values had invalid format: ${badValues.mkString(", ")}")
+    else Some(s"${badValues.size} parameters had invalid format: ${badValues.mkString(", ")}")
   }
 
   def apply(value: String): Boolean = {
-    new FormatListener().parseResults(value)
+    new FormatListener().parseParameter(value)
   }
 }

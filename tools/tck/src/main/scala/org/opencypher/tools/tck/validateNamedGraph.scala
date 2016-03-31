@@ -16,19 +16,15 @@
  */
 package org.opencypher.tools.tck
 
-class verifyCodeStyleTest extends TckTestSupport {
+/**
+  * This function will check that a given string is one of the pre-defined named graphs to be used in the TCK.
+  */
+object validateNamedGraph extends (String => Option[String]) {
 
-  test("should throw on bad styling") {
-    verifyCodeStyle("match (n) return n") shouldBe
-      Some("""A query did not follow style requirements:
-             |match (n) return n
-             |
-             |Prettified version:
-             |MATCH (n) RETURN n""".stripMargin)
+  override def apply(name: String): Option[String] = {
+    if (GRAPHS(name)) None
+    else Some(s"Unknown graph referenced: '$name'")
   }
 
-  test("should accept good styling") {
-    verifyCodeStyle("MATCH (n) RETURN n") shouldBe None
-  }
-
+  private val GRAPHS = Set("cineast")
 }

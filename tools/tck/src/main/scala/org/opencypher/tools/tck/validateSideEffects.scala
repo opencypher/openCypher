@@ -25,7 +25,7 @@ import scala.collection.JavaConverters._
   * Validates side effects expectations. A valid side effect has one of the specified names in TCKSideEffects, and a
   * quantity that is an integer greater than zero.
   */
-object verifySideEffects extends (DataTable => Option[String]) {
+object validateSideEffects extends (DataTable => Option[String]) {
 
   override def apply(table: DataTable): Option[String] = {
     val keys = table.transpose().topCells().asScala
