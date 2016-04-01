@@ -21,11 +21,26 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Defines that a class corresponds to a particular XML element.
+ *
+ * @see org.opencypher.tools.xml The package documentation for usage and context.
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Element
 {
+    /**
+     * The XML namespace uri of the element.
+     *
+     * @return The XML namespace uri of the element.
+     */
     String uri();
 
+    /**
+     * The name of the XML tag of the element.
+     *
+     * @return The name of the XML tag of the element.
+     */
     String name();
 }

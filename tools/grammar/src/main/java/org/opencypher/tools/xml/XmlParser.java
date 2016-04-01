@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.EnumSet;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -29,69 +28,123 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class XmlParser<Root>
+/**
+ * Class for parsing an XML document into an object graph.
+ *
+ * @param <Root> The type of object that is constructed by the parser.
+ * @see org.opencypher.tools.xml The package documentation for usage and context.
+ */
+public final class XmlParser<Root>
 {
+    /**
+     * Options that can be passed to an XML parser.
+     */
     public enum Option
     {
+        /** Fail if an attribute is encountered in the document that cannot be assigned to the corresponding object. */
         FAIL_ON_UNKNOWN_ATTRIBUTE
     }
 
+    /**
+     * Create a new {@linkplain XmlParser XML parser} for the given type.
+     *
+     * @param root the type of object that corresponds to the root element of the XML document the parser should parse.
+     * @param <T>  the type of object constructed by the parser.
+     * @return a new XML parser for the given type.
+     */
     public static <T> XmlParser<T> xmlParser( Class<T> root )
     {
         return new XmlParser<>( root, NodeBuilder.tree( root ) );
     }
 
+    /**
+     * Parse the XML document at the given path.
+     *
+     * @param input   the path at which to find the XML document to parse.
+     * @param options configuration for the XML parser.
+     * @return the object constructed from parsing the XML document.
+     * @throws ParserConfigurationException if an XML (SAX) parser cannot be created.
+     * @throws SAXException                 if parsing the XML document failed.
+     * @throws IOException                  if reading the XML document failed.
+     */
     public Root parse( Path input, Option... options )
             throws ParserConfigurationException, SAXException, IOException
     {
         Path base = input.getParent();
-        return new Resolver()
+        return new Resolver( options )
         {
             @Override
             Path path( String path )
             {
                 return base.resolve( path );
             }
-        }.parse( input, this, options );
+        }.parse( input, this );
     }
 
+    /**
+     * Parse the XML document from the given reader.
+     *
+     * Note that when parsing from a reader referenced files cannot be resolved, this requires
+     * {@linkplain #parse(Path, Option...) parsing from a file}.
+     *
+     * @param input   the reader to read the XML document from.
+     * @param options configuration for the XML parser.
+     * @return the object constructed from parsing the XML document.
+     * @throws ParserConfigurationException if an XML (SAX) parser cannot be created.
+     * @throws SAXException                 if parsing the XML document failed.
+     * @throws IOException                  if reading the XML document failed.
+     */
     public Root parse( Reader input, Option... options )
             throws ParserConfigurationException, SAXException, IOException
     {
-        return parse( new Resolver()
+        return parse( new Resolver( options )
         {
             @Override
             Path path( String path )
             {
                 throw new IllegalStateException( "Cannot resolve path in input from reader" );
             }
-        }, new InputSource( input ), options );
+        }, new InputSource( input ) );
     }
 
+    /**
+     * Parse the XML document from the given input stream.
+     *
+     * Note that when parsing from an input stream referenced files cannot be resolved, this requires
+     * {@linkplain #parse(Path, Option...) parsing from a file}.
+     *
+     * @param input   the stream to read the XML document from.
+     * @param options configuration for the XML parser.
+     * @return the object constructed from parsing the XML document.
+     * @throws ParserConfigurationException if an XML (SAX) parser cannot be created.
+     * @throws SAXException                 if parsing the XML document failed.
+     * @throws IOException                  if reading the XML document failed.
+     */
     public Root parse( InputStream input, Option... options )
             throws ParserConfigurationException, SAXException, IOException
     {
-        return parse( new Resolver()
+        return parse( new Resolver( options )
         {
             @Override
             Path path( String path )
             {
                 throw new IllegalStateException( "Cannot resolve path in input from stream" );
             }
-        }, new InputSource( input ), options );
+        }, new InputSource( input ) );
     }
 
-    Root parse( Resolver resolver, InputSource input, Option... options )
+    private Root parse( Resolver resolver, InputSource input )
+            throws IOException, SAXException, ParserConfigurationException
+    {
+        return parse( resolver, input, resolver.options );
+    }
+
+    Root parse( Resolver resolver, InputSource input, EnumSet<XmlParser.Option> options )
             throws ParserConfigurationException, SAXException, IOException
     {
-        EnumSet<Option> optionSet = EnumSet.noneOf( Option.class );
-        if ( options != null )
-        {
-            Collections.addAll( optionSet, options );
-        }
-        ParserStateMachine stateMachine = new ParserStateMachine( resolver, builder, optionSet );
+        ParserStateMachine stateMachine = new ParserStateMachine( resolver, builder, options );
         SAXParser parser = saxParser();
-        parser.setProperty( LEXICAL_HANDLER, stateMachine );
+        parser.setProperty( LEXICAL_HANDLER, stateMachine ); // handle XML comments as well
         parser.parse( input, stateMachine );
         return root.cast( stateMachine.produceRoot() );
     }

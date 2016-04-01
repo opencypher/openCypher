@@ -43,6 +43,10 @@ import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.AttributesImpl;
 
+/**
+ * A utility class for generating XML documents.
+ */
+// TODO: this is clunky and should probably be replaced with XMLStreamWriter
 public abstract class XmlGenerator implements XMLReader
 {
     private static final char[] WHITESPACE = new char[1025];

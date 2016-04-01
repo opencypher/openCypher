@@ -16,7 +16,18 @@
  */
 package org.opencypher.tools.xml;
 
+/**
+ * Implemented by {@linkplain Element XML element classes} that need to know which file the element was read from, and
+ * where in that file (line / column) the element was read.
+ */
 public interface LocationAware
 {
+    /**
+     * Invoked with the location of this element.
+     *
+     * @param path         the path to the XML file this element was read from.
+     * @param lineNumber   the line number in that XML file at which this element was read.
+     * @param columnNumber the column number in the line at which this element was read.
+     */
     void location( String path, int lineNumber, int columnNumber );
 }

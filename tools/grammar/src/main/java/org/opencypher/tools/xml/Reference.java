@@ -24,6 +24,9 @@ import static java.lang.invoke.MethodHandles.filterReturnValue;
 
 import static org.opencypher.tools.Reflection.methodHandle;
 
+/**
+ * DSL for getting {@linkplain MethodHandle method handles} from method references.
+ */
 interface Reference extends Serializable
 {
     static <T, R> Function<T, R> function( Function<T, R> reference )

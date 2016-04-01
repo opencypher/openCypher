@@ -17,8 +17,8 @@
 package org.opencypher.tools.xml;
 
 import java.lang.invoke.MethodHandle;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import static java.lang.invoke.MethodHandles.dropArguments;
@@ -67,7 +67,7 @@ final class AttributeHandler
         }
     }
 
-    private static final Map<Class<?>, Function<MethodHandle, MethodHandle>> CONVERSION = new HashMap<>();
+    private static final Map<Class<?>, Function<MethodHandle, MethodHandle>> CONVERSION = new ConcurrentHashMap<>();
     private static final MethodHandle ENUM_VALUE_OF = Reference.<Class, String, Enum>biFunction( Enum::valueOf ).mh();
     private static final MethodHandle UPPER_STRING = Reference.<String, String>function( String::toUpperCase ).mh();
 

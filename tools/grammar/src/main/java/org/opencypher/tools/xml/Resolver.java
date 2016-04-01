@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -34,21 +35,28 @@ import static java.lang.invoke.MethodHandles.collectArguments;
 abstract class Resolver
 {
     private final Set<Path> parsedPaths;
+    final EnumSet<XmlParser.Option> options;
 
-    protected Resolver()
+    Resolver( XmlParser.Option[] options )
     {
-        this( new HashSet<>() );
+        this( new HashSet<>(), options( options ) );
     }
 
-    private Resolver( Set<Path> parsedPaths )
+    private static EnumSet<XmlParser.Option> options( XmlParser.Option[] options )
+    {
+        throw new UnsupportedOperationException( "not implemented" );
+    }
+
+    private Resolver( Set<Path> parsedPaths, EnumSet<XmlParser.Option> options )
     {
         this.parsedPaths = parsedPaths;
+        this.options = options;
     }
 
     final XmlFile file( String path )
     {
         Path resolved = path( path );
-        return new XmlFile( new Child( parsedPaths, resolved.getParent() ), resolved );
+        return new XmlFile( new Child( parsedPaths, resolved.getParent(), options ), resolved );
     }
 
     abstract Path path( String path );
@@ -58,7 +66,7 @@ abstract class Resolver
         return parsedPaths.contains( path );
     }
 
-    <T> T parse( Path path, XmlParser<T> parser, XmlParser.Option... options )
+    <T> T parse( Path path, XmlParser<T> parser )
             throws IOException, SAXException, ParserConfigurationException
     {
         parsedPaths.add( path );
@@ -70,7 +78,7 @@ abstract class Resolver
         }
     }
 
-    public static void initialize( Initializer init )
+    static void initialize( Initializer init )
     {
         init.add( Resolver::file );
     }
@@ -95,9 +103,9 @@ abstract class Resolver
     {
         private final Path base;
 
-        Child( Set<Path> parsedPaths, Path base )
+        Child( Set<Path> parsedPaths, Path base, EnumSet<XmlParser.Option> options )
         {
-            super( parsedPaths );
+            super( parsedPaths, options );
             this.base = base;
         }
 

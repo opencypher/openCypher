@@ -33,7 +33,23 @@ class CharacterSetNode extends Node implements CharacterSet
     /** {@code null} means EOI (End Of Input). */
     private CodePointSet set = CodePointSet.ANY;
 
-    /** The name of a well-known character set to base these characters on. */
+    /**
+     * Sets the name or definition of the set to base these characters on.
+     * The set can either be the name of a well-known unicode set (such as {@code "ID_Start"}), or it can be a set of
+     * characters in unicode set notation.
+     * <p>
+     * The set of well-known unicode set names are defined in the {@link org.opencypher.grammar.CharacterSet.Unicode
+     * Unicode enum}, in addition to those {@code "EOI"} or {@code "EOF"} are also accepted and means a "character"
+     * representing the end of the input stream.
+     * <p>
+     * Unicode set notation needs to be enclosed within {@code [} and {@code ]} and needs to be a sequence of either:
+     * <ul>
+     * <li>A single character, or</li>
+     * <li>a range of character, denoted as two characters with a dash ({@code -}) in between.</li>
+     * </ul>
+     *
+     * @param set The set to base these characters on.
+     */
     @Attribute(optional = true)
     public void set( String set )
     {
