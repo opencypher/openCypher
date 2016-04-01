@@ -40,7 +40,9 @@ Feature: ExpressionAcceptance
     Then the result should be:
       | value |
       | 'Apa' |
-    And no side effects
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
 
   Scenario: Uses dynamic property lookup based on parameters when there is no type information
     And parameters are:
@@ -59,7 +61,9 @@ Feature: ExpressionAcceptance
     Then the result should be:
       | value |
       | 'Apa' |
-    And no side effects
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
 
   Scenario: Uses dynamic property lookup based on parameters when there is rhs type information
     And parameters are:
