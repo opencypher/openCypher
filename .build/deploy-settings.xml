@@ -14,7 +14,7 @@
       <repositories>
         <repository>
           <id>snapshots</id>
-          <name>openCypher snapshots</name>
+          <name>m2.neo4j.org snapshots</name>
           <releases>
             <enabled>false</enabled>
             <updatePolicy>always</updatePolicy>
@@ -25,7 +25,28 @@
             <updatePolicy>never</updatePolicy>
             <checksumPolicy>fail</checksumPolicy>
           </snapshots>
-          <url>http://m2.neo4j.org/content/repositories/snapshots</url>
+          <url>https://m2.neo4j.org/content/repositories/snapshots</url>
+          <layout>default</layout>
+        </repository>
+      </repositories>
+    </profile>
+    <profile>
+      <id>releases</id>
+      <repositories>
+        <repository>
+          <id>releases</id>
+          <name>m2.neo4j.org releases</name>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+          </snapshots>
+          <url>https://m2.neo4j.org/content/repositories/releases</url>
           <layout>default</layout>
         </repository>
       </repositories>
@@ -37,6 +58,11 @@
   <servers>
     <server>
       <id>snapshots</id>
+      <username>${env.NEO4J_M2_USERNAME}</username>
+      <password>${env.NEO4J_M2_PASSWORD}</password>
+    </server>
+    <server>
+      <id>releases</id>
       <username>${env.NEO4J_M2_USERNAME}</username>
       <password>${env.NEO4J_M2_PASSWORD}</password>
     </server>
