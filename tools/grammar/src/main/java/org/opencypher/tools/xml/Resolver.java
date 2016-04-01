@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,7 +45,12 @@ abstract class Resolver
 
     private static EnumSet<XmlParser.Option> options( XmlParser.Option[] options )
     {
-        throw new UnsupportedOperationException( "not implemented" );
+        EnumSet<XmlParser.Option> result = EnumSet.noneOf( XmlParser.Option.class );
+        if ( options != null )
+        {
+            Collections.addAll( result, options );
+        }
+        return result;
     }
 
     private Resolver( Set<Path> parsedPaths, EnumSet<XmlParser.Option> options )
