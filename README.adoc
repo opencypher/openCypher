@@ -64,9 +64,14 @@ The Cypher Language Group published meeting notes from all the group meetings at
 
 == The structure of this repository
 
-* Cypher Improvement Proposals
-* Reference Implementation
-* Compatibility Test Suite
+* Cypher Improvement Proposals (CIP), `/cip`
+** Contains a list of accepted CIP documents
+* Cypher grammar, `/grammar`
+** Contains the Cypher grammar specification, in XML source format
+* Cypher Technology Compliance Kit (TCK), `/tck`
+** Contains a set of Cucumber features that define Cypher behaviour, and documentation on how to use it
+* openCypher developer tools, `/tools`
+** Contains code that tests the integrity of the repository, generates release artifacts, and aids implementors of openCypher
 
 == Copyright
 
