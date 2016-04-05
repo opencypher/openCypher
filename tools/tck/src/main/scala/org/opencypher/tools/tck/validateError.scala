@@ -16,6 +16,8 @@
  */
 package org.opencypher.tools.tck
 
+import org.opencypher.tools.tck.constants.{TCKErrorDetails, TCKErrorTypes}
+
 /**
   * This function will validate a TCK error specification, which consists of three parts: type, phase and detail. Each
   * of these parts needs to be one of a pre-defined set of constants in order to be valid. If the triple is invalid, a
@@ -33,7 +35,7 @@ object validateError extends ((String, String, String) => Option[String]) {
   }
 
   def checkType(typ: String): String = {
-    if (TYPES(typ)) ""
+    if (TCKErrorTypes.ALL(typ)) ""
     else s"Invalid error type: $typ"
   }
 
@@ -43,31 +45,8 @@ object validateError extends ((String, String, String) => Option[String]) {
   }
 
   def checkDetail(detail: String): String = {
-    if (DETAILS(detail)) ""
+    if (TCKErrorDetails.ALL(detail)) ""
     else s"Invalid error detail: $detail"
   }
-
-  // TODO: Move these to become public constants
-  private val TYPES = Set("SyntaxError",
-                          "SemanticError",
-                          "ParameterMissing",
-                          "ConstraintVerificationFailed",
-                          "EntityNotFound",
-                          "PropertyNotFound",
-                          "LabelNotFound",
-                          "TypeError",
-                          "ArgumentError",
-                          "ArithmeticError")
-
-  private val DETAILS = Set("InvalidElementAccess",
-                            "MapElementAccessByNonString",
-                            "ListElementAccessByNonInteger",
-                            "ConstraintVerificationFailed",
-                            "EntityNotFound",
-                            "PropertyNotFound",
-                            "LabelNotFound",
-                            "TypeError",
-                            "ArgumentError",
-                            "ArithmeticError")
 
 }
