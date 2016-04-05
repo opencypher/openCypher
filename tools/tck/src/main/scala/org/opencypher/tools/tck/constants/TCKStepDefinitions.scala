@@ -28,34 +28,18 @@ object TCKStepDefinitions {
 
   // for And
   val INIT_QUERY = "^having executed: (.*)$"
+  val INIT_LONG_QUERY = "^having executed:$"
   val PARAMETERS = "^parameters are:$"
   val SIDE_EFFECTS = "^the side effects should be:$"
   val NO_SIDE_EFFECTS = "^no side effects$"
 
   // for When
   val EXECUTING_QUERY = "^executing query: (.*)$"
+  val EXECUTING_LONG_QUERY = "^executing query:$"
 
   // for Then
   val EXPECT_RESULT = "^the result should be:$"
   val EXPECT_SORTED_RESULT = "^the result should be, in order:$"
   val EXPECT_EMPTY_RESULT = "^the result should be empty$"
   val EXPECT_ERROR = "^a (.+) should be raised at (.+): (.+)$"
-}
-
-sealed trait TCKStepDefinition {
-  def regex: String
-}
-
-case object Background extends TCKStepDefinition {
-  override def regex = "^$"
-}
-
-object Converter {
-
-//  implicit class ToRegex(step: TCKStepDefinition) {
-
-    implicit def toRegex(step: TCKStepDefinition): String = step.regex
-
-//  }
-
 }

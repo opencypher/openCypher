@@ -39,7 +39,7 @@ object validateSideEffects extends (DataTable => Option[String]) {
   }
 
   def checkKeys(keys: Seq[String]): String = {
-    val badKeys = keys.filterNot(TCKSideEffects.ALL_SIDE_EFFECTS)
+    val badKeys = keys.filterNot(TCKSideEffects.ALL)
 
     if (badKeys.isEmpty) ""
     else s"Invalid side effect keys: ${badKeys.mkString(", ")}"
