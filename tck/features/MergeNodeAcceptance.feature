@@ -241,7 +241,7 @@ Feature: MergeNodeAcceptance
     And having executed: CREATE CONSTRAINT ON (u:User) ASSERT u.id IS UNIQUE
     And having executed: CREATE (:Person {id: 23}), (:User {id: 23})
     When executing query: MERGE (a:Person:User {id: 23})
-    Then a ConstraintVerificationFailed should be raised at runtime: CreateBlockedByConstraint
+    Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
 
   Scenario: Should fail on merge using multiple unique indexes if found different nodes
     Given an empty graph
@@ -249,7 +249,7 @@ Feature: MergeNodeAcceptance
     And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.email IS UNIQUE
     And having executed: CREATE (:Person {id: 23}), (:Person {email: 'smth@neo.com'})
     When executing query: MERGE (a:Person {id: 23, email: 'smth@neo.com'})
-    Then a ConstraintVerificationFailed should be raised at runtime: CreateBlockedByConstraint
+    Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
 
   Scenario: Should fail on merge using multiple unique indexes if it found a node matching single property only
     Given an empty graph
@@ -257,7 +257,7 @@ Feature: MergeNodeAcceptance
     And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.email IS UNIQUE
     And having executed: CREATE (:Person {id: 23})
     When executing query: MERGE (a:Person {id: 23, email: 'smth@neo.com'})
-    Then a ConstraintVerificationFailed should be raised at runtime: CreateBlockedByConstraint
+    Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
 
   Scenario: Should fail on merge using multiple unique indexes if it found a node matching single property only flipped order
     Given an empty graph
@@ -265,7 +265,7 @@ Feature: MergeNodeAcceptance
     And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.email IS UNIQUE
     And having executed: CREATE (:Person {email: 'smth@neo.com'})
     When executing query: MERGE (a:Person {id: 23, email: 'smth@neo.com'})
-    Then a ConstraintVerificationFailed should be raised at runtime: CreateBlockedByConstraint
+    Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
 
   Scenario: Should fail on merge using multiple unique indexes and labels if found different nodes
     Given an empty graph
@@ -273,7 +273,14 @@ Feature: MergeNodeAcceptance
     And having executed: CREATE CONSTRAINT ON (u:User) ASSERT u.email IS UNIQUE
     And having executed: CREATE (:Person {id: 23}), (:User {email: 'smth@neo.com'})
     When executing query: MERGE (a:Person:User {id: 23, email: 'smth@neo.com'})
-    Then a ConstraintVerificationFailed should be raised at runtime: CreateBlockedByConstraint
+    Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
+
+  Scenario: Merge with uniqueness constraints must properly handle multiple labels
+    Given an empty graph
+    And having executed: CREATE CONSTRAINT ON (l:L) ASSERT l.prop IS UNIQUE
+    And having executed: CREATE (:L {prop: 42})
+    When executing query: MERGE (:L:B {prop : 42})
+    Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
 
   Scenario: Should handle running merge inside a foreach loop
     Given an empty graph

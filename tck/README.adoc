@@ -133,6 +133,7 @@ TYPE will be one of the following error types:
 - SemanticError                  "The statement is syntactically valid, but expresses something that the database cannot do."
 - ParameterMissing               "The statement refers to a parameter that was not provided in the request."
 - ConstraintVerificationFailed   "A constraint imposed by the statement is violated by the data in the database."
+- ConstraintValidationFailed     "A constraint imposed by the database was violated."
 - EntityNotFound                 "The statement refers to a non-existent entity."
 - PropertyNotFound               "The statement refers to a non-existent property."
 - LabelNotFound                  "The statement refers to a non-existent label."

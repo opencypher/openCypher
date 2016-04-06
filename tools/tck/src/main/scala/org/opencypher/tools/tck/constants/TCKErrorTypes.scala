@@ -22,6 +22,7 @@ object TCKErrorTypes {
   val SEMANTIC_ERROR = "SemanticError"
   val PARAMETER_MISSING = "ParameterMissing"
   val CONSTRAINT_VERIFICATION_FAILED = "ConstraintVerificationFailed"
+  val CONSTRAINT_VALIDATION_FAILED = "ConstraintValidationFailed"
   val ENTITY_NOT_FOUND = "EntityNotFound"
   val PROPERTY_NOT_FOUND = "PropertyNotFound"
   val LABEL_NOT_FOUND = "LabelNotFound"
@@ -30,8 +31,8 @@ object TCKErrorTypes {
   val ARITHMETIC_ERROR = "ArithmeticError"
 
   val ALL = Set(SYNTAX_ERROR, SEMANTIC_ERROR, PARAMETER_MISSING,
-                CONSTRAINT_VERIFICATION_FAILED, ENTITY_NOT_FOUND,
-                PROPERTY_NOT_FOUND, LABEL_NOT_FOUND, TYPE_ERROR,
+                CONSTRAINT_VERIFICATION_FAILED, CONSTRAINT_VALIDATION_FAILED,
+                ENTITY_NOT_FOUND, PROPERTY_NOT_FOUND, LABEL_NOT_FOUND, TYPE_ERROR,
                 ARGUMENT_ERROR, ARITHMETIC_ERROR)
 }
 
@@ -41,9 +42,15 @@ object TCKErrorPhases {
 }
 
 object TCKErrorDetails {
-  val ALL = Set("InvalidElementAccess",
-                "MapElementAccessByNonString",
-                "ListElementAccessByNonInteger",
-                "CreateBlockedByConstraint")
+
+  val INVALID_ELEMENT_ACCESS = "InvalidElementAccess"
+  val MAP_ELEMENT_ACCESS_BY_NON_STRING = "MapElementAccessByNonString"
+  val LIST_ELEMENT_ACCESS_BY_NON_INTEGER = "ListElementAccessByNonInteger"
+  val CREATE_BLOCKED_BY_CONSTRAINT = "CreateBlockedByConstraint"
+
+  val ALL = Set(INVALID_ELEMENT_ACCESS,
+                MAP_ELEMENT_ACCESS_BY_NON_STRING,
+                LIST_ELEMENT_ACCESS_BY_NON_INTEGER,
+                CREATE_BLOCKED_BY_CONSTRAINT)
 
 }
