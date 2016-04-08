@@ -17,7 +17,7 @@
 
 Feature: ReturnAcceptanceTest
 
-  Scenario: should limit to two hits
+  Scenario: Limit to two hits
     Given an empty graph
       And having executed: CREATE ({name: 'A'}), ({name: 'B'}), ({name: 'C'}), ({name: 'D'}), ({name: 'E'})
     When executing query: MATCH (n) RETURN n LIMIT 2
@@ -27,7 +27,7 @@ Feature: ReturnAcceptanceTest
       | ({name: 'B'}) |
     And no side effects
 
-  Scenario: should start the result from second row
+  Scenario: Start the result from the second row
     Given an empty graph
       And having executed: CREATE ({name: 'A'}), ({name: 'B'}), ({name: 'C'}), ({name: 'D'}), ({name: 'E'})
     When executing query: MATCH (n) RETURN n ORDER BY n.name ASC SKIP 2
@@ -38,7 +38,7 @@ Feature: ReturnAcceptanceTest
       | ({name: 'E'}) |
     And no side effects
 
-  Scenario: should start the result from second row by param
+  Scenario: Start the result from the second row by param
     Given an empty graph
       And having executed: CREATE ({name: 'A'}), ({name: 'B'}), ({name: 'C'}), ({name: 'D'}), ({name: 'E'})
       And parameters are:
@@ -51,7 +51,7 @@ Feature: ReturnAcceptanceTest
       | ({name: 'E'}) |
     And no side effects
 
-  Scenario: should get stuff in the middle
+  Scenario: Get rows in the middle
     Given an empty graph
       And having executed: CREATE ({name: 'A'}), ({name: 'B'}), ({name: 'C'}), ({name: 'D'}), ({name: 'E'})
     When executing query: MATCH (n) WHERE id(n) IN [0,1,2,3,4] RETURN n ORDER BY n.name ASC SKIP 2 LIMIT 2
@@ -61,7 +61,7 @@ Feature: ReturnAcceptanceTest
       | ({name: 'D'}) |
     And no side effects
 
-  Scenario: should get stuff in the middle by param
+  Scenario: Get rows in the middle by param
     Given an empty graph
       And having executed: CREATE ({name: 'A'}), ({name: 'B'}), ({name: 'C'}), ({name: 'D'}), ({name: 'E'})
       And parameters are:
@@ -74,7 +74,7 @@ Feature: ReturnAcceptanceTest
       | ({name: 'D'}) |
     And no side effects
 
-  Scenario: should sort on aggregated function
+  Scenario: Sort on aggregated function
     Given an empty graph
       And having executed: CREATE ({division: 'A', age: 22}), ({division: 'B', age: 33}), ({division: 'B', age: 44}), ({division: 'C', age: 55})
     When executing query: MATCH (n) WHERE id(n) IN [0,1,2,3] RETURN n.division, max(n.age) ORDER BY max(n.age)
@@ -85,7 +85,7 @@ Feature: ReturnAcceptanceTest
       | 'C'        | 55         |
     And no side effects
 
-  Scenario: should support sort and distinct
+  Scenario: Support sort and distinct
     Given an empty graph
       And having executed: CREATE ({name: 'A'}), ({name: 'B'}), ({name: 'C'})
     When executing query: MATCH (a) WHERE id(a) IN [0,1,2,0] RETURN DISTINCT a ORDER BY a.name
@@ -96,7 +96,7 @@ Feature: ReturnAcceptanceTest
       | ({name: 'C'}) |
     And no side effects
 
-  Scenario: should support column renaming
+  Scenario: Support column renaming
     Given an empty graph
       And having executed: CREATE (:Singleton)
     When executing query: MATCH (a) WHERE id(a) = 0 RETURN a AS ColumnName
@@ -105,7 +105,7 @@ Feature: ReturnAcceptanceTest
       | (:Singleton) |
     And no side effects
 
-  Scenario: should support ordering by a property after being distinctified
+  Scenario: Support ordering by a property after being distinct-ified
     Given an empty graph
       And having executed: CREATE (:A)-[:T]->(:B)
     When executing query: MATCH (a)-->(b) WHERE id(a) = 0 RETURN DISTINCT b ORDER BY b.name
@@ -114,7 +114,7 @@ Feature: ReturnAcceptanceTest
       | (:B) |
     And no side effects
 
-  Scenario: arithmetic precedence test
+  Scenario: Arithmetic precedence test
     Given any graph
     When executing query: RETURN 12 / 4 * 3 - 2 * 4
     Then the result should be:
@@ -122,7 +122,7 @@ Feature: ReturnAcceptanceTest
       | 1                  |
     And no side effects
 
-  Scenario: arithmetic precedence with parenthesis test
+  Scenario: Arithmetic precedence with parenthesis test
     Given any graph
     When executing query: RETURN 12 / 4 * (3 - 2 * 4)
     Then the result should be:
@@ -130,7 +130,7 @@ Feature: ReturnAcceptanceTest
       | -15                  |
     And no side effects
 
-  Scenario: count star should count everything in scope
+  Scenario: Count star should count everything in scope
     Given an empty graph
       And having executed: CREATE (:l1), (:l2), (:l3)
     When executing query: MATCH (a) RETURN a, count(*) ORDER BY count(*)
@@ -141,7 +141,7 @@ Feature: ReturnAcceptanceTest
       | (:l3) | 1        |
     And no side effects
 
-  Scenario: filter should work
+  Scenario: Filter should work
     Given an empty graph
       And having executed: CREATE (a {foo: 1})-[:T]->({foo: 1}), (a)-[:T]->({foo: 2}), (a)-[:T]->({foo: 3})
     When executing query: MATCH (a {foo: 1}) MATCH p=(a)-->() RETURN filter(x IN nodes(p) WHERE x.foo > 2) AS n
@@ -152,7 +152,7 @@ Feature: ReturnAcceptanceTest
       | []           |
     And no side effects
 
-  Scenario: should allow absolute function
+  Scenario: Absolute function
     Given any graph
     When executing query: RETURN abs(-1)
     Then the result should be:
@@ -160,7 +160,7 @@ Feature: ReturnAcceptanceTest
       | 1       |
     And no side effects
 
-  Scenario: should return collection size
+  Scenario: Return collection size
     Given any graph
     When executing query: RETURN size([1,2,3]) AS n
     Then the result should be:
