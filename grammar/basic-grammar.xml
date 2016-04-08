@@ -510,12 +510,12 @@
     </alt>
   </production>
 
-  <production name="UnescapedSymbolicNameString">
+  <production name="UnescapedSymbolicNameString" rr:inline="true">
     <non-terminal ref="IdentifierStart"/>
     <repeat><non-terminal ref="IdentifierPart"/></repeat>
   </production>
 
-  <production name="IdentifierStart">
+  <production name="IdentifierStart" rr:inline="true">
     <description>
       Based on the unicode identifier and pattern syntax
         (http://www.unicode.org/reports/tr31/)
@@ -537,7 +537,7 @@
     </alt>
   </production>
 
-  <production name="IdentifierPart">
+  <production name="IdentifierPart" rr:inline="true">
     <description>
       Based on the unicode identifier and pattern syntax
         (http://www.unicode.org/reports/tr31/)
@@ -549,7 +549,7 @@
     </alt>
   </production>
 
-  <production name="EscapedSymbolicNameString">
+  <production name="EscapedSymbolicNameString" rr:inline="true">
     <description>
       Any character except "`", enclosed within `backticks`. Backticks are escaped with double backticks.
     </description>

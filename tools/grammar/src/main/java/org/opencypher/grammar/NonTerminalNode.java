@@ -32,6 +32,7 @@ final class NonTerminalNode extends Node implements NonTerminal
     Boolean skip, inline;
     private ProductionNode production;
     private int index = -1;
+    private ProductionNode origin;
 
     @Override
     public Production production()
@@ -52,11 +53,19 @@ final class NonTerminalNode extends Node implements NonTerminal
     }
 
     @Override
+    public Production declaringProduction()
+    {
+        return origin;
+    }
+
+    @Override
     void resolve( ProductionNode origin, ProductionResolver resolver )
     {
         production = resolver.resolveProduction( origin, requireNonNull( ref, "non-terminal reference" ) );
+        production.addReference( this );
         if ( index < 0 )
         {
+            this.origin = origin;
             index = resolver.nextNonTerminalIndex();
         }
     }

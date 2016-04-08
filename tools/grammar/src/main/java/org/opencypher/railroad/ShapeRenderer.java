@@ -556,14 +556,16 @@ public final class ShapeRenderer<EX extends Exception>
         double margin = tokenMargin, hPadding = tokenPadding, vPadding = tokenPadding;
         double width = text.getWidth(), height = text.getHeight();
         double radius = (vPadding + height + vPadding) / 2;
-        shapes.text(
+        Shapes.Group<? extends EX> group = shapes.group( linker.charsetLink( text.text() ) );
+        group.text(
                 text,
                 x + margin + radius + hPadding,
                 y + margin + vPadding );
-        hexagon( shapes, x + margin, y + margin, radius, width + hPadding * 2 );
+        hexagon( group, x + margin, y + margin, radius, width + hPadding * 2 );
+        group.close();
     }
 
-    private void hexagon( Shapes<? extends EX> shapes, double x, double y, double r, double w ) throws EX
+    private void hexagon( Shapes.Group<? extends EX> shapes, double x, double y, double r, double w ) throws EX
     {
         shapes.polygon(
                 OUTLINE,

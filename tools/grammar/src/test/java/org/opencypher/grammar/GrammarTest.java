@@ -17,12 +17,20 @@
 package org.opencypher.grammar;
 
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import org.junit.Rule;
 import org.junit.Test;
 
+import static java.util.Arrays.asList;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.opencypher.grammar.Grammar.grammar;
+import static org.opencypher.grammar.Grammar.literal;
+import static org.opencypher.grammar.Grammar.nonTerminal;
 
 public class GrammarTest
 {
@@ -38,5 +46,23 @@ public class GrammarTest
         // then
         assertNotNull( grammar );
         assertEquals( "SomeLanguage", grammar.language() );
+    }
+
+    @Test
+    public void shouldAccessReferencingProductions() throws Exception
+    {
+        // given
+        Grammar grammar = grammar( "language" )
+                .production( "language", nonTerminal( "one" ), nonTerminal( "two" ) )
+                .production( "one", nonTerminal( "two" ) )
+                .production( "two", literal( "y" ) )
+                .build();
+
+        // when
+        Collection<Production> references = grammar.production( "two" ).referencedFrom();
+
+        // then
+        assertEquals( new HashSet<>( asList( "one", "language" ) ),
+                      references.stream().map( Production::name ).collect( Collectors.toSet() ) );
     }
 }

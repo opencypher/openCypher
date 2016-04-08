@@ -31,7 +31,7 @@
     <repeat><non-terminal ref="AnyCypherOption"/> &WS;</repeat>
   </production>
 
-  <production name="AnyCypherOption">
+  <production name="AnyCypherOption" rr:inline="true">
     <alt>
       <non-terminal ref="CypherOption"/>
       <non-terminal ref="Explain"/>
@@ -39,7 +39,7 @@
     </alt>
   </production>
 
-  <production name="CypherOption">
+  <production name="CypherOption" rr:inline="true">
     CYPHER
     <opt>&SP;<non-terminal ref="VersionNumber"/></opt>
     <repeat>&SP;<non-terminal ref="ConfigurationOption"/></repeat>
@@ -49,8 +49,8 @@
     <non-terminal ref="DigitString"/>.<non-terminal ref="DigitString"/>
   </production>
 
-  <production name="Explain">EXPLAIN</production>
-  <production name="Profile">PROFILE</production>
+  <production name="Explain" rr:inline="true">EXPLAIN</production>
+  <production name="Profile" rr:inline="true">PROFILE</production>
 
   <production name="ConfigurationOption">
     <non-terminal ref="SymbolicNameString" ast:entry="key"/>

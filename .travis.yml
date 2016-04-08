@@ -8,9 +8,10 @@ addons:
       - oracle-java8-installer
 install: 'if [ "${TRAVIS_SECURE_ENV_VARS}" = "true" ] ; then mvn --settings .build/deploy-settings.xml -DaltDeploymentRepository=snapshots::default::http://m2.neo4j.org/content/repositories/snapshots clean deploy ; else mvn clean verify ; fi'
 script:
-  - java -jar tools/grammar/target/grammar-1.0-SNAPSHOT.jar ISO14977 cypher.xml > grammar/generated/cypher.ebnf
-  - java -jar tools/grammar/target/grammar-1.0-SNAPSHOT.jar Antlr4 cypher.xml > grammar/generated/Cypher.g4
-  - java -DRailRoadDiagrams.outputDir=grammar/generated/railroad -jar tools/grammar/target/grammar-1.0-SNAPSHOT.jar RailRoadDiagrams cypher.xml
+  - ./tools/grammar/src/main/shell/launch.sh ISO14977 cypher.xml > grammar/generated/cypher.ebnf
+  - ./tools/grammar/src/main/shell/launch.sh Antlr4 cypher.xml > grammar/generated/Cypher.g4
+  - ./tools/grammar/src/main/shell/launch.sh RailRoadDiagrams -outputDir=grammar/generated/railroad/raw cypher.xml
+  - ./tools/grammar/src/main/shell/launch.sh RailRoadDiagramPages -outputDir=grammar/generated/railroad cypher.xml
 deploy:
   provider: s3
   bucket: artifacts.opencypher.org
@@ -18,8 +19,8 @@ deploy:
   local-dir: grammar/generated
   acl: public_read
   access_key_id:
-    secure: ZDs584oHbxu7ODTk00Dm9TTn5cfh9TUr/4ktF0BOFYECpu8jCZz6FYc0FdQvYfvL/wGL22lQO5F4kvacFLEisEBcDhFbWCW79mH61KYuk5lPOZjcrYpheELWyo4L1VT4SIqAE2W3mqyNf3thxqXxNqwjSIvQffX25h8ZslW0HzNCCF0BuF5Elhv3QoOpQrwbHeMlwP6THlhQTxsPSvovHK2l8lL7oICm3egLyDTw0goSjgMxME6oGPBwjcTbrHkWbirbhCBMEo8UClA3/klWntVO7RIbzcmVJA7ydYtxRQ1PJ7P/PeqkLGcgD5tnMaFEe0NMBr1rVl1gDVdWmAarXpBm/Gm/acUPrLWcJRqgSPpXVLY2GQ2GzAJpPNlvnJ2qaCQBPwyq7c/lN+g6rLI/OxNBQ6mH/FSjFTRvQOI6Lpbvf//yThsw1bSAUTSy993BndOgbdg0X4hKg6TKG+M7OUSnMgPwxwFoopDbody8AglyTpZJBSXTnb2HL0+RgNtSn/7zVrLj1LmIGylC+ncmrRc4QpRDdh0Tu8dOCvQL4wA6xDkFPmgj338XTsAPKCw8eNgItnzmFJxCxUlwwdA67P28/oAP+W5rxAHnGyDdvtdah5DoO+chd5bnkJY9r1W7a9655mBPhixP1+nPESq0RBm8cj47kh0NKgGBD5fW6CQ=
+    secure: XrpFNqYDVUhtq2IPJJWRWcWY9z5zX1cTOAVI5dXoCaa0gVqZXtPcAKJRApaub3OfpRfgQcWNSQcMoqf3mouOlisiBSNCOe1gd3j+lwIUklpPdl1Wet32pRd6jIvn/nPVT4u0uc0w2isZXSfrvQRWk7jiOF72TbkF4zghS/QHAatGg9r6fJr+iyOzLc0tWFM9sSgvlm3yUH+ESvBfYrWhOGV578Lt66oZCU+GR63PxVvVaNEkGZVYbp0sRaAxg9osvYtVh2ffhutq4JL3uOK9h364Ho40VusuzWiXtOW1XIVwA1/y0JBuJmKZ+cci8jrrTrkwwKo1LBHPHnfYasuIlZbKctxmG7yHSPfAVqKSXk+e6gsTfeSaOmW/OrPWoYbPnjg86pqKoTLjbN5MpILbV6Qmxt2xJhAqPU8sOVtcmTvXaVRQlZhZDbs7GHXyJa/JpzArxGqj0ucRgAyaI47EmFR6AytcEWbrRPCjfLdbQS5CNdPNGi0NNicpuWY5OaeE6MjN8nwaDjBcpjP/82Oi0aup3cyGAAyjZKx+TSo7dXneN5fuGNeuWs425FqX9M34rvrLtxkUX/f6xfI2tm5R6Tsy1iT/6sm+syHeDPzOO7lf5n8Ca0VsXV+so6xd9Be4EBIyZVFqg2Nf6TzXmOSZKtcwJX8NLDeb8dzhPYBfP/8=
   secret_access_key:
-    secure: CfcQ0Lulro67Ue15RYfczqcf8WDyqaCC35HhBoZNtVP706A63rSJd/QQknUzjpVNUOtTjEViB3nyDSjR1tX352XaDFPAmfE1M622wmpac4qbKuDpRucJiehP9MAjiaAdz/VFYZZFLwFMR3PpNjyX+8tV7oUZ4wTjo+GPyfP1M8oXbTqUZnqbyD9XfatZZZcFqA2cW+BWh49iqxlGMJpatC6Ac+xabFeJ9xVaqFE8cAOb48Dtd5ksKS9oUKZ6W1sJa0DSsqE2gqsaCsynj+P4dbwqpDm2VPrF7R6IuO3SBp1STuFVj0XTNN3alfgCFE89Dac9vlacyiggfJsUEA2NolOp4n98BYVVNGXDXF9eoIhcq9F2h0RmSrmyjPBy/K1pxRvYGqAbzuH7sb3IMsjFPIn66kyyGxx0krxEl3vJBsYaMHJFfxuSPbZLIAz7hhhy3EXA/YLgSnAKkph/SMmMDuawobbGcSpHol84wDRKWg3OV3ekcbCmDCWxI1RNftZIX8htvyGI6ibc/Y5+La2j2KWpm6Jrn5vmKxqB9giTI3k4LYpLyg7jY7CWzj3htVtzLi+eETsQITjSNksncpy5DLxfwBHPw3NJ0P3egJeXexQypxiZYUEtstvFTYlu7vntRgji/qOIrq4eFoGEoVxwisoWpWvKbHgb/tkFxYeXzNc=
+    secure: NnfIaBhzlVfI1gDEtSuVMtkCgGlwv5gXCE9iYHZtgefVjeuHl0JN0/4HTQJpV6SdyE2E7YkccvxuP5vtnWLJOMC97BzGomT6gsyYoMw4A9rzzMve7L9i30YgYqsP+x081JdmuoRhtKfMSznBNcUamOYTryY2wOmDlRyBlWyPqVztLh906hhca+O1F67K2FSH8HRg9pT930xDJsoJtwSdnkKmA6IsZUoev1ChvNPq8vC3CYMHU5KRUOf0tOMb2dbUrRufvVH7k7VlZV1chnNYj33yRVaddT7ve0omcO0fcAs71caj+ri7pSArRdzwODBEjFdUGcpia1PKcTxnVPnsAPUi0hl+ciIJNEhrTbDKmKhrPRHQerd21biCg/xht5t9fkf+XbUL8XbA73SeIDYbCyGvFZyJggaCRGbH8hjaJFfzRpk+fryK6Acaxn+K0Cr0TvUPcE4IqU6sz2zYNoFv25bKONJWY0DgJMiJ3QpJyOizFUsyEe2KgKPVmdTxBlnMIDc11tpnIHE+EUeIx30wAvraQeA1ypchTnU1WztO3Vj3BMusbqsY+qFf/OnTF674ruaSFHPB73D4B0gaTfxET68+5a+Fpbb0p8zQXI+ddGt1rQoZEhPiWgFOOc58qtcn3oHiwI8B8FnKMiI/JIK8Wqnt+ja/FPGxYmlvwOQW11A=
   on:
     repo: opencypher/openCypher

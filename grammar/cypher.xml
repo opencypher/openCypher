@@ -98,7 +98,7 @@
       <non-terminal ref="Unwind"/>
       <non-terminal ref="Merge"/>
       <non-terminal ref="Create"/>
-      <non-terminal ref="SetClause"/>
+      <non-terminal ref="Set"/>
       <non-terminal ref="Delete"/>
       <non-terminal ref="Remove"/>
       <non-terminal ref="Foreach"/>
@@ -144,8 +144,8 @@
 
   <production name="MergeAction">
     <alt>
-      <seq>ON &SP; MATCH &SP; <non-terminal ref="SetClause"/></seq>
-      <seq>ON &SP; CREATE &SP; <non-terminal ref="SetClause"/></seq>
+      <seq>ON &SP; MATCH &SP; <non-terminal ref="Set"/></seq>
+      <seq>ON &SP; CREATE &SP; <non-terminal ref="Set"/></seq>
     </alt>
   </production>
 
@@ -156,7 +156,7 @@
     </alt>
   </production>
 
-  <production name="SetClause">
+  <production name="Set">
     SET <non-terminal ref="SetItem"/>
     <repeat>
       , <non-terminal ref="SetItem"/>

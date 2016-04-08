@@ -16,11 +16,16 @@
  */
 package org.opencypher.grammar;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 import org.opencypher.tools.xml.Attribute;
 import org.opencypher.tools.xml.Child;
 import org.opencypher.tools.xml.Element;
+
+import static java.util.Collections.emptyList;
 
 @Element(uri = Grammar.XML_NAMESPACE, name = "production")
 final class ProductionNode extends Located implements Production
@@ -32,8 +37,9 @@ final class ProductionNode extends Located implements Production
     ScopeRule scopeRule;
     Node definition;
     String description;
-    @Attribute(uri=Grammar.RAILROAD_XML_NAMESPACE, optional = true)
+    @Attribute(uri = Grammar.RAILROAD_XML_NAMESPACE, optional = true)
     boolean skip, inline;
+    private List<NonTerminal> references;
 
     public ProductionNode( Root root )
     {
@@ -110,6 +116,21 @@ final class ProductionNode extends Located implements Production
     public boolean inline()
     {
         return inline;
+    }
+
+    void addReference( NonTerminalNode nonTerminal )
+    {
+        if ( references == null )
+        {
+            references = new ArrayList<>();
+        }
+        references.add( nonTerminal );
+    }
+
+    @Override
+    public Collection<NonTerminal> references()
+    {
+        return references == null ? emptyList() : references;
     }
 
     @Override

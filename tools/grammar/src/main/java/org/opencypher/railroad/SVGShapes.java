@@ -324,6 +324,7 @@ public class SVGShapes implements ShapeRenderer.Shapes<XMLStreamException>
         {
             startTag( "a" );
             writer.writeAttribute( "xlink", XLINK_NAMESPACE, "href", link );
+            attribute( "target", "_parent" );
         }
         else
         {

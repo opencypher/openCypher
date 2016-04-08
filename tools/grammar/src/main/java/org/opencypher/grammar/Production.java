@@ -16,6 +16,11 @@
  */
 package org.opencypher.grammar;
 
+import java.util.Collection;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toSet;
+
 public interface Production
 {
     String name();
@@ -31,4 +36,28 @@ public interface Production
     boolean skip();
 
     boolean inline();
+
+    Collection<NonTerminal> references();
+
+    default Collection<Production> referencedFrom()
+    {
+        return references()
+                .stream()
+                .flatMap( nonTerminal -> {
+                    Production site = nonTerminal.declaringProduction();
+                    if ( site.inline() )
+                    {
+                        return site.referencedFrom().stream();
+                    }
+                    else
+                    {
+                        return Stream.concat(
+                                Stream.of( site ),
+                                site.references().stream()
+                                    .filter( NonTerminal::inline )
+                                    .map( NonTerminal::declaringProduction ) );
+                    }
+                } )
+                .collect( toSet() );
+    }
 }

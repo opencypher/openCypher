@@ -28,11 +28,14 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 import static java.lang.invoke.LambdaMetafactory.metafactory;
+import static java.lang.invoke.MethodHandleInfo.REF_invokeSpecial;
+import static java.lang.invoke.MethodHandleInfo.REF_invokeStatic;
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.util.Collections.addAll;
@@ -47,24 +50,6 @@ import static org.opencypher.tools.TypedArgument.values;
 public class Reflection
 {
     /**
-     * Get the implementation method of a ({@linkplain Serializable serializable}) lambda.
-     *
-     * @param lambda the ({@linkplain Serializable serializable}) lambda to get the implementation for.
-     * @return the {@link Method} that implements the lambda.
-     */
-    public static Method lambdaMethod( Serializable lambda )
-    {
-        SerializedLambda serialized = serializedLambda( lambda );
-        Class<?> implClass = lambdaClass( serialized );
-        return Stream.of( implClass.getDeclaredMethods() )
-                     .filter( method -> Objects.equals( method.getName(), serialized.getImplMethodName() ) )
-                     .reduce( ( l, r ) -> {
-                         throw new IllegalArgumentException( "Too many implementation methods." );
-                     } )
-                     .orElseThrow( () -> new IllegalStateException( "Unable to find implementation method." ) );
-    }
-
-    /**
      * Get the parameter name of a ({@linkplain Serializable serializable}) lambda with a single parameter.
      * <p>
      * Getting the parameter requires the source to be compiled with the {@code -parameters} flag passed to {@code
@@ -75,19 +60,50 @@ public class Reflection
      */
     public static String lambdaParameterName( Serializable lambda )
     {
-        Parameter[] parameters = lambdaMethod( lambda ).getParameters();
-        if ( parameters == null || parameters.length != 1 )
+        SerializedLambda serialized = serializedLambda( lambda );
+        Parameter[] parameters = lambdaMethod( serialized ).getParameters();
+        int bound;
+        switch ( serialized.getImplMethodKind() )
+        {
+        case REF_invokeStatic:
+            bound = serialized.getCapturedArgCount();
+            break;
+        case REF_invokeSpecial:
+            bound = serialized.getCapturedArgCount() - 1;
+            break;
+        default:
+            throw new IllegalArgumentException( "Unsupported method kind: " + serialized.getImplMethodKind() );
+        }
+        if ( parameters == null || (parameters.length - bound) != 1 )
         {
             throw new IllegalArgumentException(
-                    "Must have exactly one parameter, not " + (parameters == null ? 0 : parameters.length) );
+                    "Must have exactly one parameter, not " + (parameters == null ? 0 : parameters.length) +
+                    "; " + Arrays.toString( parameters ) + ", bound: " + bound );
         }
-        Parameter parameter = parameters[0];
+        Parameter parameter = parameters[bound];
         if ( !parameter.isNamePresent() )
         {
             throw new IllegalStateException(
                     "No parameter name present, compile with '-parameters', and use JDK 1.8.0_60 or newer." );
         }
         return parameter.getName();
+    }
+
+    /**
+     * Get the implementation method of a ({@linkplain Serializable serializable}) lambda.
+     *
+     * @param serialized the serialized form of a lambda.
+     * @return the {@link Method} that implements the lambda.
+     */
+    private static Method lambdaMethod( SerializedLambda serialized )
+    {
+        Class<?> implClass = lambdaClass( serialized );
+        return Stream.of( implClass.getDeclaredMethods() )
+                     .filter( method -> Objects.equals( method.getName(), serialized.getImplMethodName() ) )
+                     .reduce( ( l, r ) -> {
+                         throw new IllegalArgumentException( "Too many implementation methods." );
+                     } )
+                     .orElseThrow( () -> new IllegalStateException( "Unable to find implementation method." ) );
     }
 
     /**
@@ -259,7 +275,7 @@ public class Reflection
             Class<?> impl = lambdaClass( serialized );
             switch ( serialized.getImplMethodKind() )
             {
-            case MethodHandleInfo.REF_invokeStatic:
+            case REF_invokeStatic:
                 return lookup.findStatic(
                         impl, serialized.getImplMethodName(), MethodType.fromMethodDescriptorString(
                                 serialized.getImplMethodSignature(), impl.getClassLoader() ) );

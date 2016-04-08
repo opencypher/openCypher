@@ -1,0 +1,265 @@
+package org.opencypher.tools.grammar;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+import org.opencypher.grammar.Grammar;
+import org.opencypher.tools.Option;
+import org.opencypher.tools.io.Output;
+
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.Byte.parseByte;
+import static java.lang.Double.parseDouble;
+import static java.lang.Float.parseFloat;
+import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
+import static java.lang.Short.parseShort;
+
+import static org.opencypher.tools.Option.dynamicOptions;
+import static org.opencypher.tools.Reflection.lambdaClass;
+import static org.opencypher.tools.Reflection.pathOf;
+import static org.opencypher.tools.grammar.Main.execute;
+
+/**
+ * Base class for a command line tool. Handles configuration parameters.
+ */
+abstract class Tool implements Function<Method, Object>
+{
+    private final String prefix;
+    private final Map<?, ?> properties;
+
+    Tool( Map<?, ?> properties )
+    {
+        this.prefix = getClass().getSimpleName() + ".";
+        this.properties = properties;
+    }
+
+    interface Constructor<T> extends Serializable
+    {
+        T create( Map<?, ?> properties );
+    }
+
+    interface Entry<T>
+    {
+        void invoke( T tool, Grammar grammar, Output output ) throws Exception;
+    }
+
+    protected static <T extends Tool> void main( Constructor<T> constructor, Entry<T> entry, String... args )
+            throws Exception
+    {
+        execute( new Main()
+        {
+            @Override
+            public void write( Grammar grammar, OutputStream out ) throws Exception
+            {
+                entry.invoke( constructor.create( System.getProperties() ), grammar, Output.output( out ) );
+            }
+
+            @Override
+            public String usage( BiFunction<String, String, String> usage )
+            {
+                Class<?> implClass = lambdaClass( constructor );
+                return usage.apply( pathOf( implClass ), implClass.getName() );
+            }
+        }, args );
+    }
+
+    @SafeVarargs
+    protected final <T> T options( Class<T> type, Option<T>... options )
+    {
+        return dynamicOptions( type, this );
+    }
+
+    protected final Path outputDir() throws IOException
+    {
+        Object outputDir = get( "outputDir" );
+        Path path;
+        if ( outputDir instanceof Path )
+        {
+            path = (Path) outputDir;
+        }
+        else if ( outputDir instanceof String )
+        {
+            path = Paths.get( (String) outputDir );
+        }
+        else
+        {
+            path = Paths.get( "." );
+        }
+        Path output = path.normalize().toAbsolutePath();
+        if ( !Files.isDirectory( output ) )
+        {
+            Files.createDirectories( output );
+        }
+        else
+        {
+            Object clearOutputDir = get( "clearOutputDir" );
+            boolean clear = false;
+            if ( clearOutputDir instanceof Boolean )
+            {
+                clear = (Boolean) clearOutputDir;
+            }
+            else if ( clearOutputDir instanceof String )
+            {
+                clear = parseBoolean( (String) clearOutputDir );
+            }
+            if ( clear )
+            {
+                clearDirectory( output );
+            }
+        }
+        return output;
+    }
+
+    private String lookup( String name )
+    {
+        Object value = get( name );
+        return value instanceof String ? (String) value : null;
+    }
+
+    private Object get( String name )
+    {
+        return properties.get( prefix + name );
+    }
+
+    @Override
+    public final Object apply( Method key )
+    {
+        Class<?> type = key.getReturnType();
+        String name = key.getName();
+        Object value = get( name );
+        if ( type.isInstance( value ) )
+        {
+            return value;
+        }
+        else if ( value instanceof String )
+        {
+            String param = (String) value;
+            switch ( type.getName() )
+            {
+            case "float":
+                return parseFloat( param );
+            case "double":
+                return parseDouble( param );
+            case "long":
+                return parseLong( param );
+            case "int":
+                return parseInt( param );
+            case "short":
+                return parseShort( param );
+            case "byte":
+                return parseByte( param );
+            case "boolean":
+                return parseBoolean( param );
+            case "java.awt.Font":
+                return awtFont( key, param );
+            case "javafx.scene.text.Font":
+                return fxFont( key, param );
+            }
+        }
+        else if ( value == null )
+        {
+            if ( type == java.awt.Font.class )
+            {
+                return awtFont( key, lookup( name + ".name" ) );
+            }
+            else if ( type == javafx.scene.text.Font.class )
+            {
+                return fxFont( key, lookup( name + ".family" ) );
+            }
+        }
+        return null;
+    }
+
+    private java.awt.Font awtFont( Method method, String font )
+    {
+        String name = method.getName();
+        String bold = lookup( name + ".bold" );
+        String italic = lookup( name + ".italic" );
+        String size = lookup( name + ".size" );
+        if ( font == null && bold == null && italic == null && size == null )
+        {
+            return null;
+        }
+        if ( font == null || size == null )
+        {
+            try
+            {
+                java.awt.Font def = (java.awt.Font) method.invoke( Option.options( method.getDeclaringClass() ) );
+                if ( font == null )
+                {
+                    font = def.getName();
+                }
+                if ( size == null )
+                {
+                    size = "" + def.getSize();
+                }
+            }
+            catch ( IllegalAccessException | InvocationTargetException e )
+            {
+                if ( font == null )
+                {
+                    font = "sans";
+                }
+                if ( size == null )
+                {
+                    size = "10";
+                }
+            }
+        }
+        int style = 0;
+        if ( parseBoolean( bold ) )
+        {
+            style |= java.awt.Font.BOLD;
+        }
+        if ( parseBoolean( italic ) )
+        {
+            style |= java.awt.Font.ITALIC;
+        }
+        return new java.awt.Font( font, style, parseInt( size ) );
+    }
+
+    private javafx.scene.text.Font fxFont( Method method, String family )
+    {
+        return javafx.scene.text.Font.font( family );
+    }
+
+    private static void clearDirectory( final Path output ) throws IOException
+    {
+        Files.walkFileTree( output, new SimpleFileVisitor<Path>()
+        {
+            @Override
+            public FileVisitResult visitFile( Path file, BasicFileAttributes attrs ) throws IOException
+            {
+                Files.delete( file );
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory( Path dir, IOException exc ) throws IOException
+            {
+                if ( exc != null )
+                {
+                    return FileVisitResult.TERMINATE;
+                }
+                else if ( !dir.equals( output ) )
+                {
+                    Files.delete( dir );
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        } );
+    }
+}

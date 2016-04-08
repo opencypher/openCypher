@@ -38,4 +38,6 @@ public interface NonTerminal
     boolean skip();
 
     boolean inline();
+
+    Production declaringProduction();
 }

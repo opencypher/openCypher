@@ -16,18 +16,11 @@
  */
 package org.opencypher.tools.grammar;
 
-import java.awt.Font;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.lang.reflect.Method;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
-import java.util.function.Function;
 import javax.xml.stream.XMLStreamException;
 
 import org.opencypher.grammar.Grammar;
@@ -36,77 +29,33 @@ import org.opencypher.railroad.SVGShapes;
 import org.opencypher.railroad.ShapeRenderer;
 import org.opencypher.tools.io.Output;
 
-import static java.lang.Boolean.parseBoolean;
-import static java.lang.Byte.parseByte;
-import static java.lang.Double.parseDouble;
-import static java.lang.Float.parseFloat;
-import static java.lang.Integer.parseInt;
-import static java.lang.Long.parseLong;
-import static java.lang.Short.parseShort;
-
 import static org.opencypher.railroad.SVGShapes.svgFile;
-import static org.opencypher.tools.Option.dynamicOptions;
-import static org.opencypher.tools.grammar.Main.execute;
 import static org.opencypher.tools.io.Output.output;
+import static org.opencypher.tools.io.Output.stringBuilder;
 
 /**
  * Generates railroad diagrams (as SVG files) for each of the productions in a {@link Grammar}.
  */
-public final class RailRoadDiagrams implements Function<Method, Object>, ShapeRenderer.Linker
+public final class RailRoadDiagrams extends Tool implements ShapeRenderer.Linker
 {
-    public static void write( Grammar grammar, Writer writer ) throws Exception
+    public static void main( String... args ) throws Exception
     {
-        write( grammar, output( writer ) );
+        main( RailRoadDiagrams::new, RailRoadDiagrams::generate, args );
     }
 
-    public static void write( Grammar grammar, OutputStream stream ) throws Exception
+    private RailRoadDiagrams( Map<?, ?> properties )
     {
-        write( grammar, output( stream ) );
+        super( properties );
     }
 
-    public static void write( Grammar grammar, Output output ) throws Exception
+    private void generate( Grammar grammar, Output output ) throws XMLStreamException, IOException
     {
-        new RailRoadDiagrams( System.getProperties() ).generate( grammar, output );
-    }
-
-    void generate( Grammar grammar, Output output ) throws XMLStreamException, IOException
-    {
-        String outputDir = lookup( "outputDir" );
-        if ( outputDir == null )
-        {
-            outputDir = ".";
-        }
-        Path path = Paths.get( outputDir ).normalize().toAbsolutePath();
-        if ( !Files.isDirectory( path ) )
-        {
-            Files.createDirectories( path );
-        }
-        FontRenderContext fonts = new FontRenderContext( new AffineTransform(), true, true );
-        ShapeRenderer<XMLStreamException> renderer = new ShapeRenderer<>( this,
-                                                                          fonts,
-                                                                          dynamicOptions( ShapeRenderer.Options.class,
-                                                                                          this ) );
-        Diagram.CanvasProvider<SVGShapes, XMLStreamException> canvas = svgFile( name -> {
-            Path target = path.resolve( name + ".svg" ).toAbsolutePath();
-            output.format( "Writing Railroad diagram for %s to %s%n", name, target );
-            return output( target );
-        } );
-        for ( Diagram diagram : Diagram.build( grammar, dynamicOptions( Diagram.BuilderOptions.class, this ) ) )
+        ShapeRenderer<XMLStreamException> renderer = renderer( this );
+        Diagram.CanvasProvider<SVGShapes, XMLStreamException> canvas = canvas( output, outputDir() );
+        for ( Diagram diagram : Diagram.build( grammar, options( Diagram.BuilderOptions.class ) ) )
         {
             diagram.render( renderer, canvas );
         }
-    }
-
-    public static void main( String... args ) throws Exception
-    {
-        execute( RailRoadDiagrams::write, args );
-    }
-
-    private final Map<?, ?> properties;
-
-    RailRoadDiagrams( Map<?, ?> properties )
-    {
-        this.properties = properties;
     }
 
     @Override
@@ -116,72 +65,35 @@ public final class RailRoadDiagrams implements Function<Method, Object>, ShapeRe
     }
 
     @Override
-    public final Object apply( Method key )
+    public String charsetLink( String charset )
     {
-        Class<?> type = key.getReturnType();
-        String name = key.getName();
-        Object value = get( name );
-        if ( type.isInstance( value ) )
-        {
-            return value;
-        }
-        else if ( value instanceof String )
-        {
-            String param = (String) value;
-            switch ( type.getName() )
-            {
-            case "float":
-                return parseFloat( param );
-            case "double":
-                return parseDouble( param );
-            case "long":
-                return parseLong( param );
-            case "int":
-                return parseInt( param );
-            case "short":
-                return parseShort( param );
-            case "byte":
-                return parseByte( param );
-            case "boolean":
-                return parseBoolean( param );
-            }
-        }
-        else if ( value == null && type == Font.class )
-        {
-            String font = lookup( name + ".name" );
-            String bold = lookup( name + ".bold" );
-            String italic = lookup( name + ".italic" );
-            String size = lookup( name + ".size" );
-            if ( font == null && bold == null && italic == null && size == null )
-            {
-                return null;
-            }
-            if ( font == null )
-            {
-                font = "sans";
-            }
-            int style = 0;
-            if ( parseBoolean( bold ) )
-            {
-                style |= Font.BOLD;
-            }
-            if ( parseBoolean( italic ) )
-            {
-                style |= Font.ITALIC;
-            }
-            return new Font( font, style, size == null ? 12 : parseInt( size ) );
-        }
-        return null;
+        return unicodesetLink( charset );
     }
 
-    private String lookup( String name )
+    static <T extends Tool & ShapeRenderer.Linker, EX extends Exception> ShapeRenderer<EX> renderer( T tool )
     {
-        Object value = get( name );
-        return value instanceof String ? (String) value : null;
+        FontRenderContext fonts = new FontRenderContext( new AffineTransform(), true, true );
+        return new ShapeRenderer<>( tool, fonts, tool.options( ShapeRenderer.Options.class ) );
     }
 
-    private Object get( String name )
+    static Diagram.CanvasProvider<SVGShapes, XMLStreamException> canvas( Output log, Path dir )
     {
-        return properties.get( getClass().getSimpleName() + "." + name );
+        return svgFile( name -> {
+            Path file = dir.resolve( name + ".svg" ).toAbsolutePath();
+            log.format( "Writing Railroad diagram for %s to %s%n", name, file );
+            return output( file );
+        } );
+    }
+
+    static String unicodesetLink( String charset )
+    {
+        return stringBuilder().append( "http://unicode.org/cldr/utility/list-unicodeset.jsp?abb=on&esc=on&a=" )
+                              .escape( charset, c -> {/*<pre>*/switch ( c ) {
+                                  case ':': return "%3A";
+                                  case '[': return "%5B";
+                                  case '\\':return "%5C";
+                                  case ']': return "%5D";
+                                  case '^': return "%5E";
+                              default: return null;}}/*</pre>*/ ).toString();
     }
 }
