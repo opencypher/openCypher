@@ -47,6 +47,14 @@
         </configuration>
       </plugin>
     </plugins>
+    <resources>
+      <resource>
+        <directory>../../tck/features</directory>
+        <includes>
+          <include>**/*.feature</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
 
   <dependencies>
