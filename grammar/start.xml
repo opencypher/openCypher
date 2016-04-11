@@ -35,18 +35,18 @@
     <opt><non-terminal ref="Where"/></opt>
   </production>
 
-  <production name="StartPoint">
+  <production name="StartPoint" rr:inline="true">
     &var; &WS; = &WS; <non-terminal ref="Lookup"/>
   </production>
 
-  <production name="Lookup">
+  <production name="Lookup" rr:inline="true">
     <alt>
       <non-terminal ref="NodeLookup"/>
       <non-terminal ref="RelationshipLookup"/>
     </alt>
   </production>
 
-  <production name="NodeLookup">
+  <production name="NodeLookup" rr:inline="true">
     NODE
     <alt>
       <non-terminal ref="IdentifiedIndexLookup"/>
@@ -55,7 +55,7 @@
     </alt>
   </production>
 
-  <production name="RelationshipLookup">
+  <production name="RelationshipLookup" rr:inline="true">
     <alt>RELATIONSHIP REL</alt>
     <alt>
       <non-terminal ref="IdentifiedIndexLookup"/>
@@ -65,8 +65,8 @@
   </production>
 
   <production name="IdentifiedIndexLookup">
-    : <non-terminal ref="SymbolicNameString"/>
-    ( <non-terminal ref="SymbolicNameString"/> =
+    : <non-terminal ref="SymbolicName" rr:title="index name"/>
+    ( <non-terminal ref="SymbolicName" rr:title="property key"/> =
     <alt>
       <non-terminal ref="StringLiteral"/>
       <non-terminal ref="Parameter"/>
@@ -74,7 +74,7 @@
   </production>
 
   <production name="IndexQuery">
-    : <non-terminal ref="SymbolicNameString"/>
+    : <non-terminal ref="SymbolicName" rr:title="index name"/>
     (<alt>
       <non-terminal ref="StringLiteral"/>
       <non-terminal ref="Parameter"/>
@@ -89,7 +89,7 @@
     </alt>)
   </production>
 
-  <production name="LiteralIds">
+  <production name="LiteralIds" rr:inline="true">
     <non-terminal ref="UnsignedIntegerLiteral"/>
     <repeat>
       &WS;,&WS;<non-terminal ref="UnsignedIntegerLiteral"/>

@@ -22,6 +22,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: we should try to make these rules more generic, to not depend on specific names or positions in the result file
 class Antlr4Massager
 {
 

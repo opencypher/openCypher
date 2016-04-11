@@ -27,7 +27,7 @@
 
   <!-- / PRE-PARSER \ -->
 
-  <production name="AllOptions">
+  <production name="QueryOptions">
     <repeat><non-terminal ref="AnyCypherOption"/> &WS;</repeat>
   </production>
 
@@ -45,17 +45,17 @@
     <repeat>&SP;<non-terminal ref="ConfigurationOption"/></repeat>
   </production>
 
-  <production name="VersionNumber">
+  <production name="VersionNumber" rr:inline="true">
     <non-terminal ref="DigitString"/>.<non-terminal ref="DigitString"/>
   </production>
 
   <production name="Explain" rr:inline="true">EXPLAIN</production>
   <production name="Profile" rr:inline="true">PROFILE</production>
 
-  <production name="ConfigurationOption">
-    <non-terminal ref="SymbolicNameString" ast:entry="key"/>
+  <production name="ConfigurationOption" rr:inline="true">
+    <non-terminal ref="SymbolicName" ast:entry="key"/>
     &WS; = &WS;
-    <non-terminal ref="SymbolicNameString" ast:entry="value"/>
+    <non-terminal ref="SymbolicName" ast:entry="value"/>
   </production>
 
   <!-- \ PRE-PARSER / -->

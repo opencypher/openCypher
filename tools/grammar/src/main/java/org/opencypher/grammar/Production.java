@@ -45,7 +45,11 @@ public interface Production
                 .stream()
                 .flatMap( nonTerminal -> {
                     Production site = nonTerminal.declaringProduction();
-                    if ( site.inline() )
+                    if ( nonTerminal.skip() || site.skip() )
+                    {
+                        return Stream.empty();
+                    }
+                    else if ( site.inline() )
                     {
                         return site.referencedFrom().stream();
                     }

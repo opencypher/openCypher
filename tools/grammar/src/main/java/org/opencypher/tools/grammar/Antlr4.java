@@ -148,10 +148,11 @@ public class Antlr4 extends BnfWriter
 
     private boolean shouldBeLexerRule( String rule )
     {
+        // TODO: melt these snow flakes.
         return rule.startsWith( "Identifier" )
                || rule.equalsIgnoreCase( "whitespace" )
                || rule.equalsIgnoreCase( "comment" )
-               || rule.endsWith( "scapedSymbolicNameString" )
+               || rule.endsWith( "scapedSymbolicName" )
                || rule.equalsIgnoreCase( "stringliteral" )
                || rule.equalsIgnoreCase( "escapedchar" )
                || rule.equalsIgnoreCase( "hexdigit" );

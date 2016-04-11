@@ -20,9 +20,9 @@
   <!ENTITY SP "<non-terminal ref='SP'/>">
   <!ENTITY var "<non-terminal ref='Variable'/>">
   <!ENTITY node "(&WS;)">
-  <!ENTITY dash "<non-terminal ref='Dash'/>">
-  <!ENTITY larrow "<non-terminal ref='LeftArrowHead'/>&dash;">
-  <!ENTITY rarrow "<non-terminal ref='RightArrowHead'/>&dash;">
+  <!ENTITY dash "<non-terminal ref='Dash' rr:title='-'/>">
+  <!ENTITY larrow "<non-terminal ref='LeftArrowHead' rr:title='&lt;'/>&dash;">
+  <!ENTITY rarrow "&dash;<non-terminal ref='RightArrowHead' rr:title='&gt;'/>">
   <!ENTITY label "<non-terminal ref='NodeLabel'/>">
   <!ENTITY type "<non-terminal ref='RelType'/>">
 ]>
@@ -32,65 +32,72 @@
   xmlns:ast="http://thobe.org/syntaxtree"
   xmlns:gen="http://thobe.org/stringgeneration">
 
-  <production name="Command">
+  <production name="Command" rr:inline="true">
     <alt>
-      <non-terminal ref="CreateUniqueConstraint"/>
-      <non-terminal ref="CreateNodePropertyExistenceConstraint"/>
-      <non-terminal ref="CreateRelationshipPropertyExistenceConstraint"/>
       <non-terminal ref="CreateIndex"/>
-      <non-terminal ref="DropUniqueConstraint"/>
-      <non-terminal ref="DropNodePropertyExistenceConstraint"/>
-      <non-terminal ref="DropRelationshipPropertyExistenceConstraint"/>
       <non-terminal ref="DropIndex"/>
+
+      <non-terminal ref="CreateUniqueConstraint"/>
+      <non-terminal ref="DropUniqueConstraint"/>
+
+      <non-terminal ref="CreateNodePropertyExistenceConstraint"/>
+      <non-terminal ref="DropNodePropertyExistenceConstraint"/>
+
+      <non-terminal ref="CreateRelationshipPropertyExistenceConstraint"/>
+      <non-terminal ref="DropRelationshipPropertyExistenceConstraint"/>
     </alt>
   </production>
 
   <!-- / COMMANDS \ -->
 
-  <production name="CreateUniqueConstraint">
-    CREATE &WS; <non-terminal ref="UniqueConstraintSyntax"/>
+  <production name="CreateUniqueConstraint" rr:inline="true">
+    CREATE &WS; <non-terminal ref="UniqueConstraint"/>
   </production>
 
-  <production name="CreateNodePropertyExistenceConstraint">
-    CREATE &WS; <non-terminal ref="NodePropertyExistenceConstraintSyntax"/>
+  <production name="CreateNodePropertyExistenceConstraint" rr:inline="true">
+    CREATE &WS; <non-terminal ref="NodePropertyExistenceConstraint"/>
   </production>
 
-  <production name="CreateRelationshipPropertyExistenceConstraint">
-    CREATE &WS; <non-terminal ref="RelationshipPropertyExistenceConstraintSyntax"/>
+  <production name="CreateRelationshipPropertyExistenceConstraint" rr:inline="true">
+    CREATE &WS; <non-terminal ref="RelationshipPropertyExistenceConstraint"/>
   </production>
 
-  <production name="CreateIndex">
-    CREATE &SP; INDEX &SP; ON &WS; &label; (<non-terminal ref="PropertyKeyName"/>)
+  <production name="CreateIndex" rr:inline="true">
+    CREATE &SP; <non-terminal ref="Index"/>
   </production>
 
-  <production name="DropUniqueConstraint">
-    DROP &SP; <non-terminal ref="UniqueConstraintSyntax"/>
+  <production name="DropUniqueConstraint" rr:inline="true">
+    DROP &SP; <non-terminal ref="UniqueConstraint"/>
   </production>
 
-  <production name="DropNodePropertyExistenceConstraint">
-    DROP &SP; <non-terminal ref="NodePropertyExistenceConstraintSyntax"/>
+  <production name="DropNodePropertyExistenceConstraint" rr:inline="true">
+    DROP &SP; <non-terminal ref="NodePropertyExistenceConstraint"/>
   </production>
 
-  <production name="DropRelationshipPropertyExistenceConstraint">
-    DROP &SP; <non-terminal ref="RelationshipPropertyExistenceConstraintSyntax"/>
+  <production name="DropRelationshipPropertyExistenceConstraint" rr:inline="true">
+    DROP &SP; <non-terminal ref="RelationshipPropertyExistenceConstraint"/>
   </production>
 
-  <production name="DropIndex">
-    DROP &SP; INDEX &SP; ON &WS; &label; (<non-terminal ref="PropertyKeyName"/>)
+  <production name="DropIndex" rr:inline="true">
+    DROP &SP; <non-terminal ref="Index"/>
+  </production>
+
+  <production name="Index">
+    INDEX &SP; ON &WS; &label; (<non-terminal ref="PropertyKeyName"/>)
   </production>
 
 
-  <production name="UniqueConstraintSyntax">
+  <production name="UniqueConstraint">
     CONSTRAINT &SP; ON &WS; ( &var; &label; )
     ASSERT <non-terminal ref="PropertyExpression"/> IS &SP; UNIQUE
   </production>
 
-  <production name="NodePropertyExistenceConstraintSyntax">
+  <production name="NodePropertyExistenceConstraint">
     CONSTRAINT &SP; ON &WS; ( &var; &label; )
     ASSERT &SP; EXISTS ( <non-terminal ref="PropertyExpression"/> )
   </production>
 
-  <production name="RelationshipPropertyExistenceConstraintSyntax">
+  <production name="RelationshipPropertyExistenceConstraint">
     CONSTRAINT &SP; ON &WS; <non-terminal ref="RelationshipPatternSyntax"/>
     ASSERT &SP; EXISTS ( <non-terminal ref="PropertyExpression"/> )
   </production>

@@ -528,11 +528,11 @@ public final class ShapeRenderer<EX extends Exception>
     }
 
     @Override
-    public void renderReference( Shapes<? extends EX> shapes, double x, double y, TextGlyphs name ) throws EX
+    public void renderReference( Shapes<? extends EX> shapes, double x, double y, String target, TextGlyphs name ) throws EX
     {
         double margin = tokenMargin, hPadding = tokenPadding + nonTerminalPadding, vPadding = tokenPadding;
         double width = name.getWidth(), height = name.getHeight();
-        Shapes.Group<? extends EX> group = shapes.group( linker.referenceLink( name.text() ) );
+        Shapes.Group<? extends EX> group = shapes.group( linker.referenceLink( target ) );
         group.text(
                 name,
                 x + margin + hPadding,

@@ -72,7 +72,7 @@ public final class Diagram
 
         Size sizeOfReference( Text name );
 
-        void renderReference( Canvas canvas, double x, double y, Text name ) throws EX;
+        void renderReference( Canvas canvas, double x, double y, String target, Text name ) throws EX;
 
         Size sizeOfCharset( Text text );
 
@@ -258,7 +258,7 @@ public final class Diagram
 
     public static Figure reference( String name )
     {
-        return FigureBuilder.reference( name );
+        return FigureBuilder.reference( name, name );
     }
 
     public static Figure charset( String set )

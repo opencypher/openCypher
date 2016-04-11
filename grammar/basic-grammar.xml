@@ -29,7 +29,7 @@
 
   <!-- / WHERE \ -->
 
-  <production name="Where">
+  <production name="Where" rr:inline="true">
     WHERE &SP; &expr;
   </production>
 
@@ -43,21 +43,21 @@
     <repeat> , <non-terminal ref="PatternPart"/></repeat>
   </production>
 
-  <production name="PatternPart">
+  <production name="PatternPart" rr:inline="true">
     <alt>
       <seq>&var; &WS; = &WS;<non-terminal ref="AnonymousPatternPart"/></seq>
       <non-terminal ref="AnonymousPatternPart"/>
     </alt>
   </production>
 
-  <production name="AnonymousPatternPart">
+  <production name="AnonymousPatternPart" rr:inline="true">
     <alt>
       <non-terminal ref="ShortestPathPattern"/>
       <non-terminal ref="PatternElement"/>
     </alt>
   </production>
 
-  <production name="ShortestPathPattern">
+  <production name="ShortestPathPattern" rr:inline="true">
     <alt>
       <seq>shortestPath ( <non-terminal ref="PatternElement"/> )</seq>
       <seq>allShortestPaths ( <non-terminal ref="PatternElement"/> )</seq>
@@ -82,7 +82,7 @@
     &WS; )
   </production>
 
-  <production name="PatternElementChain">
+  <production name="PatternElementChain" rr:inline="true">
     <non-terminal ref="RelationshipPattern"/>
     &WS;
     <non-terminal ref="NodePattern"/>
@@ -91,28 +91,28 @@
   <production name="RelationshipPattern">
     <alt>
       <seq>
-        &WS; <non-terminal ref="LeftArrowHead"/>
-        &WS; <non-terminal ref="Dash"/>
+        &WS; <non-terminal ref="LeftArrowHead" rr:title="&lt;"/>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
         &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
-        &WS; <non-terminal ref="Dash"/>
-        &WS; <non-terminal ref="RightArrowHead"/>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        &WS; <non-terminal ref="RightArrowHead" rr:title="&gt;"/>
       </seq>
       <seq>
-        &WS; <non-terminal ref="LeftArrowHead"/>
-        &WS; <non-terminal ref="Dash"/>
+        &WS; <non-terminal ref="LeftArrowHead" rr:title="&lt;"/>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
         &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
-        &WS; <non-terminal ref="Dash"/>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
       </seq>
       <seq>
-        &WS; <non-terminal ref="Dash"/>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
         &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
-        &WS; <non-terminal ref="Dash"/>
-        &WS; <non-terminal ref="RightArrowHead"/>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        &WS; <non-terminal ref="RightArrowHead" rr:title="&gt;"/>
       </seq>
       <seq>
-        &WS; <non-terminal ref="Dash"/>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
         &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
-        &WS; <non-terminal ref="Dash"/>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
       </seq>
     </alt>
   </production>
@@ -127,43 +127,43 @@
     ]
   </production>
 
-  <production name="Properties">
+  <production name="Properties" rr:inline="true">
     <alt>
       <non-terminal ref="MapLiteral"/>
       <non-terminal ref="Parameter"/>
     </alt>
   </production>
 
-  <production name="RelType">
+  <production name="RelType" rr:inline="true">
     :<non-terminal ref="RelTypeName"/>
   </production>
 
-  <production name="RelationshipTypes">
+  <production name="RelationshipTypes" rr:inline="true">
     :<non-terminal ref="RelTypeName"/>
     <repeat>&WS;|<opt>:</opt>&WS;<non-terminal ref="RelTypeName"/></repeat>
   </production>
 
-  <production name="NodeLabels">
+  <production name="NodeLabels" rr:inline="true">
     <non-terminal ref="NodeLabel"/>
     <repeat>&WS;<non-terminal ref="NodeLabel"/></repeat>
   </production>
 
-  <production name="NodeLabel">
+  <production name="NodeLabel" rr:inline="true">
     : <non-terminal ref="LabelName"/>
   </production>
 
-  <production name="RangeLiteral">
+  <production name="RangeLiteral" rr:inline="true">
     <opt><non-terminal ref="UnsignedIntegerLiteral"/>&WS;</opt>
     ..
     <opt>&WS;<non-terminal ref="UnsignedIntegerLiteral"/></opt>
   </production>
 
-  <production name="LabelName">
-    <non-terminal ref="SymbolicNameString"/>
+  <production name="LabelName" rr:inline="true">
+    <non-terminal ref="SymbolicName" rr:title="label"/>
   </production>
 
-  <production name="RelTypeName">
-    <non-terminal ref="SymbolicNameString"/>
+  <production name="RelTypeName" rr:inline="true">
+    <non-terminal ref="SymbolicName" rr:title="relationship type"/>
   </production>
 
   <!-- \ PATTERNS / -->
@@ -175,36 +175,34 @@
     <non-terminal ref="Expression12"/>
   </production>
 
-  <production name="Expression12">
+  <production name="Expression12" rr:inline="true">
     <non-terminal ref="Expression11"/>
     <repeat>&SP; OR &SP;<non-terminal ref="Expression11"/></repeat>
   </production>
-  <production name="Expression11">
+  <production name="Expression11" rr:inline="true">
     <non-terminal ref="Expression10"/>
     <repeat>&SP; XOR &SP;<non-terminal ref="Expression10"/></repeat>
   </production>
-  <production name="Expression10">
+  <production name="Expression10" rr:inline="true">
     <non-terminal ref="Expression9"/>
     <repeat>&SP; AND &SP;<non-terminal ref="Expression9"/></repeat>
   </production>
-  <production name="Expression9">
-    <alt>
-      <seq>&SP; NOT &SP;<non-terminal ref="Expression9"/></seq>
-      <non-terminal ref="Expression8"/>
-    </alt>
+  <production name="Expression9" rr:inline="true">
+    <repeat>&SP; NOT &SP;</repeat>
+    <non-terminal ref="Expression8"/>
   </production>
-  <production name="Expression8">
+  <production name="Expression8" rr:inline="true">
     <non-terminal ref="Expression7"/>
     <repeat>&WS;<non-terminal ref="PartialComparisonExpression"/></repeat>
   </production>
-  <production name="Expression7">
+  <production name="Expression7" rr:inline="true">
     <non-terminal ref="Expression6"/>
     <repeat><alt>
       <seq> &WS; + &WS; <non-terminal ref="Expression6"/></seq>
       <seq> &WS; - &WS; <non-terminal ref="Expression6"/></seq>
     </alt></repeat>
   </production>
-  <production name="Expression6">
+  <production name="Expression6" rr:inline="true">
     <non-terminal ref="Expression5"/>
     <repeat><alt>
       <seq> &WS; * &WS; <non-terminal ref="Expression5"/></seq>
@@ -212,39 +210,48 @@
       <seq> &WS; % &WS; <non-terminal ref="Expression5"/></seq>
     </alt></repeat>
   </production>
-  <production name="Expression5">
+  <production name="Expression5" rr:inline="true">
     <non-terminal ref="Expression4"/>
     <repeat> &WS; ^ &WS; <non-terminal ref="Expression4"/></repeat>
   </production>
-  <production name="Expression4">
-    <alt>
+  <production name="Expression4" rr:inline="true">
+    <non-terminal ref="Expression3"/>
+    <repeat>
+      <seq> &WS; <alt>+ -</alt> &WS; <non-terminal ref="Expression3"/></seq>
+    </repeat>
+    <!--alt>
       <non-terminal ref="Expression3"/>
-      <seq> &WS; + &WS; <non-terminal ref="Expression3"/></seq>
-      <seq> &WS; - &WS; <non-terminal ref="Expression3"/></seq>
-    </alt>
+      <seq> &WS; + &WS; <non-terminal ref="Expression4"/></seq>
+      <seq> &WS; - &WS; <non-terminal ref="Expression4"/></seq>
+    </alt-->
   </production>
-  <production name="Expression3">
+  <production name="Expression3" rr:inline="true">
     <non-terminal ref="Expression2"/>
     <repeat><alt>
       <seq> &WS; [ &expr; ] </seq>
       <seq> &WS; [ <opt>&expr;</opt> .. <opt>&expr;</opt> ] </seq>
-      <seq> &WS; =~ <non-terminal ref="Expression2"/> </seq>
-      <seq> &SP; IN <non-terminal ref="Expression2"/> </seq>
-      <seq> &SP; STARTS &SP; WITH <non-terminal ref="Expression2"/> </seq>
-      <seq> &SP; ENDS &SP; WITH <non-terminal ref="Expression2"/> </seq>
-      <seq> &SP; CONTAINS <non-terminal ref="Expression2"/> </seq>
+      <seq>
+        <alt>
+          <seq>&WS; =~</seq>
+          <seq>&SP; IN</seq>
+          <seq>&SP; STARTS &SP; WITH</seq>
+          <seq>&SP; ENDS &SP; WITH</seq>
+          <seq>&SP; CONTAINS</seq>
+        </alt>
+        <non-terminal ref="Expression2"/>
+      </seq>
       <seq> &SP; IS &SP; NULL </seq>
       <seq> &SP; IS &SP; NOT &SP; NULL </seq>
     </alt></repeat>
   </production>
-  <production name="Expression2">
-    <non-terminal ref="Expression1"/>
+  <production name="Expression2" rr:inline="true">
+    <non-terminal ref="Atom"/>
     <repeat><alt>
       <non-terminal ref="PropertyLookup"/>
       <non-terminal ref="NodeLabels"/>
     </alt></repeat>
   </production>
-  <production name="Expression1">
+  <production name="Atom">
     <alt>
       <non-terminal ref="NumberLiteral"/>
       <non-terminal ref="StringLiteral"/>
@@ -272,11 +279,11 @@
     </alt>
   </production>
 
-  <production name="Reduce">
+  <production name="Reduce" rr:inline="true">
     REDUCE &WS; ( &var; = &expr; , <non-terminal ref="IdInColl"/> | &expr; )
   </production>
 
-  <production name="PartialComparisonExpression">
+  <production name="PartialComparisonExpression" rr:inline="true">
     <alt>
       <seq> <literal value="="/>        &WS; <non-terminal ref="Expression7"/> </seq>
       <seq> <literal value="&lt;&gt;"/> &WS; <non-terminal ref="Expression7"/> </seq>
@@ -288,11 +295,11 @@
     </alt>
   </production>
 
-  <production name="parenthesizedExpression">
+  <production name="parenthesizedExpression" rr:inline="true">
     ( &expr; )
   </production>
 
-  <production name="RelationshipsPattern">
+  <production name="RelationshipsPattern" rr:inline="true">
     <non-terminal ref="NodePattern"/>
     <repeat min="1">&WS;<non-terminal ref="PatternElementChain"/></repeat>
   </production>
@@ -302,7 +309,7 @@
     <opt>&WS;<non-terminal ref="Where"/></opt>
   </production>
 
-  <production name="IdInColl">
+  <production name="IdInColl" rr:inline="true">
     &var; &SP; IN &SP; &expr;
   </production>
 
@@ -314,11 +321,11 @@
     &WS; )
   </production>
 
-  <production name="FunctionName">
-    <non-terminal ref="SymbolicNameString"/>
+  <production name="FunctionName" rr:inline="true">
+    <non-terminal ref="SymbolicName" rr:title="function name"/>
   </production>
 
-  <production name="ListComprehension">
+  <production name="ListComprehension" rr:inline="true">
     [
       <non-terminal ref="FilterExpression"/>
       <opt>&WS; | &expr;</opt>
@@ -342,12 +349,12 @@
     END
   </production>
 
-  <production name="CaseAlternatives">
+  <production name="CaseAlternatives" rr:inline="true">
     WHEN &expr; THEN &expr;
   </production>
 
-  <production name="Variable">
-    <non-terminal ref="SymbolicNameString"/>
+  <production name="Variable" rr:inline="true">
+    <non-terminal ref="SymbolicName" rr:title="variable"/>
   </production>
 
   <production name="StringLiteral">
@@ -405,19 +412,19 @@
   <production name="Parameter">
     { &WS;
     <alt>
-      <non-terminal ref="SymbolicNameString"/>
+      <non-terminal ref="SymbolicName"/>
       <non-terminal ref="UnsignedDecimalInteger"/>
     </alt>
     &WS; }
   </production>
 
   <production name="PropertyExpression">
-    <non-terminal ref="Expression1"/>
+    <non-terminal ref="Atom"/>
     <repeat min="1">&WS;<non-terminal ref="PropertyLookup"/></repeat>
   </production>
 
-  <production name="PropertyKeyName">
-    <non-terminal ref="SymbolicNameString"/>
+  <production name="PropertyKeyName" rr:inline="true">
+    <non-terminal ref="SymbolicName" rr:title="property key"/>
   </production>
 
   <production name="SignedIntegerLiteral">
@@ -428,7 +435,7 @@
     </alt>
   </production>
 
-  <production name="UnsignedIntegerLiteral">
+  <production name="UnsignedIntegerLiteral" rr:inline="true">
     <non-terminal ref="UnsignedDecimalInteger"/>
   </production>
 
@@ -472,7 +479,7 @@
     <alt>0 1 2 3 4 5 6 7 8 9 a b c d e f</alt>
   </production>
 
-  <production name="Digit">
+  <production name="Digit" rr:inline="true">
     <alt>0 1 2 3 4 5 6 7 8 9</alt>
   </production>
 
@@ -503,14 +510,14 @@
 
   <!-- / UTILITY DEFINITIONS \ -->
 
-  <production name="SymbolicNameString">
+  <production name="SymbolicName">
     <alt>
-      <non-terminal ref="UnescapedSymbolicNameString"/>
-      <non-terminal ref="EscapedSymbolicNameString"/>
+      <non-terminal ref="UnescapedSymbolicName"/>
+      <non-terminal ref="EscapedSymbolicName"/>
     </alt>
   </production>
 
-  <production name="UnescapedSymbolicNameString" rr:inline="true">
+  <production name="UnescapedSymbolicName" rr:inline="true">
     <non-terminal ref="IdentifierStart"/>
     <repeat><non-terminal ref="IdentifierPart"/></repeat>
   </production>
@@ -549,7 +556,7 @@
     </alt>
   </production>
 
-  <production name="EscapedSymbolicNameString" rr:inline="true">
+  <production name="EscapedSymbolicName" rr:inline="true">
     <description>
       Any character except "`", enclosed within `backticks`. Backticks are escaped with double backticks.
     </description>

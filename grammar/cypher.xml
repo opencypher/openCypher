@@ -30,7 +30,7 @@
 
   <production name="Cypher">
     &WS;
-    <non-terminal ref="AllOptions"/>
+    <non-terminal ref="QueryOptions"/>
     <non-terminal ref="Statement"/>
     &WS;
     <opt>;</opt>
@@ -43,21 +43,21 @@
 
   <!-- / STATEMENTS \ -->
 
-  <production name="Statement">
+  <production name="Statement" rr:inline="true">
     <alt>
       <non-terminal ref="Command"/>
       <non-terminal ref="Query"/>
     </alt>
   </production>
 
-  <production name="Query">
+  <production name="Query" rr:inline="true">
     <alt>
       <non-terminal ref="RegularQuery"/>
       <non-terminal ref="BulkImportQuery"/>
     </alt>
   </production>
 
-  <production name="RegularQuery">
+  <production name="RegularQuery" rr:inline="true">
     <non-terminal ref="SingleQuery"/>
     <repeat>&WS;<non-terminal ref="Union"/></repeat>
   </production>
@@ -73,12 +73,12 @@
     <repeat>&WS; <non-terminal ref="Clause"/></repeat>
   </production>
 
-  <production name="PeriodicCommitHint">
+  <production name="PeriodicCommitHint" rr:inline="true">
     USING &SP; PERIODIC &SP; COMMIT
     <opt>&SP;<non-terminal ref="SignedIntegerLiteral"/></opt>
   </production>
 
-  <production name="LoadCSVQuery">
+  <production name="LoadCSVQuery" rr:inline="true">
     <non-terminal ref="LoadCSV"/>
     <repeat>&WS;<non-terminal ref="Clause"/></repeat>
   </production>
@@ -142,7 +142,7 @@
     </repeat>
   </production>
 
-  <production name="MergeAction">
+  <production name="MergeAction" rr:inline="true">
     <alt>
       <seq>ON &SP; MATCH &SP; <non-terminal ref="Set"/></seq>
       <seq>ON &SP; CREATE &SP; <non-terminal ref="Set"/></seq>
@@ -163,7 +163,7 @@
     </repeat>
   </production>
 
-  <production name="SetItem">
+  <production name="SetItem" rr:inline="true">
     <alt>
       <seq><non-terminal ref="PropertyExpression"/> = &expr;</seq>
       <seq>&var; = &expr;</seq>
@@ -184,7 +184,7 @@
     <repeat>&WS;,&WS;<non-terminal ref="RemoveItem"/></repeat>
   </production>
 
-  <production name="RemoveItem">
+  <production name="RemoveItem" rr:inline="true">
     <alt>
       <seq>&var;<non-terminal ref="NodeLabels"/></seq>
       <non-terminal ref="PropertyExpression"/>
@@ -222,7 +222,7 @@
     <opt>&SP;<non-terminal ref="Limit"/></opt>
   </production>
 
-  <production name="ReturnItems">
+  <production name="ReturnItems" rr:inline="true">
     <alt>
       <seq>*<repeat>&WS; , &WS;<non-terminal ref="ReturnItem"/></repeat></seq>
       <seq>
@@ -232,24 +232,24 @@
     </alt>
   </production>
 
-  <production name="ReturnItem">
+  <production name="ReturnItem" rr:inline="true">
     <alt> <seq>&expr; &SP; AS &SP; &var;</seq> &expr; </alt>
   </production>
 
-  <production name="Order">
+  <production name="Order" rr:inline="true">
     ORDER &SP; BY &SP; <non-terminal ref="SortItem"/>
     <repeat> , &WS; <non-terminal ref="SortItem"/></repeat>
   </production>
 
-  <production name="Skip">
+  <production name="Skip" rr:inline="true">
     SKIP &SP; &expr;
   </production>
 
-  <production name="Limit">
+  <production name="Limit" rr:inline="true">
     LIMIT &SP; &expr;
   </production>
 
-  <production name="SortItem">
+  <production name="SortItem" rr:inline="true">
     <alt>
       <seq>&expr;<alt>DESCENDING DESC</alt></seq>
       <seq>&expr;<opt><alt>ASCENDING ASC</alt></opt></seq>

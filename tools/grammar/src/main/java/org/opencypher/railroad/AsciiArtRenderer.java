@@ -96,9 +96,9 @@ public class AsciiArtRenderer extends PositionedText.Renderer
      * {@code |foo|}
      */
     @Override
-    public void renderReference( PositionedText target, double x, double y, String name )
+    public void renderReference( PositionedText canvas, double x, double y, String target, String name )
     {
-        target.add( x, y, "|" + name + "|" );
+        canvas.add( x, y, "|" + name + "|" );
     }
 
     @Override

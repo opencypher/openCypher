@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -59,9 +60,9 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
         return new AnyCase( text );
     }
 
-    static Diagram.Figure reference( String text )
+    static Diagram.Figure reference( String target, String text )
     {
-        return new Reference( text );
+        return new Reference( target, text );
     }
 
     static Diagram.Figure charset( String set )
@@ -174,14 +175,7 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
             } );
             if ( group != line && !line.seq.isEmpty() )
             {
-                if ( line.seq.size() == 1 )
-                {
-                    group.add( line.seq.get( 0 ) );
-                }
-                else
-                {
-                    group.add( line );
-                }
+                group.add( lineFigures( line ) );
             }
         }
         else
@@ -219,14 +213,7 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
         }
         else if ( group != line )
         {
-            if ( line.seq.size() == 1 ) // only a single special character
-            {
-                group.add( line.seq.get( 0 ) );
-            }
-            else
-            {
-                group.add( line );
-            }
+            group.add( lineFigures( line ) );
         }
     }
 
@@ -241,7 +228,7 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
             }
             else
             {
-                group.add( reference( nonTerminal.productionName() ) );
+                group.add( reference( nonTerminal.productionName(), nonTerminal.title() ) );
             }
         }
         return null;
@@ -378,14 +365,7 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
             builder.addAll( sequence, line );
             if ( !line.seq.isEmpty() )
             {
-                if ( line.seq.size() == 1 )
-                {
-                    add( line.seq.get( 0 ) );
-                }
-                else
-                {
-                    add( line );
-                }
+                add( lineFigures( line ) );
             }
         }
 
@@ -395,11 +375,11 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
             if ( minTimes == 0 )
             {
                 forwards = NOTHING;
-                backwards = repeated;
+                backwards = lineFigures( repeated );
             }
             else
             {
-                forwards = repeated;
+                forwards = lineFigures( repeated );
                 backwards = NOTHING;
                 minTimes -= 1;
                 if ( maxTimes != null )
@@ -481,18 +461,7 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
                 {
                     line.seq.remove( 0 );
                 }
-                switch ( line.seq.size() )
-                {
-                case 0:
-                    branch.add( NOTHING );
-                    break;
-                case 1:
-                    branch.add( line.seq.get( 0 ) );
-                    break;
-                default:
-                    branch.add( line );
-                    break;
-                }
+                branch.add( lineFigures( line ) );
             }
             common.add( branch );
             for ( Diagram.Figure figure : after )
@@ -523,6 +492,19 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
         return lines;
     }
 
+    private static Diagram.Figure lineFigures( Line line )
+    {
+        switch ( line.seq.size() )
+        {
+        case 0:
+            return NOTHING;
+        case 1:
+            return line.seq.get( 0 );
+        default:
+            return line;
+        }
+    }
+
     private Diagram.Figure loop( Diagram.Figure forwards, Diagram.Figure backwards, int min, Integer max, boolean top )
     {
         if ( optimizeDiagram && forwards instanceof Loop )
@@ -533,6 +515,21 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
             branch.add( loop.backward );
             branch.add( backwards );
             backwards = branch;
+        }
+        if ( forwards == NOTHING && backwards instanceof Branch )
+        {
+            // prefer forward directions
+            Branch branch = new Branch();
+            branch.add( NOTHING );
+            branch.add( new Loop( backwards, forwards, min, max, top ) );
+            return branch;
+        }
+        if ( min == 1 && max == null )
+        {
+            Line line = new Line();
+            line.add( forwards );
+            line.add( new Loop( backwards, forwards, 0, null, top ) );
+            return line;
         }
         return new Loop( forwards, backwards, min, max, top );
     }
@@ -702,9 +699,12 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
      */
     private static class Reference extends Node
     {
-        Reference( String name )
+        private final String target;
+
+        Reference( String target, String title )
         {
-            super( name );
+            super( title );
+            this.target = target;
         }
 
         @Override
@@ -714,10 +714,10 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
         }
 
         @Override
-        <O, T, EX extends Exception> void render( O target, double x, double y, Diagram.Renderer<O, T, EX> renderer,
-                                                  T name ) throws EX
+        <O, T, EX extends Exception> void render(
+                O target, double x, double y, Diagram.Renderer<O, T, EX> renderer, T text ) throws EX
         {
-            renderer.renderReference( target, x, y, name );
+            renderer.renderReference( target, x, y, this.target, text );
         }
     }
 
@@ -821,18 +821,7 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
                 forward = new Line();
                 ((Line) forward).seq.addAll( common );
             }
-            if ( repeated.seq.isEmpty() )
-            {
-                backward = NOTHING;
-            }
-            else if ( repeated.seq.size() == 1 )
-            {
-                backward = repeated.seq.get( 0 );
-            }
-            else
-            {
-                backward = repeated;
-            }
+            backward = lineFigures( repeated );
             add( builder.loop( forward, backward, minTimes, maxTimes, false ) );
         }
 
@@ -906,7 +895,15 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
         @Override
         void add( Diagram.Figure child )
         {
-            alt.add( child );
+            if ( child instanceof Branch )
+            {
+                Branch branch = (Branch) child;
+                alt.addAll( branch.alt );
+            }
+            else
+            {
+                alt.add( child );
+            }
         }
 
         @Override
@@ -1082,14 +1079,14 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
             if ( min > 0 || max != null )
             {
                 StringBuilder text = new StringBuilder();
-                text.append( min ).append( ".." );
+                text.append( min );
                 if ( max == null )
                 {
-                    text.append( "N" );
+                    text.append( "..N" );
                 }
-                else
+                else if ( min != max )
                 {
-                    text.append( max.intValue() );
+                    text.append( ".." ).append( max.intValue() );
                 }
                 return renderer.renderText( getClass().getSimpleName().toLowerCase(), text.toString() );
             }

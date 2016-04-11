@@ -30,6 +30,8 @@ final class NonTerminalNode extends Node implements NonTerminal
     String ref;
     @Attribute(uri = Grammar.RAILROAD_XML_NAMESPACE, optional = true)
     Boolean skip, inline;
+    @Attribute(uri = Grammar.RAILROAD_XML_NAMESPACE, optional = true)
+    String title;
     private ProductionNode production;
     private int index = -1;
     private ProductionNode origin;
@@ -53,6 +55,12 @@ final class NonTerminalNode extends Node implements NonTerminal
     }
 
     @Override
+    public String title()
+    {
+        return title == null ? production.name : title;
+    }
+
+    @Override
     public Production declaringProduction()
     {
         return origin;
@@ -62,11 +70,14 @@ final class NonTerminalNode extends Node implements NonTerminal
     void resolve( ProductionNode origin, ProductionResolver resolver )
     {
         production = resolver.resolveProduction( origin, requireNonNull( ref, "non-terminal reference" ) );
-        production.addReference( this );
-        if ( index < 0 )
+        if ( production != null )
         {
-            this.origin = origin;
-            index = resolver.nextNonTerminalIndex();
+            production.addReference( this );
+            if ( index < 0 )
+            {
+                this.origin = origin;
+                index = resolver.nextNonTerminalIndex();
+            }
         }
     }
 

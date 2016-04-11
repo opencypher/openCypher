@@ -40,4 +40,6 @@ public interface NonTerminal
     boolean inline();
 
     Production declaringProduction();
+
+    String title();
 }
