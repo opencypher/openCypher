@@ -11,7 +11,7 @@
 
   <artifactId>grammar</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <name>grammar</name>
+  <name>openCypher Grammar Developer Tools</name>
   <url>http://opencypher.org</url>
 
   <properties>
