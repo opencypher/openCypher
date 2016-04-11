@@ -8,11 +8,15 @@ case "$(basename $0)" in
         JARFILE="$(cd $(dirname $0); pwd)/$(basename $0)"
         ;;
     launch.sh)
-        VERSION="$(grep -m1 -A1 '<artifactId>grammar</artifactId>' $(dirname $0)/../../../pom.xml | grep version | cut -d\> -f2 | cut -d\< -f1)"
-        JARFILE="$(cd $(dirname $0)/../../../; pwd)/target/grammar-${VERSION}.jar"
+        VERSION="$(grep -A1 '<artifactId>grammar</artifactId>' $(dirname $0)/../../../pom.xml | grep -m1 version | cut -d\> -f2 | cut -d\< -f1)"
+        if [[ -z "$VERSION" ]]; then
+            >&2 echo "Cannot find version in $(cd $(dirname $0)/../../..; pwd)/pom.xml"
+            exit 1
+        fi
+        JARFILE="$(cd $(dirname $0)/../../..; pwd)/target/grammar-${VERSION}.jar"
         if ! [[ -f "$JARFILE" ]]; then
             pushd "$(dirname $0)/../../.."
-            if ! mvn clean package; then
+            if ! mvn clean package > /dev/null; then
                 >&2 echo Build failed
                 exit 1
             fi
@@ -48,4 +52,4 @@ done
 
 java $PARAMETERS -jar $JARFILE $COMMAND $*
 
-exit 0
+exit $?

@@ -51,20 +51,20 @@ class Antlr4Massager
             throw new RuntimeException( "There was some error when reordering lexer rules", e );
         }
 
-        int justBeforeThis = original.indexOf( "UnescapedSymbolicNameString : IdentifierStart ( IdentifierPart )* ;" );
+        int justBeforeThis = original.indexOf( "UnescapedSymbolicName : IdentifierStart ( IdentifierPart )* ;" );
 
         String firstPart = original.substring( 0, justBeforeThis );
 
         String betweenStartOfLexingAndKeywords = original.substring( justBeforeThis, startOfKeywords );
 
-        return addAllKeywordsToSymbolicNameString(
+        return addAllKeywordsToSymbolicName(
                 firstPart + allTheKeyWords + betweenStartOfLexingAndKeywords + everythingAfterKeywords, keywords );
     }
 
-    private static String addAllKeywordsToSymbolicNameString( String original, List<String> keywords )
+    private static String addAllKeywordsToSymbolicName( String original, List<String> keywords )
     {
-        String symbolicNameStringRule = "symbolicNameString : UnescapedSymbolicNameString\n" +
-                                        "                   | EscapedSymbolicNameString";
+        String symbolicNameStringRule = "symbolicName : UnescapedSymbolicName\n" +
+                                        "             | EscapedSymbolicName";
         int symbolicNameStringPos = original.indexOf( symbolicNameStringRule );
 
         String firstPart = original.substring( 0, symbolicNameStringPos + symbolicNameStringRule.length() );
