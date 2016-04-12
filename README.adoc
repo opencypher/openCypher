@@ -73,6 +73,13 @@ The Cypher Language Group published meeting notes from all the group meetings at
 * openCypher developer tools, `/tools`
 ** Contains code that tests the integrity of the repository, generates release artifacts, and aids implementors of openCypher.
 
+== Contact us
+
+There are several ways to get in touch with the openCypher project and its participants:
+* Are you interested in implementing openCypher for your platform, but you have general questions and want to reach out to other community members with similar interests? Post to our Google Groups mailing list: https://groups.google.com/forum/#!forum/opencypher
+* For specific feature requests or bug reports, please open an issue on this repository.
+* Do you have a particular contribution in mind, and concrete ideas on how to implement them? Open a pull request.
+
 == Copyright
 
 © Copyright 2015-2016 Neo Technology, Inc.
