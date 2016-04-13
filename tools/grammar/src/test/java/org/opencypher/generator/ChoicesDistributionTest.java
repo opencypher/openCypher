@@ -93,7 +93,7 @@ public class ChoicesDistributionTest
                 .assertOrderStartsWith( 2, 3, 4, 5, 6 )
                 .assertRatio( 2, 3, 0.45, 0.52 )
                 .assertRatio( 3, 4, 0.22, 0.28 )
-                .assertRatio( 4, 5, 0.15, 0.17 )
+                .assertRatio( 4, 5, 0.15, 0.18 )
                 .assertRatio( 5, 6, 0.11, 0.14 );
     }
 
