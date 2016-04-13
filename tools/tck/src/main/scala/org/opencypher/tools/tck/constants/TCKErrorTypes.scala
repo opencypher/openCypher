@@ -47,10 +47,12 @@ object TCKErrorDetails {
   val MAP_ELEMENT_ACCESS_BY_NON_STRING = "MapElementAccessByNonString"
   val LIST_ELEMENT_ACCESS_BY_NON_INTEGER = "ListElementAccessByNonInteger"
   val CREATE_BLOCKED_BY_CONSTRAINT = "CreateBlockedByConstraint"
+  val NESTED_AGGREGATION = "NestedAggregation"
 
   val ALL = Set(INVALID_ELEMENT_ACCESS,
                 MAP_ELEMENT_ACCESS_BY_NON_STRING,
                 LIST_ELEMENT_ACCESS_BY_NON_INTEGER,
-                CREATE_BLOCKED_BY_CONSTRAINT)
+                CREATE_BLOCKED_BY_CONSTRAINT,
+                NESTED_AGGREGATION)
 
 }
