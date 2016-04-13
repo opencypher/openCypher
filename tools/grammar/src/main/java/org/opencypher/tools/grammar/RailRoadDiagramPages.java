@@ -81,7 +81,7 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
         String svg = production.name() + ".svg";
         try ( HtmlTag.Html html = html( dir.resolve( production.name() + ".html" ) ) )
         {
-            html.head( ( final HtmlTag title ) -> production.name() );
+            html.head( title -> production.name() );
             try ( HtmlTag body = html.body() )
             {
                 body.tag( "h1" ).text( production.name() ).close();

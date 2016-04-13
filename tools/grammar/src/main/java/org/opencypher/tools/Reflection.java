@@ -84,7 +84,8 @@ public class Reflection
         if ( !parameter.isNamePresent() )
         {
             throw new IllegalStateException(
-                    "No parameter name present, compile with '-parameters', and use JDK 1.8.0_60 or newer." );
+                    "No parameter name present, compile with '-parameters', and use JDK 1.8.0_60 or newer. " +
+                    "Your JDK version is " + System.getProperty( "java.version" ) );
         }
         return parameter.getName();
     }
