@@ -22,7 +22,7 @@ import org.opencypher.tools.tck.constants.TCKStepDefinitions._
 class FeatureFormatChecker extends TCKCucumberTemplate {
 
   private var lastSeenQuery = ""
-  private val orderBy = "(?i).*ORDER BY.*"
+  private val orderBy = "(?si).*ORDER BY.*"
   private val stepValidator = new ScenarioFormatValidator
 
   Background(BACKGROUND) {}
