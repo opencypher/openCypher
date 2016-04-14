@@ -68,6 +68,10 @@ The Cypher Language Group published meeting notes from all the group meetings at
 ** Contains a list of accepted CIP documents.
 * Cypher grammar, `/grammar`
 ** Contains the Cypher grammar specification, in XML source format.
+** A more readily consumable form of the grammar is generated as output from the build:
+*** https://s3.amazonaws.com/artifacts.opencypher.org/railroad/Cypher.html[Railroad diagrams]
+*** https://s3.amazonaws.com/artifacts.opencypher.org/cypher.ebnf[EBNF]
+*** https://s3.amazonaws.com/artifacts.opencypher.org/Cypher.g4[ANTLR4 Grammar]
 * Cypher Technology Compliance Kit (TCK), `/tck`
 ** Contains a set of Cucumber features that define Cypher behaviour, and documentation on how to use it.
 * openCypher developer tools, `/tools`
