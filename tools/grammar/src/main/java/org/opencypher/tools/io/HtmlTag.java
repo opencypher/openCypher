@@ -28,7 +28,7 @@ import static org.opencypher.tools.Reflection.lambdaParameterName;
  * Usage:
  * <pre><code>
  * try ( {@link Html} html = HtmlTag.{@link #html(Path) html}( {@link Path outputPath} ) ) {
- *     html.{@link Html#head(Attribute[]) head}( title -> "My Page" );
+ *     html.{@link HtmlTag.Html#head head}( title -&gt; "My Page" );
  *     try ( {@link HtmlTag} body = html.{@link Html#body() body}() ) {
  *         body.{@link #tag(String, Attribute[]) tag}("h1")                  // opens a new &lt;h1&gt; tag
  *             .{@link #text(String) text}("Welcome to My Page") // adds text content to the tag
@@ -38,13 +38,17 @@ import static org.opencypher.tools.Reflection.lambdaParameterName;
  *         body.{@link #text(String) text}("You should come back when there is more content.");
  *         body.{@link #br() br}();
  *         body.{@link #text(String) text}("Until then, here is a picture of a cat for you to look at:");
- *         body.{@link #tag(String, Attribute[]) tag}("img", src -> "http://thecatapi.com/api/images/get?format=src&type=gif");
+ *         body.{@link #tag(String, Attribute[]) tag}("img", src -&gt; "http://thecatapi.com/api/images/get?format=src&amp;type=gif");
  *         body.{@link #p() p}();
- *         body.{@link #tag(String, Attribute[]) tag}("b").{@link #text(String) text}("To do:").{@link #close() close}();
+ *         body.{@link #tag(String, Attribute[]) tag}("b").{@link #text(String) text}("To do:").{@link #close()
+ * close}();
  *         try ( {@link HtmlTag} list = body.{@link #tag(String, Attribute[]) tag}("ul") ) {
- *             list.{@link #tag(String, Attribute[]) tag}("li").{@link #text(String) text}("Find cuter cat").{@link #close() close}();
- *             list.{@link #tag(String, Attribute[]) tag}("li").{@link #text(String) text}("???").{@link #close() close}();
- *             list.{@link #tag(String, Attribute[]) tag}("li").{@link #text(String) text}("Profit!").{@link #close() close}();
+ *             list.{@link #tag(String, Attribute[]) tag}("li").{@link #text(String) text}("Find cuter cat").{@link
+ * #close() close}();
+ *             list.{@link #tag(String, Attribute[]) tag}("li").{@link #text(String) text}("???").{@link #close()
+ * close}();
+ *             list.{@link #tag(String, Attribute[]) tag}("li").{@link #text(String) text}("Profit!").{@link #close()
+ * close}();
  *         }
  *     }
  * }
@@ -109,12 +113,12 @@ public final class HtmlTag implements AutoCloseable
     /**
      * Generate html tag attributes for use in {@link}.
      *
-     * This is an alternative to <code>body.tag( "img", src -> imgUri )</code>, allowing the use of the API on earlier
-     * builds of the JDK as <code>body.tag( "img", attr( "src", imgUri ) )</code>.
+     * This is an alternative to {@code body.tag( "img", src -> imgUri )}, allowing the use of the API on earlier
+     * builds of the JDK as {@code body.tag( "img", attr( "src", imgUri ) )}.
      *
-     * @param attribute
-     * @param value
-     * @return
+     * @param attribute the name of the attribute.
+     * @param value     the value of the attribute.
+     * @return an object that generates the attribute.
      */
     public static Attribute<Void> attr( String attribute, String value )
     {
@@ -135,10 +139,10 @@ public final class HtmlTag implements AutoCloseable
     }
 
     /**
-     * Generate html tags for use in {@link Html#head(Attribute[]) &lt;head&gt;}.
+     * Generate html tags for use in {@link HtmlTag.Html#head &lt;head&gt;}.
      *
-     * This is an alternative to <code>html.head( title -> "my title" )</code>, allowing the use of the API on earlier
-     * builds of the JDK as <code>html.head( head( "title", title -> title.text( "my title" ) ) )</code>.
+     * This is an alternative to {@code html.head( title -> "my title" )}, allowing the use of the API on earlier
+     * builds of the JDK as {@code html.head( head( "title", title -> title.text( "my title" ) ) )}.
      *
      * @param tag     the name of the head tag.
      * @param content generator for the content of the head tag.
