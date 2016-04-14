@@ -138,13 +138,13 @@ public final class HtmlTag implements AutoCloseable
      * Generate html tags for use in {@link Html#head(Attribute[]) &lt;head&gt;}.
      *
      * This is an alternative to <code>html.head( title -> "my title" )</code>, allowing the use of the API on earlier
-     * builds of the JDK as <code>html.head( tag( "title", title -> title.text( "my title" ) ) )</code>.
+     * builds of the JDK as <code>html.head( head( "title", title -> title.text( "my title" ) ) )</code>.
      *
      * @param tag     the name of the head tag.
      * @param content generator for the content of the head tag.
      * @return an object that generates the tag in the head.
      */
-    public static Attribute<HtmlTag> tag( String tag, Consumer<HtmlTag> content )
+    public static Attribute<HtmlTag> head( String tag, Consumer<HtmlTag> content )
     {
         return new Attribute<HtmlTag>()
         {

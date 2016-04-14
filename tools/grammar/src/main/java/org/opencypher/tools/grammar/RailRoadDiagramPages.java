@@ -98,7 +98,6 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
                     body.tag( "h2" ).text( "Referenced from" ).close();
                     try ( HtmlTag ul = body.tag( "ul" ) )
                     {
-
                         for ( Production reference : references )
                         {
                             try ( HtmlTag li = ul.tag( "li" ) )
