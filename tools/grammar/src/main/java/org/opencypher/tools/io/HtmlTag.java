@@ -18,11 +18,37 @@ package org.opencypher.tools.io;
 
 import java.io.Serializable;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
 import static org.opencypher.tools.Reflection.lambdaParameterName;
 
 /**
  * Tiny DSL for generating HTML.
+ *
+ * Usage:
+ * <pre><code>
+ * try ( {@link Html} html = HtmlTag.{@link #html(Path) html}( {@link Path outputPath} ) ) {
+ *     html.{@link Html#head(Attribute[]) head}( title -> "My Page" );
+ *     try ( {@link HtmlTag} body = html.{@link Html#body() body}() ) {
+ *         body.{@link #tag(String, Attribute[]) tag}("h1")                  // opens a new &lt;h1&gt; tag
+ *             .{@link #text(String) text}("Welcome to My Page") // adds text content to the tag
+ *             .{@link #close() close}();                   // closes the &lt;/h1&gt; tag
+ *         body.{@link #text(String) text}("This is a very neat page.");
+ *         body.{@link #p() p}();
+ *         body.{@link #text(String) text}("You should come back when there is more content.");
+ *         body.{@link #br() br}();
+ *         body.{@link #text(String) text}("Until then, here is a picture of a cat for you to look at:");
+ *         body.{@link #tag(String, Attribute[]) tag}("img", src -> "http://thecatapi.com/api/images/get?format=src&type=gif");
+ *         body.{@link #p() p}();
+ *         body.{@link #tag(String, Attribute[]) tag}("b").{@link #text(String) text}("To do:").{@link #close() close}();
+ *         try ( {@link HtmlTag} list = body.{@link #tag(String, Attribute[]) tag}("ul") ) {
+ *             list.{@link #tag(String, Attribute[]) tag}("li").{@link #text(String) text}("Find cuter cat").{@link #close() close}();
+ *             list.{@link #tag(String, Attribute[]) tag}("li").{@link #text(String) text}("???").{@link #close() close}();
+ *             list.{@link #tag(String, Attribute[]) tag}("li").{@link #text(String) text}("Profit!").{@link #close() close}();
+ *         }
+ *     }
+ * }
+ * </code></pre>
  */
 public final class HtmlTag implements AutoCloseable
 {
@@ -78,6 +104,63 @@ public final class HtmlTag implements AutoCloseable
     public void br()
     {
         output.append( "<br>" );
+    }
+
+    /**
+     * Generate html tag attributes for use in {@link}.
+     *
+     * This is an alternative to <code>body.tag( "img", src -> imgUri )</code>, allowing the use of the API on earlier
+     * builds of the JDK as <code>body.tag( "img", attr( "src", imgUri ) )</code>.
+     *
+     * @param attribute
+     * @param value
+     * @return
+     */
+    public static Attribute<Void> attr( String attribute, String value )
+    {
+        return new Attribute<Void>()
+        {
+            @Override
+            public String name()
+            {
+                return attribute;
+            }
+
+            @Override
+            public String value( Void target )
+            {
+                return value;
+            }
+        };
+    }
+
+    /**
+     * Generate html tags for use in {@link Html#head(Attribute[]) &lt;head&gt;}.
+     *
+     * This is an alternative to <code>html.head( title -> "my title" )</code>, allowing the use of the API on earlier
+     * builds of the JDK as <code>html.head( tag( "title", title -> title.text( "my title" ) ) )</code>.
+     *
+     * @param tag     the name of the head tag.
+     * @param content generator for the content of the head tag.
+     * @return an object that generates the tag in the head.
+     */
+    public static Attribute<HtmlTag> tag( String tag, Consumer<HtmlTag> content )
+    {
+        return new Attribute<HtmlTag>()
+        {
+            @Override
+            public String name()
+            {
+                return tag;
+            }
+
+            @Override
+            public String value( HtmlTag target )
+            {
+                content.accept( target );
+                return null;
+            }
+        };
     }
 
     private final Output output;
