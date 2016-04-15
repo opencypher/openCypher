@@ -16,7 +16,7 @@
 #
 
 @db:cineast
-Feature: CineastDependant
+Feature: CineastDependent
 
   Background:
     Given the cineast graph
