@@ -55,7 +55,7 @@ Scenario: Indexing a list with a string
 <2> This step is used to specify an initialization query by scenarios that require certain patterns to exist in the graph.
 <3> If `Q` uses parameters, this step will specify a two-column table detailing the required parameter names and values. The parameter values are in the same format as the expected results.
 <4> The actual Cypher query, `Q`.
-<5> This step specifies the expected results of executing `Q`, represented in a table format if not empty. The first row contains the column names, and subsequent rows contain values. If `Q` contained an `ORDER BY` clause, the result table will be ordered accordingly.
+<5> This step specifies the expected results of executing `Q`, represented in a table format if not empty. The first row contains the column names, and subsequent rows contain values. However, if `Q` contains an `ORDER BY` clause, then this line should instead be `Then the result should be, in order:`, thus ensuring that the result table will be ordered by the first column appearing after `ORDER BY`.
 <6> This step specifies the expected side effects of executing `Q`, with the side effect name and the relevant quantity. Read about the possible side effects in <<side-effects>>.
 <7> This step specifies the expected error should be raised by executing the invalid `Q`. This step is described in detail in <<errors>>.
 
