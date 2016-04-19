@@ -49,12 +49,14 @@ object TCKErrorDetails {
   val CREATE_BLOCKED_BY_CONSTRAINT = "CreateBlockedByConstraint"
   val NESTED_AGGREGATION = "NestedAggregation"
   val NEGATIVE_INTEGER_ARGUMENT = "NegativeIntegerArgument"
+  val DELETE_CONNECTED_NODE = "DeleteConnectedNode"
 
   val ALL = Set(INVALID_ELEMENT_ACCESS,
                 MAP_ELEMENT_ACCESS_BY_NON_STRING,
                 LIST_ELEMENT_ACCESS_BY_NON_INTEGER,
                 CREATE_BLOCKED_BY_CONSTRAINT,
                 NESTED_AGGREGATION,
-                NEGATIVE_INTEGER_ARGUMENT)
+                NEGATIVE_INTEGER_ARGUMENT,
+                DELETE_CONNECTED_NODE)
 
 }
