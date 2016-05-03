@@ -1,0 +1,18 @@
+= The Cypher Grammar
+
+This directory contains the Cypher grammar, in xml source format.
+
+== Generating artifacts
+
+On the top level of this project, run `mvn clean install` to generate the necessary JARs.
+
+These four commands may then be used for generating the currently available artifacts, and output them to the directory `grammar/generated`:
+----
+./tools/grammar/src/main/shell/launch.sh RailRoadDiagramPages -outputDir=grammar/generated/railroad cypher.xml
+./tools/grammar/src/main/shell/launch.sh RailRoadDiagrams -DRailRoadDiagrams.inlineNone=true -outputDir=grammar/generated/railroad/raw cypher.xml
+./tools/grammar/src/main/shell/launch.sh ISO14977 cypher.xml > grammar/generated/cypher.ebnf
+./tools/grammar/src/main/shell/launch.sh Antlr4 cypher.xml > grammar/generated/Cypher.g4
+----
+
+What the `launch.sh` shell script will do is to invoke the `main` method in the class with the same name as the first argument.
+If preferred, the main method could be invoked manually from the code (in an IDE or similar).
