@@ -19,7 +19,10 @@ Feature: RemoveAcceptance
 
   Scenario: Should ignore nulls
     Given an empty graph
-    And having executed: CREATE ({prop: 42})
+    And having executed:
+      """
+      CREATE ({prop: 42})
+      """
     When executing query:
       """
       MATCH (n)
@@ -34,7 +37,10 @@ Feature: RemoveAcceptance
 
   Scenario: Remove a single label
     Given an empty graph
-    And having executed: CREATE (:L {prop: 42})
+    And having executed:
+      """
+      CREATE (:L {prop: 42})
+      """
     When executing query:
       """
       MATCH (n)
@@ -49,7 +55,10 @@ Feature: RemoveAcceptance
 
   Scenario: Remove multiple labels
     Given an empty graph
-    And having executed: CREATE (:L1:L2:L3 {prop: 42})
+    And having executed:
+      """
+      CREATE (:L1:L2:L3 {prop: 42})
+      """
     When executing query:
       """
       MATCH (n)
@@ -64,7 +73,10 @@ Feature: RemoveAcceptance
 
   Scenario: Remove a single node property
     Given an empty graph
-    And having executed: CREATE (:L {prop: 42})
+    And having executed:
+      """
+      CREATE (:L {prop: 42})
+      """
     When executing query:
       """
       MATCH (n)
@@ -79,7 +91,10 @@ Feature: RemoveAcceptance
 
   Scenario: Remove multiple node properties
     Given an empty graph
-    And having executed: CREATE (:L {prop: 42, a: 'a', b: 'B'})
+    And having executed:
+      """
+      CREATE (:L {prop: 42, a: 'a', b: 'B'})
+      """
     When executing query:
       """
       MATCH (n)
@@ -94,7 +109,10 @@ Feature: RemoveAcceptance
 
   Scenario: Remove a single relationship property
     Given an empty graph
-    And having executed: CREATE (a), (b), (a)-[:X {prop: 42}]->(b)
+    And having executed:
+      """
+      CREATE (a), (b), (a)-[:X {prop: 42}]->(b)
+      """
     When executing query:
       """
       MATCH ()-[r]->()
@@ -109,7 +127,10 @@ Feature: RemoveAcceptance
 
   Scenario: Remove a single relationship property
     Given an empty graph
-    And having executed: CREATE (a), (b), (a)-[:X {prop: 42}]->(b)
+    And having executed:
+      """
+      CREATE (a), (b), (a)-[:X {prop: 42}]->(b)
+      """
     When executing query:
       """
       MATCH ()-[r]->()
@@ -124,7 +145,10 @@ Feature: RemoveAcceptance
 
   Scenario: Remove multiple relationship properties
     Given an empty graph
-    And having executed: CREATE (a), (b), (a)-[:X {prop: 42, a: 'a', b: 'B'}]->(b)
+    And having executed:
+      """
+      CREATE (a), (b), (a)-[:X {prop: 42, a: 'a', b: 'B'}]->(b)
+      """
     When executing query:
       """
       MATCH ()-[r]->()
@@ -139,7 +163,10 @@ Feature: RemoveAcceptance
 
   Scenario: Remove a missing property should be a valid operation
     Given an empty graph
-    And having executed: CREATE (), (), ()
+    And having executed:
+      """
+      CREATE (), (), ()
+      """
     When executing query:
       """
       MATCH (n)

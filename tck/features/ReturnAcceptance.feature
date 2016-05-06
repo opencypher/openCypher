@@ -80,7 +80,7 @@ Feature: ReturnAcceptanceTest
       MATCH (n)
       RETURN n
       ORDER BY n.name ASC
-      SKIP { skipAmount }
+      SKIP {skipAmount}
       """
     Then the result should be, in order:
       | n             |
@@ -102,7 +102,7 @@ Feature: ReturnAcceptanceTest
     When executing query:
       """
       MATCH (n)
-      WHERE id(n) IN [0,1,2,3,4]
+      WHERE id(n) IN [0, 1, 2, 3, 4]
       RETURN n
       ORDER BY n.name ASC
       SKIP 2
@@ -130,11 +130,11 @@ Feature: ReturnAcceptanceTest
     When executing query:
       """
       MATCH (n)
-      WHERE id(n) IN [0,1,2,3,4]
+      WHERE id(n) IN [0, 1, 2, 3, 4]
       RETURN n
       ORDER BY n.name ASC
-      SKIP { s }
-      LIMIT { l }
+      SKIP {s}
+      LIMIT {l}
       """
     Then the result should be, in order:
       | n             |
@@ -154,7 +154,7 @@ Feature: ReturnAcceptanceTest
     When executing query:
       """
       MATCH (n)
-      WHERE id(n) IN [0,1,2,3]
+      WHERE id(n) IN [0, 1, 2, 3]
       RETURN n.division, max(n.age)
       ORDER BY max(n.age)
       """
@@ -176,7 +176,7 @@ Feature: ReturnAcceptanceTest
     When executing query:
       """
       MATCH (a)
-      WHERE id(a) IN [0,1,2,0]
+      WHERE id(a) IN [0, 1, 2, 0]
       RETURN DISTINCT a
       ORDER BY a.name
       """
@@ -189,7 +189,10 @@ Feature: ReturnAcceptanceTest
 
   Scenario: Support column renaming
     Given an empty graph
-    And having executed: CREATE (:Singleton)
+    And having executed:
+      """
+      CREATE (:Singleton)
+      """
     When executing query:
       """
       MATCH (a)
@@ -203,7 +206,10 @@ Feature: ReturnAcceptanceTest
 
   Scenario: Support ordering by a property after being distinct-ified
     Given an empty graph
-    And having executed: CREATE (:A)-[:T]->(:B)
+    And having executed:
+      """
+      CREATE (:A)-[:T]->(:B)
+      """
     When executing query:
       """
       MATCH (a)-->(b)
@@ -218,7 +224,10 @@ Feature: ReturnAcceptanceTest
 
   Scenario: Arithmetic precedence test
     Given any graph
-    When executing query: RETURN 12 / 4 * 3 - 2 * 4
+    When executing query:
+      """
+      RETURN 12 / 4 * 3 - 2 * 4
+      """
     Then the result should be:
       | 12 / 4 * 3 - 2 * 4 |
       | 1                  |
@@ -226,7 +235,10 @@ Feature: ReturnAcceptanceTest
 
   Scenario: Arithmetic precedence with parenthesis test
     Given any graph
-    When executing query: RETURN 12 / 4 * (3 - 2 * 4)
+    When executing query:
+      """
+      RETURN 12 / 4 * (3 - 2 * 4)
+      """
     Then the result should be:
       | 12 / 4 * (3 - 2 * 4) |
       | -15                  |
@@ -274,7 +286,10 @@ Feature: ReturnAcceptanceTest
 
   Scenario: Absolute function
     Given any graph
-    When executing query: RETURN abs(-1)
+    When executing query:
+      """
+      RETURN abs(-1)
+      """
     Then the result should be:
       | abs(-1) |
       | 1       |
@@ -282,7 +297,10 @@ Feature: ReturnAcceptanceTest
 
   Scenario: Return collection size
     Given any graph
-    When executing query: RETURN size([1,2,3]) AS n
+    When executing query:
+      """
+      RETURN size([1, 2, 3]) AS n
+      """
     Then the result should be:
       | n |
       | 3 |

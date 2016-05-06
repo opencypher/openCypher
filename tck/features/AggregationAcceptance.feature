@@ -20,7 +20,7 @@ Feature: AggregationAcceptance
     Given an empty graph
     When executing query:
       """
-      MATCH (a { name: 'Andres' })<-[:FATHER]-(child)
+      MATCH (a {name: 'Andres'})<-[:FATHER]-(child)
       RETURN {foo: a.name='Andres', kids: collect(child.name)}
       """
     Then the result should be empty
@@ -153,7 +153,10 @@ Feature: AggregationAcceptance
 
   Scenario: Distinct on null
     Given an empty graph
-    And having executed: CREATE ()
+    And having executed:
+      """
+      CREATE ()
+      """
     When executing query:
       """
       MATCH (a)
@@ -209,13 +212,23 @@ Feature: AggregationAcceptance
 
   Scenario: Aggregates in aggregates
     Given any graph
-    When executing query: RETURN count(count(*))
+    When executing query:
+      """
+      RETURN count(count(*))
+      """
     Then a SyntaxError should be raised at compile time: NestedAggregation
 
   Scenario: Aggregates with arithmetics
     Given an empty graph
-    And having executed: CREATE ()
-    When executing query: MATCH () RETURN count(*) * 10 AS c
+    And having executed:
+      """
+      CREATE ()
+      """
+    When executing query:
+      """
+      MATCH ()
+      RETURN count(*) * 10 AS c
+      """
     Then the result should be:
       | c  |
       | 10 |
@@ -223,7 +236,10 @@ Feature: AggregationAcceptance
 
   Scenario: Aggregates ordered by arithmetics
     Given an empty graph
-    And having executed: CREATE (:A), (:X), (:X)
+    And having executed:
+      """
+      CREATE (:A), (:X), (:X)
+      """
     When executing query:
       """
       MATCH (a:A), (b:X)
@@ -237,7 +253,10 @@ Feature: AggregationAcceptance
 
   Scenario: Multiple aggregates on same variable
     Given an empty graph
-    And having executed: CREATE ()
+    And having executed:
+      """
+      CREATE ()
+      """
     When executing query:
       """
       MATCH (n)
@@ -255,7 +274,11 @@ Feature: AggregationAcceptance
       UNWIND range(1, 100) AS i
       CREATE ()
       """
-    When executing query: MATCH () RETURN count(*)
+    When executing query:
+      """
+      MATCH ()
+      RETURN count(*)
+      """
     Then the result should be:
       | count(*) |
       | 100      |
@@ -307,7 +330,10 @@ Feature: AggregationAcceptance
 
   Scenario: Handle subexpression in aggregation also occurring as standalone expression with nested aggregation in a literal map
     Given an empty graph
-    And having executed: CREATE (:A), (:B {prop: 42})
+    And having executed:
+      """
+      CREATE (:A), (:B {prop: 42})
+      """
     When executing query:
       """
       MATCH (a:A), (b:B)
@@ -322,7 +348,10 @@ Feature: AggregationAcceptance
 
   Scenario: Projection during aggregation in WITH before MERGE and after WITH with predicate
     Given an empty graph
-    And having executed: CREATE (:A {prop: 42})
+    And having executed:
+      """
+      CREATE (:A {prop: 42})
+      """
     When executing query:
       """
       UNWIND [42] AS props
@@ -352,8 +381,15 @@ Feature: AggregationAcceptance
 
   Scenario: Counting with loops
     Given an empty graph
-    And having executed: CREATE (a), (a)-[:R]->(a)
-    When executing query: MATCH ()-[r]-() RETURN count(r)
+    And having executed:
+      """
+      CREATE (a), (a)-[:R]->(a)
+      """
+    When executing query:
+      """
+      MATCH ()-[r]-()
+      RETURN count(r)
+      """
     Then the result should be:
       | count(r) |
       | 1        |

@@ -180,7 +180,7 @@ Feature: OrderByAcceptance
   Scenario: ORDER BY should order ints in the expected order
     When executing query:
       """
-      UNWIND [1,3,2] AS ints
+      UNWIND [1, 3, 2] AS ints
       RETURN ints
       ORDER BY ints
       """
@@ -194,7 +194,7 @@ Feature: OrderByAcceptance
   Scenario: ORDER BY DESC should order ints in the expected order
     When executing query:
       """
-      UNWIND [1,3,2] AS ints
+      UNWIND [1, 3, 2] AS ints
       RETURN ints
       ORDER BY ints DESC
       """
@@ -208,7 +208,7 @@ Feature: OrderByAcceptance
   Scenario: ORDER BY should order floats in the expected order
     When executing query:
       """
-      UNWIND [1.5,1.3,999.99] AS floats
+      UNWIND [1.5, 1.3, 999.99] AS floats
       RETURN floats
       ORDER BY floats
       """
@@ -222,7 +222,7 @@ Feature: OrderByAcceptance
   Scenario: ORDER BY DESC should order floats in the expected order
     When executing query:
       """
-      UNWIND [1.5,1.3,999.99] AS floats
+      UNWIND [1.5, 1.3, 999.99] AS floats
       RETURN floats
       ORDER BY floats DESC
       """

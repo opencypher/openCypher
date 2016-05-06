@@ -19,7 +19,10 @@ Feature: UnionAcceptance
 
   Scenario: Should be able to create text output from union queries
     Given an empty graph
-    And having executed: CREATE (:A), (:B)
+    And having executed:
+      """
+      CREATE (:A), (:B)
+      """
     When executing query:
       """
       MATCH (a:A)

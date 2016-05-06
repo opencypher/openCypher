@@ -21,14 +21,20 @@ Feature: ExpressionAcceptance
     Given any graph
 
   Scenario: Execute n[0]
-    When executing query: RETURN [1, 2, 3][0] AS value
+    When executing query:
+      """
+      RETURN [1, 2, 3][0] AS value
+      """
     Then the result should be:
       | value |
       | 1     |
     And no side effects
 
   Scenario: Execute n['name'] in read queries
-    And having executed: CREATE ({name: 'Apa'})
+    And having executed:
+      """
+      CREATE ({name: 'Apa'})
+      """
     When executing query:
       """
       MATCH (n {name: 'Apa'})

@@ -19,7 +19,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Path query should return results in written order
     Given an empty graph
-    And having executed: CREATE (:Label1)<-[:TYPE]-(:Label2)
+    And having executed:
+      """
+      CREATE (:Label1)<-[:TYPE]-(:Label2)
+      """
     When executing query:
       """
       MATCH (a:Label1)
@@ -32,7 +35,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Longer path query should return results in written order
     Given an empty graph
-    And having executed: CREATE (:Label1)<-[:T1]-(:Label2)-[:T2]->(:Label3)
+    And having executed:
+      """
+      CREATE (:Label1)<-[:T1]-(:Label2)-[:T2]->(:Label3)
+      """
     When executing query:
       """
       MATCH (a:Label1)
@@ -130,7 +136,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Use params in pattern matching predicates
     Given an empty graph
-    And having executed: CREATE (:A)-[:T {foo: 'bar'}]->(:B {name: 'me'})
+    And having executed:
+      """
+      CREATE (:A)-[:T {foo: 'bar'}]->(:B {name: 'me'})
+      """
     And parameters are:
       | param | 'bar' |
     When executing query:
@@ -146,7 +155,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Filter out based on node prop name
     Given an empty graph
-    And having executed: CREATE ({name: 'Someone'})<-[:X]-()-[:X]->({name: 'Andres'})
+    And having executed:
+      """
+      CREATE ({name: 'Someone'})<-[:X]-()-[:X]->({name: 'Andres'})
+      """
     When executing query:
       """
       MATCH ()-[rel:X]-(a)
@@ -160,7 +172,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Honour the column name for RETURN items
     Given an empty graph
-    And having executed: CREATE ({name: 'Someone'})
+    And having executed:
+      """
+      CREATE ({name: 'Someone'})
+      """
     When executing query:
       """
       MATCH (a)
@@ -174,7 +189,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Filter based on rel prop name
     Given an empty graph
-    And having executed: CREATE (:A)<-[:KNOWS {name: 'monkey'}]-()-[:KNOWS {name: 'woot'}]->(:B)
+    And having executed:
+      """
+      CREATE (:A)<-[:KNOWS {name: 'monkey'}]-()-[:KNOWS {name: 'woot'}]->(:B)
+      """
     When executing query:
       """
       MATCH (node)-[r:KNOWS]->(a)
@@ -207,7 +225,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Get neighbours
     Given an empty graph
-    And having executed: CREATE (a:A {value: 1})-[:KNOWS]->(b:B {value: 2})
+    And having executed:
+      """
+      CREATE (a:A {value: 1})-[:KNOWS]->(b:B {value: 2})
+      """
     When executing query:
       """
       MATCH (n1)-[rel:KNOWS]->(n2)
@@ -239,7 +260,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Get related to related to
     Given an empty graph
-    And having executed: CREATE (a:A {value: 1})-[:KNOWS]->(b:B {value: 2})-[:FRIEND]->(c:C {value: 3})
+    And having executed:
+      """
+      CREATE (a:A {value: 1})-[:KNOWS]->(b:B {value: 2})-[:FRIEND]->(c:C {value: 3})
+      """
     When executing query:
       """
       MATCH (n)-->(a)-->(b)
@@ -277,7 +301,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Return two subgraphs with bound undirected relationship
     Given an empty graph
-    And having executed: CREATE (a:A {value: 1})-[:REL {name: 'r'}]->(b:B {value: 2})
+    And having executed:
+      """
+      CREATE (a:A {value: 1})-[:REL {name: 'r'}]->(b:B {value: 2})
+      """
     When executing query:
       """
       MATCH (a)-[r {name: 'r'}]-(b)
@@ -291,13 +318,16 @@ Feature: MatchAcceptanceTest
 
   Scenario: Return two subgraphs with bound undirected relationship and optional relationship
     Given an empty graph
-    And having executed: CREATE (a:A {value: 1})-[:REL {name: 'r1'}]->(b:B {value: 2})-[:REL {name: 'r2'}]->(c:C {value: 3})
+    And having executed:
+      """
+      CREATE (a:A {value: 1})-[:REL {name: 'r1'}]->(b:B {value: 2})-[:REL {name: 'r2'}]->(c:C {value: 3})
+      """
     When executing query:
       """
-      MATCH (a)-[r {name:'r1'}]-(b)
+      MATCH (a)-[r {name: 'r1'}]-(b)
       OPTIONAL MATCH (b)-[r2]-(c)
-      WHERE r<>r2
-      RETURN a,b,c
+      WHERE r <> r2
+      RETURN a, b, c
       """
     Then the result should be:
       | a               | b               | c               |
@@ -317,7 +347,7 @@ Feature: MatchAcceptanceTest
       """
     When executing query:
       """
-      MATCH (n {name:'A'})-[r]->(x)
+      MATCH (n {name: 'A'})-[r]->(x)
       WHERE type(r) = 'KNOWS'
       RETURN x
       """
@@ -371,10 +401,13 @@ Feature: MatchAcceptanceTest
 
   Scenario: Return a simple path
     Given an empty graph
-    And having executed: CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
+    And having executed:
+      """
+      CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
+      """
     When executing query:
       """
-      MATCH p=(a {name:'A'})-->(b)
+      MATCH p = (a {name: 'A'})-->(b)
       RETURN p
       """
     Then the result should be:
@@ -384,10 +417,13 @@ Feature: MatchAcceptanceTest
 
   Scenario: Return a three node path
     Given an empty graph
-    And having executed: CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})-[:KNOWS]->(c:C {name: 'C'})
+    And having executed:
+      """
+      CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})-[:KNOWS]->(c:C {name: 'C'})
+      """
     When executing query:
       """
-      MATCH p = (a {name:'A'})-[rel1]->(b)-[rel2]->(c)
+      MATCH p = (a {name: 'A'})-[rel1]->(b)-[rel2]->(c)
       RETURN p
       """
     Then the result should be:
@@ -397,7 +433,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Do not return anything because path length does not match
     Given an empty graph
-    And having executed: CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
+    And having executed:
+      """
+      CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
+      """
     When executing query:
       """
       MATCH p = (n)-->(x)
@@ -409,7 +448,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Pass the path length test
     Given an empty graph
-    And having executed: CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
+    And having executed:
+      """
+      CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
+      """
     When executing query:
       """
       MATCH p = (n)-->(x)
@@ -423,7 +465,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Filter on path nodes
     Given an empty graph
-    And having executed: CREATE (a:A {foo: 'bar'})-[:REL]->(b:B {foo: 'bar'})-[:REL]->(c:C {foo: 'bar'})-[:REL]->(d:D {foo: 'bar'})
+    And having executed:
+      """
+      CREATE (a:A {foo: 'bar'})-[:REL]->(b:B {foo: 'bar'})-[:REL]->(c:C {foo: 'bar'})-[:REL]->(d:D {foo: 'bar'})
+      """
     When executing query:
       """
       MATCH p = (pA)-[:REL*3..3]->(pB)
@@ -437,7 +482,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Return relationships by fetching them from the path - starting from the end
     Given an empty graph
-    And having executed: CREATE (a:A)-[:REL {value: 1}]->(b:B)-[:REL {value: 2}]->(e:End)
+    And having executed:
+      """
+      CREATE (a:A)-[:REL {value: 1}]->(b:B)-[:REL {value: 2}]->(e:End)
+      """
     When executing query:
       """
       MATCH p = (a)-[:REL*2..2]->(b:End)
@@ -450,7 +498,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Return relationships by fetching them from the path
     Given an empty graph
-    And having executed: CREATE (s:Start)-[:REL {value: 1}]->(b:B)-[:REL {value: 2}]->(c:C)
+    And having executed:
+      """
+      CREATE (s:Start)-[:REL {value: 1}]->(b:B)-[:REL {value: 2}]->(c:C)
+      """
     When executing query:
       """
       MATCH p = (a:Start)-[:REL*2..2]->(b)
@@ -463,7 +514,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Return relationships by collecting them as a list - wrong way
     Given an empty graph
-    And having executed: CREATE (a:A)-[:REL {value: 1}]->(b:B)-[:REL {value: 2}]->(e:End)
+    And having executed:
+      """
+      CREATE (a:A)-[:REL {value: 1}]->(b:B)-[:REL {value: 2}]->(e:End)
+      """
     When executing query:
       """
       MATCH (a)-[r:REL*2..2]->(b:End)
@@ -476,7 +530,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Return relationships by collecting them as a list - undirected
     Given an empty graph
-    And having executed: CREATE (a:End {value: 1})-[:REL {value: 1}]->(b:B)-[:REL {value: 2}]->(c:End {value: 2})
+    And having executed:
+      """
+      CREATE (a:End {value: 1})-[:REL {value: 1}]->(b:B)-[:REL {value: 2}]->(c:End {value: 2})
+      """
     When executing query:
       """
       MATCH (a)-[r:REL*2..2]-(b:End)
@@ -490,7 +547,10 @@ Feature: MatchAcceptanceTest
 
   Scenario: Return relationships by collecting them as a list
     Given an empty graph
-    And having executed: CREATE (s:Start)-[:REL {value: 1}]->(b:B)-[:REL {value: 2}]->(c:C)
+    And having executed:
+      """
+      CREATE (s:Start)-[:REL {value: 1}]->(b:B)-[:REL {value: 2}]->(c:C)
+      """
     When executing query:
       """
       MATCH (a:Start)-[r:REL*2..2]-(b)
@@ -503,10 +563,13 @@ Feature: MatchAcceptanceTest
 
   Scenario: Return a var length path
     Given an empty graph
-    And having executed: CREATE (a:A {name: 'A'})-[:KNOWS {value: 1}]->(b:B {name: 'B'})-[:KNOWS {value: 2}]->(c:C {name: 'C'})
+    And having executed:
+      """
+      CREATE (a:A {name: 'A'})-[:KNOWS {value: 1}]->(b:B {name: 'B'})-[:KNOWS {value: 2}]->(c:C {name: 'C'})
+      """
     When executing query:
       """
-      MATCH p=(n {name:'A'})-[:KNOWS*1..2]->(x)
+      MATCH p = (n {name: 'A'})-[:KNOWS*1..2]->(x)
       RETURN p
       """
     Then the result should be:
@@ -517,10 +580,13 @@ Feature: MatchAcceptanceTest
 
   Scenario: Return a var length path of length zero
     Given an empty graph
-    And having executed: CREATE (a:A)-[:REL]->(b:B)
+    And having executed:
+      """
+      CREATE (a:A)-[:REL]->(b:B)
+      """
     When executing query:
       """
-      MATCH p=(a)-[*0..1]->(b)
+      MATCH p = (a)-[*0..1]->(b)
       RETURN a, b, length(p) AS l
       """
     Then the result should be:
@@ -532,10 +598,13 @@ Feature: MatchAcceptanceTest
 
   Scenario: Return a named var length path of length zero
     Given an empty graph
-    And having executed: CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})-[:FRIEND]->(c:C {name: 'C'})
+    And having executed:
+      """
+      CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})-[:FRIEND]->(c:C {name: 'C'})
+      """
     When executing query:
       """
-      MATCH p = (a {name:'A'})-[:KNOWS*0..1]->(b)-[:FRIEND*0..1]->(c)
+      MATCH p = (a {name: 'A'})-[:KNOWS*0..1]->(b)-[:FRIEND*0..1]->(c)
       RETURN p
       """
     Then the result should be:
