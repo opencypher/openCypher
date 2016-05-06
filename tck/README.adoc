@@ -73,6 +73,7 @@ Certain queries do require a more complex graph structure in order to yield less
 
 A Cypher query that contains write clauses may have side effects that are persisted in the graph.
 A side effect is either the addition (denoted by `+`) or the removal (`-`) of one of the following:
+
 * A node, denoted by `nodes`
 * A relationship, denoted by `relationships`
 * A property, denoted by `properties`
