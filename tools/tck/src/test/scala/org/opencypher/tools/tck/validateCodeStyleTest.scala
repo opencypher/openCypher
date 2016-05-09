@@ -31,4 +31,21 @@ class validateCodeStyleTest extends TckTestSupport {
     validateCodeStyle("MATCH (n) RETURN n") shouldBe None
   }
 
+  test("should request space after colon") {
+    validateCodeStyle("MATCH (n {name:'test'})") shouldBe
+      Some("""A query did not follow style requirements:
+             |MATCH (n {name:'test'})
+             |
+             |Prettified version:
+             |MATCH (n {name: 'test'})""".stripMargin)
+  }
+
+  test("should not request space after colon if it's a label") {
+    validateCodeStyle("MATCH (n:Label)") shouldBe None
+  }
+
+  test("should not request space after colon if it's a relationship type") {
+    validateCodeStyle("MATCH ()-[:T]-()") shouldBe None
+  }
+
 }

@@ -30,19 +30,20 @@ object validateCodeStyle extends (String => Option[String]) {
     val lowerCased2 = lowerCased.foldLeft(prettified1) {
       case (q, word) => q.replaceAll(s"(?i)(^|[^a-zA-Z])$word ", s"$$1$word ")
     }
+    val spaceAfterColon = lowerCased2.replaceAll(":([^A-Z ])", ": $1")
 
-    if (lowerCased2 != query)
+    if (spaceAfterColon != query)
       Some( s"""A query did not follow style requirements:
                 |$query
                 |
                 |Prettified version:
-                |$lowerCased2""".stripMargin)
+                |$spaceAfterColon""".stripMargin)
     else None
   }
 
   // TODO: Write a proper style checker, that is able to interpret context and do proper parsing
   // The result will probably be similar to the class Prettifier in the neo4j repository, which
-  // currently does not fit our needs.
+  // we could use, but a dependency on neo4j that way would be very smelly.
 
   private val lowerCased = Set("true",
                                "false",
