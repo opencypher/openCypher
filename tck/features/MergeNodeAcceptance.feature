@@ -19,7 +19,11 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge node when no nodes exist
     Given an empty graph
-    When executing query: MERGE (a) RETURN count(*) AS n
+    When executing query:
+      """
+      MERGE (a)
+      RETURN count(*) AS n
+      """
     Then the result should be:
       | n |
       | 1 |
@@ -28,7 +32,11 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge node with label
     Given an empty graph
-    When executing query: MERGE (a:Label) RETURN labels(a)
+    When executing query:
+      """
+      MERGE (a:Label)
+      RETURN labels(a)
+      """
     Then the result should be:
       | labels(a) |
       | ['Label'] |
@@ -38,7 +46,12 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge node with label add label on create
     Given an empty graph
-    When executing query: MERGE (a:Label) ON CREATE SET a:Foo RETURN labels(a)
+    When executing query:
+      """
+      MERGE (a:Label)
+        ON CREATE SET a:Foo
+      RETURN labels(a)
+      """
     Then the result should be:
       | labels(a)        |
       | ['Label', 'Foo'] |
@@ -48,7 +61,12 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge node with label add property on create
     Given an empty graph
-    When executing query: MERGE (a:Label) ON CREATE SET a.prop = 42 RETURN a.prop
+    When executing query:
+      """
+      MERGE (a:Label)
+        ON CREATE SET a.prop = 42
+      RETURN a.prop
+      """
     Then the result should be:
       | a.prop |
       | 42     |
@@ -59,8 +77,15 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge node with label when it exists
     Given an empty graph
-    And having executed: CREATE (:Label)
-    When executing query: MERGE (a:Label) RETURN id(a)
+    And having executed:
+      """
+      CREATE (:Label)
+      """
+    When executing query:
+      """
+      MERGE (a:Label)
+      RETURN id(a)
+      """
     Then the result should be:
       | id(a) |
       | 0     |
@@ -68,8 +93,15 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge node should create when it doesn't match, properties
     Given an empty graph
-    And having executed: CREATE ({prop: 42})
-    When executing query: MERGE (a {prop: 43}) RETURN a.prop
+    And having executed:
+      """
+      CREATE ({prop: 42})
+      """
+    When executing query:
+      """
+      MERGE (a {prop: 43})
+      RETURN a.prop
+      """
     Then the result should be:
       | a.prop |
       | 43     |
@@ -79,8 +111,15 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge node should create when it doesn't match, properties and label
     Given an empty graph
-    And having executed: CREATE (:Label {prop: 42})
-    When executing query: MERGE (a:Label {prop: 43}) RETURN a.prop
+    And having executed:
+      """
+      CREATE (:Label {prop: 42})
+      """
+    When executing query:
+      """
+      MERGE (a:Label {prop: 43})
+      RETURN a.prop
+      """
     Then the result should be:
       | a.prop |
       | 43     |
@@ -91,8 +130,15 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge node with prop and label
     Given an empty graph
-    And having executed: CREATE (:Label {prop: 42})
-    When executing query: MERGE (a:Label {prop: 42}) RETURN a.prop
+    And having executed:
+      """
+      CREATE (:Label {prop: 42})
+      """
+    When executing query:
+      """
+      MERGE (a:Label {prop: 42})
+      RETURN a.prop
+      """
     Then the result should be:
       | a.prop |
       | 42     |
@@ -100,9 +146,19 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge node with prop and label and unique index
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (n:Label) ASSERT n.prop IS UNIQUE
-    And having executed: CREATE (:Label {prop: 42})
-    When executing query: MERGE (a:Label {prop: 42}) RETURN a.prop
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (n:Label) ASSERT n.prop IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE (:Label {prop: 42})
+      """
+    When executing query:
+      """
+      MERGE (a:Label {prop: 42})
+      RETURN a.prop
+      """
     Then the result should be:
       | a.prop |
       | 42     |
@@ -110,9 +166,19 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge node with prop and label and unique index when no match
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (n:Label) ASSERT n.prop IS UNIQUE
-    And having executed: CREATE (:Label {prop: 42})
-    When executing query: MERGE (a:Label {prop: 11}) RETURN a.prop
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (n:Label) ASSERT n.prop IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE (:Label {prop: 42})
+      """
+    When executing query:
+      """
+      MERGE (a:Label {prop: 11})
+      RETURN a.prop
+      """
     Then the result should be:
       | a.prop |
       | 11     |
@@ -123,8 +189,16 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge node with label add label on match when it exists
     Given an empty graph
-    And having executed: CREATE (:Label)
-    When executing query: MERGE (a:Label) ON MATCH SET a:Foo RETURN labels(a)
+    And having executed:
+      """
+      CREATE (:Label)
+      """
+    When executing query:
+      """
+      MERGE (a:Label)
+        ON MATCH SET a:Foo
+      RETURN labels(a)
+      """
     Then the result should be:
       | labels(a)        |
       | ['Label', 'Foo'] |
@@ -133,8 +207,16 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge node with label add property on update when it exists
     Given an empty graph
-    And having executed: CREATE (:Label)
-    When executing query: MERGE (a:Label) ON CREATE SET a.prop = 42 RETURN a.prop
+    And having executed:
+      """
+      CREATE (:Label)
+      """
+    When executing query:
+      """
+      MERGE (a:Label)
+        ON CREATE SET a.prop = 42
+      RETURN a.prop
+      """
     Then the result should be:
       | a.prop |
       | null   |
@@ -142,8 +224,16 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge node and set property on match
     Given an empty graph
-    And having executed: CREATE (:Label)
-    When executing query: MERGE (a:Label) ON MATCH SET a.prop = 42 RETURN a.prop
+    And having executed:
+      """
+      CREATE (:Label)
+      """
+    When executing query:
+      """
+      MERGE (a:Label)
+        ON MATCH SET a.prop = 42
+      RETURN a.prop
+      """
     Then the result should be:
       | a.prop |
       | 42     |
@@ -152,9 +242,20 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge using unique constraint should update existing node
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    And having executed: CREATE (:Person {id: 23, country: 'Sweden'})
-    When executing query: MERGE (a:Person {id: 23, country: 'Sweden'}) ON MATCH SET a.name = 'Emil' RETURN a
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE (:Person {id: 23, country: 'Sweden'})
+      """
+    When executing query:
+      """
+      MERGE (a:Person {id: 23, country: 'Sweden'})
+        ON MATCH SET a.name = 'Emil'
+      RETURN a
+      """
     Then the result should be:
       | a                                                   |
       | (:Person {id: 23, country: 'Sweden', name: 'Emil'}) |
@@ -163,8 +264,16 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge using unique constraint should create missing node
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    When executing query: MERGE (a:Person {id: 23, country: 'Sweden'}) ON CREATE SET a.name = 'Emil' RETURN a
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    When executing query:
+      """
+      MERGE (a:Person {id: 23, country: 'Sweden'})
+        ON CREATE SET a.name = 'Emil'
+      RETURN a
+      """
     Then the result should be:
       | a                                                   |
       | (:Person {id: 23, country: 'Sweden', name: 'Emil'}) |
@@ -175,10 +284,24 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should match on merge using multiple unique indexes if only found single node for both indexes
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.email IS UNIQUE
-    And having executed: CREATE (:Person {id: 23, email: 'smth@neo.com'})
-    When executing query: MERGE (a:Person {id: 23, email: 'smth@neo.com'}) ON MATCH SET a.country = 'Sweden' RETURN a
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.email IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE (:Person {id: 23, email: 'smth@neo.com'})
+      """
+    When executing query:
+      """
+      MERGE (a:Person {id: 23, email: 'smth@neo.com'})
+        ON MATCH SET a.country = 'Sweden'
+      RETURN a
+      """
     Then the result should be:
       | a                                                            |
       | (:Person {id: 23, country: 'Sweden', email: 'smth@neo.com'}) |
@@ -187,10 +310,24 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should match on merge using multiple unique indexes and labels if only found single node for both indexes
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    And having executed: CREATE CONSTRAINT ON (u:User) ASSERT u.email IS UNIQUE
-    And having executed: CREATE (:Person:User {id: 23, email: 'smth@neo.com'})
-    When executing query: MERGE (a:Person:User {id: 23, email: 'smth@neo.com'}) ON MATCH SET a.country = 'Sweden' RETURN a
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (u:User) ASSERT u.email IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE (:Person:User {id: 23, email: 'smth@neo.com'})
+      """
+    When executing query:
+      """
+      MERGE (a:Person:User {id: 23, email: 'smth@neo.com'})
+        ON MATCH SET a.country = 'Sweden'
+      RETURN a
+      """
     Then the result should be:
       | a                                                                 |
       | (:Person:User {id: 23, country: 'Sweden', email: 'smth@neo.com'}) |
@@ -199,10 +336,24 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should match on merge using multiple unique indexes using same key if only found single node for both indexes
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    And having executed: CREATE CONSTRAINT ON (u:User) ASSERT u.email IS UNIQUE
-    And having executed: CREATE (:Person:User {id: 23})
-    When executing query: MERGE (a:Person:User {id: 23}) ON MATCH SET a.country = 'Sweden' RETURN a
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (u:User) ASSERT u.email IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE (:Person:User {id: 23})
+      """
+    When executing query:
+      """
+      MERGE (a:Person:User {id: 23})
+        ON MATCH SET a.country = 'Sweden'
+      RETURN a
+      """
     Then the result should be:
       | a                                          |
       | (:Person:User {id: 23, country: 'Sweden'}) |
@@ -211,9 +362,20 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should create on merge using multiple unique indexes if found no nodes
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.email IS UNIQUE
-    When executing query: MERGE (a:Person {id: 23, email: 'smth@neo.com'}) ON CREATE SET a.country = 'Sweden' RETURN a
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.email IS UNIQUE
+      """
+    When executing query:
+      """
+      MERGE (a:Person {id: 23, email: 'smth@neo.com'})
+        ON CREATE SET a.country = 'Sweden'
+      RETURN a
+      """
     Then the result should be:
       | a                                                            |
       | (:Person {id: 23, email: 'smth@neo.com', country: 'Sweden'}) |
@@ -224,9 +386,20 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should create on merge using multiple unique indexes and labels if found no nodes
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    And having executed: CREATE CONSTRAINT ON (u:User) ASSERT u.email IS UNIQUE
-    When executing query: MERGE (a:Person:User {id: 23, email: 'smth@neo.com'}) ON CREATE SET a.country = 'Sweden' RETURN a
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (u:User) ASSERT u.email IS UNIQUE
+      """
+    When executing query:
+      """
+      MERGE (a:Person:User {id: 23, email: 'smth@neo.com'})
+        ON CREATE SET a.country = 'Sweden'
+      RETURN a
+      """
     Then the result should be:
       | a                                                                 |
       | (:Person:User {id: 23, email: 'smth@neo.com', country: 'Sweden'}) |
@@ -237,54 +410,126 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should fail on merge using multiple unique indexes using same key if found different nodes
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    And having executed: CREATE CONSTRAINT ON (u:User) ASSERT u.id IS UNIQUE
-    And having executed: CREATE (:Person {id: 23}), (:User {id: 23})
-    When executing query: MERGE (a:Person:User {id: 23})
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (u:User) ASSERT u.id IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE (:Person {id: 23}), (:User {id: 23})
+      """
+    When executing query:
+      """
+      MERGE (a:Person:User {id: 23})
+      """
     Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
 
   Scenario: Should fail on merge using multiple unique indexes if found different nodes
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.email IS UNIQUE
-    And having executed: CREATE (:Person {id: 23}), (:Person {email: 'smth@neo.com'})
-    When executing query: MERGE (a:Person {id: 23, email: 'smth@neo.com'})
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.email IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE (:Person {id: 23}), (:Person {email: 'smth@neo.com'})
+      """
+    When executing query:
+      """
+      MERGE (a:Person {id: 23, email: 'smth@neo.com'})
+      """
     Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
 
   Scenario: Should fail on merge using multiple unique indexes if it found a node matching single property only
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.email IS UNIQUE
-    And having executed: CREATE (:Person {id: 23})
-    When executing query: MERGE (a:Person {id: 23, email: 'smth@neo.com'})
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.email IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE (:Person {id: 23})
+      """
+    When executing query:
+      """
+      MERGE (a:Person {id: 23, email: 'smth@neo.com'})
+      """
     Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
 
   Scenario: Should fail on merge using multiple unique indexes if it found a node matching single property only flipped order
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.email IS UNIQUE
-    And having executed: CREATE (:Person {email: 'smth@neo.com'})
-    When executing query: MERGE (a:Person {id: 23, email: 'smth@neo.com'})
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.email IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE (:Person {email: 'smth@neo.com'})
+      """
+    When executing query:
+      """
+      MERGE (a:Person {id: 23, email: 'smth@neo.com'})
+      """
     Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
 
   Scenario: Should fail on merge using multiple unique indexes and labels if found different nodes
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    And having executed: CREATE CONSTRAINT ON (u:User) ASSERT u.email IS UNIQUE
-    And having executed: CREATE (:Person {id: 23}), (:User {email: 'smth@neo.com'})
-    When executing query: MERGE (a:Person:User {id: 23, email: 'smth@neo.com'})
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (u:User) ASSERT u.email IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE (:Person {id: 23}), (:User {email: 'smth@neo.com'})
+      """
+    When executing query:
+      """
+      MERGE (a:Person:User {id: 23, email: 'smth@neo.com'})
+      """
     Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
 
   Scenario: Merge with uniqueness constraints must properly handle multiple labels
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (l:L) ASSERT l.prop IS UNIQUE
-    And having executed: CREATE (:L {prop: 42})
-    When executing query: MERGE (:L:B {prop : 42})
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (l:L) ASSERT l.prop IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE (:L {prop: 42})
+      """
+    When executing query:
+      """
+      MERGE (:L:B {prop: 42})
+      """
     Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
 
   Scenario: Should handle running merge inside a foreach loop
     Given an empty graph
-    When executing query: FOREACH(x IN [1,2,3] | MERGE ({property: x}))
+    When executing query:
+      """
+      FOREACH(x IN [1, 2, 3] | MERGE ({property: x}))
+      """
     Then the result should be empty
     And the side effects should be:
       | +nodes      | 3 |
@@ -292,16 +537,34 @@ Feature: MergeNodeAcceptance
 
   Scenario: Unrelated nodes with same property should not clash
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    And having executed: CREATE (a:Item {id: 1}), (b:Person {id: 1})
-    When executing query: MERGE (a:Item {id: 1}) MERGE (b:Person {id: 1})
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    And having executed:
+      """
+      CREATE (a:Item {id: 1}),
+        (b:Person {id: 1})
+      """
+    When executing query:
+      """
+      MERGE (a:Item {id: 1})
+      MERGE (b:Person {id: 1})
+      """
     Then the result should be empty
     And no side effects
 
   Scenario: Works fine with index
     Given an empty graph
-    And having executed: CREATE INDEX ON :Person(name)
-    When executing query: MERGE (person:Person {name: 'Lasse'}) RETURN person.name
+    And having executed:
+      """
+      CREATE INDEX ON :Person(name)
+      """
+    When executing query:
+      """
+      MERGE (person:Person {name: 'Lasse'})
+      RETURN person.name
+      """
     Then the result should be:
       | person.name |
       | 'Lasse'     |
@@ -312,9 +575,18 @@ Feature: MergeNodeAcceptance
 
   Scenario: Works fine with index and constraint
     Given an empty graph
-    And having executed: CREATE INDEX ON :Person(name)
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-    When executing query: MERGE (person:Person {name: 'Lasse', id: 42})
+    And having executed:
+      """
+      CREATE INDEX ON :Person(name)
+      """
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
+      """
+    When executing query:
+      """
+      MERGE (person:Person {name: 'Lasse', id: 42})
+      """
     Then the result should be empty
     And the side effects should be:
       | +nodes      | 1 |
@@ -323,8 +595,14 @@ Feature: MergeNodeAcceptance
 
   Scenario: Works with indexed and unindexed property
     Given an empty graph
-    And having executed: CREATE INDEX ON :Person(name)
-    When executing query: MERGE (person:Person {name: 'Lasse', id: 42})
+    And having executed:
+      """
+      CREATE INDEX ON :Person(name)
+      """
+    When executing query:
+      """
+      MERGE (person:Person {name: 'Lasse', id: 42})
+      """
     Then the result should be empty
     And the side effects should be:
       | +nodes      | 1 |
@@ -333,9 +611,18 @@ Feature: MergeNodeAcceptance
 
   Scenario: Works with two indexed properties
     Given an empty graph
-    And having executed: CREATE INDEX ON :Person(name)
-    And having executed: CREATE INDEX ON :Person(id)
-    When executing query: MERGE (person:Person {name: 'Lasse', id: 42})
+    And having executed:
+      """
+      CREATE INDEX ON :Person(name)
+      """
+    And having executed:
+      """
+      CREATE INDEX ON :Person(id)
+      """
+    When executing query:
+      """
+      MERGE (person:Person {name: 'Lasse', id: 42})
+      """
     Then the result should be empty
     And the side effects should be:
       | +nodes      | 1 |
@@ -344,8 +631,16 @@ Feature: MergeNodeAcceptance
 
   Scenario: Works with property repeated in literal map in set
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.ssn IS UNIQUE
-    When executing query: MERGE (person:Person {ssn: 42}) ON CREATE SET person = {ssn: 42, name: 'Robert Paulsen'} RETURN person.ssn
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.ssn IS UNIQUE
+      """
+    When executing query:
+      """
+      MERGE (person:Person {ssn: 42})
+        ON CREATE SET person = {ssn: 42, name: 'Robert Paulsen'}
+      RETURN person.ssn
+      """
     Then the result should be:
       | person.ssn |
       | 42         |
@@ -356,10 +651,18 @@ Feature: MergeNodeAcceptance
 
   Scenario: Works with property in map that gets set
     Given an empty graph
-    And having executed: CREATE CONSTRAINT ON (p:Person) ASSERT p.ssn IS UNIQUE
+    And having executed:
+      """
+      CREATE CONSTRAINT ON (p:Person) ASSERT p.ssn IS UNIQUE
+      """
     And parameters are:
       | p | {ssn: 42, name: 'Robert Paulsen'} |
-    When executing query: MERGE (person:Person {ssn: {p}.ssn}) ON CREATE SET person = {p} RETURN person.ssn
+    When executing query:
+      """
+      MERGE (person:Person {ssn: {p}.ssn})
+        ON CREATE SET person = {p}
+      RETURN person.ssn
+      """
     Then the result should be:
       | person.ssn |
       | 42         |
@@ -370,7 +673,12 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should work when finding multiple elements
     Given an empty graph
-    When executing query: CREATE (:X) CREATE (:X) MERGE (:X)
+    When executing query:
+      """
+      CREATE (:X)
+      CREATE (:X)
+      MERGE (:X)
+      """
     Then the result should be empty
     And the side effects should be:
       | +nodes  | 2 |
@@ -378,8 +686,16 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should handle argument properly
     Given an empty graph
-    And having executed: CREATE ({x: 42}), ({x: 'not42'})
-    When executing query: WITH 42 AS x MERGE (c:N {x: x})
+    And having executed:
+      """
+      CREATE ({x: 42}),
+        ({x: 'not42'})
+      """
+    When executing query:
+      """
+      WITH 42 AS x
+      MERGE (c:N {x: x})
+      """
     Then the result should be empty
     And the side effects should be:
       | +nodes      | 1 |
@@ -388,7 +704,11 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should handle arguments properly with only write clauses
     Given an empty graph
-    When executing query: CREATE (a {p: 1}) MERGE ({v: a.p})
+    When executing query:
+      """
+      CREATE (a {p: 1})
+      MERGE ({v: a.p})
+      """
     Then the result should be empty
     And the side effects should be:
       | +nodes      | 2 |
@@ -397,15 +717,19 @@ Feature: MergeNodeAcceptance
   Scenario: Should be able to merge using property from match
     Given an empty graph
     And having executed:
-          """
-          CREATE (:Person {name: 'A', bornIn: 'New York'})
-          CREATE (:Person {name: 'B', bornIn: 'Ohio'})
-          CREATE (:Person {name: 'C', bornIn: 'New Jersey'})
-          CREATE (:Person {name: 'D', bornIn: 'New York'})
-          CREATE (:Person {name: 'E', bornIn: 'Ohio'})
-          CREATE (:Person {name: 'F', bornIn: 'New Jersey'})
-          """
-    When executing query: MATCH (person:Person) MERGE (city: City {name: person.bornIn})
+      """
+      CREATE (:Person {name: 'A', bornIn: 'New York'})
+      CREATE (:Person {name: 'B', bornIn: 'Ohio'})
+      CREATE (:Person {name: 'C', bornIn: 'New Jersey'})
+      CREATE (:Person {name: 'D', bornIn: 'New York'})
+      CREATE (:Person {name: 'E', bornIn: 'Ohio'})
+      CREATE (:Person {name: 'F', bornIn: 'New Jersey'})
+      """
+    When executing query:
+      """
+      MATCH (person:Person)
+      MERGE (city:City {name: person.bornIn})
+      """
     Then the result should be empty
     And the side effects should be:
       | +nodes      | 3 |
@@ -414,17 +738,24 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should be able to merge using property from match with index
     Given an empty graph
-    And having executed: CREATE INDEX ON :City(name)
     And having executed:
-          """
-          CREATE (:Person {name: 'A', bornIn: 'New York'})
-          CREATE (:Person {name: 'B', bornIn: 'Ohio'})
-          CREATE (:Person {name: 'C', bornIn: 'New Jersey'})
-          CREATE (:Person {name: 'D', bornIn: 'New York'})
-          CREATE (:Person {name: 'E', bornIn: 'Ohio'})
-          CREATE (:Person {name: 'F', bornIn: 'New Jersey'})
-          """
-    When executing query: MATCH (person:Person) MERGE (city: City {name: person.bornIn})
+      """
+      CREATE INDEX ON :City(name)
+      """
+    And having executed:
+      """
+      CREATE (:Person {name: 'A', bornIn: 'New York'})
+      CREATE (:Person {name: 'B', bornIn: 'Ohio'})
+      CREATE (:Person {name: 'C', bornIn: 'New Jersey'})
+      CREATE (:Person {name: 'D', bornIn: 'New York'})
+      CREATE (:Person {name: 'E', bornIn: 'Ohio'})
+      CREATE (:Person {name: 'F', bornIn: 'New Jersey'})
+      """
+    When executing query:
+      """
+      MATCH (person:Person)
+      MERGE (city:City {name: person.bornIn})
+      """
     Then the result should be empty
     And the side effects should be:
       | +nodes      | 3 |
@@ -433,8 +764,18 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should be able to use properties from match in ON CREATE
     Given an empty graph
-    And having executed: CREATE (:Person {bornIn: 'New York'}), (:Person {bornIn: 'Ohio'})
-    When executing query: MATCH (person:Person) MERGE (city: City) ON CREATE SET city.name = person.bornIn RETURN person.bornIn
+    And having executed:
+      """
+      CREATE (:Person {bornIn: 'New York'}),
+        (:Person {bornIn: 'Ohio'})
+      """
+    When executing query:
+      """
+      MATCH (person:Person)
+      MERGE (city:City)
+        ON CREATE SET city.name = person.bornIn
+      RETURN person.bornIn
+      """
     Then the result should be:
       | person.bornIn |
       | 'New York'    |
@@ -446,8 +787,18 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should be able to use properties from match in ON MATCH
     Given an empty graph
-    And having executed: CREATE (:Person {bornIn: 'New York'}), (:Person {bornIn: 'Ohio'})
-    When executing query: MATCH (person:Person) MERGE (city: City) ON MATCH SET city.name = person.bornIn RETURN person.bornIn
+    And having executed:
+      """
+      CREATE (:Person {bornIn: 'New York'}),
+        (:Person {bornIn: 'Ohio'})
+      """
+    When executing query:
+      """
+      MATCH (person:Person)
+      MERGE (city:City)
+        ON MATCH SET city.name = person.bornIn
+      RETURN person.bornIn
+      """
     Then the result should be:
       | person.bornIn |
       | 'New York'    |
@@ -459,11 +810,15 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should be able to use properties from match in ON MATCH and ON CREATE
     Given an empty graph
-    And having executed: CREATE (:Person {bornIn: 'New York'}), (:Person {bornIn: 'Ohio'})
+    And having executed:
+      """
+      CREATE (:Person {bornIn: 'New York'}),
+        (:Person {bornIn: 'Ohio'})
+      """
     When executing query:
         """
         MATCH (person:Person)
-        MERGE (city: City)
+        MERGE (city:City)
           ON MATCH SET city.name = person.bornIn
           ON CREATE SET city.name = person.bornIn
         RETURN person.bornIn
@@ -479,16 +834,32 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should be able to set labels on match
     Given an empty graph
-    And having executed: CREATE ()
-    When executing query: MERGE (a) ON MATCH SET a:L
+    And having executed:
+      """
+      CREATE ()
+      """
+    When executing query:
+      """
+      MERGE (a)
+        ON MATCH SET a:L
+      """
     Then the result should be empty
     And the side effects should be:
       | +labels | 1 |
 
   Scenario: Should be able to set labels on match and on create
     Given an empty graph
-    And having executed: CREATE (), ()
-    When executing query: MATCH () MERGE (a:L) ON MATCH SET a:M1 ON CREATE SET a:M2
+    And having executed:
+      """
+      CREATE (), ()
+      """
+    When executing query:
+      """
+      MATCH ()
+      MERGE (a:L)
+        ON MATCH SET a:M1
+        ON CREATE SET a:M2
+      """
     Then the result should be empty
     And the side effects should be:
       | +nodes  | 1 |
@@ -496,7 +867,12 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should support updates while merging
     Given an empty graph
-    And having executed: UNWIND [0, 1, 2] AS x UNWIND [0, 1, 2] AS y CREATE ({x: x, y: y})
+    And having executed:
+      """
+      UNWIND [0, 1, 2] AS x
+      UNWIND [0, 1, 2] AS y
+      CREATE ({x: x, y: y})
+      """
     When executing query:
       """
       MATCH (foo)
@@ -524,7 +900,12 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge inside foreach should see variables introduced by update actions outside foreach
     Given an empty graph
-    When executing query: CREATE (a {name: 'Start'}) FOREACH(x IN [1,2,3] | MERGE (a)-[:X]->({id: x})) RETURN a.name
+    When executing query:
+      """
+      CREATE (a {name: 'Start'})
+      FOREACH(x IN [1, 2, 3] | MERGE (a)-[:X]->({id: x}))
+      RETURN a.name
+      """
     Then the result should be:
       | a.name  |
       | 'Start' |
@@ -535,8 +916,15 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge must properly handle multiple labels
     Given an empty graph
-    And having executed: CREATE (:L:A {prop: 42})
-    When executing query: MERGE (test:L:B {prop : 42}) RETURN labels(test) AS labels
+    And having executed:
+      """
+      CREATE (:L:A {prop: 42})
+      """
+    When executing query:
+      """
+      MERGE (test:L:B {prop: 42})
+      RETURN labels(test) AS labels
+      """
     Then the result should be:
       | labels     |
       | ['L', 'B'] |
@@ -547,9 +935,19 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge with an index must properly handle multiple labels
     Given an empty graph
-    And having executed: CREATE INDEX ON :L(prop)
-    And having executed: CREATE (:L:A {prop: 42})
-    When executing query: MERGE (test:L:B {prop : 42}) RETURN labels(test) AS labels
+    And having executed:
+      """
+      CREATE INDEX ON :L(prop)
+      """
+    And having executed:
+      """
+      CREATE (:L:A {prop: 42})
+      """
+    When executing query:
+      """
+      MERGE (test:L:B {prop: 42})
+      RETURN labels(test) AS labels
+      """
     Then the result should be:
       | labels     |
       | ['L', 'B'] |
@@ -577,7 +975,7 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     When executing query:
       """
-      UNWIND [1,2,3,4] AS int
+      UNWIND [1, 2, 3, 4] AS int
       MERGE (n {id: int})
       RETURN count(*)
       """
@@ -590,7 +988,11 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merges should not be able to match on deleted nodes
     Given an empty graph
-    And having executed: CREATE (:A {value: 1}), (:A {value: 2})
+    And having executed:
+      """
+      CREATE (:A {value: 1}),
+        (:A {value: 2})
+      """
     When executing query:
       """
       MATCH (a:A)

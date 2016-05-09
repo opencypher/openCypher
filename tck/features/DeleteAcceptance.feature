@@ -19,7 +19,10 @@ Feature: DeleteAcceptance
 
   Scenario: Delete nodes
     Given an empty graph
-    And having executed: CREATE ()
+    And having executed:
+      """
+      CREATE ()
+      """
     When executing query:
       """
       MATCH (n)
@@ -31,7 +34,10 @@ Feature: DeleteAcceptance
 
   Scenario: Detach delete node
     Given an empty graph
-    And having executed: CREATE ()
+    And having executed:
+      """
+      CREATE ()
+      """
     When executing query:
       """
       MATCH (n)
@@ -45,7 +51,7 @@ Feature: DeleteAcceptance
     Given an empty graph
     And having executed:
       """
-      UNWIND range(0,2) AS i
+      UNWIND range(0, 2) AS i
       CREATE ()-[:R]->()
       """
     When executing query:
@@ -103,7 +109,7 @@ Feature: DeleteAcceptance
       """
     When executing query:
       """
-      MATCH p=(:X)-->()-->()-->()
+      MATCH p = (:X)-->()-->()-->()
       DETACH DELETE p
       """
     Then the result should be empty
@@ -363,7 +369,7 @@ Feature: DeleteAcceptance
       """
     When executing query:
       """
-      MATCH p=(:User)-[r]->(:User)
+      MATCH p = (:User)-[r]->(:User)
       WITH {key: collect(p)} AS pathColls
       DELETE pathColls.key[0], pathColls.key[1]
       """

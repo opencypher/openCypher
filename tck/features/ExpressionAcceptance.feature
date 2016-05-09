@@ -21,22 +21,36 @@ Feature: ExpressionAcceptance
     Given any graph
 
   Scenario: Execute n[0]
-    When executing query: RETURN [1, 2, 3][0] AS value
+    When executing query:
+      """
+      RETURN [1, 2, 3][0] AS value
+      """
     Then the result should be:
       | value |
       | 1     |
     And no side effects
 
   Scenario: Execute n['name'] in read queries
-    And having executed: CREATE ({name: 'Apa'})
-    When executing query: MATCH (n {name: 'Apa'}) RETURN n['nam' + 'e'] AS value
+    And having executed:
+      """
+      CREATE ({name: 'Apa'})
+      """
+    When executing query:
+      """
+      MATCH (n {name: 'Apa'})
+      RETURN n['nam' + 'e'] AS value
+      """
     Then the result should be:
       | value |
       | 'Apa' |
     And no side effects
 
   Scenario: Execute n['name'] in update queries
-    When executing query: CREATE (n {name: 'Apa'}) RETURN n['nam' + 'e'] AS value
+    When executing query:
+      """
+      CREATE (n {name: 'Apa'})
+      RETURN n['nam' + 'e'] AS value
+      """
     Then the result should be:
       | value |
       | 'Apa' |
@@ -48,7 +62,11 @@ Feature: ExpressionAcceptance
     And parameters are:
       | expr | {name: 'Apa'} |
       | idx  | 'name'        |
-    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx] AS value
+    When executing query:
+      """
+      WITH {expr} AS expr, {idx} AS idx
+      RETURN expr[idx] AS value
+      """
     Then the result should be:
       | value |
       | 'Apa' |
@@ -57,7 +75,11 @@ Feature: ExpressionAcceptance
   Scenario: Use dynamic property lookup based on parameters when there is lhs type information
     And parameters are:
       | idx | 'name' |
-    When executing query: CREATE (n {name: 'Apa'}) RETURN n[{idx}] AS value
+    When executing query:
+      """
+      CREATE (n {name: 'Apa'})
+      RETURN n[{idx}] AS value
+      """
     Then the result should be:
       | value |
       | 'Apa' |
@@ -69,7 +91,11 @@ Feature: ExpressionAcceptance
     And parameters are:
       | expr | {name: 'Apa'} |
       | idx  | 'name'        |
-    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[toString(idx)] AS value
+    When executing query:
+      """
+      WITH {expr} AS expr, {idx} AS idx
+      RETURN expr[toString(idx)] AS value
+      """
     Then the result should be:
       | value |
       | 'Apa' |
@@ -79,7 +105,11 @@ Feature: ExpressionAcceptance
     And parameters are:
       | expr | ['Apa'] |
       | idx  | 0       |
-    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx] AS value
+    When executing query:
+      """
+      WITH {expr} AS expr, {idx} AS idx
+      RETURN expr[idx] AS value
+      """
     Then the result should be:
       | value |
       | 'Apa' |
@@ -88,7 +118,11 @@ Feature: ExpressionAcceptance
   Scenario: Use collection lookup based on parameters when there is lhs type information
     And parameters are:
       | idx | 0 |
-    When executing query: WITH ['Apa'] AS expr RETURN expr[{idx}] AS value
+    When executing query:
+      """
+      WITH ['Apa'] AS expr
+      RETURN expr[{idx}] AS value
+      """
     Then the result should be:
       | value |
       | 'Apa' |
@@ -98,7 +132,11 @@ Feature: ExpressionAcceptance
     And parameters are:
       | expr | ['Apa'] |
       | idx  | 0       |
-    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[toInt(idx)] AS value
+    When executing query:
+      """
+      WITH {expr} AS expr, {idx} AS idx
+      RETURN expr[toInt(idx)] AS value
+      """
     Then the result should be:
       | value |
       | 'Apa' |
@@ -108,33 +146,53 @@ Feature: ExpressionAcceptance
     And parameters are:
       | expr | {name: 'Apa'} |
       | idx  | 0             |
-    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    When executing query:
+      """
+      WITH {expr} AS expr, {idx} AS idx
+      RETURN expr[idx]
+      """
     Then a TypeError should be raised at runtime: MapElementAccessByNonString
 
   Scenario: Fail at runtime when trying to index into a map with a non-string
     And parameters are:
       | expr | {name: 'Apa'} |
       | idx  | 12.3          |
-    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    When executing query:
+      """
+      WITH {expr} AS expr, {idx} AS idx
+      RETURN expr[idx]
+      """
     Then a TypeError should be raised at runtime: MapElementAccessByNonString
 
   Scenario: Fail at runtime when attempting to index with a String into a Collection
     And parameters are:
       | expr | ['Apa'] |
       | idx  | 'name'  |
-    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    When executing query:
+      """
+      WITH {expr} AS expr, {idx} AS idx
+      RETURN expr[idx]
+      """
     Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
 
   Scenario: Fail at runtime when trying to index into a list with a list
     And parameters are:
       | expr | ['Apa'] |
       | idx  | ['Apa'] |
-    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    When executing query:
+      """
+      WITH {expr} AS expr, {idx} AS idx
+      RETURN expr[idx]
+      """
     Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
 
   Scenario: Fail at runtime when trying to index something which is not a map or collection
     And parameters are:
       | expr | 100 |
       | idx  | 0   |
-    When executing query: WITH {expr} AS expr, {idx} AS idx RETURN expr[idx]
+    When executing query:
+      """
+      WITH {expr} AS expr, {idx} AS idx
+      RETURN expr[idx]
+      """
     Then a TypeError should be raised at runtime: InvalidElementAccess
