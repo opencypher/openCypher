@@ -42,8 +42,6 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
 
   And(INIT_QUERY) { (query: String) => initStep(query) }
 
-  And(INIT_LONG_QUERY) { (query: String) => initStep(query) }
-
   private def initStep(query: String) =
     validateCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
 
@@ -52,8 +50,6 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   }
 
   When(EXECUTING_QUERY) { (query: String) => whenStep(query)}
-
-  When(EXECUTING_LONG_QUERY) { (query: String) => whenStep(query)}
 
   private def whenStep(query: String) = {
     validateCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
