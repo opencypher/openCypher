@@ -48,4 +48,24 @@ class validateCodeStyleTest extends TckTestSupport {
     validateCodeStyle("MATCH ()-[:T]-()") shouldBe None
   }
 
+  test("should request space after comma") {
+    validateCodeStyle("WITH [1,2,3] AS list RETURN list,list") shouldBe
+      Some("""A query did not follow style requirements:
+             |WITH [1,2,3] AS list RETURN list,list
+             |
+             |Prettified version:
+             |WITH [1, 2, 3] AS list RETURN list, list""".stripMargin)
+  }
+
+  test("should accept space after comma when present") {
+    validateCodeStyle("WITH [1, 2, 3] AS list RETURN list, list") shouldBe None
+  }
+
+  test("should not request space after comma when line breaks") {
+    validateCodeStyle("""MATCH (a),
+                        |(b)
+                        |RETURN 1
+                      """.stripMargin) shouldBe None
+  }
+
 }

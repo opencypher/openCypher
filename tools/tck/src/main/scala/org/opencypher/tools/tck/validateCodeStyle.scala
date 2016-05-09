@@ -30,7 +30,9 @@ object validateCodeStyle extends (String => Option[String]) {
     val lowerCased2 = lowerCased.foldLeft(prettified1) {
       case (q, word) => q.replaceAll(s"(?i)(^|[^a-zA-Z])$word ", s"$$1$word ")
     }
-    val spaceAfterColon = lowerCased2.replaceAll(":([^A-Z ])", ": $1")
+    val spaceAfterComma = lowerCased2.replaceAll(",([^ \\n])", ", $1")
+
+    val spaceAfterColon = spaceAfterComma.replaceAll(":([^A-Z ])", ": $1")
 
     if (spaceAfterColon != query)
       Some( s"""A query did not follow style requirements:
