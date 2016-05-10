@@ -30,7 +30,10 @@ object validateCodeStyle extends (String => Option[String]) {
     val lowerCased2 = lowerCased.foldLeft(prettified1) {
       case (q, word) => q.replaceAll(s"(?i)(^|[^a-zA-Z])$word ", s"$$1$word ")
     }
-    val spaceAfterComma = lowerCased2.replaceAll(",([^ \\n])", ", $1")
+
+    val onlySingleQuotes = lowerCased2.replaceAll("\"(.+)\"", "'$1'")
+
+    val spaceAfterComma = onlySingleQuotes.replaceAll(",([^ \\n])", ", $1")
 
     val spaceAfterColon = spaceAfterComma.replaceAll(":([^A-Z ])", ": $1")
 

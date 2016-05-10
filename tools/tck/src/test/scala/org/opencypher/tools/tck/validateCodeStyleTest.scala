@@ -19,53 +19,58 @@ package org.opencypher.tools.tck
 class validateCodeStyleTest extends TckTestSupport {
 
   test("should throw on bad styling") {
-    validateCodeStyle("match (n) return n") shouldBe
-      Some("""A query did not follow style requirements:
-             |match (n) return n
-             |
-             |Prettified version:
-             |MATCH (n) RETURN n""".stripMargin)
+    assertIncorrect("match (n) return n", "MATCH (n) RETURN n")
   }
 
   test("should accept good styling") {
-    validateCodeStyle("MATCH (n) RETURN n") shouldBe None
+    assertCorrect("MATCH (n) RETURN n")
   }
 
   test("should request space after colon") {
-    validateCodeStyle("MATCH (n {name:'test'})") shouldBe
-      Some("""A query did not follow style requirements:
-             |MATCH (n {name:'test'})
-             |
-             |Prettified version:
-             |MATCH (n {name: 'test'})""".stripMargin)
+    assertIncorrect("MATCH (n {name:'test'})", "MATCH (n {name: 'test'})")
   }
 
   test("should not request space after colon if it's a label") {
-    validateCodeStyle("MATCH (n:Label)") shouldBe None
+    assertCorrect("MATCH (n:Label)")
   }
 
   test("should not request space after colon if it's a relationship type") {
-    validateCodeStyle("MATCH ()-[:T]-()") shouldBe None
+    assertCorrect("MATCH ()-[:T]-()")
   }
 
   test("should request space after comma") {
-    validateCodeStyle("WITH [1,2,3] AS list RETURN list,list") shouldBe
-      Some("""A query did not follow style requirements:
-             |WITH [1,2,3] AS list RETURN list,list
-             |
-             |Prettified version:
-             |WITH [1, 2, 3] AS list RETURN list, list""".stripMargin)
+    assertIncorrect("WITH [1,2,3] AS list RETURN list,list", "WITH [1, 2, 3] AS list RETURN list, list")
   }
 
   test("should accept space after comma when present") {
-    validateCodeStyle("WITH [1, 2, 3] AS list RETURN list, list") shouldBe None
+    assertCorrect("WITH [1, 2, 3] AS list RETURN list, list")
   }
 
   test("should not request space after comma when line breaks") {
-    validateCodeStyle("""MATCH (a),
-                        |(b)
-                        |RETURN 1
-                      """.stripMargin) shouldBe None
+    assertCorrect("""MATCH (a),
+                    |(b)
+                    |RETURN 1
+                    """.stripMargin)
   }
 
+  test("should not allow single quotes in strings") {
+    assertIncorrect("WITH \"string\" AS string", "WITH 'string' AS string")
+  }
+
+  private def assertCorrect(query: String) = {
+    withClue("Query did not adhere to the style rules:\n") {
+      validateCodeStyle(query) shouldBe None
+    }
+  }
+
+  private def assertIncorrect(original: String, prettified: String) = {
+    withClue("Query wasn't prettified correctly:\n") {
+      validateCodeStyle(original) shouldBe
+        Some(s"""A query did not follow style requirements:
+                |$original
+                |
+                |Prettified version:
+                |$prettified""".stripMargin)
+    }
+  }
 }
