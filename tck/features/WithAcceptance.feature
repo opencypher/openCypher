@@ -21,11 +21,12 @@ Feature: WithAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A)-[:REL]->(b:B)
+      CREATE (:A)-[:REL]->(:B)
       """
     When executing query:
       """
-      MATCH (a:A) WITH a
+      MATCH (a:A)
+      WITH a
       MATCH (a)-->(b)
       RETURN *
       """
@@ -38,7 +39,8 @@ Feature: WithAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A)-[:REL]->(), (b), (c)
+      CREATE (a:A), (), (), (),
+             (a)-[:REL]->()
       """
     When executing query:
       """
@@ -58,7 +60,7 @@ Feature: WithAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A), (b:B)
+      CREATE (:A), (:B)
       """
     When executing query:
       """
@@ -79,9 +81,9 @@ Feature: WithAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a:Begin {prop: 42}),
-        (b:End {prop: 42}),
-        (c:End {prop: 3})
+      CREATE (:Begin {prop: 42}),
+             (:End {prop: 42}),
+             (:End {prop: 3})
       """
     When executing query:
       """
@@ -101,8 +103,8 @@ Feature: WithAcceptance
     And having executed:
       """
       CREATE (a:End {prop: 42}),
-        (b:End {prop: 3}),
-        (c:Begin {prop: id(a)})
+             (:End {prop: 3}),
+             (:Begin {prop: id(a)})
       """
     When executing query:
       """
@@ -123,8 +125,8 @@ Feature: WithAcceptance
     And having executed:
       """
       CREATE (a {prop: 'A', id: 0}),
-          (b {prop: 'B', id: id(a)}),
-          (c {prop: 'C', id: 0})
+             ({prop: 'B', id: id(a)}),
+             ({prop: 'C', id: 0})
       """
     When executing query:
       """
@@ -145,9 +147,9 @@ Feature: WithAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a {name: 'A'}),
-        (b {name: 'B'}),
-        (c {name: 'C'})
+      CREATE ({name: 'A'}),
+             ({name: 'B'}),
+             ({name: 'C'})
       """
     When executing query:
       """
@@ -166,11 +168,11 @@ Feature: WithAcceptance
     And having executed:
       """
       CREATE (a {name: 'A'}),
-        (b {name: 'B'})
-      CREATE (a)-[:REL]->()
-      CREATE (a)-[:REL]->()
-      CREATE (a)-[:REL]->()
-      CREATE (b)-[:REL]->()
+             (b {name: 'B'})
+      CREATE (a)-[:REL]->(),
+             (a)-[:REL]->(),
+             (a)-[:REL]->(),
+             (b)-[:REL]->()
       """
     When executing query:
       """
@@ -188,9 +190,9 @@ Feature: WithAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a1 {bar: 'A'}),
-        (a2 {bar: 'A'}),
-        (b {bar: 'B'})
+      CREATE ({bar: 'A'}),
+             ({bar: 'A'}),
+             ({bar: 'B'})
       """
     When executing query:
       """
@@ -209,9 +211,9 @@ Feature: WithAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a1 {bar: 'A'}),
-        (a2 {bar: 'A'}),
-        (b {bar: 'B'})
+      CREATE ({bar: 'A'}),
+             ({bar: 'A'}),
+             ({bar: 'B'})
       """
     When executing query:
       """
@@ -230,9 +232,9 @@ Feature: WithAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a1 {bar: 'A'}),
-        (a2 {bar: 'A'}),
-        (b {bar: 'B'})
+      CREATE ({bar: 'A'}),
+             ({bar: 'A'}),
+             ({bar: 'B'})
       """
     When executing query:
       """
@@ -250,7 +252,7 @@ Feature: WithAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A)-[:REL]->(b:B)
+      CREATE (:A)-[:REL]->(:B)
       """
     When executing query:
       """
@@ -295,8 +297,8 @@ Feature: WithAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A)-[:REL]->(x:X)
-      CREATE (b:B)
+      CREATE (:A)-[:REL]->(:X)
+      CREATE (:B)
       """
     When executing query:
       """
@@ -315,7 +317,7 @@ Feature: WithAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a {prop: 43}), (b {prop: 42})
+      CREATE ({prop: 43}), ({prop: 42})
       """
     When executing query:
       """
@@ -334,17 +336,17 @@ Feature: WithAcceptance
     And having executed:
       """
       CREATE (a {name: 'David'}),
-        (b {name: 'Other'}),
-        (c {name: 'NotOther'}),
-        (d {name: 'NotOther2'}),
-        (a)-[:REL]->(b),
-        (a)-[:REL]->(c),
-        (a)-[:REL]->(d),
-        (b)-[:REL]->(),
-        (b)-[:REL]->(),
-        (c)-[:REL]->(),
-        (c)-[:REL]->(),
-        (d)-[:REL]->()
+             (b {name: 'Other'}),
+             (c {name: 'NotOther'}),
+             (d {name: 'NotOther2'}),
+             (a)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (a)-[:REL]->(d),
+             (b)-[:REL]->(),
+             (b)-[:REL]->(),
+             (c)-[:REL]->(),
+             (c)-[:REL]->(),
+             (d)-[:REL]->()
       """
     When executing query:
       """
