@@ -223,6 +223,23 @@ RETURN 'Cypher\'s a nice language', "Mats' quote: \"statement\""
 ----
 RETURN "Cypher's a nice language", 'Mats\' quote: "statement"'
 ----
+
+. Write the value `null` in lower case.
++
+.Bad
+[source, cypher]
+----
+WITH NULL AS n1, Null as n2
+RETURN n1 IS NULL && n2 IS NOT NULL
+----
++
+.Good
+[source, cypher]
+----
+WITH null AS n1, null as n2
+RETURN n1 IS NULL && n2 IS NOT NULL
+----
+
 . *Spacing*
 .. For literal maps:
 ... No space between the opening brace and the first key
