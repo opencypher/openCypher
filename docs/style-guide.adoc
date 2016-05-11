@@ -181,6 +181,22 @@ WITH rand() AS rand, {param} AS map
 RETURN rand, map.propertyKey, count(n)
 ----
 
+. Write boolean literals in lower case.
++
+.Bad
+[source, cypher]
+----
+WITH TRUE AS b1, False AS b2
+RETURN b1 && b2
+----
++
+.Good
+[source, cypher]
+----
+WITH true AS b1, false AS b2
+RETURN b1 && b2
+----
+
 . Use single quotes (Unicode character U+0027: ') for literal string values.
 +
 .Bad
