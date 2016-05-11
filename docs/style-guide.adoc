@@ -25,10 +25,10 @@ Then compare it to this classical piece by Mark Needham:
 [source, cypher]
 ----
 MATCH (member:Member {name: 'Mark Needham'})
-      -[:HAS_MEMBERSHIP]->()-[:OF_GROUP]->(group:Group)-[:HAS_TOPIC]->(topic)
+      -[:HAS_MEMBERSHIP]->()-[:OF_GROUP]->(:Group)-[:HAS_TOPIC]->(topic)
 WITH member, topic, count(*) AS score
-MATCH (topic)<-[:HAS_TOPIC]-(otherGroup)
-WHERE NOT (member)-[:HAS_MEMBERSHIP]->(:Membership)-[:OF_GROUP]->(otherGroup:Group)
+MATCH (topic)<-[:HAS_TOPIC]-(otherGroup:Group)
+WHERE NOT (member)-[:HAS_MEMBERSHIP]->(:Membership)-[:OF_GROUP]->(otherGroup)
 RETURN otherGroup.name, collect(topic.name), sum(score) AS score
 ORDER BY score DESC
 ----
@@ -148,14 +148,14 @@ RETURN e.name
 .Bad
 [source, cypher]
 ----
-MATCH (person:Person)-[own:owns-vehicle]->(car:Car)
+MATCH (:Person)-[own:owns-vehicle]->(:Car)
 RETURN own.since
 ----
 +
 .Good
 [source, cypher]
 ----
-MATCH (person:Person)-[own:OWNS_VEHICLE]->(car:Car)
+MATCH (:Person)-[own:OWNS_VEHICLE]->(:Car)
 RETURN own.since
 ----
 
@@ -170,7 +170,7 @@ RETURN own.since
 ----
 CREATE (N {Prop: 0})
 WITH RAND() AS Rand, {param} AS MAP
-RETURN Rand, MAP.property_key
+RETURN Rand, MAP.property_key, Count(N)
 ----
 +
 .Good
@@ -178,7 +178,7 @@ RETURN Rand, MAP.property_key
 ----
 CREATE (n {prop: 0})
 WITH rand() AS rand, {param} AS map
-RETURN rand, map.propertyKey
+RETURN rand, map.propertyKey, count(n)
 ----
 
 . Use single quotes (Unicode character U+0027: ') for literal string values.
@@ -238,12 +238,14 @@ RETURN {param}
 [source, cypher]
 ----
 MATCH (p:Person{property: -1})-[:KNOWS   {since: 2016}]->()
+RETURN p.name
 ----
 +
 .Good
 [source, cypher]
 ----
 MATCH (p:Person {property: -1})-[:KNOWS {since: 2016}]->()
+RETURN p.name
 ----
 
 .. No space in patterns.
@@ -251,14 +253,14 @@ MATCH (p:Person {property: -1})-[:KNOWS {since: 2016}]->()
 .Bad
 [source, cypher]
 ----
-MATCH (person) --> (vehicle)
+MATCH (:Person) --> (:Vehicle)
 RETURN count(*)
 ----
 +
 .Good
 [source, cypher]
 ----
-MATCH (person)-->(vehicle)
+MATCH (:Person)-->(:Vehicle)
 RETURN count(*)
 ----
 
@@ -301,7 +303,7 @@ RETURN person.name
 .Bad
 [source, cypher]
 ----
-MATCH (a),(b)
+MATCH (),()
 WITH ['a','b',3.14] AS list
 RETURN list,2,3,4
 ----
@@ -309,7 +311,7 @@ RETURN list,2,3,4
 .Good
 [source, cypher]
 ----
-MATCH (a), (b)
+MATCH (), ()
 WITH ['a', 'b', 3.14] AS list
 RETURN list, 2, 3, 4
 ----
@@ -319,16 +321,16 @@ RETURN list, 2, 3, 4
 .Bad
 [source, cypher]
 ----
-MATCH (person)-->(vehicle)-->(manufacturer)
-      <--(country)
+MATCH (:Person)-->(vehicle:Car)-->(:Company)
+      <--(:Country)
 RETURN count(vehicle)
 ----
 +
 .Good
 [source, cypher]
 ----
-MATCH (person)-->(vehicle)-->(manufacturer)<--
-      (country)
+MATCH (:Person)-->(vehicle:Car)-->(:Company)<--
+      (:Country)
 RETURN count(vehicle)
 ----
 
@@ -339,14 +341,14 @@ RETURN count(vehicle)
 [source, cypher]
 ----
 MATCH person-->vehicle
-RETURN count(*)
+RETURN person, vehicle
 ----
 +
 .Good
 [source, cypher]
 ----
 MATCH (person)-->(vehicle)
-RETURN count(*)
+RETURN person, vehicle
 ----
 
 . Avoid having to use back-ticks to escape characters and keywords.
@@ -366,19 +368,37 @@ RETURN labels(node)
 ----
 
 . *Patterns*:
+.. Leave nodes and relationships anonymous when the variable would not be used.
++
+.Bad
+[source, cypher]
+----
+CREATE (a:End {prop: 42}),
+       (b:End {prop: 3}),
+       (c:Begin {prop: id(a)})
+----
++
+.Good
+[source, cypher]
+----
+CREATE (a:End {prop: 42}),
+       (:End {prop: 3}),
+       (:Begin {prop: id(a)})
+----
+
 .. Chain patterns together to avoid repeating variables.
 +
 .Bad
 [source, cypher]
 ----
-MATCH (person)-->(vehicle), (vehicle)-->(manufacturer)
+MATCH (:Person)-->(vehicle:Car), (vehicle:Car)-->(:Company)
 RETURN count(vehicle)
 ----
 +
 .Good
 [source, cypher]
 ----
-MATCH (person)-->(vehicle)-->(manufacturer)
+MATCH (:Person)-->(vehicle:Car)-->(:Company)
 RETURN count(vehicle)
 ----
 
