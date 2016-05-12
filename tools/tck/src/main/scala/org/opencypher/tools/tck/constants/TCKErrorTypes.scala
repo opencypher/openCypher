@@ -50,6 +50,7 @@ object TCKErrorDetails {
   val NESTED_AGGREGATION = "NestedAggregation"
   val NEGATIVE_INTEGER_ARGUMENT = "NegativeIntegerArgument"
   val DELETE_CONNECTED_NODE = "DeleteConnectedNode"
+  val INCOMPARABLE_VALUES = "IncomparableValues"
 
   val ALL = Set(INVALID_ELEMENT_ACCESS,
                 MAP_ELEMENT_ACCESS_BY_NON_STRING,
@@ -57,6 +58,7 @@ object TCKErrorDetails {
                 CREATE_BLOCKED_BY_CONSTRAINT,
                 NESTED_AGGREGATION,
                 NEGATIVE_INTEGER_ARGUMENT,
-                DELETE_CONNECTED_NODE)
+                DELETE_CONNECTED_NODE,
+                INCOMPARABLE_VALUES)
 
 }
