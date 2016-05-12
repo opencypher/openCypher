@@ -96,6 +96,11 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
     stepValidator.reportStep("Side-effects")
   }
 
+  When(EXECUTING_CONTROL_QUERY) { (query: String) =>
+    validateCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
+    stepValidator.reportStep("Control-query")
+  }
+
   After(_ => stepValidator.checkRequiredSteps())
 
 }
@@ -108,6 +113,7 @@ class ScenarioFormatValidator {
   private var hadResults = false
   private var hadError = false
   private var hadSideEffects = false
+  private var hadControlQuery = false
 
   def reportStep(step: String) = step match {
     case "Given" =>
@@ -117,7 +123,7 @@ class ScenarioFormatValidator {
       if (hadQuery) error("Extra `When executing query` steps specified! Only one is allowed.")
       else hadQuery = true
     case "Results" =>
-      if (hadResults) error("Extra `Then expect results` steps specified! Only one is allowed.")
+      if (hadResults && !hadControlQuery) error("Extra `Then expect results` steps specified! Only one is allowed.")
       else if (hadError) error("Both results and error expectations found; they are mutually exclusive.")
       else hadResults = true
     case "Error" =>
@@ -127,6 +133,7 @@ class ScenarioFormatValidator {
     case "Side-effects" =>
       if (hadSideEffects) error("Extra `And side effects` steps specified! Only one is allowed.")
       else hadSideEffects = true
+    case "Control-query" => hadControlQuery = true
 
     case _ => throw new IllegalArgumentException("Unknown step identifier. Valid identifiers are Given, Query, Results, Error, Side-effects.")
   }
@@ -140,6 +147,7 @@ class ScenarioFormatValidator {
     hadResults = false
     hadError = false
     hadSideEffects = false
+    hadControlQuery = false
   }
 
   private def error(msg: String) = {
