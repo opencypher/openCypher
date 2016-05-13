@@ -77,9 +77,9 @@
   <production name="NodePattern">
     ( &WS;
     <opt>&var; &WS;</opt>
-    <opt><non-terminal ref="NodeLabels"/></opt>
-    <opt><non-terminal ref="Properties"/></opt>
-    &WS; )
+    <opt><non-terminal ref="NodeLabels"/> &WS;</opt>
+    <opt><non-terminal ref="Properties"/> &WS;</opt>
+    )
   </production>
 
   <production name="PatternElementChain" rr:inline="true">
@@ -91,26 +91,26 @@
   <production name="RelationshipPattern">
     <alt>
       <seq>
-        &WS; <non-terminal ref="LeftArrowHead" rr:title="&lt;"/>
+        <non-terminal ref="LeftArrowHead" rr:title="&lt;"/>
         &WS; <non-terminal ref="Dash" rr:title="-"/>
         &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
         &WS; <non-terminal ref="Dash" rr:title="-"/>
         &WS; <non-terminal ref="RightArrowHead" rr:title="&gt;"/>
       </seq>
       <seq>
-        &WS; <non-terminal ref="LeftArrowHead" rr:title="&lt;"/>
+        <non-terminal ref="LeftArrowHead" rr:title="&lt;"/>
         &WS; <non-terminal ref="Dash" rr:title="-"/>
         &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
         &WS; <non-terminal ref="Dash" rr:title="-"/>
       </seq>
       <seq>
-        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        <non-terminal ref="Dash" rr:title="-"/>
         &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
         &WS; <non-terminal ref="Dash" rr:title="-"/>
         &WS; <non-terminal ref="RightArrowHead" rr:title="&gt;"/>
       </seq>
       <seq>
-        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        <non-terminal ref="Dash" rr:title="-"/>
         &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
         &WS; <non-terminal ref="Dash" rr:title="-"/>
       </seq>

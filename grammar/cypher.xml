@@ -126,9 +126,8 @@
   <production name="Match" scope:rule="new">
     <opt>OPTIONAL &SP;</opt>MATCH &WS;
     <non-terminal ref="Pattern"/>
-    &WS;
-    <repeat><non-terminal ref="Hint"/></repeat>
-    <opt><non-terminal ref="Where"/></opt>
+    <repeat>&WS; <non-terminal ref="Hint"/></repeat>
+    <opt>&WS; <non-terminal ref="Where"/></opt>
   </production>
 
   <production name="Unwind">
