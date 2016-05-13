@@ -208,7 +208,10 @@ Feature: ComparisonOperatorAcceptance
 
   Scenario: Handling numerical literal on the left when using an index
     Given an empty graph
-    And having executed: CREATE INDEX ON :Product(unitsInStock)
+    And having executed:
+      """
+      CREATE INDEX ON :Product(unitsInStock)
+      """
     And having executed:
       """
       CREATE (:Product {unitsInStock: 8})
@@ -227,7 +230,10 @@ Feature: ComparisonOperatorAcceptance
 
   Scenario: Handling numerical literal on the right when using an index
     Given an empty graph
-    And having executed: CREATE INDEX ON :Product(unitsInStock)
+    And having executed:
+      """
+      CREATE INDEX ON :Product(unitsInStock)
+      """
     And having executed:
       """
       CREATE (:Product {unitsInStock: 8})
