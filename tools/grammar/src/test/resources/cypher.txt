@@ -1,0 +1,11 @@
+CREATE ()§
+CYPHER 3.0 MATCH (n) RETURN n§
+CREATE (n:Person { name : 'Andres', title : 'Developer' })§
+MATCH (node1:Label1)
+
+WHERE node1.propertyA = {value}
+
+RETURN node2.propertyA, node2.propertyB§
+MATCH (tom:Person)-[:ACTED_IN]->(tomHanksMovies) RETURN tom§
+MATCH (tom:Person)  -[:ACTED_IN]->(tomHanksMovies) RETURN tom§
+MATCH (tom:Person  )-[:ACTED_IN]->(tomHanksMovies) RETURN tom§
