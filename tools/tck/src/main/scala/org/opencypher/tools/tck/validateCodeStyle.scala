@@ -33,7 +33,9 @@ object validateCodeStyle extends (String => Option[String]) {
 
     val onlySingleQuotes = lowerCased2.replaceAll("\"(.+)\"", "'$1'")
 
-    val spaceAfterComma = onlySingleQuotes.replaceAll(",([^ \\n])", ", $1")
+    val spaceAfterComma = if (onlySingleQuotes.contains("'")) {
+      onlySingleQuotes // it's difficult to find out whether the comma is in a string or not... just avoid this case
+    } else onlySingleQuotes.replaceAll(",([^ \\n])", ", $1")
 
     val spaceAfterColon = spaceAfterComma.replaceAll(":([^A-Z ])", ": $1")
 

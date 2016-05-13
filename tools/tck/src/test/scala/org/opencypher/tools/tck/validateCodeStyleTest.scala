@@ -53,6 +53,14 @@ class validateCodeStyleTest extends TckTestSupport {
                     """.stripMargin)
   }
 
+  test("should not request space after comma when inside a string") {
+    assertCorrect("WITH ',' AS string RETURN string")
+  }
+
+  ignore("should request space after comma also when a string is present in the query") {
+    assertIncorrect("WITH '' AS string RETURN string,string", "WITH '' AS string RETURN string, string")
+  }
+
   test("should not allow single quotes in strings") {
     assertIncorrect("WITH \"string\" AS string", "WITH 'string' AS string")
   }
