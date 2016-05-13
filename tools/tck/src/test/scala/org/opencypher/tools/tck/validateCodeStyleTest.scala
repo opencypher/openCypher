@@ -19,16 +19,58 @@ package org.opencypher.tools.tck
 class validateCodeStyleTest extends TckTestSupport {
 
   test("should throw on bad styling") {
-    validateCodeStyle("match (n) return n") shouldBe
-      Some("""A query did not follow style requirements:
-             |match (n) return n
-             |
-             |Prettified version:
-             |MATCH (n) RETURN n""".stripMargin)
+    assertIncorrect("match (n) return n", "MATCH (n) RETURN n")
   }
 
   test("should accept good styling") {
-    validateCodeStyle("MATCH (n) RETURN n") shouldBe None
+    assertCorrect("MATCH (n) RETURN n")
   }
 
+  test("should request space after colon") {
+    assertIncorrect("MATCH (n {name:'test'})", "MATCH (n {name: 'test'})")
+  }
+
+  test("should not request space after colon if it's a label") {
+    assertCorrect("MATCH (n:Label)")
+  }
+
+  test("should not request space after colon if it's a relationship type") {
+    assertCorrect("MATCH ()-[:T]-()")
+  }
+
+  test("should request space after comma") {
+    assertIncorrect("WITH [1,2,3] AS list RETURN list,list", "WITH [1, 2, 3] AS list RETURN list, list")
+  }
+
+  test("should accept space after comma when present") {
+    assertCorrect("WITH [1, 2, 3] AS list RETURN list, list")
+  }
+
+  test("should not request space after comma when line breaks") {
+    assertCorrect("""MATCH (a),
+                    |(b)
+                    |RETURN 1
+                    """.stripMargin)
+  }
+
+  test("should not allow single quotes in strings") {
+    assertIncorrect("WITH \"string\" AS string", "WITH 'string' AS string")
+  }
+
+  private def assertCorrect(query: String) = {
+    withClue("Query did not adhere to the style rules:\n") {
+      validateCodeStyle(query) shouldBe None
+    }
+  }
+
+  private def assertIncorrect(original: String, prettified: String) = {
+    withClue("Query wasn't prettified correctly:\n") {
+      validateCodeStyle(original) shouldBe
+        Some(s"""A query did not follow style requirements:
+                |$original
+                |
+                |Prettified version:
+                |$prettified""".stripMargin)
+    }
+  }
 }

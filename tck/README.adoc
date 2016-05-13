@@ -24,21 +24,32 @@ Each TCK feature file is made up of scenarios (see the https://cucumber.io/docs/
 ----
 Scenario: Creating a node
     Given an empty graph // <1>
-      And after having executed CREATE () // <2>
-      And parameter values are: // <3>
-        | parameter | 0 |
-    When executing query: CREATE ({property: {parameter}}) // <4>
+    And after having executed:
+      """
+      CREATE () // <2>
+      """
+    And parameter values are: // <3>
+      | parameter | 0 |
+    When executing query:
+      """
+      CREATE ({property: {parameter}}) // <4>
+      """
     Then the result should be empty // <5>
     And the side effects should be: // <6>
-      +nodes: 1
-      +properties: 1
+      | +nodes      | 1 |
+      | +properties | 1 |
 ----
 [source,gherkin]
 .This scenario illustrates the effects of executing a query `Q` - matching all nodes and returning one of them - on the graph <GRAPH_NAME>.
 ----
 Scenario: Returning a single node
     Given the <GRAPH_NAME> graph // <1>
-    When executing query: MATCH (n) RETURN n LIMIT 1 // <4>
+    When executing query:
+      """
+      MATCH (n)
+      RETURN n
+      LIMIT 1 // <4>
+      """
     Then the result should be: // <5>
       | n  |
       | () |

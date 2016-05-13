@@ -960,7 +960,7 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     When executing query:
       """
-      MERGE (t:T {id:42})
+      MERGE (t:T {id: 42})
       CREATE (f:R)
       CREATE (t)-[:REL]->(f)
       """

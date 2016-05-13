@@ -248,7 +248,7 @@ Feature: ReturnAcceptanceTest
     Given an empty graph
     And having executed:
       """
-      CREATE (:l1), (:l2), (:l3)
+      CREATE (:L1), (:L2), (:L3)
       """
     When executing query:
       """
@@ -258,9 +258,9 @@ Feature: ReturnAcceptanceTest
       """
     Then the result should be:
       | a     | count(*) |
-      | (:l1) | 1        |
-      | (:l2) | 1        |
-      | (:l3) | 1        |
+      | (:L1) | 1        |
+      | (:L2) | 1        |
+      | (:L3) | 1        |
     And no side effects
 
   Scenario: Filter should work

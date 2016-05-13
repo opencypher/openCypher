@@ -27,15 +27,13 @@ object TCKStepDefinitions {
   val NAMED_GRAPH = "^the (.*) graph$"
 
   // for And
-  val INIT_QUERY = "^having executed: (.*)$"
-  val INIT_LONG_QUERY = "^having executed:$"
+  val INIT_QUERY = "^having executed:$"
   val PARAMETERS = "^parameters are:$"
   val SIDE_EFFECTS = "^the side effects should be:$"
   val NO_SIDE_EFFECTS = "^no side effects$"
 
   // for When
-  val EXECUTING_QUERY = "^executing query: (.*)$"
-  val EXECUTING_LONG_QUERY = "^executing query:$"
+  val EXECUTING_QUERY = "^executing query:$"
 
   // for Then
   val EXPECT_RESULT = "^the result should be:$"
