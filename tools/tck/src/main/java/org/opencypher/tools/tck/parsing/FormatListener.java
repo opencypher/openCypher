@@ -54,7 +54,7 @@ public class FormatListener
         resetListeners( parameterVerifier );
         lexer.setInputStream( new ANTLRInputStream( value ) );
         walker.walk( parameterVerifier, parser.value() );
-        return parameterVerifier.resetAndGetOk();
+        return parameterVerifier.getOkAndReset();
     }
 
     public boolean parseResults( String value )
@@ -62,7 +62,7 @@ public class FormatListener
         resetListeners( resultsVerifier );
         lexer.setInputStream( new ANTLRInputStream( value ) );
         walker.walk( resultsVerifier, parser.value() );
-        return resultsVerifier.resetAndGetOk();
+        return resultsVerifier.getOkAndReset();
     }
 
 }
