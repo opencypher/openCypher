@@ -32,8 +32,7 @@
     &WS;
     <non-terminal ref="QueryOptions"/>
     <non-terminal ref="Statement"/>
-    &WS;
-    <opt>;</opt>
+    <opt>&WS; ;</opt>
     &WS;
   </production>
 
