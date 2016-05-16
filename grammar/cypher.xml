@@ -190,7 +190,7 @@
   </production>
 
   <production name="Foreach" scope:rule="nested">
-    FOREACH &WS; ( &WS; &var; &SP; IN &SP; &expr; | <repeat min="1">&SP;<non-terminal ref="Clause"/></repeat> &WS; )
+    FOREACH &WS; ( &WS; &var; &SP; IN &SP; &expr; &WS; | <repeat min="1">&SP;<non-terminal ref="Clause"/></repeat> &WS; )
   </production>
 
   <production name="With" scope:rule="new">

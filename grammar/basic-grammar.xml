@@ -238,6 +238,7 @@
           <seq>&SP; ENDS &SP; WITH</seq>
           <seq>&SP; CONTAINS</seq>
         </alt>
+        &WS;
         <non-terminal ref="Expression2"/>
       </seq>
       <seq> &SP; IS &SP; NULL </seq>
@@ -317,7 +318,7 @@
     <non-terminal ref="FunctionName"/>
     &WS; ( &WS;
       <opt>DISTINCT</opt>
-      <opt>&expr;<repeat>, &expr;</repeat></opt>
+      <opt>&expr;<repeat>, &WS; &expr;</repeat></opt>
     &WS; )
   </production>
 
@@ -342,15 +343,15 @@
 
   <production name="CaseExpression">
     <alt>
-      <seq>CASE <repeat min="1"><non-terminal ref="CaseAlternatives"/></repeat></seq>
-      <seq>CASE &expr; <repeat min="1"><non-terminal ref="CaseAlternatives"/></repeat></seq>
+      <seq>CASE <repeat min="1">&WS; <non-terminal ref="CaseAlternatives"/></repeat></seq>
+      <seq>CASE &expr; <repeat min="1">&WS; <non-terminal ref="CaseAlternatives"/></repeat></seq>
     </alt>
-    <opt>&WS; ELSE &expr;</opt>
-    END
+    <opt>&WS; ELSE &WS; &expr;</opt>
+    &WS; END
   </production>
 
   <production name="CaseAlternatives" rr:inline="true">
-    WHEN &expr; THEN &expr;
+    WHEN &WS; &expr; &WS; THEN &WS; &expr;
   </production>
 
   <production name="Variable" rr:inline="true">
