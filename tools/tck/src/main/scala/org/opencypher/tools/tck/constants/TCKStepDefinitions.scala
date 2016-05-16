@@ -34,6 +34,7 @@ object TCKStepDefinitions {
 
   // for When
   val EXECUTING_QUERY = "^executing query:$"
+  val EXECUTING_CONTROL_QUERY = "^executing control query:$"
 
   // for Then
   val EXPECT_RESULT = "^the result should be:$"
