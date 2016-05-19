@@ -215,15 +215,8 @@
     <repeat> &WS; ^ &WS; <non-terminal ref="Expression4"/></repeat>
   </production>
   <production name="Expression4" rr:inline="true">
+    <repeat><alt>+ -</alt> &WS; </repeat>
     <non-terminal ref="Expression3"/>
-    <repeat>
-      <seq> &WS; <alt>+ -</alt> &WS; <non-terminal ref="Expression3"/></seq>
-    </repeat>
-    <!--alt>
-      <non-terminal ref="Expression3"/>
-      <seq> &WS; + &WS; <non-terminal ref="Expression4"/></seq>
-      <seq> &WS; - &WS; <non-terminal ref="Expression4"/></seq>
-    </alt-->
   </production>
   <production name="Expression3" rr:inline="true">
     <non-terminal ref="Expression2"/>
