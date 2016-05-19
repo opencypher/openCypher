@@ -53,6 +53,7 @@ object TCKErrorDetails {
   val REQUIRES_DIRECTED_RELATIONSHIP = "RequiresDirectedRelationship"
   val INCOMPARABLE_VALUES = "IncomparableValues"
   val VARIABLE_ALREADY_BOUND = "VariableAlreadyBound"
+  val VARIABLE_USE_NOT_ALLOWED = "VariableUseNotAllowed"
 
   val ALL = Set(INVALID_ELEMENT_ACCESS,
                 MAP_ELEMENT_ACCESS_BY_NON_STRING,
@@ -63,6 +64,6 @@ object TCKErrorDetails {
                 REQUIRES_DIRECTED_RELATIONSHIP,
                 DELETE_CONNECTED_NODE,
                 INCOMPARABLE_VALUES,
-                VARIABLE_ALREADY_BOUND)
-
+                VARIABLE_ALREADY_BOUND,
+                VARIABLE_USE_NOT_ALLOWED)
 }
