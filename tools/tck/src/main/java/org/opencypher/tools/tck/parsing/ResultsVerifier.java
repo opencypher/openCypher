@@ -33,7 +33,7 @@ class ResultsVerifier extends FeatureResultsBaseListener implements ANTLRErrorLi
 {
     private boolean ok = true;
 
-    boolean resetAndGetOk()
+    boolean getOkAndReset()
     {
         boolean tmp = ok;
         ok = true;

@@ -77,9 +77,9 @@
   <production name="NodePattern">
     ( &WS;
     <opt>&var; &WS;</opt>
-    <opt><non-terminal ref="NodeLabels"/></opt>
-    <opt><non-terminal ref="Properties"/></opt>
-    &WS; )
+    <opt><non-terminal ref="NodeLabels"/> &WS;</opt>
+    <opt><non-terminal ref="Properties"/> &WS;</opt>
+    )
   </production>
 
   <production name="PatternElementChain" rr:inline="true">
@@ -91,26 +91,26 @@
   <production name="RelationshipPattern">
     <alt>
       <seq>
-        &WS; <non-terminal ref="LeftArrowHead" rr:title="&lt;"/>
+        <non-terminal ref="LeftArrowHead" rr:title="&lt;"/>
         &WS; <non-terminal ref="Dash" rr:title="-"/>
         &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
         &WS; <non-terminal ref="Dash" rr:title="-"/>
         &WS; <non-terminal ref="RightArrowHead" rr:title="&gt;"/>
       </seq>
       <seq>
-        &WS; <non-terminal ref="LeftArrowHead" rr:title="&lt;"/>
+        <non-terminal ref="LeftArrowHead" rr:title="&lt;"/>
         &WS; <non-terminal ref="Dash" rr:title="-"/>
         &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
         &WS; <non-terminal ref="Dash" rr:title="-"/>
       </seq>
       <seq>
-        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        <non-terminal ref="Dash" rr:title="-"/>
         &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
         &WS; <non-terminal ref="Dash" rr:title="-"/>
         &WS; <non-terminal ref="RightArrowHead" rr:title="&gt;"/>
       </seq>
       <seq>
-        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        <non-terminal ref="Dash" rr:title="-"/>
         &WS; <opt><non-terminal ref="RelationshipDetail"/></opt>
         &WS; <non-terminal ref="Dash" rr:title="-"/>
       </seq>
@@ -215,15 +215,8 @@
     <repeat> &WS; ^ &WS; <non-terminal ref="Expression4"/></repeat>
   </production>
   <production name="Expression4" rr:inline="true">
+    <repeat><alt>+ -</alt> &WS; </repeat>
     <non-terminal ref="Expression3"/>
-    <repeat>
-      <seq> &WS; <alt>+ -</alt> &WS; <non-terminal ref="Expression3"/></seq>
-    </repeat>
-    <!--alt>
-      <non-terminal ref="Expression3"/>
-      <seq> &WS; + &WS; <non-terminal ref="Expression4"/></seq>
-      <seq> &WS; - &WS; <non-terminal ref="Expression4"/></seq>
-    </alt-->
   </production>
   <production name="Expression3" rr:inline="true">
     <non-terminal ref="Expression2"/>
@@ -238,6 +231,7 @@
           <seq>&SP; ENDS &SP; WITH</seq>
           <seq>&SP; CONTAINS</seq>
         </alt>
+        &WS;
         <non-terminal ref="Expression2"/>
       </seq>
       <seq> &SP; IS &SP; NULL </seq>
@@ -317,7 +311,7 @@
     <non-terminal ref="FunctionName"/>
     &WS; ( &WS;
       <opt>DISTINCT</opt>
-      <opt>&expr;<repeat>, &expr;</repeat></opt>
+      <opt>&expr;<repeat>, &WS; &expr;</repeat></opt>
     &WS; )
   </production>
 
@@ -342,15 +336,15 @@
 
   <production name="CaseExpression">
     <alt>
-      <seq>CASE <repeat min="1"><non-terminal ref="CaseAlternatives"/></repeat></seq>
-      <seq>CASE &expr; <repeat min="1"><non-terminal ref="CaseAlternatives"/></repeat></seq>
+      <seq>CASE <repeat min="1">&WS; <non-terminal ref="CaseAlternatives"/></repeat></seq>
+      <seq>CASE &expr; <repeat min="1">&WS; <non-terminal ref="CaseAlternatives"/></repeat></seq>
     </alt>
-    <opt>&WS; ELSE &expr;</opt>
-    END
+    <opt>&WS; ELSE &WS; &expr;</opt>
+    &WS; END
   </production>
 
   <production name="CaseAlternatives" rr:inline="true">
-    WHEN &expr; THEN &expr;
+    WHEN &WS; &expr; &WS; THEN &WS; &expr;
   </production>
 
   <production name="Variable" rr:inline="true">
