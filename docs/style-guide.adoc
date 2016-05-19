@@ -195,6 +195,19 @@ RETURN "Cypher"
 RETURN 'Cypher'
 ----
 
+.. Disregard this rule for literal strings that contain a single quote character. If the string has both, use the form that creates the fewest escapes. In the case of a tie, prefer single quotes.
++
+.Bad
+[source, cypher]
+----
+RETURN 'Cypher\'s a nice language', "Mats' quote: \"statement\""
+----
++
+.Good
+[source, cypher]
+----
+RETURN "Cypher's a nice language", 'Mats\' quote: "statement"'
+----
 . *Spacing*
 .. For literal maps:
 ... No space between the opening brace and the first key
