@@ -24,9 +24,11 @@ package org.opencypher.tools.tck
 object validateCodeStyle extends (String => Option[String]) {
 
   override def apply(query: String): Option[String] = {
+
     val prettified1 = upperCased.foldLeft(query) {
-      case (q, word) => q.replaceAll(s"(?i)(^|[^a-zA-Z])$word ", s"$$1$word ")
+      case (q, word) => q.replaceAll(s"(?i)(?!:)(^|[^a-zA-Z])$word ", s"$$1$word ")
     }
+
     val lowerCased2 = lowerCased.foldLeft(prettified1) {
       case (q, word) => q.replaceAll(s"(?i)(^|[^a-zA-Z])$word ", s"$$1$word ")
     }

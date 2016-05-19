@@ -18,6 +18,10 @@ package org.opencypher.tools.tck
 
 class validateCodeStyleTest extends TckTestSupport {
 
+  test("should accept keyword labels") {
+    assertCorrect("CREATE (s1:Start {id: 1})")
+  }
+
   test("should throw on bad styling") {
     assertIncorrect("match (n) return n", "MATCH (n) RETURN n")
   }
