@@ -109,8 +109,8 @@ case class InvalidFeatureFormatException(message: String) extends RuntimeExcepti
 
 class ScenarioFormatValidator {
   private var hadGiven = false
-  private var hadQuery = false
-  private var hadResults = false
+  private var numberOfWhenQueries = 0
+  private var numberOfThenAssertions = 0
   private var hadError = false
   private var hadSideEffects = false
   private var hadControlQuery = false
@@ -120,15 +120,14 @@ class ScenarioFormatValidator {
       if (hadGiven) error("Extra `Given` steps specified! Only one is allowed.")
       else hadGiven = true
     case "Query" =>
-      if (hadQuery) error("Extra `When executing query` steps specified! Only one is allowed.")
-      else hadQuery = true
+      numberOfWhenQueries = numberOfWhenQueries + 1
     case "Results" =>
-      if (hadResults && !hadControlQuery) error("Extra `Then expect results` steps specified! Only one is allowed.")
+      if (numberOfThenAssertions > numberOfWhenQueries && !hadControlQuery) error("Extra `Then expect results` steps specified! Only one is allowed.")
       else if (hadError) error("Both results and error expectations found; they are mutually exclusive.")
-      else hadResults = true
+      numberOfThenAssertions = numberOfThenAssertions + 1
     case "Error" =>
       if (hadError) error("Extra `Then expect error` steps specified! Only one is allowed.")
-      else if (hadResults) error("Both results and error expectations found; they are mutually exclusive.")
+      else if (numberOfThenAssertions > 0) error("Both results and error expectations found; they are mutually exclusive.")
       else hadError = true
     case "Side-effects" =>
       if (hadSideEffects) error("Extra `And side effects` steps specified! Only one is allowed.")
@@ -138,13 +137,18 @@ class ScenarioFormatValidator {
     case _ => throw new IllegalArgumentException("Unknown step identifier. Valid identifiers are Given, Query, Results, Error, Side-effects.")
   }
 
-  def checkRequiredSteps() = if (hadGiven && hadQuery && ((hadResults && hadSideEffects) || hadError)) reset()
-    else error(s"The scenario setup was incomplete: Given: $hadGiven, Query: $hadQuery, Results or error: ${hadResults || hadError}, Side effects: $hadSideEffects")
+  def checkRequiredSteps() = {
+    val correctWhenThenSetup = numberOfWhenQueries == (if (hadControlQuery) numberOfThenAssertions - 1 else numberOfThenAssertions)
+    if (hadGiven && numberOfWhenQueries > 0 && (correctWhenThenSetup && hadSideEffects || hadError)) {
+      reset()
+    } else
+      error(s"The scenario setup was incomplete: Given: $hadGiven, Query: $numberOfWhenQueries, Results or error: ${numberOfThenAssertions > 0 || hadError}, Side effects: $hadSideEffects")
+  }
 
   private def reset() = {
     hadGiven = false
-    hadQuery = false
-    hadResults = false
+    numberOfWhenQueries = 0
+    numberOfThenAssertions = 0
     hadError = false
     hadSideEffects = false
     hadControlQuery = false
