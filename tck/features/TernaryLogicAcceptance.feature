@@ -72,9 +72,8 @@ Feature: TernaryLogicAcceptanceTest
 
   Scenario Outline: Using null in AND
     And parameters are:
-      | lhs    | <lhs>    |
-      | rhs    | <rhs>    |
-      | result | <result> |
+      | lhs | <lhs> |
+      | rhs | <rhs> |
     When executing query:
       """
       RETURN {lhs} AND {rhs} AS result
@@ -94,9 +93,8 @@ Feature: TernaryLogicAcceptanceTest
 
   Scenario Outline: Using null in OR
     And parameters are:
-      | lhs    | <lhs>    |
-      | rhs    | <rhs>    |
-      | result | <result> |
+      | lhs | <lhs> |
+      | rhs | <rhs> |
     When executing query:
       """
       RETURN {lhs} OR {rhs} AS result
@@ -157,4 +155,5 @@ Feature: TernaryLogicAcceptanceTest
       | null | [1, 2, 3, null] | null   |
       | null | []              | false  |
       | 1    | [1, 2, 3, null] | true   |
+      | 1    | [null, 1]       | true   |
       | 5    | [1, 2, 3, null] | null   |
