@@ -38,6 +38,7 @@
             <goals>
               <goal>compile</goal>
               <goal>testCompile</goal>
+              <goal>add-source</goal>
             </goals>
           </execution>
         </executions>
