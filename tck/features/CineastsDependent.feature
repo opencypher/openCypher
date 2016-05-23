@@ -16,10 +16,10 @@
 #
 
 @db:cineast
-Feature: CineastDependent
+Feature: CineastsDependent
 
   Background:
-    Given the cineast graph
+    Given the cineasts graph
 
   Scenario: Make query from existing database
     When executing query:
@@ -29,7 +29,7 @@ Feature: CineastDependent
       """
     Then the result should be:
       | count(n) |
-      | 63084    |
+      | 10708    |
     And no side effects
 
   Scenario: Support multiple divisions in aggregate function
@@ -40,14 +40,14 @@ Feature: CineastDependent
       """
     Then the result should be:
       | count |
-      | 17    |
+      | 2     |
     And no side effects
 
   Scenario: Support column renaming for aggregates as well
     When executing query:
       """
-      MATCH (a)
-      WHERE id(a) = 0
+      MATCH (a:Person)
+      WHERE a.id = '4785'
       RETURN count(*) AS ColumnName
       """
     Then the result should be:
@@ -58,8 +58,8 @@ Feature: CineastDependent
   Scenario: Run coalesce
     When executing query:
       """
-      MATCH (a)
-      WHERE id(a) = 0
+      MATCH (a:User)
+      WHERE a.name = 'Emil Eifrem'
       RETURN coalesce(a.title, a.name)
       """
     Then the result should be:
@@ -70,20 +70,19 @@ Feature: CineastDependent
   Scenario: Allow addition
     When executing query:
       """
-      MATCH (a)
-      WHERE id(a) = 61263
+      MATCH (a:Person)
+      WHERE a.id = '1769'
       RETURN a.version + 5
       """
     Then the result should be:
       | a.version + 5 |
-      | 1863          |
+      | 102           |
     And no side effects
 
   Scenario: Functions should return null if they get path containing unbound
     When executing query:
       """
-      MATCH (a)
-      WHERE id(a) = 1
+      WITH null AS a
       OPTIONAL MATCH p = (a)-[r]->()
       RETURN length(nodes(p)), id(r), type(r), nodes(p), rels(p)
       """
@@ -100,5 +99,5 @@ Feature: CineastDependent
       """
     Then the result should be:
       | length(collect(a)) |
-      | 63084              |
+      | 10708              |
     And no side effects
