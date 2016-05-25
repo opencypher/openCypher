@@ -43,14 +43,13 @@ Whenever two rules are in conflict, use the order to decide which one trumps.
 //.Bad
 //[source, cypher]
 //----
-//MATCH (person:Person {property: value})
+//RETURN 1
 //----
-//.. No padding space for parameters.
 //+
 //.Good
 //[source, cypher]
 //----
-//WITH { param } AS value
+//RETURN 1
 //----
 
 . Start a new clause on a new line.
@@ -452,4 +451,18 @@ RETURN vehicle.mileage
 ----
 MATCH (:Person)-->(vehicle:Car)-->(:Company)<--(:Country)
 RETURN vehicle.mileage
+----
+
+. Do not use a semicolon at the end of the statement.
++
+.Bad
+[source, cypher]
+----
+RETURN 1;
+----
++
+.Good
+[source, cypher]
+----
+RETURN 1
 ----
