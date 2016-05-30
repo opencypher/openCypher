@@ -83,6 +83,11 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
     stepValidator.reportStep("Results")
   }
 
+  Then(EXPECT_RESULT_UNORDERED_LISTS) { (table: DataTable) =>
+    validateResults(table).map(msg => throw new InvalidFeatureFormatException(msg))
+    stepValidator.reportStep("Results")
+  }
+
   Then(EXPECT_EMPTY_RESULT) {
     stepValidator.reportStep("Results")
   }
