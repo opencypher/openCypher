@@ -52,6 +52,7 @@ object TCKErrorDetails {
   val DELETE_CONNECTED_NODE = "DeleteConnectedNode"
   val REQUIRES_DIRECTED_RELATIONSHIP = "RequiresDirectedRelationship"
   val INCOMPARABLE_VALUES = "IncomparableValues"
+  val INVALID_RELATIONSHIP_PATTERN = "InvalidRelationshipPattern"
   val VARIABLE_ALREADY_BOUND = "VariableAlreadyBound"
   val VARIABLE_USE_NOT_ALLOWED = "VariableUseNotAllowed"
 
@@ -64,6 +65,7 @@ object TCKErrorDetails {
                 REQUIRES_DIRECTED_RELATIONSHIP,
                 DELETE_CONNECTED_NODE,
                 INCOMPARABLE_VALUES,
+                INVALID_RELATIONSHIP_PATTERN,
                 VARIABLE_ALREADY_BOUND,
                 VARIABLE_USE_NOT_ALLOWED)
 }
