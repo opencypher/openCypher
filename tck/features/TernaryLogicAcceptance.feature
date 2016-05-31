@@ -150,7 +150,7 @@ Feature: TernaryLogicAcceptanceTest
 
     Examples:
       | elt  | coll            | result |
-      | null | null            | false  |
+      | null | null            | null   |
       | null | [1, 2, 3]       | null   |
       | null | [1, 2, 3, null] | null   |
       | null | []              | false  |
