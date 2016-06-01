@@ -55,6 +55,9 @@ object TCKErrorDetails {
   val INVALID_RELATIONSHIP_PATTERN = "InvalidRelationshipPattern"
   val VARIABLE_ALREADY_BOUND = "VariableAlreadyBound"
   val VARIABLE_USE_NOT_ALLOWED = "VariableUseNotAllowed"
+  val INVALID_ARGUMENT_TYPE = "InvalidArgumentType"
+  val INVALID_ARGUMENT_VALUE = "InvalidArgumentValue"
+  val NUMBER_OUT_OF_RANGE = "NumberOutOfRange"
 
   val ALL = Set(INVALID_ELEMENT_ACCESS,
                 MAP_ELEMENT_ACCESS_BY_NON_STRING,
@@ -67,5 +70,8 @@ object TCKErrorDetails {
                 INCOMPARABLE_VALUES,
                 INVALID_RELATIONSHIP_PATTERN,
                 VARIABLE_ALREADY_BOUND,
+                INVALID_ARGUMENT_TYPE,
+                INVALID_ARGUMENT_VALUE,
+                NUMBER_OUT_OF_RANGE,
                 VARIABLE_USE_NOT_ALLOWED)
 }
