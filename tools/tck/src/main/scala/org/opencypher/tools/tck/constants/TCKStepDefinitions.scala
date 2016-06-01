@@ -41,5 +41,5 @@ object TCKStepDefinitions {
   val EXPECT_SORTED_RESULT = "^the result should be, in order:$"
   val EXPECT_RESULT_UNORDERED_LISTS = "^the result should be \\(ignoring element order for lists\\):$"
   val EXPECT_EMPTY_RESULT = "^the result should be empty$"
-  val EXPECT_ERROR = "^a (.+) should be raised at (.+): (.+)$"
+  val EXPECT_ERROR = "^an? (.+) should be raised at (.+): (.+)$"
 }
