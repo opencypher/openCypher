@@ -83,6 +83,8 @@ The TCK currently supports these named graphs:
 ** A social graph of movies, with actors and directors, and users who rate the movies.
 * binary-tree-1
 ** A binary tree of depth 4, with only label `:X` on non-root nodes, and three different relationship types.
+* binary-tree-2
+** A binary tree of depth 4, with labels `:X` or `:Y` on non-root nodes, and three different relationship types.
 
 For instructions on how to use the named graph descriptions and metadata, please see link:graphs/named-graphs.adoc[Named Graphs].
 
