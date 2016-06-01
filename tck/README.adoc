@@ -79,10 +79,10 @@ Certain queries do require a more complex graph structure in order to yield less
 
 The TCK currently supports these named graphs:
 
-* Cineasts
+* cineasts
 ** A social graph of movies, with actors and directors, and users who rate the movies.
 
-For instructions on how to use the named graph descriptions and metadata, please see link:named-graphs.adoc[Named Graphs].
+For instructions on how to use the named graph descriptions and metadata, please see link:graphs/named-graphs.adoc[Named Graphs].
 
 [[side-effects]]
 === Side effects of executing a query
