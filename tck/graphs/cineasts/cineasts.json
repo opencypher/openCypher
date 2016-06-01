@@ -4,7 +4,6 @@
     "cineasts-nodes",
     "cineasts-relationships"
   ],
-  "parameters": {},
   "nodes": [
     {
       "label": "",
