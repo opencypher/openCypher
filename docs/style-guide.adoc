@@ -361,6 +361,20 @@ WITH ['a', 'b', 3.14] AS list
 RETURN list, 2, 3, 4
 ----
 
+.. No padding space on the inside of function call parentheses.
++
+.Bad
+[source, cypher]
+----
+RETURN split( 'original', 'i' )
+----
++
+.Good
+[source, cypher]
+----
+RETURN split('original', 'i')
+----
+
 . When patterns wrap lines, break after arrows, not before.
 +
 .Bad
