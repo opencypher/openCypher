@@ -16,13 +16,14 @@
  */
 package org.opencypher.tools.tck
 
-import cucumber.api.DataTable
+import cucumber.api.{DataTable, Scenario}
 import org.opencypher.tools.tck.constants.TCKStepDefinitions._
 
 class FeatureFormatChecker extends TCKCucumberTemplate {
 
   private var lastSeenQuery = ""
   private val orderBy = "(?si).*ORDER BY.*"
+  private var currentScenarioName = ""
   private val stepValidator = new ScenarioFormatValidator
 
   Background(BACKGROUND) {}
@@ -43,7 +44,7 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   And(INIT_QUERY) { (query: String) => initStep(query) }
 
   private def initStep(query: String) =
-    validateCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
+    codeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
 
   And(PARAMETERS) { (table: DataTable) =>
     validateParameters(table).map(msg => throw new InvalidFeatureFormatException(msg))
@@ -52,7 +53,7 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   When(EXECUTING_QUERY) { (query: String) => whenStep(query)}
 
   private def whenStep(query: String) = {
-    validateCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
+    codeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
     lastSeenQuery = query
     stepValidator.reportStep("Query")
   }
@@ -102,11 +103,24 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   }
 
   When(EXECUTING_CONTROL_QUERY) { (query: String) =>
-    validateCodeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
+    codeStyle(query).map(msg => throw new InvalidFeatureFormatException(msg))
     stepValidator.reportStep("Control-query")
   }
 
+  Before { (scenario: Scenario) =>
+    currentScenarioName = scenario.getName
+  }
+
   After(_ => stepValidator.checkRequiredSteps())
+
+  private def codeStyle(query: String): Option[String] = {
+    if (scenariosWithIntentionalStyleViolations(currentScenarioName)) None
+    else validateCodeStyle(query)
+  }
+
+  private val scenariosWithIntentionalStyleViolations =
+    Set("Keeping used expression 3",
+        "Keeping used expression 4")
 
 }
 
