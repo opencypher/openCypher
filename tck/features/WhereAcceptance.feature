@@ -46,4 +46,4 @@ Feature: WhereAcceptance
       WHERE n.prop < 10
       RETURN n.prop AS prop
       """
-    Then a SyntaxError should be raised at runtime: IncomparableValues
+    Then a TypeError should be raised at runtime: IncomparableValues
