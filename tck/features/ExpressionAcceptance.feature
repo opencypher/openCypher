@@ -186,6 +186,14 @@ Feature: ExpressionAcceptance
       """
     Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
 
+  Scenario: Fail at compile time when attempting to index with a non-integer into a list
+    When executing query:
+      """
+      WITH [1, 2, 3, 4, 5] AS list, 3.14 AS idx
+      RETURN list[idx]
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
   Scenario: Fail at runtime when trying to index something which is not a map or collection
     And parameters are:
       | expr | 100 |
