@@ -58,6 +58,19 @@ object TCKErrorDetails {
   val INVALID_ARGUMENT_TYPE = "InvalidArgumentType"
   val INVALID_ARGUMENT_VALUE = "InvalidArgumentValue"
   val NUMBER_OUT_OF_RANGE = "NumberOutOfRange"
+  val UNDEFINED_VARIABLE = "UndefinedVariable"
+  val VARIABLE_TYPE_CONFLICT = "VariableTypeConflict"
+  val RELATIONSHIP_UNIQUENESS_VIOLATION = "RelationshipUniquenessViolation"
+  val CREATING_VAR_LENGTH = "CreatingVarLength"
+  val INVALID_PARAMETER_USE = "InvalidParameterUse"
+  val INVALID_CLAUSE_COMPOSITION = "InvalidClauseComposition"
+  val FLOATING_POINT_OVERFLOW = "FloatingPointOverflow"
+  val PROPERTY_ACCESS_ON_NON_MAP = "PropertyAccessOnNonMap"
+  val INVALID_ARGUMENT_EXPRESSION = "InvalidArgumentExpression"
+  val INVALID_UNICODE = "InvalidUnicode"
+  val NON_CONSTANT_EXPRESSION = "NonConstantExpression"
+  val NO_SINGLE_RELATIONSHIP_TYPE = "NoSingleRelationshipType"
+  val INVALID_AGGREGATION = "InvalidAggregation"
 
   val ALL = Set(INVALID_ELEMENT_ACCESS,
                 MAP_ELEMENT_ACCESS_BY_NON_STRING,
@@ -73,5 +86,18 @@ object TCKErrorDetails {
                 INVALID_ARGUMENT_TYPE,
                 INVALID_ARGUMENT_VALUE,
                 NUMBER_OUT_OF_RANGE,
+                UNDEFINED_VARIABLE,
+                VARIABLE_TYPE_CONFLICT,
+                RELATIONSHIP_UNIQUENESS_VIOLATION,
+                CREATING_VAR_LENGTH,
+                INVALID_PARAMETER_USE,
+                INVALID_CLAUSE_COMPOSITION,
+                FLOATING_POINT_OVERFLOW,
+                PROPERTY_ACCESS_ON_NON_MAP,
+                INVALID_ARGUMENT_EXPRESSION,
+                INVALID_UNICODE,
+                NON_CONSTANT_EXPRESSION,
+                NO_SINGLE_RELATIONSHIP_TYPE,
+                INVALID_AGGREGATION,
                 VARIABLE_USE_NOT_ALLOWED)
 }
