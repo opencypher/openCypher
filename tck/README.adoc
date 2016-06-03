@@ -77,7 +77,16 @@ The keyword `Given` in the TCK's scenarios specifies the required initial state 
 In order to not obfuscate the purpose of the scenario - which is to display the behaviour of the query - the initial state is usually simple.
 Certain queries do require a more complex graph structure in order to yield less obvious behavior, and in these cases a named graph included in the TCK will need to be set up by the implementation before the query is executed.
 
-// TODO: Come up with good graphs to use for this purpose, and describe them here
+The TCK currently supports these named graphs:
+
+* cineasts
+** A social graph of movies, with actors and directors, and users who rate the movies.
+* binary-tree-1
+** A binary tree of depth 4, with only label `:X` on non-root nodes, and three different relationship types.
+* binary-tree-2
+** A binary tree of depth 4, with labels `:X` or `:Y` on non-root nodes, and three different relationship types.
+
+For instructions on how to use the named graph descriptions and metadata, please see link:graphs/named-graphs.adoc[Named Graphs].
 
 [[side-effects]]
 === Side effects of executing a query

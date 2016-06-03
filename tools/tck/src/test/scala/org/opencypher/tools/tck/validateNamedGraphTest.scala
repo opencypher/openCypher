@@ -19,7 +19,7 @@ package org.opencypher.tools.tck
 class validateNamedGraphTest extends TckTestSupport {
 
   test("should accept the cineast graph") {
-    validateNamedGraph("cineast") shouldBe None
+    validateNamedGraph("cineasts") shouldBe None
   }
 
   test("should not accept another graph") {

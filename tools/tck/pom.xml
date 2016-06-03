@@ -55,6 +55,13 @@
           <include>**/*.feature</include>
         </includes>
       </resource>
+      <resource>
+        <directory>../../tck/graphs</directory>
+        <includes>
+          <include>**/*.cyp</include>
+          <include>**/*.json</include>
+        </includes>
+      </resource>
     </resources>
   </build>
 
