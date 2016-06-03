@@ -1,4 +1,10 @@
+:numbered:
+:toc:
+:toc-placement: macro
+
 = The Cypher Style Guide
+
+toc::[]
 
 Style guide for writing Cypher code.
 
