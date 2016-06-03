@@ -76,7 +76,7 @@ WHERE n.name CONTAINS 's'
 RETURN n.name
 ----
 
-.. Indent subclauses `ON CREATE` and `ON MATCH` with two spaces.
+.. Indent subclauses with two spaces. Subclauses include `ON CREATE`, `ON MATCH`, `SKIP`, and `LIMIT`.
 +
 .Bad
 [source, cypher]
@@ -85,6 +85,8 @@ MERGE (n) ON CREATE SET n.prop = 0
 MERGE (a:A)-[:T]-(b:B)
 ON CREATE SET a.name = 'me'
 ON MATCH SET b.name = 'you'
+RETURN a.prop SKIP 10
+LIMIT 10
 ----
 +
 .Good
@@ -95,6 +97,9 @@ MERGE (n)
 MERGE (a:A)-[:T]-(b:B)
   ON CREATE SET a.name = 'me'
   ON MATCH SET b.name = 'you'
+RETURN a.prop
+  SKIP 10
+  LIMIT 10
 ----
 
 .. Put `ON CREATE` before `ON MATCH` if both are present.
