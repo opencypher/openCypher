@@ -67,12 +67,20 @@ object TCKErrorDetails {
   val FLOATING_POINT_OVERFLOW = "FloatingPointOverflow"
   val PROPERTY_ACCESS_ON_NON_MAP = "PropertyAccessOnNonMap"
   val INVALID_ARGUMENT_EXPRESSION = "InvalidArgumentExpression"
-  val INVALID_UNICODE = "InvalidUnicode"
+  val INVALID_UNICODE_CHARACTER = "InvalidUnicodeCharacter"
   val NON_CONSTANT_EXPRESSION = "NonConstantExpression"
   val NO_SINGLE_RELATIONSHIP_TYPE = "NoSingleRelationshipType"
   val INVALID_AGGREGATION = "InvalidAggregation"
   val UNKNOWN_FUNCTION = "UnknownFunction"
   val INVALID_NUMBER_LITERAL = "InvalidNumberLiteral"
+  val INVALID_UNICODE_LITERAL = "InvalidUnicodeLiteral"
+  val MERGE_READ_OWN_WRITES = "MergeReadOwnWrites"
+  val NO_EXPRESSION_ALIAS = "NoExpressionAlias"
+  val DIFFERENT_COLUMNS_IN_UNION = "DifferentColumnsInUnion"
+  val INVALID_DELETE = "InvalidDelete"
+  val INVALID_PROPERTY_TYPE = "InvalidPropertyType"
+  val COLUMN_NAME_CONFLICT = "ColumnNameConflict"
+  val NO_VARIABLES_IN_SCOPE = "NoVariablesInScope"
 
   val ALL = Set(INVALID_ELEMENT_ACCESS,
                 MAP_ELEMENT_ACCESS_BY_NON_STRING,
@@ -97,11 +105,19 @@ object TCKErrorDetails {
                 FLOATING_POINT_OVERFLOW,
                 PROPERTY_ACCESS_ON_NON_MAP,
                 INVALID_ARGUMENT_EXPRESSION,
-                INVALID_UNICODE,
+                INVALID_UNICODE_CHARACTER,
                 NON_CONSTANT_EXPRESSION,
                 NO_SINGLE_RELATIONSHIP_TYPE,
                 INVALID_AGGREGATION,
                 UNKNOWN_FUNCTION,
                 INVALID_NUMBER_LITERAL,
+                INVALID_UNICODE_LITERAL,
+                MERGE_READ_OWN_WRITES,
+                NO_EXPRESSION_ALIAS,
+                DIFFERENT_COLUMNS_IN_UNION,
+                INVALID_DELETE,
+                INVALID_PROPERTY_TYPE,
+                COLUMN_NAME_CONFLICT,
+                NO_VARIABLES_IN_SCOPE,
                 VARIABLE_USE_NOT_ALLOWED)
 }

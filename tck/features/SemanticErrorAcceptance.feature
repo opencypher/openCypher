@@ -304,7 +304,7 @@ Feature: SemanticErrorAcceptance
       """
       RETURN 42 — 41
       """
-    Then a SyntaxError should be raised at compile time: InvalidUnicode
+    Then a SyntaxError should be raised at compile time: InvalidUnicodeCharacter
 
   Scenario: Failing for `size()` on paths
     When executing query:
