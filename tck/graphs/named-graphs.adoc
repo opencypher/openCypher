@@ -52,18 +52,18 @@ The empty string is used as an 'any' wildcard for label names and property keys 
 
 === Advice
 
-For some statistical combinations, the metadata file supplies advice.
-This is optional information that may be disregarded, but which can be useful for imposing constraints on the graph.
+For some statistical combinations, the metadata file an optional piece of information (that may be disregarded), which can be useful for imposing constraints on the graph.
+This is called 'advice'.
 For label/property and type/property combinations, the supported advice are:
 
 * `exists`
-** This indicates that each entity in the entry's context has the property. Additionally, the advice indicates that no included scenario will ever violate this constraint (by performing updates to the graph).
+** This indicates that each entity in the entry's context has the property. Additionally, the advice indicates that no included scenario will ever violate this constraint by performing updates to the graph.
 * `unique`
-** This indicates that each possible property value is at most assigned to one entity in the entry's context. Additionally, the advice guarantees that no included scenario will ever violate this constraint (by performing updates to the graph).
+** This indicates that each possible property value is at most assigned to one entity in the entry's context. Additionally, the advice guarantees that no included scenario will ever violate this constraint by performing updates to the graph.
 * `index`
 ** This indicates that some scenarios include queries that try to match on entities in the entry's context via a property comparison (e.g. `MATCH (n:Label {prop: {value}}) ...`).
 
-For label/sublabel combinations, the supported advice are:
+For label/sublabel combinations, the supported advice is:
 
 * `implies`
 ** This indicates that the existence of the label on a node implies the existence of the sublabel. In other words, if a node has the label, it will always have the sublabel.
