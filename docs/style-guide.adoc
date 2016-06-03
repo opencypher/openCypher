@@ -6,7 +6,9 @@
 
 toc::[]
 
-Style guide for writing Cypher code.
+This is the style guide for the Cypher language, in the context of its standardization through the openCypher project.
+In this document you will find rules for how to use the language, intended to help construct a consistent and portable usage of the language across many use cases and implementations.
+There are also more peripheral recommendations, which are to be taken more lightly, and reflects attempts at helping users of the language to treat language-related concerns in a consistent manner.
 
 NOTE: Cypher is a language.
 Languages have their own rules, and are not eager to adapt to circumstance.
@@ -41,7 +43,7 @@ ORDER BY score DESC
 
 == Rules
 
-Whenever two rules are in conflict, use the order to decide which one trumps.
+In case two rules are in conflict, and there is no explicit mention which rule trumps, the last mentioned rule applies.
 
 // Template:
 //. rule
@@ -129,22 +131,6 @@ RETURN e.name
 [source, cypher]
 ----
 MATCH (e:EditorInChief)-->(:Employee)
-RETURN e.name
-----
-
-. Prefer single nouns for labels.
-+
-.Bad
-[source, cypher]
-----
-MATCH (e:IsEmployed)
-RETURN e.name
-----
-+
-.Good
-[source, cypher]
-----
-MATCH (e:Employee)
 RETURN e.name
 ----
 
@@ -531,4 +517,29 @@ RETURN 1;
 [source, cypher]
 ----
 RETURN 1
+----
+
+== Recommendations
+
+* When using Cypher language constructs in prose, use a monospaced font and follow the styling rules.
+** When referring to labels and relationship types, include the colon like so: `:Label`, `:REL_TYPE`.
+** When referring to functions, use lower camel case and parentheses like so: `shortestPath()`. Arguments should normally not be included.
+* If you are storing Cypher statements in a separate file, use the file extension `.cypher`.
+
+=== Graph modelling
+
+. Prefer single nouns for labels.
++
+.Bad
+[source, cypher]
+----
+MATCH (e:IsEmployed)
+RETURN e.name
+----
++
+.Good
+[source, cypher]
+----
+MATCH (e:Employee)
+RETURN e.name
 ----
