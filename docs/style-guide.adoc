@@ -7,14 +7,14 @@
 toc::[]
 
 This is the style guide for the Cypher language, in the context of its standardization through the openCypher project.
-In this document you will find rules for how to use the language, intended to help construct a consistent and portable usage of the language across many use cases and implementations.
+This document contains rules for how to use the language, intended to help construct a consistent and portable usage of the language across many use cases and implementations.
 There are also more peripheral recommendations, which are to be taken more lightly, and reflects attempts at helping users of the language to treat language-related concerns in a consistent manner.
 
 NOTE: Cypher is a language.
 Languages have their own rules, and are not eager to adapt to circumstance.
 Remember not to be too eager to shiv a Cypher expression into the conventions of a different language.
 
-== Why Is Style Important?
+== Why is style important?
 
 Consider this dadaist work of art from Nigel Small and Nicole White:
 
@@ -43,7 +43,7 @@ ORDER BY score DESC
 
 == Rules
 
-In case two rules are in conflict, and there is no explicit mention which rule trumps, the last mentioned rule applies.
+In case two rules are in conflict, and there is no explicit mention of which rule trumps, the rule mentioned last applies.
 
 // Template:
 //. rule
