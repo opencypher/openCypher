@@ -71,6 +71,8 @@ object TCKErrorDetails {
   val NON_CONSTANT_EXPRESSION = "NonConstantExpression"
   val NO_SINGLE_RELATIONSHIP_TYPE = "NoSingleRelationshipType"
   val INVALID_AGGREGATION = "InvalidAggregation"
+  val UNKNOWN_FUNCTION = "UnknownFunction"
+  val INVALID_NUMBER_LITERAL = "InvalidNumberLiteral"
 
   val ALL = Set(INVALID_ELEMENT_ACCESS,
                 MAP_ELEMENT_ACCESS_BY_NON_STRING,
@@ -99,5 +101,7 @@ object TCKErrorDetails {
                 NON_CONSTANT_EXPRESSION,
                 NO_SINGLE_RELATIONSHIP_TYPE,
                 INVALID_AGGREGATION,
+                UNKNOWN_FUNCTION,
+                INVALID_NUMBER_LITERAL,
                 VARIABLE_USE_NOT_ALLOWED)
 }
