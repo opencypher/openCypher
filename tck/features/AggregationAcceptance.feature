@@ -321,11 +321,12 @@ Feature: AggregationAcceptance
       MATCH p = (a:T {name: 'a'})-[:R*]->(other:T)
       WHERE other <> a
       WITH a, other, min(length(p)) AS len
+      ORDER BY other.name
       RETURN a.name AS name, collect(other.name) AS others, len
       """
     Then the result should be:
       | name | others     | len |
-      | 'a'  | ['c', 'b'] | 1   |
+      | 'a'  | ['b', 'c'] | 1   |
     And no side effects
 
   Scenario: Handle subexpression in aggregation also occurring as standalone expression with nested aggregation in a literal map
