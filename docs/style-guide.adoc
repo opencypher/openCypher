@@ -529,8 +529,8 @@ RETURN split('original', 'i')
 == Recommendations
 
 * When using Cypher language constructs in prose, use a monospaced font and follow the styling rules.
-** When referring to labels and relationship types, include the colon like so: `:Label`, `:REL_TYPE`.
-** When referring to functions, use lower camel case and parentheses like so: `shortestPath()`. Arguments should normally not be included.
+** When referring to labels and relationship types, the colon should be included as follows: `:Label`, `:REL_TYPE`.
+** When referring to functions, use lower camel case and parentheses should be used as follows: `shortestPath()`. Arguments should normally not be included.
 * If you are storing Cypher statements in a separate file, use the file extension `.cypher`.
 
 === Graph modelling
