@@ -67,3 +67,8 @@ For label/sublabel combinations, the supported advice is:
 
 * `implies`
 ** This indicates that the existence of the label on a node implies the existence of the sublabel. In other words, if a node has the label, it will always have the sublabel.
+
+=== Scripts
+
+The metadata file will specify one or more script files, which are files that contain Cypher statements which are to be used to create the named graph.
+The statements in the script files are separated by the semicolon character.
