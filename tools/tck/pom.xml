@@ -58,7 +58,7 @@
       <resource>
         <directory>../../tck/graphs</directory>
         <includes>
-          <include>**/*.cyp</include>
+          <include>**/*.cypher</include>
           <include>**/*.json</include>
         </includes>
       </resource>
