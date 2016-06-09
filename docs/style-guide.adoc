@@ -237,141 +237,6 @@ WITH null AS n1, null as n2
 RETURN n1 IS NULL && n2 IS NOT NULL
 ----
 
-. *Spacing*
-.. For literal maps:
-... No space between the opening brace and the first key
-... No space between key and colon
-... One space between colon and value
-... No space between value and comma
-... One space between comma and next key
-... No space between the last value and the closing brace
-+
-.Bad
-[source, cypher]
-----
-WITH { key1 :'value' ,key2  :  42 } AS map
-RETURN map
-----
-+
-.Good
-[source, cypher]
-----
-WITH {key1: 'value', key2: 42} AS map
-RETURN map
-----
-
-.. No padding space for parameters.
-+
-.Bad
-[source, cypher]
-----
-RETURN { param }
-----
-+
-.Good
-[source, cypher]
-----
-RETURN {param}
-----
-
-.. One space between label/type predicates and property predicates in patterns.
-+
-.Bad
-[source, cypher]
-----
-MATCH (p:Person{property: -1})-[:KNOWS   {since: 2016}]->()
-RETURN p.name
-----
-+
-.Good
-[source, cypher]
-----
-MATCH (p:Person {property: -1})-[:KNOWS {since: 2016}]->()
-RETURN p.name
-----
-
-.. No space in patterns.
-+
-.Bad
-[source, cypher]
-----
-MATCH (:Person) --> (:Vehicle)
-RETURN count(*)
-----
-+
-.Good
-[source, cypher]
-----
-MATCH (:Person)-->(:Vehicle)
-RETURN count(*)
-----
-
-.. Use a wrapping space around operators.
-+
-.Bad
-[source, cypher]
-----
-MATCH p=(s)-->(e)
-WHERE s.name<>e.name
-RETURN length(p)
-----
-+
-.Good
-[source, cypher]
-----
-MATCH p = (s)-->(e)
-WHERE s.name <> e.name
-RETURN length(p)
-----
-
-.. No space in label predicates.
-+
-.Bad
-[source, cypher]
-----
-MATCH (person    : Person  :  Owner  )
-RETURN person.name
-----
-+
-.Good
-[source, cypher]
-----
-MATCH (person:Person:Owner)
-RETURN person.name
-----
-
-.. Use a space after each comma in lists and enumerations.
-+
-.Bad
-[source, cypher]
-----
-MATCH (),()
-WITH ['a','b',3.14] AS list
-RETURN list,2,3,4
-----
-+
-.Good
-[source, cypher]
-----
-MATCH (), ()
-WITH ['a', 'b', 3.14] AS list
-RETURN list, 2, 3, 4
-----
-
-.. No padding space on the inside of function call parentheses.
-+
-.Bad
-[source, cypher]
-----
-RETURN split( 'original', 'i' )
-----
-+
-.Good
-[source, cypher]
-----
-RETURN split('original', 'i')
-----
-
 . When patterns wrap lines, break after arrows, not before.
 +
 .Bad
@@ -423,8 +288,23 @@ MATCH (node:NonSpacedLabel {property: 42})
 RETURN labels(node)
 ----
 
-. *Patterns*:
-.. Use anonymous nodes and relationships when the variable would not be used.
+. Do not use a semicolon at the end of the statement.
++
+.Bad
+[source, cypher]
+----
+RETURN 1;
+----
++
+.Good
+[source, cypher]
+----
+RETURN 1
+----
+
+==== Patterns
+
+. Use anonymous nodes and relationships when the variable would not be used.
 +
 .Bad
 [source, cypher]
@@ -442,7 +322,7 @@ CREATE (a:End {prop: 42}),
        (:Begin {prop: id(a)})
 ----
 
-.. Chain patterns together to avoid repeating variables.
+. Chain patterns together to avoid repeating variables.
 +
 .Bad
 [source, cypher]
@@ -458,7 +338,7 @@ MATCH (:Person)-->(vehicle:Car)-->(:Company)
 RETURN count(vehicle)
 ----
 
-.. Put named nodes before anonymous nodes.
+. Put named nodes before anonymous nodes.
 +
 .Bad
 [source, cypher]
@@ -476,7 +356,7 @@ WHERE manufacturer.founded_year < 2000
 RETURN vehicle.mileage
 ----
 
-.. Keep anchor nodes at the beginning of the `MATCH` clause.
+. Keep anchor nodes at the beginning of the `MATCH` clause.
 +
 .Bad
 [source, cypher]
@@ -494,7 +374,7 @@ WHERE manufacturer.founded_year < 2000
 RETURN vehicle.mileage
 ----
 
-.. Prefer outgoing (left to right) pattern relationships to incoming pattern relationships.
+. Prefer outgoing (left to right) pattern relationships to incoming pattern relationships.
 +
 .Bad
 [source, cypher]
@@ -510,18 +390,140 @@ MATCH (:Person)-->(vehicle:Car)-->(:Company)<--(:Country)
 RETURN vehicle.mileage
 ----
 
-. Do not use a semicolon at the end of the statement.
+==== Spacing
+
+. For literal maps:
+.. No space between the opening brace and the first key
+.. No space between key and colon
+.. One space between colon and value
+.. No space between value and comma
+.. One space between comma and next key
+.. No space between the last value and the closing brace
 +
 .Bad
 [source, cypher]
 ----
-RETURN 1;
+WITH { key1 :'value' ,key2  :  42 } AS map
+RETURN map
 ----
 +
 .Good
 [source, cypher]
 ----
-RETURN 1
+WITH {key1: 'value', key2: 42} AS map
+RETURN map
+----
+
+. No padding space for parameters.
++
+.Bad
+[source, cypher]
+----
+RETURN { param }
+----
++
+.Good
+[source, cypher]
+----
+RETURN {param}
+----
+
+. One space between label/type predicates and property predicates in patterns.
++
+.Bad
+[source, cypher]
+----
+MATCH (p:Person{property: -1})-[:KNOWS   {since: 2016}]->()
+RETURN p.name
+----
++
+.Good
+[source, cypher]
+----
+MATCH (p:Person {property: -1})-[:KNOWS {since: 2016}]->()
+RETURN p.name
+----
+
+. No space in patterns.
++
+.Bad
+[source, cypher]
+----
+MATCH (:Person) --> (:Vehicle)
+RETURN count(*)
+----
++
+.Good
+[source, cypher]
+----
+MATCH (:Person)-->(:Vehicle)
+RETURN count(*)
+----
+
+. Use a wrapping space around operators.
++
+.Bad
+[source, cypher]
+----
+MATCH p=(s)-->(e)
+WHERE s.name<>e.name
+RETURN length(p)
+----
++
+.Good
+[source, cypher]
+----
+MATCH p = (s)-->(e)
+WHERE s.name <> e.name
+RETURN length(p)
+----
+
+. No space in label predicates.
++
+.Bad
+[source, cypher]
+----
+MATCH (person    : Person  :  Owner  )
+RETURN person.name
+----
++
+.Good
+[source, cypher]
+----
+MATCH (person:Person:Owner)
+RETURN person.name
+----
+
+. Use a space after each comma in lists and enumerations.
++
+.Bad
+[source, cypher]
+----
+MATCH (),()
+WITH ['a','b',3.14] AS list
+RETURN list,2,3,4
+----
++
+.Good
+[source, cypher]
+----
+MATCH (), ()
+WITH ['a', 'b', 3.14] AS list
+RETURN list, 2, 3, 4
+----
+
+. No padding space on the inside of function call parentheses.
++
+.Bad
+[source, cypher]
+----
+RETURN split( 'original', 'i' )
+----
++
+.Good
+[source, cypher]
+----
+RETURN split('original', 'i')
 ----
 
 == Recommendations
