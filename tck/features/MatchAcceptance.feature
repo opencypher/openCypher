@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-Feature: MatchAcceptanceTest
+Feature: MatchAcceptance
 
   Scenario: Path query should return results in written order
     Given an empty graph
