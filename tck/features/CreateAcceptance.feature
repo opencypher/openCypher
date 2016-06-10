@@ -371,7 +371,7 @@ Feature: CreateAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ()
+      CREATE ({foo: 1})
       """
     When executing query:
       """
@@ -379,11 +379,11 @@ Feature: CreateAcceptance
       MATCH (m)
       WITH n AS a, m AS b
       CREATE (a)-[:T]->(b)
-      RETURN id(a) AS a, id(b) AS b
+      RETURN a, b
       """
     Then the result should be:
-      | a | b |
-      | 0 | 0 |
+      | a          | b          |
+      | ({foo: 1}) | ({foo: 1}) |
     And the side effects should be:
       | +relationships | 1 |
 
@@ -391,18 +391,18 @@ Feature: CreateAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ()
+      CREATE (:X)
       """
     When executing query:
       """
       MATCH (n)
       WITH n AS a
       CREATE (a)-[:T]->()
-      RETURN id(a) AS a
+      RETURN a
       """
     Then the result should be:
-      | a |
-      | 0 |
+      | a    |
+      | (:X) |
     And the side effects should be:
       | +nodes         | 1 |
       | +relationships | 1 |
@@ -411,7 +411,7 @@ Feature: CreateAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ()
+      CREATE ({foo: 'A'})
       """
     When executing query:
       """
@@ -421,11 +421,11 @@ Feature: CreateAcceptance
       CREATE (a)-[:T]->(b)
       WITH a AS x, b AS y
       CREATE (x)-[:T]->(y)
-      RETURN id(x) AS x, id(y) AS y
+      RETURN x, y
       """
     Then the result should be:
-      | x | y |
-      | 0 | 0 |
+      | x            | y            |
+      | ({foo: 'A'}) | ({foo: 'A'}) |
     And the side effects should be:
       | +relationships | 2 |
 
@@ -433,7 +433,7 @@ Feature: CreateAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ()
+      CREATE ({foo: 5})
       """
     When executing query:
       """
@@ -442,11 +442,11 @@ Feature: CreateAcceptance
       CREATE (a)-[:T]->()
       WITH a AS x
       CREATE (x)-[:T]->()
-      RETURN id(x) AS x
+      RETURN x
       """
     Then the result should be:
-      | x |
-      | 0 |
+      | x          |
+      | ({foo: 5}) |
     And the side effects should be:
       | +nodes         | 2 |
       | +relationships | 2 |
@@ -520,4 +520,3 @@ Feature: CreateAcceptance
       RETURN r
       """
     Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
-
