@@ -18,7 +18,7 @@
 Feature: CreateAcceptance
 
   Scenario: Create a single node
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE ()
@@ -28,7 +28,7 @@ Feature: CreateAcceptance
       | +nodes  | 1 |
 
   Scenario: Create a single node with a single label
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE (:A)
@@ -39,7 +39,7 @@ Feature: CreateAcceptance
       | +labels | 1 |
 
   Scenario: Create a single node with multiple labels
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE (:A:B:C:D)
@@ -98,7 +98,7 @@ Feature: CreateAcceptance
       | +nodes  | 1 |
 
   Scenario: Create a single node with properties
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE (n {prop: 'foo'})
@@ -112,10 +112,10 @@ Feature: CreateAcceptance
       | +properties | 1 |
 
   Scenario: Creating a node with null properties should not return those properties
-    Given an empty graph
+    Given any graph
     When executing query:
       """
-      CREATE (n {id: 12, property: NULL})
+      CREATE (n {id: 12, property: null})
       RETURN n.id AS id
       """
     Then the result should be:
@@ -126,10 +126,10 @@ Feature: CreateAcceptance
       | +properties | 1 |
 
   Scenario: Creating a relationship with null properties should not return those properties
-    Given an empty graph
+    Given any graph
     When executing query:
       """
-      CREATE ()-[r:X {id: 12, property: NULL}]->()
+      CREATE ()-[r:X {id: 12, property: null}]->()
       RETURN r.id
       """
     Then the result should be:
@@ -141,7 +141,7 @@ Feature: CreateAcceptance
       | +properties    | 1 |
 
   Scenario: Create a simple pattern
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE ()-[:R]->()
@@ -152,7 +152,7 @@ Feature: CreateAcceptance
       | +relationships | 1 |
 
   Scenario: Create a self loop
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE (root:R)-[:LINK]->(root)
@@ -179,7 +179,7 @@ Feature: CreateAcceptance
       | +relationships | 1 |
 
   Scenario: Create nodes and relationships
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE (a), (b),
@@ -191,7 +191,7 @@ Feature: CreateAcceptance
       | +relationships | 1 |
 
   Scenario: Create a relationship with a property
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE ()-[:R {prop: 42}]->()
@@ -202,7 +202,7 @@ Feature: CreateAcceptance
       | +relationships | 1 |
       | +properties    | 1 |
 
-  Scenario: Create a relationship with the correct direction - 1
+  Scenario: Create a relationship with the correct direction
     Given an empty graph
     And having executed:
       """
@@ -217,20 +217,7 @@ Feature: CreateAcceptance
     Then the result should be empty
     And the side effects should be:
       | +relationships | 1 |
-
-  Scenario: Create a relationship with the correct direction - 2
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:X)
-      CREATE (:Y)
-      """
-    When executing query:
-      """
-      MATCH (x:X), (y:Y)
-      CREATE (x)<-[:TYPE]-(y)
-      """
-    And having executed:
+    When executing control query:
       """
       MATCH (x:X)<-[:TYPE]-(y:Y)
       RETURN x, y
@@ -238,9 +225,8 @@ Feature: CreateAcceptance
     Then the result should be:
       | x    |  y   |
       | (:X) | (:Y) |
-    And no side effects
 
-  Scenario: Create a relationship and an end node from a matched starting node - 1
+  Scenario: Create a relationship and an end node from a matched starting node
     Given an empty graph
     And having executed:
       """
@@ -256,19 +242,7 @@ Feature: CreateAcceptance
       | +nodes         | 1 |
       | +relationships | 1 |
       | +labels        | 1 |
-
-  Scenario: Create a relationship and an end node from a matched starting node - 2
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:Begin)
-      """
-    When executing query:
-      """
-      MATCH (x:Begin)
-      CREATE (x)-[:TYPE]->(:End)
-      """
-    And having executed:
+    When executing control query:
       """
       MATCH (x:Begin)-[:TYPE]->()
       RETURN x
@@ -276,7 +250,6 @@ Feature: CreateAcceptance
     Then the result should be:
       | x        |
       | (:Begin) |
-    And no side effects
 
   Scenario: Create a single node after a WITH
     Given an empty graph
@@ -295,7 +268,7 @@ Feature: CreateAcceptance
     And the side effects should be:
       | +nodes | 4 |
 
-  Scenario: Create a relationship with a reversed direction - 1
+  Scenario: Create a relationship with a reversed direction
     Given an empty graph
     When executing query:
       """
@@ -306,14 +279,7 @@ Feature: CreateAcceptance
       | +nodes         | 2 |
       | +relationships | 1 |
       | +labels        | 2 |
-
-  Scenario: Create a relationship with a reversed direction - 2
-    Given an empty graph
-    When executing query:
-      """
-      CREATE (:A)<-[:R]-(:B)
-      """
-    And having executed:
+    When executing control query:
       """
       MATCH (a:A)<-[:R]-(b:B)
       RETURN a, b
@@ -321,9 +287,8 @@ Feature: CreateAcceptance
     Then the result should be:
       | a    | b    |
       | (:A) | (:B) |
-    And no side effects
 
-  Scenario: Create a pattern with multiple hops - 1
+  Scenario: Create a pattern with multiple hops
     Given an empty graph
     When executing query:
       """
@@ -334,14 +299,7 @@ Feature: CreateAcceptance
       | +nodes         | 3 |
       | +relationships | 2 |
       | +labels        | 3 |
-
-  Scenario: Create a pattern with multiple hops - 2
-    Given an empty graph
-    When executing query:
-      """
-      CREATE (:A)-[:R]->(:B)-[:R]->(:C)
-      """
-    And having executed:
+    When executing control query:
       """
       MATCH (a:A)-[:R]->(b:B)-[:R]->(c:C)
       RETURN a, b, c
@@ -349,10 +307,9 @@ Feature: CreateAcceptance
     Then the result should be:
       | a    | b    | c    |
       | (:A) | (:B) | (:C) |
-    And no side effects
 
-  Scenario: Create a pattern with multiple hops in the reverse direction - 1
-    Given an empty graph
+  Scenario: Create a pattern with multiple hops in the reverse direction
+    Given any graph
     When executing query:
       """
       CREATE (:A)<-[:R]-(:B)<-[:R]-(:C)
@@ -362,14 +319,7 @@ Feature: CreateAcceptance
       | +nodes         | 3 |
       | +relationships | 2 |
       | +labels        | 3 |
-
-  Scenario: Create a pattern with multiple hops in the reverse direction - 2
-    Given an empty graph
-    When executing query:
-      """
-      CREATE (:A)<-[:R]-(:B)<-[:R]-(:C)
-      """
-    And having executed:
+    When executing control query:
       """
       MATCH (a)<-[:R]-(b)<-[:R]-(c)
       RETURN a, b, c
@@ -377,10 +327,9 @@ Feature: CreateAcceptance
     Then the result should be:
       | a    | b    | c    |
       | (:A) | (:B) | (:C) |
-    And no side effects
 
-  Scenario: Create a pattern with multiple hops in varying directions - 1
-    Given an empty graph
+  Scenario: Create a pattern with multiple hops in varying directions
+    Given any graph
     When executing query:
       """
       CREATE (:A)-[:R]->(:B)<-[:R]-(:C)
@@ -390,14 +339,7 @@ Feature: CreateAcceptance
       | +nodes         | 3 |
       | +relationships | 2 |
       | +labels        | 3 |
-
-  Scenario: Create a pattern with multiple hops in varying directions - 2
-    Given an empty graph
-    When executing query:
-      """
-      CREATE (:A)-[:R]->(:B)<-[:R]-(:C)
-      """
-    And having executed:
+    When executing control query:
       """
       MATCH (a:A)-[r1:R]->(b:B)<-[r2:R]-(c:C)
       RETURN a, b, c
@@ -405,10 +347,9 @@ Feature: CreateAcceptance
     Then the result should be:
       | a    | b    | c    |
       | (:A) | (:B) | (:C) |
-    And no side effects
 
-  Scenario: Create a pattern with multiple hops with multiple types and varying directions - 1
-    Given an empty graph
+  Scenario: Create a pattern with multiple hops with multiple types and varying directions
+    Given any graph
     When executing query:
       """
       CREATE ()-[:R1]->()<-[:R2]-()-[:R3]->()
@@ -417,14 +358,7 @@ Feature: CreateAcceptance
     And the side effects should be:
       | +nodes         | 4 |
       | +relationships | 3 |
-
-  Scenario: Create a pattern with multiple hops with multiple types and varying directions - 2
-    Given an empty graph
     When executing query:
-      """
-      CREATE ()-[:R1]->()<-[:R2]-()-[:R3]->()
-      """
-    And having executed:
       """
       MATCH ()-[r1:R1]->()<-[r2:R2]-()-[r3:R3]->()
       RETURN r1, r2, r3
@@ -432,7 +366,6 @@ Feature: CreateAcceptance
     Then the result should be:
       | r1    | r2    | r3    |
       | [:R1] | [:R2] | [:R3] |
-    And no side effects
 
   Scenario: Nodes are not created when aliases are applied to variable names
     Given an empty graph
@@ -519,7 +452,7 @@ Feature: CreateAcceptance
       | +relationships | 2 |
 
   Scenario: A bound node should be recognized after projection with WITH + WITH
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE (a)
@@ -534,7 +467,7 @@ Feature: CreateAcceptance
       | +relationships | 1 |
 
   Scenario: A bound node should be recognized after projection with WITH + UNWIND
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE (a)
@@ -580,7 +513,7 @@ Feature: CreateAcceptance
 
 
   Scenario: Fail when trying to create using an undirected relationship pattern
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE ({id: 2})-[r:KNOWS]-({id: 1})

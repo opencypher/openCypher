@@ -18,7 +18,7 @@
 Feature: LargeCreateQuery
 
   Scenario: Generate the movie graph correctly
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE (theMatrix:Movie {title: 'The Matrix', released: 1999, tagline: 'Welcome to the Real World'})
@@ -564,7 +564,7 @@ Feature: LargeCreateQuery
       | +labels        | 171 |
 
   Scenario: Many CREATE clauses
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE (hf:School {name: 'Hilly Fields Technical College'})
