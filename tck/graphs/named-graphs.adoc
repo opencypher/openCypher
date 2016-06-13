@@ -52,7 +52,7 @@ The empty string is used as an 'any' wildcard for label names and property keys 
 
 === Advice
 
-For some statistical combinations, the metadata file an optional piece of information (that may be disregarded), which can be useful for imposing constraints on the graph.
+For some statistical combinations, the metadata file contains an optional piece of information (that may be disregarded), which can be useful for imposing constraints on the graph.
 This is called 'advice'.
 For label/property and type/property combinations, the supported advice are:
 
@@ -70,5 +70,5 @@ For label/sublabel combinations, the supported advice is:
 
 === Scripts
 
-The metadata file will specify one or more script files, which are files that contain Cypher statements which are to be used to create the named graph.
+The metadata file will specify one or more script files that contain Cypher statements which are used to create the named graph.
 The statements in the script files are separated by the semicolon character.
