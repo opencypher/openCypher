@@ -1,0 +1,154 @@
+= CIP2016-06-14 - Comparability and Orderability
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Mats Rydberg <mats@neotechnology.com>, Stefan Plantikow <stefan.plantikow@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+This CIP intends to introduce and formalise two new concepts, Orderability and Comparability, and defines their relationship to the already existing concepts of equality and equivalence.
+Orderability revolves around the `ORDER BY` clause, and defines the semantics it needs to be able to properly sort values passed to it.
+Comparability revolves around the inequality operators (`>`, `<`, `>=`, `<=`), and defines the semantics they need to properly determine how two values compare to each other.
+In order to get a consistent set of rules, we are also proposing some changes to how Cypher deals with equality.
+--
+
+toc::[]
+
+
+== Motivation
+
+There are currently a number of limitations and inconsistencies that this CIP will try to fix.
+
+- `ORDER BY` will fail with an error if the values passed to it have different types.
+- Various inconsistencies around equality semantics as exposed by `IN`, `=`, `DISTINCT`, and grouping
+- Unclear relationship between comparison operators, equality, and `ORDER BY`
+
+The difference between equality and equivalence in Cypher today is small and subtle, and limited to testing two instances of the value `null` to each other.
+
+- In equality, `null = null` is `null`
+- In equivalence, used by grouping and `DISTINCT`, instances of `null` are seen as the same
+
+This proposal aims to increase the difference between these two concepts, by making lists containing nulls follow the same difference as the null values themselves.
+
+== Proposal
+
+Currently, Cypher has good semantics for equality within the primitive types (booleans, strings, integers, and floats) and maps.
+Furthermore, Cypher has good semantics for comparability and orderability for integers, floats, and strings, within the types.
+Between different types, however, the comparability is undefined, which is something we regard as a problem for certain combinations of values and types.
+
+We propose that comparability be defined between any pair of values, where the result of a comparison is `null`, unless otherwise specified.
+
+- Integers are compared according to their natural ordering.
+- Floats (excluding `NaN`s) are compared according to their natural ordering. Infinities are the highest/lowest values respectively.
+- Integers and floats are compared to each other according to their natural ordering.
+- Strings are compared in dictionary order.
+- Lists are compared in dictionary order. List elements are compared pairwise in order.
+- Booleans, maps, nodes, relationships, and paths are incomparable both within types and between types.
+- Any other combination of values of different types would yield `null`.
+
+We further propose that orderability be defined between any pair of values, where the result is always `true` or `false`; ie always defined.
+To accomplish this, there must be a pre-determined type order, and we propose the following order, ascending:
+
+- null
+- paths
+- relationships
+- nodes
+- maps
+- lists
+- strings
+- booleans
+- numbers
+- `NaN`
+
+Within the types, orderability defers to comparability for the types were comparability is defined (numbers, strings, lists).
+- The order for nodes and relationships is undefined, and an implementation may choose a global sort order for these freely.
+- The order for paths is that of a list of nodes and relationships.
+- The order for maps is that of a list of lists, where the inner lists are the key-value pair of the maps, ordered in ascending sort order for the keys.
+
+
+Finally, we propose to redefine how equality works for lists in Cypher today.
+The main issue is how Cypher deals with lists that contain the `null` value.
+We propose a simple rule, like so
+----
+[a1, a2, ...] = [b1, b2, ...]
+<=>
+a1 = b1 && a2 = b2 && ...
+----
+
+=== Examples
+
+An integer compared to a float
+[source, cypher]
+----
+RETURN 1 > 0.5 // should be true
+----
+
+A string compared to a boolean
+[source, cypher]
+----
+RETURN 'string' <= true // should be null
+----
+
+Ordering values of different types
+[source, cypher]
+----
+UNWIND [1, true, '', 3.14, {}, [2]] AS i
+RETURN i
+  ORDER BY i // should not crash
+----
+
+Filtering distinct values of different types
+[source, cypher]
+----
+UNWIND [[null], [null]] AS i
+RETURN DISTINCT i // should return two rows
+----
+
+=== Semantics
+
+//Provide a description of the expected semantics of the new feature(s).
+//Use subheadings to structure the content.
+//
+//_Examples are shown below in sections 3.3.1–3.3.3:_
+
+=== Interaction with existing features
+
+The concept of orderability is used only by `ORDER BY` in Cypher today.
+The concept of comparability is used by the comparisons operators `<`, `>`, `<=`, >=`.
+
+One major goal of our proposal is for equality semantics to align well with comparability.
+The concept of equality is used by the equality operator `=`, the inequality operator `<>`, `DISTINCT`, value joins, and grouping.
+With the proposals made in this CIP, specifically changing equality for lists, the mentioned functionality is going to treat lists containing `null` as unequal, thus producing more rows (in general).
+
+=== Alternatives
+
+This proposal could be extended to define comparability for maps, booleans, and graph types.
+
+This proposal could be extended with a new way to express current grouping semantics (structural equivalence).
+
+- DISTINCT ~ foo, ~ bar
+- lhs ~ rhs
+- ~ expr IN list
+
+== What others do
+
+If applicable, include a feature comparison table, along with any useful links.
+
+To provide a well-rounded comparison, please ensure the inclusion of at least one SQL-based implementation -- such as DB2 or Postgres -- as well as SPARQL.
+If you require any assistance or pointers to the latter, please contact petra.selmer@neotechnology.com.
+
+== Benefits to this proposal
+
+A consistent set of rules for equality, comparability and orderability.
+
+== Caveats to this proposal
+
+Adopting this proposal may break some queries; specifically queries that depend on equality semantics of lists containing nulls.
+It should be noted that we expect that most lists used in queries are constructed using `collect()`, which never outputs nulls.
+
+== Appendix
+
+Put any supplementary information here.
