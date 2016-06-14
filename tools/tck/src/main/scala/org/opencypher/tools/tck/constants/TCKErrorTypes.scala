@@ -81,6 +81,7 @@ object TCKErrorDetails {
   val INVALID_PROPERTY_TYPE = "InvalidPropertyType"
   val COLUMN_NAME_CONFLICT = "ColumnNameConflict"
   val NO_VARIABLES_IN_SCOPE = "NoVariablesInScope"
+  val DELETED_ENTITY_ACCESS = "DeletedEntityAccess"
 
   val ALL = Set(INVALID_ELEMENT_ACCESS,
                 MAP_ELEMENT_ACCESS_BY_NON_STRING,
@@ -119,5 +120,6 @@ object TCKErrorDetails {
                 INVALID_PROPERTY_TYPE,
                 COLUMN_NAME_CONFLICT,
                 NO_VARIABLES_IN_SCOPE,
+                DELETED_ENTITY_ACCESS,
                 VARIABLE_USE_NOT_ALLOWED)
 }
