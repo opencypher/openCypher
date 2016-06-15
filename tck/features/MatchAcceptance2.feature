@@ -1424,7 +1424,7 @@ Feature: MatchAcceptance2
       WITH n.prop AS n2
       RETURN n2.prop
       """
-    Then a TypeError should be raised at runtime: InvalidArgumentType
+    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
 
   Scenario: Matching and returning ordered results, with LIMIT
     Given an empty graph
