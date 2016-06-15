@@ -33,7 +33,7 @@ object validateCodeStyle extends (String => Option[String]) {
       case (q, word) => q.replaceAll(s"(?i)(^|[^a-zA-Z])$word ", s"$$1$word ")
     }
 
-    val onlySingleQuotes = lowerCased2.replaceAll("\"(.+)\"", "'$1'")
+    val onlySingleQuotes = lowerCased2.replaceAll("\"([^']+)\"", "'$1'")
 
     val spaceAfterComma = if (onlySingleQuotes.contains("'")) {
       onlySingleQuotes // it's difficult to find out whether the comma is in a string or not... just avoid this case

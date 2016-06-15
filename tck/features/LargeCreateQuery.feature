@@ -438,7 +438,7 @@ Feature: LargeCreateQuery
         (samR)-[:ACTED_IN {roles: ['James Reston, Jr.']}]->(frostNixon),
         (ronH)-[:DIRECTED]->(frostNixon)
 
-      CREATE (hoffa:Movie {title: 'Hoffa', released: 1992, tagline: 'He didn't want law. He wanted justice.'})
+      CREATE (hoffa:Movie {title: 'Hoffa', released: 1992, tagline: "He didn't want law. He wanted justice."})
       CREATE (dannyD:Person {name: 'Danny DeVito', born: 1944})
       CREATE (johnR:Person {name: 'John C. Reilly', born: 1965})
       CREATE

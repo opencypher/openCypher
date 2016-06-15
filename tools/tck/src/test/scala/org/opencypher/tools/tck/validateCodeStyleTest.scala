@@ -65,8 +65,12 @@ class validateCodeStyleTest extends TckTestSupport {
     assertIncorrect("WITH '' AS string RETURN string,string", "WITH '' AS string RETURN string, string")
   }
 
-  test("should not allow single quotes in strings") {
+  test("should request single quotes for literal strings") {
     assertIncorrect("WITH \"string\" AS string", "WITH 'string' AS string")
+  }
+
+  test("should not request single quotes for literal strings that contain single quotes") {
+    assertCorrect("WITH \"string that has ' within it\" AS string")
   }
 
   private def assertCorrect(query: String) = {
