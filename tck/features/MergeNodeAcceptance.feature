@@ -524,17 +524,6 @@ Feature: MergeNodeAcceptance
       """
     Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
 
-  Scenario: Should handle running merge inside a foreach loop
-    Given an empty graph
-    When executing query:
-      """
-      FOREACH(x IN [1, 2, 3] | MERGE ({property: x}))
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes      | 3 |
-      | +properties | 3 |
-
   Scenario: Unrelated nodes with same property should not clash
     Given an empty graph
     And having executed:
@@ -897,22 +886,6 @@ Feature: MergeNodeAcceptance
       | +nodes      | 15 |
       | +labels     | 15 |
       | +properties | 30 |
-
-  Scenario: Merge inside foreach should see variables introduced by update actions outside foreach
-    Given an empty graph
-    When executing query:
-      """
-      CREATE (a {name: 'Start'})
-      FOREACH(x IN [1, 2, 3] | MERGE (a)-[:X]->({id: x}))
-      RETURN a.name
-      """
-    Then the result should be:
-      | a.name  |
-      | 'Start' |
-    And the side effects should be:
-      | +nodes         | 4 |
-      | +relationships | 3 |
-      | +properties    | 4 |
 
   Scenario: Merge must properly handle multiple labels
     Given an empty graph
