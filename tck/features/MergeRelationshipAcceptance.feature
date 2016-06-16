@@ -360,23 +360,6 @@ Feature: MergeRelationshipAcceptance
       | +relationships | 2 |
       | +labels        | 3 |
 
-  Scenario: Failing when creation would violate constraint
-    Given an empty graph
-    And having executed:
-      """
-      CREATE CONSTRAINT ON (p:Person) ASSERT p.id IS UNIQUE
-      """
-    And having executed:
-      """
-      CREATE (:Person {id: 666})
-      """
-    When executing query:
-      """
-      CREATE (a:A)
-      MERGE (a)-[:KNOWS]->(b:Person {id: 666})
-      """
-    Then a ConstraintValidationFailed should be raised at runtime: CreateBlockedByConstraint
-
   Scenario: Merging inside a FOREACH using a previously matched node
     Given an empty graph
     And having executed:
