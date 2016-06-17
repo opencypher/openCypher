@@ -17,6 +17,36 @@
 
 Feature: FunctionsAcceptance
 
+  Scenario: Run coalesce
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({name: 'Emil Eifrem', title: 'CEO'}), ({name: 'Nobody'})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      RETURN coalesce(a.title, a.name)
+      """
+    Then the result should be:
+      | coalesce(a.title, a.name) |
+      | 'CEO'                     |
+      | 'Nobody'                  |
+    And no side effects
+
+  Scenario: Functions should return null if they get path containing unbound
+    Given any graph
+    When executing query:
+      """
+      WITH null AS a
+      OPTIONAL MATCH p = (a)-[r]->()
+      RETURN length(nodes(p)), type(r), nodes(p), rels(p)
+      """
+    Then the result should be:
+      | length(nodes(p)) | type(r) | nodes(p) | rels(p) |
+      | null             | null    | null     | null    |
+    And no side effects
+
   Scenario: `split()`
     Given any graph
     When executing query:

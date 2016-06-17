@@ -17,6 +17,23 @@
 
 Feature: ReturnAcceptanceTest
 
+  Scenario: Allow addition
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({id: 1337, version: 99})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.id = 1337
+      RETURN a.version + 5
+      """
+    Then the result should be:
+      | a.version + 5 |
+      | 104           |
+    And no side effects
+
   Scenario: Limit to two hits
     Given an empty graph
     And having executed:

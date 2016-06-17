@@ -16,6 +16,57 @@
 
 Feature: AggregationAcceptance
 
+  Scenario: Support multiple divisions in aggregate function
+    Given an empty graph
+    And having executed:
+      """
+      UNWIND range(0, 7250) AS i
+      CREATE ()
+      """
+    When executing query:
+      """
+      MATCH (n)
+      RETURN count(n) / 60 / 60 AS count
+      """
+    Then the result should be:
+      | count |
+      | 2     |
+    And no side effects
+
+  Scenario: Support column renaming for aggregates as well
+    Given an empty graph
+    And having executed:
+      """
+      UNWIND range(0, 10) AS i
+      CREATE ()
+      """
+    When executing query:
+      """
+      MATCH ()
+      RETURN count(*) AS columnName
+      """
+    Then the result should be:
+      | columnName |
+      | 11         |
+    And no side effects
+
+  Scenario: Aggregates inside normal functions
+    Given an empty graph
+    And having executed:
+      """
+      UNWIND range(0, 10) AS i
+      CREATE ()
+      """
+    When executing query:
+      """
+      MATCH (a)
+      RETURN size(collect(a))
+      """
+    Then the result should be:
+      | size(collect(a)) |
+      | 11               |
+    And no side effects
+
   Scenario: Handle aggregates inside non-aggregate expressions
     Given an empty graph
     When executing query:
