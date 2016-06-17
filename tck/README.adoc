@@ -79,8 +79,6 @@ Certain queries do require a more complex graph structure in order to yield less
 
 The TCK currently supports these named graphs:
 
-* cineasts
-** A social graph of movies, with actors and directors, and users who rate the movies.
 * binary-tree-1
 ** A binary tree of depth 4, with only label `:X` on non-root nodes, and three different relationship types.
 * binary-tree-2

@@ -26,5 +26,5 @@ object validateNamedGraph extends (String => Option[String]) {
     else Some(s"Unknown graph referenced: '$name'")
   }
 
-  private val GRAPHS = Set("cineasts")
+  private val GRAPHS = Set("binary-tree-1", "binary-tree-2")
 }
