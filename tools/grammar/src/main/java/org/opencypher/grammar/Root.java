@@ -128,17 +128,7 @@ class Root implements Iterable<ProductionNode>
         // filter out unused productions
         if ( !unused.isEmpty() )
         {
-            if ( options.contains( ResolutionOption.SKIP_UNUSED_PRODUCTIONS ) )
-            {
-                while ( false && !unused.isEmpty() )
-                {
-                    for ( String name : new ArrayList<>( unused ) )
-                    {
-                        ProductionNode production = productions.remove( name );
-                    }
-                }
-            }
-            else if ( !options.contains( ResolutionOption.IGNORE_UNUSED_PRODUCTIONS ) )
+            if ( !options.contains( ResolutionOption.IGNORE_UNUSED_PRODUCTIONS ) )
             {
                 System.err.println( "WARNING! Unused productions:" );
                 for ( String name : unused )
