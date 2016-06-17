@@ -24,6 +24,7 @@
 <grammar language="Cypher"
   xmlns="http://thobe.org/grammar"
   xmlns:rr="http://thobe.org/railroad"
+  xmlns:oc="http://thobe.org/opencypher"
   xmlns:ast="http://thobe.org/syntaxtree"
   xmlns:gen="http://thobe.org/stringgeneration"
   xmlns:scope="http://thobe.org/scope">
@@ -61,7 +62,7 @@
     <repeat>&WS;<non-terminal ref="Union"/></repeat>
   </production>
 
-  <production name="BulkImportQuery">
+  <production name="BulkImportQuery" oc:legacy="true">
     <non-terminal ref="PeriodicCommitHint"/>
     &WS;
     <non-terminal ref="LoadCSVQuery"/>
@@ -72,12 +73,12 @@
     <repeat>&WS; <non-terminal ref="Clause"/></repeat>
   </production>
 
-  <production name="PeriodicCommitHint" rr:inline="true">
+  <production name="PeriodicCommitHint" rr:inline="true" oc:legacy="true">
     USING &SP; PERIODIC &SP; COMMIT
     <opt>&SP;<non-terminal ref="SignedIntegerLiteral"/></opt>
   </production>
 
-  <production name="LoadCSVQuery" rr:inline="true">
+  <production name="LoadCSVQuery" rr:inline="true" oc:legacy="true">
     <non-terminal ref="LoadCSV"/>
     <repeat>&WS;<non-terminal ref="Clause"/></repeat>
   </production>
@@ -114,7 +115,7 @@
 
   <!-- / CLAUSES \ -->
 
-  <production name="LoadCSV">
+  <production name="LoadCSV" oc:legacy="true">
     LOAD &SP; CSV &SP;
     <opt>WITH &SP; HEADERS &SP;</opt>
     FROM &SP; &expr; &SP;
@@ -189,7 +190,7 @@
     </alt>
   </production>
 
-  <production name="Foreach" scope:rule="nested">
+  <production name="Foreach" scope:rule="nested" oc:legacy="true">
     FOREACH &WS; ( &WS; &var; &SP; IN &SP; &expr; &WS; | <repeat min="1">&SP;<non-terminal ref="Clause"/></repeat> &WS; )
   </production>
 
@@ -254,7 +255,7 @@
     </alt>
   </production>
 
-  <production name="Hint">
+  <production name="Hint" oc:legacy="true">
     <alt>
       <seq>USING &SP; INDEX &SP; &var; <non-terminal ref="NodeLabel"/>(<non-terminal ref="PropertyKeyName"/>)</seq>
       <seq>USING &SP; JOIN &SP; ON &SP; &var; <repeat>&WS;,&WS;&var;</repeat></seq>

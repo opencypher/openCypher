@@ -23,30 +23,31 @@
 <grammar language="Cypher Start Clause"
   xmlns="http://thobe.org/grammar"
   xmlns:rr="http://thobe.org/railroad"
+  xmlns:oc="http://thobe.org/opencypher"
   xmlns:ast="http://thobe.org/syntaxtree"
   xmlns:gen="http://thobe.org/stringgeneration">
 
   <!-- / START \ -->
 
-  <production name="Start">
+  <production name="Start" oc:legacy="true">
     START &SP;
     <non-terminal ref="StartPoint"/>
     <repeat>&WS;,&WS;<non-terminal ref="StartPoint"/></repeat>
     <opt><non-terminal ref="Where"/></opt>
   </production>
 
-  <production name="StartPoint" rr:inline="true">
+  <production name="StartPoint" rr:inline="true" oc:legacy="true">
     &var; &WS; = &WS; <non-terminal ref="Lookup"/>
   </production>
 
-  <production name="Lookup" rr:inline="true">
+  <production name="Lookup" rr:inline="true" oc:legacy="true">
     <alt>
       <non-terminal ref="NodeLookup"/>
       <non-terminal ref="RelationshipLookup"/>
     </alt>
   </production>
 
-  <production name="NodeLookup" rr:inline="true">
+  <production name="NodeLookup" rr:inline="true" oc:legacy="true">
     NODE
     <alt>
       <non-terminal ref="IdentifiedIndexLookup"/>
@@ -55,7 +56,7 @@
     </alt>
   </production>
 
-  <production name="RelationshipLookup" rr:inline="true">
+  <production name="RelationshipLookup" rr:inline="true" oc:legacy="true">
     <alt>RELATIONSHIP REL</alt>
     <alt>
       <non-terminal ref="IdentifiedIndexLookup"/>
@@ -64,7 +65,7 @@
     </alt>
   </production>
 
-  <production name="IdentifiedIndexLookup">
+  <production name="IdentifiedIndexLookup" oc:legacy="true">
     : <non-terminal ref="SymbolicName" rr:title="index name"/>
     ( <non-terminal ref="SymbolicName" rr:title="property key"/> =
     <alt>
@@ -73,7 +74,7 @@
     </alt>)
   </production>
 
-  <production name="IndexQuery">
+  <production name="IndexQuery" oc:legacy="true">
     : <non-terminal ref="SymbolicName" rr:title="index name"/>
     (<alt>
       <non-terminal ref="StringLiteral"/>
@@ -81,7 +82,7 @@
     </alt>)
   </production>
 
-  <production name="IdLookup">
+  <production name="IdLookup" oc:legacy="true">
     (<alt>
       <non-terminal ref="LiteralIds"/>
       <non-terminal ref="Parameter"/>
@@ -89,7 +90,7 @@
     </alt>)
   </production>
 
-  <production name="LiteralIds" rr:inline="true">
+  <production name="LiteralIds" rr:inline="true" oc:legacy="true">
     <non-terminal ref="UnsignedIntegerLiteral"/>
     <repeat>
       &WS;,&WS;<non-terminal ref="UnsignedIntegerLiteral"/>

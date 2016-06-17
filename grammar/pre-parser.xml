@@ -22,16 +22,17 @@
 <grammar language="Cypher Pre-Parser"
   xmlns="http://thobe.org/grammar"
   xmlns:rr="http://thobe.org/railroad"
+  xmlns:oc="http://thobe.org/opencypher"
   xmlns:ast="http://thobe.org/syntaxtree"
   xmlns:gen="http://thobe.org/stringgeneration">
 
   <!-- / PRE-PARSER \ -->
 
-  <production name="QueryOptions">
+  <production name="QueryOptions" oc:legacy="true">
     <repeat><non-terminal ref="AnyCypherOption"/> &WS;</repeat>
   </production>
 
-  <production name="AnyCypherOption" rr:inline="true">
+  <production name="AnyCypherOption" rr:inline="true" oc:legacy="true">
     <alt>
       <non-terminal ref="CypherOption"/>
       <non-terminal ref="Explain"/>
@@ -39,20 +40,20 @@
     </alt>
   </production>
 
-  <production name="CypherOption" rr:inline="true">
+  <production name="CypherOption" rr:inline="true" oc:legacy="true">
     CYPHER
     <opt>&SP;<non-terminal ref="VersionNumber"/></opt>
     <repeat>&SP;<non-terminal ref="ConfigurationOption"/></repeat>
   </production>
 
-  <production name="VersionNumber" rr:inline="true">
+  <production name="VersionNumber" rr:inline="true" oc:legacy="true">
     <non-terminal ref="DigitString"/>.<non-terminal ref="DigitString"/>
   </production>
 
-  <production name="Explain" rr:inline="true">EXPLAIN</production>
-  <production name="Profile" rr:inline="true">PROFILE</production>
+  <production name="Explain" rr:inline="true" oc:legacy="true">EXPLAIN</production>
+  <production name="Profile" rr:inline="true" oc:legacy="true">PROFILE</production>
 
-  <production name="ConfigurationOption" rr:inline="true">
+  <production name="ConfigurationOption" rr:inline="true" oc:legacy="true">
     <non-terminal ref="SymbolicName" ast:entry="key"/>
     &WS; = &WS;
     <non-terminal ref="SymbolicName" ast:entry="value"/>
