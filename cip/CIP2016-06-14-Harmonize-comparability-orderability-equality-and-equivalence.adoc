@@ -189,6 +189,8 @@ PostgresSQL treats some numerical operations (like division by zero) that would 
 
 This proposal could be extended with an operator for making equivalence accessible beyond use in grouping and `DISTINCT`. This seems desirable due to plain `=` not being reflexive for all values.
 
+Also noteworthy: If nulls would track their source, equality could become reflexive again as it would become possible to know if two `null` values represent the same "unknown" value.
+
 == Benefits to this proposal
 
 A consistent set of rules for equality, equivalence, comparability and orderability.
