@@ -9,10 +9,11 @@
 [abstract]
 .Abstract
 --
-This CIP intends to introduce and formalise two new concepts, *orderability* and *comparability*, and defines their relationship to the already existing concepts of *equality* and *equivalence*.
-Orderability revolves around the `ORDER BY` clause, and defines the semantics it needs to be able to properly sort values passed to it.
+This CIP intends to introduce and formalise two new concepts, *comparability* and *orderability*, and defines their relationship to the already existing concepts of *equality* and *equivalence*.
 Comparability revolves around the inequality operators (`>`, `<`, `>=`, `<=`), and defines the semantics they need to properly determine how two values compare to each other.
-In order to get a consistent set of rules, we are proposing some changes to how Cypher defines these concepts.
+Orderability revolves around the `ORDER BY` clause, and defines the semantics it needs to be able to properly sort values passed to it.
+Futhermore, the definitions of *equality* and *equivalence* are harmonized and spelled out.
+In summary, we are proposing some changes to how Cypher defines these four concepts in order to get a consistent set of rules and a simpler conceptual model.
 --
 
 toc::[]
@@ -20,67 +21,97 @@ toc::[]
 
 == Motivation
 
-There are currently a number of limitations and inconsistencies that this CIP will try to fix.
+There are currently a number of limitations and inconsistencies that this CIP aims to fix.
 
-- `ORDER BY` will fail with an error if the values passed to it have different types.
-- Various inconsistencies around equality semantics as exposed by `IN`, `=`, `DISTINCT`, and grouping
-- Unclear relationship between comparison operators, equality, and `ORDER BY`
+(1) Cypher already has good semantics for equality within the primitive types (booleans, strings, integers, and floats) and maps.
+Furthermore, Cypher has good semantics for comparability and orderability for integers, floats, and strings, within the types.
+However working with values of different types can be difficult:
 
-The difference between equality and equivalence in Cypher today is small and subtle, and limited to testing two instances of the value `null` to each other.
+  * Comparability between values of different types is often undefined, which is something we regard as a problem for certain combinations of values and types.
+  * `ORDER BY` will often fail with an error if the values passed to it have different types.
 
-- In equality, `null = null` is `null`
-- In equivalence, used by grouping and `DISTINCT`, instances of `null` are treated as being the same value
+(2) The underlying conceptual model is complex and sometimes inconsistent which leads to an unclear relationship between comparison operators, equality, grouping, and `ORDER BY`:
 
-This proposal aims to increase the difference between these two concepts, by making lists containing `null` values follow the same difference as the `null` values themselves.
+  * Comparability and orderability are not aligned with each other consistently (Some types may be ordered but not compared).
+  * There are various inconsistencies around equality (and equivalence) semantics as exposed by `IN`, `=`, `DISTINCT`, and grouping.
+  The difference between equality and equivalence in Cypher today is small and subtle, and limited to testing two instances of the value `null` to each other.
+
+    ** In equality, `null = null` is `null`.
+    ** In equivalence, used by grouping and `DISTINCT`, instances of `null` are always treated as being the same value.
+    ** However, equality treats `null` values differently depending on if wether are an element of a list or not.
 
 == Proposal
 
-Currently, Cypher has good semantics for equality within the primitive types (booleans, strings, integers, and floats) and maps.
-Furthermore, Cypher has good semantics for comparability and orderability for integers, floats, and strings, within the types.
-Between different types, however, the comparability is undefined, which is something we regard as a problem for certain combinations of values and types. Also comparability and orderability are not aligned with each other consistently
+=== Comparability
 
-We propose that comparability be defined between any pair of values, where the result of a comparison is `null`, unless otherwise specified.
+We propose that comparability be defined between any pair of values, as specified below (Please note that `null` is interpreted as meaning "unknown" in the context of comparability):
 
-- Integers are compared according to their natural ordering.
-- Floats (excluding `NaN`s) are compared according to their natural ordering. Infinities are the highest/lowest values respectively.
-- Integers and floats are compared to each other according to their natural ordering.
-- Comparing any number to a `NaN` always yields `NaN`.
-- Booleans are compared such that `false < true`.
-- Strings are compared in dictionary order, i.e. characters are compared pairwise in order and characters missing in a shorter string are considered to be smaller than any other character. For example, `'a' < 'aa'`.
-- Lists are compared in dictionary order, i.e. list elements are compared pairwise in order and elements missing in a shorter list are considered to be smaller than any other value. For example, `[1] < [1,0]`.
-- Maps are compared as if they where lists of lists, where the inner lists are the key-value pairs of the maps, ordered in ascending sort order for the keys and omitting map entries where the value is `null`. Comparing a map to a value that is not a map always yields 'null'.
-- The comparison order for nodes (and relationships resp.) is undefined, and an implementation may choose an order for these freely, e.g. by using some kind of id. This order must not change during the execution of the query (i.e. it must be stable in the presence of updates). Comparing a node to a relationship always yields 'null'.
-- Paths are compared as if they where a list of alternating nodes and relationships of the path from the start node to the end node. Comparing a path to a value that is not a path always yields 'null'.
-- Comparing any other combination of values of different types would yield `null` (meaning "unknown" in the context of comparability).
+* Integers are compared numerically.
+* Floats (excluding `NaN` and the Infinities) are compared numerically.
+* Arbitrary numbers (excluding `NaN` and the Infinities) are compared to each other numerically, i.e. the comparison behaves as if both numbers would have been coerced to arbitrary precision big decimals (currently outside the Cypher type system) before comparing them with each other numerically.
+* Positive infinity is of type `FLOAT`, equal to itself and larger than any other number (excluding `NaN`).
+* Negative infinity is of type `FLOAT`, equal to itself and smaller than any other number (excluding `NaN`).
+* Comparing a number to a `NaN` always yields `null`.
+* Booleans are compared such that `false < true`.
+* Strings are compared in dictionary order, i.e. characters are compared pairwise in order and characters missing in a shorter string are considered to be smaller than any other character. For example, `'a' < 'aa'`.
+* Lists are compared in dictionary order, i.e. list elements are compared pairwise in order and elements missing in a shorter list are considered to be smaller than any other value. For example, `[1] < [1,0]`.
+* Maps are compared as if they where lists of lists, where the inner lists are the key-value pairs of the maps, ordered in ascending sort order for the keys and omitting map entries where the value is `null`. Comparing a map to a value that is not a map always yields `null`.
+* The comparison order for nodes (and relationships resp.) is undefined, and an implementation may choose an order for these freely, e.g. by using some kind of id. This order must not change during the execution of the query (i.e. it must be stable in the presence of updates). Comparing a node to a relationship always yields `null`.
+* Paths are compared as if they where a list of alternating nodes and relationships of the path from the start node to the end node. Comparing a path to a value that is not a path always yields `null`.
+* Implementations may choose to define suitable comparability rules for values of additional, non-canonical types. However comparing a value of an additional, non-canonical type to any of the canonical types always yields `null`.
+* Comparing any kind of value not covered above to an arbitrary other value, always yields `null`. This includes comparing a non-`null` value to a `null` value.
+
+=== Orderability
 
 We further propose that orderability be defined between any pair of values, where the result is always `true` or `false`; i.e. always defined.
 To accomplish this, there must be a pre-determined type order and each value must fall under exactly one type in this order. We propose to use the following ascending global sort order:
 
-- `NODE`
-- `RELATIONSHIP`
-- `PATH`
-- `MAP`
-- `LIST OF ANY?`
-- `STRING`
-- `BOOLEAN`
-- `NUMBER` (`NaN` is treated as the largest number in orderability, i.e. it is put after positive infinity)
-- `VOID` (i.e. `null`)
+* `NODE`
+* `RELATIONSHIP`
+* `PATH`
+* `MAP`
+* `LIST OF ANY?`
+* `STRING`
+* `BOOLEAN`
+* `NUMBER` (`NaN` is treated as the largest number in orderability only, i.e. it is put after positive infinity)
+* `VOID` (i.e. the type of `null`)
 
 Within the types, orderability defers to comparability.
 
 The accompanying descending global sort oder is the same order in reverse (i.e. it runs from `VOID` to `NODE`).
 
-Finally, we propose to redefine how equality works for lists in Cypher today.
-The main issue is how Cypher deals with lists that contain the `null` value.
+Any additionally introduced non-canonical types introduced by an implementation should be inserted between `PATH` and `MAP` in the global sort order. As an exception, additionally introduced non-canonical number types may be integrated under the `NUMBER` type in the global sort order.
+
+=== Equality ===
+
+Finally, we propose that equality generally must align with comparability.
+
+To achieve this, we clarify the difference between equality and equivalence, by making lists containing `null` values follow the same difference as the `null` values themselves.
+Concretely, we propose to redefine how equality works for lists in Cypher today.
 To determine if two lists `l1` and `l2` are equal, we propose two simple tests, like so
 
-- `l1` and `l2` must have the same size, i.e. inversely `size(l1) <> size(l2>) => l1 <> l2`
-- the pairwise elements of both `l1` and `l2` must be equal, i.e.
+* `l1` and `l2` must have the same size, i.e. inversely `size(l1) <> size(l2>) => l1 <> l2`
+* the pairwise elements of both `l1` and `l2` must be equal, i.e.
 ----
 [a1, a2, ...] = [b1, b2, ...]
 <=>
 a1 = b1 && a2 = b2 && ...
 ----
+
+=== Equivalence ===
+
+Equivalence remains unchanged but now can be defined succinctly as being identical to equality except that any two `null` values are treated as equivalent (both directly or inside nested structures).
+
+=== Summary of Conceptual Model
+
+This proposal aims to simplify the conceptual model around equality, comparison, sorting, and grouping:
+
+* Two values of the same type in the global sort order are always comparable. Two values of different types are always incomparable.
+This ensures that `MATCH (n) WHERE n.prop > 42` will never find nodes where `n.prop` is of type `STRING`.
+* Orderability follows comparability but additionally defines a global sort order between values of different types.
+* Equality is aligned with comparability.
+Nested structures are first tested for equality by shape (keys, size) and then componentwise. This ensures that equality is compatible with interpreting `null` as "unknown" (or "could be any value").
+* `DISTINCT` and grouping use equivalence which is the same as equality except that two `null` values are considered to be equivalent.
 
 === Examples
 
@@ -124,6 +155,11 @@ With the proposals made in this CIP, specifically changing equality for lists, t
 
 === Alternatives
 
+Columns in SQL are always have a concrete type. This removes the need to define a global sort order between types. Standard SQL has no support for lists, maps, or graph structures and hence does not need to define semantics for them.
+SQL also treats comparisons involving `null` as returning `null`.
+
+PostgresSQL treats some numerical operations (like division by zero) that would compute a `NaN` as a numerical error that fails the query. PostgresQL considers `NaN` to be larger than positive infinity, both in comparison and in sort order. This proposal achieves something very similar by evaluating comparisons involving a `NaN` to `null` and by treating both `NaN` and `null` as the largest values in the global sort order.
+
 This proposal could be extended with an operator for making equivalence accessible beyond use in grouping and `DISTINCT`.
 
 == Benefits to this proposal
@@ -132,15 +168,15 @@ A consistent set of rules for equality, equivalence, comparability and orderabil
 
 == Caveats to this proposal
 
-Adopting this proposal may break some queries; specifically queries that depend on equality semantics of lists containing nulls.
-It should be noted that we expect that most lists used in queries are constructed using `collect()`, which never outputs nulls.
+Adopting this proposal may break some queries; specifically queries that depend on equality semantics of lists containing `null` values.
+It should be noted that we expect that most lists used in queries are constructed using `collect()`, which never outputs `null` values.
 
-=== Appendix: Comparability by Type
+== Appendix: Comparability by Type
 
 The following table captures which types may be compared with each other such that the outcome is either `true` or `false`.
 Any other comparison will always yield `null` (except for `NaN`) which is handled as described above.
 
-.Comparability by type
+.Comparability of values of different types (`X` means the result of comparison will always return `true` or `false`)
 [frame="topbot",options="header,footer"]
 |===========================================================================================================================================
 |Type           | `NODE` | `RELATIONSHIP` | `PATH` | `MAP` | `LIST OF ANY?` | `STRING` | `BOOLEAN` | `NUMBER` | `INTEGER` | `FLOAT` | `VOID`
