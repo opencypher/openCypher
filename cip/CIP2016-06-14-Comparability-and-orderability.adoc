@@ -38,7 +38,7 @@ However working with values of different types can be difficult:
 
     ** In equality, `null = null` is `null`.
     ** In equivalence, used by grouping and `DISTINCT`, instances of `null` are always treated as being the same value.
-    ** However, equality treats `null` values differently depending on if wether are an element of a list or not.
+    ** However, equality treats `null` values differently if they are an element of a list or a map value.
 
 == Proposal
 
@@ -84,9 +84,9 @@ Any additionally introduced non-canonical types introduced by an implementation 
 
 === Equality ===
 
-Finally, we propose that equality generally must align with comparability.
+Finally, we propose that equality and comparability must be aligned, i.e. `l = r <=> l <= r && l >= r`.
 
-To achieve this, we clarify the difference between equality and equivalence, by making lists containing `null` values follow the same difference as the `null` values themselves.
+To achieve this, we unify the difference between equality and equivalence, by making lists containing `null` values follow the same difference as the `null` values themselves.
 Concretely, we propose to redefine how equality works for lists in Cypher today.
 To determine if two lists `l1` and `l2` are equal, we propose two simple tests, like so
 
@@ -98,9 +98,36 @@ To determine if two lists `l1` and `l2` are equal, we propose two simple tests, 
 a1 = b1 && a2 = b2 && ...
 ----
 
+For clarity, we also repeat the current equality semantics of maps here. Two maps `m1` and `m2` are considered equal if
+
+* `m1` and `m2` must have the same keys.
+* For each key `k`,
+** either `m1.k = m2.k` is `true`,
+** or both `m1.k IS NULL` and `m2.k IS NULL`
+
+This is at odds with the common interpretation of `null` as standing for any possible value.
+
+It is aligned though with the most common use case for maps with `null` entries which is to update multiple properties at once, e.g. `SET n += { n: 12, remove_this_key: null }`. In this case, there is no need to differentiate between different `null` values as `null` merely serves as a marker for keys to be removed. Current equality semantics makes it easy to check if two maps correspond to the same property update in this scenario.
+
+However this type of update map comparison is rare and could be emulated using a more complex predicate. The current rules do however break symmetry with how equality handles `null` in all other cases. This becomes more apparent by considering these two examples
+
+* `n.prop = m.prop` => `null` if `n.prop IS null && m.prop IS NULL`
+* `{a: n.prop} = {a: m.prop}` => `true` (!!) if `n.prop IS null && m.prop IS NULL`
+
+To fix this, we propose that two maps `m1` and `m2` instead should be equal if
+
+* `m1` and `m2` have the same keys
+* For each such key `k`, `m1.k = m2.k`
+
+As a consequence of these changes, plain equality is not reflexive in a classic sense (Consider: `{a: null} = {a: null}`, `[null] = [null]`). However this was already the case (Consider: `null = null` => `null`).
+
+Equality is reflexive regarding values that do not involve `null`.
+
 === Equivalence ===
 
 Equivalence remains unchanged but now can be defined succinctly as being identical to equality except that any two `null` values are treated as equivalent (both directly or inside nested structures).
+
+Equivalence is reflexive regarding any values.
 
 === Summary of Conceptual Model
 
@@ -160,7 +187,7 @@ SQL also treats comparisons involving `null` as returning `null`.
 
 PostgresSQL treats some numerical operations (like division by zero) that would compute a `NaN` as a numerical error that fails the query. PostgresQL considers `NaN` to be larger than positive infinity, both in comparison and in sort order. This proposal achieves something very similar by evaluating comparisons involving a `NaN` to `null` and by treating both `NaN` and `null` as the largest values in the global sort order.
 
-This proposal could be extended with an operator for making equivalence accessible beyond use in grouping and `DISTINCT`.
+This proposal could be extended with an operator for making equivalence accessible beyond use in grouping and `DISTINCT`. This seems desirable due to plain `=` not being reflexive for all values.
 
 == Benefits to this proposal
 
