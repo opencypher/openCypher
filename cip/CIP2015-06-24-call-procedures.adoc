@@ -4,7 +4,7 @@
 :toc-placement: macro
 :source-highlighter: codemirror
 
-*Author:* Rickard Öberg <rickard.öberg@neotechnology.com>
+*Author:* Rickard Öberg
 *Author:* Stefan Plantikow <stefan.plantikow@neotechnology.com>
 *Author:* Nigel Small <nigel.small@neotechnology.com>
 *Author:* Petra Selmer <petra.selmer@neotechnology.com>
