@@ -38,12 +38,9 @@ abstract class Sequenced extends Node
     }
 
     @Override
-    final void resolve( ProductionNode origin, ProductionResolver resolver )
+    final boolean resolve( ProductionNode origin, ProductionResolver resolver )
     {
-        if ( term != null )
-        {
-            term.resolve( origin, resolver );
-        }
+        return term == null || term.resolve( origin, resolver );
     }
 
     @Override

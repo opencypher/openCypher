@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -50,6 +51,7 @@ class Root implements Iterable<ProductionNode>
         ALLOW_ROOTLESS,
         SKIP_UNUSED_PRODUCTIONS,
         IGNORE_UNUSED_PRODUCTIONS,
+        INCLUDE_LEGACY
     }
 
     static final XmlParser<Root> XML = xmlParser( Root.class );
@@ -117,28 +119,46 @@ class Root implements Iterable<ProductionNode>
                 dependencies.missingProduction( language, new ProductionNode( this ) );
             }
         }
-        // Resolve non-terminals in all productions
-        ProductionResolver resolver = new ProductionResolver( productions, dependencies, unused );
-        for ( ProductionNode production : productions.values() )
+        // Filter out legacy productions
+        final Set<String> legacyProductions = new HashSet<>();
+        final Map<String,ProductionNode> filteredProductions;
+        if ( !options.contains( ResolutionOption.INCLUDE_LEGACY ) )
+        {
+            filteredProductions = new LinkedHashMap<>();
+            productions.values().stream()
+                    .filter( production1 -> !production1.legacy() )
+                    .forEach( production -> filteredProductions.put( production.name().toLowerCase(), production ) );
+            productions.values().stream().filter( ProductionNode::legacy ).forEach( production -> legacyProductions.add( production.name.toLowerCase() ) );
+        }
+        else
+        {
+            filteredProductions = productions;
+        }
+        // Resolve non-terminals in all productions; remove references to legacy productions
+        ProductionResolver resolver = new ProductionResolver( filteredProductions, dependencies, unused, options, legacyProductions );
+        for ( ProductionNode production : filteredProductions.values() )
         {
             production.resolve( resolver );
         }
         // check for errors
         dependencies.reportMissingProductions();
-        // filter out unused productions
-        if ( !unused.isEmpty() )
+        // report unused productions
+        if ( !unused.isEmpty() && !legacyProductions.containsAll( unused.stream().map( String::toLowerCase ).collect( toSet()) ) )
         {
             if ( !options.contains( ResolutionOption.IGNORE_UNUSED_PRODUCTIONS ) )
             {
                 System.err.println( "WARNING! Unused productions:" );
                 for ( String name : unused )
                 {
-                    System.err.println( "\t" + name );
+                    if ( !legacyProductions.contains( name.toLowerCase() ) )
+                    {
+                        System.err.println( "\t" + name );
+                    }
                 }
             }
         }
         // sort productions
-        ArrayList<ProductionNode> ordered = new ArrayList<>( productions.values() );
+        ArrayList<ProductionNode> ordered = new ArrayList<>( filteredProductions.values() );
         for ( VocabularyReference reference : new ArrayList<>( referencedFiles.values() ) )
         {
             reference.flattenTo( referencedFiles );

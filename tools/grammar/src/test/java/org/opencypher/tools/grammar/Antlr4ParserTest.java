@@ -38,6 +38,7 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
+import org.antlr.v4.tool.Grammar;
 import org.antlr.v4.tool.ast.GrammarRootAST;
 import org.junit.Test;
 import org.opencypher.grammar.Fixture;
@@ -45,6 +46,7 @@ import org.opencypher.grammar.Fixture;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import static org.junit.Assert.fail;
+import static org.opencypher.grammar.Grammar.ParserOption.INCLUDE_LEGACY;
 
 public class Antlr4ParserTest
 {
@@ -55,7 +57,21 @@ public class Antlr4ParserTest
     {
         org.antlr.v4.tool.Grammar g = getMassagedAntlrGrammar( "/cypher.xml" );
 
-        for ( String q : getQueries() )
+        parseAndRun( g, "/cypher.txt" );
+    }
+
+    @Test
+    public void shouldParseLegacyCypher() throws Exception
+    {
+        System.setProperty( INCLUDE_LEGACY.name(), "true" );
+        org.antlr.v4.tool.Grammar g = getMassagedAntlrGrammar( "/cypher.xml", INCLUDE_LEGACY );
+
+        parseAndRun( g, "/cypher-legacy.txt" );
+    }
+
+    private void parseAndRun( Grammar g, String queryFile ) throws FileNotFoundException, URISyntaxException
+    {
+        for ( String q : getQueries( queryFile ) )
         {
             query = q;
             LexerInterpreter lexer = g.createLexerInterpreter( new ANTLRInputStream( query ) );
@@ -68,9 +84,9 @@ public class Antlr4ParserTest
         }
     }
 
-    private List<String> getQueries() throws FileNotFoundException, URISyntaxException
+    private List<String> getQueries( String queryFile ) throws FileNotFoundException, URISyntaxException
     {
-        URL resource = getClass().getResource( "/cypher.txt" );
+        URL resource = getClass().getResource( queryFile );
         Scanner scanner = new Scanner( new FileReader( Paths.get( resource.toURI() ).toFile() ) );
         scanner.useDelimiter( "§\n" );
         ArrayList<String> queries = new ArrayList<>();
@@ -112,7 +128,7 @@ public class Antlr4ParserTest
         }
     }
 
-    private org.antlr.v4.tool.Grammar getMassagedAntlrGrammar( String resource ) throws IOException
+    private org.antlr.v4.tool.Grammar getMassagedAntlrGrammar( String resource, org.opencypher.grammar.Grammar.ParserOption... options ) throws IOException
     {
 
         // We need to do some custom post-processing to get the lexer rules right
@@ -120,13 +136,13 @@ public class Antlr4ParserTest
         String grammarString = null;
         try
         {
-            Antlr4.write( Fixture.grammarResource( Antlr4.class, resource ), out );
+            Antlr4.write( Fixture.grammarResource( Antlr4.class, resource, options ), out );
             grammarString = Antlr4Massager.postProcess( out.toString( UTF_8.name() ) );
         }
         catch ( Throwable t )
         {
-            fail( "Unexpected error while writing antlr grammar" );
             t.printStackTrace();
+            fail( "Unexpected error while writing antlr grammar" );
         }
 
         org.antlr.v4.Tool tool = new org.antlr.v4.Tool();

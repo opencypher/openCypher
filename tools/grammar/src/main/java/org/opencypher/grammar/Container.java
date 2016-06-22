@@ -66,12 +66,11 @@ abstract class Container extends Node implements Terms
     }
 
     @Override
-    final void resolve( ProductionNode origin, ProductionResolver resolver )
+    final boolean resolve( ProductionNode origin, ProductionResolver resolver )
     {
-        for ( Node node : nodes )
-        {
-            node.resolve( origin, resolver );
-        }
+        ArrayList<Node> nodes = new ArrayList<>( this.nodes );
+        nodes.stream().filter( node -> !node.resolve( origin, resolver ) ).forEach( this.nodes::remove );
+        return !nodes.isEmpty();
     }
 
     @Child

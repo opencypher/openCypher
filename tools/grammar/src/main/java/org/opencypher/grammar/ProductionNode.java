@@ -39,6 +39,8 @@ final class ProductionNode extends Located implements Production
     String description;
     @Attribute(uri = Grammar.RAILROAD_XML_NAMESPACE, optional = true)
     boolean skip, inline;
+    @Attribute(uri = Grammar.OPENCYPHER_XML_NAMESPACE, optional = true)
+    boolean legacy;
     private List<NonTerminal> references;
 
     public ProductionNode( Root root )
@@ -116,6 +118,12 @@ final class ProductionNode extends Located implements Production
     public boolean inline()
     {
         return inline;
+    }
+
+    @Override
+    public boolean legacy()
+    {
+        return legacy;
     }
 
     void addReference( NonTerminalNode nonTerminal )
