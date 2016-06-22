@@ -1,0 +1,257 @@
+= CIP2016-06-22 - Nested subqueries
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Authors:* Petra Selmer <petra.selmer@neotechnology.com>, Stefan Plantikow <stefan.plantikow@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+This CIP proposes the incorporation of nested subqueries to Cypher.
+--
+
+toc::[]
+
+
+== Motivation
+
+Subqueries - i.e. queries within queries - are a powerful and expressive feature allowing for:
+
+  * Increased query expressivity
+  * Better query construction and readability
+  * Easier query composition and reuse
+  * Post-processing as a single unit results from multiple queries
+
+== Background
+
+This CIP may be viewed in conjunction with the EXISTS CIP and the Pattern Comprehension CIP, both of which propose variants of subqueries.
+
+
+== Proposal
+
+We propose the addition of new syntax to the `MATCH` clause for expressing nested subqueries.
+
+Nested subqueries are self-contained, read-only Cypher queries.
+
+A nested subquery is denoted using the following syntax: `MATCH { <subquery> }`.
+
+Nested subqueries may be correlated - i.e. the subquery has a dependency on the outer query - or uncorrelated.
+
+As this proposal extends the `MATCH` clause, nested subqueries can be contained within other nested subqueries at arbitrary depth.
+
+=== Syntax
+
+We extend the https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml[grammar] by adding a new clause.
+
+Extend expressions to support string search operators:
+[source, ebnf]
+----
+nested-subquery-clause = "MATCH", "{", RegularQuery, "}" ;
+----
+
+=== Semantic clarification
+
+Conceptually, a nested subquery is evaluated for each incoming record and may produce an arbitrary number of result records.
+
+All incoming variables remain in scope.
+
+Any new variable bindings produced by evaluating the subquery will augment the variable bindings of the initial record; i.e. nested subqueries behave in the same way as `UNWIND` and `CALL` with regard to the introduction of new variable bindings.
+
+Subqueries interact with write clauses in the same manner as `MATCH`.
+
+It is an error for a nested subquery to try to rebind (shadow) a pre-existing outer variable binding.
+
+=== Examples
+
+Post-UNION processing:
+[source, cypher]
+----
+MATCH {
+  // authored tweets
+  MATCH (me:User {name: 'Alice'})-[:FOLLOWS]->(user:User),
+        (user)<-[:AUTHORED]-(tweet:Tweet)
+  RETURN tweet, tweet.time AS time, user.country AS country
+  UNION
+  // favorited tweets
+  MATCH (me:User {name: 'Alice'})-[:FOLLOWS]->(user:User),
+        (user)<-[:HAS_FAVOURITE]-(favorite:Favorite)-[:TARGETS]->(tweet:Tweet)
+  RETURN tweet, favourite.time AS time, user.country AS country
+}
+WHERE country = "se"
+RETURN DISTINCT tweet
+ORDER BY time DESC
+LIMIT 10
+----
+
+Uncorrelated nested subquery:
+[source, cypher]
+----
+MATCH (f:Farm {id: {farmId})
+MATCH {
+  MATCH (u:User {id: {userId}})-[:LIKES]->(b:Brand),
+        (b)-[:PRODUCES]->(p:Lawnmower)
+  RETURN b.name AS name, p.code AS code
+  UNION
+  MATCH (u:User {id: {userId}})-[:LIKES]->(b:Brand),
+        (b)-[:PRODUCES]->(v:Vehicle),
+        (v)<-[:IS_A]-(:Category {name: 'Tractor'})
+  RETURN b.name AS name, p.code AS code
+}
+RETURN f, name, code
+----
+
+Correlated nested subquery:
+[source, cypher]
+----
+MATCH (f:Farm {id: {farmId})-[:IS_IN]->(country:Country)
+MATCH {
+  MATCH (u:User {id: {userId}})-[:LIKES]->(b:Brand),
+        (b)-[:PRODUCES]->(p:Lawnmower)
+  RETURN b.name AS name, p.code AS code
+  UNION
+  MATCH (u:User {id: {userId}})-[:LIKES]->(b:Brand),
+        (b)-[:PRODUCES]->(v:Vehicle),
+        (v)<-[:IS_A]-(:Category {name: 'Tractor'})
+  WHERE v.leftHandDrive = country.leftHandDrive
+  RETURN b.name AS name, p.code AS code
+}
+RETURN f, name, code
+----
+
+Filtered and correlated nested subquery:
+[source, cypher]
+----
+MATCH (f:Farm)-[:IS_IN]->(country:Country)
+WHERE country.name IN {countryNames}
+MATCH {
+  MATCH (u:User {id: {userId}})-[:LIKES]->(b:Brand),
+        (b)-[:PRODUCES]->(p:Lawnmower)
+  RETURN b AS brand, p.code AS code
+  UNION
+  MATCH (u:User {id: {userId}})-[:LIKES]->(b:Brand),
+        (b)-[:PRODUCES]->(v:Vehicle),
+        (v)<-[:IS_A]-(:Category {name: 'Tractor'})
+  WHERE v.leftHandDrive = country.leftHandDrive
+  RETURN b AS brand, p.code AS code
+}
+WHERE f.type = 'organic'
+  AND b.certified
+RETURN f, brand.name AS name, code
+----
+
+Doubly-nested subquery:
+[source, cypher]
+----
+MATCH (f:Farm {id: {farmId}})
+MATCH {
+  MATCH (c:Customer)-[:BUYS_FOOD_AT]->(f)
+  MATCH {
+     MATCH (c)-[:RETWEETS]->(t:Tweet)<-[:TWEETED_BY]-(f)
+     RETURN c, count(*) AS count
+     UNION
+     MATCH (c)-[:LIKES]->(p:Posting)<-[:POSTED_BY]-(f)
+     RETURN c, count(*) AS count
+  }
+  RETURN c, "customer" AS type, sum(count) AS endorsement
+  UNION
+  MATCH (s:Shop)-[:BUYS_FOOD_AT]->(f)
+  MATCH (s)-[:PLACES]->(a:Advertisement)-[:ABOUT]->(f)
+  RETURN s, "shop" AS type, count(a) * 100 AS endorsement
+}
+RETURN f.name AS name, type, sum(endorsement) AS endorsement
+----
+
+=== Interaction with existing features
+
+Nested subqueries do not interact directly with any existing features.
+
+=== Alternatives
+
+Alternative syntax has been considered during the gestation of this document:
+
+  * Using round braces; i.e. `MATCH (...)`
+  * Using alternative keywords:
+
+    ** `SUBQUERY`
+    ** `QUERY`
+
+== What others do
+
+=== SQL
+
+The following types of subqueries are supported in SQL:
+
+Scalar:
+[source, cypher]
+----
+SELECT orderID
+FROM Orders
+WHERE orderID =
+  (SELECT max(orderID) FROM Orders)
+----
+
+Multi-valued:
+[source, cypher]
+----
+SELECT customerID
+FROM Customers
+WHERE customerID IN
+  (SELECT customerID FROM Orders)
+----
+
+Correlated:
+[source, cypher]
+----
+SELECT orderID, customerID
+FROM Orders AS O1
+WHERE orderID =
+  (SELECT max(O2.orderID) FROM Orders AS O2
+   WHERE O2.customerID = O1.customerID)
+----
+
+Table-valued/table expression:
+[source, cypher]
+----
+SELECT orderYear
+FROM
+  (SELECT YEAR(orderDate) AS orderYear
+  FROM Orders) AS D
+----
+
+Both scalar and table expression subqueries are out of scope for the purposes of this CIP. They will be addressed in forthcoming CIPs.
+
+=== SPARQL
+
+https://www.w3.org/TR/2013/REC-sparql11-query-20130321/#subqueries[SPARQL] only supports uncorrelated subqueries, exemplified by:
+
+[source, cypher]
+----
+SELECT ?y ?minName
+WHERE {
+  :alice :knows ?y .
+ {
+    SELECT ?y (MIN(?name) AS ?minName)
+    WHERE {
+      ?y :name ?name .
+    } GROUP BY ?y
+  }
+}
+----
+
+Owing to the bottom-up nature of SPARQL query evaluation, the subqueries are evaluated logically first, and the results are projected up to the outer query.
+
+Only variables projected out of the subquery will be visible, or in scope, to the outer query.
+
+
+== Benefits to this proposal
+
+* Increasing the expressivity of the language.
+* Allowing unified post-processing on results from multiple (sub)queries; this is exemplified by the https://github.com/neo4j/neo4j/issues/2725[request for post-UNION processing].
+* Facilitating query readability, construction and maintainability.
+* Providing a feature familiar to users of SQL.
+
+== Caveats to this proposal
+
+At the current time, we are not aware of any caveats.
