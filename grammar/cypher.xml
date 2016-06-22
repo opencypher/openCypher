@@ -98,6 +98,7 @@
       <non-terminal ref="Unwind"/>
       <non-terminal ref="Merge"/>
       <non-terminal ref="Create"/>
+      <non-terminal ref="CreateUnique"/>
       <non-terminal ref="Set"/>
       <non-terminal ref="Delete"/>
       <non-terminal ref="Remove"/>
@@ -149,10 +150,11 @@
   </production>
 
   <production name="Create">
-    <alt>
-      <seq>CREATE &SP; UNIQUE &WS; <non-terminal ref="Pattern"/></seq>
-      <seq>CREATE &WS; <non-terminal ref="Pattern"/></seq>
-    </alt>
+    <seq>CREATE &WS; <non-terminal ref="Pattern"/></seq>
+  </production>
+
+  <production name="CreateUnique" oc:legacy="true">
+    <seq>CREATE &SP; UNIQUE &WS; <non-terminal ref="Pattern"/></seq>
   </production>
 
   <production name="Set">
