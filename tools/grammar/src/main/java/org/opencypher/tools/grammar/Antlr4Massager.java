@@ -39,7 +39,6 @@ class Antlr4Massager
         else
         {
             firstKeyword = "UNION : ( 'U' | 'u' ) ( 'N' | 'n' ) ( 'I' | 'i' ) ( 'O' | 'o' ) ( 'N' | 'n' )  ;";
-            original = original.replace( "( ws )* ", " " );
         }
         int startOfKeywords = original.indexOf( firstKeyword );
         int endOfKeywords = original.indexOf( "fragment" );

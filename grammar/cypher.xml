@@ -127,7 +127,7 @@
   <production name="Match" scope:rule="new">
     <opt>OPTIONAL &SP;</opt>MATCH &WS;
     <non-terminal ref="Pattern"/>
-    <repeat>&WS; <non-terminal ref="Hint"/></repeat>
+    <repeat><non-terminal ref="Hint"/></repeat>
     <opt>&WS; <non-terminal ref="Where"/></opt>
   </production>
 
@@ -258,6 +258,7 @@
   </production>
 
   <production name="Hint" oc:legacy="true">
+    &WS;
     <alt>
       <seq>USING &SP; INDEX &SP; &var; <non-terminal ref="NodeLabel"/>(<non-terminal ref="PropertyKeyName"/>)</seq>
       <seq>USING &SP; JOIN &SP; ON &SP; &var; <repeat>&WS;,&WS;&var;</repeat></seq>
