@@ -45,43 +45,9 @@ Please ensure that links to related documents (including other CIPs) are provide
 
 This comprises the detail of the CIP, and is divided into the sub-sections below.
 
-=== Examples
-
-For each aspect of the proposed feature(s), provide at least one Cypher example query to show how the feature is envisaged to work, along with explanatory text.
-
-_An example of this is shown below._
-
-Find all persons whose name starts with "And":
-[source, cypher]
-----
-MATCH (a:Person) WHERE a.name STARTS WITH “And”
-RETURN a
-----
-
-Find all persons whose name starts with the parameter prefix:
-[source, cypher]
-----
-MATCH (a:Person) WHERE a.name STARTS WITH {prefix}
-RETURN a
-----
-
-Find all persons whose name ends with "fan":
-[source, cypher]
-----
-MATCH (a:Person) WHERE a.name ENDS WITH "fan"
-RETURN a
-----
-
-Find all books whose isbn in string form contains "007":
-[source, cypher]
-----
-MATCH (b:Book) WHERE toString(b.isbn) CONTAINS "007"
-RETURN a
-----
-
 === Syntax
 
-Provide the full range of syntactic additions and modifications in EBNF (https://en.wikipedia.org/wiki/Extended_Backus-Naur_Form) format, along with explanatory text.
+Provide the full range of syntactic additions and modifications in https://en.wikipedia.org/wiki/Extended_Backus-Naur_Form[EBNF] format and refer back to constructs defined https://github.com/opencypher/openCypher/tree/master/grammar[here].
 
 _An example of this is shown below._
 
@@ -126,6 +92,44 @@ Otherwise, it is false.
 If any argument to `STARTS WITH`, `ENDS WITH`, or `CONTAINS` is `NULL`, then the result of evaluating the whole predicate is `NULL`.
 
 It is a type error to use `STARTS WITH`, `ENDS WITH`, or `CONTAINS` with a value that is not a string.
+
+=== Examples
+
+For each aspect of the proposed feature(s), provide at least one Cypher example query to show how the feature is envisaged to work, along with explanatory text.
+
+_An example of this is shown below._
+
+Find all persons whose name starts with "And":
+[source, cypher]
+----
+MATCH (a:Person)
+WHERE a.name STARTS WITH “And”
+RETURN a
+----
+
+Find all persons whose name starts with the parameter prefix:
+[source, cypher]
+----
+MATCH (a:Person)
+WHERE a.name STARTS WITH {prefix}
+RETURN a
+----
+
+Find all persons whose name ends with "fan":
+[source, cypher]
+----
+MATCH (a:Person)
+WHERE a.name ENDS WITH "fan"
+RETURN a
+----
+
+Find all books whose isbn in string form contains "007":
+[source, cypher]
+----
+MATCH (b:Book)
+WHERE toString(b.isbn) CONTAINS "007"
+RETURN a
+----
 
 === Interaction with existing features
 
