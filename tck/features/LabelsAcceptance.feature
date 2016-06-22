@@ -158,7 +158,7 @@ Feature: LabelsAcceptance
       | +relationships | 1 |
       | +labels        | 2 |
 
-  Scenario: Fail when adding new label predicate on already bound node 1
+  Scenario: Fail when adding a new label predicate on a node that is already bound
     When executing query:
       """
       CREATE (n:Foo)-[:T1]->(),
@@ -166,7 +166,7 @@ Feature: LabelsAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
-  Scenario: Fail when adding new label predicate on already bound node 2
+  Scenario: Fail when adding new label predicate on a node that is already bound
     When executing query:
       """
       CREATE ()<-[:T2]-(n:Foo),
@@ -174,7 +174,7 @@ Feature: LabelsAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
-  Scenario: Fail when adding new label predicate on already bound node 3
+  Scenario: Fail when adding new label predicate on a node that is already bound
     When executing query:
       """
       CREATE (n:Foo)
@@ -182,7 +182,7 @@ Feature: LabelsAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
-  Scenario: Fail when adding new label predicate on already bound node 4
+  Scenario: Fail when adding new label predicate on a node that is already bound
     When executing query:
       """
       CREATE (n {})
@@ -190,7 +190,7 @@ Feature: LabelsAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
-  Scenario: Fail when adding new label predicate on already bound node 5
+  Scenario: Fail when adding new label predicate on a node that is already bound
     When executing query:
       """
       CREATE (n:Foo)

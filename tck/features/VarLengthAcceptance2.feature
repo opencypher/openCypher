@@ -17,7 +17,7 @@
 
 Feature: VarLengthAcceptance2
 
-  Scenario: Handling already bound relationships in variable length paths
+  Scenario: Handling relationships that are already bound in variable length paths
     Given an empty graph
     And having executed:
       """
