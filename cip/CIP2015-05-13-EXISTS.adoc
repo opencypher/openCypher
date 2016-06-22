@@ -10,7 +10,7 @@
 [abstract]
 .Abstract
 --
-This CIP introduces EXISTS, a general function that can test for the existence of properties, simple patterns and full subqueries.
+This CIP introduces `EXISTS`, a function and a keyword for checking the existence of properties, simple patterns and full subqueries.
 --
 
 toc::[]
@@ -22,7 +22,7 @@ This form is helpful, but not exhaustive in the types of subqueries that users w
 
 == Proposal
 
-To make this feature more powerful, add a new function named +EXISTS+ that would exist in two forms:
+To make this feature more powerful, add a new function named `exists`, and a keyword named the same, which allows for two different predicates:
 
  * Property existence checking
  * Subquery existence checking
@@ -36,7 +36,7 @@ expression = <current definition of expression>
            | simple subquery exists
             ;
 
-property exists = "EXISTS", "(", expression ")"
+property exists = "exists", "(", expression ")"
                 ;
 
 subquery exists = "EXISTS", "{", read only clause, { read only clause }, "}" ;
@@ -50,35 +50,35 @@ Note: the read-only clause above includes WITH but not RETURN.
 
 === Semantics
 
-All forms of +EXIST(...)+ accomplish the same task - check if a particular pattern exists in the database.
-They are expressions, and as such must be side-effect free; that is, the subqueries in +EXIST+ must not be updating queries.
-Regarding nomenclature, all forms of +EXISTS+ are scalar expressions - they return a single boolean value, and this value is never +null+.
+All forms of `EXIST(...)` accomplish the same task - check if a particular pattern exists in the database.
+They are expressions, and as such must be side-effect free; that is, the subqueries in `EXISTS` must not be updating queries.
+All forms of `EXISTS` are scalar expressions - they return a single boolean value, and this value is never `null`.
 
 ==== Property exists
 
 In the property checking form, any expression is accepted as the input.
-If the input expression would have produced a +null+ value, +EXISTS(...)+ evaluates to false, and for all other values, it will return +true+.
-This form of +EXISTS(...)+ is equivalent to checking for +null+ using +IS NOT NULL+; i.e. +EXISTS(expr)+ is equivalent to +expr IS NOT NULL+.
+If the input expression would have produced a `null` value, `exists(...)`` evaluates to false, and for all other values, it will return `true`.
+This form of `exists(...)` is equivalent to checking for `null` using `IS NOT NULL`; i.e. `exists(expr)` is equivalent to `expr IS NOT NULL`.
 
-This form is there to make property existence checking idiomatic in Cypher - we do not want the user thinking of missing properties as checking for +null+ values.
+This form is there to make property existence checking idiomatic in Cypher - we do not want the user thinking of missing properties as checking for `null` values.
 
 ==== Subquery exists
 When checking for the existence of subqueries, variables and parameters from the outer query are available in the subquery.
 Variables introduced in the subquery are not available on the outside.
 
-For each matching subgraph evaluated with +EXISTS{...}+, the result value must be true if the subquery finds at least one matching row.
+For each matching subgraph evaluated with `EXISTS{...}`, the result value must be true if the subquery finds at least one matching row.
 If no matches are found, false should be returned.
 
-The subquery used in +EXISTS{...}+ has to follow the following rules:
+The subquery used in `EXISTS{...}` has to follow the following rules:
 
  * It has to be a read-only query. Updating the graph as part of a predicate is not allowed.
- * It cannot end in a +RETURN+ clause, nor may it contain +UNION+
- * If +WITH+ ends the subquery, it should be able to change the cardinality of the subquery.
- In other words, the +WITH+ clause should include +WHERE+ or +SKIP+, since these sub-clauses can turn a query that returns rows into one that does not.
+ * It cannot end in a `RETURN` clause, nor may it contain `UNION`
+ * If `WITH` ends the subquery, it should be able to change the cardinality of the subquery.
+ In other words, the `WITH` clause should include `WHERE` or `SKIP`, since these sub-clauses can turn a query that returns rows into one that does not.
 
 ==== Simple subquery exists
-When the subquery can be described with a single +MATCH-WHERE+ clause, the +MATCH+ keyword can be omitted, as in example 2A and B.
-The difference between this form and a simple pattern predicate, which is already available, is that this form allows for introducing new variables inside the +EXISTS(...)+ scope.
+When the subquery can be described with a single `MATCH-WHERE` clause, the `MATCH` keyword can be omitted, as in example 2A and B.
+The difference between this form and a simple pattern predicate, which is already available, is that this form allows for introducing new variables inside the `EXISTS(...)` scope.
 
 === Examples
 _Example 1A:_
@@ -122,7 +122,7 @@ RETURN actor
 ----
 
 === Interaction with existing features
-This replaces the pre-existing +HAS(...)+ function.
+This replaces the pre-existing `HAS(...)` function.
 
 == What others do
 
