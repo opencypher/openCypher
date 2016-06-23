@@ -40,10 +40,10 @@ Feature: FunctionsAcceptance
       """
       WITH null AS a
       OPTIONAL MATCH p = (a)-[r]->()
-      RETURN length(nodes(p)), type(r), nodes(p), rels(p)
+      RETURN length(nodes(p)), type(r), nodes(p), relationships(p)
       """
     Then the result should be:
-      | length(nodes(p)) | type(r) | nodes(p) | rels(p) |
+      | length(nodes(p)) | type(r) | nodes(p) | relationships(p) |
       | null             | null    | null     | null    |
     And no side effects
 
