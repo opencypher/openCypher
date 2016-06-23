@@ -154,7 +154,7 @@ Feature: MergeRelationshipAcceptance
     When executing query:
       """
       MERGE (a)-[:KNOWS]->(b)
-        ON CREATE SET b.created = timestamp()
+        ON CREATE SET b.created = 1
       """
     Then the result should be empty
     And the side effects should be:
@@ -187,7 +187,7 @@ Feature: MergeRelationshipAcceptance
     When executing query:
       """
       MERGE (a)-[:KNOWS]->(b)
-        ON MATCH SET b.created = timestamp()
+        ON MATCH SET b.created = 1
       """
     Then the result should be empty
     And the side effects should be:
@@ -199,7 +199,7 @@ Feature: MergeRelationshipAcceptance
     When executing query:
       """
       MERGE (a)-[r:KNOWS]->(b)
-        ON MATCH SET r.created = timestamp()
+        ON MATCH SET r.created = 1
       """
     Then the result should be empty
     And the side effects should be:
@@ -542,7 +542,7 @@ Feature: MergeRelationshipAcceptance
     When executing query:
       """
       MERGE (a)-[:KNOWS]->(b)
-        ON CREATE SET b.created = timestamp()
+        ON CREATE SET b.created = 1
       """
     Then the result should be empty
     And the side effects should be:
