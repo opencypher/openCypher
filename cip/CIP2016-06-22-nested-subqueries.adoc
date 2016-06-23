@@ -9,7 +9,7 @@
 [abstract]
 .Abstract
 --
-This CIP proposes the incorporation of nested subqueries to Cypher.
+This CIP proposes the incorporation of nested subqueries into Cypher.
 --
 
 toc::[]
@@ -43,9 +43,8 @@ As this proposal extends the `MATCH` clause, nested subqueries can be contained 
 
 === Syntax
 
-We extend the https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml[grammar] by adding a new clause.
+We extend the https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml[grammar] through the addition of a new clause:
 
-Extend expressions to support string search operators:
 [source, ebnf]
 ----
 nested-subquery-clause = "MATCH", "{", RegularQuery, "}" ;
@@ -169,7 +168,7 @@ Nested subqueries do not interact directly with any existing features.
 
 === Alternatives
 
-Alternative syntax has been considered during the gestation of this document:
+Alternative syntax has been considered during the production of this document:
 
   * Using round braces; i.e. `MATCH (...)`
   * Using alternative keywords:
