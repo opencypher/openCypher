@@ -198,28 +198,6 @@ Feature: LabelsAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
-  Scenario: Add labels inside FOREACH
-    When executing query:
-      """
-      CREATE (a), (b), (c)
-      WITH [a, b, c] AS nodes
-      FOREACH(n IN nodes |
-        SET n :Foo:Bar
-      )
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes  | 3 |
-      | +labels | 6 |
-    When executing control query:
-      """
-      MATCH (n)
-      WHERE NOT(n:Foo AND n:Bar)
-      RETURN n
-      """
-    Then the result should be:
-      | n |
-
   Scenario: Using `labels()` in return clauses
     And having executed:
       """

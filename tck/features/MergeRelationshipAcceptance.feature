@@ -360,82 +360,6 @@ Feature: MergeRelationshipAcceptance
       | +relationships | 2 |
       | +labels        | 3 |
 
-  Scenario: Merging inside a FOREACH using a previously matched node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (s:S)
-      CREATE (s)-[:FOO]->({prop: 2})
-      """
-    When executing query:
-      """
-      MATCH (a:S)
-      FOREACH(x IN [1, 2, 3] |
-        MERGE (a)-[:FOO]->({prop: x})
-      )
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 2 |
-      | +properties    | 2 |
-
-  Scenario: Merging inside a FOREACH using a previously matched node and a previously merged node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:S)
-      CREATE (:End {prop: 42})
-      """
-    When executing query:
-      """
-      MATCH (a:S)
-      FOREACH(x IN [42] |
-        MERGE (b:End {prop: x})
-        MERGE (a)-[:FOO]->(b)
-      )
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +relationships | 1 |
-
-  Scenario: Merging inside a FOREACH using two previously merged nodes
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({x: 1})
-      """
-    When executing query:
-      """
-      FOREACH(v IN [1, 2] |
-        MERGE (a {x: v})
-        MERGE (b {y: v})
-        MERGE (a)-[:FOO]->(b)
-      )
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 3 |
-      | +relationships | 2 |
-      | +properties    | 3 |
-
-  Scenario: Merging inside a FOREACH using two previously merged nodes that also depend on WITH
-    Given an empty graph
-    When executing query:
-      """
-      WITH 3 AS y
-      FOREACH(x IN [1, 2] |
-        MERGE (a {x: x, y: y})
-        MERGE (b {x: x + 1, y: y})
-        MERGE (a)-[:FOO]->(b)
-      )
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 3 |
-      | +relationships | 2 |
-      | +properties    | 6 |
-
   Scenario: Introduce named paths 1
     Given an empty graph
     When executing query:
@@ -494,48 +418,6 @@ Feature: MergeRelationshipAcceptance
       | +nodes         | 2 |
       | +relationships | 1 |
       | +properties    | 2 |
-
-  Scenario: Inside nested FOREACH
-    Given an empty graph
-    When executing query:
-      """
-      FOREACH(x IN [0, 1, 2] |
-        FOREACH(y IN [0, 1, 2] |
-          MERGE (a {x: x, y: y})
-          MERGE (b {x: x + 1, y: y})
-          MERGE (c {x: x, y: y + 1})
-          MERGE (d {x: x + 1, y: y + 1})
-          MERGE (a)-[:R]->(b)
-          MERGE (a)-[:R]->(c)
-          MERGE (b)-[:R]->(d)
-          MERGE (c)-[:R]->(d)
-        )
-      )
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 16 |
-      | +relationships | 24 |
-      | +properties    | 32 |
-
-  Scenario: Inside nested FOREACH, nodes inlined
-    Given an empty graph
-    When executing query:
-      """
-      FOREACH(x IN [0, 1, 2] |
-        FOREACH(y IN [0, 1, 2] |
-          MERGE (a {x: x, y: y})-[:R]->(b {x: x + 1, y: y})
-          MERGE (c {x: x, y: y + 1})-[:R]->(d {x: x + 1, y: y + 1})
-          MERGE (a)-[:R]->(c)
-          MERGE (b)-[:R]->(d)
-        )
-      )
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 24 |
-      | +relationships | 30 |
-      | +properties    | 48 |
 
   Scenario: ON CREATE on created nodes
     Given an empty graph
