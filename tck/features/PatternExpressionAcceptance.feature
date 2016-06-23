@@ -73,7 +73,7 @@ Feature: PatternExpressionAcceptance
       | [<(:A)-[:T]->(:B)>] |
     And no side effects
 
-  Scenario: Returning an `extract()` expression
+  Scenario: Returning a list comprehension
     Given an empty graph
     And having executed:
       """
@@ -84,7 +84,7 @@ Feature: PatternExpressionAcceptance
     When executing query:
       """
       MATCH (n)
-      RETURN extract(x IN (n)-->() | head(nodes(x))) AS p
+      RETURN [x IN (n)-->() | head(nodes(x))] AS p
       """
     Then the result should be:
       | p            |
@@ -129,7 +129,7 @@ Feature: PatternExpressionAcceptance
       | [<(:A)-[:T]->(:B)>] | 1 |
     And no side effects
 
-  Scenario: Using an `extract()` expression in a WITH
+  Scenario: Using a list comprehension in a WITH
     Given an empty graph
     And having executed:
       """
@@ -140,7 +140,7 @@ Feature: PatternExpressionAcceptance
     When executing query:
       """
       MATCH (n:A)
-      WITH extract(x IN (n)-->() | head(nodes(x))) AS p, count(n) AS c
+      WITH [x IN (n)-->() | head(nodes(x))] AS p, count(n) AS c
       RETURN p, c
       """
     Then the result should be:
@@ -148,7 +148,7 @@ Feature: PatternExpressionAcceptance
       | [(:A), (:A)] | 1 |
     And no side effects
 
-  Scenario: Using an `extract()` expression in a WHERE
+  Scenario: Using a list comprehension in a WHERE
     Given an empty graph
     And having executed:
       """
@@ -159,7 +159,7 @@ Feature: PatternExpressionAcceptance
     When executing query:
       """
       MATCH (n)
-      WHERE n IN extract(x IN (n)-->() | head(nodes(x)))
+      WHERE n IN [x IN (n)-->() | head(nodes(x))]
       RETURN n
       """
     Then the result should be:
