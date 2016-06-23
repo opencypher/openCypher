@@ -43,11 +43,13 @@ As this proposal extends the `MATCH` clause, nested subqueries can be contained 
 
 === Syntax
 
-We extend the https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml[grammar] through the addition of a new clause:
+We extend the https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml[grammar] as follows:
 
 [source, ebnf]
 ----
-nested-subquery-clause = "MATCH", "{", RegularQuery, "}" ;
+Match = [ "OPTIONAL" ], ( MatchPattern | NestedSubquery ), [ "WHERE", Predicate ] ;
+MatchPattern = "MATCH", Pattern ;
+NestedSubquery = "MATCH", "{", RegularQuery, "}" ;
 ----
 
 === Semantic clarification
