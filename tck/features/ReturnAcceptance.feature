@@ -119,7 +119,6 @@ Feature: ReturnAcceptanceTest
     When executing query:
       """
       MATCH (n)
-      WHERE id(n) IN [0, 1, 2, 3, 4]
       RETURN n
       ORDER BY n.name ASC
       SKIP 2
@@ -147,7 +146,6 @@ Feature: ReturnAcceptanceTest
     When executing query:
       """
       MATCH (n)
-      WHERE id(n) IN [0, 1, 2, 3, 4]
       RETURN n
       ORDER BY n.name ASC
       SKIP {s}
@@ -171,9 +169,8 @@ Feature: ReturnAcceptanceTest
     When executing query:
       """
       MATCH (n)
-      WHERE id(n) IN [0, 1, 2, 3]
       RETURN n.division, max(n.age)
-      ORDER BY max(n.age)
+        ORDER BY max(n.age)
       """
     Then the result should be, in order:
       | n.division | max(n.age) |
@@ -193,9 +190,8 @@ Feature: ReturnAcceptanceTest
     When executing query:
       """
       MATCH (a)
-      WHERE id(a) IN [0, 1, 2, 0]
       RETURN DISTINCT a
-      ORDER BY a.name
+        ORDER BY a.name
       """
     Then the result should be, in order:
       | a             |
@@ -213,7 +209,6 @@ Feature: ReturnAcceptanceTest
     When executing query:
       """
       MATCH (a)
-      WHERE id(a) = 0
       RETURN a AS ColumnName
       """
     Then the result should be:
@@ -230,9 +225,8 @@ Feature: ReturnAcceptanceTest
     When executing query:
       """
       MATCH (a)-->(b)
-      WHERE id(a) = 0
       RETURN DISTINCT b
-      ORDER BY b.name
+        ORDER BY b.name
       """
     Then the result should be, in order:
       | b    |

@@ -79,16 +79,16 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Label)
+      CREATE (:Label {id: 1})
       """
     When executing query:
       """
       MERGE (a:Label)
-      RETURN id(a)
+      RETURN a.id
       """
     Then the result should be:
-      | id(a) |
-      | 0     |
+      | a.id |
+      | 1    |
     And no side effects
 
   Scenario: Merge node should create when it doesn't match, properties
@@ -548,8 +548,8 @@ Feature: MergeNodeAcceptance
       | count(*) |
       | 4        |
     And the side effects should be:
-      | +nodes         | 4 |
-      | +properties    | 4 |
+      | +nodes      | 4 |
+      | +properties | 4 |
 
   Scenario: Merges should not be able to match on deleted nodes
     Given an empty graph
@@ -570,6 +570,6 @@ Feature: MergeNodeAcceptance
       | null     |
       | null     |
     And the side effects should be:
-      | +nodes         | 1 |
-      | -nodes         | 2 |
-      | +labels        | 1 |
+      | +nodes  | 1 |
+      | -nodes  | 2 |
+      | +labels | 1 |

@@ -102,45 +102,45 @@ Feature: WithAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a:End {prop: 42}),
+      CREATE (a:End {prop: 42, id: 0}),
              (:End {prop: 3}),
-             (:Begin {prop: id(a)})
+             (:Begin {prop: a.id})
       """
     When executing query:
       """
       MATCH (a:Begin)
       WITH a.prop AS property
-      LIMIT 1
+        LIMIT 1
       MATCH (b)
-      WHERE id(b) = property
+      WHERE b.id = property
       RETURN b
       """
     Then the result should be:
-      | b                 |
-      | (:End {prop: 42}) |
+      | b                        |
+      | (:End {prop: 42, id: 0}) |
     And no side effects
 
   Scenario: Handle dependencies across WITH with SKIP
     Given an empty graph
     And having executed:
       """
-      CREATE (a {prop: 'A', id: 0}),
-             ({prop: 'B', id: id(a)}),
-             ({prop: 'C', id: 0})
+      CREATE (a {prop: 'A', key: 0, id: 0}),
+             ({prop: 'B', key: a.id, id: 1}),
+             ({prop: 'C', key: 0, id: 2})
       """
     When executing query:
       """
       MATCH (a)
-      WITH a.prop AS property, a.id AS idToUse
-      ORDER BY property
-      SKIP 1
+      WITH a.prop AS property, a.key AS idToUse
+        ORDER BY property
+        SKIP 1
       MATCH (b)
-      WHERE id(b) = idToUse
+      WHERE b.id = idToUse
       RETURN DISTINCT b
       """
     Then the result should be:
       | b                    |
-      | ({prop: 'A', id: 0}) |
+      | ({prop: 'A', key: 0, id: 0}) |
     And no side effects
 
   Scenario: WHERE after WITH should filter results
