@@ -463,23 +463,6 @@ Feature: MatchAcceptance
       | (:B {name: 'B'}) |
     And no side effects
 
-  Scenario: Filter on path nodes
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A {foo: 'bar'})-[:REL]->(b:B {foo: 'bar'})-[:REL]->(c:C {foo: 'bar'})-[:REL]->(d:D {foo: 'bar'})
-      """
-    When executing query:
-      """
-      MATCH p = (pA)-[:REL*3..3]->(pB)
-      WHERE all(i IN nodes(p) WHERE i.foo = 'bar')
-      RETURN pB
-      """
-    Then the result should be:
-      | pB                |
-      | (:D {foo: 'bar'}) |
-    And no side effects
-
   Scenario: Return relationships by fetching them from the path - starting from the end
     Given an empty graph
     And having executed:
