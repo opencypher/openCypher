@@ -22,14 +22,25 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.opencypher.grammar.Grammar.ParserOption.INCLUDE_LEGACY;
+
 // TODO: we should try to make these rules more generic, to not depend on specific names or positions in the result file
 class Antlr4Massager
 {
 
     static String postProcess( String original )
     {
-        int startOfKeywords = original.indexOf(
-                "CYPHER : ( 'C' | 'c' ) ( 'Y' | 'y' ) ( 'P' | 'p' ) ( 'H' | 'h' ) ( 'E' | 'e' ) ( 'R' | 'r' )  ;" );
+        String firstKeyword;
+        if ( Boolean.parseBoolean( System.getProperty( INCLUDE_LEGACY.name() ) ) )
+        {
+            firstKeyword =
+                    "CYPHER : ( 'C' | 'c' ) ( 'Y' | 'y' ) ( 'P' | 'p' ) ( 'H' | 'h' ) ( 'E' | 'e' ) ( 'R' | 'r' )  ;";
+        }
+        else
+        {
+            firstKeyword = "UNION : ( 'U' | 'u' ) ( 'N' | 'n' ) ( 'I' | 'i' ) ( 'O' | 'o' ) ( 'N' | 'n' )  ;";
+        }
+        int startOfKeywords = original.indexOf( firstKeyword );
         int endOfKeywords = original.indexOf( "fragment" );
 
         String everythingAfterKeywords = original.substring( endOfKeywords );

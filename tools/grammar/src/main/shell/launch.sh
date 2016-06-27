@@ -38,7 +38,7 @@ PARAMETERS=
 while [[ $# -gt 1 ]]; do
     case "$1" in
         --*=*)
-            PARAMETERS="$PARAMETERS -D$COMMAND.${1:2}"
+            PARAMETERS="$PARAMETERS -D${1:2}"
         ;;
         -*=*)
             PARAMETERS="$PARAMETERS -D$COMMAND.${1:1}"

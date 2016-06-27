@@ -58,8 +58,9 @@ abstract class Node extends Grammar.Term implements LocationAware
         return sequenced;
     }
 
-    void resolve( ProductionNode origin, ProductionResolver resolver )
+    boolean resolve( ProductionNode origin, ProductionResolver resolver )
     {
+        return true;
     }
 
     Node replaceWithVerified()

@@ -41,6 +41,7 @@ public interface Grammar
     String SCOPE_XML_NAMESPACE = "http://thobe.org/scope";
     String GENERATOR_XML_NAMESPACE = "http://thobe.org/stringgeneration";
     String RAILROAD_XML_NAMESPACE = "http://thobe.org/railroad";
+    String OPENCYPHER_XML_NAMESPACE = "http://thobe.org/opencypher";
 
     static Grammar parseXML( Path input, ParserOption... options )
             throws ParserConfigurationException, SAXException, IOException
@@ -273,7 +274,8 @@ public interface Grammar
     {
         FAIL_ON_UNKNOWN_XML_ATTRIBUTE( XmlParser.Option.FAIL_ON_UNKNOWN_ATTRIBUTE ),
         SKIP_UNUSED_PRODUCTIONS( Root.ResolutionOption.SKIP_UNUSED_PRODUCTIONS ),
-        ALLOW_ROOTLESS_GRAMMAR( Root.ResolutionOption.ALLOW_ROOTLESS );
+        ALLOW_ROOTLESS_GRAMMAR( Root.ResolutionOption.ALLOW_ROOTLESS ),
+        INCLUDE_LEGACY( Root.ResolutionOption.INCLUDE_LEGACY );
 
         private final Object option;
 

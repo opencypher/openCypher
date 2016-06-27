@@ -24,6 +24,7 @@
 <grammar language="Cypher Basic Grammar"
   xmlns="http://thobe.org/grammar"
   xmlns:rr="http://thobe.org/railroad"
+  xmlns:oc="http://thobe.org/opencypher"
   xmlns:ast="http://thobe.org/syntaxtree"
   xmlns:gen="http://thobe.org/stringgeneration">
 
@@ -57,7 +58,7 @@
     </alt>
   </production>
 
-  <production name="ShortestPathPattern" rr:inline="true">
+  <production name="ShortestPathPattern" rr:inline="true" oc:legacy="true">
     <alt>
       <seq>shortestPath ( <non-terminal ref="PatternElement"/> )</seq>
       <seq>allShortestPaths ( <non-terminal ref="PatternElement"/> )</seq>
@@ -134,7 +135,7 @@
     </alt>
   </production>
 
-  <production name="RelType" rr:inline="true">
+  <production name="RelType" rr:inline="true" oc:legacy="true">
     :<non-terminal ref="RelTypeName"/>
   </production>
 
@@ -273,7 +274,7 @@
     </alt>
   </production>
 
-  <production name="Reduce" rr:inline="true">
+  <production name="Reduce" rr:inline="true" oc:legacy="true">
     REDUCE &WS; ( &var; = &expr; , <non-terminal ref="IdInColl"/> | &expr; )
   </production>
 
@@ -334,7 +335,7 @@
     </alt>
   </production>
 
-  <production name="CaseExpression">
+  <production name="CaseExpression" oc:legacy="true">
     <alt>
       <seq>CASE <repeat min="1">&WS; <non-terminal ref="CaseAlternatives"/></repeat></seq>
       <seq>CASE &expr; <repeat min="1">&WS; <non-terminal ref="CaseAlternatives"/></repeat></seq>
@@ -343,7 +344,7 @@
     &WS; END
   </production>
 
-  <production name="CaseAlternatives" rr:inline="true">
+  <production name="CaseAlternatives" rr:inline="true" oc:legacy="true">
     WHEN &WS; &expr; &WS; THEN &WS; &expr;
   </production>
 

@@ -37,6 +37,8 @@ public interface Production
 
     boolean inline();
 
+    boolean legacy();
+
     Collection<NonTerminal> references();
 
     default Collection<Production> referencedFrom()

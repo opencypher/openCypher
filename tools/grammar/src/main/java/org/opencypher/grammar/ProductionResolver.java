@@ -24,23 +24,28 @@ class ProductionResolver
     private final Map<String, ProductionNode> productions;
     private final Dependencies dependencies;
     private final Set<String> unused;
+    private final Set<Root.ResolutionOption> options;
+    private final Set<String> legacyProductions;
     private int nonTerminalIndex;
 
-    public ProductionResolver( Map<String, ProductionNode> productions, Dependencies dependencies, Set<String> unused )
+    public ProductionResolver( Map<String,ProductionNode> productions, Dependencies dependencies, Set<String> unused,
+            Set<Root.ResolutionOption> options, Set<String> legacyProductions )
     {
         this.productions = productions;
         this.dependencies = dependencies;
         this.unused = unused;
+        this.options = options;
+        this.legacyProductions = legacyProductions;
     }
 
     public ProductionNode resolveProduction( ProductionNode origin, String name )
     {
         ProductionNode production = productions.get( name.toLowerCase() );
-        if ( production == null )
+        if ( production == null && !options.contains( Root.ResolutionOption.INCLUDE_LEGACY ) && !legacyProductions.contains( name.toLowerCase() ) )
         {
             dependencies.missingProduction( name, origin );
         }
-        else if ( production.name.equals( name ) )
+        else if ( production != null && production.name.equals( name ) )
         {
             unused.remove( name );
             dependencies.usedFrom( name, origin );

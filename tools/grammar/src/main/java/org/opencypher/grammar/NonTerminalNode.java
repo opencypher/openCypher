@@ -67,7 +67,7 @@ final class NonTerminalNode extends Node implements NonTerminal
     }
 
     @Override
-    void resolve( ProductionNode origin, ProductionResolver resolver )
+    boolean resolve( ProductionNode origin, ProductionResolver resolver )
     {
         production = resolver.resolveProduction( origin, requireNonNull( ref, "non-terminal reference" ) );
         if ( production != null )
@@ -78,7 +78,9 @@ final class NonTerminalNode extends Node implements NonTerminal
                 this.origin = origin;
                 index = resolver.nextNonTerminalIndex();
             }
+            return true;
         }
+        return false;
     }
 
     @Override
