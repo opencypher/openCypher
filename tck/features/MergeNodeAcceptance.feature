@@ -197,61 +197,6 @@ Feature: MergeNodeAcceptance
     And the side effects should be:
       | +properties | 1 |
 
-  Scenario: Works fine with index
-    Given an empty graph
-    And having executed:
-      """
-      CREATE INDEX ON :Person(name)
-      """
-    When executing query:
-      """
-      MERGE (person:Person {name: 'Lasse'})
-      RETURN person.name
-      """
-    Then the result should be:
-      | person.name |
-      | 'Lasse'     |
-    And the side effects should be:
-      | +nodes      | 1 |
-      | +labels     | 1 |
-      | +properties | 1 |
-
-  Scenario: Works with indexed and unindexed property
-    Given an empty graph
-    And having executed:
-      """
-      CREATE INDEX ON :Person(name)
-      """
-    When executing query:
-      """
-      MERGE (person:Person {name: 'Lasse', id: 42})
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes      | 1 |
-      | +labels     | 1 |
-      | +properties | 2 |
-
-  Scenario: Works with two indexed properties
-    Given an empty graph
-    And having executed:
-      """
-      CREATE INDEX ON :Person(name)
-      """
-    And having executed:
-      """
-      CREATE INDEX ON :Person(id)
-      """
-    When executing query:
-      """
-      MERGE (person:Person {name: 'Lasse', id: 42})
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes      | 1 |
-      | +labels     | 1 |
-      | +properties | 2 |
-
   Scenario: Should work when finding multiple elements
     Given an empty graph
     When executing query:
@@ -297,32 +242,6 @@ Feature: MergeNodeAcceptance
 
   Scenario: Should be able to merge using property from match
     Given an empty graph
-    And having executed:
-      """
-      CREATE (:Person {name: 'A', bornIn: 'New York'})
-      CREATE (:Person {name: 'B', bornIn: 'Ohio'})
-      CREATE (:Person {name: 'C', bornIn: 'New Jersey'})
-      CREATE (:Person {name: 'D', bornIn: 'New York'})
-      CREATE (:Person {name: 'E', bornIn: 'Ohio'})
-      CREATE (:Person {name: 'F', bornIn: 'New Jersey'})
-      """
-    When executing query:
-      """
-      MATCH (person:Person)
-      MERGE (city:City {name: person.bornIn})
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes      | 3 |
-      | +labels     | 3 |
-      | +properties | 3 |
-
-  Scenario: Should be able to merge using property from match with index
-    Given an empty graph
-    And having executed:
-      """
-      CREATE INDEX ON :City(name)
-      """
     And having executed:
       """
       CREATE (:Person {name: 'A', bornIn: 'New York'})
@@ -481,29 +400,6 @@ Feature: MergeNodeAcceptance
 
   Scenario: Merge must properly handle multiple labels
     Given an empty graph
-    And having executed:
-      """
-      CREATE (:L:A {prop: 42})
-      """
-    When executing query:
-      """
-      MERGE (test:L:B {prop: 42})
-      RETURN labels(test) AS labels
-      """
-    Then the result should be:
-      | labels     |
-      | ['L', 'B'] |
-    And the side effects should be:
-      | +nodes      | 1 |
-      | +labels     | 2 |
-      | +properties | 1 |
-
-  Scenario: Merge with an index must properly handle multiple labels
-    Given an empty graph
-    And having executed:
-      """
-      CREATE INDEX ON :L(prop)
-      """
     And having executed:
       """
       CREATE (:L:A {prop: 42})
