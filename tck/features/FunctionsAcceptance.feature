@@ -665,9 +665,6 @@ Feature: FunctionsAcceptance
       | true    |
       | ''      |
       | []      |
-      | {}      |
-      | n       |
-      | p       |
 
   Scenario Outline: `toInt()` failing on invalid arguments
     Given an empty graph
@@ -685,7 +682,6 @@ Feature: FunctionsAcceptance
     Examples:
       | invalid |
       | true    |
-      | 'foo'   |
       | []      |
       | {}      |
       | n       |
@@ -708,7 +704,6 @@ Feature: FunctionsAcceptance
     Examples:
       | invalid |
       | true    |
-      | 'foo'   |
       | []      |
       | {}      |
       | n       |
