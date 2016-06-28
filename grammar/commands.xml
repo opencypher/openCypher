@@ -52,15 +52,15 @@
   <!-- / COMMANDS \ -->
 
   <production name="CreateUniqueConstraint" rr:inline="true" oc:legacy="true">
-    CREATE &WS; <non-terminal ref="UniqueConstraint"/>
+    CREATE &SP; <non-terminal ref="UniqueConstraint"/>
   </production>
 
   <production name="CreateNodePropertyExistenceConstraint" rr:inline="true" oc:legacy="true">
-    CREATE &WS; <non-terminal ref="NodePropertyExistenceConstraint"/>
+    CREATE &SP; <non-terminal ref="NodePropertyExistenceConstraint"/>
   </production>
 
   <production name="CreateRelationshipPropertyExistenceConstraint" rr:inline="true" oc:legacy="true">
-    CREATE &WS; <non-terminal ref="RelationshipPropertyExistenceConstraint"/>
+    CREATE &SP; <non-terminal ref="RelationshipPropertyExistenceConstraint"/>
   </production>
 
   <production name="CreateIndex" rr:inline="true" oc:legacy="true">
