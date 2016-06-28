@@ -169,19 +169,6 @@ Feature: EqualsAcceptance
       """
     Then a TypeError should be raised at runtime: IncomparableValues
 
-  Scenario: Fail when comparing nodes to relationships
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()-[:T]->()
-      """
-    When executing query:
-      """
-      MATCH (a)-[b]->()
-      RETURN a = b
-      """
-    Then a TypeError should be raised at runtime: IncomparableValues
-
   Scenario: Fail when comparing relationships to nodes
     Given an empty graph
     And having executed:
