@@ -617,11 +617,11 @@ Feature: FunctionsAcceptance
       """
       MATCH (a)-[r]->()
       WITH [r, 1] AS list
-      RETURN type([0])
+      RETURN type(list[0])
       """
     Then the result should be:
-      | type([0]) |
-      | 'T'       |
+      | type(list[0]) |
+      | 'T'           |
     And no side effects
 
   Scenario Outline: `toString()` failing on invalid arguments
