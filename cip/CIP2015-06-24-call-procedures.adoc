@@ -1,13 +1,14 @@
 = CIP2015-06-24 Calling Stored Procedures
 :numbered:
 :toc:
+:toclevels: 3
 :toc-placement: macro
 :source-highlighter: codemirror
 
-*Author:* Rickard Öberg <rickard.öberg@neotechnology.com>
 *Author:* Stefan Plantikow <stefan.plantikow@neotechnology.com>
 *Author:* Nigel Small <nigel.small@neotechnology.com>
 *Author:* Petra Selmer <petra.selmer@neotechnology.com>
+*Author:* Rickard Öberg <rickard.öberg@neotechnology.com>
 
 [abstract]
 .Abstract
@@ -22,8 +23,7 @@ toc::[]
 == Motivation & Background
 
 While Cypher is a very expressive graph query language, its declarative nature and scope is currently not sufficient for
-expressing certain classes of graph traversals, like traversals relying on using specialized data structures (e.g.
-queues) or on accessing third-party functionality.
+expressing certain classes of graph traversals, like traversals relying on using specialized data structures or on accessing third-party functionality.
 
 This CIP proposes to add stored procedures to Cypher in order to address these issues.
 
@@ -102,10 +102,10 @@ This calls `myProc` for each record produced by the preceding `MATCH` clause wit
 Each call may yield multiple procedure result records with a single result field `last`.
 For each of them, a new statement result record is created that contains the original variables already in scope (i.e. `n`, `r`, `g`) as well as the projected result field `last` renamed as `lastLogin`.
 
-The `YIELD` subclause may be omitted.
-In this case the procedure is still called; it just does not project any result fields and introduces no new variable bindings.
+`YIELD -` is used to indicate that no result fields should be projected.
+In this case the procedure is still called; execution of the call just does not introduce any new variable bindings.
 
-The `YIELD` subclause is always omitted if the procedure returns nothing (i.e. is of type `VOID`).
+However, the `YIELD` subclause is *always* omitted if the procedure returns nothing (i.e. is of type `VOID`).
 As an example, consider a call to the stored procedure `myVoidProc(name``::``STRING?``,``id``::``INTEGER?)``::``VOID`:
 
 .Calling a stored procedure that returns nothing
@@ -118,14 +118,14 @@ RETURN n.name AS name
 
 This will behave in the same way as above but since the procedure now returns nothing, calling it will not change the result cardinality, i.e. conceptually the procedure is called once for each record produced by `MATCH` and will just pass that record on to `RETURN`.
 
-=== Standalone calls
+==== Standalone calls
 
 Procedures may also be called standalone, i.e. without taking arguments from or combining their results with other parts of a larger query.
 In this case, the trailing `RETURN` clause may be omitted and all variable in scope are returned implicitly by the statement.
 Furthermore, we propose two optional simplifications that are available for standalone calls only.
 These simplifications are outlined in the following:
 
-==== Calling with implicitly passed arguments (parameters)
+===== Calling with implicitly passed arguments (parameters)
 
 Standalone calls may ommit passing arguments explicitly.  In this case, all required procedure arguments are taken implicitly from statement parameters with the same name.
 
@@ -145,7 +145,7 @@ This is the same as executing:
 CALL myProc({name}, {id}) YIELD last AS lastLogin
 ----
 
-==== Calling without `YIELD`
+===== Calling without `YIELD`
 
 Standalone calls that ommit the `YIELD` subclause will always project out all result fields.
 
@@ -166,9 +166,7 @@ CALL myProc("Donald", 12) YIELD last
 RETURN *
 ----
 
-Note that omitting `YIELD` in standalon calls projects out all result fields while omitting it when calling a procedure inside a larger query projects out no result fields.
-
-==== Calling with implicitly passed arguments (parameters) and without `YIELD`
+===== Calling with implicitly passed arguments (parameters) and without `YIELD`
 
 Both simplifications may be used in a single standalone procedure call, leading to a very concise syntax for just executing a single procedure call:
 
@@ -178,7 +176,7 @@ Both simplifications may be used in a single standalone procedure call, leading 
 CALL myProc
 ----
 
-=== Procedure call semantics details
+=== Procedure call semantics
 
 The technical details of how procedure calls are executed are left to the implementation as long as they do not violate
 the following rules:
@@ -197,7 +195,7 @@ If executing a procedure call causes any side effects (i.e. it "updates the grap
 before any results are returned to the user. An implementation may provide the user with a way to opt out of this
 behavior, however this must be done explicitly (e.g. via a configuration setting).
 
-==== Semantic details of explicit argument passing
+==== Semantics of explicit argument passing
 
 In this scenario, arguments are provided explicitly as a sequence of expressions as required by the procedure's signature.
 It is an error if the number of provided arguments differs from the number of arguments required by the procedure signature.
@@ -205,7 +203,7 @@ It is an error if the number of provided arguments differs from the number of ar
 To call the procedure, all argument expressions are evaluated to argument values in order.
 It is an error if the argument values are incompatible with the argument types required by the procedure signature.
 
-==== Semantic details of implicit argument passing
+==== Semantics of implicit argument passing
 
 In this scenario, arguments are providede implicitly via the parameters of the Cypher statement.
 
@@ -238,15 +236,15 @@ The introduction of stored procedures therefore carries a risk of influencing th
 
 .Calling modes
 [frame="topbot",cols="3l,2a,2a,2a,1m", options="header,footer"]
-|==================================================================================
-|Statement template        |Mode      |Argument Passing|New Bindings   |Cardinality
-|.. CALL proc(..) YIELD .. |In-Query  |Explicit        |Some (explicit)|1:n
-|.. CALL proc(..)          |In-Query  |Explicit        |None           |1:n
-|CALL proc(..) YIELD ..    |Standalone|Explicit        |Some (explicit)|1:n
-|CALL proc YIELD ..        |Standalone|Implicit        |Some (explicit)|1:n
-|CALL proc(..)             |Standalone|Explicit        |All (implicit) |1:n
-|CALL proc                 |Standalone|Implicit        |All (implicit) |1:n
-|.. CALL voidProc(..)      |In-Query  |Explicit        |None           |1:1
-|CALL voidProc(..)         |Standalone|Explicit        |None           |1:1
-|CALL voidProc             |Standalone|Implicit        |None           |1:1
-|===================================================================================
+|===============================================================================
+|Statement template        |Mode      |Argument Passing|New Bindings|Cardinality
+|.. CALL proc(..) YIELD -  |In-Query  |Explicit        |None        |1:0..n
+|.. CALL proc(..) YIELD .. |In-Query  |Explicit        |Some        |1:0..n
+|CALL proc(..) YIELD ..    |Standalone|Explicit        |Some        |1:0..n
+|CALL proc YIELD ..        |Standalone|Implicit        |Some        |1:0..n
+|CALL proc(..)             |Standalone|Explicit        |All         |1:0..n
+|CALL proc                 |Standalone|Implicit        |All         |1:0..n
+|.. CALL voidProc(..)      |In-Query  |Explicit        |All = None  |1:1
+|CALL voidProc(..)         |Standalone|Explicit        |All = None  |1:1
+|CALL voidProc             |Standalone|Implicit        |All = None  |1:1
+|===============================================================================
