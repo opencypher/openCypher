@@ -51,6 +51,7 @@
   <production name="Query" rr:inline="true">
     <alt>
       <non-terminal ref="RegularQuery"/>
+      <non-terminal ref="StandaloneCall"/>
       <non-terminal ref="BulkImportQuery"/>
     </alt>
   </production>
@@ -101,6 +102,7 @@
       <non-terminal ref="Delete"/>
       <non-terminal ref="Remove"/>
       <non-terminal ref="Foreach"/>
+      <non-terminal ref="InQueryCall"/>
       <non-terminal ref="With"/>
       <non-terminal ref="Return"/>
     </alt>
@@ -194,6 +196,33 @@
   <production name="Foreach" scope:rule="nested" oc:legacy="true">
     FOREACH &WS; ( &WS; &var; &SP; IN &SP; &expr; &WS; | <repeat min="1">&SP;<non-terminal ref="Clause"/></repeat> &WS; )
   </production>
+
+  <production name="InQueryCall">
+    <seq>CALL &SP; <non-terminal ref="ExplicitProcedureInvocation"/> <opt>&WS; YIELD &SP; <non-terminal ref="YieldItems"/></opt></seq>
+  </production>
+
+  <production name="StandaloneCall">
+    <seq>
+      CALL &SP;
+      <alt>
+        <non-terminal ref="ExplicitProcedureInvocation"/>
+        <non-terminal ref="ImplicitProcedureInvocation"/>
+      </alt>
+      <opt>&SP; YIELD &SP; <non-terminal ref="YieldItems"/></opt>
+    </seq>
+  </production>
+
+  <production name="YieldItems" rr:inline="true">
+    <alt>
+      <seq><non-terminal ref="YieldItem"/> <repeat>&WS; , &WS;<non-terminal ref="YieldItem"/></repeat></seq>
+      -
+    </alt>
+  </production>
+
+  <production name="YieldItem" rr:inline="true">
+    <seq><opt><non-terminal ref="ProcedureResultField"/> &SP; AS &SP;</opt> &var;</seq>
+  </production>
+
 
   <production name="With" scope:rule="new">
     <seq>

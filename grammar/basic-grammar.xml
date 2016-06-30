@@ -352,6 +352,25 @@
     <non-terminal ref="SymbolicName" rr:title="function name"/>
   </production>
 
+  <production name="ExplicitProcedureInvocation">
+    <non-terminal ref="ProcedureName"/>
+    &WS; ( &WS;
+    <opt>&expr;<repeat>, &WS; &expr;</repeat></opt>
+    &WS; )
+  </production>
+
+  <production name="ImplicitProcedureInvocation">
+    <non-terminal ref="ProcedureName"/>
+  </production>
+
+  <production name="ProcedureResultField" rr:inline="true">
+    <non-terminal ref="SymbolicName" rr:title="procedure result field"/>
+  </production>
+
+  <production name="ProcedureName" rr:inline="true">
+    <non-terminal ref="SymbolicName" rr:title="procedure name"/>
+  </production>
+
   <production name="ListComprehension" rr:inline="true">
     [ &WS;
       <non-terminal ref="FilterExpression"/>
