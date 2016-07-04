@@ -72,7 +72,7 @@ For the following discussion, it is helpful to clarify the meaning of `null`. In
 
 Cypher today has one supertype `MAP` for all map values. This includes nodes (of subtype `NODE`), relationships (of subtype `RELATIONSHIP`), and any other map (not captured by a subtype of `MAP`). For the purpose of this document, we define a regular map to be any value of type `MAP` that is neither a `NODE` nor a `RELATIONSHIP`.
 
-<<comparability-equality,comparability and equality>>
+[[comparability-equality,comparability and equality]]
 === Comparability and equality
 
 We propose that comparability and equality should be aligned with each other, i.e.
@@ -218,19 +218,50 @@ Equivalence remains mostly unchanged but now can be defined succinctly as being 
 
 <<equivalence-def,Equivalence>> is reflexive for all values.
 
+[[aggregation]]
+=== Aggregation ===
+
+Generally, an aggregation function call `aggr(expr)` processes all matching rows for each aggregation key found in an incoming record (and keys are compared using equivalence, as noted above).
+For a fixed aggregation key and each matching record, `expr` is evaluated to a value.
+This yields a list of candidate values.
+
+If this a regular aggregation (i.e. of the form `aggr(expr)`), the list of aggregated values is the list of candidate values with all `null` values removed from it.
+
+If this a distinct aggregation (i.e. of the form `aggr(DISTINCT expr)`), the list of aggregated values is the list of candidate values with all `null` values removed from it.
+Futhermore, in distinct aggregation, only the first of all equivalent candidate values is included in the list of aggregated values, i.e. duplicates under equivalence are removed.
+
+Finally, the remaining aggregated values are processed by the actual aggregation function.
+If the list of aggregated values is empty, the aggregation function returns a default value (`null` unless specified otherwise below).
+Aggregating values of different types (like summing a number and a string) may lead to runtime errors.
+
+The semantics of a few actual aggregation functions depends on the used notions of sameness and sorting. This is clarified below:
+
+* `count(expr)` returns the number of aggregated values, or `0` if the list of aggregated values is empty.
+* `min/max(expr)` returns the smallest (and largest resp.) of the aggregated values under orderability. Note that `null` values will never be returned as a maximum as they are never included in the list of aggregated values.
+* `sum(expr)` returns the sum of aggregated values, or `0` if the list of aggregated values is empty.
+* `avg(expr)` returns the arithmetic mean of aggregated values, or `0` if the list of aggregated values is empty.
+* `collect(expr)` returns the list of aggregated values.
+* `stdev(expr)` returns the standard deviation of the aggregated values (assuming they represent a random sample), or `0` if the list of aggregated values is empty.
+* `stdevp(expr)` returns the standard deviation of the aggregated values (assuming they form a complete population), or `0` if the list of aggregated values is empty.
+* `percentile_disc(expr)` computes the inverse distribution function (assuming a discrete distribution model), or `0` if the list of aggregated values is empty.
+* `percentile_cont(expr)` computes the inverse distribution function (assuming a continous distribution model), or `0` if the list of aggregated values is empty.
+
 [[conceptual-model]]
 === Summary of the conceptual model ===
 
 This proposal aims to simplify the conceptual model around equality, comparison, order, and grouping:
 
 - <<comparability-equality,Comparability and equality>> are aligned with each other
-  * <<comparability-con,Comparability>> ensure that any two values of the same leaf type in the <<global-sort-order>> are comparable. Two values of different types are incomparable and values involving `null` are incomparable, too.
-This ensures that `MATCH (n) WHERE n.prop < 42` will never find nodes where `n.prop` is of type `STRING`.
+  * <<comparability-con,Comparability>> ensure that any two values of the same leaf type in the <<global-sort-order>> are comparable.
+  Two values of different types are incomparable and values involving `null` are incomparable, too.
+  This ensures that `MATCH (n) WHERE n.prop < 42` will never find nodes where `n.prop` is of type `STRING`.
   * <<equality-con,Equality>> follows natural, literal equality. However, values involving `null` are never equal to any other value. Nested structures are first tested for equality by shape (keys, size) and then their corresponding elements are tested for equality pairwise. This ensures that equality is compatible with interpreting `null` as "unknown" or "could be any value" or "undefined".
 - <<orderability-equivalence>> are aligned with each other
   * <<orderability-con,Orderability>> follows comparability but additionally defines a <<global-sort-order>> between values of different types and is aligned with equivalence instead of equality, i.e. treats two `null` (resp. `NaN`) values as equivalent.
   * <<equivalence-con,Equivalence>> is a form of equality that treats `null` (and `NaN`) values as the same value. Equivalence is used in grouping and `DISTINCT` where `null` commonly is interpreted as a category marker for results with missing values instead of as a wildcard for any possible value.
+- Aggregation functions that rely on notions of sameness and sorting are aligned with equivalence and orderability.
 
+[[examples]]
 === Examples
 
 An integer compared to a float
