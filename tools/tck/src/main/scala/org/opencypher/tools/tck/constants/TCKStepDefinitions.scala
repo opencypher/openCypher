@@ -31,6 +31,7 @@ object TCKStepDefinitions {
   val PARAMETERS = "^parameters are:$"
   val SIDE_EFFECTS = "^the side effects should be:$"
   val NO_SIDE_EFFECTS = "^no side effects$"
+  val PENDING = """^this scenario is pending on: (.+)$"""
 
   // for When
   val EXECUTING_QUERY = "^executing query:$"
@@ -42,4 +43,5 @@ object TCKStepDefinitions {
   val EXPECT_RESULT_UNORDERED_LISTS = "^the result should be \\(ignoring element order for lists\\):$"
   val EXPECT_EMPTY_RESULT = "^the result should be empty$"
   val EXPECT_ERROR = "^an? (.+) should be raised at (.+): (.+)$"
+  val EXPECT_PROCEDURE = """^there exists a procedure (.+):$"""
 }
