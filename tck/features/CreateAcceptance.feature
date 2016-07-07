@@ -502,13 +502,15 @@ Feature: CreateAcceptance
       """
       CREATE (a)
       WITH a
-      MERGE ()-[:T]->()
+      MERGE (x)
+      MERGE (y)
+      MERGE (x)-[:T]->(y)
       CREATE (b)
       CREATE (a)<-[:T]-(b)
       """
     Then the result should be empty
     And the side effects should be:
-      | +nodes         | 4 |
+      | +nodes         | 2 |
       | +relationships | 2 |
 
 

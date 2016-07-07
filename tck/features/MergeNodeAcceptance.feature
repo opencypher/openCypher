@@ -469,3 +469,16 @@ Feature: MergeNodeAcceptance
       | +nodes  | 1 |
       | -nodes  | 2 |
       | +labels | 1 |
+
+  Scenario: ON CREATE on created nodes
+    Given an empty graph
+    When executing query:
+      """
+      MERGE (b)
+        ON CREATE SET b.created = 1
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes         | 1 |
+      | +properties    | 1 |
+

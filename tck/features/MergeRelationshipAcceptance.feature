@@ -151,14 +151,18 @@ Feature: MergeRelationshipAcceptance
 
   Scenario: Using ON CREATE on a node
     Given an empty graph
+    And having executed:
+      """
+      CREATE (:A), (:B)
+      """
     When executing query:
       """
+      MATCH (a:A), (b:B)
       MERGE (a)-[:KNOWS]->(b)
         ON CREATE SET b.created = 1
       """
     Then the result should be empty
     And the side effects should be:
-      | +nodes         | 2 |
       | +relationships | 1 |
       | +properties    | 1 |
 
@@ -184,26 +188,34 @@ Feature: MergeRelationshipAcceptance
 
   Scenario: Using ON MATCH on created node
     Given an empty graph
+    And having executed:
+      """
+      CREATE (:A), (:B)
+      """
     When executing query:
       """
+      MATCH (a:A), (b:B)
       MERGE (a)-[:KNOWS]->(b)
         ON MATCH SET b.created = 1
       """
     Then the result should be empty
     And the side effects should be:
-      | +nodes         | 2 |
       | +relationships | 1 |
 
   Scenario: Using ON MATCH on created relationship
     Given an empty graph
+    And having executed:
+      """
+      CREATE (:A), (:B)
+      """
     When executing query:
       """
+      MATCH (a:A), (b:B)
       MERGE (a)-[r:KNOWS]->(b)
         ON MATCH SET r.created = 1
       """
     Then the result should be empty
     And the side effects should be:
-      | +nodes         | 2 |
       | +relationships | 1 |
 
   Scenario: Using ON MATCH on a relationship
@@ -249,84 +261,6 @@ Feature: MergeRelationshipAcceptance
       | +relationships | 3 |
       | +properties    | 4 |
 
-  Scenario: Using a single bound node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A)
-      """
-    When executing query:
-      """
-      MATCH (a:A)
-      MERGE (a)-[r:TYPE]->()
-      RETURN count(r)
-      """
-    Then the result should be:
-      | count(r) |
-      | 1        |
-    And the side effects should be:
-      | +nodes         | 1 |
-      | +relationships | 1 |
-
-  Scenario: Using a longer pattern
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A)
-      """
-    When executing query:
-      """
-      MATCH (a:A)
-      MERGE (a)-[r:TYPE]->()<-[:TYPE]-()
-      RETURN count(r)
-      """
-    Then the result should be:
-      | count(r) |
-      | 1        |
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 2 |
-
-  Scenario: Using bound nodes in mid-pattern
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:B)
-      """
-    When executing query:
-      """
-      MATCH (b:B)
-      MERGE (a)-[r1:TYPE]->(b)<-[r2:TYPE]-(c)
-      RETURN type(r1), type(r2)
-      """
-    Then the result should be:
-      | type(r1) | type(r2) |
-      | 'TYPE'   | 'TYPE'   |
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 2 |
-
-  Scenario: Using bound nodes in mid-pattern when pattern partly matches
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A), (b:B)
-      CREATE (a)-[:TYPE]->(b)
-      """
-    When executing query:
-      """
-      MATCH (b:B)
-      MERGE (a:A)-[r1:TYPE]->(b)<-[r2:TYPE]-(c:C)
-      RETURN type(r1), type(r2)
-      """
-    Then the result should be:
-      | type(r1) | type(r2) |
-      | 'TYPE'   | 'TYPE'   |
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 2 |
-      | +labels        | 2 |
-
   Scenario: Creating relationship using merged nodes
     Given an empty graph
     And having executed:
@@ -347,8 +281,8 @@ Feature: MergeRelationshipAcceptance
     Given an empty graph
     When executing query:
       """
-      CREATE (a:A)
-      MERGE (a)-[:KNOWS]->(b:B)
+      CREATE (a:A), (b:B)
+      MERGE (a)-[:KNOWS]->(b)
       CREATE (b)-[:KNOWS]->(c:C)
       RETURN count(*)
       """
@@ -361,22 +295,6 @@ Feature: MergeRelationshipAcceptance
       | +labels        | 3 |
 
   Scenario: Introduce named paths 1
-    Given an empty graph
-    When executing query:
-      """
-      MERGE (a:A)
-      MERGE p = (a)-[:R]->()
-      RETURN p
-      """
-    Then the result should be:
-      | p               |
-      | <(:A)-[:R]->()> |
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 1 |
-      | +labels        | 1 |
-
-  Scenario: Introduce named paths 2
     Given an empty graph
     When executing query:
       """
@@ -393,7 +311,7 @@ Feature: MergeRelationshipAcceptance
       | +relationships | 1 |
       | +properties    | 2 |
 
-  Scenario: Introduce named paths 3
+  Scenario: Introduce named paths 2
     Given an empty graph
     When executing query:
       """
@@ -407,36 +325,12 @@ Feature: MergeRelationshipAcceptance
       | +nodes      | 1 |
       | +properties | 1 |
 
-  Scenario: Unbound pattern
-    Given an empty graph
-    When executing query:
-      """
-      MERGE ({name: 'Andres'})-[:R]->({name: 'Emil'})
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 1 |
-      | +properties    | 2 |
-
-  Scenario: ON CREATE on created nodes
-    Given an empty graph
-    When executing query:
-      """
-      MERGE (a)-[:KNOWS]->(b)
-        ON CREATE SET b.created = 1
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 1 |
-      | +properties    | 1 |
-
   Scenario: Use outgoing direction when unspecified
     Given an empty graph
     When executing query:
       """
-      MERGE (a {id: 2})-[r:KNOWS]-(b {id: 1})
+      CREATE (a {id: 2}), (b {id: 1})
+      MERGE (a)-[r:KNOWS]-(b)
       RETURN startNode(r).id AS s, endNode(r).id AS e
       """
     Then the result should be:
@@ -456,7 +350,8 @@ Feature: MergeRelationshipAcceptance
       """
     When executing query:
       """
-      MERGE (a {id: 2})-[r:KNOWS]-(b {id: 1})
+      MATCH (a {id: 2}), (b {id: 1})
+      MERGE (a)-[r:KNOWS]-(b)
       RETURN r
       """
     Then the result should be:
@@ -474,7 +369,8 @@ Feature: MergeRelationshipAcceptance
       """
     When executing query:
       """
-      MERGE (a {id: 2})-[r:KNOWS]-(b {id: 1})
+      MATCH (a {id: 2})--(b {id: 1})
+      MERGE (a)-[r:KNOWS]-(b)
       RETURN r
       """
     Then the result should be:
@@ -487,7 +383,8 @@ Feature: MergeRelationshipAcceptance
     Given any graph
     When executing query:
       """
-      MERGE (a:Foo)-[r:KNOWS]->(a:Bar)
+      CREATE (a:Foo)
+      MERGE (a)-[r:KNOWS]->(a:Bar)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
@@ -533,8 +430,8 @@ Feature: MergeRelationshipAcceptance
     Given an empty graph
     When executing query:
       """
-      CREATE (a)
-      MERGE (a)-[:X]->()
+      CREATE (a), (b)
+      MERGE (a)-[:X]->(b)
       RETURN count(a)
       """
     Then the result should be:
@@ -643,7 +540,7 @@ Feature: MergeRelationshipAcceptance
     When executing query:
       """
       MATCH (n)
-      WITH n AS a
+      WITH n AS a, n AS b
       MERGE (a)-[r:T]->(b)
       RETURN a.id AS a
       """
@@ -651,7 +548,6 @@ Feature: MergeRelationshipAcceptance
       | a |
       | 0 |
     And the side effects should be:
-      | +nodes         | 1 |
       | +relationships | 1 |
 
   Scenario: Double aliasing of existing nodes 1
@@ -667,6 +563,8 @@ Feature: MergeRelationshipAcceptance
       WITH n AS a, m AS b
       MERGE (a)-[:T]->(b)
       WITH a AS x, b AS y
+      MERGE (a)
+      MERGE (b)
       MERGE (a)-[:T]->(b)
       RETURN x.id AS x, y.id AS y
       """
@@ -686,14 +584,15 @@ Feature: MergeRelationshipAcceptance
       """
       MATCH (n)
       WITH n AS a
-      MERGE (a)-[:T]->()
+      MERGE (c)
+      MERGE (a)-[:T]->(c)
       WITH a AS x
-      MERGE (x)-[:T]->()
+      MERGE (c)
+      MERGE (x)-[:T]->(c)
       RETURN x.id AS x
       """
     Then the result should be:
       | x |
       | 0 |
     And the side effects should be:
-      | +nodes         | 1 |
       | +relationships | 1 |

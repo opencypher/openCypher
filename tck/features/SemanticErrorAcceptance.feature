@@ -132,7 +132,9 @@ Feature: SemanticErrorAcceptance
   Scenario: Failing when using variable length relationship in MERGE
     When executing query:
       """
-      MERGE ()-[:FOO*2]->()
+      MERGE (a)
+      MERGE (b)
+      MERGE (a)-[:FOO*2]->(b)
       """
     Then a SyntaxError should be raised at compile time: CreatingVarLength
 
@@ -163,7 +165,9 @@ Feature: SemanticErrorAcceptance
   Scenario: Failing when using parameter as relationship predicate in MERGE
     When executing query:
       """
-      MERGE ()-[r:FOO {param}]->()
+      MERGE (a)
+      MERGE (b)
+      MERGE (a)-[r:FOO {param}]->(b)
       RETURN r
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
@@ -203,8 +207,8 @@ Feature: SemanticErrorAcceptance
   Scenario: Failing when using MERGE on a relationship that is already bound
     When executing query:
       """
-      MATCH ()-[r]->()
-      MERGE ()-[r]->()
+      MATCH (a)-[r]->(b)
+      MERGE (a)-[r]->(b)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
@@ -377,7 +381,8 @@ Feature: SemanticErrorAcceptance
   Scenario: Failing when merging relationship without type
     When executing query:
       """
-      MERGE ()-->()
+      CREATE (a), (b)
+      MERGE (a)-->(b)
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
@@ -399,6 +404,7 @@ Feature: SemanticErrorAcceptance
   Scenario: Failing when merging relationship with more than one type
     When executing query:
       """
-      MERGE ()-[:A|:B]->()
+      CREATE (a), (b)
+      MERGE (a)-[:A|:B]->(b)
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
