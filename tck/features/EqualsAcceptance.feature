@@ -28,7 +28,7 @@ Feature: EqualsAcceptance
       WITH collect([0, 0.0]) AS numbers
       UNWIND numbers AS arr
       WITH arr[0] AS expected
-      MATCH (n) WHERE toInt(n.id) = expected
+      MATCH (n) WHERE toInteger(n.id) = expected
       RETURN n
       """
     Then the result should be:
@@ -47,7 +47,7 @@ Feature: EqualsAcceptance
       WITH collect([0.5, 0]) AS numbers
       UNWIND numbers AS arr
       WITH arr[0] AS expected
-      MATCH (n) WHERE toInt(n.id) = expected
+      MATCH (n) WHERE toInteger(n.id) = expected
       RETURN n
       """
     Then the result should be:
@@ -65,7 +65,7 @@ Feature: EqualsAcceptance
       WITH collect(['0', 0]) AS things
       UNWIND things AS arr
       WITH arr[0] AS expected
-      MATCH (n) WHERE toInt(n.id) = expected
+      MATCH (n) WHERE toInteger(n.id) = expected
       RETURN n
       """
     Then the result should be:

@@ -135,7 +135,7 @@ Feature: ExpressionAcceptance
     When executing query:
       """
       WITH {expr} AS expr, {idx} AS idx
-      RETURN expr[toInt(idx)] AS value
+      RETURN expr[toInteger(idx)] AS value
       """
     Then the result should be:
       | value |

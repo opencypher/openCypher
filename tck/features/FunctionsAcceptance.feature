@@ -59,7 +59,7 @@ Feature: FunctionsAcceptance
       | 2    |
     And no side effects
 
-  Scenario: `toInt()`
+  Scenario: `toInteger()`
     Given an empty graph
     And having executed:
       """
@@ -70,67 +70,67 @@ Feature: FunctionsAcceptance
       MATCH (p:Person { age: '42' })
       WITH *
       MATCH (n)
-      RETURN toInt(n.age) AS age
+      RETURN toInteger(n.age) AS age
       """
     Then the result should be:
       | age |
       | 42  |
     And no side effects
 
-  Scenario: `toInt()` on float
+  Scenario: `toInteger()` on float
     Given any graph
     When executing query:
       """
       WITH 82.9 AS weight
-      RETURN toInt(weight)
+      RETURN toInteger(weight)
       """
     Then the result should be:
-      | toInt(weight) |
+      | toInteger(weight) |
       | 82            |
     And no side effects
 
-  Scenario: `toInt()` returning null on non-numerical string
+  Scenario: `toInteger()` returning null on non-numerical string
     Given any graph
     When executing query:
       """
       WITH 'foo' AS foo_string, '' AS empty_string
-      RETURN toInt(foo_string) AS foo, toInt(empty_string) AS empty
+      RETURN toInteger(foo_string) AS foo, toInteger(empty_string) AS empty
       """
     Then the result should be:
       | foo  | empty |
       | null | null  |
     And no side effects
 
-  Scenario: `toInt()` handling mixed number types
+  Scenario: `toInteger()` handling mixed number types
     Given any graph
     When executing query:
       """
       WITH [2, 2.9] AS numbers
-      RETURN [n IN numbers | toInt(n)] AS int_numbers
+      RETURN [n IN numbers | toInteger(n)] AS int_numbers
       """
     Then the result should be:
       | int_numbers |
       | [2, 2]      |
     And no side effects
 
-  Scenario: `toInt()` handling Any type
+  Scenario: `toInteger()` handling Any type
     Given any graph
     When executing query:
       """
       WITH [2, 2.9, '1.7'] AS things
-      RETURN [n IN things | toInt(n)] AS int_numbers
+      RETURN [n IN things | toInteger(n)] AS int_numbers
       """
     Then the result should be:
       | int_numbers |
       | [2, 2, 1]   |
     And no side effects
 
-  Scenario: `toInt()` on a list of strings
+  Scenario: `toInteger()` on a list of strings
     Given any graph
     When executing query:
       """
       WITH ['2', '2.9', 'foo'] AS numbers
-      RETURN [n IN numbers | toInt(n)] AS int_numbers
+      RETURN [n IN numbers | toInteger(n)] AS int_numbers
       """
     Then the result should be:
       | int_numbers  |
@@ -666,7 +666,7 @@ Feature: FunctionsAcceptance
       | ''      |
       | []      |
 
-  Scenario Outline: `toInt()` failing on invalid arguments
+  Scenario Outline: `toInteger()` failing on invalid arguments
     Given an empty graph
     And having executed:
       """
@@ -675,7 +675,7 @@ Feature: FunctionsAcceptance
     When executing query:
       """
       MATCH p = (n)-[r:T]->()
-      RETURN [x IN [1, <invalid>] | toInt(x) ] AS list
+      RETURN [x IN [1, <invalid>] | toInteger(x) ] AS list
       """
     Then a TypeError should be raised at runtime: InvalidArgumentValue
 

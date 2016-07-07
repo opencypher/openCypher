@@ -43,7 +43,7 @@ Feature: SkipLimitAcceptanceTest
     When executing query:
       """
       MATCH (n)
-      WITH n SKIP toInt(rand()*9)
+      WITH n SKIP toInteger(rand()*9)
       WITH count(*) AS count
       RETURN count > 0 AS nonEmpty
       """
@@ -62,7 +62,7 @@ Feature: SkipLimitAcceptanceTest
     When executing query:
       """
       MATCH (n)
-      WITH n LIMIT toInt(ceil(1.7))
+      WITH n LIMIT toInteger(ceil(1.7))
       RETURN count(*) AS count
       """
     Then the result should be:
