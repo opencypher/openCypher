@@ -30,6 +30,7 @@ Feature: MiscellaneousErrorAcceptance
   Scenario: Failing on merging relationship with null property
     When executing query:
       """
+      CREATE (a), (b)
       MERGE (a)-[r:X {p: null}]->(b)
       """
     Then a SemanticError should be raised at compile time: MergeReadOwnWrites
@@ -110,13 +111,6 @@ Feature: MiscellaneousErrorAcceptance
       MATCH (a)
       CREATE (a {name: 'foo'})
       RETURN a
-      """
-    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
-
-  Scenario: Failing when imposing new predicate on a variable that is already bound
-    When executing query:
-      """
-      MERGE (a:Foo)-[:KNOWS]->(a:Bar)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
