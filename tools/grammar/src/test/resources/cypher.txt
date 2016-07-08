@@ -19,3 +19,15 @@ RETURN 1§
 MATCH (n)
 WHERE (  n  .  name   =   'Peter'  )
 RETURN 1§
+MATCH ()-[r:ACTED_IN*  ]-()
+RETURN r§
+MATCH ()-[r:ACTED_IN*  2  ]-()
+RETURN r§
+MATCH ()-[r:ACTED_IN*  2  ..  ]-()
+RETURN r§
+MATCH ()-[r:ACTED_IN*  2  ..  10  ]-()
+RETURN r§
+MATCH ()-[r:ACTED_IN*  ..  10  ]-()
+RETURN r§
+MATCH ()-[r:ACTED_IN*  ..  ]-()
+RETURN r§
