@@ -291,7 +291,7 @@
   </production>
 
   <production name="parenthesizedExpression" rr:inline="true">
-    ( &expr; )
+    ( &WS; &expr; &WS; )
   </production>
 
   <production name="RelationshipsPattern" rr:inline="true">

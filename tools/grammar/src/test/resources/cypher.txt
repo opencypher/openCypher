@@ -10,3 +10,12 @@ MATCH (tom:Person)-[:ACTED_IN]->(tomHanksMovies) RETURN tom§
 MATCH (tom:Person)  -[:ACTED_IN]->(tomHanksMovies) RETURN tom§
 MATCH (tom:Person  )-[:ACTED_IN]->(tomHanksMovies) RETURN tom§
 match(n)return n        §
+MATCH (n)
+WHERE (n.name = 'Peter')
+RETURN 1§
+MATCH (n)
+WHERE (  n.name = 'Peter'  )
+RETURN 1§
+MATCH (n)
+WHERE (  n  .  name   =   'Peter'  )
+RETURN 1§
