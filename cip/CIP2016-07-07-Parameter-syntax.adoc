@@ -10,25 +10,25 @@
 .Abstract
 --
 This CIP suggests changing syntax for parameter usage, from curly braces (`{}`) to dollars (`$`).
-Curly brackets are used by the language for literal maps and property predicates, and this overloading may cause confusion in usage.
+Curly braces are used by the language for literal maps (in expressions and patterns) and has been suggested for upcoming subquery syntax, and this overloading may cause confusion in usage.
 Using a different, unique character causes parameters to be more visible for the human eye, and by using only a single character for the parameter instead of one opening and one closing, the syntax becomes somewhat cleaner.
 --
 
 toc::[]
 
-
 == Motivation
-
-//Provide the rationale and justification for the proposed feature(s).
 
 The clause `MATCH (a {prop: {param}})` contains a nested curly brace structure, which is not ideal for human readability.
 The alternative `MATCH (a {prop: $param})` does a much better job at signalling the parameter usage to the reader.
+Using a single leading character is a very common way of referencing variables in general programming languages.
+Specifically, the following list of languages use the dollar sign:
 
-== Background
-
-This is further background regarding the CIP, should it be required or deemed useful.
-
-Please ensure that links to related documents (including other CIPs) are provided.
+- Scala (string interpolation)
+- PHP (variable definition)
+- AutoIt (variable definition)
+- Perl (scalar variables)
+- Ruby (global variables)
+- BASIC (trailing character for variables)
 
 == Proposal
 
@@ -36,13 +36,10 @@ The concrete suggestion made by this CIP is to replace the parameter syntax with
 
 === Syntax
 
-
-
 .Parameter expression:
 [source, ebnf]
 ----
-parameter = "$", variable
-          ;
+parameter = "$", variable ;
 ----
 
 === Semantics
@@ -65,27 +62,36 @@ WITH $param AS p
 RETURN toString(p)
 ----
 
+.Using a parameter with an escaped name in a `WITH` clause.
+[source, cypher]
+----
+WITH $`Der Parameter` AS p
+RETURN toString(p)
+----
+
+.Using a map parameter as a property predicate.
+[source, cypher]
+----
+MATCH (n $param)
+RETURN count(*)
+----
+
 === Interaction with existing features
 
 This is a simple syntax replacement, with no functionality changes.
 
-//== What others do
+== What others do
 
-//If applicable, include a feature comparison table, along with any useful links.
-//
-//To provide a well-rounded comparison, please ensure the inclusion of at least one SQL-based implementation -- such as DB2 or Postgres -- as well as SPARQL.
-//If you require any assistance or pointers to the latter, please contact petra.selmer@neotechnology.com.
+Postgres uses dollar signs for variables to prepared queries.
+SQL Server uses the at sign (`@`) for referencing parameters.
+Oracle DB uses colon (`:`) for dereferencing SQL parameters.
 
 == Benefits to this proposal
 
 Using a dedicated piece of syntax increases visibility of parameters, and reduces overloading of the previously used syntax.
-This has the added benefit of making property predicates and literal maps clearer, as they may no longer be misinterpreted for parameters.
+This has the added benefit of making literal maps clearer, as they may no longer be misinterpreted for parameters.
+Furthermore, we expect future work on subqueries to make use of the curly braces, and this frees up some space to do so.
 
-//== Caveats to this proposal
+== Caveats to this proposal
 
-//List any caveats here.
-//These may include omissions, reasons for non-conformance with other features and so on.
-
-//== Appendix
-
-//Put any supplementary information here.
+This is a breaking change, which will require users to rewrite their queries.
