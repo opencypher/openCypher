@@ -41,3 +41,11 @@ FOREACH(i in RANGE(0, length(days) - 2) |
     FOREACH(day1 in [days[i]] |
         FOREACH(day2 in [days[i + 1]] |
             CREATE UNIQUE (day1)-[:NEXT]->(day2))))§
+CREATE CONSTRAINT ON (n:Person) ASSERT n.name IS UNIQUE§
+CREATE CONSTRAINT ON (n:Person)ASSERT n.name IS UNIQUE§
+CREATE CONSTRAINT ON(n:Person)ASSERT n.name IS UNIQUE§
+CREATE CONSTRAINT ON (p:Person) ASSERT EXISTS(p.name)§
+CREATE CONSTRAINT ON ()-[l:LIKED]-() ASSERT EXISTS(l.when)§
+CREATE CONSTRAINT ON ()-[l:LIKED]-() ASSERT EXISTS (l.when)§
+CREATE CONSTRAINT ON()-[l:LIKED]-() ASSERT EXISTS (l.when)§
+CREATE CONSTRAINT ON()-[l:LIKED]-()ASSERT EXISTS (l.when)§

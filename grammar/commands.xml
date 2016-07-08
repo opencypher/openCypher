@@ -89,18 +89,18 @@
 
 
   <production name="UniqueConstraint" oc:legacy="true">
-    CONSTRAINT &SP; ON &WS; ( &var; &label; )
-    ASSERT <non-terminal ref="PropertyExpression"/> IS &SP; UNIQUE
+    CONSTRAINT &SP; ON &WS; ( &var; &label; ) &WS;
+    ASSERT &SP; <non-terminal ref="PropertyExpression"/> &SP; IS &SP; UNIQUE
   </production>
 
   <production name="NodePropertyExistenceConstraint" oc:legacy="true">
-    CONSTRAINT &SP; ON &WS; ( &var; &label; )
-    ASSERT &SP; EXISTS ( <non-terminal ref="PropertyExpression"/> )
+    CONSTRAINT &SP; ON &WS; ( &var; &label; ) &WS;
+    ASSERT &SP; EXISTS &WS; ( <non-terminal ref="PropertyExpression"/> )
   </production>
 
   <production name="RelationshipPropertyExistenceConstraint" oc:legacy="true">
-    CONSTRAINT &SP; ON &WS; <non-terminal ref="RelationshipPatternSyntax"/>
-    ASSERT &SP; EXISTS ( <non-terminal ref="PropertyExpression"/> )
+    CONSTRAINT &SP; ON &WS; <non-terminal ref="RelationshipPatternSyntax"/> &WS;
+    ASSERT &SP; EXISTS &WS; ( <non-terminal ref="PropertyExpression"/> )
   </production>
 
   <production name="RelationshipPatternSyntax" oc:legacy="true">
