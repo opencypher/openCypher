@@ -585,28 +585,6 @@ Feature: ReturnAcceptance2
       | [false, true, false] |
     And no side effects
 
-  Scenario: Concatenating lists of different type
-    Given any graph
-    When executing query:
-      """
-      RETURN ['', false, true] + [4, 5] AS foo
-      """
-    Then the result should be:
-      | foo                     |
-      | ['', false, true, 4, 5] |
-    And no side effects
-
-  Scenario: Appending to a list of different type
-    Given any graph
-    When executing query:
-      """
-      RETURN ['', false, true] + 4 AS foo
-      """
-    Then the result should be:
-      | foo                  |
-      | ['', false, true, 4] |
-    And no side effects
-
   Scenario: DISTINCT inside aggregation should work with lists in maps
     Given an empty graph
     And having executed:
