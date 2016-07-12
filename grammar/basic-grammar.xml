@@ -155,8 +155,8 @@
 
   <production name="RangeLiteral" rr:inline="true">
     &WS;
-    <opt><non-terminal ref="UnsignedIntegerLiteral"/> &WS;</opt>
-    <opt>.. &WS; <opt><non-terminal ref="UnsignedIntegerLiteral"/> &WS;</opt></opt>
+    <opt><non-terminal ref="IntegerLiteral"/> &WS;</opt>
+    <opt>.. &WS; <opt><non-terminal ref="IntegerLiteral"/> &WS;</opt></opt>
   </production>
 
   <production name="LabelName" rr:inline="true">
@@ -391,7 +391,7 @@
   <production name="NumberLiteral">
     <alt>
       <non-terminal ref="DoubleLiteral"/>
-      <non-terminal ref="SignedIntegerLiteral"/>
+      <non-terminal ref="IntegerLiteral"/>
     </alt>
   </production>
 
@@ -408,7 +408,7 @@
     { &WS;
     <alt>
       <non-terminal ref="SymbolicName"/>
-      <non-terminal ref="UnsignedDecimalInteger"/>
+      <non-terminal ref="DecimalInteger"/>
     </alt>
     &WS; }
   </production>
@@ -422,7 +422,7 @@
     <non-terminal ref="SymbolicName" rr:title="property key"/>
   </production>
 
-  <production name="SignedIntegerLiteral">
+  <production name="IntegerLiteral">
     <alt>
       <non-terminal ref="HexInteger"/>
       <non-terminal ref="OctalInteger"/>
@@ -430,24 +430,11 @@
     </alt>
   </production>
 
-  <production name="UnsignedIntegerLiteral" rr:inline="true">
-    <non-terminal ref="UnsignedDecimalInteger"/>
-  </production>
-
   <production name="HexInteger">
-    <opt>-</opt><non-terminal ref="UnsignedHexInteger"/>
-  </production>
-  <production name="DecimalInteger">
-    <opt>-</opt><non-terminal ref="UnsignedDecimalInteger"/>
-  </production>
-  <production name="OctalInteger">
-    <opt>-</opt><non-terminal ref="UnsignedOctalInteger"/>
-  </production>
-
-  <production name="UnsignedHexInteger">
     0x <non-terminal ref="HexString"/>
   </production>
-  <production name="UnsignedDecimalInteger">
+
+  <production name="DecimalInteger">
     <alt>
       <seq>
         <alt>1 2 3 4 5 6 7 8 9</alt>
@@ -456,7 +443,8 @@
       0
     </alt>
   </production>
-  <production name="UnsignedOctalInteger">
+
+  <production name="OctalInteger">
     0 <non-terminal ref="OctalString"/>
   </production>
 
@@ -490,13 +478,13 @@
   </production>
 
   <production name="ExponentDecimalReal">
-    <opt>-</opt><repeat min="1"><alt><non-terminal ref="Digit"/>.</alt></repeat>
+    <repeat min="1"><alt><non-terminal ref="Digit"/>.</alt></repeat>
     <alt>e E</alt>
-    <opt>-</opt><non-terminal ref="DigitString"/>
+    <non-terminal ref="DigitString"/>
   </production>
 
   <production name="RegularDecimalReal">
-    <opt>-</opt><repeat><non-terminal ref="Digit"/></repeat>
+    <repeat><non-terminal ref="Digit"/></repeat>
     . <non-terminal ref="DigitString"/>
   </production>
 
