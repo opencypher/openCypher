@@ -41,7 +41,7 @@ class Antlr4Massager
             firstKeyword = "UNION : ( 'U' | 'u' ) ( 'N' | 'n' ) ( 'I' | 'i' ) ( 'O' | 'o' ) ( 'N' | 'n' )  ;";
         }
         int startOfKeywords = original.indexOf( firstKeyword );
-        int endOfKeywords = original.indexOf( "fragment" );
+        int endOfKeywords = original.indexOf( "L_0X :" );
 
         String everythingAfterKeywords = original.substring( endOfKeywords );
 
@@ -68,8 +68,10 @@ class Antlr4Massager
 
         String betweenStartOfLexingAndKeywords = original.substring( justBeforeThis, startOfKeywords );
 
+        String extraDigitRule = "\ndigit : Digit;\n";
+
         return addAllKeywordsToSymbolicName(
-                firstPart + allTheKeyWords + betweenStartOfLexingAndKeywords + everythingAfterKeywords, keywords );
+                firstPart + allTheKeyWords + betweenStartOfLexingAndKeywords + extraDigitRule + everythingAfterKeywords, keywords );
     }
 
     private static String addAllKeywordsToSymbolicName( String original, List<String> keywords )
@@ -81,10 +83,12 @@ class Antlr4Massager
         String firstPart = original.substring( 0, symbolicNameStringPos + symbolicNameStringRule.length() );
 
         StringBuilder builder = new StringBuilder( firstPart );
+        keywords.add( "HexString" );
+
         for ( String keyword : keywords )
         {
-            builder.append( "\n                   | " )
-                    .append( keyword );
+            builder.append( "\n             | " )
+                   .append( keyword );
         }
 
         return builder.toString() + original.substring( symbolicNameStringPos + symbolicNameStringRule.length() );

@@ -476,14 +476,27 @@
   </production>
 
   <production name="ExponentDecimalReal">
-    <repeat min="1"><alt><non-terminal ref="Digit"/>.</alt></repeat>
+    <alt>
+      <repeat min="1"><alt><non-terminal ref="Digit"/>.</alt></repeat>
+      <non-terminal ref="DecimalInteger" />
+    </alt>
     <alt>e E</alt>
-    <non-terminal ref="DigitString"/>
+    <alt>
+      <non-terminal ref="DigitString"/>
+      <non-terminal ref="DecimalInteger"/>
+    </alt>
   </production>
 
   <production name="RegularDecimalReal">
-    <repeat><non-terminal ref="Digit"/></repeat>
-    . <non-terminal ref="DigitString"/>
+    <alt>
+      <repeat><non-terminal ref="Digit"/></repeat>
+      <non-terminal ref="DecimalInteger" />
+    </alt>
+    .
+    <alt>
+      <non-terminal ref="DigitString"/>
+      <non-terminal ref="DecimalInteger" />
+    </alt>
   </production>
 
   <!-- \ EXPRESSIONS / -->

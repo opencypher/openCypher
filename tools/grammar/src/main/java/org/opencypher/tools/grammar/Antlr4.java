@@ -155,7 +155,15 @@ public class Antlr4 extends BnfWriter
                || rule.endsWith( "scapedSymbolicName" )
                || rule.equalsIgnoreCase( "stringliteral" )
                || rule.equalsIgnoreCase( "escapedchar" )
-               || rule.equalsIgnoreCase( "hexdigit" );
+               || rule.equalsIgnoreCase( "decimalinteger" )
+               || rule.equalsIgnoreCase( "digitstring" )
+               || rule.equalsIgnoreCase( "digit" )
+               || rule.equalsIgnoreCase( "hexinteger" )
+               || rule.equalsIgnoreCase( "hexstring" )
+               || rule.equalsIgnoreCase( "hexdigit" )
+               || rule.equalsIgnoreCase( "octalinteger" )
+               || rule.equalsIgnoreCase( "octalstring" )
+               || rule.equalsIgnoreCase( "octdigit" );
     }
 
     @Override

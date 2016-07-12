@@ -46,7 +46,7 @@
   </production>
 
   <production name="VersionNumber" rr:inline="true" oc:legacy="true">
-    <non-terminal ref="DigitString"/>.<non-terminal ref="DigitString"/>
+    <non-terminal ref="DecimalInteger"/>.<non-terminal ref="DecimalInteger"/>
   </production>
 
   <production name="Explain" rr:inline="true" oc:legacy="true">EXPLAIN</production>
