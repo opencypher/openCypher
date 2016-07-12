@@ -2,7 +2,7 @@
 <!DOCTYPE grammar [
   <!ENTITY SP "<non-terminal ref='whitespace'/>">
 ]>
-<grammar language="SomeLanguage" xmlns="http://thobe.org/grammar">
+<grammar language="SomeLanguage" xmlns="http://opencypher.org/grammar">
   <!-- A grammar should contain at least one production, with the same name as the grammar -->
   <production name="SomeLanguage">
     <repeat>

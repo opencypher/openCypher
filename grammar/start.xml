@@ -21,11 +21,9 @@
   <!ENTITY var "<non-terminal ref='Variable'/>">
 ]>
 <grammar language="Cypher Start Clause"
-  xmlns="http://thobe.org/grammar"
-  xmlns:rr="http://thobe.org/railroad"
-  xmlns:oc="http://thobe.org/opencypher"
-  xmlns:ast="http://thobe.org/syntaxtree"
-  xmlns:gen="http://thobe.org/stringgeneration">
+  xmlns="http://opencypher.org/grammar"
+  xmlns:rr="http://opencypher.org/railroad"
+  xmlns:oc="http://opencypher.org/opencypher">
 
   <!-- / START \ -->
 

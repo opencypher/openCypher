@@ -37,11 +37,11 @@ import static java.util.Objects.requireNonNull;
 
 public interface Grammar
 {
-    String XML_NAMESPACE = "http://thobe.org/grammar";
-    String SCOPE_XML_NAMESPACE = "http://thobe.org/scope";
-    String GENERATOR_XML_NAMESPACE = "http://thobe.org/stringgeneration";
-    String RAILROAD_XML_NAMESPACE = "http://thobe.org/railroad";
-    String OPENCYPHER_XML_NAMESPACE = "http://thobe.org/opencypher";
+    String XML_NAMESPACE = "http://opencypher.org/grammar";
+    String SCOPE_XML_NAMESPACE = "http://opencypher.org/scope";
+    String GENERATOR_XML_NAMESPACE = "http://opencypher.org/stringgeneration";
+    String RAILROAD_XML_NAMESPACE = "http://opencypher.org/railroad";
+    String OPENCYPHER_XML_NAMESPACE = "http://opencypher.org/opencypher";
 
     static Grammar parseXML( Path input, ParserOption... options )
             throws ParserConfigurationException, SAXException, IOException
