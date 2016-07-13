@@ -33,7 +33,7 @@ Feature: TernaryLogicAcceptanceTest
   Scenario: A literal null IS null
     When executing query:
       """
-      RETURN null IS null AS value
+      RETURN null IS NULL AS value
       """
     Then the result should be:
       | value |
@@ -43,7 +43,7 @@ Feature: TernaryLogicAcceptanceTest
   Scenario: A literal null is not IS NOT null
     When executing query:
       """
-      RETURN null IS NOT null AS value
+      RETURN null IS NOT NULL AS value
       """
     Then the result should be:
       | value |

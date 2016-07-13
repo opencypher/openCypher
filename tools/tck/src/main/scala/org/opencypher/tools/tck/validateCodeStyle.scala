@@ -25,11 +25,11 @@ object validateCodeStyle extends (String => Option[String]) {
 
   override def apply(query: String): Option[String] = {
 
-    val prettified1 = upperCased.foldLeft(query) {
+    val prettified1 = lowerCased.foldLeft(query) {
       case (q, word) => q.replaceAll(s"(?i)(?!:)(^|[^a-zA-Z])$word ", s"$$1$word ")
     }
 
-    val lowerCased2 = lowerCased.foldLeft(prettified1) {
+    val lowerCased2 = upperCased.foldLeft(prettified1) {
       case (q, word) => q.replaceAll(s"(?i)(^|[^a-zA-Z])$word ", s"$$1$word ")
     }
 
@@ -41,12 +41,17 @@ object validateCodeStyle extends (String => Option[String]) {
 
     val spaceAfterColon = spaceAfterComma.replaceAll(":([^A-Z ])", ": $1")
 
-    if (spaceAfterColon != query)
+    val noIllegals = if (spaceAfterColon.contains("'")) spaceAfterColon // literal strings
+    else illegal.foldLeft(spaceAfterColon) {
+      case (q, word) => q.replaceAll(s"(?i)(?!:)(^|[^a-zA-Z])$word", "$1")
+    }
+
+    if (noIllegals != query)
       Some( s"""A query did not follow style requirements:
                 |$query
                 |
                 |Prettified version:
-                |$spaceAfterColon""".stripMargin)
+                |$noIllegals""".stripMargin)
     else None
   }
 
@@ -68,31 +73,17 @@ object validateCodeStyle extends (String => Option[String]) {
                              "OPTIONAL",
                              "WHERE",
                              "RETURN",
-                             "LOAD",
-                             "CSV",
                              "ORDER",
                              "BY",
                              "CREATE",
-                             "INDEX",
-                             "DROP",
-                             "CONSTRAINT",
                              "ON",
-                             "PERIODIC",
-                             "COMMIT",
                              "DETACH",
                              "DELETE",
-                             "START",
                              "WITH",
                              "SKIP",
                              "LIMIT",
                              "ASC",
                              "DESC",
-                             "WHEN",
-                             "CASE",
-                             "THEN",
-                             "ELSE",
-                             "ASSERT",
-                             "SCAN",
                              "CALL",
                              "STARTS",
                              "ENDS",
@@ -104,7 +95,23 @@ object validateCodeStyle extends (String => Option[String]) {
                              "AND",
                              "IN",
                              "UNIQUE",
+                             "IS NOT NULL",
+                             "IS NULL",
                              "AS",
                              "UNION")
+
+  private val illegal = Set("LOAD",
+                            "CSV",
+                            "INDEX",
+                            "DROP",
+                            "CONSTRAINT",
+                            "PERIODIC",
+                            "COMMIT",
+                            "WHEN",
+                            "CASE",
+                            "THEN",
+                            "ELSE",
+                            "ASSERT",
+                            "SCAN")
 
 }
