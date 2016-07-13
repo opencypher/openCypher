@@ -73,6 +73,24 @@ class validateCodeStyleTest extends TckTestSupport {
     assertCorrect("WITH \"string that has ' within it\" AS string")
   }
 
+  test("should get correct casing for null") {
+    assertIncorrect("WITH Null AS n", "WITH null AS n")
+    assertCorrect("WITH null AS n")
+  }
+
+  test("should not accept lower case IS NULL") {
+    assertIncorrect("MATCH (n) WHERE n.prop is null RETURN n", "MATCH (n) WHERE n.prop IS NULL RETURN n")
+    assertCorrect("MATCH (n) WHERE n.prop IS NULL RETURN n")
+    assertIncorrect("MATCH (n) WHERE n.prop is not null RETURN n", "MATCH (n) WHERE n.prop IS NOT NULL RETURN n")
+    assertCorrect("MATCH (n) WHERE n.prop IS NOT NULL RETURN n")
+  }
+
+  test("no illegal words accepted") {
+    assertIncorrect("LOAD CSV", " ")
+    assertIncorrect("CASE WHEN THEN ELSE", "   ")
+    assertIncorrect("CREATE CONSTRAINT ON", "CREATE  ON")
+  }
+
   private def assertCorrect(query: String) = {
     withClue("Query did not adhere to the style rules:\n") {
       validateCodeStyle(query) shouldBe None
