@@ -1,4 +1,4 @@
-= CIP2016-06-14 - Redefine Comparability and Equality, as well as Orderability and Equivalence
+= CIP2016-06-14 - Define Comparability and Equality, as well as Orderability and Equivalence
 :numbered:
 :toc:
 :toc-placement: macro
@@ -57,7 +57,8 @@ Cypher today features four distinct concepts related to equality and ordering:
 
 [horizontal]
 [[comparability-con,comparability (concept)]]*Comparability*:: <<comparability-def,Comparability>> is used by the inequality operators (`>`, `<`, `>=`, `\<=`), and defines the underlying semantics of how to compare two values.
-[[equality-con,equality (concept)]]*Equality*:: <<equality-def,Equality>> is used by the equality operators (`=`, `<>`), the list membership operator (`IN`), and value joins, and defines the underlying semantics to determine if two values are the same in these contexts.
+[[equality-con,equality (concept)]]*Equality*:: <<equality-def,Equality>> is used by the equality operators (`=`, `<>`), and the list membership operator (`IN`).
+It defines the underlying semantics to determine if two values are the same in these contexts.
 Equality is also used implicitly by literal maps in node and relationship patterns, since such literal maps are merely a shorthand notation for equality predicates.
 [[orderability-con,orderability (concept)]]*Orderability*:: <<orderability-def,Orderability>> is used by the `ORDER BY` clause, and defines the underlying semantics of how to order values.
 [[equivalence-con,equivalence (concept)]]*Equivalence*:: <<equivalence-def,Equivalence>> is used by the `DISTINCT` modifier and by grouping in projection clauses (`WITH`, `RETURN`), and defines the underlying semantics to determine if two values are the same in these contexts.
@@ -82,7 +83,7 @@ We propose that comparability and equality should be aligned with each other, i.
 
 `expr1 = expr2` if and only if `expr1 >= expr2 && expr1 \<= expr2`.
 
-Comparability and equality use <<unknown-null,"unknown" `null` values>>.
+Comparability and equality produce <<unknown-null,"unknown" `null` values>>.
 
 [[incomparable,incomparable]]
 ==== Incomparability
@@ -103,8 +104,8 @@ We propose that <<comparability-con,comparability>> should be defined between an
   * Integers are compared numerically in ascending order.
   * Floats (excluding `NaN` and the Infinities) are compared numerically in ascending order.
   * Numbers of different types (excluding `NaN` and the Infinities) are compared to each other as if both numbers would have been coerced to arbitrary precision big decimals (currently outside the Cypher type system) before comparing them with each other numerically in ascending order.
-  * Positive infinity is of type `FLOAT`, equal to itself and larger than any other number (excluding `NaN`).
-  * Negative infinity is of type `FLOAT`, equal to itself and smaller than any other number (excluding `NaN`).
+  * Positive infinity is of type `FLOAT`, equal to itself and greater than any other number (excluding `NaN`).
+  * Negative infinity is of type `FLOAT`, equal to itself and less than any other number (excluding `NaN`).
   * `NaN` is <<incomparable>>.
   * Numbers are <<incomparable>> to any value that is not also a number.
 - Booleans
@@ -112,11 +113,11 @@ We propose that <<comparability-con,comparability>> should be defined between an
   * Booleans are <<incomparable>> to any value that is not also a boolean.
 - Strings
   * Strings are compared in dictionary order, i.e. characters are compared pairwise in ascending order from the start of the string to the end.
-  Characters missing in a shorter string are considered to be smaller than any other character.
+  Characters missing in a shorter string are considered to be less than any other character.
   For example, `'a' < 'aa'`.
   * Strings are <<incomparable>> to any value that is not also a string.
 - Lists
-  * Lists are compared in dictionary order, i.e. list elements are compared pairwise in ascending order from the start of the list to the end. Elements missing in a shorter list are considered to be smaller than any other value.
+  * Lists are compared in dictionary order, i.e. list elements are compared pairwise in ascending order from the start of the list to the end. Elements missing in a shorter list are considered to be less than any other value.
   For example, `[1] < [1, 0]`.
   * Lists containing `null` values are <<incomparable>>. For example, `[1] >= [1, null]` evaluates to `null`.
   * Lists are <<incomparable>> to any value that is not also a list.
@@ -128,10 +129,12 @@ We propose that <<comparability-con,comparability>> should be defined between an
   For exampe, `{a: 1} \<= {a: 1, b: null}` evaluates to `null`.
   ** Regular maps are <<incomparable>> to any value that is not also a regular map.
   * Nodes
-  ** The comparison order for nodes is unspecified and left to implementations.
+  ** The comparison order for nodes is unspecified here and left to implementations.
+  However implementations are required to define a fixed comparison oder between nodes.
   ** Nodes are <<incomparable>> to any value that is not also a node.
   * Relationships
   ** The comparison order for relationships is unspecified and left to implementations.
+  However implementations are required to define a fixed comparison oder between relationships.
   ** Relationships are <<incomparable>> to any value that is not also a relationship.
 - Paths
   ** Paths are compared as if they were a list of alternating nodes and relationships of the path from the start node to the end node.
@@ -147,8 +150,7 @@ We propose that <<comparability-con,comparability>> should be defined between an
 - Implementation-specific types
   * Implementations may choose to define suitable comparability rules for values of additional, non-canonical types.
   * Values of an additional, non-canonical type are expected to be <<incomparable>> to values of a canonical type.
-
-Any kind of value not covered here is considered <<incomparable>>. This includes comparing a `null` value to any other value.
+- `null` is <<incomparable>> with any other value (including other `null` values).
 
 [[equality-def,equality]]
 ==== Equality ====
@@ -179,12 +181,12 @@ For clarity, we also repeat the *current* equality semantics of maps here. Under
 ** either `m1.k = m2.k` is `true`,
 ** or both `m1.k IS NULL` and `m2.k IS NULL`
 
-This is at odds with the decision to use <<unknown-null,"unknown" `null` values>> in <<comparability-equality>>.
+This is at odds with the decision to produce <<unknown-null,"unknown" `null` values>> in <<comparability-equality>>.
 
 However, this definition is aligned with the most common use case for maps with `null` entries: updating multiple properties through the use of a single `SET` clause, e.g. `SET n += { size: 12, remove_this_key: null }`. In this case, there is no need to differentiate between different `null` values, as `null` merely serves as a marker for keys to be removed (i.e. is a <<missing-null,"missing" `null` value>>). Current equality semantics make it easy to check if two maps would correspond to the same property update in this scenario. We note though that this type of update map comparison is rare and could be emulated using a more complex predicate. The current rules do however break symmetry with how equality handles `null` in all other cases. This becomes more apparent by considering these two examples:
 
-* `expr1 = expr2` evaluates to `null` if `expr1 IS null && expr2 IS NULL`
-* `{a: expr1} = {a: expr2}` evaluates to `true` if `expr1 IS null && expr2 IS NULL`
+* `expr1 = expr2` evaluates to `null` if `expr1 IS NULL && expr2 IS NULL`
+* `{a: expr1} = {a: expr2}` evaluates to `true` if `expr1 IS NULL && expr2 IS NULL`
 
 ====== New map equality ======
 
@@ -206,7 +208,7 @@ We propose that <<orderability-def>> and <<equivalence-def>> should be aligned w
 
 `expr1` is equivalent to `expr2` if and only if they have the same position under orderability (i.e. they would be sorted before (or after resp.) any other non-equivalent value in the same way).
 
-Orderability and equivalence use <<missing-null,"missing" `null` values>>.
+Orderability and equivalence produce <<missing-null,"missing" `null` values>>.
 
 [[orderability-def,orderability]]
 ==== Orderability ====
@@ -243,7 +245,7 @@ Equivalence remains mostly unchanged but now can be defined succinctly as being 
 * Any two `NaN` values are equivalent (both directly or inside nested structures).
 * However, `null` and `NaN` values are not equivalent (both directly or inside nested structures).
 
-<<equivalence-def,Equivalence>> is reflexive for all values.
+Equivalence is reflexive for all values.
 
 [[aggregation]]
 === Aggregation ===
@@ -306,9 +308,11 @@ RETURN 'string' <= true // should be null
 Ordering values of different types
 [source, cypher]
 ----
-UNWIND [1, true, '', 3.14, {}, [2]] AS i
+UNWIND [1, true, '', 3.14, {}, [2], null] AS i
+// should not fail and return in order:
+// {}, [2], '', true, 1, 3.14, null
 RETURN i
-  ORDER BY i // should not crash
+  ORDER BY i
 ----
 
 Filtering distinct values of different types
@@ -329,11 +333,11 @@ Redefining the <<global sort order>> as well as making all values <<comparabilit
 Columns in SQL always have a concrete type. This removes the need to define a <<global-sort-order>> between types. Standard SQL has no support for lists, maps, or graph structures and hence does not need to define semantics for them.
 SQL also treats comparisons involving `null` as returning `null`.
 
-PostgresSQL treats some numerical operations (such as division by zero) that would compute a `NaN` as a numerical error that causes the query to fail. PostgresQL considers `NaN` to be larger than positive infinity, both in comparison and in sort order. This proposal achieves something very similar by evaluating comparisons involving a `NaN` to `null` and by treating both `NaN` as the largest number and `null` as the largest value in the <<global-sort-order>>.
+PostgresSQL treats some numerical operations (such as division by zero) that would compute a `NaN` as a numerical error that causes the query to fail. PostgresQL considers `NaN` to be greater than positive infinity, both in comparison and in sort order. This proposal achieves something very similar by evaluating comparisons involving a `NaN` to `null` and by treating both `NaN` as the largest number and `null` as the largest value in the <<global-sort-order>>.
 
 This proposal could be extended with an operator for making equivalence accessible beyond use in grouping and `DISTINCT`. This seems desirable due to the equality operator (`=`) not being reflexive for all values.
 
-This CIP introduces the distinction between "unknown" and "missing" `null` values. A future proposal could investigate making this explicit through the introduction of different kinds of `null` values. If such a change would be adopted and <<unknown-null,unknown `null` values>> would track their source, equality could become reflexive again as it would become possible to know if two `null` values represent the same "unknown" value. However, this would not remove the need to distinguish between equality and equivalence as grouping would still require `missing = unknown => true` while in general `missing = unknown => missing`.
+This CIP introduces the distinction between "unknown" and "missing" `null` values. A future proposal could investigate making this explicit through the introduction of different kinds of `null` values. If such a change would be adopted and <<unknown-null,unknown `null` values>> would track their source, equality could become "more" reflexive as it would become possible to know if two `null` values represent the same "unknown" value. However, this would not remove the need to distinguish between equality and equivalence as grouping would still require `missing = unknown => true` while in general `missing = unknown => missing`.
 
 == Benefits to this proposal
 
