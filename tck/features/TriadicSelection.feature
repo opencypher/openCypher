@@ -17,43 +17,8 @@
 
 Feature: TriadicSelectionAcceptance
 
-  # TODO: Replace this with a named graph (or two)
-  Background:
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A {name: 'a'}),
-             (b1:X {name: 'b1'}),
-             (b2:X {name: 'b2'}),
-             (b3:X {name: 'b3'}),
-             (b4:X {name: 'b4'}),
-             (c11:X {name: 'c11'}),
-             (c12:X:Y {name: 'c12'}),
-             (c21:X {name: 'c21'}),
-             (c22:X:Y {name: 'c22'}),
-             (c31:X {name: 'c31'}),
-             (c32:X:Y {name: 'c32'}),
-             (c41:X {name: 'c41'}),
-             (c42:X:Y {name: 'c42'})
-      CREATE (a)-[:KNOWS]->(b1),
-             (a)-[:KNOWS]->(b2),
-             (a)-[:FOLLOWS]->(b3),
-             (a)-[:FOLLOWS]->(b4)
-      CREATE (b1)-[:FRIEND]->(c11),
-             (b1)-[:FRIEND]->(c12),
-             (b2)-[:FRIEND]->(c21),
-             (b2)-[:FRIEND]->(c22),
-             (b3)-[:FRIEND]->(c31),
-             (b3)-[:FRIEND]->(c32),
-             (b4)-[:FRIEND]->(c41),
-             (b4)-[:FRIEND]->(c42)
-      CREATE (b1)-[:FRIEND]->(b2),
-             (b2)-[:FRIEND]->(b3),
-             (b3)-[:FRIEND]->(b4),
-             (b4)-[:FRIEND]->(b1)
-      """
-
   Scenario: Handling triadic friend of a friend
+    Given the binary-tree-1 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
@@ -70,6 +35,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is not a friend
+    Given the binary-tree-1 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
@@ -87,6 +53,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is not a friend with different relationship type
+    Given the binary-tree-1 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
@@ -104,6 +71,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is not a friend with superset of relationship type
+    Given the binary-tree-1 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
@@ -120,6 +88,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is not a friend with implicit subset of relationship type
+    Given the binary-tree-1 graph
     When executing query:
       """
       MATCH (a:A)-->(b)-->(c)
@@ -142,6 +111,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is not a friend with explicit subset of relationship type
+    Given the binary-tree-1 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS|FOLLOWS]->(b)-->(c)
@@ -164,11 +134,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is not a friend with same labels
-    And having executed:
-      """
-      MATCH (y:Y)
-      REMOVE y:X
-      """
+    Given the binary-tree-2 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c:X)
@@ -184,11 +150,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is not a friend with different labels
-    And having executed:
-      """
-      MATCH (y:Y)
-      REMOVE y:X
-      """
+    Given the binary-tree-2 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c:Y)
@@ -203,11 +165,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is not a friend with implicit subset of labels
-    And having executed:
-      """
-      MATCH (y:Y)
-      REMOVE y:X
-      """
+    Given the binary-tree-2 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c:X)
@@ -223,11 +181,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is not a friend with implicit superset of labels
-    And having executed:
-      """
-      MATCH (y:Y)
-      REMOVE y:X
-      """
+    Given the binary-tree-2 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c)
@@ -245,11 +199,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is a friend
-    And having executed:
-      """
-      MATCH (y:Y)
-      REMOVE y:X
-      """
+    Given the binary-tree-2 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
@@ -263,6 +213,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is a friend with different relationship type
+    Given the binary-tree-1 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
@@ -276,6 +227,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is a friend with superset of relationship type
+    Given the binary-tree-1 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
@@ -290,6 +242,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is a friend with implicit subset of relationship type
+    Given the binary-tree-1 graph
     When executing query:
       """
       MATCH (a:A)-->(b)-->(c)
@@ -304,6 +257,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is a friend with explicit subset of relationship type
+    Given the binary-tree-1 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS|FOLLOWS]->(b)-->(c)
@@ -318,11 +272,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is a friend with same labels
-    And having executed:
-      """
-      MATCH (y:Y)
-      REMOVE y:X
-      """
+    Given the binary-tree-2 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c:X)
@@ -336,11 +286,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is a friend with different labels
-    And having executed:
-      """
-      MATCH (y:Y)
-      REMOVE y:X
-      """
+    Given the binary-tree-2 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c:Y)
@@ -353,11 +299,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is a friend with implicit subset of labels
-    And having executed:
-      """
-      MATCH (y:Y)
-      REMOVE y:X
-      """
+    Given the binary-tree-2 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c:X)
@@ -371,11 +313,7 @@ Feature: TriadicSelectionAcceptance
     And no side effects
 
   Scenario: Handling triadic friend of a friend that is a friend with implicit superset of labels
-    And having executed:
-      """
-      MATCH (y:Y)
-      REMOVE y:X
-      """
+    Given the binary-tree-2 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c)
