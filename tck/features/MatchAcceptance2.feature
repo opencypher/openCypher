@@ -425,7 +425,8 @@ Feature: MatchAcceptance2
     When executing query:
       """
       MATCH (a:A), (other:B)
-      WHERE NOT (a)-->(other)
+      OPTIONAL MATCH (a)-[r]->(other)
+      WITH other WHERE r IS NULL
       RETURN other
       """
     Then the result should be:

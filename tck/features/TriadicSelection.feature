@@ -73,7 +73,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
-      WHERE NOT (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be:
@@ -89,7 +90,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
-      WHERE NOT (a)-[:FOLLOWS]->(c)
+      OPTIONAL MATCH (a)-[r:FOLLOWS]->(c)
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be:
@@ -105,7 +107,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
-      WHERE NOT (a)-->(c)
+      OPTIONAL MATCH (a)-[r]->(c)
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be:
@@ -120,7 +123,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-->(b)-->(c)
-      WHERE NOT (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be:
@@ -141,7 +145,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS|FOLLOWS]->(b)-->(c)
-      WHERE NOT (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be:
@@ -167,7 +172,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c:X)
-      WHERE NOT (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be:
@@ -186,7 +192,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c:Y)
-      WHERE NOT (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be:
@@ -204,7 +211,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c:X)
-      WHERE NOT (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be:
@@ -223,7 +231,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c)
-      WHERE NOT (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be:
@@ -244,7 +253,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
-      WHERE (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be:
@@ -256,7 +266,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
-      WHERE (a)-[:FOLLOWS]->(c)
+      OPTIONAL MATCH (a)-[r:FOLLOWS]->(c)
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be:
@@ -268,7 +279,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
-      WHERE (a)-->(c)
+      OPTIONAL MATCH (a)-[r]->(c)
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be:
@@ -281,7 +293,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-->(b)-->(c)
-      WHERE (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be:
@@ -294,7 +307,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS|FOLLOWS]->(b)-->(c)
-      WHERE (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be:
@@ -312,7 +326,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c:X)
-      WHERE (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be:
@@ -329,7 +344,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c:Y)
-      WHERE (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be:
@@ -345,7 +361,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c:X)
-      WHERE (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be:
@@ -362,7 +379,8 @@ Feature: TriadicSelectionAcceptance
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c)
-      WHERE (a)-[:KNOWS]->(c)
+      OPTIONAL MATCH (a)-[r:KNOWS]->(c)
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be:
