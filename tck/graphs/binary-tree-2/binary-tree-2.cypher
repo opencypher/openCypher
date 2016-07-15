@@ -26,4 +26,4 @@ CREATE (b1)-[:FRIEND]->(c11),
 CREATE (b1)-[:FRIEND]->(b2),
        (b2)-[:FRIEND]->(b3),
        (b3)-[:FRIEND]->(b4),
-       (b4)-[:FRIEND]->(b1)
+       (b4)-[:FRIEND]->(b1);
