@@ -9,16 +9,16 @@
 [abstract]
 .Abstract
 --
-This CIP suggests changing syntax for parameter usage, from curly braces (`{}`) to dollars (`$`).
-Curly braces are used by the language for literal maps (in expressions and patterns) and has been suggested for upcoming subquery syntax, and this overloading may cause confusion in usage.
-Using a different, unique character causes parameters to be more visible for the human eye, and by using only a single character for the parameter instead of one opening and one closing, the syntax becomes somewhat cleaner.
+This CIP suggests changing syntax for parameter usage, by replacing the curly braces notation (`{}`) with the dollar sign (`$`).
+As curly braces are used by the language for literal maps (in expressions and patterns) and has been suggested for upcoming subquery syntax, their usage as parameter delimiters may lead to confusion when writing or reading queries.
+A single, unique and hitherto unused character used as a prefix increases the readability of parameters when compared with delimiting parameters using overloaded characters. Moreover, this allows for cleaner syntax.
 --
 
 toc::[]
 
 == Motivation
 
-The clause `MATCH (a {prop: {param}})` contains a nested curly brace structure, which is not ideal for human readability.
+The clause `MATCH (a {prop: {param}})` uses a nested curly brace structure which is not easily readable.
 The alternative `MATCH (a {prop: $param})` does a much better job at signalling the parameter usage to the reader.
 Using a single leading character is a very common way of referencing variables in general programming languages.
 Specifically, the following list of languages use the dollar sign:
@@ -32,7 +32,8 @@ Specifically, the following list of languages use the dollar sign:
 
 == Proposal
 
-The concrete suggestion made by this CIP is to replace the parameter syntax with curly braces with a dollar sign.
+The concrete suggestion made by this CIP is to define the parameter syntax to use a dollar sign.
+This conflicts with the current use of wrapping curly braces, which this CIP suggests removing.
 
 === Syntax
 
