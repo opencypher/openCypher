@@ -129,12 +129,10 @@ We propose that <<comparability-con,comparability>> should be defined between an
   For exampe, `{a: 1} \<= {a: 1, b: null}` evaluates to `null`.
   ** Regular maps are <<incomparable>> to any value that is not also a regular map.
   * Nodes
-  ** The comparison order for nodes is unspecified here and left to implementations.
-  However implementations are required to define a fixed comparison oder between nodes.
+  ** The comparison order for nodes is based on an implementation specific internal total order of node identities.
   ** Nodes are <<incomparable>> to any value that is not also a node.
   * Relationships
-  ** The comparison order for relationships is unspecified and left to implementations.
-  However implementations are required to define a fixed comparison oder between relationships.
+  ** The comparison order for relationships is based on an implementation specific internal total order of relationship identities.
   ** Relationships are <<incomparable>> to any value that is not also a relationship.
 - Paths
   ** Paths are compared as if they were a list of alternating nodes and relationships of the path from the start node to the end node.
@@ -146,6 +144,9 @@ We propose that <<comparability-con,comparability>> should be defined between an
   => false || true || false
   => true
 
+  ** Additionally, paths track the direction in which a relationship is traversed.
+  Two paths that traverse the same nodes and relationships in the same order but differ in the direction in which they traverse a single relationship are not equal (this can happen in paths containing self-loops).
+  The comparison order for paths is expected to align with this.
   ** Paths are <<incomparable>> to any value that is not also a path.
 - Implementation-specific types
   * Implementations may choose to define suitable comparability rules for values of additional, non-canonical types.
@@ -253,6 +254,8 @@ Equivalence is reflexive for all values.
 Generally, an aggregation function call `aggr(expr)` processes all matching rows for each aggregation key found in an incoming record (keys are compared using equivalence, as noted above).
 For a fixed aggregation key and each matching record, `expr` is evaluated to a value.
 This yields a list of candidate values.
+Generally, the order of candidate values is unspecified.
+However, if the aggregation happens in a projection with an associated `ORDER BY` subclause, the list of candidate values is ordered in the same way as the underlying records and as specified by the associated `ORDER BY` subclause.
 
 In a regular aggregation (i.e. of the form `aggr(expr)`), the list of aggregated values is the list of candidate values with all `null` values removed from it.
 
@@ -347,6 +350,9 @@ A consistent set of rules is defined for <<equality-con,equality>>, <<equivalenc
 
 Adopting this proposal may break some queries; specifically queries that depend on equality semantics of lists containing `null` values.
 It should be noted that we expect that most lists used in queries are constructed using `collect()`, which never outputs `null` values.
+
+This proposal changes path equality in subtle ways, namely self-loops track the direction in which they are traversed.
+It may be helpful to add a path normalization function or path to entities conversion function in the future that allows to transform a path in a way that removes this semantic distinction.
 
 == Appendix: Comparability by Type
 
