@@ -34,6 +34,8 @@ Specifically, the following list of languages use the dollar sign:
 
 The concrete suggestion made by this CIP is to define the parameter syntax to use a dollar sign.
 This conflicts with the current use of wrapping curly braces, which this CIP suggests removing.
+Additionally, it is noted that the dollar sign is an allowed `IdentifierStart`, meaning it may be used as a leading character for symbolic names.
+To reduce conflict, this CIP suggests changing that by, for simplicity, removing the full set of currency symbols from being allowed as `IdentifierStart` characters.
 
 === Syntax
 
@@ -73,13 +75,13 @@ RETURN toString(p)
 .Using a map parameter as a property predicate.
 [source, cypher]
 ----
-MATCH (n $param)
+MATCH (n $param)  // space is required here, lest 'n$param' will become a variable
 RETURN count(*)
 ----
 
 === Interaction with existing features
 
-This is a simple syntax replacement, with no functionality changes.
+The one suggested change in functionality is the removal of currency symbols as leading symbolic name characters.
 
 == What others do
 
