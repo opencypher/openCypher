@@ -38,7 +38,7 @@ However working with values of different types can be difficult:
   ** In equality, `null = null` is `null`.
   ** In equivalence, used by `DISTINCT` and when grouping values, two `null` values are always treated as being the same value.
   ** However, equality treats `null` values differently if they are an element of a list or a map value.
-  ** Similar rules apply for `NaN`.
+  ** Similar rules apply for `NaN` values.
 
 Furthermore, the key concepts comparability, orderability, equality, and equivalence have never been defined properly.  Therefore another motivation for this CIP is to unambiguously and precisely define these 4 concepts.
 
@@ -48,7 +48,7 @@ The reader should be mindful of the Cypher type system when reading this CIP. At
 
 == Proposal
 
-We propose to redefine <<comparability-def>> and <<equality-def>>, as well as <<orderability-def>> and <<equivalence-def>> as detailed in this section.
+We propose to redefine <<comparability-def>> and <<equality-def>>, as well as <<orderability-def>> and <<equivalence-def>> as detailed in this section, and additionally rephrase <<aggregation,aggregation>> in terms of these new concepts.
 
 [[concepts]]
 === Concepts
@@ -102,11 +102,11 @@ We propose that <<comparability-con,comparability>> should be defined between an
   * Equal values are grouped together.
 - Numbers
   * Integers are compared numerically in ascending order.
-  * Floats (excluding `NaN` and the Infinities) are compared numerically in ascending order.
-  * Numbers of different types (excluding `NaN` and the Infinities) are compared to each other as if both numbers would have been coerced to arbitrary precision big decimals (currently outside the Cypher type system) before comparing them with each other numerically in ascending order.
-  * Positive infinity is of type `FLOAT`, equal to itself and greater than any other number (excluding `NaN`).
-  * Negative infinity is of type `FLOAT`, equal to itself and less than any other number (excluding `NaN`).
-  * `NaN` is <<incomparable>>.
+  * Floats (excluding `NaN` values and the Infinities) are compared numerically in ascending order.
+  * Numbers of different types (excluding `NaN` values and the Infinities) are compared to each other as if both numbers would have been coerced to arbitrary precision big decimals (currently outside the Cypher type system) before comparing them with each other numerically in ascending order.
+  * Positive infinity is of type `FLOAT`, equal to itself and greater than any other number (excluding `NaN` values).
+  * Negative infinity is of type `FLOAT`, equal to itself and less than any other number (excluding `NaN` values).
+  * `NaN` values are <<incomparable>>.
   * Numbers are <<incomparable>> to any value that is not also a number.
 - Booleans
   * Booleans are compared such that `false` is less than `true`.
@@ -117,9 +117,10 @@ We propose that <<comparability-con,comparability>> should be defined between an
   For example, `'a' < 'aa'`.
   * Strings are <<incomparable>> to any value that is not also a string.
 - Lists
-  * Lists are compared in dictionary order, i.e. list elements are compared pairwise in ascending order from the start of the list to the end. Elements missing in a shorter list are considered to be less than any other value.
-  For example, `[1] < [1, 0]`.
-  * Lists containing `null` values are <<incomparable>>. For example, `[1] >= [1, null]` evaluates to `null`.
+  * Lists are compared in dictionary order, i.e. list elements are compared pairwise in ascending order from the start of the list to the end. Elements missing in a shorter list are considered to be less than any other value (including `null` values).
+  For example, `[1] < [1, 0]` but also `[1] \<= [1, null]`.
+  * If comparing two lists requires comparing at least a single `null` value to some other value, these lists are <<incomparable>>.
+  For example, `[1, 2] >= [1, null]` evaluates to `null`.
   * Lists are <<incomparable>> to any value that is not also a list.
 - Maps
   * [[regular-maps,regular maps]]Regular maps
@@ -138,14 +139,17 @@ We propose that <<comparability-con,comparability>> should be defined between an
   ** Paths are compared as if they were a list of alternating nodes and relationships of the path from the start node to the end node.
   For example, given nodes `n1`, `n2`, `n3`, and relationships `r1` and `r3`, and given that `n1 < n2 < n3` and `r1 < r3`, then the path `p1` from `n1` to `n3` via `r1` would be less than the path `p2` to `n1` from `n2` via `r3`. Expressed in terms of lists:
 
-  p1 < p2
-  => [n1-r1->n3] < [n1<-r3-n2]
-  => n1 < n1 || r1 < r3 || n3 < n2
-  => false || true || false
-  => true
+      p1 < p2
+  <=> [n1-r1->n3] < [n1<-r3-n2] ?
+  <=> n1 < n1 || (n1 = n1 && [r1, n3] < [r3, n2])
+  <=> false || (true && [r1, n3] < [r3, n2])
+  <=> [r1, n3] < [r3, n2]
+  <=> r1 < r2 || (r1 = r3 && n3 < n2)
+  <=> true || (false && false)
+  <=> true
 
   ** Additionally, paths track the direction in which a relationship is traversed.
-  Two paths that traverse the same nodes and relationships in the same order but differ in the direction in which they traverse a single relationship are not equal (this can happen in paths containing self-loops).
+  Two paths that traverse the same nodes and relationships in the same order but differ in the direction in which they traverse a single relationship are not equal (this can happen in paths containing loops).
   The comparison order for paths is expected to align with this.
   ** Paths are <<incomparable>> to any value that is not also a path.
 - Implementation-specific types
@@ -207,7 +211,7 @@ Note that <<equality-def>> is reflexive for values that do not involve `null` th
 
 We propose that <<orderability-def>> and <<equivalence-def>> should be aligned with each other, i.e.
 
-`expr1` is equivalent to `expr2` if and only if they have the same position under orderability (i.e. they would be sorted before (or after resp.) any other non-equivalent value in the same way).
+`expr1` is equivalent to `expr2` if and only if they have the same position under orderability (i.e. they would be sorted before (or after respectively) any other non-equivalent value in the same way).
 
 Orderability and equivalence produce <<missing-null,"missing" `null` values>>.
 
@@ -215,9 +219,10 @@ Orderability and equivalence produce <<missing-null,"missing" `null` values>>.
 ==== Orderability ====
 
 [[global-sort-order,global sort order]]
-We propose that orderability be defined between any pair of values, where the result is always `true` or `false`.
+We propose that orderability be defined between any pair of values such that the result is always `true` or `false`.
 
-To accomplish this, there must be a pre-determined order of types and each value must fall under exactly one disjoint leaf type in this order. We propose to use the following ascending global sort order of disjoint types:
+To accomplish this, we propose a pre-determined order of types and ensure that each value falls under exactly one disjoint type in this order.
+We define the following ascending global sort order of disjoint types:
 
 * `MAP` types
 ** <<regular-map,Regular map>>
@@ -228,39 +233,46 @@ To accomplish this, there must be a pre-determined order of types and each value
 * `STRING`
 * `BOOLEAN`
 * `NUMBER`
-** `NaN` is treated as the largest number in orderability only (i.e. it is put after positive infinity)
+** `NaN` values are treated as the largest numbers in orderability only (i.e. they are put after positive infinity)
 * `VOID` (i.e. the type of `null`)
 
 To give a concrete example, under this global sort order all nodes come before all strings.
 
 Between values of the same type in the global sort order, orderability defers to comparability except that equality is overriden by equivalence as described below.
+For example, `[null, 1]` is ordered before `[null, 2]` under orderability.
+
+Furthermore, the values of additional, non-canonical types must not be inserted after `NaN` values in the global sort order.
 
 The accompanying descending global sort order is the same order in reverse (i.e. it runs from `VOID` to `MAP`).
 
 [[equivalence-def,equivalence]]
 ==== Equivalence ====
 
-Equivalence remains mostly unchanged but now can be defined succinctly as being identical to equality except that:
+Equivalence now can be defined succinctly as being identical to equality except that:
 
 * Any two `null` values are equivalent (both directly or inside nested structures).
 * Any two `NaN` values are equivalent (both directly or inside nested structures).
 * However, `null` and `NaN` values are not equivalent (both directly or inside nested structures).
+* Equivalence of lists is identical to equality of lists but uses equivalence for comparing the contained list elements.
+* Equivalence of regular maps is identical to equality of regular maps but uses equivalence for comparing the contained map entries.
 
 Equivalence is reflexive for all values.
 
 [[aggregation]]
 === Aggregation ===
 
-Generally, an aggregation function call `aggr(expr)` processes all matching rows for each aggregation key found in an incoming record (keys are compared using equivalence, as noted above).
+Generally an aggregation `aggr(expr)` processes all matching rows for each aggregation key found in an incoming record (keys are compared using equivalence).
+
 For a fixed aggregation key and each matching record, `expr` is evaluated to a value.
 This yields a list of candidate values.
-Generally, the order of candidate values is unspecified.
-However, if the aggregation happens in a projection with an associated `ORDER BY` subclause, the list of candidate values is ordered in the same way as the underlying records and as specified by the associated `ORDER BY` subclause.
+Generally the order of candidate values is unspecified.
+If the aggregation happens in a projection with an associated `ORDER BY` subclause, the list of candidate values is ordered in the same way as the underlying records and as specified by the associated `ORDER BY` subclause.
 
 In a regular aggregation (i.e. of the form `aggr(expr)`), the list of aggregated values is the list of candidate values with all `null` values removed from it.
 
 In a distinct aggregation (i.e. of the form `aggr(DISTINCT expr)`), the list of aggregated values is the list of candidate values with all `null` values removed from it.
-Futhermore, in a distinct aggregation, only the first of all equivalent candidate values is included in the list of aggregated values, i.e. duplicates under equivalence are removed.
+Futhermore, in a distinct aggregation, only one of all equivalent candidate values is included in the list of aggregated values, i.e. duplicates under equivalence are removed.
+However, if the distinct aggregation happens in a projection with an associated `ORDER BY` subclause, always the first from a set of equivalent candidate values is included in the list of aggregated values.
 
 Finally, the remaining aggregated values are processed by the actual aggregation function.
 If the list of aggregated values is empty, the aggregation function returns a default value (`null` unless specified otherwise below).
@@ -269,7 +281,7 @@ Aggregating values of different types (like summing a number and a string) may l
 The semantics of a few actual aggregation functions depends on the used notions of sameness and sorting. This is clarified below:
 
 * `count(expr)` returns the number of aggregated values, or `0` if the list of aggregated values is empty.
-* `min/max(expr)` returns the smallest (and largest resp.) of the aggregated values under orderability. Note that `null` values will never be returned as a maximum as they are never included in the list of aggregated values.
+* `min/max(expr)` returns the smallest (and largest respectively) of the aggregated values under orderability. Note that `null` values will never be returned as a maximum as they are never included in the list of aggregated values.
 * `sum(expr)` returns the sum of aggregated values, or `0` if the list of aggregated values is empty.
 * `avg(expr)` returns the arithmetic mean of aggregated values, or `0` if the list of aggregated values is empty.
 * `collect(expr)` returns the list of aggregated values.
@@ -285,12 +297,12 @@ This proposal aims to simplify the conceptual model around equality, comparison,
 
 - <<comparability-equality,Comparability and equality>> are aligned with each other
   * <<equality-con,Equality>> follows natural, literal equality. However, values involving `null` are never equal to any other value. Nested structures are first tested for equality by shape (keys, size) and then their corresponding elements are tested for equality pairwise. This ensures that equality is compatible with interpreting `null` as "unknown" or "could be any value".
-  * <<comparability-con,Comparability>> ensure that any two values of the same leaf type in the <<global-sort-order>> are comparable.
+  * <<comparability-con,Comparability>> ensure that any two values of the same type in the <<global-sort-order>> are comparable.
   Two values of different types are incomparable and values involving `null` are incomparable, too.
   This ensures that `MATCH (n) WHERE n.prop < 42` will never find nodes where `n.prop` is of type `STRING`.
 - <<orderability-equivalence>> are aligned with each other
   * <<equivalence-con,Equivalence>> is a form of equality that treats `null` (and `NaN`) values as the same value. Equivalence is used in grouping and `DISTINCT` where `null` commonly is interpreted as a category marker for results with missing values instead of as a wildcard for any possible value.
-  * <<orderability-con,Orderability>> follows comparability but additionally defines a <<global-sort-order>> between values of different types and is aligned with equivalence instead of equality, i.e. treats two `null` (resp. `NaN`) values as equivalent.
+  * <<orderability-con,Orderability>> follows comparability but additionally defines a <<global-sort-order>> between values of different types and is aligned with equivalence instead of equality, i.e. treats two `null` (respectively `NaN`) values as equivalent.
 - Aggregation functions that rely on notions of sameness and sorting are aligned with equivalence and orderability.
 
 [[examples]]
@@ -336,7 +348,9 @@ Redefining the <<global sort order>> as well as making all values <<comparabilit
 Columns in SQL always have a concrete type. This removes the need to define a <<global-sort-order>> between types. Standard SQL has no support for lists, maps, or graph structures and hence does not need to define semantics for them.
 SQL also treats comparisons involving `null` as returning `null`.
 
-PostgresSQL treats some numerical operations (such as division by zero) that would compute a `NaN` as a numerical error that causes the query to fail. PostgresQL considers `NaN` to be greater than positive infinity, both in comparison and in sort order. This proposal achieves something very similar by evaluating comparisons involving a `NaN` to `null` and by treating both `NaN` as the largest number and `null` as the largest value in the <<global-sort-order>>.
+PostgresSQL treats some numerical operations (such as division by zero) that would compute a `NaN` value as a numerical error that causes the query to fail.
+PostgresQL considers `NaN` values to be greater than positive infinity, both in comparison and in sort order.
+This proposal achieves something very similar by evaluating comparisons involving a `NaN` to `null` and by treating both `NaN` values as the largest numbers and `null` values as the largest values in the <<global-sort-order>>.
 
 This proposal could be extended with an operator for making equivalence accessible beyond use in grouping and `DISTINCT`. This seems desirable due to the equality operator (`=`) not being reflexive for all values.
 
@@ -346,18 +360,20 @@ This CIP introduces the distinction between "unknown" and "missing" `null` value
 
 A consistent set of rules is defined for <<equality-con,equality>>, <<equivalence-con,equivalence>>, <<comparability-con,comparability>> and <<orderability-con,orderability>>.
 
+Futhermore, aggregation semantics are clarified and this proposal prepares the replacement (or reinterpretation) of `NaN` values as `null` values in the future.
+
 == Caveats to this proposal
 
 Adopting this proposal may break some queries; specifically queries that depend on equality semantics of lists containing `null` values.
 It should be noted that we expect that most lists used in queries are constructed using `collect()`, which never outputs `null` values.
 
-This proposal changes path equality in subtle ways, namely self-loops track the direction in which they are traversed.
+This proposal changes path equality in subtle ways, namely loops track the direction in which they are traversed.
 It may be helpful to add a path normalization function or path to entities conversion function in the future that allows to transform a path in a way that removes this semantic distinction.
 
 == Appendix: Comparability by Type
 
 The following table captures which types may be compared with each other such that the outcome is either `true` or `false`.
-Any other comparison will always yield `null` (except for `NaN`) which is handled as described above.
+Any other comparison will always yield  a`null` value (except when comparing `NaN` values which are handled as described above).
 
 .Comparability of values of different types (`X` means the result of comparison will always return `true` or `false`)
 [frame="topbot",options="header,footer"]
