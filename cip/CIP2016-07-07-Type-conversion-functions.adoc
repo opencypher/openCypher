@@ -24,6 +24,7 @@ In many programming languages, `int` is used as a short form of `integer`, but w
 Following Cypher's guiding principles, explicit is better than implicit, and this CIP argues that `toInteger()` is a more explicit and better name.
 
 Furthermore, there is an opportunity to create a very simple and consistent rule that all scalar types should come with a type conversion function on the pattern `toX()` where `X` is the name of the type.
+Refer to the https://github.com/opencypher/openCypher/blob/master/cip/CIP2015-09-16-public-type-system-type-annotation.adoc#213-scalar-types[type system CIP] to learn more about Cypher scalar types.
 This has the consequence of adding a `toBoolean()` function to the language, creating a full set of conversion functions.
 
 == Proposal
@@ -45,7 +46,7 @@ The renamed `toInteger()` function would behave exactly the way `toInt()` behave
 
 ==== `toBoolean()`
 
-The new `toBoolean()` function would only accept the two strings `'true'` and `'false'` as valid inputs, and would return `null` on any other input, similarly to how `toFloat()` and `toInt()` behave at the time of writing.
+The new `toBoolean()` function would only accept the two strings `'true'` and `'false'`, with any case variants, as valid inputs, and would return `null` on any other input, similarly to how `toFloat()` and `toInt()` behave at the time of writing.
 
 === Examples
 
@@ -64,8 +65,15 @@ RETURN toInteger(1.5)
 .Convert strings to booleans.
 [source, cypher]
 ----
-UNWIND ['true', 'false', 'foo'] AS s
+UNWIND ['true', 'FALSE', 'foo'] AS s
 RETURN toBoolean(s) // yields two booleans and one null
+----
+
+.Round-trip a boolean to a string and back.
+[source, cypher]
+----
+WITH toString(true) as boolString // lower-cased 'true'
+RETURN toBoolean(boolString)
 ----
 
 === Interaction with existing features
