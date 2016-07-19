@@ -4,7 +4,7 @@
 :toc-placement: macro
 :source-highlighter: codemirror
 
-*Author:* Mats Rydberg <mats@neotechnology.com>, Stefan Plantikow <stefan.plantikow@neotechnology.com>
+*Authors:* Mats Rydberg <mats@neotechnology.com>, Stefan Plantikow <stefan.plantikow@neotechnology.com>
 
 [abstract]
 .Abstract
@@ -137,14 +137,14 @@ We propose that <<comparability-con,comparability>> should be defined between an
   ** Relationships are <<incomparable>> to any value that is not also a relationship.
 - Paths
   ** Paths are compared as if they were a list of alternating nodes and relationships of the path from the start node to the end node.
-  For example, given nodes `n1`, `n2`, `n3`, and relationships `r1` and `r3`, and given that `n1 < n2 < n3` and `r1 < r3`, then the path `p1` from `n1` to `n3` via `r1` would be less than the path `p2` to `n1` from `n2` via `r3`. Expressed in terms of lists:
+  For example, given nodes `n1`, `n2`, `n3`, and relationships `r1` and `r2`, and given that `n1 < n2 < n3` and `r1 < r2`, then the path `p1` from `n1` to `n3` via `r1` would be less than the path `p2` to `n1` from `n2` via `r2`. Expressed in terms of lists:
 
       p1 < p2
-  <=> [n1-r1->n3] < [n1<-r3-n2] ?
-  <=> n1 < n1 || (n1 = n1 && [r1, n3] < [r3, n2])
-  <=> false || (true && [r1, n3] < [r3, n2])
-  <=> [r1, n3] < [r3, n2]
-  <=> r1 < r2 || (r1 = r3 && n3 < n2)
+  <=> [n1-r1->n3] < [n1<-r2-n2]
+  <=> n1 < n1 || (n1 = n1 && [r1, n3] < [r2, n2])
+  <=> false || (true && [r1, n3] < [r2, n2])
+  <=> [r1, n3] < [r2, n2]
+  <=> r1 < r2 || (r1 = r2 && n3 < n2)
   <=> true || (false && false)
   <=> true
 
@@ -238,7 +238,7 @@ We define the following ascending global sort order of disjoint types:
 
 To give a concrete example, under this global sort order all nodes come before all strings.
 
-Between values of the same type in the global sort order, orderability defers to comparability except that equality is overriden by equivalence as described below.
+Between values of the same type in the global sort order, orderability defers to comparability except that equality is overridden by equivalence as described below.
 For example, `[null, 1]` is ordered before `[null, 2]` under orderability.
 
 Furthermore, the values of additional, non-canonical types must not be inserted after `NaN` values in the global sort order.
@@ -271,8 +271,8 @@ If the aggregation happens in a projection with an associated `ORDER BY` subclau
 In a regular aggregation (i.e. of the form `aggr(expr)`), the list of aggregated values is the list of candidate values with all `null` values removed from it.
 
 In a distinct aggregation (i.e. of the form `aggr(DISTINCT expr)`), the list of aggregated values is the list of candidate values with all `null` values removed from it.
-Futhermore, in a distinct aggregation, only one of all equivalent candidate values is included in the list of aggregated values, i.e. duplicates under equivalence are removed.
-However, if the distinct aggregation happens in a projection with an associated `ORDER BY` subclause, always the first from a set of equivalent candidate values is included in the list of aggregated values.
+Furthermore, in a distinct aggregation, only one of all equivalent candidate values is included in the list of aggregated values, i.e. duplicates under equivalence are removed.
+However, if the distinct aggregation happens in a projection with an associated `ORDER BY` subclause, only one element from each set of equivalent candidate values is included in the list of aggregated values.
 
 Finally, the remaining aggregated values are processed by the actual aggregation function.
 If the list of aggregated values is empty, the aggregation function returns a default value (`null` unless specified otherwise below).
@@ -360,7 +360,7 @@ This CIP introduces the distinction between "unknown" and "missing" `null` value
 
 A consistent set of rules is defined for <<equality-con,equality>>, <<equivalence-con,equivalence>>, <<comparability-con,comparability>> and <<orderability-con,orderability>>.
 
-Futhermore, aggregation semantics are clarified and this proposal prepares the replacement (or reinterpretation) of `NaN` values as `null` values in the future.
+Furthermore, aggregation semantics are clarified and this proposal prepares the replacement (or reinterpretation) of `NaN` values as `null` values in the future.
 
 == Caveats to this proposal
 
@@ -390,4 +390,4 @@ Any other comparison will always yield  a`null` value (except when comparing `Na
 |`FLOAT`        |        |                |        |       |                |          |           | X         | X       |
 |`VOID`         |        |                |        |       |                |          |           |           |         |
 |================================================================================================================================
-`
+
