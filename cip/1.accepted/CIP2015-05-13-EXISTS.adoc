@@ -17,15 +17,15 @@ toc::[]
 
 == Background
 
-In a way, Cypher already has existential subqueries - pattern predicates allow checking for the existence of subgraphs.
+In a way, Cypher already has existential subqueries - pattern predicates checking for the existence of subgraphs.
 This form is helpful, but not exhaustive in the types of subqueries that users want to be able to express.
 
 == Proposal
 
-To make this feature more powerful, add a new function named `exists`, and a keyword named the same, which allows for two different predicates:
+To make this feature more powerful, this CIP suggests the addition of a new function `exists()`, and a keyword `EXISTS {}`, allowing for two different predicates:
 
- * Property existence checking
- * Subquery existence checking
+* Property existence checking
+* Subquery existence checking
 
 === Syntax
 
@@ -34,7 +34,7 @@ expression = <current definition of expression>
            | property exists
            | subquery exists
            | simple subquery exists
-            ;
+           ;
 
 property exists = "exists", "(", expression ")"
                 ;
@@ -45,49 +45,55 @@ simple subquery exists = "EXISTS", "{", simple match, "}" ;
 
 simple match = pattern, { ",", pattern }, [ "WHERE", predicate ] ;
 
+read only clause = match
+                 | unwind
+                 | with
+                 ;
 ----
-Note: the read-only clause above includes WITH but not RETURN.
 
 === Semantics
 
-All forms of `EXIST(...)` accomplish the same task - check if a particular pattern exists in the database.
-They are expressions, and as such must be side-effect free; that is, the subqueries in `EXISTS` must not be updating queries.
-All forms of `EXISTS` are scalar expressions - they return a single boolean value, and this value is never `null`.
+All forms of `EXISTS {}` accomplish the same task: checking whether a particular pattern exists in the graph.
+They are expressions, and as such must be side-effect free; that is, the subqueries in `EXISTS {}` must not be updating queries.
+All forms of `EXISTS {}` are scalar expressions - they return a single boolean value, and this value is never `null`.
 
 ==== Property exists
 
 In the property checking form, any expression is accepted as the input.
-If the input expression would have produced a `null` value, `exists(...)`` evaluates to false, and for all other values, it will return `true`.
-This form of `exists(...)` is equivalent to checking for `null` using `IS NOT NULL`; i.e. `exists(expr)` is equivalent to `expr IS NOT NULL`.
+If the input expression evaluates to `null`, `exists()` will evaluate to `false`. For any other value, it will evaluate to `true`.
+This form of `exists()` is equivalent to checking for `null` using `IS NOT NULL`: `exists(expr)` is equivalent to `expr IS NOT NULL`.
 
 This form is there to make property existence checking idiomatic in Cypher - we do not want the user thinking of missing properties as checking for `null` values.
 
 ==== Subquery exists
+
 When checking for the existence of subqueries, variables and parameters from the outer query are available in the subquery.
 Variables introduced in the subquery are not available on the outside.
 
-For each matching subgraph evaluated with `EXISTS{...}`, the result value must be true if the subquery finds at least one matching row.
-If no matches are found, false should be returned.
+For each matching subgraph evaluated with `EXISTS {}`, the result value must be `true` if the subquery finds at least one matching row.
+If no matches are found, `false` should be returned.
 
-The subquery used in `EXISTS{...}` has to follow the following rules:
+The subquery used in `EXISTS {}` has to follow the following rules:
 
  * It has to be a read-only query. Updating the graph as part of a predicate is not allowed.
- * It cannot end in a `RETURN` clause, nor may it contain `UNION`
+ * It cannot end in a `RETURN` clause, nor may it contain `UNION`.
  * If `WITH` ends the subquery, it should be able to change the cardinality of the subquery.
- In other words, the `WITH` clause should include `WHERE` or `SKIP`, since these sub-clauses can turn a query that returns rows into one that does not.
+ In other words, the `WITH` clause may include `WHERE` or `SKIP`, since these sub-clauses can turn a query that returns rows into one that does not.
 
 ==== Simple subquery exists
+
 When the subquery can be described with a single `MATCH-WHERE` clause, the `MATCH` keyword can be omitted, as in example 2A and B.
-The difference between this form and a simple pattern predicate, which is already available, is that this form allows for introducing new variables inside the `EXISTS(...)` scope.
+The difference between this form and a simple pattern predicate, which is already available, is that this form allows for introducing new variables inside the `EXISTS {}` scope.
 
 === Examples
+
 _Example 1A:_
 
 Return all nodes that have a property named `slogan`.
 [source, cypher]
 ----
 MATCH (actor)
-WHERE EXISTS(actor.slogan)
+WHERE exists(actor.slogan)
 RETURN actor
 ----
 
@@ -99,8 +105,8 @@ Find all actors who have acted together with another actor with the same name.
 ----
 MATCH (actor:Actor)
 WHERE EXISTS {
-	(other:Actor)-[:ACTED_IN]->(movie)<-[:ACTED_IN]-(actor)
-	WHERE other.name = actor.name
+  (other:Actor)-[:ACTED_IN]->(movie)<-[:ACTED_IN]-(actor)
+  WHERE other.name = actor.name
 }
 RETURN actor
 ----
@@ -113,8 +119,8 @@ Find all actors who have acted together with another actor with the same name on
 ----
 MATCH (actor:Actor)
 WHERE EXISTS {
-	MATCH (other:Actor)-[:ACTED_IN]->(movie)<-[:ACTED_IN]-(actor)
-	WHERE other.name = actor.name
+  MATCH (other:Actor)-[:ACTED_IN]->(movie)<-[:ACTED_IN]-(actor)
+  WHERE other.name = actor.name
   WITH other, count(*) as c
   WHERE c > 1
 }
@@ -122,13 +128,15 @@ RETURN actor
 ----
 
 === Interaction with existing features
-This replaces the pre-existing `HAS(...)` function.
+
+The `EXISTS {}` subquery clause renders obsolete the current pattern predicate syntax.
+This allows the pattern predicates to be deprecated and/or removed in favour of `EXISTS {}`.
 
 == What others do
 
-This is very similar to what SQL does with its EXISTS functionality.
+This is very similar to what SQL does with its `EXISTS` functionality.
 
-This is also very similar in syntax to what SPARQL does with its EXISTS functionality; the rules regarding variables are identical, and the inner query also takes a subquery as input.
+This is also very similar in syntax to what SPARQL does with its `EXISTS` functionality; the rules regarding variables are identical, and the inner query also takes a subquery as input.
 
 == Benefits to this proposal
 
@@ -145,9 +153,9 @@ WHERE EXISTS {
 RETURN person
 ----
 
-This proposal also allows for powerful subqueries, for example using aggregation inside the EXISTS query.
-E.g. find all teams that have at least two members who have worked on successful projects.
+This proposal also allows for powerful subqueries, for example using aggregation inside the `EXISTS {}` query.
 
+.Find all teams that have at least two members who have worked on successful projects.
 [source, cypher]
 ----
 MATCH (team:Team)
