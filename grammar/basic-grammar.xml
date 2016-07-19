@@ -130,6 +130,7 @@
     <alt>
       <non-terminal ref="MapLiteral"/>
       <non-terminal ref="Parameter"/>
+      <non-terminal ref="LegacyParameter"/>
     </alt>
   </production>
 
@@ -249,6 +250,7 @@
       <non-terminal ref="NumberLiteral"/>
       <non-terminal ref="StringLiteral"/>
       <non-terminal ref="Parameter"/>
+      <non-terminal ref="LegacyParameter"/>
       TRUE
       FALSE
       NULL
@@ -402,13 +404,21 @@
     }
   </production>
 
-  <production name="Parameter">
+  <production name="LegacyParameter" oc:legacy="true">
     { &WS;
     <alt>
       <non-terminal ref="SymbolicName"/>
       <non-terminal ref="DecimalInteger"/>
     </alt>
     &WS; }
+  </production>
+
+  <production name="Parameter">
+    $
+    <alt>
+      <non-terminal ref="SymbolicName"/>
+      <non-terminal ref="DecimalInteger"/>
+    </alt>
   </production>
 
   <production name="PropertyExpression">
