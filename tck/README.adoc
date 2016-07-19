@@ -32,7 +32,7 @@ Scenario: Creating a node
       | parameter | 0 |
     When executing query:
       """
-      CREATE ({property: {parameter}}) // <4>
+      CREATE ({property: $parameter}) // <4>
       """
     Then the result should be empty // <5>
     And the side effects should be: // <6>

@@ -97,7 +97,7 @@ Feature: ReturnAcceptanceTest
       MATCH (n)
       RETURN n
       ORDER BY n.name ASC
-      SKIP {skipAmount}
+      SKIP $skipAmount
       """
     Then the result should be, in order:
       | n             |
@@ -148,8 +148,8 @@ Feature: ReturnAcceptanceTest
       MATCH (n)
       RETURN n
       ORDER BY n.name ASC
-      SKIP {s}
-      LIMIT {l}
+      SKIP $s
+      LIMIT $l
       """
     Then the result should be, in order:
       | n             |

@@ -64,7 +64,7 @@ Feature: ExpressionAcceptance
       | idx  | 'name'        |
     When executing query:
       """
-      WITH {expr} AS expr, {idx} AS idx
+      WITH $expr AS expr, $idx AS idx
       RETURN expr[idx] AS value
       """
     Then the result should be:
@@ -78,7 +78,7 @@ Feature: ExpressionAcceptance
     When executing query:
       """
       CREATE (n {name: 'Apa'})
-      RETURN n[{idx}] AS value
+      RETURN n[$idx] AS value
       """
     Then the result should be:
       | value |
@@ -93,7 +93,7 @@ Feature: ExpressionAcceptance
       | idx  | 'name'        |
     When executing query:
       """
-      WITH {expr} AS expr, {idx} AS idx
+      WITH $expr AS expr, $idx AS idx
       RETURN expr[toString(idx)] AS value
       """
     Then the result should be:
@@ -107,7 +107,7 @@ Feature: ExpressionAcceptance
       | idx  | 0       |
     When executing query:
       """
-      WITH {expr} AS expr, {idx} AS idx
+      WITH $expr AS expr, $idx AS idx
       RETURN expr[idx] AS value
       """
     Then the result should be:
@@ -121,7 +121,7 @@ Feature: ExpressionAcceptance
     When executing query:
       """
       WITH ['Apa'] AS expr
-      RETURN expr[{idx}] AS value
+      RETURN expr[$idx] AS value
       """
     Then the result should be:
       | value |
@@ -134,7 +134,7 @@ Feature: ExpressionAcceptance
       | idx  | 0       |
     When executing query:
       """
-      WITH {expr} AS expr, {idx} AS idx
+      WITH $expr AS expr, $idx AS idx
       RETURN expr[toInteger(idx)] AS value
       """
     Then the result should be:
@@ -148,7 +148,7 @@ Feature: ExpressionAcceptance
       | idx  | 0             |
     When executing query:
       """
-      WITH {expr} AS expr, {idx} AS idx
+      WITH $expr AS expr, $idx AS idx
       RETURN expr[idx]
       """
     Then a TypeError should be raised at runtime: MapElementAccessByNonString
@@ -159,7 +159,7 @@ Feature: ExpressionAcceptance
       | idx  | 12.3          |
     When executing query:
       """
-      WITH {expr} AS expr, {idx} AS idx
+      WITH $expr AS expr, $idx AS idx
       RETURN expr[idx]
       """
     Then a TypeError should be raised at runtime: MapElementAccessByNonString
@@ -170,7 +170,7 @@ Feature: ExpressionAcceptance
       | idx  | 'name'  |
     When executing query:
       """
-      WITH {expr} AS expr, {idx} AS idx
+      WITH $expr AS expr, $idx AS idx
       RETURN expr[idx]
       """
     Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
@@ -181,7 +181,7 @@ Feature: ExpressionAcceptance
       | idx  | ['Apa'] |
     When executing query:
       """
-      WITH {expr} AS expr, {idx} AS idx
+      WITH $expr AS expr, $idx AS idx
       RETURN expr[idx]
       """
     Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
@@ -200,7 +200,7 @@ Feature: ExpressionAcceptance
       | idx  | 0   |
     When executing query:
       """
-      WITH {expr} AS expr, {idx} AS idx
+      WITH $expr AS expr, $idx AS idx
       RETURN expr[idx]
       """
     Then a TypeError should be raised at runtime: InvalidElementAccess
