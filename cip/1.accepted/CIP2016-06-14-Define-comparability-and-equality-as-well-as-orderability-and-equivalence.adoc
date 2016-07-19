@@ -240,6 +240,8 @@ To give a concrete example, under this global sort order all nodes come before a
 
 Between values of the same type in the global sort order, orderability defers to comparability except that equality is overridden by equivalence as described below.
 For example, `[null, 1]` is ordered before `[null, 2]` under orderability.
+Additionally, for the container types, elements of the containers use orderability, not comparability, to determine the order between them.
+For example, `[1, 'foo', 3]` is ordered before `[1, 2, 'bar']` since `'foo'` is ordered before `2`.
 
 Furthermore, the values of additional, non-canonical types must not be inserted after `NaN` values in the global sort order.
 
