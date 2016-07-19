@@ -524,7 +524,6 @@
     </description>
     <alt>
       <character set="ID_Start"/>
-      <character set="Sc"/>
       <literal value="&#x005f;"/> <!-- '_' - LOW LINE -->
       <literal value="&#x203f;"/> <!-- '‿' - UNDERTIE -->
       <literal value="&#x2040;"/> <!-- '⁀' - CHARACTER TIE -->
