@@ -44,7 +44,7 @@ Feature: FunctionsAcceptance
       """
     Then the result should be:
       | length(nodes(p)) | type(r) | nodes(p) | relationships(p) |
-      | null             | null    | null     | null    |
+      | null             | null    | null     | null             |
     And no side effects
 
   Scenario: `split()`
@@ -421,3 +421,48 @@ Feature: FunctionsAcceptance
       | true    |
       | ''      |
       | []      |
+
+  Scenario: `labels()` should accept type Any
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:Foo), (:Foo:Bar)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH [a, 1] AS list
+      RETURN labels(list[0]) AS l
+      """
+    Then the result should be (ignoring element order for lists):
+      | l              |
+      | ['Foo']        |
+      | ['Foo', 'Bar'] |
+    And no side effects
+
+  Scenario: `labels()` should accept type Any
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:Foo), (:Foo:Bar)
+      """
+    When executing query:
+      """
+      MATCH p = (a)
+      RETURN labels(p) AS l
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  Scenario: `labels()` should accept type Any
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:Foo), (:Foo:Bar)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH [a, 1] AS list
+      RETURN labels(list[1]) AS l
+      """
+    Then a TypeError should be raised at runtime: InvalidArgumentValue
