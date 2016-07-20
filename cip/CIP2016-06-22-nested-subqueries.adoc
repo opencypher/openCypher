@@ -23,6 +23,7 @@ Subqueries - i.e. queries within queries - are a powerful and expressive feature
   * Better query construction and readability
   * Easier query composition and reuse
   * Post-processing as a single unit results from multiple queries
+  * Perform a sequence of multiple write commands for each record
 
 == Background
 
@@ -31,28 +32,55 @@ This CIP may be viewed in conjunction with the EXISTS CIP and the Pattern Compre
 
 == Proposal
 
-We propose the addition of new syntax to the `MATCH` clause for expressing nested subqueries.
+This proposal suggests the introduction of two new subquery constructs to Cypher.
+
+**1. Read-only subqueries**
+
+We propose the addition of new syntax to the `MATCH` clause for expressing nested read-only subqueries.
 
 Nested subqueries are self-contained, read-only Cypher queries.
 
-A nested subquery is denoted using the following syntax: `MATCH { <subquery> }`.
+A nested read-only subquery is denoted using the following syntax: `MATCH { <subquery> }`.
 
 Nested subqueries may be correlated - i.e. the subquery has a dependency on the outer query - or uncorrelated.
 
 As this proposal extends the `MATCH` clause, nested subqueries can be contained within other nested subqueries at arbitrary depth.
 
+**2. Write-only/read-write subqueries**
+
+We further propose the addition of a new syntax - the `DO` clause - for expressing nested write-only/read-write subqueries that _do not return any data_.
+
+A nested write-only/read-write subquery is denoted using the following syntax: `DO { <subquery> }`.
+
+We additionally propose removing the `FOREACH` clause from the current language as it is rendered obsolete by the introduction of `DO`.
+
+
 === Syntax
 
 We extend the https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml[grammar] as follows:
 
+**1. Read-only subqueries**
+
 [source, ebnf]
 ----
-Match = [ "OPTIONAL" ], ( MatchPattern | NestedSubquery ), [ "WHERE", Predicate ] ;
+Match = [ "OPTIONAL" ], ( MatchPattern | NestedReadOnlySubquery ), [ "WHERE", Predicate ] ;
 MatchPattern = "MATCH", Pattern ;
-NestedSubquery = "MATCH", "{", RegularQuery, "}" ;
+NestedReadOnlySubquery = "MATCH", "{", RegularQuery, "}" ;
+----
+
+**2. Write-only/read-write subqueries**
+
+[source, ebnf]
+----
+Match = [ "OPTIONAL" ], "MATCH", Pattern, [ "WHERE", Predicate ], NestedWriteSubquery ;
+NestedWriteSubquery = Unwind, "DO", "{", WriteSubquery, "}" ;
+WriteSubquery = WriteOnlyClauseWithNoReturn, [ NestedWriteSubquery ] |
+                ReadWriteClauseWithNoReturn, [ NestedWriteSubquery ] ;
 ----
 
 === Semantic clarification
+
+**1. Read-only subqueries**
 
 Conceptually, a nested subquery is evaluated for each incoming record and may produce an arbitrary number of result records.
 
@@ -60,11 +88,17 @@ All incoming variables remain in scope.
 
 Any new variable bindings produced by evaluating the subquery will augment the variable bindings of the initial record; i.e. nested subqueries behave in the same way as `UNWIND` and `CALL` with regard to the introduction of new variable bindings.
 
-Subqueries interact with write clauses in the same manner as `MATCH`.
+Subqueries interact with write clauses in the same way as `MATCH` does.
 
 It is an error for a nested subquery to try to rebind (shadow) a pre-existing outer variable binding.
 
+**2. Write-only/read-write subqueries**
+
+Execution of a `DO` subquery does not change the cardinality; i.e. the full subquery is run for each incoming record and then the record is being passed on to the remainder of the outer query. This is identical to way in which void procedures are executed.
+
 === Examples
+
+**1. Read-only subqueries**
 
 Post-UNION processing:
 [source, cypher]
@@ -80,7 +114,7 @@ MATCH {
         (user)<-[:HAS_FAVOURITE]-(favorite:Favorite)-[:TARGETS]->(tweet:Tweet)
   RETURN tweet, favourite.time AS time, user.country AS country
 }
-WHERE country = "se"
+WHERE country = 'se'
 RETURN DISTINCT tweet
 ORDER BY time DESC
 LIMIT 10
@@ -89,13 +123,13 @@ LIMIT 10
 Uncorrelated nested subquery:
 [source, cypher]
 ----
-MATCH (f:Farm {id: {farmId})
+MATCH (f:Farm {id: $farmId})
 MATCH {
-  MATCH (u:User {id: {userId}})-[:LIKES]->(b:Brand),
+  MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(p:Lawnmower)
   RETURN b.name AS name, p.code AS code
   UNION
-  MATCH (u:User {id: {userId}})-[:LIKES]->(b:Brand),
+  MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(v:Vehicle),
         (v)<-[:IS_A]-(:Category {name: 'Tractor'})
   RETURN b.name AS name, p.code AS code
@@ -106,13 +140,13 @@ RETURN f, name, code
 Correlated nested subquery:
 [source, cypher]
 ----
-MATCH (f:Farm {id: {farmId})-[:IS_IN]->(country:Country)
+MATCH (f:Farm {id: $farmId})-[:IS_IN]->(country:Country)
 MATCH {
-  MATCH (u:User {id: {userId}})-[:LIKES]->(b:Brand),
+  MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(p:Lawnmower)
   RETURN b.name AS name, p.code AS code
   UNION
-  MATCH (u:User {id: {userId}})-[:LIKES]->(b:Brand),
+  MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(v:Vehicle),
         (v)<-[:IS_A]-(:Category {name: 'Tractor'})
   WHERE v.leftHandDrive = country.leftHandDrive
@@ -125,13 +159,13 @@ Filtered and correlated nested subquery:
 [source, cypher]
 ----
 MATCH (f:Farm)-[:IS_IN]->(country:Country)
-WHERE country.name IN {countryNames}
+WHERE country.name IN $countryNames
 MATCH {
-  MATCH (u:User {id: {userId}})-[:LIKES]->(b:Brand),
+  MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(p:Lawnmower)
   RETURN b AS brand, p.code AS code
   UNION
-  MATCH (u:User {id: {userId}})-[:LIKES]->(b:Brand),
+  MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(v:Vehicle),
         (v)<-[:IS_A]-(:Category {name: 'Tractor'})
   WHERE v.leftHandDrive = country.leftHandDrive
@@ -145,7 +179,7 @@ RETURN f, brand.name AS name, code
 Doubly-nested subquery:
 [source, cypher]
 ----
-MATCH (f:Farm {id: {farmId}})
+MATCH (f:Farm {id: $farmId})
 MATCH {
   MATCH (c:Customer)-[:BUYS_FOOD_AT]->(f)
   MATCH {
@@ -155,18 +189,73 @@ MATCH {
      MATCH (c)-[:LIKES]->(p:Posting)<-[:POSTED_BY]-(f)
      RETURN c, count(*) AS count
   }
-  RETURN c, "customer" AS type, sum(count) AS endorsement
+  RETURN c, 'customer' AS type, sum(count) AS endorsement
   UNION
   MATCH (s:Shop)-[:BUYS_FOOD_AT]->(f)
   MATCH (s)-[:PLACES]->(a:Advertisement)-[:ABOUT]->(f)
-  RETURN s, "shop" AS type, count(a) * 100 AS endorsement
+  RETURN s, 'shop' AS type, count(a) * 100 AS endorsement
 }
 RETURN f.name AS name, type, sum(endorsement) AS endorsement
 ----
 
+**2. Write-only/read-write subqueries**
+
+We illustrate these by means of an 'old' version of the query, in which `FOREACH` is used, followed by the 'new' version, using `DO`.
+
+Using a single subquery - old version using `FOREACH`:
+[source, cypher]
+----
+MATCH (r:Root)
+FOREACH(x IN range(1, 10) |
+  MERGE (c:Child {id: x})
+  MERGE (r)-[:PARENT]->(c)
+)
+----
+
+Using a single subquery - new version using `DO`:
+[source, cypher]
+----
+MATCH (r:Root)
+UNWIND range(1, 10) AS x
+DO {
+  MERGE (c:Child {id: x})
+  MERGE (r)-[:PARENT]->(c)
+}
+----
+
+Doubly-nested subquery - old version using `FOREACH`:
+[source, cypher]
+----
+MATCH (r:Root)
+FOREACH (x IN range(1, 10) |
+  CREATE (r)-[:PARENT]->(c:Child {id: x})
+  MERGE (r)-[:PUBLISHES]->(t:Topic {id: r.id + x})
+  FOREACH (y IN range(1, 10) |
+    CREATE (c)-[p:PARENT]->(:Child {id: c.id * 10 + y})
+    SET p.id = c.id * 5 + y
+  )
+)
+----
+
+Doubly-nested subquery - new version using `DO`:
+[source, cypher]
+----
+MATCH (r:Root)
+UNWIND range(1, 10) AS x AS x
+DO {
+  CREATE (r)-[:PARENT]->(c:Child {id: x})
+  MERGE (r)-[:PUBLISHES]->(t:Topic {id: r.id + x})
+  UNWIND range(1, 10) AS y
+  DO {
+    CREATE (c)-[p:PARENT]->(:Child {id: c.id * 10 + y})
+    SET p.id = c.id * 5 + y
+  }
+}
+----
+
 === Interaction with existing features
 
-Nested subqueries do not interact directly with any existing features.
+Apart from the suggested deprecation of the `FOREACH` clause, nested read-only, write-only and read-write subqueries do not interact directly with any existing features.
 
 === Alternatives
 
