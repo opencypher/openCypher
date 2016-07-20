@@ -86,7 +86,7 @@ Conceptually, a nested subquery is evaluated for each incoming record and may pr
 
 All incoming variables remain in scope.
 
-Any new variable bindings produced by evaluating the subquery will augment the variable bindings of the initial record; i.e. nested subqueries behave in the same way as `UNWIND` and `CALL` with regard to the introduction of new variable bindings.
+Any new variable bindings introduced by the final `RETURN` clause when evaluating the subquery will augment the variable bindings of the initial record. Therefore, nested subqueries cannot shadow variables present in the outer scope, and thus behave in the same way as `UNWIND` and `CALL` with regard to the introduction of new variable bindings.
 
 Subqueries interact with write clauses in the same way as `MATCH` does.
 
