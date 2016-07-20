@@ -415,27 +415,6 @@ Feature: MatchAcceptance2
       | [[:X], [:Y]] |
     And no side effects
 
-  Scenario: Matching named path with variable length pattern and predicates
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A), (b:B), (c:C), (d:D)
-      CREATE (a)-[:X]->(b),
-             (a)-[:X]->(c),
-             (c)-[:X]->(d)
-      """
-    When executing query:
-      """
-      MATCH p = (:A)-[*]->(leaf)
-      WHERE NOT((leaf)-->())
-      RETURN p, leaf
-      """
-    Then the result should be:
-      | p                            | leaf |
-      | <(:A)-[:X]->(:B)>            | (:B) |
-      | <(:A)-[:X]->(:C)-[:X]->(:D)> | (:D) |
-    And no side effects
-
   Scenario: Excluding connected nodes
     Given an empty graph
     And having executed:
@@ -446,7 +425,8 @@ Feature: MatchAcceptance2
     When executing query:
       """
       MATCH (a:A), (other:B)
-      WHERE NOT (a)-->(other)
+      OPTIONAL MATCH (a)-[r]->(other)
+      WITH other WHERE r IS NULL
       RETURN other
       """
     Then the result should be:
@@ -563,43 +543,6 @@ Feature: MatchAcceptance2
       | b |
     And no side effects
 
-  Scenario: Matching using relationship predicate with multiple types
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A), (b:B), (x)
-      CREATE (a)-[:T1]->(x),
-             (b)-[:T2]->(x)
-      """
-    When executing query:
-      """
-      MATCH (a)
-      WHERE (a)-[:T1|:T2]->()
-      RETURN a
-      """
-    Then the result should be:
-      | a    |
-      | (:A) |
-      | (:B) |
-    And no side effects
-
-  Scenario: Matching using relationship predicate
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A)-[:T]->(x)
-      """
-    When executing query:
-      """
-      MATCH (a)
-      WHERE (a)-[:T]->()
-      RETURN a
-      """
-    Then the result should be:
-      | a    |
-      | (:A) |
-    And no side effects
-
   Scenario: Variable length relationship in OPTIONAL MATCH
     Given an empty graph
     And having executed:
@@ -675,24 +618,6 @@ Feature: MatchAcceptance2
     Then the result should be:
       | n              |
       | ({foo: 'bar'}) |
-    And no side effects
-
-  Scenario: Predicates on missing optionally matched nodes should simply evaluate to false
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()
-      """
-    When executing query:
-      """
-      MATCH (n)
-      OPTIONAL MATCH (n)-->(x)
-      WHERE (x)-->()
-      RETURN x
-      """
-    Then the result should be:
-      | x    |
-      | null |
     And no side effects
 
   Scenario: Handling direction of named paths
@@ -771,25 +696,6 @@ Feature: MatchAcceptance2
       """
     Then the result should be:
       | c |
-    And no side effects
-
-  Scenario: Pattern expressions and parametrised predicate
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({id: 0})-[:T]->({name: 'Neo'})
-      """
-    And parameters are:
-      | id | 0 |
-    When executing query:
-      """
-      MATCH (a)-->(b)
-      WHERE (b)-->()
-        AND a.id = {id}
-      RETURN b
-      """
-    Then the result should be:
-      | b |
     And no side effects
 
   Scenario: Matching a relationship pattern using a label predicate
@@ -1510,26 +1416,6 @@ Feature: MatchAcceptance2
         AND (a)-[:T]->(b:Label)
         OR (a)-[:T*]->(b:MissingLabel)
       RETURN DISTINCT b
-      """
-    Then the result should be:
-      | b                |
-      | (:Label {id: 1}) |
-    And no side effects
-
-  Scenario: Matching with complex composite pattern predicate
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:Label {id: 0}), (b:Label {id: 1}), (c:Label {id: 2})
-      CREATE (a)-[:T]->(b),
-             (b)-[:T]->(c)
-      """
-    When executing query:
-      """
-      MATCH (a), (b)
-      WHERE (a.id = 0 OR (a)-[:T]->(b:MissingLabel))
-        AND ((a)-[:T]->(b:Label) OR (a)-[:T]->(b:MissingLabel))
-      RETURN b
       """
     Then the result should be:
       | b                |

@@ -264,32 +264,6 @@ Feature: OptionalMatchAcceptance
       | null |
     And no side effects
 
-  Scenario: Handling pattern predicates without matches
-    When executing query:
-      """
-      MATCH (a:A), (c:C)
-      OPTIONAL MATCH (a)-->(b)
-      WHERE (b)-->(c)
-      RETURN b
-      """
-    Then the result should be:
-      | b    |
-      | null |
-    And no side effects
-
-  Scenario: Handling pattern predicates
-    When executing query:
-      """
-      MATCH (a:Single), (c:C)
-      OPTIONAL MATCH (a)-->(b)
-      WHERE (b)-->(c)
-      RETURN b
-      """
-    Then the result should be:
-      | b               |
-      | (:A {prop: 42}) |
-    And no side effects
-
   Scenario: Handling correlated optional matches; first does not match implies second does not match
     When executing query:
       """
