@@ -28,6 +28,19 @@ Feature: TypeConversionFunctions
       | true |
     And no side effects
 
+  Scenario: `toBoolean()` on booleans
+    Given any graph
+    When executing query:
+      """
+      UNWIND [true, false] AS b
+      RETURN toBoolean(b) AS b
+      """
+    Then the result should be:
+      | b     |
+      | true  |
+      | false |
+    And no side effects
+
   Scenario: `toBoolean()` on variables with valid string values
     Given any graph
     When executing query:
@@ -41,11 +54,11 @@ Feature: TypeConversionFunctions
       | false |
     And no side effects
 
-  Scenario: `toBoolean()` on invalid values
+  Scenario: `toBoolean()` on invalid strings
     Given any graph
     When executing query:
       """
-      UNWIND [null, '', 1, {}] AS things
+      UNWIND [null, '', ' tru ', 'f alse'] AS things
       RETURN toBoolean(things) AS b
       """
     Then the result should be:
@@ -55,6 +68,23 @@ Feature: TypeConversionFunctions
       | null |
       | null |
     And no side effects
+
+  Scenario Outline: `toBoolean()` on invalid types
+    Given any graph
+    When executing query:
+      """
+      WITH [true, <invalid>] AS list
+      RETURN toBoolean(list[1]) AS b
+      """
+    Then a TypeError should be raised at runtime: InvalidArgumentValue
+
+    Examples:
+      | invalid |
+      | []      |
+      | {}      |
+      | 1       |
+      | 1.0     |
+
 
   Scenario: `toInteger()`
     Given an empty graph
@@ -83,7 +113,7 @@ Feature: TypeConversionFunctions
       """
     Then the result should be:
       | toInteger(weight) |
-      | 82            |
+      | 82                |
     And no side effects
 
   Scenario: `toInteger()` returning null on non-numerical string
