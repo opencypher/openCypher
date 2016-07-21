@@ -1,0 +1,199 @@
+= Standardisation scope of Cypher
+
+One of the challenges faced by this effort to standardise Cypher has been to choose the set of language features to standardise.
+Cypher is not a new language, but has several years of history, which includes some historical artifacts left in the feature set.
+This is generally not because there hasn't been good replacements, but because Cypher's role has been to support a specific product (Neo4j).
+The lifecycle of a standardised language is different, however, and removal of standardised features is generally hard.
+
+With that in mind, the openCypher project is trying to not include language features that are not visioned to be the future of the language.
+This document aims to provide a description of the language features elected to become part of the standardised set of features, as well as the features that have been left behind.
+
+It should be noted that openCypher is still a young project, and this division between standardised and non-standardised features will likely be subject to change.
+It should also be observed that _additive change_, that is, moving a feature _into_ the standardised set, is generally easier than doing the reverse.
+
+== Language features included in openCypher
+
+=== Clauses
+
+* `MATCH`
+* `RETURN`
+* `UNWIND`
+* `OPTIONAL MATCH`
+* `WITH`
+* `UNION`
+* `CREATE`
+* `MERGE`
+* `SET`
+* `DELETE`
+* `DETACH DELETE`
+* `REMOVE`
+* `CALL ... YIELD`
+
+==== Sub-clauses
+
+* `ON CREATE`
+* `ON MATCH`
+* `WHERE`
+* `ORDER BY`
+* `SKIP`
+* `LIMIT`
+
+=== Operators
+
+* `DISTINCT`
+* `STARTS WITH`
+* `CONTAINS`
+* `ENDS WITH`
+* `=`
+* `<>`
+* `<`
+* `>`
+* `\<=`
+* `>=`
+* `+`
+* `-`
+* `/`
+* `*`
+* `AND`
+* `OR`
+* `NOT`
+* `IS NULL`
+* `IS NOT NULL`
+* `.` (property access)
+* `[]` (subscript)
+* `XOR`
+
+=== Expressions
+
+* List comprehensions
+* Pattern comprehensions
+* Parameters with new syntax (`$`)
+* Literals
+* `count()`
+* `collect()`
+* `avg()`
+* `sum()`
+* `max()`
+* `min()`
+* `stdDev()`
+* `stdDevP()`
+
+=== Functions
+
+* `abs()`
+* `acos()`
+* `asin()`
+* `atan()`
+* `atan2()`
+* `ceil()`
+* `coalesce()`
+* `ceil()`
+* `cos()`
+* `cot()`
+* `degrees()`
+* `e()`
+* `exists()`
+* `exp()`
+* `floor()`
+* `head()`
+* `labels()`
+* `last()`
+* `left()`
+* `length()`
+* `log()`
+* `log10()`
+* `lTrim()`
+* `nodes()`
+* `pi()`
+* `percentileCont()`
+* `percentileDisc()`
+* `keys()`
+* `radians()`
+* `rand()`
+* `range()`
+* `relationships()`
+* `replace()`
+* `reverse()`
+* `right()`
+* `round()`
+* `rTrim()`
+* `sign()`
+* `sin()`
+* `size()`
+* `sqrt()`
+* `split()`
+* `substring()`
+* `tail()`
+* `tan()`
+* `toFloat()`
+* `toInt()`
+* `toString()`
+* `properties()`
+* `trim()`
+* `type()`
+* `startNode()`
+* `endNode()`
+* `toUpper()`
+* `toLower()`
+
+=== Types
+
+* primitives
+* list
+* map
+* node
+* relationship
+* path
+
+== Language features excluded from openCypher
+
+=== Clauses
+
+* `FOREACH`
+* `CREATE UNIQUE`
+* `START`
+* `LOAD CSV`
+
+=== Hints
+
+* `USING PERIODIC COMMIT`
+* `USING INDEX`
+* `USING SCAN`
+* `USING JOIN`
+
+=== Commands
+
+* `CREATE INDEX`
+* `CREATE CONSTRAINT`
+
+=== Operators
+
+* `=~` (regular expression)
+
+=== Expressions
+
+* Parameters with old syntax (`{}`)
+* `CASE`
+* `reduce`
+* `extract`
+* `filter`
+* `any`
+* `all`
+* `none`
+* `single`
+
+=== Functions
+
+* `distance()`
+* `point()`
+* `haversin()`
+* `id()`
+* `lower()`
+* `upper()`
+* `timestamp()`
+* `rels()`
+
+=== Types
+
+* datetime types
+* point
