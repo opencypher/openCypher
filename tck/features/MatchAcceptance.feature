@@ -25,12 +25,12 @@ Feature: MatchAcceptance
       """
     When executing query:
       """
-      MATCH (a:Label1)
-      RETURN (a)<--(:Label2) AS p
+      MATCH p = (a:Label1)<--(:Label2)
+      RETURN p
       """
     Then the result should be:
-      | p                                |
-      | [<(:Label1)<-[:TYPE]-(:Label2)>] |
+      | p                              |
+      | <(:Label1)<-[:TYPE]-(:Label2)> |
     And no side effects
 
   Scenario: Longer path query should return results in written order
@@ -41,12 +41,12 @@ Feature: MatchAcceptance
       """
     When executing query:
       """
-      MATCH (a:Label1)
-      RETURN (a)<--(:Label2)--() AS p
+      MATCH p = (a:Label1)<--(:Label2)--()
+      RETURN p
       """
     Then the result should be:
-      | p                                               |
-      | [<(:Label1)<-[:T1]-(:Label2)-[:T2]->(:Label3)>] |
+      | p                                             |
+      | <(:Label1)<-[:T1]-(:Label2)-[:T2]->(:Label3)> |
     And no side effects
 
   Scenario: Get node degree via length of pattern expression
