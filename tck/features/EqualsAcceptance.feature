@@ -72,38 +72,6 @@ Feature: EqualsAcceptance
       | n |
     And no side effects
 
-  Scenario: Fail when comparing nodes to parameters
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()
-      """
-    And parameters are:
-      | param | 'foo' |
-    When executing query:
-      """
-      MATCH (b)
-      WHERE b = {param}
-      RETURN b
-      """
-    Then a TypeError should be raised at runtime: IncomparableValues
-
-  Scenario: Fail when comparing parameters to nodes
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()
-      """
-    And parameters are:
-      | param | 'foo' |
-    When executing query:
-      """
-      MATCH (b)
-      WHERE {param} = b
-      RETURN b
-      """
-    Then a TypeError should be raised at runtime: IncomparableValues
-
   Scenario: Comparing nodes to nodes
     Given an empty graph
     And having executed:
@@ -123,20 +91,6 @@ Feature: EqualsAcceptance
       | 1        |
     And no side effects
 
-  Scenario: Comparing nodes to properties
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({val: 17})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      WHERE a = a.val
-      RETURN count(a)
-      """
-    Then a TypeError should be raised at runtime: IncomparableValues
-
   Scenario: Comparing relationships to relationships
     Given an empty graph
     And having executed:
@@ -155,29 +109,3 @@ Feature: EqualsAcceptance
       | count(b) |
       | 1        |
     And no side effects
-
-  Scenario: Fail when comparing nodes to relationships
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()-[:T]->()
-      """
-    When executing query:
-      """
-      MATCH (a)-[b]->()
-      RETURN a = b
-      """
-    Then a TypeError should be raised at runtime: IncomparableValues
-
-  Scenario: Fail when comparing relationships to nodes
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()-[:T]->()
-      """
-    When executing query:
-      """
-      MATCH (a)-[b]->()
-      RETURN b = a
-      """
-    Then a TypeError should be raised at runtime: IncomparableValues
