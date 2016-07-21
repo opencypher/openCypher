@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-Feature: PatternExpressionAcceptance
+Feature: ListComprehension
 
   Scenario: Returning a list comprehension
     Given an empty graph
@@ -27,14 +27,12 @@ Feature: PatternExpressionAcceptance
       """
     When executing query:
       """
-      MATCH (n)
-      RETURN [x IN (n)-->() | head(nodes(x))] AS p
+      MATCH p = (n)-->()
+      RETURN [x IN collect(p) | head(nodes(x))] AS p
       """
     Then the result should be:
       | p            |
       | [(:A), (:A)] |
-      | []           |
-      | []           |
     And no side effects
 
   Scenario: Using a list comprehension in a WITH
@@ -47,49 +45,31 @@ Feature: PatternExpressionAcceptance
       """
     When executing query:
       """
-      MATCH (n:A)
-      WITH [x IN (n)-->() | head(nodes(x))] AS p, count(n) AS c
+      MATCH p = (n:A)-->()
+      WITH [x IN collect(p) | head(nodes(x))] AS p, count(n) AS c
       RETURN p, c
       """
     Then the result should be:
       | p            | c |
-      | [(:A), (:A)] | 1 |
+      | [(:A), (:A)] | 2 |
     And no side effects
 
   Scenario: Using a list comprehension in a WHERE
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A)
+      CREATE (a:A {prop: 'c'})
       CREATE (a)-[:T]->(:B),
              (a)-[:T]->(:C)
       """
     When executing query:
       """
-      MATCH (n)
-      WHERE n IN [x IN (n)-->() | head(nodes(x))]
-      RETURN n
+      MATCH (n)-->(b)
+      WHERE n.prop IN [x IN labels(b) | lower(x)]
+      RETURN b
       """
     Then the result should be:
-      | n    |
-      | (:A) |
-    And no side effects
-
-  Scenario: `exists()` is case insensitive
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:X {prop: 42}), (:X {prop: 43})
-      CREATE (a)-[:T]->()
-      """
-    When executing query:
-      """
-      MATCH (n:X)
-      RETURN n, EXISTS((n)--()) AS b
-      """
-    Then the result should be:
-      | n               | b     |
-      | (:X {prop: 42}) | true  |
-      | (:X {prop: 43}) | false |
+      | b    |
+      | (:C) |
     And no side effects
 
