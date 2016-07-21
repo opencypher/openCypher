@@ -49,65 +49,6 @@ Feature: MatchAcceptance
       | <(:Label1)<-[:T1]-(:Label2)-[:T2]->(:Label3)> |
     And no side effects
 
-  Scenario: Get node degree via length of pattern expression
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (x:X),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:T]->()
-      """
-    When executing query:
-      """
-      MATCH (a:X)
-      RETURN length((a)-->()) AS length
-      """
-    Then the result should be:
-      | length |
-      | 3      |
-    And no side effects
-
-  Scenario: Get node degree via length of pattern expression that specifies a relationship type
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (x:X),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:OTHER]->()
-      """
-    When executing query:
-      """
-      MATCH (a:X)
-      RETURN length((a)-[:T]->()) AS length
-      """
-    Then the result should be:
-      | length |
-      | 3      |
-    And no side effects
-
-  Scenario: Get node degree via length of pattern expression that specifies multiple relationship types
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (x:X),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:OTHER]->()
-      """
-    When executing query:
-      """
-      MATCH (a:X)
-      RETURN length((a)-[:T|OTHER]->()) AS length
-      """
-    Then the result should be:
-      | length |
-      | 4      |
-    And no side effects
-
   Scenario: Use multiple MATCH clauses to do a Cartesian product
     Given an empty graph
     And having executed:

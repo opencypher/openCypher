@@ -1382,25 +1382,6 @@ Feature: MatchAcceptance2
       | (:Artist:B) | (:Artist:C) |
     And no side effects
 
-  Scenario: Pattern expressions and ORDER BY
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a {time: 10}), (b {time: 20})
-      CREATE (a)-[:T]->(b)
-      """
-    When executing query:
-      """
-      MATCH (liker)
-      RETURN (liker)--() AS isNew
-        ORDER BY liker.time
-      """
-    Then the result should be:
-      | isNew                               |
-      | [<({time: 10})-[:T]->({time: 20})>] |
-      | [<({time: 20})<-[:T]-({time: 10})>] |
-    And no side effects
-
   Scenario: Variable length pattern checking labels on endnodes
     Given an empty graph
     And having executed:

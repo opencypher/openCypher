@@ -212,22 +212,6 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
-  Scenario: Failing when introducing new node variable in pattern expression
-    When executing query:
-      """
-      MATCH (n)
-      RETURN (n)-[:T]->(b)
-      """
-    Then a SyntaxError should be raised at compile time: UndefinedVariable
-
-  Scenario: Failing when introducing new relationship variable in pattern expression
-    When executing query:
-      """
-      MATCH (n)
-      RETURN (n)-[r:T]->()
-      """
-    Then a SyntaxError should be raised at compile time: UndefinedVariable
-
   Scenario: Failing when using undefined variable in ON CREATE
     When executing query:
       """
