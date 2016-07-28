@@ -154,7 +154,7 @@ Feature: KeysAcceptance
       | param | {name: 'Alice', age: 38, address: {city: 'London', residential: true}} |
     When executing query:
       """
-      RETURN keys({param}) AS k
+      RETURN keys($param) AS k
       """
     Then the result should be (ignoring element order for lists):
       | k                          |

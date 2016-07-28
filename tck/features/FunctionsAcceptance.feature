@@ -215,7 +215,7 @@ Feature: FunctionsAcceptance
     When executing query:
       """
       MATCH (n)
-      RETURN percentileDisc(n.prop, {percentile}) AS p
+      RETURN percentileDisc(n.prop, $percentile) AS p
       """
     Then the result should be:
       | p        |
@@ -241,7 +241,7 @@ Feature: FunctionsAcceptance
     When executing query:
       """
       MATCH (n)
-      RETURN percentileCont(n.prop, {percentile}) AS p
+      RETURN percentileCont(n.prop, $percentile) AS p
       """
     Then the result should be:
       | p        |
@@ -265,7 +265,7 @@ Feature: FunctionsAcceptance
     When executing query:
       """
       MATCH (n)
-      RETURN percentileCont(n.prop, {param})
+      RETURN percentileCont(n.prop, $param)
       """
     Then a ArgumentError should be raised at runtime: NumberOutOfRange
 
@@ -286,7 +286,7 @@ Feature: FunctionsAcceptance
     When executing query:
       """
       MATCH (n)
-      RETURN percentileDisc(n.prop, {param})
+      RETURN percentileDisc(n.prop, $param)
       """
     Then a ArgumentError should be raised at runtime: NumberOutOfRange
 

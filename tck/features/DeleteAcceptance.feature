@@ -236,7 +236,7 @@ Feature: DeleteAcceptance
       """
       MATCH (:User)-[:FRIEND]->(n)
       WITH collect(n) AS friends
-      DETACH DELETE friends[{friendIndex}]
+      DETACH DELETE friends[$friendIndex]
       """
     Then the result should be empty
     And the side effects should be:
@@ -259,7 +259,7 @@ Feature: DeleteAcceptance
       """
       MATCH (:User)-[:FRIEND]->(n)
       WITH collect(n) AS friends
-      DETACH DELETE friends[{friendIndex}]
+      DETACH DELETE friends[$friendIndex]
       """
     Then the result should be empty
     And the side effects should be:
@@ -282,7 +282,7 @@ Feature: DeleteAcceptance
       """
       MATCH (:User)-[r:FRIEND]->()
       WITH collect(r) AS friendships
-      DETACH DELETE friendships[{friendIndex}]
+      DETACH DELETE friendships[$friendIndex]
       """
     Then the result should be empty
     And the side effects should be:

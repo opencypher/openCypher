@@ -145,7 +145,7 @@ Feature: MatchAcceptance
     When executing query:
       """
       MATCH (a)-[r]->(b)
-      WHERE r.foo = {param}
+      WHERE r.foo = $param
       RETURN b
       """
     Then the result should be:

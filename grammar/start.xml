@@ -68,7 +68,7 @@
     ( <non-terminal ref="SymbolicName" rr:title="property key"/> =
     <alt>
       <non-terminal ref="StringLiteral"/>
-      <non-terminal ref="Parameter"/>
+      <non-terminal ref="LegacyParameter"/>
     </alt>)
   </production>
 
@@ -76,14 +76,14 @@
     : <non-terminal ref="SymbolicName" rr:title="index name"/>
     (<alt>
       <non-terminal ref="StringLiteral"/>
-      <non-terminal ref="Parameter"/>
+      <non-terminal ref="LegacyParameter"/>
     </alt>)
   </production>
 
   <production name="IdLookup" oc:legacy="true">
     (<alt>
       <non-terminal ref="LiteralIds"/>
-      <non-terminal ref="Parameter"/>
+      <non-terminal ref="LegacyParameter"/>
       *
     </alt>)
   </production>
