@@ -24,4 +24,13 @@
     <module>tools</module>
   </modules>
 
+  <developers>
+    <developer>
+      <id>openCypher</id>
+      <name>The openCypher team</name>
+      <email>opencypher@googlegroups.com</email>
+      <url>http://opencypher.org/</url>
+    </developer>
+  </developers>
+
 </project>
