@@ -1,14 +1,14 @@
 = Standardisation scope of Cypher
 
-One of the challenges faced by this effort to standardise Cypher has been to choose the set of language features to standardise.
-Cypher is not a new language, but has several years of history, which includes some historical artifacts left in the feature set.
-This is generally not because there hasn't been good replacements, but because Cypher's role has been to support a specific product (Neo4j).
-The lifecycle of a standardised language is different, however, and removal of standardised features is generally hard.
+One of the challenges faced by the standardisation of Cypher has been to choose which language features to include.
+As Cypher has several years of history, some historical artifacts are present in the feature set.
+This is in general not because there haven't been good replacements, but because Cypher's role to date has been to support a specific product (Neo4j).
+However, the life cycle of a standardised language is different, and the removal of standardised features is generally difficult.
 
-With that in mind, the openCypher project is trying to not include language features that are not visioned to be the future of the language.
-This document aims to provide a description of the language features elected to become part of the standardised set of features, as well as the features that have been left behind.
+With that in mind, the openCypher project is endeavouring not to include language features that are not envisioned to be the future of the language.
+This document aims to provide a description of the language features selected to become part of the standardised set of features, as well as the features that have been excluded.
 
-It should be noted that openCypher is still a young project, and this division between standardised and non-standardised features will likely be subject to change.
+It should be noted that it is still early days for the openCypher project, and this division between standardised and non-standardised features will likely be subject to change.
 It should also be observed that _additive change_, that is, moving a feature _into_ the standardised set, is generally easier than doing the reverse.
 
 == Language features included in openCypher
