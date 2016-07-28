@@ -13,6 +13,10 @@
   <version>1.0-SNAPSHOT</version>
   <name>tools</name>
   <url>http://opencypher.org</url>
+  <description>openCypher Developer Tools</description>
+  <scm>
+    <url>https://github.com/opencypher/opencypher</url>
+  </scm>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

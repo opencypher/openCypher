@@ -13,6 +13,10 @@
   <version>1.0-SNAPSHOT</version>
   <name>openCypher TCK Developer Tools</name>
   <url>http://opencypher.org</url>
+  <description>openCypher Technology Compliance Kit</description>
+  <scm>
+    <url>https://github.com/opencypher/opencypher</url>
+  </scm>
 
   <properties>
     <scala.version>2.11.7</scala.version>

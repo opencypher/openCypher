@@ -8,6 +8,10 @@
   <version>1.0-SNAPSHOT</version>
   <name>openCypher</name>
   <url>http://openCypher.org</url>
+  <description>openCypher -- The graph query language standard based on Cypher</description>
+  <scm>
+    <url>https://github.com/opencypher/opencypher</url>
+  </scm>
 
   <licenses>
     <license>

@@ -13,6 +13,10 @@
   <version>1.0-SNAPSHOT</version>
   <name>openCypher Grammar Developer Tools</name>
   <url>http://opencypher.org</url>
+  <description>openCypher Grammar</description>
+  <scm>
+    <url>https://github.com/opencypher/opencypher</url>
+  </scm>
 
   <properties>
     <license.header>${project.baseUri}../../ASL-2-header.txt</license.header>
