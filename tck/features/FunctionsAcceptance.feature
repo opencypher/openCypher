@@ -309,7 +309,7 @@ Feature: FunctionsAcceptance
     When executing query:
       """
       MATCH (n:S)
-      WITH n, size((n)-->()) AS deg
+      WITH n, size([(n)-->() | 1]) AS deg
       WHERE deg > 2
       WITH deg
       LIMIT 100
@@ -466,3 +466,20 @@ Feature: FunctionsAcceptance
       RETURN labels(list[1]) AS l
       """
     Then a TypeError should be raised at runtime: InvalidArgumentValue
+
+  Scenario: `exists()` is case insensitive
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:X {prop: 42}), (:X)
+      """
+    When executing query:
+      """
+      MATCH (n:X)
+      RETURN n, EXIsTS(n.prop) AS b
+      """
+    Then the result should be:
+      | n               | b     |
+      | (:X {prop: 42}) | true  |
+      | (:X)            | false |
+    And no side effects
