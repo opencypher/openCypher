@@ -10,6 +10,7 @@ This document aims to provide a description of the language features selected to
 
 It should be noted that it is still early days for the openCypher project, and this division between standardised and non-standardised features will likely be subject to change.
 It should also be observed that _additive change_, that is, moving a feature _into_ the standardised set, is generally easier than doing the reverse.
+It is the goal of this project to create a good and feature-rich standard language for graph querying, and as such any valuable functionality listed as excluded here is going to receive a replacement feature at some point.
 
 == Language features included in openCypher
 
@@ -126,8 +127,9 @@ It should also be observed that _additive change_, that is, moving a feature _in
 * `tail()`
 * `tan()`
 * `toFloat()`
-* `toInt()`
+* `toInteger()`
 * `toString()`
+* `toBoolean()`
 * `properties()`
 * `trim()`
 * `type()`
