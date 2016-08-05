@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-Feature: TriadicSelectionAcceptance
+Feature: TriadicSelection
 
   Scenario: Handling triadic friend of a friend
     Given the binary-tree-1 graph
