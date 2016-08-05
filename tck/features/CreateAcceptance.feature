@@ -513,7 +513,6 @@ Feature: CreateAcceptance
       | +nodes         | 2 |
       | +relationships | 2 |
 
-
   Scenario: Fail when trying to create using an undirected relationship pattern
     Given any graph
     When executing query:
@@ -522,3 +521,22 @@ Feature: CreateAcceptance
       RETURN r
       """
     Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
+
+  Scenario: Creating a pattern with multiple hops and changing directions
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (:A)<-[:R1]-(:B)-[:R2]->(:C)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes         | 3 |
+      | +relationships | 2 |
+      | +labels        | 3 |
+    When executing control query:
+      """
+      MATCH (a:A)<-[r1:R1]-(b:B)-[r2:R2]->(c:C) RETURN *
+      """
+    Then the result should be:
+      | a    | r1    | b    | r2    | c    |
+      | (:A) | [:R1] | (:B) | [:R2] | (:C) |
