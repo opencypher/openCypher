@@ -54,7 +54,6 @@ object TCKErrorDetails {
   val INCOMPARABLE_VALUES = "IncomparableValues"
   val INVALID_RELATIONSHIP_PATTERN = "InvalidRelationshipPattern"
   val VARIABLE_ALREADY_BOUND = "VariableAlreadyBound"
-  val VARIABLE_USE_NOT_ALLOWED = "VariableUseNotAllowed"
   val INVALID_ARGUMENT_TYPE = "InvalidArgumentType"
   val INVALID_ARGUMENT_VALUE = "InvalidArgumentValue"
   val NUMBER_OUT_OF_RANGE = "NumberOutOfRange"
@@ -120,6 +119,5 @@ object TCKErrorDetails {
                 INVALID_PROPERTY_TYPE,
                 COLUMN_NAME_CONFLICT,
                 NO_VARIABLES_IN_SCOPE,
-                DELETED_ENTITY_ACCESS,
-                VARIABLE_USE_NOT_ALLOWED)
+                DELETED_ENTITY_ACCESS)
 }

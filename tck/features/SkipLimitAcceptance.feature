@@ -25,14 +25,14 @@ Feature: SkipLimitAcceptanceTest
       """
       MATCH (n) RETURN n SKIP n.count
       """
-    Then a SyntaxError should be raised at runtime: VariableUseNotAllowed
+    Then a SyntaxError should be raised at compile time: NonConstantExpression
 
   Scenario: LIMIT with an expression that depends on variables should fail
     When executing query:
       """
       MATCH (n) RETURN n LIMIT n.count
       """
-    Then a SyntaxError should be raised at runtime: VariableUseNotAllowed
+    Then a SyntaxError should be raised at compile time: NonConstantExpression
 
   Scenario: SKIP with an expression that does not depend on variables
     And having executed:
