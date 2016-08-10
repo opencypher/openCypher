@@ -445,3 +445,27 @@ Feature: AggregationAcceptance
       | count(r) |
       | 1        |
     And no side effects
+
+  Scenario: `max()` should aggregate strings
+    Given any graph
+    When executing query:
+      """
+      UNWIND ['a', 'b', 'B', null, 'abc', 'abc1'] AS i
+      RETURN max(i)
+      """
+    Then the result should be:
+      | max(i) |
+      | 'b'    |
+    And no side effects
+
+  Scenario: `min()` should aggregate strings
+    Given any graph
+    When executing query:
+      """
+      UNWIND ['a', 'b', 'B', null, 'abc', 'abc1'] AS i
+      RETURN min(i)
+      """
+    Then the result should be:
+      | min(i) |
+      | 'B'    |
+    And no side effects
