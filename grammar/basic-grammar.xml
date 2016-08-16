@@ -268,7 +268,7 @@
       <seq>SINGLE  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
       <non-terminal ref="ShortestPathPattern"/>
       <non-terminal ref="RelationshipsPattern"/>
-      <non-terminal ref="parenthesizedExpression"/>
+      <non-terminal ref="ParenthesizedExpression"/>
       <non-terminal ref="FunctionInvocation"/>
       &var;
     </alt>
@@ -290,7 +290,7 @@
     </alt>
   </production>
 
-  <production name="parenthesizedExpression" rr:inline="true">
+  <production name="ParenthesizedExpression" rr:inline="true">
     ( &WS; &expr; &WS; )
   </production>
 
