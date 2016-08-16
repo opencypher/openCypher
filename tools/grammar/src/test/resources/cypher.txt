@@ -47,3 +47,9 @@ RETURN .5§
 RETURN .0§
 CREATE (a)§
 CREATE (a1)§
+MATCH (n1),(n2) RETURN n1, n2§
+MATCH (n1), (n2) RETURN n1, n2§
+MATCH (n1),   (n2) RETURN n1, n2§
+MATCH (n1) , (n2) RETURN n1, n2§
+MATCH (n1) ,   (n2) RETURN n1, n2§
+MATCH (n1)   ,   (n2) RETURN n1, n2§
