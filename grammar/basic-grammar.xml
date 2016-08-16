@@ -39,7 +39,7 @@
 
   <production name="Pattern">
     <non-terminal ref="PatternPart"/>
-    <repeat> , <non-terminal ref="PatternPart"/></repeat>
+    <repeat> &WS; , &WS; <non-terminal ref="PatternPart"/></repeat>
   </production>
 
   <production name="PatternPart" rr:inline="true">
