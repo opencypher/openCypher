@@ -7,3 +7,5 @@
 target
 out
 .DS_Store
+# Generated grammar artifacts go here locally, but not to git.
+/grammar/generated
