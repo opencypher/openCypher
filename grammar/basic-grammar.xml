@@ -311,9 +311,9 @@
   <production name="FunctionInvocation">
     <non-terminal ref="FunctionName"/>
     &WS; ( &WS;
-      <opt>DISTINCT</opt>
-      <opt>&expr;<repeat>, &WS; &expr;</repeat></opt>
-    &WS; )
+      <opt>DISTINCT &WS;</opt>
+      <opt>&expr;<repeat>, &WS; &expr;</repeat> &WS;</opt>
+    )
   </production>
 
   <production name="FunctionName" rr:inline="true">
@@ -338,7 +338,7 @@
   <production name="CaseExpression" oc:legacy="true">
     <alt>
       <seq>CASE <repeat min="1">&WS; <non-terminal ref="CaseAlternatives"/></repeat></seq>
-      <seq>CASE &expr; <repeat min="1">&WS; <non-terminal ref="CaseAlternatives"/></repeat></seq>
+      <seq>CASE &WS; &expr; <repeat min="1">&WS; <non-terminal ref="CaseAlternatives"/></repeat></seq>
     </alt>
     <opt>&WS; ELSE &WS; &expr;</opt>
     &WS; END

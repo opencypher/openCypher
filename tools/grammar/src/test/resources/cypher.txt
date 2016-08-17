@@ -53,3 +53,14 @@ MATCH (n1),   (n2) RETURN n1, n2§
 MATCH (n1) , (n2) RETURN n1, n2§
 MATCH (n1) ,   (n2) RETURN n1, n2§
 MATCH (n1)   ,   (n2) RETURN n1, n2§
+MATCH (n) WITH n.prop AS p RETURN toInteger(DISTINCT p)§
+MATCH (n) WITH n.prop AS p RETURN toInteger(DISTINCT  p)§
+MATCH (n) WITH n.prop AS p RETURN toInteger( DISTINCT  p)§
+MATCH (n) WITH n.prop AS p RETURN toInteger(   DISTINCT   p  )§
+RETURN toInteger()§
+RETURN toInteger( )§
+RETURN toInteger(   )§
+RETURN toInteger ()§
+RETURN toInteger ( )§
+RETURN toInteger   ()§
+RETURN toInteger   (  )§

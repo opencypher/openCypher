@@ -49,3 +49,27 @@ CREATE CONSTRAINT ON ()-[l:LIKED]-() ASSERT EXISTS(l.when)§
 CREATE CONSTRAINT ON ()-[l:LIKED]-() ASSERT EXISTS (l.when)§
 CREATE CONSTRAINT ON()-[l:LIKED]-() ASSERT EXISTS (l.when)§
 CREATE CONSTRAINT ON()-[l:LIKED]-()ASSERT EXISTS (l.when)§
+WITH {eyes: 'blue'} AS n
+RETURN CASE n.eyes
+ WHEN 'blue' THEN 1
+ WHEN 'brown' THEN 2
+ ELSE 3
+END§
+WITH {eyes: 'blue'} AS n
+RETURN CASE (n.eyes)
+ WHEN 'blue' THEN 1
+ WHEN 'brown' THEN 2
+ ELSE 3
+END§
+WITH {eyes: 'blue'} AS n
+RETURN CASE(n.eyes)
+ WHEN 'blue' THEN 1
+ WHEN 'brown' THEN 2
+ ELSE 3
+END§
+WITH {eyes: 'blue'} AS n
+RETURN CASE n.eyes
+ WHEN   'blue'   THEN   1
+ WHEN   'brown'   THEN   2
+ ELSE 3
+END§
