@@ -1,21 +1,21 @@
-= Cypher Design Guiding Philosophy
+= Cypher Design Philosophy Guidelines
 
-To guarantee the consistent development of Cypher as a language, with many actors and designers involved, a informal manifesto for Cypher was developed.
-The aim was to incorporate as many underlying principles as was deemed useful and relevant, and to distill these to no more than 15 or so rules to render the philosophy more useful and digestible.
-The list below shows these guiding rules, to which language change suggestions can refer for motivational purposes.
+An informal manifesto was defined to ensure the consistent ongoing development of the Cypher language.
+The aim was to incorporate as many underlying principles as were deemed useful and relevant, and to distill these to no more than 15 or so rules to render the philosophy more useful and digestible.
+Suggestions for changing the language ought to be guided by the following rules:
 
-. Follow these rules unless there’s a better way
-. Cypher is a high-level Graph Query Language
-. Design should be validated by user needs
-. Readable is better than terse
-. Declarative is better than imperative
-. Composable is better than complex
-. Explicit is better than implicit
-. Visual is better than textual
-. Familiar to users of SQL and inspired by Python
-. Prefer one way to do things
-. Consistency is important. Learning one part of the language should help understanding other parts
-. Errors should never pass silently, unless explicitly silenced
-. Progress is more important than perfection, but consideration beats a rush
-. Don’t leave holes in the specification that allow the implementation to leak through
-. Never be too proud to throw something away
+. Follow these rules unless there’s a better way.
+. Cypher is a high-level Graph Query Language.
+. Design should be validated by user needs.
+. Readability is better than terseness.
+. Declarative is better than imperative.
+. Composability is better than complexity.
+. Explicit is better than implicit.
+. Visual is better than textual.
+. Familiar to users of SQL and inspired by Python.
+. Prefer a single way to do things.
+. Consistency is important. Learning one part of the language should help understanding other parts.
+. Errors should never pass silently, unless explicitly silenced.
+. Progress is more important than perfection, but consideration beats hastiness.
+. Don’t leave holes in the specification that allow the implementation to leak through.
+. Never be too proud to throw something away.
