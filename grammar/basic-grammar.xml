@@ -121,7 +121,7 @@
     <opt>&var;</opt>
     <opt>?</opt>
     <opt><non-terminal ref="RelationshipTypes"/></opt>
-    <opt>*<non-terminal ref="RangeLiteral"/></opt>
+    <opt><non-terminal ref="RangeLiteral"/></opt>
     <opt><non-terminal ref="Properties"/></opt>
     ]
   </production>
@@ -153,7 +153,7 @@
   </production>
 
   <production name="RangeLiteral" rr:inline="true">
-    &WS;
+    * &WS;
     <opt><non-terminal ref="IntegerLiteral"/> &WS;</opt>
     <opt>.. &WS; <opt><non-terminal ref="IntegerLiteral"/> &WS;</opt></opt>
   </production>
