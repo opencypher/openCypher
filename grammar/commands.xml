@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 <!DOCTYPE grammar [
-  <!ENTITY WS "<non-terminal ref='WS'/>">
+  <!ENTITY WS "<opt><non-terminal ref='WS'/></opt>">
   <!ENTITY SP "<non-terminal ref='SP'/>">
   <!ENTITY var "<non-terminal ref='Variable'/>">
   <!ENTITY node "(&WS;)">
