@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 <!DOCTYPE grammar [
-  <!ENTITY WS "<opt><non-terminal ref='WS'/></opt>">
+  <!ENTITY WS "<opt><non-terminal ref='SP'/></opt>">
   <!ENTITY SP "<non-terminal ref='SP'/>">
 ]>
 <grammar language="Cypher Pre-Parser"
