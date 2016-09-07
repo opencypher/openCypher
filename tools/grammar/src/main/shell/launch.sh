@@ -15,12 +15,12 @@ case "$(basename $0)" in
         fi
         JARFILE="$(cd $(dirname $0)/../../..; pwd)/target/grammar-${VERSION}.jar"
         if ! [[ -f "$JARFILE" ]]; then
-            pushd "$(dirname $0)/../../.."
+            pushd "$(dirname $0)/../../.." > /dev/null
             if ! mvn clean package > /dev/null; then
                 >&2 echo Build failed
                 exit 1
             fi
-            popd
+            popd > /dev/null
             if ! [[ -f "$JARFILE" ]]; then
                 >&2 echo Cannot find jarfile in expected location, configuration error.
                 >&2 echo JARFILE=$JARFILE
