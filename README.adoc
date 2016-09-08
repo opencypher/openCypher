@@ -22,7 +22,6 @@ The Cypher Language Group consists of:
 * https://github.com/thobe[Tobias Lindaaker]
 * https://github.com/boggle[Stefan Plantikow]
 * https://github.com/petraselmer[Petra Selmer]
-* https://github.com/nigelsmall[Nigel Small]
 * https://github.com/systay[Andrés Taylor]
 
 Andrés, in capacity of being the "father of Cypher", has ultimate say, should that ever be necessary.
