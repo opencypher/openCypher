@@ -255,7 +255,7 @@
       FALSE
       NULL
       <non-terminal ref="CaseExpression"/>
-      <seq>COUNT ( * )</seq>
+      <seq>COUNT &WS; ( &WS; * &WS; )</seq>
       <non-terminal ref="MapLiteral"/>
       <non-terminal ref="ListComprehension"/>
       <seq> [ &WS; &expr; &WS; <repeat> , &WS; &expr; &WS; </repeat> ] </seq>
