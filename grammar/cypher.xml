@@ -83,8 +83,8 @@
 
   <production name="Union" rr:inline="true">
     <alt>
-      <seq>UNION &SP; ALL <non-terminal ref="SingleQuery"/></seq>
-      <seq>UNION <non-terminal ref="SingleQuery"/></seq>
+      <seq>UNION &SP; ALL &WS;<non-terminal ref="SingleQuery"/></seq>
+      <seq>UNION &WS;<non-terminal ref="SingleQuery"/></seq>
     </alt>
   </production>
 
