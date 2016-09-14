@@ -73,3 +73,8 @@ MATCH (n) RETURN cOuNt ( * )§
 MATCH (n) RETURN cOuNt ( *)§
 MATCH (n) RETURN cOuNt (* )§
 MATCH (n) RETURN cOuNt  (*)§
+MATCH (a:A)
+RETURN a AS a
+UNION
+MATCH (b:B)
+RETURN b AS a§
