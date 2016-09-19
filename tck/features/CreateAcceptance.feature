@@ -17,27 +17,6 @@
 
 Feature: CreateAcceptance
 
-  Scenario: Create a single node
-    Given any graph
-    When executing query:
-      """
-      CREATE ()
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes  | 1 |
-
-  Scenario: Create a single node with a single label
-    Given any graph
-    When executing query:
-      """
-      CREATE (:A)
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes  | 1 |
-      | +labels | 1 |
-
   Scenario: Create a single node with multiple labels
     Given any graph
     When executing query:
