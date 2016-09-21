@@ -373,3 +373,31 @@ Feature: TypeConversionFunctions
       | n       |
       | r       |
       | p       |
+
+  Scenario: `toString()` should accept potentially correct types 1
+    Given any graph
+    When executing query:
+      """
+      UNWIND ['male', 'female', null] AS gen
+      RETURN coalesce(toString(gen), 'x') AS result
+      """
+    Then the result should be:
+      | result   |
+      | 'male'   |
+      | 'female' |
+      | 'x'      |
+    And no side effects
+
+  Scenario: `toString()` should accept potentially correct types 2
+    Given any graph
+    When executing query:
+      """
+      UNWIND ['male', 'female', null] AS gen
+      RETURN toString(coalesce(gen, 'x')) AS result
+      """
+    Then the result should be:
+      | result   |
+      | 'male'   |
+      | 'female' |
+      | 'x'      |
+    And no side effects
