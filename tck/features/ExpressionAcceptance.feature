@@ -20,6 +20,48 @@ Feature: ExpressionAcceptance
   Background:
     Given any graph
 
+  Scenario: IN should work with nested list subscripting
+    When executing query:
+      """
+      WITH [[1, 2, 3]] AS list
+      RETURN 3 IN list[0] AS r
+      """
+    Then the result should be:
+      | r    |
+      | true |
+    And no side effects
+
+  Scenario: IN should work with nested literal list subscripting
+    When executing query:
+      """
+      RETURN 3 IN [[1, 2, 3]][0] AS r
+      """
+    Then the result should be:
+      | r    |
+      | true |
+    And no side effects
+
+  Scenario: IN should work with list slices
+    When executing query:
+      """
+      WITH [1, 2, 3] AS list
+      RETURN 3 IN list[0..1] AS r
+      """
+    Then the result should be:
+      | r     |
+      | false |
+    And no side effects
+
+  Scenario: IN should work with literal list slices
+    When executing query:
+      """
+      RETURN 3 IN [1, 2, 3][0..1] AS r
+      """
+    Then the result should be:
+      | r     |
+      | false |
+    And no side effects
+
   Scenario: Execute n[0]
     When executing query:
       """
