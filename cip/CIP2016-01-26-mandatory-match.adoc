@@ -1,4 +1,3 @@
-MANDATORY MATCH (u:User {id: {userId}})
 = CIP2016-01-26 - Mandatory Match
 :numbered:
 :toc:
@@ -27,8 +26,7 @@ The idea for this CIP grew out of a (now abandoned) dog fooding project for stor
 
 This CIP suggests the introduction of a new clause called `MANDATORY MATCH` that has the same basic form as the existing `MATCH` clause (i.e. `MANDATORY MATCH <pattern> [WHERE <predicate>]`).
 
-If matching the graph pattern described by `MANDATORY MATCH` fails to match at least a single row, the execution of the while Cypher query fails with a descriptive error message that points to which `MANDATORY MATCH` clause failed and
-includes all bound identifiers and parameters used in trying to match the described graph pattern.
+If matching the graph pattern described by `MANDATORY MATCH` fails to match at least a single row, the execution of the whole Cypher query fails with a descriptive error message that points to which `MANDATORY MATCH` clause failed and includes all bound identifiers and parameters used in trying to match the described graph pattern.
 
 === Example
 
@@ -56,7 +54,11 @@ It is an error to try to combine `MANDATORY` and `OPTIONAL` in the same `MATCH` 
 
 === Alternatives
 
-If Cypher would provide a means for a user to raise errors that may be a more heavyweight mechanism to achieve the same goal.
+Care should be taken to not confuse usecases: This CIP allows applications to propagate some of their argument verification to Cypher by providing a fail-early mechanism for non-matching patterns.
+
+Alternatively, Cypher could provide a more general, heavyweight mechanism for raising errors.
+Such a facility might also achieve the goals of this CIP while additionally supporting other usecases.
+However in the interest of keeping this proposal small and specific, this is not considered here.
 
 == What others do
 
@@ -69,4 +71,4 @@ also failing early in the case of an error (thus avoiding unnecessary work).
 
 == Caveats to this proposal
 
-It increases the size of the language, if only slightly, and adds another key word.
+It increases the size of the language, if only slightly, and adds another keyword.
