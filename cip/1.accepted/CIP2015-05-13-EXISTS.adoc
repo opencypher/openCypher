@@ -79,6 +79,7 @@ The subquery used in `EXISTS {}` has to follow the following rules:
  * It cannot end in a `RETURN` clause, nor may it contain `UNION`.
  * If `WITH` ends the subquery, it should be able to change the cardinality of the subquery.
  In other words, the `WITH` clause may include `WHERE` or `SKIP`, since these sub-clauses can turn a query that returns rows into one that does not.
+ * It may use nested `EXISTS {}` predicates.
 
 ==== Simple subquery exists
 
