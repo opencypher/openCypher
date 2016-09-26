@@ -27,7 +27,7 @@ Subqueries - i.e. queries within queries - are a powerful and expressive feature
 
 == Background
 
-This CIP may be viewed in conjunction with the EXISTS CIP and the Pattern Comprehension CIP, both of which propose variants of subqueries.
+This CIP may be viewed in the light of the EXISTS CIP and forthcoming the Pattern Comprehension CIP, both of which propose variants of subqueries.
 
 
 == Proposal
@@ -86,7 +86,7 @@ Conceptually, a nested subquery is evaluated for each incoming record and may pr
 
 All incoming variables remain in scope.
 
-Any new variable bindings introduced by the final `RETURN` clause when evaluating the subquery will augment the variable bindings of the initial record. Therefore, nested subqueries cannot shadow variables present in the outer scope, and thus behave in the same way as `UNWIND` and `CALL` with regard to the introduction of new variable bindings.
+Any new variable bindings introduced by the final `RETURN` clause when evaluating the subquery will augment the variable bindings of the initial record. Therefore, nested subqueries cannot shadow variables present in the outer scope, and thus behave in the same way as `UNWIND` and `CALL` with regard to the introduction of new variable bindings. Any other variable bindings introduced in the subquery will not be visible to the outer scope.
 
 Subqueries interact with write clauses in the same way as `MATCH` does.
 
@@ -94,7 +94,7 @@ It is an error for a nested subquery to try to rebind (shadow) a pre-existing ou
 
 **2. Write-only/read-write subqueries**
 
-Execution of a `DO` subquery does not change the cardinality; i.e. the full subquery is run for each incoming record and then the record is being passed on to the remainder of the outer query. This is identical to way in which void procedures are executed.
+Execution of a `DO` subquery does not change the cardinality; i.e. the full subquery is run for each incoming record and then the record is being passed on to the remainder of the outer query.
 
 === Examples
 
@@ -314,7 +314,7 @@ Both scalar and table expression subqueries are out of scope for the purposes of
 
 === SPARQL
 
-https://www.w3.org/TR/2013/REC-sparql11-query-20130321/#subqueries[SPARQL] only supports uncorrelated subqueries, exemplified by:
+https://www.w3.org/TR/2013/REC-sparql11-query-20130321/#subqueries[SPARQL] only supports uncorrelated subqueries in the standard, exemplified by:
 
 [source, cypher]
 ----
