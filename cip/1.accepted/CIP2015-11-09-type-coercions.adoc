@@ -4,7 +4,7 @@
 :toc-placement: macro
 :source-highlighter: codemirror
 
-*Author:* Henrik Nyman henrik.nyman@neotechnology.com, Mats Rydberg mats@neotechnology.com
+*Authors:* Henrik Nyman henrik.nyman@neotechnology.com, Mats Rydberg mats@neotechnology.com
 
 
 [abstract]
@@ -22,39 +22,50 @@ Due to recent issues with (the lack of) type coercions, the need for a requireme
 
 == Background
 
-In the case of a collection with both integer and floating-point numbers, it's type will be a collection of numbers.
-Functions that work on both integers and floats would then accept all elements of this collection one-by-one, but if they do not also accept type number they will not be able to act on the collection itself when used in a comprehension.
+In the case of a list with both integral and floating-point numbers, its type will be a `LIST OF NUMBER`.
+Functions and expressions that work on both integers and floats would then accept all elements of this list one-by-one, but if they do not also accept the type `NUMBER` they will not be able to act on the list itself when used in a comprehension.
 In this type of situation, it is very valuable for a user to know what kinds of coercions that Cypher will perform, and what explicit casting that they will have to do themselves.
 
 == Proposal
 
-The current Cypher behavior is proposed, which consists of two type coercions: `CTCollection` to `CTBoolean`, and `CTInteger` to `CTFloat`.
+The current Cypher behavior is detailed, which consists of three type coercions:
+
+* `LIST OF T` to `BOOLEAN`
+* `LIST OF NUMBER` to `LIST OF FLOAT`
+* `INTEGER` to `FLOAT`
 
 === Examples
 
 Here follows a few queries in which types are coerced.
 
-Check if a collection is empty, and if it is not, return the first element:
+Check if a list is empty, and if it is not, return the first element:
 [source, cypher]
 ----
-WITH [] as coll
-WHERE coll
+WITH [] AS coll
+WHERE coll // coerced to a boolean
 RETURN coll[0]
 ----
 
-Return the size of a non-empty collection:
+Return the size of a non-empty list:
 [source, cypher]
 ----
-WITH [1,2,3.5] as coll
-WHERE coll
+WITH [1, 2, 3.5] AS coll
+WHERE coll // coerced to a boolean
 RETURN size(coll)
 ----
 
 Calculate the cosine of a value:
 [source, cypher]
 ----
-WITH 1 as int
-RETURN cos(int)
+WITH 1 AS int
+RETURN cos(int) // coerced to a float
+----
+
+Store a list of numbers as a node property:
+[source, cypher]
+----
+WITH [1, 1.0] AS list
+CREATE ({l: list})) // coerced to a list of floats
 ----
 
 === Syntax
@@ -68,11 +79,12 @@ There are no new semantics to consider.
 === Alternatives
 
 There are plenty of additional coercions to consider.
-Coercion from `CTNumber` to `CTFloat` would, under the current type system, function exactly the same as the exisiting `CTInteger` to `CTFloat` coercion, and it would solve the issue discussed in the Background section.
+Coercion from `NUMBER` to `FLOAT` would, under the current type system, function exactly the same as the existing `INTEGER` to `FLOAT` coercion, and it would solve the issue discussed in <<Background>>.
 
 [source, cypher]
 ----
-WITH [1, 1.01] as numbers RETURN [ x in numbers | cos(x) ]
+WITH [1, 1.01] AS numbers
+RETURN [ x IN numbers | cos(x) ]
 ----
 
 Pros:
