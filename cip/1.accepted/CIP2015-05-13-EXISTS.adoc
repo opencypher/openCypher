@@ -77,8 +77,8 @@ The subquery used in `EXISTS {}` has to follow the following rules:
 
  * It has to be a read-only query. Updating the graph as part of a predicate is not allowed.
  * It cannot end in a `RETURN` clause, nor may it contain `UNION`.
- * If `WITH` ends the subquery, it should be able to change the cardinality of the subquery.
- In other words, the `WITH` clause may include `WHERE` or `SKIP`, since these sub-clauses can turn a query that returns rows into one that does not.
+ * When `WITH` ends the subquery, it is able to change the cardinality of the subquery.
+ In other words, since the `WITH` clause may include `WHERE`, `SKIP`, and/or `LIMIT`, the clause can with these sub-clauses turn a query that produces rows into one that does not.
  * It may use nested `EXISTS {}` predicates.
 
 ==== Simple subquery exists
