@@ -1,0 +1,23 @@
+= Cypher Improvement Proposals
+
+This is the home for all Cypher Improvement Proposal (CIP) documents.
+CIPs are documents that outline the syntax and semantics of Cypher.
+
+== The CIP Lifecycle
+
+CIPs normally pass through a number of phases before and after ending up in this repository.
+
+=== Accepted
+
+It is open to anyone to author and submit a CIP as a pull request to this repository.
+The CIP should then be suggested for addition into the `accepted` directory.
+It is then the task of the CLG to discuss, give feedback, and eventually (potentially) accept the CIP, at which point the pull request will be merged.
+
+=== Testable
+
+A CIP enters this phase when it has received a sufficient set of TCK scenarios that outline the use of its suggested features.
+
+=== Implemented
+
+A CIP enters this phase when the reference implementation supports its suggested features.
+This is verified by passing all the TCK scenarios that had been outlined for the CIP.
