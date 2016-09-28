@@ -355,8 +355,8 @@
   <production name="ExplicitProcedureInvocation">
     <non-terminal ref="ProcedureName"/>
     &WS; ( &WS;
-    <opt>&expr;<repeat>, &WS; &expr;</repeat></opt>
-    &WS; )
+    <opt>&expr; &WS;<repeat>, &WS; &expr; &WS;</repeat></opt>
+    )
   </production>
 
   <production name="ImplicitProcedureInvocation">
