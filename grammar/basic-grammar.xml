@@ -312,7 +312,7 @@
     <non-terminal ref="FunctionName"/>
     &WS; ( &WS;
       <opt>DISTINCT &WS;</opt>
-      <opt>&expr;<repeat>, &WS; &expr;</repeat> &WS;</opt>
+    <opt>&expr; &WS; <repeat>, &WS; &expr; &WS;</repeat></opt>
     )
   </production>
 

@@ -101,3 +101,4 @@ MATCH (c:C)
 RETURN c AS a§
 MATCH (a:A) RETURN a AS a UnIoN     MATCH (b:B) RETURN b AS a§
 MATCH (a:A) RETURN a AS a uNiOn   AlL   MATCH (b:B) RETURN b AS a§
+RETURN toInteger(  a  ,  b  ,  c  )§
