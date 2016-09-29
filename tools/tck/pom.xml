@@ -123,6 +123,19 @@
       <version>1.13.0</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.opencypher</groupId>
+      <artifactId>grammar</artifactId>
+      <version>${version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opencypher</groupId>
+      <artifactId>grammar</artifactId>
+      <version>${version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
 
   </dependencies>
 </project>
