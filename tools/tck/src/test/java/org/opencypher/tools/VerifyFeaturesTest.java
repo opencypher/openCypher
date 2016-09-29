@@ -17,10 +17,9 @@
 package org.opencypher.tools;
 
 import cucumber.api.CucumberOptions;
-import cucumber.api.junit.Cucumber;
 import org.junit.runner.RunWith;
 
-@RunWith( Cucumber.class )
+@RunWith( InitFunction.class )
 @CucumberOptions(
         strict = true,
         glue = { "classpath:org/opencypher/tools/tck" },

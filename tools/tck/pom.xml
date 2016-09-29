@@ -54,6 +54,12 @@
     </plugins>
     <resources>
       <resource>
+        <directory>../../grammar</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>../../tck/features</directory>
         <includes>
           <include>**/*.feature</include>
