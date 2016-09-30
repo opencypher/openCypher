@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 <!DOCTYPE grammar [
-  <!ENTITY WS "<non-terminal ref='WS'/>">
+  <!ENTITY WS "<opt><non-terminal ref='SP'/></opt>">
   <!ENTITY SP "<non-terminal ref='SP'/>">
   <!ENTITY expr "<non-terminal ref='Expression'/>">
   <!ENTITY var "<non-terminal ref='Variable'/>">
@@ -566,10 +566,6 @@
     <repeat min="1">
       ` <repeat><character><except literal="`"/></character></repeat> `
     </repeat>
-  </production>
-
-  <production name="WS" rr:skip="true">
-    <repeat><non-terminal ref='whitespace'/></repeat>
   </production>
 
   <production name="SP" rr:skip="true">
