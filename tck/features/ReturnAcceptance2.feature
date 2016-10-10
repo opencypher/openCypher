@@ -49,7 +49,7 @@ Feature: ReturnAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[:T]->()
+      CREATE ()-[:T {p: 0}]->()
       """
     When executing query:
       """
