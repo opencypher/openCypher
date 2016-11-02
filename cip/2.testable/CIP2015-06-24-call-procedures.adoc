@@ -69,21 +69,23 @@ The details of this are outside the scope of this proposal.
 
 === Procedure calls
 
-Procedures are called for each incoming record produced by preceding clauses and each time produce arbitrarily many result records. If a statement starts with a procedure call, this call is executed once, i.e. procedure calls behave similiarly to `UNWIND` regarding how they change the result cardinality.
+Procedures are called for each incoming record produced by preceding clauses and each time produce arbitrarily many result records.
+If a statement starts with a procedure call, this call is executed once, i.e. procedure calls behave similarly to `UNWIND` regarding how they change the result cardinality.
 
 We propose new syntax that introduces a new clause for calling procedures.
 This clause for calling procedures starts with the `CALL` keyword.
 Next follows the actual call (i.e. procedure name and arguments in signature order).
 Finally (and optionally) the clause may end with the `YIELD` keyword followed by any chosen result field projections.
 
-A procedure call constitutes either an entire Cypher statement (i.e. is a "standalone call"), or is called as part of a larger query (i.e. is an "in-query call"). In standalone calls, arguments may be either passed implicitly or explicitly. These different calling modes are detailed in the following subsections.
+A procedure call constitutes either an entire Cypher statement (i.e. a "standalone call"), or is called as part of a larger query (i.e. an "in-query call").
+These different calling modes are detailed in the following subsections.
 
 ==== In-query calls
 
 Calling a procedure as part of a larger query follows three basic rules:
 
 - All arguments are always passed explicitly in the order given by the signature.
-- Result fields are projected and appended as new variable bindings explicitly in the order given by the procedure call.
+- Result fields are projected and appended as new variable bindings explicitly through the use of the `YIELD` keyword.
 - New variable bindings projected from result fields are not allowed to shadow existing variable bindings that are already in scope.
 
 These rules ensure that looking at a procedure call provides enough information to ascertain its impact on the variable scope in its part of the query without having to be aware of any other previously bound variables.
@@ -102,65 +104,41 @@ This calls `myProc` for each record produced by the preceding `MATCH` clause wit
 Each call may yield multiple procedure result records with a single result field `last`.
 For each of them, a new statement result record is created that contains the original variables already in scope (i.e. `n`, `r`, `g`) as well as the projected result field `last` renamed as `lastLogin`.
 
+Omitting the `YIELD` subclause means that no new variables are introduced into the scope.
+The procedure call will still affect the cardinality.
+This means that if the procedure returns 5 rows, the incoming row will be repeated 5 times.
+
 The `YIELD` subclause is *always* omitted if the procedure returns only records with no result fields (i.e. is of type `()`).
 
 ==== Standalone calls
 
 Procedures may also be called standalone, i.e. without taking arguments from or combining their results with other parts of a larger query.
-In this case, the trailing `RETURN` clause may be omitted and all variable in scope are returned implicitly by the statement.
-Furthermore, we propose two optional simplifications that are available for standalone calls only.
-These simplifications are outlined in the following:
+In this case, the trailing `RETURN` clause is omitted and all fields projected in the `YIELD` subclause of the `CALL` statement are implicitly returned by the query.
+A further simplification allowed in the standalone form is to use `YIELD *` to denote that all fields returned by the procedure are to be returned by the query.
+The `YIELD *` form is _only_ allowed in the standalone form of `CALL`.
 
-===== Calling with implicitly passed arguments (parameters)
-
-Standalone calls may omit passing arguments explicitly.  In this case, all required procedure arguments are taken implicitly from statement parameters with the same name.
+If the `YIELD` subclause is omitted in the standalone form of `CALL`, the semantics are the same as in the _in-query_ form, i.e. the query will not project any fields into the result, but the query will still return as many (empty) rows as produced by the called procedure.
 
 Again consider a call to the procedure `myProc(name``::``STRING?``,``id``::``INTEGER?)``::`` (last``::``STRING?)`:
 
-.Standalone call to a procedure using implicitly passed arguments
+.Calling procedure as a standalone call statement
 [source, cypher]
 ----
-CALL myProc YIELD last AS lastLogin
+CALL myProc('Donald', $id) YIELD *
 ----
 
-This is the same as executing:
+The above example would call `myProc` with the constant argument `'Donald'` for the `name` parameter, and use the query parameter `id` as the `id` argument of the procedure.
+All the returned fields would then be bound and returned by the query.
 
-.Standalone call to a procedure using explicitly passed arguments
+If we instead consider the procedure `listProcedures()``::`` (name``::``STRING?, arguments``::``STRING?, result``::``STRING?)`:
+
+.Calling procedure as a standalone call statement
 [source, cypher]
 ----
-CALL myProc($name, {id}) YIELD last AS lastLogin
+CALL listProcedures() YIELD name AS procedure
 ----
 
-===== Calling without `YIELD`
-
-Standalone calls that omit the `YIELD` subclause will always project out all result fields.
-
-Again consider a call to the procedure `myProc(name``::``STRING?``,``id``::``INTEGER?)``::`` (last``::``STRING?)`:
-
-.Standalone call to a procedure without `YIELD`
-[source, cypher]
-----
-CALL myProc("Donald", 12)
-----
-
-This is the same as executing:
-
-.Equivalent in-query call for standalone call to a procedure without `YIELD`
-[source, cypher]
-----
-CALL myProc("Donald", 12) YIELD last
-RETURN *
-----
-
-===== Calling with implicitly passed arguments (parameters) and without `YIELD`
-
-Both simplifications may be used in a single standalone procedure call, leading to a very concise syntax for just executing a single procedure call:
-
-.Simplified standalone procedure call
-[source, cypher]
-----
-CALL myProc
-----
+The above example would return the name of each procedure known to the system in a column called `procedure`.
 
 === Procedure call semantics
 
@@ -177,21 +155,23 @@ If executing a procedure call causes any side effects (i.e. it "updates the grap
 before any results are returned to the user.
 An implementation may provide the user with a way to opt out of this behavior, however this must be done explicitly (e.g. via a configuration setting).
 
-==== Semantics of explicit argument passing
+==== Semantics of argument passing
 
-In this scenario, arguments are provided explicitly as a sequence of expressions as required by the procedure's signature.
+Arguments are provided as a sequence of expressions as required by the procedure's signature.
 It is an error if the number of provided arguments differs from the number of arguments required by the procedure signature.
 
 To call the procedure, all argument expressions are evaluated to argument values in order.
 It is an error if the argument values are incompatible with the argument types required by the procedure signature.
 
-==== Semantics of implicit argument passing
+=== About `YIELD *`
 
-In this scenario, arguments are provided implicitly via the parameters of the Cypher statement.
+`YIELD *` is only allowed in the standalone form of `CALL`.
+The reason why `YIELD *` is not allowed in the _in-query_ form of `CALL` is because it makes it hard for a reader of the query (and for query analysis tools) to reason about the scope of variables, since it does not make it explicit which variables are introduced.
+This makes later variable references in the query potentially ambiguous about whether they are introducing a new variable or just referencing a variable introduced by `YIELD *`.
+To avoid these ambiguities `YIELD *` is disallowed within queries.
 
-To call the procedure, the argument values are obtained by using the parameter in scope with the same name as the procedure argument.
-If such a parameter does not exist, the argument value is taken to be `null`.
-It is an error, if the resulting argument values are incompatible with the argument types required by the procedure  signature.
+However, for queries that are made up solely by a single CALL, YIELD * is not ambiguous since there are no further clauses that could reference variables.
+Given the convenience of not having to explicitly list all the returned fields in the `YIELD` subclause, in particular for interactive queries, it is deemed a valuable special case to allow `YIELD *` in the standalone form of `CALL`.
 
 == What others do
 
@@ -213,24 +193,22 @@ The introduction of procedures therefore carries a risk of influencing the long 
 == Appendix: Calling modes
 
 .Calling modes
-[frame="topbot",cols="3l,2a,2a,1m", options="header,footer"]
-|===================================================================
-|Statement template        |Mode      |Argument Passing|New Bindings
-|.. CALL proc(..)          |In-Query  |Explicit        |None
-|.. CALL proc(..) YIELD .. |In-Query  |Explicit        |Some
-|CALL proc(..) YIELD ..    |Standalone|Explicit        |Some
-|CALL proc YIELD ..        |Standalone|Implicit        |Some
-|CALL proc(..)             |Standalone|Explicit        |All
-|CALL proc                 |Standalone|Implicit        |All
-|===================================================================
+[frame="topbot",cols="2l,1a,1m", options="header,footer"]
+|============================================================
+|Statement template                  |Mode      |New Bindings
+|[...] CALL proc(..) YIELD .. [...]  |In-Query  |Some
+|[...] CALL proc(..) [...]           |In-Query  |None
+|CALL proc(..) YIELD *               |Standalone|All
+|CALL proc(..) YIELD ..              |Standalone|Some
+|CALL proc(..)                       |Standalone|None
+|============================================================
 
 Legend:
+
 * Mode
   - `In Query`: The procedure call is part of a larger query (or statement)
   - `Standalone`: The procedure call forms the whole query / statement
-* Argument passing
-  - `Explicit`: Arguments are passed explicitly directly after the procedure name
-  - `Implicit`: Arguments are passed implicitly via the query parameters
 * New bindings:
   - `None`: The call may not bind new variables
   - `Some`: The call may bind new variables
+  - `All`:  The call will bind all returned fields into variables
