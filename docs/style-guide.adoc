@@ -345,23 +345,6 @@ MATCH (:Person)-->(vehicle:Car)-->(:Company)<--
 RETURN count(vehicle)
 ----
 
-. Surround node patterns with parentheses.
-.. This only concerns old Cypher code, as omitting parentheses is no longer legal in Cypher.
-+
-.Bad
-[source, cypher]
-----
-MATCH person-->vehicle
-RETURN person, vehicle
-----
-+
-.Good
-[source, cypher]
-----
-MATCH (person)-->(vehicle)
-RETURN person, vehicle
-----
-
 . Use anonymous nodes and relationships when the variable would not be used.
 +
 .Bad
