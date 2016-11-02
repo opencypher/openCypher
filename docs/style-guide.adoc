@@ -105,6 +105,66 @@ RETURN a.prop
 .. Put `ON CREATE` before `ON MATCH` if both are present.
 // no example necessary
 
+. Use single quotes (Unicode character U+0027: ') for literal string values.
++
+.Bad
+[source, cypher]
+----
+RETURN "Cypher"
+----
++
+.Good
+[source, cypher]
+----
+RETURN 'Cypher'
+----
+
+.. Disregard this rule for literal strings that contain a single quote character. If the string has both, use the form that creates the fewest escapes. In the case of a tie, prefer single quotes.
++
+.Bad
+[source, cypher]
+----
+RETURN 'Cypher\'s a nice language', "Mats' quote: \"statement\""
+----
++
+.Good
+[source, cypher]
+----
+RETURN "Cypher's a nice language", 'Mats\' quote: "statement"'
+----
+
+. Avoid having to use back-ticks to escape characters and keywords.
++
+.Bad
+[source, cypher]
+----
+MATCH (`odd-ch@racter$`:`Spaced Label` {`&property`: 42})
+RETURN labels(`odd-ch@racter$`)
+----
++
+.Good
+[source, cypher]
+----
+MATCH (node:NonSpacedLabel {property: 42})
+RETURN labels(node)
+----
+
+. Do not use a semicolon at the end of the statement.
++
+.Bad
+[source, cypher]
+----
+RETURN 1;
+----
++
+.Good
+[source, cypher]
+----
+RETURN 1
+----
+
+==== Casing
+
 . Write keywords in upper case.
 +
 .Bad
@@ -155,6 +215,38 @@ MATCH (:Person)-[own:OWNS_VEHICLE]->(:Car)
 RETURN own.since
 ----
 
+. Write the value `null` in lower case.
++
+.Bad
+[source, cypher]
+----
+WITH NULL AS n1, Null as n2
+RETURN n1 IS NULL && n2 IS NOT NULL
+----
++
+.Good
+[source, cypher]
+----
+WITH null AS n1, null as n2
+RETURN n1 IS NULL && n2 IS NOT NULL
+----
+
+. Write boolean literals in lower case.
++
+.Bad
+[source, cypher]
+----
+WITH TRUE AS b1, False AS b2
+RETURN b1 && b2
+----
++
+.Good
+[source, cypher]
+----
+WITH true AS b1, false AS b2
+RETURN b1 && b2
+----
+
 . Use camel case, starting with a lower case character, for:
 .. functions
 .. properties
@@ -175,96 +267,6 @@ RETURN Rand, MAP.property_key, Count(N)
 CREATE (n {prop: 0})
 WITH rand() AS rand, {param} AS map
 RETURN rand, map.propertyKey, count(n)
-----
-
-. Write boolean literals in lower case.
-+
-.Bad
-[source, cypher]
-----
-WITH TRUE AS b1, False AS b2
-RETURN b1 && b2
-----
-+
-.Good
-[source, cypher]
-----
-WITH true AS b1, false AS b2
-RETURN b1 && b2
-----
-
-. Use single quotes (Unicode character U+0027: ') for literal string values.
-+
-.Bad
-[source, cypher]
-----
-RETURN "Cypher"
-----
-+
-.Good
-[source, cypher]
-----
-RETURN 'Cypher'
-----
-
-.. Disregard this rule for literal strings that contain a single quote character. If the string has both, use the form that creates the fewest escapes. In the case of a tie, prefer single quotes.
-+
-.Bad
-[source, cypher]
-----
-RETURN 'Cypher\'s a nice language', "Mats' quote: \"statement\""
-----
-+
-.Good
-[source, cypher]
-----
-RETURN "Cypher's a nice language", 'Mats\' quote: "statement"'
-----
-
-. Write the value `null` in lower case.
-+
-.Bad
-[source, cypher]
-----
-WITH NULL AS n1, Null as n2
-RETURN n1 IS NULL && n2 IS NOT NULL
-----
-+
-.Good
-[source, cypher]
-----
-WITH null AS n1, null as n2
-RETURN n1 IS NULL && n2 IS NOT NULL
-----
-
-. Avoid having to use back-ticks to escape characters and keywords.
-+
-.Bad
-[source, cypher]
-----
-MATCH (`odd-ch@racter$`:`Spaced Label` {`&property`: 42})
-RETURN labels(`odd-ch@racter$`)
-----
-+
-.Good
-[source, cypher]
-----
-MATCH (node:NonSpacedLabel {property: 42})
-RETURN labels(node)
-----
-
-. Do not use a semicolon at the end of the statement.
-+
-.Bad
-[source, cypher]
-----
-RETURN 1;
-----
-+
-.Good
-[source, cypher]
-----
-RETURN 1
 ----
 
 ==== Patterns
