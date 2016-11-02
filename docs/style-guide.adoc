@@ -60,6 +60,8 @@ In case two rules are in conflict, and there is no explicit mention of which rul
 //RETURN 1
 //----
 
+=== Indentation and line breaks
+
 . Start a new clause on a new line.
 +
 .Bad
@@ -104,6 +106,8 @@ RETURN a.prop
 
 .. Put `ON CREATE` before `ON MATCH` if both are present.
 // no example necessary
+
+=== Meta-characters
 
 . Use single quotes (Unicode character U+0027: ') for literal string values.
 +
@@ -163,7 +167,7 @@ RETURN 1;
 RETURN 1
 ----
 
-==== Casing
+=== Casing
 
 . Write keywords in upper case.
 +
@@ -269,7 +273,7 @@ WITH rand() AS rand, {param} AS map
 RETURN rand, map.propertyKey, count(n)
 ----
 
-==== Patterns
+=== Patterns
 
 . When patterns wrap lines, break after arrows, not before.
 +
@@ -392,7 +396,7 @@ MATCH (:Person)-->(vehicle:Car)-->(:Company)<--(:Country)
 RETURN vehicle.mileage
 ----
 
-==== Spacing
+=== Spacing
 
 . For literal maps:
 .. No space between the opening brace and the first key
