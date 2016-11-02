@@ -25,6 +25,12 @@ To allow the user to understand what the outcome will be at an abstract, logical
 Note:
 This is not about concurrency - even in a single user system this would need to be thought through and defined explicitly.
 
+===== Definition
+
+We call the concept discussed in this CIP _Eagerness_.
+The meaning here is that each clause is logically consuming _all_ incoming rows _eagerly_, without producing any output until the input is exhausted.
+This concept is the opposite of link:https://en.wikipedia.org/wiki/Lazy_evaluation[_lazy evaluation_], which applied to Cypher means that each clause only processes as much input as is necessary for the first record of output to be sent to the subsequent clause.
+
 === Proposal
 
 Each clause lives in its own state, which includes all the changes of clauses coming before it, including changes performed by itself,
