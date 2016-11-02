@@ -313,7 +313,7 @@ RETURN b1 && b2
 [source, cypher]
 ----
 CREATE (N {Prop: 0})
-WITH RAND() AS Rand, {param} AS MAP
+WITH RAND() AS Rand, $pArAm AS MAP
 RETURN Rand, MAP.property_key, Count(N)
 ----
 +
@@ -321,7 +321,7 @@ RETURN Rand, MAP.property_key, Count(N)
 [source, cypher]
 ----
 CREATE (n {prop: 0})
-WITH rand() AS rand, {param} AS map
+WITH rand() AS rand, $param AS map
 RETURN rand, map.propertyKey, count(n)
 ----
 
@@ -473,6 +473,7 @@ RETURN map
 ----
 
 . No padding space for parameters.
+.. This rule mentions deprecated syntax. See link:https://github.com/opencypher/openCypher/blob/master/cip/2.testable/CIP2016-07-07-Parameter-syntax.adoc#interaction-with-existing-features[Parameter Syntax].
 +
 .Bad
 [source, cypher]
