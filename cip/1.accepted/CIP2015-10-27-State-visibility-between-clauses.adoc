@@ -9,15 +9,14 @@
 [abstract]
 .Abstract
 --
-This CIP tries to formalise how state changes behave while inside a Cypher query.
-Currently, because this is not explicit enough, the behaviour is implementation dependent.
+This CIP formalises the behaviour of state changes within a Cypher query.
 --
 
 toc::[]
 
 === Background
 
-Cypher allows queries to go through multiple steps, and it's possible to interleave reading and writing to the graph.
+Cypher allows clauses that read from the graph to be interleaved with clauses that write to the graph.
 Some clauses can also do both - read the graph and write to it at the same time.
 
 To allow the user to understand what the outcome will be at an abstract, logical level, semantics for the visibility of these changes should be clear.
@@ -27,9 +26,9 @@ This is not about concurrency - even in a single user system this would need to 
 
 ===== Definition
 
-We call the concept discussed in this CIP _Eagerness_.
-The meaning here is that each clause is logically consuming _all_ incoming rows _eagerly_, without producing any output until the input is exhausted.
-This concept is the opposite of link:https://en.wikipedia.org/wiki/Lazy_evaluation[_lazy evaluation_], which applied to Cypher means that each clause only processes as much input as is necessary for the first record of output to be sent to the subsequent clause.
+We call the concept discussed in this CIP _eagerness_.
+This means that each clause logically consumes  _all_ incoming rows _eagerly_, and only produces output when the input is exhausted.
+This concept is in contrast to link:https://en.wikipedia.org/wiki/Lazy_evaluation[_lazy evaluation_], which, when applied to Cypher, means that each clause only processes as much input as is necessary for the first record of output to be sent to the subsequent clause.
 
 === Proposal
 
@@ -55,7 +54,7 @@ CREATE ()
 
 .Example query 2:
 
-Given a database containing two nodes, and the following query, the sequence below describes a non-obvious query execution.
+Given a database containing two nodes, we illustrate the subtleties of query execution with the following query.
 
 [source,cypher]
 ----
