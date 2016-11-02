@@ -237,6 +237,38 @@ WITH null AS n1, null as n2
 RETURN n1 IS NULL && n2 IS NOT NULL
 ----
 
+. Avoid having to use back-ticks to escape characters and keywords.
++
+.Bad
+[source, cypher]
+----
+MATCH (`odd-ch@racter$`:`Spaced Label` {`&property`: 42})
+RETURN labels(`odd-ch@racter$`)
+----
++
+.Good
+[source, cypher]
+----
+MATCH (node:NonSpacedLabel {property: 42})
+RETURN labels(node)
+----
+
+. Do not use a semicolon at the end of the statement.
++
+.Bad
+[source, cypher]
+----
+RETURN 1;
+----
++
+.Good
+[source, cypher]
+----
+RETURN 1
+----
+
+==== Patterns
+
 . When patterns wrap lines, break after arrows, not before.
 +
 .Bad
@@ -271,38 +303,6 @@ RETURN person, vehicle
 MATCH (person)-->(vehicle)
 RETURN person, vehicle
 ----
-
-. Avoid having to use back-ticks to escape characters and keywords.
-+
-.Bad
-[source, cypher]
-----
-MATCH (`odd-ch@racter$`:`Spaced Label` {`&property`: 42})
-RETURN labels(`odd-ch@racter$`)
-----
-+
-.Good
-[source, cypher]
-----
-MATCH (node:NonSpacedLabel {property: 42})
-RETURN labels(node)
-----
-
-. Do not use a semicolon at the end of the statement.
-+
-.Bad
-[source, cypher]
-----
-RETURN 1;
-----
-+
-.Good
-[source, cypher]
-----
-RETURN 1
-----
-
-==== Patterns
 
 . Use anonymous nodes and relationships when the variable would not be used.
 +
