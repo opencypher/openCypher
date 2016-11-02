@@ -255,7 +255,7 @@ MATCH (e:EditorInChief)-->(:Employee)
 RETURN e.name
 ----
 
-. Write relationship types in upper case, using underscore to separate words.
+. Write relationship types in upper case, using an underscore (`_`) to separate words.
 +
 .Bad
 [source, cypher]
@@ -554,7 +554,7 @@ WITH ['a', 'b', 3.14] AS list
 RETURN list, 2, 3, 4
 ----
 
-. No padding space on the inside of function call parentheses.
+. No padding space within function call parentheses.
 +
 .Bad
 [source, cypher]
@@ -568,7 +568,7 @@ RETURN split( 'original', 'i' )
 RETURN split('original', 'i')
 ----
 
-. Use padding space on the inside of simple subquery expressions.
+. Use padding space within simple subquery expressions.
 +
 .Bad
 [source, cypher]
