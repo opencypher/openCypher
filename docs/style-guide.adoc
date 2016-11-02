@@ -107,6 +107,58 @@ RETURN a.prop
 .. Put `ON CREATE` before `ON MATCH` if both are present.
 // no example necessary
 
+. Start a subquery on a new line after the opening brace, indented with two (additional) spaces.
++
+.Bad
+[source, cypher]
+----
+MATCH (a:A)
+WHERE
+  EXISTS { MATCH (a)-->(b:B) WHERE b.prop = $param }
+RETURN a.foo
+----
++
+.Also bad
+[source, cypher]
+----
+MATCH (a:A)
+WHERE EXISTS
+{MATCH (a)-->(b:B)
+WHERE b.prop = $param}
+RETURN a.foo
+----
++
+.Good
+[source, cypher]
+----
+MATCH (a:A)
+WHERE EXISTS {
+  MATCH (a)-->(b:B)
+  WHERE b.prop = $param
+}
+RETURN a.foo
+----
+
+.. Do not break the line if the simplified subquery form is used.
++
+.Bad
+[source, cypher]
+----
+MATCH (a:A)
+WHERE EXISTS {
+  (a)-->(b:B)
+}
+RETURN a.prop
+----
++
+.Good
+[source, cypher]
+----
+MATCH (a:A)
+WHERE EXISTS { (a)-->(b:B) }
+RETURN a.prop
+----
+
 === Meta-characters
 
 . Use single quotes (Unicode character U+0027: ') for literal string values.
@@ -530,6 +582,24 @@ RETURN split( 'original', 'i' )
 [source, cypher]
 ----
 RETURN split('original', 'i')
+----
+
+. Use padding space on the inside of simple subquery expressions.
++
+.Bad
+[source, cypher]
+----
+MATCH (a:A)
+WHERE EXISTS {(a)-->(b:B)}
+RETURN a.prop
+----
++
+.Good
+[source, cypher]
+----
+MATCH (a:A)
+WHERE EXISTS { (a)-->(b:B) }
+RETURN a.prop
 ----
 
 == Recommendations
