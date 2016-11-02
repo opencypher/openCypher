@@ -80,6 +80,32 @@ Finally (and optionally) the clause may end with the `YIELD` keyword followed by
 A procedure call constitutes either an entire Cypher statement (i.e. a "standalone call"), or is called as part of a larger query (i.e. an "in-query call").
 These different calling modes are detailed in the following subsections.
 
+When `CALL` is used within a query, `YIELD` may be followed by a `WHERE` subclause.
+This `WHERE` subclause applies _after_ the invocation of the procedure, even in the case where all the variables referenced in the `WHERE` subclause originate from before the `CALL`.
+
+Considering the procedure `querySQL(dbURI``::``STRING?, query``::``STRING?)``::`` (row``::``MAP)`:
+
+.Filtering the result from a procedure
+[source, cypher]
+----
+CALL querySQL("jdbc:mysql://localhost:3306/foo", "SELECT bar FROM baz")
+YIELD row
+WHERE row.bar > "quux"
+RETURN row.bar
+----
+
+The example above would be equivalent to:
+
+.Filtering the result from a procedure
+[source, cypher]
+----
+CALL querySQL("jdbc:mysql://localhost:3306/foo", "SELECT bar FROM baz")
+YIELD row
+WITH *
+WHERE row.bar > "quux"
+RETURN row.bar
+----
+
 ==== In-query calls
 
 Calling a procedure as part of a larger query follows three basic rules:
