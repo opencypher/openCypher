@@ -108,6 +108,7 @@ RETURN a.prop
 // no example necessary
 
 . Start a subquery on a new line after the opening brace, indented with two (additional) spaces.
+Leave the closing brace on its own line.
 +
 .Bad
 [source, cypher]
