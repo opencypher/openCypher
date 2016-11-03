@@ -60,6 +60,8 @@ In case two rules are in conflict, and there is no explicit mention of which rul
 //RETURN 1
 //----
 
+=== Indentation and line breaks
+
 . Start a new clause on a new line.
 +
 .Bad
@@ -105,6 +107,121 @@ RETURN a.prop
 .. Put `ON CREATE` before `ON MATCH` if both are present.
 // no example necessary
 
+. Start a subquery on a new line after the opening brace, indented with two (additional) spaces.
+Leave the closing brace on its own line.
++
+.Bad
+[source, cypher]
+----
+MATCH (a:A)
+WHERE
+  EXISTS { MATCH (a)-->(b:B) WHERE b.prop = $param }
+RETURN a.foo
+----
++
+.Also bad
+[source, cypher]
+----
+MATCH (a:A)
+WHERE EXISTS
+{MATCH (a)-->(b:B)
+WHERE b.prop = $param}
+RETURN a.foo
+----
++
+.Good
+[source, cypher]
+----
+MATCH (a:A)
+WHERE EXISTS {
+  MATCH (a)-->(b:B)
+  WHERE b.prop = $param
+}
+RETURN a.foo
+----
+
+.. Do not break the line if the simplified subquery form is used.
++
+.Bad
+[source, cypher]
+----
+MATCH (a:A)
+WHERE EXISTS {
+  (a)-->(b:B)
+}
+RETURN a.prop
+----
++
+.Good
+[source, cypher]
+----
+MATCH (a:A)
+WHERE EXISTS { (a)-->(b:B) }
+RETURN a.prop
+----
+
+=== Meta-characters
+
+. Use single quotes (Unicode character U+0027: ') for literal string values.
++
+.Bad
+[source, cypher]
+----
+RETURN "Cypher"
+----
++
+.Good
+[source, cypher]
+----
+RETURN 'Cypher'
+----
+
+.. Disregard this rule for literal strings that contain a single quote character. If the string has both, use the form that creates the fewest escapes. In the case of a tie, prefer single quotes.
++
+.Bad
+[source, cypher]
+----
+RETURN 'Cypher\'s a nice language', "Mats' quote: \"statement\""
+----
++
+.Good
+[source, cypher]
+----
+RETURN "Cypher's a nice language", 'Mats\' quote: "statement"'
+----
+
+. Avoid having to use back-ticks to escape characters and keywords.
++
+.Bad
+[source, cypher]
+----
+MATCH (`odd-ch@racter$`:`Spaced Label` {`&property`: 42})
+RETURN labels(`odd-ch@racter$`)
+----
++
+.Good
+[source, cypher]
+----
+MATCH (node:NonSpacedLabel {property: 42})
+RETURN labels(node)
+----
+
+. Do not use a semicolon at the end of the statement.
++
+.Bad
+[source, cypher]
+----
+RETURN 1;
+----
++
+.Good
+[source, cypher]
+----
+RETURN 1
+----
+
+=== Casing
+
 . Write keywords in upper case.
 +
 .Bad
@@ -139,7 +256,7 @@ MATCH (e:EditorInChief)-->(:Employee)
 RETURN e.name
 ----
 
-. Write relationship types in upper case, using underscore to separate words.
+. Write relationship types in upper case, using an underscore (`_`) to separate words.
 +
 .Bad
 [source, cypher]
@@ -153,72 +270,6 @@ RETURN own.since
 ----
 MATCH (:Person)-[own:OWNS_VEHICLE]->(:Car)
 RETURN own.since
-----
-
-. Use camel case, starting with a lower case character, for:
-.. functions
-.. properties
-.. variables
-.. parameters
-+
-.Bad
-[source, cypher]
-----
-CREATE (N {Prop: 0})
-WITH RAND() AS Rand, {param} AS MAP
-RETURN Rand, MAP.property_key, Count(N)
-----
-+
-.Good
-[source, cypher]
-----
-CREATE (n {prop: 0})
-WITH rand() AS rand, {param} AS map
-RETURN rand, map.propertyKey, count(n)
-----
-
-. Write boolean literals in lower case.
-+
-.Bad
-[source, cypher]
-----
-WITH TRUE AS b1, False AS b2
-RETURN b1 && b2
-----
-+
-.Good
-[source, cypher]
-----
-WITH true AS b1, false AS b2
-RETURN b1 && b2
-----
-
-. Use single quotes (Unicode character U+0027: ') for literal string values.
-+
-.Bad
-[source, cypher]
-----
-RETURN "Cypher"
-----
-+
-.Good
-[source, cypher]
-----
-RETURN 'Cypher'
-----
-
-.. Disregard this rule for literal strings that contain a single quote character. If the string has both, use the form that creates the fewest escapes. In the case of a tie, prefer single quotes.
-+
-.Bad
-[source, cypher]
-----
-RETURN 'Cypher\'s a nice language', "Mats' quote: \"statement\""
-----
-+
-.Good
-[source, cypher]
-----
-RETURN "Cypher's a nice language", 'Mats\' quote: "statement"'
 ----
 
 . Write the value `null` in lower case.
@@ -237,6 +288,46 @@ WITH null AS n1, null as n2
 RETURN n1 IS NULL && n2 IS NOT NULL
 ----
 
+. Write boolean literals in lower case.
++
+.Bad
+[source, cypher]
+----
+WITH TRUE AS b1, False AS b2
+RETURN b1 && b2
+----
++
+.Good
+[source, cypher]
+----
+WITH true AS b1, false AS b2
+RETURN b1 && b2
+----
+
+. Use camel case, starting with a lower case character, for:
+.. functions
+.. properties
+.. variables
+.. parameters
++
+.Bad
+[source, cypher]
+----
+CREATE (N {Prop: 0})
+WITH RAND() AS Rand, $pArAm AS MAP
+RETURN Rand, MAP.property_key, Count(N)
+----
++
+.Good
+[source, cypher]
+----
+CREATE (n {prop: 0})
+WITH rand() AS rand, $param AS map
+RETURN rand, map.propertyKey, count(n)
+----
+
+=== Patterns
+
 . When patterns wrap lines, break after arrows, not before.
 +
 .Bad
@@ -254,55 +345,6 @@ MATCH (:Person)-->(vehicle:Car)-->(:Company)<--
       (:Country)
 RETURN count(vehicle)
 ----
-
-. Surround node patterns with parentheses.
-.. This only concerns old Cypher code, as omitting parentheses is no longer legal in Cypher.
-+
-.Bad
-[source, cypher]
-----
-MATCH person-->vehicle
-RETURN person, vehicle
-----
-+
-.Good
-[source, cypher]
-----
-MATCH (person)-->(vehicle)
-RETURN person, vehicle
-----
-
-. Avoid having to use back-ticks to escape characters and keywords.
-+
-.Bad
-[source, cypher]
-----
-MATCH (`odd-ch@racter$`:`Spaced Label` {`&property`: 42})
-RETURN labels(`odd-ch@racter$`)
-----
-+
-.Good
-[source, cypher]
-----
-MATCH (node:NonSpacedLabel {property: 42})
-RETURN labels(node)
-----
-
-. Do not use a semicolon at the end of the statement.
-+
-.Bad
-[source, cypher]
-----
-RETURN 1;
-----
-+
-.Good
-[source, cypher]
-----
-RETURN 1
-----
-
-==== Patterns
 
 . Use anonymous nodes and relationships when the variable would not be used.
 +
@@ -390,7 +432,7 @@ MATCH (:Person)-->(vehicle:Car)-->(:Company)<--(:Country)
 RETURN vehicle.mileage
 ----
 
-==== Spacing
+=== Spacing
 
 . For literal maps:
 .. No space between the opening brace and the first key
@@ -415,6 +457,7 @@ RETURN map
 ----
 
 . No padding space for parameters.
+.. This rule mentions deprecated syntax. See link:https://github.com/opencypher/openCypher/blob/master/cip/2.testable/CIP2016-07-07-Parameter-syntax.adoc#interaction-with-existing-features[Parameter Syntax].
 +
 .Bad
 [source, cypher]
@@ -512,7 +555,7 @@ WITH ['a', 'b', 3.14] AS list
 RETURN list, 2, 3, 4
 ----
 
-. No padding space on the inside of function call parentheses.
+. No padding space within function call parentheses.
 +
 .Bad
 [source, cypher]
@@ -524,6 +567,24 @@ RETURN split( 'original', 'i' )
 [source, cypher]
 ----
 RETURN split('original', 'i')
+----
+
+. Use padding space within simple subquery expressions.
++
+.Bad
+[source, cypher]
+----
+MATCH (a:A)
+WHERE EXISTS {(a)-->(b:B)}
+RETURN a.prop
+----
++
+.Good
+[source, cypher]
+----
+MATCH (a:A)
+WHERE EXISTS { (a)-->(b:B) }
+RETURN a.prop
 ----
 
 == Recommendations
