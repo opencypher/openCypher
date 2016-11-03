@@ -70,11 +70,10 @@ By transitivity of subtyping, if `S` is a supertype of `T`, then `S?` is also a 
 
 ==== Abstract and concrete types
 
-An _abstract_ type is a type that does not have any direct association to a value.
-This is in contrast to a _concrete_ type, which does have such an association.
-In other words, an abstract type may not be instantiated, while a concrete type may.
+An _abstract_ type is a type that is not directly associated with a value, and thus may not be instantiated.
+This is in contrast to a _concrete_ type.
 
-It is observed that any nullable type is also concrete, because `null` is a value that is directly associated with it.
+We observe that any nullable type is also concrete as `null` is a value that is directly associated with it.
 
 ==== Any type
 
