@@ -33,30 +33,34 @@ This CIP follows a more focused approach by adding explicit operators for common
 === Examples
 
 [source, cypher]
-.Find all persons whose name starts with `"And"`
+.Find all persons whose name starts with `'And'`
 ----
-MATCH (a:Person) WHERE a.name STARTS WITH "And"
+MATCH (a:Person)
+WHERE a.name STARTS WITH 'And'
 RETURN a
 ----
 
 [source, cypher]
 .Find all persons whose name starts with the parameter `prefix`
 ----
-MATCH (a:Person) WHERE a.name STARTS WITH {prefix}
+MATCH (a:Person)
+WHERE a.name STARTS WITH $prefix
 RETURN a
 ----
 
 [source, cypher]
-.Find all persons whose name ends with `"fan"`
+.Find all persons whose name ends with `'fan'`
 ----
-MATCH (a:Person) WHERE a.name ENDS WITH “fan”
+MATCH (a:Person)
+WHERE a.name ENDS WITH 'fan'
 RETURN a
 ----
 
 [source, cypher]
-.Find all books whose isbn in string form contains `"007"`
+.Find all books whose isbn in string form contains `'007'`
 ----
-MATCH (b:Book) WHERE toString(b.isbn) CONTAINS “007”
+MATCH (b:Book)
+WHERE toString(b.isbn) CONTAINS '007'
 RETURN a
 ----
 
@@ -93,7 +97,7 @@ It is a type error to use `STARTS WITH`, `ENDS WITH`, or `CONTAINS` with a value
 
 === Alternatives
 
-* link:https://docs.google.com/document/d/1eXhnAS2KmpiAhFTeWssf3s5LrLzUM59B39WJbXa1z_0/edit?usp=sharing[LIKE] with link:https://docs.google.com/document/d/1hq-Pu7igb1aFdFZtVCnG59D1_QuqnzsBLPYm7dqpKwg/edit?usp=sharing[String interpolation] (rejected as described in the <<motivation-and-background>> section.
+* link:https://docs.google.com/document/d/1eXhnAS2KmpiAhFTeWssf3s5LrLzUM59B39WJbXa1z_0/edit?usp=sharing[LIKE] with link:https://docs.google.com/document/d/1hq-Pu7igb1aFdFZtVCnG59D1_QuqnzsBLPYm7dqpKwg/edit?usp=sharing[String interpolation] (rejected as described in the <<motivation-and-background>> section).
 * Rely on regular expressions only (difficult for the same reasons as LIKE).
 
 == What others do
