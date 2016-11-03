@@ -82,6 +82,12 @@ contains      = expression, “CONTAINS” expression ;
 
 === Semantics
 
+All three proposed operators are defined as _comparison operators_ on string operands.
+As such, behavioural semantics need to be in line with what is detailed by the link:https://github.com/opencypher/openCypher/blob/master/cip/1.accepted/CIP2016-06-14-Define-comparability-and-equality-as-well-as-orderability-and-equivalence.adoc[Comparability CIP].
+This has the following consequence:
+
+- If any argument to `STARTS WITH`, `ENDS WITH`, or `CONTAINS` is `null` or not a string, then the result of evaluating the whole predicate is `null`.
+
 ==== STARTS WITH
 Using `lhs STARTS WITH rhs` requires both `lhs` and `rhs` to be strings. This new expression evaluates to true if `lhs` textually starts with `rhs`. Otherwise, it is false.
 
@@ -90,10 +96,6 @@ Using `lhs ENDS WITH rhs` requires both `lhs` and `rhs` to be strings. This new 
 
 ==== CONTAINS
 Using `lhs CONTAINS rhs` requires both `lhs` and `rhs` to be strings. This new expression evaluates to true if `lhs` textually contains `rhs`. Otherwise, it is false.
-
-If any argument to `STARTS WITH`, `ENDS WITH`, or `CONTAINS` is `NULL`, then the result of evaluating the whole predicate is `NULL`.
-
-It is a type error to use `STARTS WITH`, `ENDS WITH`, or `CONTAINS` with a value that is not a string.
 
 === Alternatives
 
