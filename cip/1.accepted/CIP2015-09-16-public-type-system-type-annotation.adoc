@@ -68,12 +68,21 @@ Note that `NULL` is not a type but a value that inhabits every nullable type.
 Every nullable type is a supertype of its underlying material type, i.e. `T?` is a supertype of `T`.
 By transitivity of subtyping, if `S` is a supertype of `T`, then `S?` is also a supertype of `T`.
 
+==== Abstract and concrete types
+
+An _abstract_ type is a type that does not have any direct association to a value.
+This is in contrast to a _concrete_ type, which does have such an association.
+In other words, an abstract type may not be instantiated, while a concrete type may.
+
+It is observed that any nullable type is also concrete, because `null` is a value that is directly associated with it.
+
 ==== Any type
 
 The following super types should be supported by any implementation of Cypher:
 
 * `ANY`
 ** The `ANY` type is the parent of all material types.
+** `ANY` is an abstract type.
 * `ANY?`
 ** By definition and as a consequence of subtyping rules for nullable types, `ANY?` is the most generic type available within Cypher and is the supertype of every material and nullable type and the type inhibited by all valid Cypher values.
 
@@ -88,6 +97,7 @@ a nullable variant:
  ** Unicode Strings, i.e. `"Cypher"`, and `‘text’`
  * `NUMBER`
  ** Parent of all numeric types (i.e. `INTEGER` and `FLOAT`)
+ ** `NUMBER` is an abstract type.
  * `INTEGER`
  ** Exact numbers without decimals, i.e. -3, 0, 4
  * `FLOAT`
