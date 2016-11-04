@@ -1,57 +1,75 @@
+:numbered:
+
 = Property Graph Model
 ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
 Cypher is a graph query language, but it doesn't operate on any arbitrary definition of graph; it operates on a Property Graph.
-In a Property Graph, the following elements exist:
+A Property Graph may be defined in graph theoretical terms as a directed, vertex-labeled, edge-labeled multigraph with self-edges, where edges have their own identity.
+See Wikipedia's definitions for reference:
 
-- Node
-- Relationship
-- Path
-- Label
-- Relationship type
-- Property
+- link:https://en.wikipedia.org/wiki/Multigraph#Directed_multigraph_.28edges_with_own_identity.29[Directed multigraph].
+- link:https://en.wikipedia.org/wiki/Multigraph#Labeling[Labeled multigraph].
+
+In a Property Graph, the following elements may exist:
+
+* Entity
+** Node
+** Relationship
+* Path
+* Token
+** Label
+** Relationship type
+** Property key
+* Property
+
+=== Entity
+
+- An entity has a unique, comparable identity, which defines whether two entities are equal or not.
+- An entity is assigned a set of properties, which are each uniquely identified in the set by their respective property keys.
 
 ==== Node
 
 - A _node_ is the basic entity of the graph, with the unique attribute of being able to exist in and of itself.
-- A node may have zero or more unique labels.
-- A node may have zero or more unique properties.
-- Each node contains a unique, comparable id, which defines whether a pair of node references are equal or not.
+- A node is assigned a set of unique labels.
 - A node may have zero or more outgoing relationships.
 - A node may have zero or more incoming relationships.
 
 ==== Relationship
 
-- A _relationship_ is a directed connection between exactly two nodes, the _start node_ and the _end node_.
+- A _relationship_ is an entity that encodes a directed connection between exactly two nodes, the _start node_ and the _end node_.
 - A relationship's direction is said to be _outgoing_ from the start node, and _incoming_ to the end node.
-- A relationship has exactly one relationship type.
-- A relationship may have zero or more unique properties.
-- Each relationship contains a unique, comparable id, which defines whether a pair of relationship references are equal or not.
+- A relationship is assigned exactly one relationship type.
 
-==== Path
+=== Path
 
-- A _path_ is an odd-sized list of alternating nodes and relationships.
+- A _path_ is an odd-sized, ordered sequence of alternating nodes and relationships.
 - A path always starts and ends at a node.
 - The smallest possible path contains a single node, and is called an _empty_ path.
 - A path has a _length_, which is an integer greater than or equal to zero, which is equal to the number of relationships in the path.
 - Equality of paths is detailed in the link:../cip/1.accepted/CIP2016-06-14-Define-comparability-and-equality-as-well-as-orderability-and-equivalence{outfilesuffix}#322-comparability[Comparability CIP].
 
+=== Token
+
+- A _token_ is a nonempty string of Unicode characters.
+
 ==== Label
 
-- A _label_ is a nonempty string of Unicode characters that is assigned to one or more nodes.
+- A _label_ is a token that is assigned to nodes only.
 
 ==== Relationship type
 
-- A _relationship type_ is a nonempty string of Unicode characters that is assigned to one or more relationships.
+- A _relationship type_ is a token that is assigned to relationships only.
 
-==== Property
+==== Property key
+
+- A _property key_ is a token which uniquely identifies an entity's property.
+
+=== Property
 
 - A _property_ is a pair consisting of a _property key_ and a _property value_.
-- A property key is a nonempty string of Unicode characters.
 - A property value is an instantiation of one of Cypher's concrete, scalar types, or a list of a concrete, scalar type.
   See the link:../cip/1.accepted/CIP2015-09-16-public-type-system-type-annotation{outfilesuffix}#types-and-type-literal-syntax[type system CIP] for reference.
-- A property is uniquely identified by its property key.
 
-=== Graph attributes
+== Graph attributes
 
 - The _size_ of the graph is an integer greater than or equal to zero, and is equal to the number of nodes in the graph.
