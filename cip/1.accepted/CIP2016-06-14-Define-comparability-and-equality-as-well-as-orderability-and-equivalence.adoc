@@ -118,7 +118,7 @@ We propose that <<comparability-con,comparability>> should be defined between an
   * Strings are <<incomparable>> to any value that is not also a string.
 - Lists
   * Lists are compared in dictionary order, i.e. list elements are compared pairwise in ascending order from the start of the list to the end. Elements missing in a shorter list are considered to be less than any other value (including `null` values).
-  For example, `[1] < [1, 0]` but also `[1] \<= [1, null]`.
+  For example, `[1] < [1, 0]` but also `[1] \< [1, null]`.
   * If comparing two lists requires comparing at least a single `null` value to some other value, these lists are <<incomparable>>.
   For example, `[1, 2] >= [1, null]` evaluates to `null`.
   * Lists are <<incomparable>> to any value that is not also a list.
@@ -170,9 +170,9 @@ To determine if two lists `l1` and `l2` are equal, we propose two simple tests, 
 * `l1` and `l2` must have the same size, i.e. inversely `size(l1) <> size(l2) \=> l1 <> l2`
 * the pairwise elements of both `l1` and `l2` must be equal, i.e.
 ----
-[a1, a2, ...] = [b1, b2, ...]
+[a1, a2, ..., an] = [b1, b2, ..., bn]
 <=>
-a1 = b1 && a2 = b2 && ...
+a1 = b1 && a2 = b2 && ... && an = bn
 ----
 
 ===== Map equality =====
