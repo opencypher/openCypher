@@ -3,14 +3,14 @@
 = Property Graph Model
 ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
-Cypher is a graph query language, but it doesn't operate on any arbitrary definition of graph; it operates on a Property Graph.
-A Property Graph may be defined in graph theoretical terms as a directed, vertex-labeled, edge-labeled multigraph with self-edges, where edges have their own identity.
+Cypher is a graph query language which operates on a _property graph_.
+A property graph may be defined in graph theoretical terms as a directed, vertex-labeled, edge-labeled multigraph with self-edges, where edges have their own identity.
 See Wikipedia's definitions for reference:
 
 - link:https://en.wikipedia.org/wiki/Multigraph#Directed_multigraph_.28edges_with_own_identity.29[Directed multigraph].
 - link:https://en.wikipedia.org/wiki/Multigraph#Labeling[Labeled multigraph].
 
-In a Property Graph, the following elements may exist:
+In a property graph, the following elements may exist:
 
 * Entity
 ** Node
@@ -24,8 +24,8 @@ In a Property Graph, the following elements may exist:
 
 === Entity
 
-- An entity has a unique, comparable identity, which defines whether two entities are equal or not.
-- An entity is assigned a set of properties, which are each uniquely identified in the set by their respective property keys.
+- An entity has a unique, comparable identity which defines whether or not two entities are equal.
+- An entity is assigned a set of properties, each of which are uniquely identified in the set by their respective property keys.
 
 ==== Node
 
