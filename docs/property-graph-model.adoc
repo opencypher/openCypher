@@ -5,10 +5,13 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
 Cypher is a graph query language which operates on a _property graph_.
 A property graph may be defined in graph theoretical terms as a directed, vertex-labeled, edge-labeled multigraph with self-edges, where edges have their own identity.
+In the property graph, we use the term node to denote a vertex, and relationship to denote an edge.
 See Wikipedia's definitions for reference:
 
 - link:https://en.wikipedia.org/wiki/Multigraph#Directed_multigraph_.28edges_with_own_identity.29[Directed multigraph].
 - link:https://en.wikipedia.org/wiki/Multigraph#Labeling[Labeled multigraph].
+
+== Definitions
 
 In a property graph, the following elements may exist:
 
