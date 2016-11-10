@@ -40,8 +40,8 @@ In a property graph, the following elements may exist:
 ==== Relationship
 
 - A _relationship_ is an entity that encodes a directed connection between exactly two nodes, the _source node_ and the _target node_.
-- An outgoing relationship is a directed relationship from the point of view of its source node.
-- An incoming relationship is a directed relationship from the point of view of its target node.
+- An _outgoing_ relationship is a directed relationship from the point of view of its source node.
+- An _incoming_ relationship is a directed relationship from the point of view of its target node.
 - A relationship is assigned exactly one relationship type.
 
 === Path
