@@ -27,8 +27,7 @@ Subqueries - i.e. queries within queries - are a powerful and expressive feature
 
 == Background
 
-This CIP may be viewed in the light of the EXISTS CIP and forthcoming the Pattern Comprehension CIP, both of which propose variants of subqueries.
-
+This CIP may be viewed in light of the EXISTS CIP and the forthcoming Pattern Comprehension CIP, both of which propose variants of subqueries.
 
 == Proposal
 
@@ -94,7 +93,9 @@ It is an error for a nested subquery to try to rebind (shadow) a pre-existing ou
 
 **2. Write-only/read-write subqueries**
 
-Execution of a `DO` subquery does not change the cardinality; i.e. the full subquery is run for each incoming record and then the record is being passed on to the remainder of the outer query.
+Execution of a `DO` subquery does not change the cardinality; i.e. the full subquery is run for each incoming record and then the record is passed on to the remainder of the outer query.
+
+A query may end with a `DO` subquery in the same way that a query can currently end with any update clause.
 
 === Examples
 
@@ -223,6 +224,13 @@ DO {
 }
 ----
 
+Note how `FOREACH` is addressing two semantic concerns simultaneously; namely looping, and performing updates without affecting the cardinality of the outer query.
+In the new version of the query shown above, these orthogonal concerns have been separated.
+Looping is already handled by `UNWIND`, while `DO` suppresses the increased cardinality from the inner query.
+
+`DO` also hides all new variable bindings introduced by the inner query from the outer query.
+If `DO` is omitted from the new version of the query shown above, the variable `c` would become visible to the remainder of the query.
+
 Doubly-nested subquery - old version using `FOREACH`:
 [source, cypher]
 ----
@@ -314,7 +322,7 @@ Both scalar and table expression subqueries are out of scope for the purposes of
 
 === SPARQL
 
-https://www.w3.org/TR/2013/REC-sparql11-query-20130321/#subqueries[SPARQL] only supports uncorrelated subqueries in the standard, exemplified by:
+https://www.w3.org/TR/2013/REC-sparql11-query-20130321/#subqueries[SPARQL] supports uncorrelated subqueries in the standard, exemplified by:
 
 [source, cypher]
 ----
@@ -330,9 +338,8 @@ WHERE {
 }
 ----
 
-Owing to the bottom-up nature of SPARQL query evaluation, the subqueries are evaluated logically first, and the results are projected up to the outer query.
-
-Only variables projected out of the subquery will be visible, or in scope, to the outer query.
+Owing to the bottom-up nature of SPARQL query evaluation, the supported forms of subqueries are evaluated logically first, and the results are projected up to the outer query.
+Variables projected out of the subquery will be visible, or in scope, to the outer query.
 
 
 == Benefits to this proposal
