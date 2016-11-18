@@ -131,7 +131,7 @@ a nullable variant:
 * `RELATIONSHIP`
 ** A `RELATIONSHIP` is a relationship in the property graph model with properties, relationship type, a start node, and an end node. A relationship is an entity and a property container in the model and therefore also a `MAP`.
 * `PATH`
-** A path from a node `n1` to a node `ni` - corresponding to a walk in the graph from `n1` to `ni` - is a sequence `n1`, `r1`, `n2`, `r2`, ..., `r(i-1)`, `ni` of alternating nodes and relationships such that for 1 <= `j` < `i`, any `rj` contained in the path is incident with `nj` and `n(j+1)`. Additionally, a single node path is a path that starts and ends at the same node `n0` and does not contain any relationships.
+** A path from a node `n1` to a node `ni` - corresponding to a walk in the graph from `n1` to `ni` - is a sequence `n1`, `r1`, `n2`, `r2`, ..., `r(i-1)`, `ni` of alternating nodes and relationships such that for `1 \<= j < i`, any `rj` contained in the path is incident with `nj` and `n(j+1)`. Additionally, a single node path is a path that starts and ends at the same node `n0` and does not contain any relationships.
 
 ==== Void type
 
