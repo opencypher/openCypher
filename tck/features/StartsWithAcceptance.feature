@@ -316,3 +316,45 @@ Feature: StartsWithAcceptance
       | (:Label {name: 'AB'})     |
       | (:Label {name: ''})       |
     And no side effects
+
+  Scenario: Handling non-string operands for STARTS WITH
+    When executing query:
+      """
+      WITH [1, 3.14, true, [], {}, null] AS operands
+      UNWIND operands AS op1
+      UNWIND operands AS op2
+      WITH op1 STARTS WITH op2 AS v
+      RETURN v, count(*)
+      """
+    Then the result should be:
+      | v    | count(*) |
+      | null | 36       |
+    And no side effects
+
+  Scenario: Handling non-string operands for CONTAINS
+    When executing query:
+      """
+      WITH [1, 3.14, true, [], {}, null] AS operands
+      UNWIND operands AS op1
+      UNWIND operands AS op2
+      WITH op1 STARTS WITH op2 AS v
+      RETURN v, count(*)
+      """
+    Then the result should be:
+      | v    | count(*) |
+      | null | 36       |
+    And no side effects
+
+  Scenario: Handling non-string operands for ENDS WITH
+    When executing query:
+      """
+      WITH [1, 3.14, true, [], {}, null] AS operands
+      UNWIND operands AS op1
+      UNWIND operands AS op2
+      WITH op1 STARTS WITH op2 AS v
+      RETURN v, count(*)
+      """
+    Then the result should be:
+      | v    | count(*) |
+      | null | 36       |
+    And no side effects
