@@ -140,7 +140,7 @@ We propose that <<comparability-con,comparability>> should be defined between an
   For example, given nodes `n1`, `n2`, `n3`, and relationships `r1` and `r2`, and given that `n1 < n2 < n3` and `r1 < r2`, then the path `p1` from `n1` to `n3` via `r1` would be less than the path `p2` to `n1` from `n2` via `r2`. Expressed in terms of lists:
 
       p1 < p2
-  <=> [n1-r1->n3] < [n1<-r2-n2]
+  <=> [n1, r1, n3] < [n1, r2, n2]
   <=> n1 < n1 || (n1 = n1 && [r1, n3] < [r2, n2])
   <=> false || (true && [r1, n3] < [r2, n2])
   <=> [r1, n3] < [r2, n2]
@@ -148,9 +148,6 @@ We propose that <<comparability-con,comparability>> should be defined between an
   <=> true || (false && false)
   <=> true
 
-  ** Additionally, paths track the direction in which a relationship is traversed.
-  Two paths that traverse the same nodes and relationships in the same order but differ in the direction in which they traverse a single relationship are not equal (this can happen in paths containing loops).
-  The comparison order for paths is expected to align with this.
   ** Paths are <<incomparable>> to any value that is not also a path.
 - Implementation-specific types
   * Implementations may choose to define suitable comparability rules for values of additional, non-canonical types.
