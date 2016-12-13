@@ -73,3 +73,6 @@ RETURN CASE n.eyes
  WHEN   'brown'   THEN   2
  ELSE 3
 END§
+CYPHER 2.3 START n = node(6, 7, 8) RETURN n§
+CYPHER 2.3 START n =  node(6,  7,8)   RETURN n§
+CYPHER 2.3 START n = node  (6, 7, 8) RETURN n§

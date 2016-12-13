@@ -46,7 +46,7 @@
   </production>
 
   <production name="NodeLookup" rr:inline="true" oc:legacy="true">
-    NODE
+    NODE &WS;
     <alt>
       <non-terminal ref="IdentifiedIndexLookup"/>
       <non-terminal ref="IndexQuery"/>
@@ -89,9 +89,9 @@
   </production>
 
   <production name="LiteralIds" rr:inline="true" oc:legacy="true">
-    <non-terminal ref="UnsignedIntegerLiteral"/>
+    <non-terminal ref="IntegerLiteral"/>
     <repeat>
-      &WS;,&WS;<non-terminal ref="UnsignedIntegerLiteral"/>
+      &WS;,&WS;<non-terminal ref="IntegerLiteral"/>
     </repeat>
   </production>
 
