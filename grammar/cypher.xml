@@ -73,7 +73,7 @@
 
   <production name="PeriodicCommitHint" rr:inline="true" oc:legacy="true">
     USING &SP; PERIODIC &SP; COMMIT
-    <opt>&SP;<non-terminal ref="SignedIntegerLiteral"/></opt>
+    <opt>&SP;<non-terminal ref="IntegerLiteral"/></opt>
   </production>
 
   <production name="LoadCSVQuery" rr:inline="true" oc:legacy="true">

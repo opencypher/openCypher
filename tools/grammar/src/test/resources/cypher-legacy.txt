@@ -76,3 +76,6 @@ END§
 CYPHER 2.3 START n = node(6, 7, 8) RETURN n§
 CYPHER 2.3 START n =  node(6,  7,8)   RETURN n§
 CYPHER 2.3 START n = node  (6, 7, 8) RETURN n§
+USING PERIODIC COMMIT 500
+LOAD CSV FROM 'http://neo4j.com/docs/3.1.0/csv/artists.csv' AS line
+CREATE (:Artist { name: line[1], year: toInt(line[2])})§
