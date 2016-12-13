@@ -102,3 +102,11 @@ RETURN c AS a§
 MATCH (a:A) RETURN a AS a UnIoN     MATCH (b:B) RETURN b AS a§
 MATCH (a:A) RETURN a AS a uNiOn   AlL   MATCH (b:B) RETURN b AS a§
 RETURN toInteger(  a  ,  b  ,  c  )§
+MATCH (s:Store) WHERE s.storeFormat = 'Open' RETURN DISTINCT s.storeFormat ORDER BY s.storeFormat DESC LIMIT 5§
+MATCH (s:Store) WHERE s.storeFormat = 'Open' RETURN DISTINCT s.storeFormat ORDER BY s.storeFormat DESCENDING LIMIT 5§
+MATCH (s:Store) WHERE s.storeFormat = 'Open' RETURN DISTINCT s.storeFormat ORDER BY s.storeFormat ASC LIMIT 5§
+MATCH (s:Store) WHERE s.storeFormat = 'Open' RETURN DISTINCT s.storeFormat ORDER BY s.storeFormat ASCENDING LIMIT 5§
+RETURN '' AS n ORDER BY n    DESC§
+RETURN '' AS n ORDER BY   n    ASC§
+RETURN '' AS n ORDER BY n   DESCENDING§
+RETURN '' AS n ORDER BY  n    ASCENDING§

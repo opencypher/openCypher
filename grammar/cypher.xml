@@ -249,10 +249,7 @@
   </production>
 
   <production name="SortItem" rr:inline="true">
-    <alt>
-      <seq>&expr;<alt>DESCENDING DESC</alt></seq>
-      <seq>&expr;<opt><alt>ASCENDING ASC</alt></opt></seq>
-    </alt>
+    <seq>&expr; &WS; <opt><alt>ASCENDING ASC DESCENDING DESC</alt></opt></seq>
   </production>
 
   <production name="Hint" oc:legacy="true">
