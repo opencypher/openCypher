@@ -1,0 +1,174 @@
+= CIP2016-12-16 - Constraints syntax
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Mats Rydberg <mats@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+This CIP describes syntax and semantics for Cypher constraints.
+These are language constructs that impose restrictions on the shape of the data graph, and how statements are allowed to change it.
+--
+
+toc::[]
+
+== Motivation
+
+Constraints provide utility for shaping the data graph.
+
+== Background
+
+Cypher has a loose notion of schema, in which nodes and relationships may take very heterogeneous forms, both in terms of properties and in graph patterns.
+Constraints allows us to bound the heterogeneous nature of the property graph into a more regular form.
+
+== Proposal
+
+This CIP includes the following proposed constraints:
+
+* Node property uniqueness constraint
+* Node property existence constraint
+* Relationship property existence constraint
+
+Each constraint is detailed in its own below section.
+
+Once a constraint has been created, it may not be amended.
+Should a user wish to change its definition, it has to be dropped and recreated with an updated structure.
+
+==== Constraint names
+
+All constraints require the user to specify a nonempty _name_ at constraint creation time.
+This name is subsequently the handle with which a user may refer to the constraint, e.g. when dropping it.
+
+// TODO: Should we impose restrictions on the domain of constraint names, or are all Unicode characters allowed?
+
+=== Syntax overview
+
+The syntax for all constraints follow the same basic outline.
+
+.Grammar definition for constraint syntax.
+[source, ebnf]
+----
+constraint command = create-constraint | drop-constraint ;
+create-constraint  = "CREATE", "CONSTRAINT", constraint-name, "FOR", constraint-pattern, "REQUIRE", constraint-expr ;
+constraint-name    = symbolic-name
+constraint-pattern = node-pattern | simple-pattern ;
+constraint-expr    = uniqueness-constraint | existence-constraint ;
+drop-constraint    = "DROP", "CONSTRAINT", constraint-name ;
+----
+
+The constraint expressions vary depending on the actual constraint (see the detailed sections).
+
+.Example of dropping a constraint with name foo:
+[source, cypher]
+----
+DROP CONSTRAINT foo
+----
+
+=== Semantics overview
+
+The semantics are defined for each type of constraint, but some characteristics are shared:
+
+* When a statement tries to create a constraint on a graph where the data does not pass the constraint criterion, that statement will raise an error.
+* When a statement tries to create a constraint with a name that already exists, that statement will raise an error.
+* When a statement tries to drop a constraint referencing a name that does not exist, that statement will raise an error.
+* When an updating statement tries to modify the graph in such a way that it would violate a constraint, that statement will raise an error.
+
+=== Node property uniqueness constraint
+
+This constraint enforces that there can not be duplicate values of a certain property for a certain type of node.
+For example, that among nodes labeled with `:Person`, each `email` property must be unique.
+
+==== Syntax
+
+.Grammar definition for node property uniqueness constraint:
+[source, ebnf]
+----
+uniqueness-constraint = "UNIQUE", property-expression, { ",", property-expression } ;
+----
+
+.Example of single-property uniqueness constraint:
+[source, cypher]
+----
+CREATE CONSTRAINT unique_person_email
+FOR (p:Person)
+REQUIRE UNIQUE p.email
+----
+
+.Example of multiple-property uniqueness constraint:
+[source, cypher]
+----
+CREATE CONSTRAINT unique_person_details
+FOR (p:Person)
+REQUIRE UNIQUE p.name, p.email, p.address
+----
+
+==== Semantics
+
+A property uniqueness constraint is applied on nodes with a specific label, for one or more property keys.
+The constraint applies to all nodes where the property exist; its value must be non-null.
+When more than one property key is defined as part of the constraint, the uniqueness applies only to nodes where _all_ of the properties exist (are non-null).
+The uniqueness mandates that two distinct nodes within the domain of the constraint can not have the same combination of values for the defined properties (respectively).
+
+===== Example
+
+Consider the graph created by the following statement:
+
+[source, cypher]
+----
+CREATE (:Color {name: 'white', rgb: 255})
+CREATE (:Color {name: 'black', rgb: 0})
+CREATE (:Color {name: 'very, very dark grey', rgb: 0}) // rounding error!
+----
+
+Due to the duplication of the `rgb` property, the following attempt at creating a constraint will fail:
+
+[source, cypher]
+----
+CREATE CONSTRAINT only_one_color_per_rgb
+FOR (c:Color)
+REQUIRE UNIQUE c.rgb
+----
+
+Suppose that we would rather like to have one color node per name _and_ RGB value (to work around the rounding errors).
+We could then use the following constraint, without modifying our data:
+
+[source, cypher]
+----
+CREATE CONSTRAINT unique_color_nodes
+FOR (c:Color)
+REQUIRE UNIQUE c.rgb, c.name
+----
+
+=== Interaction with existing features
+
+The main interaction between the constraints and the rest of the language happens during updating statements.
+Existing constraints will cause certain updating statements to fail; in fact, that's the main purpose.
+
+=== Alternatives
+
+Plenty of alternative syntaxes have been discussed:
+
+* `GIVEN`, `CONSTRAIN`, `ASSERT` instead of `FOR`
+* `ASSERT`, `ENFORCE`, `IMPLIES` instead of `REQUIRE`
+
+The use of existing expression to express uniqueness, instead of using a new keyword `UNIQUE`, on the form:
+----
+FOR (p:Person), (q:Person)
+REQUIRE p.email <> q.email AND p <> q
+----
+which quickly becomes unwieldy for multiple properties.
+
+== What others do
+
+// TODO: SQL syntax for constraints
+
+== Benefits to this proposal
+
+Constraints make Cypher's notion of schema more well-defined, and allows users to keep graphs in a more regular, easier to manage form.
+
+== Caveats to this proposal
+
+For an implementing system, some constraints may prove challenging to enforce, as they generally require scanning through large parts of the graph to look for conflicting entities.
