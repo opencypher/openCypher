@@ -66,12 +66,16 @@ class Antlr4Massager
 
         String firstPart = original.substring( 0, justBeforeThis );
 
+        // Disallow keywords as function names
+        String firstPartAmended = firstPart.replace( "functionName : symbolicName ;",
+                "functionName : UnescapedSymbolicName\n             | EscapedSymbolicName ;");
+
         String betweenStartOfLexingAndKeywords = original.substring( justBeforeThis, startOfKeywords );
 
         String extraDigitRule = "\ndigit : Digit;\n";
 
         return addAllKeywordsToSymbolicName(
-                firstPart + allTheKeyWords + betweenStartOfLexingAndKeywords + extraDigitRule + everythingAfterKeywords, keywords );
+                firstPartAmended + allTheKeyWords + betweenStartOfLexingAndKeywords + extraDigitRule + everythingAfterKeywords, keywords );
     }
 
     private static String addAllKeywordsToSymbolicName( String original, List<String> keywords )

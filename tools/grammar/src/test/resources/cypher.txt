@@ -110,3 +110,12 @@ RETURN '' AS n ORDER BY n    DESC§
 RETURN '' AS n ORDER BY   n    ASC§
 RETURN '' AS n ORDER BY n   DESCENDING§
 RETURN '' AS n ORDER BY  n    ASCENDING§
+MATCH (other:Person) WHERE NOT other.age > 25 RETURN other.name§
+MATCH (other:Person) WHERE  NOT other.age > 25 RETURN other.name§
+MATCH (other:Person) WHERE    NOT   other.age > 25 RETURN other.name§
+MATCH (other:Person) WHERE (NOT other.age > 25) RETURN other.name§
+MATCH (other:Person) WHERE (NOT   other.age > 25) RETURN other.name§
+MATCH (other:Person) WHERE (   NOT   other.age > 25) RETURN other.name§
+MATCH (other:Person) WHERE ( NOT other.age > 25) RETURN other.name§
+MATCH (other:Person) WHERE ( NOT   other.age  > 25   ) RETURN other.name§
+MATCH (other:Person) WHERE   NOT  (  other.age > 25) RETURN other.name§

@@ -188,7 +188,7 @@
     <repeat>&SP; AND &SP;<non-terminal ref="Expression9"/></repeat>
   </production>
   <production name="Expression9" rr:inline="true">
-    <repeat>&SP; NOT &SP;</repeat>
+    <repeat>NOT &WS;</repeat>
     <non-terminal ref="Expression8"/>
   </production>
   <production name="Expression8" rr:inline="true">
