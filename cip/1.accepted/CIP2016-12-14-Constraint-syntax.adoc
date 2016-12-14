@@ -142,6 +142,43 @@ FOR (c:Color)
 REQUIRE UNIQUE c.rgb, c.name
 ----
 
+[[existence]]
+=== Property existence constraints
+
+Property existence constraints are defined for both nodes and relationships, but the semantics are the same.
+For this reason we will go over both constraints in the same section.
+
+==== Syntax
+
+.Grammar definition for property existence constraint:
+[source, ebnf]
+----
+existence-constraint = "exists", "(", property-expression, ")" ;
+----
+
+.Example of node property existence constraint:
+[source, cypher]
+----
+CREATE CONSTRAINT colors_must_have_rgb
+FOR (c:Color)
+REQUIRE exists(c.rgb)
+----
+
+.Example of relationship property existence constraint:
+[source, cypher]
+----
+CREATE CONSTRAINT rates_have_quality
+FOR ()-[l:RATED]-()
+REQUIRE exists(l.rating)
+----
+
+==== Semantics
+
+Property existence constraints enforce that the value of the specified property is non-null for all entities in the constraint domain.
+
+
+===== Example
+
 === Interaction with existing features
 
 The main interaction between the constraints and the rest of the language happens during updating statements.
