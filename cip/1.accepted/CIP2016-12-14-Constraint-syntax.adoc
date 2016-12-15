@@ -28,9 +28,9 @@ Constraints allows us to bound the heterogeneous nature of the property graph in
 
 This CIP includes the following proposed constraints:
 
-* Node property uniqueness constraint
-* Node property existence constraint
-* Relationship property existence constraint
+* <<uniqueness>>
+* <<existence, Node property existence constraint>>
+* <<existence, Relationship property existence constraint>>
 
 Each constraint is detailed in its own below section.
 
@@ -76,6 +76,10 @@ The semantics are defined for each type of constraint, but some characteristics 
 * When a statement tries to drop a constraint referencing a name that does not exist, that statement will raise an error.
 * When an updating statement tries to modify the graph in such a way that it would violate a constraint, that statement will raise an error.
 
+The constraints define a _domain_ within which the constraint applies.
+The domain is defined by the constraint pattern.
+
+[[uniqueness]]
 === Node property uniqueness constraint
 
 This constraint enforces that there can not be duplicate values of a certain property for a certain type of node.
@@ -107,10 +111,10 @@ REQUIRE UNIQUE p.name, p.email, p.address
 
 ==== Semantics
 
-A property uniqueness constraint is applied on nodes with a specific label, for one or more property keys.
-The constraint applies to all nodes where the property exist; its value must be non-null.
-When more than one property key is defined as part of the constraint, the uniqueness applies only to nodes where _all_ of the properties exist (are non-null).
-The uniqueness mandates that two distinct nodes within the domain of the constraint can not have the same combination of values for the defined properties (respectively).
+The domain of a property uniqueness constraint is defined as all the nodes with a specific label where the specified property key(s) exist (are non-null).
+When more than one property key is defined as part of the constraint, only nodes where _all_ of the properties exist are part of the domain.
+
+The uniqueness mandates that two distinct nodes within the domain can not have the same combination of values for the defined properties (respectively).
 
 ===== Example
 
@@ -174,8 +178,10 @@ REQUIRE exists(l.rating)
 
 ==== Semantics
 
-Property existence constraints enforce that the value of the specified property is non-null for all entities in the constraint domain.
+The domain of a node property existence constraint are all nodes with the specified label.
+Similarly, the domain of a relationship property existence constraint are all relationship with the specified type.
 
+Property existence constraints mandates that the value of the specified property exists (is non-null) for all entities in the domain.
 
 ===== Example
 
