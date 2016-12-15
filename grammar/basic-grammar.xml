@@ -146,7 +146,7 @@
     </alt>
   </production>
 
-  <production name="RelType" rr:inline="true" oc:legacy="true">
+  <production name="RelType" rr:inline="true">
     : &WS; <non-terminal ref="RelTypeName"/>
   </production>
 
