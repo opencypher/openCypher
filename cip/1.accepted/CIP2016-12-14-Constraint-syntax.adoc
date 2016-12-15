@@ -232,7 +232,49 @@ which quickly becomes unwieldy for multiple properties.
 
 == What others do
 
-// TODO: SQL syntax for constraints
+In SQL, the following constraints exist (http://www.w3schools.com/sql/sql_constraints.asp):
+
+* `NOT NULL` - Indicates that a column cannot store NULL value
+* `UNIQUE` - Ensures that each row for a column must have a unique value
+* `PRIMARY KEY` - A combination of a `NOT NULL` and `UNIQUE`. Ensures that a column (or combination of two or more columns) have a unique identity which helps to find a particular record in a table more easily and quickly
+* `FOREIGN KEY` - Ensure the referential integrity of the data in one table to match values in another table
+* `CHECK` - Ensures that the value in a column meets a specific condition
+* `DEFAULT` - Specifies a default value for a column
+The next chapters will describe each constraint in detail.
+
+The property existence constraints represent the same functionality as the `NOT NULL` SQL constraint.
+The node property uniqueness constraint represents the `PRIMARY KEY` SQL constraint.
+
+SQL constraints may be introduced at table creation time (in a `CREATE TABLE` statement), or in an `ALTER TABLE` statement:
+
+.Creating a persons table in SQL Server / Oracle / MS Access:
+[source, sql]
+----
+CREATE TABLE Persons
+(
+   P_Id int NOT NULL UNIQUE,
+   LastName varchar(255) NOT NULL,
+   FirstName varchar(255))
+----
+
+.Creating a persons table in MySQL:
+[source, sql]
+----
+CREATE TABLE Persons
+(
+  P_Id int NOT NULL,
+  LastName varchar(255) NOT NULL,
+  FirstName varchar(255)
+  UNIQUE (P_Id)
+)
+----
+
+.Adding a named composite `UNIQUE` constraint in MySQL / SQL Server / Oracle / MS Access:
+[source, sql]
+----
+ALTER TABLE Persons
+ADD CONSTRAINT uc_PersonID UNIQUE (P_Id,LastName)
+----
 
 == Benefits to this proposal
 
