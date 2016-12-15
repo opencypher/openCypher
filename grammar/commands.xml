@@ -47,7 +47,7 @@
   xsi:schemaLocation="http://opencypher.org/grammar xmlschemas/ocGrammar.xsd "
   >
 
-  <production name="Command" rr:inline="true" oc:legacy="true">
+  <production name="Command" rr:inline="true">
     <alt>
       <non-terminal ref="CreateIndex"/>
       <non-terminal ref="DropIndex"/>
@@ -60,10 +60,51 @@
 
       <non-terminal ref="CreateRelationshipPropertyExistenceConstraint"/>
       <non-terminal ref="DropRelationshipPropertyExistenceConstraint"/>
+
+      <non-terminal ref="CreateConstraint"/>
+      <non-terminal ref="DropConstraint"/>
     </alt>
   </production>
 
-  <!-- / COMMANDS \ -->
+  <!-- / NEW CONSTRAINT SYNTAX \ -->
+
+  <production name="CreateConstraint">
+    CREATE &SP; CONSTRAINT &SP; <non-terminal ref="ConstraintName"/> &SP;
+    FOR &SP; <non-terminal ref="ConstraintPattern"/> &SP;
+    REQUIRE &SP; <non-terminal ref="ConstraintExpression"/>
+  </production>
+
+  <production name="DropConstraint">
+    DROP &SP; CONSTRAINT &SP; <non-terminal ref="ConstraintName"/>
+  </production>
+
+  <production name="ConstraintName">
+    <non-terminal ref="SymbolicName"/>
+  </production>
+
+  <production name="ConstraintPattern">
+    <alt>
+      <seq>( &var; &label; ) </seq>
+      <seq>( ) - [ &var; <non-terminal ref='RelType'/> ] - ( ) </seq>
+    </alt>
+  </production>
+
+  <production name="ConstraintExpression">
+    <alt>
+      <non-terminal ref="NodePropertyUniquenessConstraint"/>
+      <non-terminal ref="PropertyExistenceConstraint"/>
+    </alt>
+  </production>
+
+  <production name="NodePropertyUniquenessConstraint">
+    UNIQUE &SP; <non-terminal ref="PropertyExpression"/> <repeat>&WS; , &WS; <non-terminal ref="PropertyExpression"/></repeat>
+  </production>
+
+  <production name="PropertyExistenceConstraint">
+    exists ( <non-terminal ref="PropertyExpression"/> )
+  </production>
+
+  <!-- / LEGACY COMMANDS \ -->
 
   <production name="CreateUniqueConstraint" rr:inline="true" oc:legacy="true">
     CREATE &SP; <non-terminal ref="UniqueConstraint"/>
