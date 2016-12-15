@@ -122,9 +122,9 @@ Consider the graph created by the following statement:
 
 [source, cypher]
 ----
-CREATE (:Color {name: 'white', rgb: 255})
-CREATE (:Color {name: 'black', rgb: 0})
-CREATE (:Color {name: 'very, very dark grey', rgb: 0}) // rounding error!
+CREATE (:Color {name: 'white', rgb: 0xffffff})
+CREATE (:Color {name: 'black', rgb: 0x000000})
+CREATE (:Color {name: 'very, very dark grey', rgb: 0x000000}) // rounding error!
 ----
 
 Due to the duplication of the `rgb` property, the following attempt at creating a constraint will fail:
@@ -184,6 +184,32 @@ Similarly, the domain of a relationship property existence constraint are all re
 Property existence constraints mandates that the value of the specified property exists (is non-null) for all entities in the domain.
 
 ===== Example
+
+Consider the graph containing `:Color` nodes.
+Each color has an integral RGB value representation in a property `rgb`.
+Users may lookup color nodes to extract their RGB values for application processing.
+Users may also add new color nodes to the graph.
+
+Suppose the query that looks up the RGB value of a color with a given name looks like this:
+
+[source, cypher]
+----
+MATCH (c:Color {name: $name})
+WHERE exists(c.rgb)
+RETURN c.rgb
+----
+
+The `WHERE` clause protects the application from receiving `null` values back for user-defined colors where the RGB values have not been specified correctly.
+It may however be eliminated by the introduction of a node property existence constraint:
+
+[source, cypher]
+----
+CREATE CONSTRAINT colors_must_have_rgb
+FOR (c:Color)
+REQUIRE exists(c.rgb)
+----
+
+Any updating statement that would create a `:Color` node without specifying a `rgb` property for it would now fail.
 
 === Interaction with existing features
 
