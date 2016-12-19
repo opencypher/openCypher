@@ -247,18 +247,12 @@
   </production>
   <production name="Atom">
     <alt>
-      <non-terminal ref="NumberLiteral"/>
-      <non-terminal ref="StringLiteral"/>
+      <non-terminal ref="Literal"/>
       <non-terminal ref="Parameter"/>
       <non-terminal ref="LegacyParameter"/>
-      TRUE
-      FALSE
-      NULL
       <non-terminal ref="CaseExpression"/>
       <seq>COUNT &WS; ( &WS; * &WS; )</seq>
-      <non-terminal ref="MapLiteral"/>
       <non-terminal ref="ListComprehension"/>
-      <seq> [ &WS; &expr; &WS; <repeat> , &WS; &expr; &WS; </repeat> ] </seq>
       <seq>FILTER  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
       <seq>EXTRACT &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; <opt>&WS; | &expr;</opt> ) </seq>
       <non-terminal ref="Reduce"/>
@@ -272,6 +266,28 @@
       <non-terminal ref="FunctionInvocation"/>
       &var;
     </alt>
+  </production>
+
+  <production name="Literal">
+    <alt>
+      <non-terminal ref="NumberLiteral"/>
+      <non-terminal ref="StringLiteral"/>
+      <non-terminal ref="BooleanLiteral"/>
+      NULL
+      <non-terminal ref="MapLiteral"/>
+      <non-terminal ref="ListLiteral"/>
+    </alt>
+  </production>
+
+  <production name="BooleanLiteral">
+    <alt>
+      TRUE
+      FALSE
+    </alt>
+  </production>
+
+  <production name="ListLiteral">
+    <seq> [ &WS; &expr; &WS; <repeat> , &WS; &expr; &WS; </repeat> ] </seq>
   </production>
 
   <production name="Reduce" rr:inline="true" oc:legacy="true">
