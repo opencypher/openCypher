@@ -1,0 +1,163 @@
+= CIP2016-12-19-Reserved-keywords
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Mats Rydberg <mats@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+Similarly to many programming languages, Cypher has a notion of keywords, which is a word that has special meaning within the language.
+Historically, and in contrast to many other languages, these words have been allowed to be used as symbolic names.
+This is poor practice, as it opens up for users to write hard-to-read and possibly ambiguous statements.
+This CIP defines a set of reserved words and proposes that they be disallowed from being used as symbolic names.
+--
+
+toc::[]
+
+
+== Motivation
+
+Consider the following, syntactically and semantically correct query:
+
+[source, cypher]
+----
+MATCH (null)-[:MERGE]->(true)
+WITH null.delete AS with, `true`.false AS null
+RETURN 2 + with, coalesce(null, 3.1415)
+----
+
+Clearly, this query is poorly authored, and it would not be feasible to expect it to appear in real-world use, except as an example of poor usage of the language.
+However, there is little reason to allow this query to parse successfully in the first place, especially given the observation of its uselessness.
+In fact, most computer languages do limit the space of allowed symbolic names, or identifiers, by reserving a number of words from being used as such.
+
+An additional benefit from this proposal may be understood from a more technical point of view; parsing a language with fewer context-based grammatical rules, and more explicit rules for keywords and their allowed context(s) is generally easier.
+This approach is friendlier towards the increasing size of the Cypher audience.
+
+== Background
+
+Historically, Cypher has been liberally allowing any word as an identifier, relying on context to disambiguate between possible uses of a particular word.
+As Cypher matures towards becoming a standard language, however, a more generic model that aligns with users' expectations from the world of computer languages is preferable, and a grammar with more clear distinctions between identifiers and keywords would be a step in that direction.
+
+== Proposal
+
+The concrete proposal is a listing of _reserved words_ (see f.e. https://en.wikipedia.org/wiki/Reserved_word[Wikipedia's definition]), all of which have a special meaning in Cypher.
+These reserved words would be disallowed from being used as identifiers, in the following contexts:
+
+* Variables
+* Function names
+* Parameters
+
+By _escaping_ any of the reserved words (encapsulating in backticks ```), they would be valid as identifiers in the above contexts.
+
+==== Reserved words
+
+We group the reserved words by the three main classes of words that they draw from: keywords, operators, and literals.
+In addition to this, we list a number of words that are reserved for future use.
+
+===== Keywords
+
+* MATCH
+* WHERE
+* WITH
+* RETURN
+* SKIP
+* LIMIT
+* ORDER
+* BY
+* ASC
+* ASCENDING
+* DESC
+* DESCENDING
+* UNWIND
+* OPTIONAL
+* CREATE
+* DETACH
+* DELETE
+* SET
+* REMOVE
+* MERGE
+* ON
+* EXISTS
+* UNION
+* ALL
+
+===== Operators
+
+* AS
+* DISTINCT
+* AND
+* OR
+* XOR
+* NOT
+* STARTS
+* ENDS
+* CONTAINS
+* IN
+* IS
+
+===== Literals
+
+* null
+* true
+* false
+
+===== Reserved for future use
+
+* DO
+* FOR
+* REQUIRE
+* CONSTRAINT
+* UNIQUE
+
+==== Examples
+
+The query exemplified in <<Motivation>> would no longer be valid, but would have to be escaped:
+
+[source, cypher]
+----
+MATCH (`null`)-[:MERGE]->(`true`)
+WITH `null`.delete AS `with`, `true`.false AS `null`
+RETURN 2 + `with`, coalesce(`null`, 3.1415)
+----
+
+While not recommended, this query is still better than unescaped form, as it is clear to the reader that the literals and keywords used as variables do not represent their special meaning.
+
+The relationship type and the two property keys in this query still carry names that coincide with keywords and/or literals.
+We discuss this further below, in <<Alternatives>>.
+
+=== Interaction with existing features
+
+Provide details on any interactions that need to be considered.
+
+=== Alternatives
+
+This proposal could be extended with disallowing the reserved words also as:
+
+* Relationship types
+* Labels
+* Property keys
+
+However, these usages are only valid in very limited contexts, coupled with a special character (`:` or `.`), so the benefit would be minimal.
+Furthermore, these usages represent _schema_, which is a context in which it is arguably more important to provide higher degrees of freedom, than in a pure statement context.
+
+Another variation that may be taken is to not strictly forbid the future-reserved words, but just issue a strong recommendation to not use them.
+The trade-off in this case is between allowing more freedom for statements now and breaking statements in future language updates.
+
+== What others do
+
+
+
+== Benefits to this proposal
+
+The following benefits are envisioned:
+
+* Grammar would be easier to parse
+* Hard-to-read statements would be more difficult to write
+
+== Caveats to this proposal
+
+Several of the reserved words do represent general-purpose words that one would like to use as informative identifiers.
+This proposal would take away the ability to use these identifiers, meaning that some statements would be slightly more difficult to write.
