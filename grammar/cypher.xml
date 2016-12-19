@@ -195,23 +195,20 @@
   </production>
 
   <production name="With" scope:rule="new">
-    <alt>
-      <seq>WITH DISTINCT &SP;
-        <non-terminal ref="ReturnBody"/>
-        <opt><non-terminal ref="Where"/></opt>
-      </seq>
-      <seq>WITH &SP;
-        <non-terminal ref="ReturnBody"/>
-        <opt><non-terminal ref="Where"/></opt>
-      </seq>
-    </alt>
+    <seq>
+      WITH
+      <opt>&WS; DISTINCT</opt> &SP;
+      <non-terminal ref="ReturnBody"/>
+      <opt>&WS;<non-terminal ref="Where"/></opt>
+    </seq>
   </production>
 
   <production name="Return">
-    <alt>
-      <seq>RETURN &SP; DISTINCT &SP;<non-terminal ref="ReturnBody"/></seq>
-      <seq>RETURN &SP;<non-terminal ref="ReturnBody"/></seq>
-    </alt>
+    <seq>
+      RETURN
+      <opt>&WS; DISTINCT</opt> &SP;
+      <non-terminal ref="ReturnBody"/>
+    </seq>
   </production>
 
   <production name="ReturnBody">
