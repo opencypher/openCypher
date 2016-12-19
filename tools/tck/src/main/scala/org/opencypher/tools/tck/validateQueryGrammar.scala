@@ -14,17 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools;
+package org.opencypher.tools.tck
 
-import cucumber.api.CucumberOptions;
-import org.junit.runner.RunWith;
+object validateQueryGrammar {
 
-@RunWith( InitFunction.class )
-@CucumberOptions(
-        strict = true,
-        glue = { "classpath:org/opencypher/tools/tck" },
-        features = { "../../tck/features" }
-)
-public class VerifyFeaturesTest
-{
+  var f: java.util.function.Consumer[String] = _
+
+  def apply(query: String) = {
+    f.accept(query)
+  }
+
 }

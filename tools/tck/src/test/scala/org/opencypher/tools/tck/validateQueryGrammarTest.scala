@@ -14,17 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools;
+package org.opencypher.tools.tck
 
-import cucumber.api.CucumberOptions;
-import org.junit.runner.RunWith;
+import org.opencypher.tools.grammar.Antlr4TestUtils
 
-@RunWith( InitFunction.class )
-@CucumberOptions(
-        strict = true,
-        glue = { "classpath:org/opencypher/tools/tck" },
-        features = { "../../tck/features" }
-)
-public class VerifyFeaturesTest
-{
+class validateQueryGrammarTest extends TckTestSupport {
+
+  validateQueryGrammar.f = new java.util.function.Consumer[String] {
+    override def accept(query: String): Unit = Antlr4TestUtils.parse(query)
+  }
+
+  test("parsing should work") {
+    validateQueryGrammar("MATCH (a) RETURN a")
+  }
+
+  test("bad query should fail parsing") {
+    an [AssertionError] shouldBe thrownBy {
+      validateQueryGrammar("not a query")
+    }
+  }
 }

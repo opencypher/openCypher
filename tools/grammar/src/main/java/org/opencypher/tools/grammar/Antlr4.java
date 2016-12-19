@@ -163,6 +163,7 @@ public class Antlr4 extends BnfWriter
                || rule.equalsIgnoreCase( "hexdigit" )
                || rule.equalsIgnoreCase( "octalinteger" )
                || rule.equalsIgnoreCase( "octalstring" )
+               || rule.equalsIgnoreCase( "exponentDecimalReal" )
                || rule.equalsIgnoreCase( "octdigit" );
     }
 

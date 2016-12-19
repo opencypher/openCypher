@@ -54,6 +54,12 @@
     </plugins>
     <resources>
       <resource>
+        <directory>../../grammar</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>../../tck/features</directory>
         <includes>
           <include>**/*.feature</include>
@@ -121,6 +127,19 @@
       <groupId>org.scalacheck</groupId>
       <artifactId>scalacheck_2.11</artifactId>
       <version>1.13.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opencypher</groupId>
+      <artifactId>grammar</artifactId>
+      <version>${version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opencypher</groupId>
+      <artifactId>grammar</artifactId>
+      <version>${version}</version>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
 

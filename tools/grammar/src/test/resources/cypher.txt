@@ -121,3 +121,38 @@ MATCH (other:Person) WHERE ( NOT   other.age  > 25   ) RETURN other.name§
 MATCH (other:Person) WHERE   NOT  (  other.age > 25) RETURN other.name§
 RETURN count(*)§
 WITH {a: 1} AS map RETURN count(map.a)§
+RETURN 1 AS e§
+RETURN 1.0e10§
+WITH 1 AS one WHERE one > 0 RETURN one§
+WITH 1 AS one   WHERE one > 0 RETURN one§
+WITH 1 AS one    WHERE    one > 0 RETURN one§
+WITH 1 AS one
+WHERE one > 0
+RETURN one§
+MATCH (a), (b), (c)
+DELETE a, b, c§
+MATCH (a), (b), (c)
+DELETE   a, b, c§
+MATCH (a), (b), (c)
+DELETE   a ,  b,c §
+MATCH (a), (b), (c)
+DETACH DELETE a,b,c§
+MATCH (a), (b), (c)
+DETACH   DELETE a    ,b   ,c§
+MATCH (a), (b), (c)
+DETACH   DELETE    a   ,   b   ,  c§
+RETURN [x IN [1, '', n] | toString(x) ] AS list§
+RETURN [x IN [1, '', n]    | toString(x) ] AS list§
+RETURN [x IN [1, '', n]    |    toString(x) ] AS list§
+RETURN [x IN [1, '', n]    |    toString(x)    ] AS list§
+RETURN [  x   IN   [  1  ,   ''  ,   n  ]    |    toString(x)   +   '-string'  ] AS list§
+RETURN []§
+RETURN [ ]§
+RETURN [   ]§
+RETURN [  1  ]§
+RETURN [  1, 2  ]§
+RETURN [  1   ,  2 ]§
+RETURN [  1   ,  2]§
+RETURN [1   ,  2]§
+RETURN [1,  2]§
+RETURN [1,2]§

@@ -16,8 +16,12 @@
  */
 package org.opencypher.tools.tck
 
+import java.util.concurrent.atomic.AtomicInteger
+
 import cucumber.api.{DataTable, Scenario}
 import org.opencypher.tools.tck.constants.TCKStepDefinitions._
+
+import scala.util.{Failure, Success, Try}
 
 class FeatureFormatChecker extends TCKCucumberTemplate {
 
@@ -43,8 +47,10 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
 
   And(INIT_QUERY) { (query: String) => initStep(query) }
 
-  private def initStep(query: String) =
+  private def initStep(query: String) = {
     codeStyle(query).map(msg => throw InvalidFeatureFormatException(msg))
+    validateGrammar(query)
+  }
 
   And(PARAMETERS) { (table: DataTable) =>
     validateParameters(table).map(msg => throw InvalidFeatureFormatException(msg))
@@ -54,6 +60,7 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
 
   private def whenStep(query: String) = {
     codeStyle(query).map(msg => throw InvalidFeatureFormatException(msg))
+    validateGrammar(query)
     lastSeenQuery = query
     stepValidator.reportStep("Query")
   }
@@ -104,6 +111,7 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
 
   When(EXECUTING_CONTROL_QUERY) { (query: String) =>
     codeStyle(query).map(msg => throw InvalidFeatureFormatException(msg))
+    validateGrammar(query)
     stepValidator.reportStep("Control-query")
   }
 
@@ -116,6 +124,19 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   private def codeStyle(query: String): Option[String] = {
     if (scenariosWithIntentionalStyleViolations(currentScenarioName)) None
     else validateCodeStyle(query)
+  }
+
+  val count = new AtomicInteger(0)
+
+  private def validateGrammar(query: String) = {
+    Try(validateQueryGrammar(query)) match {
+      case Success(_) =>
+      case Failure(exception: AssertionError) =>
+        // too much output
+//        println(s"Grammar reports violation: $query")
+        println(s"Total # of grammar violations: ${count.incrementAndGet()}")
+      case Failure(e) => throw e
+    }
   }
 
   private val scenariosWithIntentionalStyleViolations =
