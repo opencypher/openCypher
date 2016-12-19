@@ -146,3 +146,13 @@ RETURN [x IN [1, '', n]    | toString(x) ] AS list§
 RETURN [x IN [1, '', n]    |    toString(x) ] AS list§
 RETURN [x IN [1, '', n]    |    toString(x)    ] AS list§
 RETURN [  x   IN   [  1  ,   ''  ,   n  ]    |    toString(x)   +   '-string'  ] AS list§
+RETURN []§
+RETURN [ ]§
+RETURN [   ]§
+RETURN [  1  ]§
+RETURN [  1, 2  ]§
+RETURN [  1   ,  2 ]§
+RETURN [  1   ,  2]§
+RETURN [1   ,  2]§
+RETURN [1,  2]§
+RETURN [1,2]§
