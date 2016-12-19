@@ -121,3 +121,5 @@ MATCH (other:Person) WHERE ( NOT   other.age  > 25   ) RETURN other.name§
 MATCH (other:Person) WHERE   NOT  (  other.age > 25) RETURN other.name§
 RETURN count(*)§
 WITH {a: 1} AS map RETURN count(map.a)§
+RETURN 1 AS e§
+RETURN 1.0e10§
