@@ -148,7 +148,13 @@ The trade-off in this case is between allowing more freedom for statements now a
 
 == What others do
 
+The SQL standard define a set of reserved words and non-reserved keywords which vary across its updates.
+SQL implementers interpret the standard in different ways, specifying different sets of reserved words:
 
+* https://www.postgresql.org/docs/9.6/static/sql-keywords-appendix.html[PostgreSQL] lists its ~100 reserved words together with the words and their status in the SQL standards.
+* https://dev.mysql.com/doc/refman/5.7/en/keywords.html[MySQL] specifies ~620 reserved words.
+* https://docs.oracle.com/database/121/SQLRF/ap_keywd001.htm#SQLRF55621[Oracle] specifies ~110 reserved words.
+* https://msdn.microsoft.com/en-us/library/ms189822.aspx[Microsoft SQL Server] specifies ~180 reserved words.
 
 == Benefits to this proposal
 
