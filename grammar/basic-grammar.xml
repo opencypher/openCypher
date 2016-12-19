@@ -321,10 +321,10 @@
   </production>
 
   <production name="ListComprehension" rr:inline="true">
-    [
+    [ &WS;
       <non-terminal ref="FilterExpression"/>
-      <opt>&WS; | &expr;</opt>
-    ]
+      <opt>&WS; | &WS; &expr;</opt>
+    &WS; ]
   </production>
 
   <production name="PropertyLookup">

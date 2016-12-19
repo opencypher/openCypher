@@ -141,3 +141,8 @@ MATCH (a), (b), (c)
 DETACH   DELETE a    ,b   ,c§
 MATCH (a), (b), (c)
 DETACH   DELETE    a   ,   b   ,  c§
+RETURN [x IN [1, '', n] | toString(x) ] AS list§
+RETURN [x IN [1, '', n]    | toString(x) ] AS list§
+RETURN [x IN [1, '', n]    |    toString(x) ] AS list§
+RETURN [x IN [1, '', n]    |    toString(x)    ] AS list§
+RETURN [  x   IN   [  1  ,   ''  ,   n  ]    |    toString(x)   +   '-string'  ] AS list§
