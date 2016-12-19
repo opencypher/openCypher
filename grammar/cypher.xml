@@ -172,10 +172,11 @@
   </production>
 
   <production name="Delete">
-    <alt>
-      <seq>DELETE &expr;<repeat>, &expr;</repeat></seq>
-      <seq>DETACH &SP; DELETE &expr;<repeat>, &expr;</repeat></seq>
-    </alt>
+    <seq>
+      <opt>DETACH &SP;</opt>
+      DELETE &WS; &expr;
+      <repeat>&WS; , &WS; &expr;</repeat>
+    </seq>
   </production>
 
   <production name="Remove">

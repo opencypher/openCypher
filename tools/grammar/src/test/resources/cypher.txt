@@ -129,3 +129,15 @@ WITH 1 AS one    WHERE    one > 0 RETURN one§
 WITH 1 AS one
 WHERE one > 0
 RETURN one§
+MATCH (a), (b), (c)
+DELETE a, b, c§
+MATCH (a), (b), (c)
+DELETE   a, b, c§
+MATCH (a), (b), (c)
+DELETE   a ,  b,c §
+MATCH (a), (b), (c)
+DETACH DELETE a,b,c§
+MATCH (a), (b), (c)
+DETACH   DELETE a    ,b   ,c§
+MATCH (a), (b), (c)
+DETACH   DELETE    a   ,   b   ,  c§
