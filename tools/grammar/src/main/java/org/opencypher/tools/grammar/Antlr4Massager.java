@@ -68,7 +68,7 @@ class Antlr4Massager
 
         // Disallow keywords as function names
         String firstPartAmended = firstPart.replace( "functionName : symbolicName ;",
-                "functionName : UnescapedSymbolicName\n             | EscapedSymbolicName ;");
+                "functionName : UnescapedSymbolicName\n             | EscapedSymbolicName\n             | COUNT ;");
 
         String betweenStartOfLexingAndKeywords = original.substring( justBeforeThis, startOfKeywords );
 
