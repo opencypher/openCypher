@@ -530,14 +530,15 @@
 
   <production name="ExponentDecimalReal" oc:lexer="true">
     <alt>
-      <repeat min="1"><alt><non-terminal ref="Digit"/>.</alt></repeat>
-      <non-terminal ref="DecimalInteger" />
+      <repeat min="1"><non-terminal ref="Digit"/></repeat>
+      <seq>
+        <repeat min="1"><non-terminal ref="Digit"/></repeat> . <repeat min="1"><non-terminal ref="Digit"/></repeat>
+      </seq>
+      <seq>. <repeat min="1"><non-terminal ref="Digit"/></repeat></seq>
     </alt>
     <alt>e E</alt>
-    <alt>
-      <non-terminal ref="DigitString"/>
-      <non-terminal ref="DecimalInteger"/>
-    </alt>
+    <opt>-</opt>
+    <repeat min="1"><non-terminal ref="Digit"/></repeat>
   </production>
 
   <production name="RegularDecimalReal">
