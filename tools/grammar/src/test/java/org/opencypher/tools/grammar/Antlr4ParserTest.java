@@ -48,7 +48,7 @@ public class Antlr4ParserTest
         getQueries( "/cypher-legacy.txt" ).forEach( Antlr4TestUtils::parseLegacy );
     }
 
-    @Test
+//    @Test
     public void investigateTokenStream() throws IOException
     {
         // Keep: Not really testing things but quite useful for debugging antlr lexing
