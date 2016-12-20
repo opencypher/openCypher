@@ -368,7 +368,7 @@
     <non-terminal ref="SymbolicName" rr:title="variable"/>
   </production>
 
-  <production name="StringLiteral">
+  <production name="StringLiteral" oc:lexer="true">
     <alt>
       <seq>" <repeat><alt>
         <character><except literal="\"/><except literal='"'/></character>
@@ -382,7 +382,7 @@
     </alt>
   </production>
 
-  <production name="EscapedChar">
+  <production name="EscapedChar" oc:lexer="true">
     \
     <alt>
       \  <!-- Encodes a backslash -->
@@ -454,44 +454,71 @@
     </alt>
   </production>
 
-  <production name="HexInteger">
-    0x <non-terminal ref="HexString"/>
+  <production name="HexInteger" oc:lexer="true">
+    0x <repeat min="1"><non-terminal ref="HexDigit"/></repeat>
   </production>
 
-  <production name="DecimalInteger">
+  <production name="DecimalInteger" oc:lexer="true">
     <alt>
+      <non-terminal ref="ZeroDigit"/>
       <seq>
-        <alt>1 2 3 4 5 6 7 8 9</alt>
-        <opt><non-terminal ref="DigitString"/></opt>
+        <non-terminal ref="NonZeroDigit"/>
+        <repeat><non-terminal ref="Digit"/></repeat>
       </seq>
-      0
     </alt>
   </production>
 
-  <production name="OctalInteger">
-    0 <non-terminal ref="OctalString"/>
+  <production name="OctalInteger" oc:lexer="true">
+    <seq>
+      <non-terminal ref="ZeroDigit"/>
+      <repeat min="1"><non-terminal ref="OctDigit"/></repeat>
+    </seq>
   </production>
 
-  <production name="HexString">
-    <repeat min="1"><non-terminal ref="HexDigit"/></repeat>
+  <production name="HexLetter" oc:lexer="true">
+    <alt>
+      a b c d e f
+    </alt>
   </production>
-  <production name="DigitString">
+
+  <production name="HexDigit" oc:lexer="true">
+    <alt>
+      <non-terminal ref="Digit"/>
+      <non-terminal ref="HexLetter"/>
+    </alt>
+  </production>
+
+  <production name="DigitString" oc:lexer="true">
     <repeat min="1"><non-terminal ref="Digit"/></repeat>
   </production>
-  <production name="OctalString">
-    <repeat min="1"><non-terminal ref="OctDigit"/></repeat>
+
+  <production name="Digit" rr:inline="true" oc:lexer="true">
+    <alt>
+      <non-terminal ref="ZeroDigit"/>
+      <non-terminal ref="NonZeroDigit"/>
+    </alt>
   </production>
 
-  <production name="HexDigit">
-    <alt>0 1 2 3 4 5 6 7 8 9 a b c d e f</alt>
+  <production name="NonZeroDigit" oc:lexer="true">
+    <alt>
+      <non-terminal ref="NonZeroOctDigit"/>
+      8 9
+    </alt>
   </production>
 
-  <production name="Digit" rr:inline="true">
-    <alt>0 1 2 3 4 5 6 7 8 9</alt>
+  <production name="NonZeroOctDigit" oc:lexer="true">
+    <alt>1 2 3 4 5 6 7</alt>
   </production>
 
-  <production name="OctDigit">
-    <alt>0 1 2 3 4 5 6 7</alt>
+  <production name="OctDigit" oc:lexer="true">
+    <alt>
+      <non-terminal ref="ZeroDigit"/>
+      <non-terminal ref="NonZeroOctDigit"/>
+    </alt>
+  </production>
+
+  <production name="ZeroDigit" oc:lexer="true">
+    0
   </production>
 
   <production name="DoubleLiteral">
@@ -501,7 +528,7 @@
     </alt>
   </production>
 
-  <production name="ExponentDecimalReal">
+  <production name="ExponentDecimalReal" oc:lexer="true">
     <alt>
       <repeat min="1"><alt><non-terminal ref="Digit"/>.</alt></repeat>
       <non-terminal ref="DecimalInteger" />
@@ -537,12 +564,12 @@
     </alt>
   </production>
 
-  <production name="UnescapedSymbolicName" rr:inline="true">
+  <production name="UnescapedSymbolicName" rr:inline="true" oc:lexer="true">
     <non-terminal ref="IdentifierStart"/>
     <repeat><non-terminal ref="IdentifierPart"/></repeat>
   </production>
 
-  <production name="IdentifierStart" rr:inline="true">
+  <production name="IdentifierStart" rr:inline="true" oc:lexer="true">
     <description>
       Based on the unicode identifier and pattern syntax
         (http://www.unicode.org/reports/tr31/)
@@ -563,7 +590,7 @@
     </alt>
   </production>
 
-  <production name="IdentifierPart" rr:inline="true">
+  <production name="IdentifierPart" rr:inline="true" oc:lexer="true">
     <description>
       Based on the unicode identifier and pattern syntax
         (http://www.unicode.org/reports/tr31/)
@@ -575,7 +602,7 @@
     </alt>
   </production>
 
-  <production name="EscapedSymbolicName" rr:inline="true">
+  <production name="EscapedSymbolicName" rr:inline="true" oc:lexer="true">
     <description>
       Any character except "`", enclosed within `backticks`. Backticks are escaped with double backticks.
     </description>
@@ -584,11 +611,11 @@
     </repeat>
   </production>
 
-  <production name="SP" rr:skip="true">
+  <production name="SP" rr:skip="true" oc:lexer="true">
     <repeat min="1"><non-terminal ref='whitespace'/></repeat>
   </production>
 
-  <production name="whitespace">
+  <production name="whitespace" oc:lexer="true">
     <alt>
       <!-- The code points accepted by Character.isWhitespace(int) in Java -->
 
@@ -633,7 +660,7 @@
     </alt>
   </production>
 
-  <production name="Comment">
+  <production name="Comment" oc:lexer="true">
     <alt>
       <seq>/* <repeat><alt>
         <character><except literal="*"/></character>

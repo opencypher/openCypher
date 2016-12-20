@@ -72,10 +72,8 @@ class Antlr4Massager
 
         String betweenStartOfLexingAndKeywords = original.substring( justBeforeThis, startOfKeywords );
 
-        String extraDigitRule = "\ndigit : Digit;\n";
-
         return addAllKeywordsToSymbolicName(
-                firstPartAmended + allTheKeyWords + betweenStartOfLexingAndKeywords + extraDigitRule + everythingAfterKeywords, keywords );
+                firstPartAmended + allTheKeyWords + betweenStartOfLexingAndKeywords + everythingAfterKeywords, keywords );
     }
 
     private static String addAllKeywordsToSymbolicName( String original, List<String> keywords )
@@ -87,7 +85,7 @@ class Antlr4Massager
         String firstPart = original.substring( 0, symbolicNameStringPos + symbolicNameStringRule.length() );
 
         StringBuilder builder = new StringBuilder( firstPart );
-        keywords.add( "HexString" );
+        keywords.add( "HexLetter" );
 
         for ( String keyword : keywords )
         {

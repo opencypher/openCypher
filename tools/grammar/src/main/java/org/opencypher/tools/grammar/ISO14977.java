@@ -97,9 +97,9 @@ public class ISO14977 extends BnfWriter
     }
 
     @Override
-    protected void productionStart( String name )
+    protected void productionStart( Production p )
     {
-        output.append( name ).append( " = " );
+        output.append( p.name() ).append( " = " );
     }
 
     @Override
@@ -221,7 +221,7 @@ public class ISO14977 extends BnfWriter
     @Override
     protected void caseInsensitiveProductionStart( String name )
     {
-        productionStart( name );
+        output.append( name ).append( " = " );
     }
 
     @Override

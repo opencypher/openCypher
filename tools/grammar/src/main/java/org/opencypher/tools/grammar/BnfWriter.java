@@ -55,7 +55,7 @@ abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVis
 
     protected abstract void productionCommentSuffix();
 
-    protected abstract void productionStart( String name );
+    protected abstract void productionStart( Production p );
 
     protected abstract void productionEnd();
 
@@ -128,7 +128,7 @@ abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVis
         }
         this.altPrefix = production.name().length();
         group = false;
-        productionStart( production.name() );
+        productionStart( production );
         production.definition().accept( this );
         productionEnd();
         this.altPrefix = 0;

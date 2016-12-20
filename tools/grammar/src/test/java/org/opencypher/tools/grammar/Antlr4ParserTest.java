@@ -18,13 +18,19 @@ package org.opencypher.tools.grammar;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.LexerInterpreter;
+import org.antlr.v4.tool.ast.GrammarRootAST;
 import org.junit.Test;
 
 public class Antlr4ParserTest
@@ -42,20 +48,20 @@ public class Antlr4ParserTest
         getQueries( "/cypher-legacy.txt" ).forEach( Antlr4TestUtils::parseLegacy );
     }
 
-//    @Test
-//    public void investigateTokenStream() throws IOException
-//    {
-//        // Keep: Not really testing things but quite useful for debugging antlr lexing
-//        String query = "RETURN 1.0";
-//        org.antlr.v4.Tool tool = new org.antlr.v4.Tool();
-//
-//        GrammarRootAST ast = tool.parseGrammarFromString( new String( Files.readAllBytes(Paths.get("/Users/stepup/Source/opencypher/openCypher/grammar/generated/Cypher.g4"))) );
-//        org.antlr.v4.tool.Grammar g = tool.createGrammar( ast );
-//        tool.process( g, false );
-//
-//        LexerInterpreter lexer = g.createLexerInterpreter( new ANTLRInputStream( query ) );
-//        CommonTokenStream tokenStream = new CommonTokenStream( lexer );
-//    }
+    @Test
+    public void investigateTokenStream() throws IOException
+    {
+        // Keep: Not really testing things but quite useful for debugging antlr lexing
+        String query = "CREATE (a)";
+        org.antlr.v4.Tool tool = new org.antlr.v4.Tool();
+
+        GrammarRootAST ast = tool.parseGrammarFromString( new String( Files.readAllBytes(Paths.get("/Users/mats/gitRoots/openCypher/grammar/generated/Cypher.g4"))) );
+        org.antlr.v4.tool.Grammar g = tool.createGrammar( ast );
+        tool.process( g, false );
+
+        LexerInterpreter lexer = g.createLexerInterpreter( new ANTLRInputStream( query ) );
+        CommonTokenStream tokenStream = new CommonTokenStream( lexer );
+    }
 
     private List<String> getQueries( String queryFile ) throws FileNotFoundException, URISyntaxException
     {

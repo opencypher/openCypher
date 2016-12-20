@@ -26,6 +26,7 @@ import java.util.Map;
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.NonTerminal;
+import org.opencypher.grammar.Production;
 import org.opencypher.tools.io.Output;
 
 import static java.lang.Character.charCount;
@@ -146,32 +147,11 @@ public class Antlr4 extends BnfWriter
     private String currentProduction;
     private int nextLexerRule;
 
-    private boolean shouldBeLexerRule( String rule )
-    {
-        // TODO: melt these snow flakes.
-        return rule.startsWith( "Identifier" )
-               || rule.equalsIgnoreCase( "whitespace" )
-               || rule.equalsIgnoreCase( "comment" )
-               || rule.endsWith( "scapedSymbolicName" )
-               || rule.equalsIgnoreCase( "stringliteral" )
-               || rule.equalsIgnoreCase( "escapedchar" )
-               || rule.equalsIgnoreCase( "decimalinteger" )
-               || rule.equalsIgnoreCase( "digitstring" )
-               || rule.equalsIgnoreCase( "digit" )
-               || rule.equalsIgnoreCase( "hexinteger" )
-               || rule.equalsIgnoreCase( "hexstring" )
-               || rule.equalsIgnoreCase( "hexdigit" )
-               || rule.equalsIgnoreCase( "octalinteger" )
-               || rule.equalsIgnoreCase( "octalstring" )
-               || rule.equalsIgnoreCase( "exponentDecimalReal" )
-               || rule.equalsIgnoreCase( "octdigit" );
-    }
-
     @Override
-    protected void productionStart( String name )
+    protected void productionStart( Production p )
     {
-        currentProduction = name;
-        if ( shouldBeLexerRule( name ) )
+        currentProduction = p.name();
+        if ( p.lexer() )
         {
             lexerRule( currentProduction ).append( " : " );
         }
@@ -309,7 +289,7 @@ public class Antlr4 extends BnfWriter
     @Override
     protected void nonTerminal( NonTerminal nonTerminal )
     {
-        if ( shouldBeLexerRule( nonTerminal.productionName() ) )
+        if ( nonTerminal.production().lexer() )
         {
             lexerRule( nonTerminal.productionName() );
         }
@@ -553,7 +533,6 @@ public class Antlr4 extends BnfWriter
             case '\f': output.append("\\f");  break;
             case '\\': output.append("\\\\"); break;
             case '-':  output.append("\\-");  break;
-            case '[':  output.append("\\[");  break;
             case ']':  output.append("\\]");  break;
         // </pre>
         default:

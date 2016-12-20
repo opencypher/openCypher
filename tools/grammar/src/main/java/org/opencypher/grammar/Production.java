@@ -39,6 +39,8 @@ public interface Production
 
     boolean legacy();
 
+    boolean lexer();
+
     Collection<NonTerminal> references();
 
     default Collection<Production> referencedFrom()
