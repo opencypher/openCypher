@@ -238,7 +238,7 @@ public class Antlr4 extends BnfWriter
             }
             else if ( minTimes == 1 )
             {
-                groupWith( '(', repeated, ')' );;
+                groupWith( '(', repeated, ')' );
                 output.append( "+" );
                 return;
             }
@@ -438,7 +438,7 @@ public class Antlr4 extends BnfWriter
     {
         private final Output output;
 
-        public AnyCharacterExceptFormatter( Output output )
+        AnyCharacterExceptFormatter( Output output )
         {
             this.output = output;
         }

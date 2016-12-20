@@ -196,34 +196,6 @@ abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVis
         else
         {
             caseInsensitive( literal.toString() );
-//            group( () -> literal.accept( new Literal.Visitor<RuntimeException>()
-//            {
-//                boolean sep;
-//
-//                @Override
-//                public void visitLiteral( String literal )
-//                {
-//                    if ( sep )
-//                    {
-//                        sequenceSeparator();
-//                    }
-//                    sep = true;
-//                    literal( literal );
-//                }
-//
-//                @Override
-//                public void visitAnyCase( int cp )
-//                {
-//                    if ( sep )
-//                    {
-//                        sequenceSeparator();
-//                    }
-//                    sep = true;
-//                    cp = Character.toUpperCase( cp );
-//                    addCaseChar( cp );
-//                    output.appendCodePoint( cp );
-//                }
-//            } ) );
         }
     }
 
@@ -316,7 +288,7 @@ abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVis
         }
     }
 
-    protected final void group( Runnable action )
+    final void group( Runnable action )
     {
         boolean group = this.group;
         this.group = true;
@@ -332,7 +304,7 @@ abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVis
         this.group = group;
     }
 
-    protected final void groupWith( char prefix, Runnable action, char suffix )
+    final void groupWith( char prefix, Runnable action, char suffix )
     {
         boolean group = this.group;
         this.group = false;
@@ -342,7 +314,7 @@ abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVis
         this.group = group;
     }
 
-    protected final void groupWithoutPrefix( Runnable action )
+    final void groupWithoutPrefix( Runnable action )
     {
         boolean group = this.group;
         this.group = true;
@@ -350,7 +322,7 @@ abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVis
         this.group = group;
     }
 
-    protected final void addCaseChar( int codePoint )
+    final void addCaseChar( int codePoint )
     {
         caseChars.add( codePoint );
     }
