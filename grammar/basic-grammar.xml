@@ -488,10 +488,6 @@
     </alt>
   </production>
 
-  <production name="DigitString" oc:lexer="true">
-    <repeat min="1"><non-terminal ref="Digit"/></repeat>
-  </production>
-
   <production name="Digit" rr:inline="true" oc:lexer="true">
     <alt>
       <non-terminal ref="ZeroDigit"/>
@@ -541,16 +537,12 @@
     <repeat min="1"><non-terminal ref="Digit"/></repeat>
   </production>
 
-  <production name="RegularDecimalReal">
-    <alt>
+  <production name="RegularDecimalReal" oc:lexer="true">
+    <seq>
       <repeat><non-terminal ref="Digit"/></repeat>
-      <non-terminal ref="DecimalInteger" />
-    </alt>
-    .
-    <alt>
-      <non-terminal ref="DigitString"/>
-      <non-terminal ref="DecimalInteger" />
-    </alt>
+      .
+      <repeat min="1"><non-terminal ref="Digit"/></repeat>
+    </seq>
   </production>
 
   <!-- \ EXPRESSIONS / -->
