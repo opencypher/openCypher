@@ -157,6 +157,12 @@ public class RailRoadDiagramTest
     }
 
     @Test
+    public void shouldDrawFoo() throws Exception
+    {
+        generate( fixture.grammarResource( "/foo.xml" ) );
+    }
+
+    @Test
     public void cypherWhitespace() throws Exception
     {
         showCypher( "whitespace" );

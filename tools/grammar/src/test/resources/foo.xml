@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE grammar []>
+<grammar language="SomeLanguage" xmlns="http://opencypher.org/grammar"
+         xmlns:rr="http://opencypher.org/railroad">
+  <!-- A grammar should contain at least one production, with the same name as the grammar -->
+  <production name="SomeLanguage">
+    <repeat>
+      <non-terminal ref="stmt"/>
+    </repeat>
+  </production>
+
+  <production name="stmt">
+    <alt>
+      <non-terminal ref="function"/>
+      <seq><opt><non-terminal ref="SP"/></opt><non-terminal ref="function"/></seq>
+    </alt>
+    <literal value="&#10;"/>
+  </production>
+  <production name="function">
+    <repeat min="1"><non-terminal ref="stmt"/></repeat>
+  </production>
+
+  <production name="WS" rr:skip="true">
+    <repeat>1</repeat>
+  </production>
+
+  <production name="SP" rr:skip="true">
+    <repeat min="1">2</repeat>
+  </production>
+</grammar>

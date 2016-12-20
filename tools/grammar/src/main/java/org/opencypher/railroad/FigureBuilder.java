@@ -240,7 +240,10 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
         Branch branch = new Branch();
         branch.add( NOTHING );
         optional.term().transform( this, branch );
-        group.add( branch );
+        if ( !branch.containsNothing() )
+        {
+            group.add( branch );
+        }
         return null;
     }
 
@@ -950,6 +953,22 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
                 O target, double x, double y, Diagram.Renderer<O, T, EX> renderer, boolean forward ) throws EX
         {
             renderer.renderBranch( target, x, y, size( renderer ), unmodifiableCollection( alt ), forward );
+        }
+
+        boolean containsNothing()
+        {
+            if ( alt.isEmpty() )
+            {
+                return true;
+            }
+            for ( Diagram.Figure f : alt )
+            {
+                if ( !f.isNothing() )
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
