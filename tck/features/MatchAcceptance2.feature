@@ -801,23 +801,6 @@ Feature: MatchAcceptance2
       | 'product1' |
     And no side effects
 
-  Scenario: Returning label predicate expression
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (), (:Foo)
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN (n:Foo)
-      """
-    Then the result should be:
-      | (n:Foo) |
-      | true    |
-      | false   |
-    And no side effects
-
   Scenario: Matching using a simple pattern with label predicate
     Given an empty graph
     And having executed:
