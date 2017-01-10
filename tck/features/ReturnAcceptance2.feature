@@ -351,7 +351,7 @@ Feature: ReturnAcceptance2
       | 3 |
     And no side effects
 
-  Scenario: Concatenating and returning the size of literal lists
+  Scenario: Returning nested expressions based on list property
     Given an empty graph
     And having executed:
       """
