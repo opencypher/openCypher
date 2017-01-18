@@ -13,7 +13,7 @@
   <version>1.0-SNAPSHOT</version>
   <name>openCypher TCK Developer Tools</name>
   <url>http://opencypher.org</url>
-  <description>openCypher Technology Compliance Kit</description>
+  <description>openCypher Technology Compatibility Kit</description>
   <scm>
     <url>https://github.com/opencypher/opencypher</url>
   </scm>

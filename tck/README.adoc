@@ -1,6 +1,6 @@
 ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
-= The Cypher Technology Compliance Kit (TCK)
+= The Cypher Technology Compatibility Kit (TCK)
 
 This subdirectory contains the Cypher TCK.
 The TCK consists of a number of https://cucumber.io/[Cucumber] `.feature` files, which specify four things:

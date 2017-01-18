@@ -71,7 +71,7 @@ The Cypher Language Group published meeting notes from all the group meetings at
 *** https://s3.amazonaws.com/artifacts.opencypher.org/railroad/Cypher.html[Railroad diagrams]
 *** https://s3.amazonaws.com/artifacts.opencypher.org/cypher.ebnf[EBNF]
 *** https://s3.amazonaws.com/artifacts.opencypher.org/Cypher.g4[ANTLR4 Grammar]
-* Cypher Technology Compliance Kit (TCK), `/tck`
+* Cypher Technology Compatibility Kit (TCK), `/tck`
 ** Contains a set of Cucumber features that define Cypher behaviour, and documentation on how to use it.
 * openCypher developer tools, `/tools`
 ** Contains code that tests the integrity of the repository, generates release artifacts, and aids implementors of openCypher.
