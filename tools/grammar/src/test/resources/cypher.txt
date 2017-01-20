@@ -188,3 +188,16 @@ CREATE ()-[   v   :   R   {   prop   :42}]->()§
 CREATE ()-[   v   :   R   {   prop   :   42}]->()§
 CREATE ()-[   v   :   R   {   prop   :   42   }]->()§
 CREATE ()-[   v   :   R   {   prop   :   42   }   ]->()§
+MATCH (n) SET n.prop=10§
+MATCH (n) SET   n.prop=10§
+MATCH (n) SET   n.prop   =10§
+MATCH (n) SET   n.prop   =   10§
+MATCH (n) SET n:Label§
+MATCH (n) SET n   :Label§
+MATCH (n) SET n   :   Label§
+MATCH (n) SET n=$param§
+MATCH (n) SET n   =$param§
+MATCH (n) SET n   =   $param§
+MATCH (n) SET n+=$param§
+MATCH (n) SET n   +=$param§
+MATCH (n) SET n   +=   $param§

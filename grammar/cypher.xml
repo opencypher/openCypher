@@ -156,7 +156,7 @@
   </production>
 
   <production name="Set">
-    SET <non-terminal ref="SetItem"/>
+    SET &WS; <non-terminal ref="SetItem"/>
     <repeat>
       , <non-terminal ref="SetItem"/>
     </repeat>
@@ -164,10 +164,10 @@
 
   <production name="SetItem" rr:inline="true">
     <alt>
-      <seq><non-terminal ref="PropertyExpression"/> = &expr;</seq>
-      <seq>&var; = &expr;</seq>
-      <seq>&var; += &expr;</seq>
-      <seq>&var;<non-terminal ref="NodeLabels"/></seq>
+      <seq><non-terminal ref="PropertyExpression"/> &WS; = &WS; &expr;</seq>
+      <seq>&var; &WS; = &WS; &expr;</seq>
+      <seq>&var; &WS; += &WS; &expr;</seq>
+      <seq>&var; &WS; <non-terminal ref="NodeLabels"/></seq>
     </alt>
   </production>
 

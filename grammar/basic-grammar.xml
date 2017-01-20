@@ -150,7 +150,7 @@
   </production>
 
   <production name="NodeLabel" rr:inline="true">
-    : <non-terminal ref="LabelName"/>
+    : &WS; <non-terminal ref="LabelName"/>
   </production>
 
   <production name="RangeLiteral" rr:inline="true">
