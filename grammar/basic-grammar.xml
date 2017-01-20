@@ -117,11 +117,11 @@
   </production>
 
   <production name="RelationshipDetail">
-    [
-    <opt>&var;</opt>
-    <opt><non-terminal ref="RelationshipTypes"/></opt>
+    [ &WS;
+    <opt>&var; &WS;</opt>
+    <opt><non-terminal ref="RelationshipTypes"/> &WS;</opt>
     <opt><non-terminal ref="RangeLiteral"/></opt>
-    <opt><non-terminal ref="Properties"/></opt>
+    <opt><non-terminal ref="Properties"/> &WS;</opt>
     ]
   </production>
 
@@ -134,12 +134,14 @@
   </production>
 
   <production name="RelType" rr:inline="true" oc:legacy="true">
-    :<non-terminal ref="RelTypeName"/>
+    : &WS; <non-terminal ref="RelTypeName"/>
   </production>
 
   <production name="RelationshipTypes" rr:inline="true">
-    :<non-terminal ref="RelTypeName"/>
-    <repeat>&WS;|<opt>:</opt>&WS;<non-terminal ref="RelTypeName"/></repeat>
+    : &WS; <non-terminal ref="RelTypeName"/>
+    <repeat>
+      &WS; | <opt>:</opt> &WS; <non-terminal ref="RelTypeName"/>
+    </repeat>
   </production>
 
   <production name="NodeLabels" rr:inline="true">

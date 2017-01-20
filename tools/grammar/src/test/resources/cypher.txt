@@ -178,3 +178,13 @@ RETURN .0020123§
 RETURN 10101.0020123§
 RETURN 10101.4§
 RETURN 99882.04000§
+CREATE ()-[v:R{prop:42}]->()§
+CREATE ()-[   v:R{prop:42}]->()§
+CREATE ()-[   v   :R{prop:42}]->()§
+CREATE ()-[   v   :   R{prop:42}]->()§
+CREATE ()-[   v   :   R   {prop:42}]->()§
+CREATE ()-[   v   :   R   {   prop:42}]->()§
+CREATE ()-[   v   :   R   {   prop   :42}]->()§
+CREATE ()-[   v   :   R   {   prop   :   42}]->()§
+CREATE ()-[   v   :   R   {   prop   :   42   }]->()§
+CREATE ()-[   v   :   R   {   prop   :   42   }   ]->()§
