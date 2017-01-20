@@ -119,7 +119,6 @@
   <production name="RelationshipDetail">
     [
     <opt>&var;</opt>
-    <opt>?</opt>
     <opt><non-terminal ref="RelationshipTypes"/></opt>
     <opt><non-terminal ref="RangeLiteral"/></opt>
     <opt><non-terminal ref="Properties"/></opt>
@@ -346,7 +345,6 @@
   <production name="PropertyLookup">
     &WS; . &WS;
     <alt>
-      <seq><non-terminal ref="PropertyKeyName"/><alt>? !</alt><!-- !OpCharTail --></seq>
       <non-terminal ref="PropertyKeyName"/>
     </alt>
   </production>
