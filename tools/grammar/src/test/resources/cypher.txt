@@ -220,3 +220,16 @@ RETURN [p=(a)-->()WHERE a:Label|55 + a.prop]§
 RETURN [   p=(a)-->()WHERE a:Label|55 + a.prop]§
 RETURN [   p   =(a)-->()WHERE a:Label|55 + a.prop]§
 RETURN [   p   =   (a)-->()WHERE a:Label|55 + a.prop]§
+RETURN 1 // comment§
+RETURN 1 // * §
+RETURN 1 // */ §
+WITH 1 AS one // */
+RETURN 2 AS two // another§
+RETURN 1 /* blockcomment */§
+RETURN 1 /* blockcomment
+over several
+lines */§
+RETURN 1 /* blockcomment
+with //
+and \\
+chars */§

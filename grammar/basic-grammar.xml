@@ -672,12 +672,17 @@
         <seq>* <character><except literal="/"/></character></seq>
       </alt></repeat> */</seq>
       <seq>//
-        <character>
-          <except literal="&#10;"/>
-          <except literal="&#13;"/>
-        </character>
-        <opt><literal value="&#13;"/></opt>
-        <alt><literal value="&#10;"/><character set="EOI"/></alt>
+        <repeat>
+          <character>
+            <except literal="&#10;"/> <!-- Line Feed -->
+            <except literal="&#13;"/> <!-- Carriage Return -->
+          </character>
+        </repeat>
+        <opt><literal value="&#13;"/></opt> <!-- Carriage Return -->
+        <alt>
+          <literal value="&#10;"/> <!-- Line Feed -->
+          <character set="EOI"/>
+        </alt>
       </seq>
     </alt>
   </production>
