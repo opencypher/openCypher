@@ -233,3 +233,27 @@ RETURN 1 /* blockcomment
 with //
 and \\
 chars */§
+MATCH (a)
+WHERE all(a IN []WHERE a.prop )
+RETURN 1§
+MATCH (a)
+WHERE any   (a IN []WHERE a.prop )
+RETURN 1§
+MATCH (a)
+WHERE none   (   a IN []WHERE a.prop )
+RETURN 1§
+MATCH (a)
+WHERE single   (   a   IN []WHERE a.prop )
+RETURN 1§
+MATCH (a)
+WHERE all   (   a   IN   []WHERE a.prop )
+RETURN 1§
+MATCH (a)
+WHERE all   (   a   IN   []   WHERE a.prop )
+RETURN 1§
+MATCH (a)
+WHERE all   (   a   IN   []   WHERE   a.prop )
+RETURN 1§
+MATCH (a)
+WHERE all   (   a   IN   []   WHERE   a.prop   )
+RETURN 1§
