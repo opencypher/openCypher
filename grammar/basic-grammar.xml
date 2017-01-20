@@ -391,8 +391,6 @@
       n  <!-- Encodes newline -->
       r  <!-- Encodes Carriage return -->
       t  <!-- Encodes a Tab character -->
-      _  <!-- Encodes underscore -->
-      %  <!-- Encodes a precent sign -->
       <seq>  <!-- UTF16 -->
         u <repeat min="4" max="4"><non-terminal ref="HexDigit"/></repeat>
       </seq>
