@@ -41,7 +41,7 @@ class Antlr4Massager
             firstKeyword = "UNION : ( 'U' | 'u' ) ( 'N' | 'n' ) ( 'I' | 'i' ) ( 'O' | 'o' ) ( 'N' | 'n' )  ;";
         }
         int startOfKeywords = original.indexOf( firstKeyword );
-        int endOfKeywords = original.indexOf( "L_0X :" );
+        int endOfKeywords = original.indexOf( "fragment FF : [\\f] ;" );
 
         String everythingAfterKeywords = original.substring( endOfKeywords );
 

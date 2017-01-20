@@ -466,7 +466,8 @@
   </production>
 
   <production name="HexInteger" oc:lexer="true">
-    0x <repeat min="1"><non-terminal ref="HexDigit"/></repeat>
+    <literal value="0x"/>
+    <repeat min="1"><non-terminal ref="HexDigit"/></repeat>
   </production>
 
   <production name="DecimalInteger" oc:lexer="true">
