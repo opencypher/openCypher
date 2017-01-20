@@ -241,10 +241,13 @@
   </production>
   <production name="Expression2" rr:inline="true">
     <non-terminal ref="Atom"/>
-    <repeat><alt>
-      <non-terminal ref="PropertyLookup"/>
-      <non-terminal ref="NodeLabels"/>
-    </alt></repeat>
+    <repeat>
+      &WS;
+      <alt>
+        <non-terminal ref="PropertyLookup"/>
+        <non-terminal ref="NodeLabels"/>
+      </alt>
+    </repeat>
   </production>
   <production name="Atom">
     <alt>
@@ -254,6 +257,7 @@
       <non-terminal ref="CaseExpression"/>
       <seq>COUNT &WS; ( &WS; * &WS; )</seq>
       <non-terminal ref="ListComprehension"/>
+      <non-terminal ref="PatternComprehension"/>
       <seq>FILTER  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
       <seq>EXTRACT &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; <opt>&WS; | &expr;</opt> ) </seq>
       <non-terminal ref="Reduce"/>
@@ -344,8 +348,17 @@
     &WS; ]
   </production>
 
+  <production name="PatternComprehension">
+    [ &WS;
+      <opt><non-terminal ref="Variable"/> &WS; = &WS;</opt>
+      <non-terminal ref="RelationshipsPattern"/> &WS;
+      <opt>WHERE &WS; <non-terminal ref="Expression"/> &WS;</opt>
+      | &WS; <non-terminal ref="Expression"/> &WS;
+    ]
+  </production>
+
   <production name="PropertyLookup">
-    &WS; . &WS;
+    . &WS;
     <alt>
       <non-terminal ref="PropertyKeyName"/>
     </alt>

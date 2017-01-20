@@ -201,3 +201,22 @@ MATCH (n) SET n   =   $param§
 MATCH (n) SET n+=$param§
 MATCH (n) SET n   +=$param§
 MATCH (n) SET n   +=   $param§
+RETURN [()-->()|1]§
+RETURN   [()-->()|1]§
+RETURN   [   ()-->()|1]§
+RETURN   [   ()-->()   |1]§
+RETURN   [   ()-->()   |   1]§
+RETURN   [   ()-->()   |   1   ]§
+RETURN [(a)-->()WHERE a:Label|55 + a.prop]§
+RETURN [   (a)-->()WHERE a:Label|55 + a.prop]§
+RETURN [   (a)-->()   WHERE a:Label|55 + a.prop]§
+RETURN [   (a)-->()   WHERE   a:Label|55 + a.prop]§
+RETURN [   (a)-->()   WHERE   a   :Label|55 + a.prop]§
+RETURN [   (a)-->()   WHERE   a   :   Label|55 + a.prop]§
+RETURN [   (a)-->()   WHERE   a   :   Label   |55 + a.prop]§
+RETURN [   (a)-->()   WHERE   a   :   Label   |   55 + a.prop]§
+RETURN [   (a)-->()   WHERE   a   :   Label   |   55 + a.prop   ]§
+RETURN [p=(a)-->()WHERE a:Label|55 + a.prop]§
+RETURN [   p=(a)-->()WHERE a:Label|55 + a.prop]§
+RETURN [   p   =(a)-->()WHERE a:Label|55 + a.prop]§
+RETURN [   p   =   (a)-->()WHERE a:Label|55 + a.prop]§
