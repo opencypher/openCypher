@@ -277,7 +277,7 @@ RETURN own.since
 .Bad
 [source, cypher]
 ----
-WITH NULL AS n1, Null as n2
+WITH NULL AS n1, Null AS n2
 RETURN n1 IS NULL && n2 IS NOT NULL
 ----
 +
