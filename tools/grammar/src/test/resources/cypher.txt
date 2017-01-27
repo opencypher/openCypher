@@ -178,3 +178,82 @@ RETURN .0020123§
 RETURN 10101.0020123§
 RETURN 10101.4§
 RETURN 99882.04000§
+CREATE ()-[v:R{prop:42}]->()§
+CREATE ()-[   v:R{prop:42}]->()§
+CREATE ()-[   v   :R{prop:42}]->()§
+CREATE ()-[   v   :   R{prop:42}]->()§
+CREATE ()-[   v   :   R   {prop:42}]->()§
+CREATE ()-[   v   :   R   {   prop:42}]->()§
+CREATE ()-[   v   :   R   {   prop   :42}]->()§
+CREATE ()-[   v   :   R   {   prop   :   42}]->()§
+CREATE ()-[   v   :   R   {   prop   :   42   }]->()§
+CREATE ()-[   v   :   R   {   prop   :   42   }   ]->()§
+MATCH (n) SET n.prop=10§
+MATCH (n) SET   n.prop=10§
+MATCH (n) SET   n.prop   =10§
+MATCH (n) SET   n.prop   =   10§
+MATCH (n) SET n:Label§
+MATCH (n) SET n   :Label§
+MATCH (n) SET n   :   Label§
+MATCH (n) SET n=$param§
+MATCH (n) SET n   =$param§
+MATCH (n) SET n   =   $param§
+MATCH (n) SET n+=$param§
+MATCH (n) SET n   +=$param§
+MATCH (n) SET n   +=   $param§
+RETURN [()-->()|1]§
+RETURN   [()-->()|1]§
+RETURN   [   ()-->()|1]§
+RETURN   [   ()-->()   |1]§
+RETURN   [   ()-->()   |   1]§
+RETURN   [   ()-->()   |   1   ]§
+RETURN [(a)-->()WHERE a:Label|55 + a.prop]§
+RETURN [   (a)-->()WHERE a:Label|55 + a.prop]§
+RETURN [   (a)-->()   WHERE a:Label|55 + a.prop]§
+RETURN [   (a)-->()   WHERE   a:Label|55 + a.prop]§
+RETURN [   (a)-->()   WHERE   a   :Label|55 + a.prop]§
+RETURN [   (a)-->()   WHERE   a   :   Label|55 + a.prop]§
+RETURN [   (a)-->()   WHERE   a   :   Label   |55 + a.prop]§
+RETURN [   (a)-->()   WHERE   a   :   Label   |   55 + a.prop]§
+RETURN [   (a)-->()   WHERE   a   :   Label   |   55 + a.prop   ]§
+RETURN [p=(a)-->()WHERE a:Label|55 + a.prop]§
+RETURN [   p=(a)-->()WHERE a:Label|55 + a.prop]§
+RETURN [   p   =(a)-->()WHERE a:Label|55 + a.prop]§
+RETURN [   p   =   (a)-->()WHERE a:Label|55 + a.prop]§
+RETURN 1 // comment§
+RETURN 1 // * §
+RETURN 1 // */ §
+WITH 1 AS one // */
+RETURN 2 AS two // another§
+RETURN 1 /* blockcomment */§
+RETURN 1 /* blockcomment
+over several
+lines */§
+RETURN 1 /* blockcomment
+with //
+and \\
+chars */§
+MATCH (a)
+WHERE all(a IN []WHERE a.prop )
+RETURN 1§
+MATCH (a)
+WHERE any   (a IN []WHERE a.prop )
+RETURN 1§
+MATCH (a)
+WHERE none   (   a IN []WHERE a.prop )
+RETURN 1§
+MATCH (a)
+WHERE single   (   a   IN []WHERE a.prop )
+RETURN 1§
+MATCH (a)
+WHERE all   (   a   IN   []WHERE a.prop )
+RETURN 1§
+MATCH (a)
+WHERE all   (   a   IN   []   WHERE a.prop )
+RETURN 1§
+MATCH (a)
+WHERE all   (   a   IN   []   WHERE   a.prop )
+RETURN 1§
+MATCH (a)
+WHERE all   (   a   IN   []   WHERE   a.prop   )
+RETURN 1§

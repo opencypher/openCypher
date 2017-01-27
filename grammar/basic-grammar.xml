@@ -117,12 +117,11 @@
   </production>
 
   <production name="RelationshipDetail">
-    [
-    <opt>&var;</opt>
-    <opt>?</opt>
-    <opt><non-terminal ref="RelationshipTypes"/></opt>
+    [ &WS;
+    <opt>&var; &WS;</opt>
+    <opt><non-terminal ref="RelationshipTypes"/> &WS;</opt>
     <opt><non-terminal ref="RangeLiteral"/></opt>
-    <opt><non-terminal ref="Properties"/></opt>
+    <opt><non-terminal ref="Properties"/> &WS;</opt>
     ]
   </production>
 
@@ -135,12 +134,14 @@
   </production>
 
   <production name="RelType" rr:inline="true" oc:legacy="true">
-    :<non-terminal ref="RelTypeName"/>
+    : &WS; <non-terminal ref="RelTypeName"/>
   </production>
 
   <production name="RelationshipTypes" rr:inline="true">
-    :<non-terminal ref="RelTypeName"/>
-    <repeat>&WS;|<opt>:</opt>&WS;<non-terminal ref="RelTypeName"/></repeat>
+    : &WS; <non-terminal ref="RelTypeName"/>
+    <repeat>
+      &WS; | <opt>:</opt> &WS; <non-terminal ref="RelTypeName"/>
+    </repeat>
   </production>
 
   <production name="NodeLabels" rr:inline="true">
@@ -149,7 +150,7 @@
   </production>
 
   <production name="NodeLabel" rr:inline="true">
-    : <non-terminal ref="LabelName"/>
+    : &WS; <non-terminal ref="LabelName"/>
   </production>
 
   <production name="RangeLiteral" rr:inline="true">
@@ -240,10 +241,13 @@
   </production>
   <production name="Expression2" rr:inline="true">
     <non-terminal ref="Atom"/>
-    <repeat><alt>
-      <non-terminal ref="PropertyLookup"/>
-      <non-terminal ref="NodeLabels"/>
-    </alt></repeat>
+    <repeat>
+      &WS;
+      <alt>
+        <non-terminal ref="PropertyLookup"/>
+        <non-terminal ref="NodeLabels"/>
+      </alt>
+    </repeat>
   </production>
   <production name="Atom">
     <alt>
@@ -253,6 +257,7 @@
       <non-terminal ref="CaseExpression"/>
       <seq>COUNT &WS; ( &WS; * &WS; )</seq>
       <non-terminal ref="ListComprehension"/>
+      <non-terminal ref="PatternComprehension"/>
       <seq>FILTER  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
       <seq>EXTRACT &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; <opt>&WS; | &expr;</opt> ) </seq>
       <non-terminal ref="Reduce"/>
@@ -343,10 +348,18 @@
     &WS; ]
   </production>
 
+  <production name="PatternComprehension">
+    [ &WS;
+      <opt><non-terminal ref="Variable"/> &WS; = &WS;</opt>
+      <non-terminal ref="RelationshipsPattern"/> &WS;
+      <opt>WHERE &WS; <non-terminal ref="Expression"/> &WS;</opt>
+      | &WS; <non-terminal ref="Expression"/> &WS;
+    ]
+  </production>
+
   <production name="PropertyLookup">
-    &WS; . &WS;
+    . &WS;
     <alt>
-      <seq><non-terminal ref="PropertyKeyName"/><alt>? !</alt><!-- !OpCharTail --></seq>
       <non-terminal ref="PropertyKeyName"/>
     </alt>
   </production>
@@ -393,8 +406,6 @@
       n  <!-- Encodes newline -->
       r  <!-- Encodes Carriage return -->
       t  <!-- Encodes a Tab character -->
-      _  <!-- Encodes underscore -->
-      %  <!-- Encodes a precent sign -->
       <seq>  <!-- UTF16 -->
         u <repeat min="4" max="4"><non-terminal ref="HexDigit"/></repeat>
       </seq>
@@ -455,7 +466,8 @@
   </production>
 
   <production name="HexInteger" oc:lexer="true">
-    0x <repeat min="1"><non-terminal ref="HexDigit"/></repeat>
+    <literal value="0x"/>
+    <repeat min="1"><non-terminal ref="HexDigit"/></repeat>
   </production>
 
   <production name="DecimalInteger" oc:lexer="true">
@@ -660,12 +672,17 @@
         <seq>* <character><except literal="/"/></character></seq>
       </alt></repeat> */</seq>
       <seq>//
-        <character>
-          <except literal="&#10;"/>
-          <except literal="&#13;"/>
-        </character>
-        <opt><literal value="&#13;"/></opt>
-        <alt><literal value="&#10;"/><character set="EOI"/></alt>
+        <repeat>
+          <character>
+            <except literal="&#10;"/> <!-- Line Feed -->
+            <except literal="&#13;"/> <!-- Carriage Return -->
+          </character>
+        </repeat>
+        <opt><literal value="&#13;"/></opt> <!-- Carriage Return -->
+        <alt>
+          <literal value="&#10;"/> <!-- Line Feed -->
+          <character set="EOI"/>
+        </alt>
       </seq>
     </alt>
   </production>
