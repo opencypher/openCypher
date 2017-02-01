@@ -54,3 +54,33 @@ Feature: Comparability
       | 'xx' |
       | null |
     And no side effects
+
+  Scenario Outline: Comparing across types yields null, except numbers
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:T]->()
+      """
+    When executing query:
+      """
+      MATCH p = (n)-[r]->()
+      WITH [n, r, p, '', 1, 3.14, true, null, [], {}] AS types
+      UNWIND range(0, size(types) - 1) AS i
+      UNWIND range(0, size(types) - 1) AS j
+      WITH types[i] AS lhs, types[j] AS rhs
+      WHERE i <> j
+      WITH lhs, rhs, lhs <operator> rhs AS result
+      WHERE result
+      RETURN lhs, rhs
+      """
+    Then the result should be:
+      | lhs   | rhs   |
+      | <lhs> | <rhs> |
+    And no side effects
+
+    Examples:
+      | operator | lhs  | rhs  |
+      | <        | 1    | 3.14 |
+      | <=       | 1    | 3.14 |
+      | >=       | 3.14 | 1    |
+      | >        | 3.14 | 1    |
