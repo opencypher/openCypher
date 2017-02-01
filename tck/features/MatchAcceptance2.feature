@@ -82,34 +82,6 @@ Feature: MatchAcceptance2
       | (:IntNode {id: 0})       |
     And no side effects
 
-  Scenario: Fail when comparing strings and integers using > in an AND'd predicate
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (root:Root {name: 'x'})-[:T]->(child:Child {id: 0})
-      """
-    When executing query:
-      """
-      MATCH (:Root {name: 'x'})-->(i:Child)
-      WHERE i.id > 'te'
-      RETURN i
-      """
-    Then a TypeError should be raised at runtime: IncomparableValues
-
-  Scenario: Fail when comparing strings and integers using > in a OR'd predicate
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (root:Root {name: 'x'})-[:T]->(child:Child {id: 0})
-      """
-    When executing query:
-      """
-      MATCH (:Root {name: 'x'})-->(i:Child)
-      WHERE NOT exists(i.id) OR i.id > 'te'
-      RETURN i
-      """
-    Then a TypeError should be raised at runtime: IncomparableValues
-
   Scenario: Aggregation with named paths
     Given an empty graph
     And having executed:

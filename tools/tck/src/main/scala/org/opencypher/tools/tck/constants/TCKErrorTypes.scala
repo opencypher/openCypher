@@ -51,7 +51,6 @@ object TCKErrorDetails {
   val NEGATIVE_INTEGER_ARGUMENT = "NegativeIntegerArgument"
   val DELETE_CONNECTED_NODE = "DeleteConnectedNode"
   val REQUIRES_DIRECTED_RELATIONSHIP = "RequiresDirectedRelationship"
-  val INCOMPARABLE_VALUES = "IncomparableValues"
   val INVALID_RELATIONSHIP_PATTERN = "InvalidRelationshipPattern"
   val VARIABLE_ALREADY_BOUND = "VariableAlreadyBound"
   val INVALID_ARGUMENT_TYPE = "InvalidArgumentType"
@@ -90,7 +89,6 @@ object TCKErrorDetails {
                 NEGATIVE_INTEGER_ARGUMENT,
                 REQUIRES_DIRECTED_RELATIONSHIP,
                 DELETE_CONNECTED_NODE,
-                INCOMPARABLE_VALUES,
                 INVALID_RELATIONSHIP_PATTERN,
                 VARIABLE_ALREADY_BOUND,
                 INVALID_ARGUMENT_TYPE,

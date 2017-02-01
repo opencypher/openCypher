@@ -118,20 +118,6 @@ Feature: ReturnAcceptance2
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
-  Scenario: Fail when ordering nodes
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (), ()
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n
-        ORDER BY n
-      """
-    Then a TypeError should be raised at runtime: IncomparableValues
-
   Scenario: Ordering with aggregation
     Given an empty graph
     And having executed:
