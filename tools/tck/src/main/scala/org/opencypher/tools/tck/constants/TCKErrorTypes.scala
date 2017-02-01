@@ -46,7 +46,6 @@ object TCKErrorDetails {
   val INVALID_ELEMENT_ACCESS = "InvalidElementAccess"
   val MAP_ELEMENT_ACCESS_BY_NON_STRING = "MapElementAccessByNonString"
   val LIST_ELEMENT_ACCESS_BY_NON_INTEGER = "ListElementAccessByNonInteger"
-  val CREATE_BLOCKED_BY_CONSTRAINT = "CreateBlockedByConstraint"
   val NESTED_AGGREGATION = "NestedAggregation"
   val NEGATIVE_INTEGER_ARGUMENT = "NegativeIntegerArgument"
   val DELETE_CONNECTED_NODE = "DeleteConnectedNode"
@@ -84,7 +83,6 @@ object TCKErrorDetails {
   val ALL = Set(INVALID_ELEMENT_ACCESS,
                 MAP_ELEMENT_ACCESS_BY_NON_STRING,
                 LIST_ELEMENT_ACCESS_BY_NON_INTEGER,
-                CREATE_BLOCKED_BY_CONSTRAINT,
                 NESTED_AGGREGATION,
                 NEGATIVE_INTEGER_ARGUMENT,
                 REQUIRES_DIRECTED_RELATIONSHIP,
