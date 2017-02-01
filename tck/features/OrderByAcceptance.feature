@@ -18,7 +18,7 @@
 Feature: OrderByAcceptance
 
   Background:
-    Given any graph
+    Given an empty graph
 
   Scenario: ORDER BY should return results in ascending order
     And having executed:
