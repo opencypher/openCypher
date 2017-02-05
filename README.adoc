@@ -1,18 +1,21 @@
 ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
-= The Cypher Query Language
+= The Cypher Property Graph Database Query Language
 
 image:https://travis-ci.org/opencypher/openCypher.svg?branch=master["Build Status", link="https://travis-ci.org/opencypher/openCypher"]
 
-This repository holds the specification of the Cypher graph database query language.
+This repository holds the specification of Cypher, the declarative property graph database query language.
 Its purpose is to be central to the process of evolving the specification of the language that is Cypher.
+
+* https://github.com/opencypher/openCypher/issues?q=is%3Aissue+is%3Aopen+label%3ACIR[Open Cypher Improvement Requests]
+* https://github.com/opencypher/openCypher/issues?q=is%3Aissue+is%3Aopen+label%3ACIP[Open Cypher Improvement Proposals]
 
 == Overview of the process
 
-It is our aim to make the process of specifying and evolving the Cypher query language as open as possible.
+It is our aim to make the process of specifying and evolving the Cypher property graph database query language as open as possible.
 "We" are the Cypher Language Group, put together by Neo Technology to govern the Cypher query language.
 
-While we aim for the process to be open, this does not mean a public democracy, as all decisions are made by the Cypher Language Group.
+While we aim for the process to be open, this does not mean a public democracy, as all decisions are currently made by the Cypher Language Group (CLG).
 That said, we are of course extremely grateful for comments and suggestions on how to improve the Cypher query language.
 
 === The Cypher Language Group
@@ -22,10 +25,10 @@ The Cypher Language Group consists of:
 * https://github.com/thobe[Tobias Lindaaker]
 * https://github.com/boggle[Stefan Plantikow]
 * https://github.com/petraselmer[Petra Selmer]
-* https://github.com/systay[Andrés Taylor]
+* https://www.linkedin.com/in/alastair-green-65a861a7[Alastair Green]
 
-Andrés, in capacity of being the "father of Cypher", has ultimate say, should that ever be necessary.
-Petra acts as PM for the group, calling meetings and ensuring that notes get taken at said meetings.
+Stefan, in capacity of being the current team lead, has ultimate say on language design, should that ever be necessary.
+Petra additionally acts as secretary for the group, calling meetings and ensuring that notes get taken at said meetings.
 
 === Improvement Proposals
 
