@@ -25,6 +25,7 @@ The Cypher Language Group consists of:
 * https://github.com/thobe[Tobias Lindaaker]
 * https://github.com/boggle[Stefan Plantikow]
 * https://github.com/petraselmer[Petra Selmer]
+* https://github.com/Mats-SX[Mats Rydberg]
 * https://www.linkedin.com/in/alastair-green-65a861a7[Alastair Green]
 
 Stefan, in capacity of being the current team lead, has ultimate say on language design, should that ever be necessary.
