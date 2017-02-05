@@ -30,6 +30,8 @@ The Cypher Language Group consists of:
 Stefan, in capacity of being the current team lead, has ultimate say on language design, should that ever be necessary.
 Petra additionally acts as secretary for the group, calling meetings and ensuring that notes get taken at said meetings.
 
+Cypher was originally created by https://github.com/systay[Andrés Taylor].
+
 === Improvement Proposals
 
 Ultimately, proposals for improving the Cypher query language should take the form of a _Cypher Improvement Proposal (CIP)_.
