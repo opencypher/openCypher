@@ -8,7 +8,7 @@ This repository holds the specification of Cypher, the declarative property grap
 Its purpose is to be central to the process of evolving the specification of the language that is Cypher.
 
 * https://github.com/opencypher/openCypher/issues?q=is%3Aissue+is%3Aopen+label%3ACIR[Open Cypher Improvement Requests]
-* https://github.com/opencypher/openCypher/issues?q=is%3Aissue+is%3Aopen+label%3ACIP[Open Cypher Improvement Proposals]
+* https://github.com/opencypher/openCypher/pulls?q=is%3Apr+is%3Aopen+label%3ACIP[Open Cypher Improvement Proposals]
 
 == Overview of the process
 
