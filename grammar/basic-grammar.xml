@@ -82,7 +82,10 @@
   </production>
 
   <production name="PatternElementChain" rr:inline="true">
-    <non-terminal ref="RelationshipPattern"/>
+    <alt>
+      <non-terminal ref="RelationshipPattern"/>
+      <non-terminal ref="RegularPathPattern"/>
+    </alt>
     &WS;
     <non-terminal ref="NodePattern"/>
   </production>
@@ -123,6 +126,86 @@
     <opt><non-terminal ref="RangeLiteral"/></opt>
     <opt><non-terminal ref="Properties"/> &WS;</opt>
     ]
+  </production>
+
+  <production name="RegularPathPattern">
+    <alt>
+      <seq>
+        <non-terminal ref="LeftArrowHead" rr:title="&lt;"/>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        &WS; / &WS; <opt><non-terminal ref="RegularPathExpression"/></opt> &WS; /
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        &WS; <non-terminal ref="RightArrowHead" rr:title="&gt;"/>
+      </seq>
+      <seq>
+        <non-terminal ref="LeftArrowHead" rr:title="&lt;"/>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        &WS; / &WS; <opt><non-terminal ref="RegularPathExpression"/></opt> &WS; /
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+      </seq>
+      <seq>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        &WS; / &WS; <opt><non-terminal ref="RegularPathExpression"/></opt> &WS; /
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        &WS; <non-terminal ref="RightArrowHead" rr:title="&gt;"/>
+      </seq>
+      <seq>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        &WS; / &WS; <opt><non-terminal ref="RegularPathExpression"/></opt> &WS; /
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="RegularPathExpression">
+    <repeat min="1"><non-terminal ref="RegularPathAlternative"/></repeat>
+  </production>
+
+  <production name="RegularPathAlternative">
+    <non-terminal ref="RegularPathSequence"/>
+    <opt>| <non-terminal ref="RegularPathSequence"/></opt>
+  </production>
+
+  <production name="RegularPathSequence">
+    <repeat min="1"><non-terminal ref="RegularPathStar"/></repeat>
+  </production>
+
+  <production name="RegularPathStar">
+    <non-terminal ref="RegularPathDirected"/>
+    <opt><alt>
+      <seq>* <opt><non-terminal ref="RangeLiteral"/></opt></seq>
+      +
+    </alt></opt>
+  </production>
+
+  <production name="RegularPathDirected">
+    <opt>&lt;</opt> <non-terminal ref="RegularPathBase"/> <opt>&gt;</opt>
+  </production>
+
+  <production name="RegularPathBase">
+    <alt>
+      <non-terminal ref="RegularPathRelationship"/>
+      <non-terminal ref="RegularPathAnyRelationship"/>
+      <non-terminal ref="RegularPathNode"/>
+      <non-terminal ref="RegularPathReference"/>
+      <seq>[ <non-terminal ref="RegularPathExpression"/> ]</seq>
+    </alt>
+  </production>
+
+  <production name="RegularPathRelationship">
+    : <non-terminal ref="RelTypeName"/>
+  </production>
+
+  <production name="RegularPathAnyRelationship">
+    <non-terminal ref="Dash" rr:title="-"/>
+  </production>
+
+  <production name="RegularPathNode">
+    ( <non-terminal ref="NodeLabels"/> )
+  </production>
+
+  <production name="RegularPathReference">
+    <non-terminal ref="SymbolicName"/>
   </production>
 
   <production name="Properties" rr:inline="true">
