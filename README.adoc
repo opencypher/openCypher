@@ -5,7 +5,7 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 image:https://travis-ci.org/opencypher/openCypher.svg?branch=master["Build Status", link="https://travis-ci.org/opencypher/openCypher"]
 
 This repository holds the specification of Cypher, the declarative property graph database query language.
-Its purpose is to be central to the process of evolving the specification of the language that is Cypher.
+Its purpose is to be central to the process of evolving the specification and standardisation of Cypher as a graph query language.
 
 * https://github.com/opencypher/openCypher/issues?q=is%3Aissue+is%3Aopen+label%3ACIR[Open Cypher Improvement Requests]
 * https://github.com/opencypher/openCypher/pulls?q=is%3Apr+is%3Aopen+label%3ACIP[Open Cypher Improvement Proposals]
@@ -17,6 +17,8 @@ It is our aim to make the process of specifying and evolving the Cypher property
 
 While we aim for the process to be open, this does not mean a public democracy, as all decisions are currently made by the Cypher Language Group (CLG).
 That said, we are of course extremely grateful for comments and suggestions on how to improve the Cypher query language.
+
+Refer to the link:CIP-PROCESS.adoc[Cypher Improvement Process] document for more details on CIPs, CIRs, their structure and lifecycle.
 
 === The Cypher Language Group
 
@@ -32,36 +34,6 @@ Stefan, in capacity of being the current team lead, has ultimate say on language
 Petra additionally acts as secretary for the group, calling meetings and ensuring that notes get taken at said meetings.
 
 Cypher was originally created by https://github.com/systay[Andrés Taylor].
-
-=== Improvement Proposals
-
-Ultimately, proposals for improving the Cypher query language should take the form of a _Cypher Improvement Proposal (CIP)_.
-These should typically be proposed as pull requests against this repository, proposing the addition of a document following a naming scheme of `CIP{year}-{month}-{day}-{name}.asciidoc`.
-The "`{name}`" part of the filename is a very short name of the proposed changed; for instance the keyword the proposal intends to add or modify.
-If the "`{name}`" part contains multiple words, each word should be written using lower case characters, separated by a dash.
-The date portion of the name is the the initial date of proposing the CIP (typically the same date as the submission of the pull request).
-
-CIPs that additionally come with a reference implementation are very much appreciated, as is helps clarify the workings of the proposed improvement.
-This would help make the handling of the proposal quicker, or perhaps even make it more likely to be accepted.
-
-Suggestions and ideas are also welcome and much appreciated; these would best be submitted as "issues" in this repository on GitHub.
-The expectation is that these would eventually result in a CIP being created.
-
-==== What is a CIP?
-
-A _Cypher Improvement Proposal_, or _CIP_ for short, is a document that details a change to Cypher.
-
-
-==== The life cycle of a CIP
-
-Proposing a change to Cypher starts by either submitting a CIP as a pull request to this repository, or by submitting a feature request.
-A direct submission of a CIP is appropriate if the proposed changed is in the form of a concrete proposal.
-A feature request is typically the preferred method of starting a proposal.
-By starting from a feature request, you will be able to judge how large the general interest for the feature is before you embark on writing the CIP.
-Starting from a feature request also facilitates building an "experts group" that can work with you on the details of the proposal.
-
-The comment thread on the GitHub issue for the feature proposal is an excellent place for discussing ideas
-
 
 === Meeting notes
 

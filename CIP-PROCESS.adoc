@@ -4,3 +4,49 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
 Improvements to the Cypher query language are managed through documents describing each feature of the language.
 Such a document is called a _Cypher Improvement Proposal_, or _CIP_ for short.
+
+=== Cypher Improvement Requests (CIRs)
+
+Before a language feature or change is mature enough for a full CIP to be created, it may be requested through the creation of a _Cypher Improvement Request_, or _CIR_.
+A CIR is created by raising an issue to this GitHub repository, which follows some conventions:
+
+* The title should be a summary of the proposed change
+* The issue should have a heading following this naming scheme:
+** `CIR-{YYYY}-{number}`, where `{YYYY}` is the current year (four numbers) and `{number}` is the number of the GitHub issue (this may be edited in after creation of the issue to get the number correct).
+
+A CIR is intended to be a light-weight document for requirements gathering, and does not need to fully consider all details of the proposal initially.
+This will be explored as the CIR develops and more people join the discussion.
+
+==== Lifecycle
+
+During the lifetime of a CIR, it may change in nature.
+It is preferable to keep the top post of the CIR updated with recent discussions, to allow new readers to easily get an updated view on what the CIR reflects, rather than have to scroll through a large history of change.
+
+The ultimate goal of a CIR is to spawn the creation (and subsequent acceptance) of one or more CIPs.
+
+=== Cypher Improvement Proposals (CIPs)
+
+Proposals for improving the Cypher query language should take the form of a CIP.
+A CIP is represented as a pull request against this repository, proposing the addition of a document following a few conventions:
+
+* The name of the document should be on the form `CIP{year}-{month}-{day}-{name}.adoc`.
+** The `{name}` part of the filename is a very short name of the proposed change; for instance the keyword the proposal intends to add or modify.
+If the "`{name}`" part contains multiple words, each word should be written using lower case characters, separated by a dash.
+** The date portion of the name is the the initial date of proposing the CIP (typically the same date as the submission of the pull request).
+* The document should be based on the CIP template document, to ensure a consistent structure with respect to other CIPs.
+* If the CIP is based on one or more CIRs, these should be explicitly referenced in the document and the pull request message.
+
+CIPs that additionally come with a reference implementation are very much appreciated, as is helps clarify the workings of the proposed improvement.
+This would help make the handling of the proposal quicker, or perhaps even make it more likely to be accepted.
+
+Suggestions and ideas are also welcome and much appreciated; these would best be submitted as "issues" in this repository on GitHub.
+The expectation is that these would eventually result in a CIP being created.
+
+==== Lifecycle
+
+Typically, CIPs spawn from one or more CIRs.
+A direct submission of a CIP is appropriate if the proposed changed is in the form of a concrete proposal.
+By starting from a CIR, you will be able to judge how large the general interest for the feature is before you embark on writing the CIP.
+Starting from a CIR also facilitates building an "experts group" that can work with you on the details of the proposal.
+
+Once a CIP has been issued, it will enter a phase of review, eventually becoming either accepted (and the pull request merged) or rejected.
