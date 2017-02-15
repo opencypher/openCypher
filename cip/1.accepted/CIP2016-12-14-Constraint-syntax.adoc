@@ -17,12 +17,12 @@ toc::[]
 
 == Motivation
 
-Constraints provide utility for shaping the data graph.
+Constraints provide the means by which various aspects of the data graph may be controlled.
 
 == Background
 
-Cypher has a loose notion of schema, in which nodes and relationships may take very heterogeneous forms, both in terms of properties and in graph patterns.
-Constraints allows us to bound the heterogeneous nature of the property graph into a more regular form.
+Cypher has a loose notion of a schema, in which nodes and relationships may take very heterogeneous forms, both in terms of properties and in graph patterns.
+Constraints allow us to mould the heterogeneous nature of the property graph into a more regular form.
 
 == Proposal
 
@@ -32,7 +32,7 @@ This CIP includes the following proposed constraints:
 * <<existence, Node property existence constraint>>
 * <<existence, Relationship property existence constraint>>
 
-Each constraint is detailed in its own below section.
+Each constraint is detailed in the sections below.
 
 Once a constraint has been created, it may not be amended.
 Should a user wish to change its definition, it has to be dropped and recreated with an updated structure.
@@ -61,7 +61,7 @@ drop-constraint    = "DROP", "CONSTRAINT", constraint-name ;
 
 The constraint expressions vary depending on the actual constraint (see the detailed sections).
 
-.Example of dropping a constraint with name foo:
+.Example of dropping a constraint with name `foo`:
 [source, cypher]
 ----
 DROP CONSTRAINT foo
@@ -69,12 +69,12 @@ DROP CONSTRAINT foo
 
 === Semantics overview
 
-The semantics are defined for each type of constraint, but some characteristics are shared:
+The following list describes the situations in which an error will be raised:
 
-* When a statement tries to create a constraint on a graph where the data does not pass the constraint criterion, that statement will raise an error.
-* When a statement tries to create a constraint with a name that already exists, that statement will raise an error.
-* When a statement tries to drop a constraint referencing a name that does not exist, that statement will raise an error.
-* When an updating statement tries to modify the graph in such a way that it would violate a constraint, that statement will raise an error.
+* Attempting to create a constraint on a graph where the data does not comply with the constraint criterion.
+* Attempting to create a constraint with a name that already exists.
+* Attempting to drop a constraint referencing a non-existent name.
+* Attempting to modify the graph in such a way that it would violate a constraint.
 
 The constraints define a _domain_ within which the constraint applies.
 The domain is defined by the constraint pattern.
@@ -82,18 +82,18 @@ The domain is defined by the constraint pattern.
 [[uniqueness]]
 === Node property uniqueness constraint
 
-This constraint enforces that there can not be duplicate values of a certain property for a certain type of node.
-For example, that among nodes labeled with `:Person`, each `email` property must be unique.
+This constraint enforces that there cannot be duplicate values of some property `p` for any node labeled with some label `l`.
+For example, this constraint can specify that the `email` property must be unique for all nodes labeled with `:Person`.
 
 ==== Syntax
 
-.Grammar definition for node property uniqueness constraint:
+.Grammar definition for the node property uniqueness constraint:
 [source, ebnf]
 ----
 uniqueness-constraint = "UNIQUE", property-expression, { ",", property-expression } ;
 ----
 
-.Example of single-property uniqueness constraint:
+.Example of a single-property uniqueness constraint:
 [source, cypher]
 ----
 CREATE CONSTRAINT unique_person_email
@@ -101,7 +101,7 @@ FOR (p:Person)
 REQUIRE UNIQUE p.email
 ----
 
-.Example of multiple-property uniqueness constraint:
+.Example of a multiple-property uniqueness constraint:
 [source, cypher]
 ----
 CREATE CONSTRAINT unique_person_details
@@ -111,10 +111,10 @@ REQUIRE UNIQUE p.name, p.email, p.address
 
 ==== Semantics
 
-The domain of a property uniqueness constraint is defined as all the nodes with a specific label where the specified property key(s) exist (are non-null).
+The domain of a property uniqueness constraint is defined as all the nodes with a specific label where the specified property key(s) exist (i.e. are not null).
 When more than one property key is defined as part of the constraint, only nodes where _all_ of the properties exist are part of the domain.
 
-The uniqueness mandates that two distinct nodes within the domain can not have the same combination of values for the defined properties (respectively).
+The uniqueness constraint mandates that two distinct nodes within the domain cannot have the same combination of values for the defined properties.
 
 ===== Example
 
@@ -127,7 +127,7 @@ CREATE (:Color {name: 'black', rgb: 0x000000})
 CREATE (:Color {name: 'very, very dark grey', rgb: 0x000000}) // rounding error!
 ----
 
-Due to the duplication of the `rgb` property, the following attempt at creating a constraint will fail:
+Owing to the duplication of the `rgb` property, the following attempt at creating a constraint will fail:
 
 [source, cypher]
 ----
@@ -149,18 +149,18 @@ REQUIRE UNIQUE c.rgb, c.name
 [[existence]]
 === Property existence constraints
 
-Property existence constraints are defined for both nodes and relationships, but the semantics are the same.
-For this reason we will go over both constraints in the same section.
+Property existence constraints are defined for both nodes and relationships; these have the same semantics.
+We now describe both of these.
 
 ==== Syntax
 
-.Grammar definition for property existence constraint:
+.Grammar definition for the property existence constraint:
 [source, ebnf]
 ----
 existence-constraint = "exists", "(", property-expression, ")" ;
 ----
 
-.Example of node property existence constraint:
+.Example of a node property existence constraint:
 [source, cypher]
 ----
 CREATE CONSTRAINT colors_must_have_rgb
@@ -168,7 +168,7 @@ FOR (c:Color)
 REQUIRE exists(c.rgb)
 ----
 
-.Example of relationship property existence constraint:
+.Example of a relationship property existence constraint:
 [source, cypher]
 ----
 CREATE CONSTRAINT rates_have_quality
@@ -181,16 +181,16 @@ REQUIRE exists(l.rating)
 The domain of a node property existence constraint are all nodes with the specified label.
 Similarly, the domain of a relationship property existence constraint are all relationship with the specified type.
 
-Property existence constraints mandates that the value of the specified property exists (is non-null) for all entities in the domain.
+The property existence constraint mandates that the value of the specified property exists (i.e. is not null) for all entities in the domain.
 
 ===== Example
 
 Consider the graph containing `:Color` nodes.
-Each color has an integral RGB value representation in a property `rgb`.
-Users may lookup color nodes to extract their RGB values for application processing.
-Users may also add new color nodes to the graph.
+Each color is represented as an integer-type RGB value in a property `rgb`.
+Users may look up nodes labeled with `:Color` to extract their RGB values for application processing.
+Users may also add new `:Color`-labeled nodes to the graph.
 
-Suppose the query that looks up the RGB value of a color with a given name looks like this:
+The following query retrieves the RGB value of a color with a given `name`:
 
 [source, cypher]
 ----
@@ -199,8 +199,8 @@ WHERE exists(c.rgb)
 RETURN c.rgb
 ----
 
-The `WHERE` clause protects the application from receiving `null` values back for user-defined colors where the RGB values have not been specified correctly.
-It may however be eliminated by the introduction of a node property existence constraint:
+The `WHERE` clause may be used to prevent an application from retrieving `null` values for user-defined colors where the RGB values have not been specified correctly.
+It may, however, be eliminated by the introduction of a node property existence constraint:
 
 [source, cypher]
 ----
@@ -213,54 +213,52 @@ Any updating statement that would create a `:Color` node without specifying a `r
 
 === Interaction with existing features
 
-The main interaction between the constraints and the rest of the language happens during updating statements.
-Existing constraints will cause certain updating statements to fail; in fact, that's the main purpose.
+The main interaction between the constraints and the rest of the language occurs during updating statements.
+Existing constraints will cause any updating statements to fail, thereby fulfilling the main purpose of this feature.
 
 === Alternatives
 
-Plenty of alternative syntaxes have been discussed:
+Alternative syntaxes have been discussed:
 
 * `GIVEN`, `CONSTRAIN`, `ASSERT` instead of `FOR`
 * `ASSERT`, `ENFORCE`, `IMPLIES` instead of `REQUIRE`
 
-The use of existing expression to express uniqueness, instead of using a new keyword `UNIQUE`, on the form:
+The use of an existing expression to express uniqueness -- instead of using a new keyword `UNIQUE` -- becomes unwieldy for multiple properties, as exemplified by the following:
 ----
 FOR (p:Person), (q:Person)
 REQUIRE p.email <> q.email AND p <> q
 ----
-which quickly becomes unwieldy for multiple properties.
 
 == What others do
 
 In SQL, the following constraints exist (http://www.w3schools.com/sql/sql_constraints.asp):
 
-* `NOT NULL` - Indicates that a column cannot store NULL value
-* `UNIQUE` - Ensures that each row for a column must have a unique value
-* `PRIMARY KEY` - A combination of a `NOT NULL` and `UNIQUE`. Ensures that a column (or combination of two or more columns) have a unique identity which helps to find a particular record in a table more easily and quickly
-* `FOREIGN KEY` - Ensure the referential integrity of the data in one table to match values in another table
+* `NOT NULL` - Indicates that a column cannot store a null value.
+* `UNIQUE` - Ensures that each row for a column must have a unique value.
+* `PRIMARY KEY` - A combination of a `NOT NULL` and `UNIQUE`. Ensures that a column (or a combination of two or more columns) has a unique identity, reducing the resources required to locate a specific record in a table.
+* `FOREIGN KEY` - Ensures the referential integrity of the data in one table matches values in another table.
 * `CHECK` - Ensures that the value in a column meets a specific condition
-* `DEFAULT` - Specifies a default value for a column
-The next chapters will describe each constraint in detail.
+* `DEFAULT` - Specifies a default value for a column.
 
-The property existence constraints represent the same functionality as the `NOT NULL` SQL constraint.
-The node property uniqueness constraint represents the `PRIMARY KEY` SQL constraint.
+The property existence constraints correspond to the `NOT NULL` SQL constraint.
+The node property uniqueness constraint corresponds to the `PRIMARY KEY` SQL constraint.
 
-SQL constraints may be introduced at table creation time (in a `CREATE TABLE` statement), or in an `ALTER TABLE` statement:
+SQL constraints may be introduced at table creation time in a `CREATE TABLE` statement, or in an `ALTER TABLE` statement:
 
-.Creating a persons table in SQL Server / Oracle / MS Access:
+.Creating a `Person` table in SQL Server / Oracle / MS Access:
 [source, sql]
 ----
-CREATE TABLE Persons
+CREATE TABLE Person
 (
    P_Id int NOT NULL UNIQUE,
    LastName varchar(255) NOT NULL,
    FirstName varchar(255))
 ----
 
-.Creating a persons table in MySQL:
+.Creating a `Person` table in MySQL:
 [source, sql]
 ----
-CREATE TABLE Persons
+CREATE TABLE Person
 (
   P_Id int NOT NULL,
   LastName varchar(255) NOT NULL,
@@ -272,14 +270,14 @@ CREATE TABLE Persons
 .Adding a named composite `UNIQUE` constraint in MySQL / SQL Server / Oracle / MS Access:
 [source, sql]
 ----
-ALTER TABLE Persons
+ALTER TABLE Person
 ADD CONSTRAINT uc_PersonID UNIQUE (P_Id,LastName)
 ----
 
 == Benefits to this proposal
 
-Constraints make Cypher's notion of schema more well-defined, and allows users to keep graphs in a more regular, easier to manage form.
+Constraints make Cypher's notion of schema more well-defined, allowing users to maintain graphs in a more regular, easier-to-manage form.
 
 == Caveats to this proposal
 
-For an implementing system, some constraints may prove challenging to enforce, as they generally require scanning through large parts of the graph to look for conflicting entities.
+Some constraints may prove challenging to enforce in a system seeking to implement the contents of this CIP, as these generally require scanning through large parts of the graph to locate conflicting entities.
