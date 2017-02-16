@@ -9,8 +9,8 @@
 [abstract]
 .Abstract
 --
-Along with many programming languages, Cypher has a notion of keywords, which is a word that has special meaning within the language.
-Historically, and in contrast to many other languages, these words have been allowed to be used as symbolic names.
+Along with many programming languages, Cypher has a notion of keywords, which are words that have special meaning within the language.
+Historically, and in contrast to many other languages, keywords have been allowed to be used as symbolic names.
 This is poor practice, as it allows users to write hard-to-read and possibly ambiguous statements.
 This CIP defines a set of reserved words and proposes that they be disallowed from being used as symbolic names.
 --
@@ -43,7 +43,7 @@ As Cypher matures towards becoming a standard language, however, a more generic 
 == Proposal
 
 The concrete proposal is a listing of _reserved words_ (see f.e. https://en.wikipedia.org/wiki/Reserved_word[Wikipedia's definition]), all of which have a special meaning in Cypher.
-These reserved words would be disallowed from being used as identifiers, in the following contexts:
+These reserved words would be disallowed from being used as identifiers in the following contexts:
 
 * Variables
 * Function names
@@ -58,57 +58,57 @@ In addition to this, we list a number of words that are reserved for future use.
 
 ===== Keywords
 
-* MATCH
-* WHERE
-* WITH
-* RETURN
-* SKIP
-* LIMIT
-* ORDER
-* BY
+* ALL
 * ASC
 * ASCENDING
+* BY
+* CREATE
+* DELETE
 * DESC
 * DESCENDING
-* UNWIND
-* OPTIONAL
-* CREATE
 * DETACH
-* DELETE
-* SET
-* REMOVE
+* EXISTS
+* LIMIT
+* MATCH
 * MERGE
 * ON
-* EXISTS
+* OPTIONAL
+* ORDER
+* REMOVE
+* RETURN
+* SET
+* SKIP
+* WHERE
+* WITH
 * UNION
-* ALL
+* UNWIND
 
 ===== Operators
 
-* AS
-* DISTINCT
 * AND
-* OR
-* XOR
-* NOT
-* STARTS
-* ENDS
+* AS
 * CONTAINS
+* DISTINCT
+* ENDS
 * IN
 * IS
+* NOT
+* OR
+* STARTS
+* XOR
 
 ===== Literals
 
+* false
 * null
 * true
-* false
 
 ===== Reserved for future use
 
+* CONSTRAINT
 * DO
 * FOR
 * REQUIRE
-* CONSTRAINT
 * UNIQUE
 
 ==== Examples
@@ -142,7 +142,7 @@ An extension to this proposal could disallow using the reserved words as:
 However, these usages are only valid in very limited contexts, coupled with a special character (`:` or `.`), so the benefit would be minimal.
 Furthermore, these usages represent _schema_, which is a context in which it is arguably more important to provide higher degrees of freedom, than in a pure statement context.
 
-Another variation that may be taken is to not strictly forbid the future-reserved words, but instead issue a strong recommendation to not use them.
+Another variation is not to strictly forbid any words earmarked to be reserved in the future, but instead issue a strong recommendation to not use them.
 The trade-off in this case is between allowing more freedom for statements now and breaking statements in future language updates.
 
 == What others do
@@ -165,4 +165,4 @@ The following benefits are envisioned:
 == Caveats to this proposal
 
 Several of the reserved words do represent general-purpose words that one may like to use as informative identifiers.
-This proposal would remove the ability to use these identifiers, meaning that some statements may be slightly more difficult to write.
+This proposal would remove the ability to use these identifiers, which may result in some statements becoming slightly more difficult to write.
