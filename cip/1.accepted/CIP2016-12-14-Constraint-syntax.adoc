@@ -40,7 +40,7 @@ Should a user wish to change its definition, it has to be dropped and recreated 
 ==== Constraint names
 
 All constraints require the user to specify a nonempty _name_ at constraint creation time.
-This name is subsequently the handle with which a user may refer to the constraint, e.g. when dropping it.
+This name is subsequently the handle with which a user may refer to the constraint, for example when dropping it.
 
 // TODO: Should we impose restrictions on the domain of constraint names, or are all Unicode characters allowed?
 
@@ -118,7 +118,11 @@ The uniqueness constraint mandates that two distinct nodes within the domain can
 
 ===== Example
 
-Consider the graph created by the following statement:
+Consider the graph created by the statement below.
+The graph contains nodes labeled with `:Color`.
+Each color is represented as an integer-type RGB value in a property `rgb`.
+Users may look up nodes labeled with `:Color` to extract their RGB values for application processing.
+Users may also add new `:Color`-labeled nodes to the graph.
 
 [source, cypher]
 ----
@@ -136,7 +140,7 @@ FOR (c:Color)
 REQUIRE UNIQUE c.rgb
 ----
 
-Suppose that we would rather like to have one color node per name _and_ RGB value (to work around the rounding errors).
+Suppose that we would rather like to have one color node per `name` _and_ `rgb` value (to work around the rounding errors).
 We could then use the following constraint, without modifying our data:
 
 [source, cypher]
@@ -185,10 +189,7 @@ The property existence constraint mandates that the value of the specified prope
 
 ===== Example
 
-Consider the graph containing `:Color` nodes.
-Each color is represented as an integer-type RGB value in a property `rgb`.
-Users may look up nodes labeled with `:Color` to extract their RGB values for application processing.
-Users may also add new `:Color`-labeled nodes to the graph.
+Consider once again the graph containing `:Color` nodes.
 
 The following query retrieves the RGB value of a color with a given `name`:
 
