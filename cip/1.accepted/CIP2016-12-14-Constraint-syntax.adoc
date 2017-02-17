@@ -232,7 +232,7 @@ REQUIRE p.email <> q.email AND p <> q
 
 == What others do
 
-In SQL, the following constraints exist (http://www.w3schools.com/sql/sql_constraints.asp):
+In SQL, the following constraints exist (inspired by http://www.w3schools.com/sql/sql_constraints.asp):
 
 * `NOT NULL` - Indicates that a column cannot store a null value.
 * `UNIQUE` - Ensures that each row for a column must have a unique value.
