@@ -88,7 +88,7 @@ MERGE (a:A)-[:T]-(b:B)
 ON CREATE SET a.name = 'me'
 ON MATCH SET b.name = 'you'
 RETURN a.prop ORDER BY b.prop ASC SKIP 10
-LIMIT 10
+LIMIT 0
 ----
 +
 .Good
