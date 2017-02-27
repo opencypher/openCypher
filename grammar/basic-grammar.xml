@@ -173,54 +173,63 @@
   <!-- / EXPRESSIONS \ -->
 
   <production name="Expression">
-    <non-terminal ref="Expression12"/>
+    <non-terminal ref="OrExpression"/>
   </production>
 
-  <production name="Expression12" rr:inline="true">
-    <non-terminal ref="Expression11"/>
-    <repeat>&SP; OR &SP;<non-terminal ref="Expression11"/></repeat>
+  <production name="OrExpression" rr:inline="true">
+    <non-terminal ref="XorExpression"/>
+    <repeat>&SP; OR &SP;<non-terminal ref="XorExpression"/></repeat>
   </production>
-  <production name="Expression11" rr:inline="true">
-    <non-terminal ref="Expression10"/>
-    <repeat>&SP; XOR &SP;<non-terminal ref="Expression10"/></repeat>
+
+  <production name="XorExpression" rr:inline="true">
+    <non-terminal ref="AndExpression"/>
+    <repeat>&SP; XOR &SP;<non-terminal ref="AndExpression"/></repeat>
   </production>
-  <production name="Expression10" rr:inline="true">
-    <non-terminal ref="Expression9"/>
-    <repeat>&SP; AND &SP;<non-terminal ref="Expression9"/></repeat>
+
+  <production name="AndExpression" rr:inline="true">
+    <non-terminal ref="NotExpression"/>
+    <repeat>&SP; AND &SP;<non-terminal ref="NotExpression"/></repeat>
   </production>
-  <production name="Expression9" rr:inline="true">
+
+  <production name="NotExpression" rr:inline="true">
     <repeat>NOT &WS;</repeat>
-    <non-terminal ref="Expression8"/>
+    <non-terminal ref="ComparisonExpression"/>
   </production>
-  <production name="Expression8" rr:inline="true">
-    <non-terminal ref="Expression7"/>
+
+  <production name="ComparisonExpression" rr:inline="true">
+    <non-terminal ref="AddOrSubtractExpression"/>
     <repeat>&WS;<non-terminal ref="PartialComparisonExpression"/></repeat>
   </production>
-  <production name="Expression7" rr:inline="true">
-    <non-terminal ref="Expression6"/>
+
+  <production name="AddOrSubtractExpression" rr:inline="true">
+    <non-terminal ref="MultiplyDivideModuloExpression"/>
     <repeat><alt>
-      <seq> &WS; + &WS; <non-terminal ref="Expression6"/></seq>
-      <seq> &WS; - &WS; <non-terminal ref="Expression6"/></seq>
+      <seq> &WS; + &WS; <non-terminal ref="MultiplyDivideModuloExpression"/></seq>
+      <seq> &WS; - &WS; <non-terminal ref="MultiplyDivideModuloExpression"/></seq>
     </alt></repeat>
   </production>
-  <production name="Expression6" rr:inline="true">
-    <non-terminal ref="Expression5"/>
+
+  <production name="MultiplyDivideModuloExpression" rr:inline="true">
+    <non-terminal ref="PowerOfExpression"/>
     <repeat><alt>
-      <seq> &WS; * &WS; <non-terminal ref="Expression5"/></seq>
-      <seq> &WS; / &WS; <non-terminal ref="Expression5"/></seq>
-      <seq> &WS; % &WS; <non-terminal ref="Expression5"/></seq>
+      <seq> &WS; * &WS; <non-terminal ref="PowerOfExpression"/></seq>
+      <seq> &WS; / &WS; <non-terminal ref="PowerOfExpression"/></seq>
+      <seq> &WS; % &WS; <non-terminal ref="PowerOfExpression"/></seq>
     </alt></repeat>
   </production>
-  <production name="Expression5" rr:inline="true">
-    <non-terminal ref="Expression4"/>
-    <repeat> &WS; ^ &WS; <non-terminal ref="Expression4"/></repeat>
+
+  <production name="PowerOfExpression" rr:inline="true">
+    <non-terminal ref="UnaryAddOrSubtractExpression"/>
+    <repeat> &WS; ^ &WS; <non-terminal ref="UnaryAddOrSubtractExpression"/></repeat>
   </production>
-  <production name="Expression4" rr:inline="true">
+
+  <production name="UnaryAddOrSubtractExpression" rr:inline="true">
     <repeat><alt>+ -</alt> &WS; </repeat>
-    <non-terminal ref="Expression3"/>
+    <non-terminal ref="StringListNullOperatorExpression"/>
   </production>
-  <production name="Expression3" rr:inline="true">
-    <non-terminal ref="Expression2"/>
+
+  <production name="StringListNullOperatorExpression" rr:inline="true">
+    <non-terminal ref="PropertyOrLabelsExpression"/>
     <repeat><alt>
       <seq> &WS; [ &expr; ] </seq>
       <seq> &WS; [ <opt>&expr;</opt> .. <opt>&expr;</opt> ] </seq>
@@ -233,13 +242,14 @@
           <seq>&SP; CONTAINS</seq>
         </alt>
         &WS;
-        <non-terminal ref="Expression2"/>
+        <non-terminal ref="PropertyOrLabelsExpression"/>
       </seq>
       <seq> &SP; IS &SP; NULL </seq>
       <seq> &SP; IS &SP; NOT &SP; NULL </seq>
     </alt></repeat>
   </production>
-  <production name="Expression2" rr:inline="true">
+
+  <production name="PropertyOrLabelsExpression" rr:inline="true">
     <non-terminal ref="Atom"/>
     <repeat>
       &WS;
@@ -249,6 +259,7 @@
       </alt>
     </repeat>
   </production>
+
   <production name="Atom">
     <alt>
       <non-terminal ref="Literal"/>
@@ -301,13 +312,13 @@
 
   <production name="PartialComparisonExpression" rr:inline="true">
     <alt>
-      <seq> <literal value="="/>        &WS; <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value="&lt;&gt;"/> &WS; <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value="!="/>       &WS; <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value="&lt;"/>     &WS; <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value="&gt;"/>     &WS; <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value="&lt;="/>    &WS; <non-terminal ref="Expression7"/> </seq>
-      <seq> <literal value="&gt;="/>    &WS; <non-terminal ref="Expression7"/> </seq>
+      <seq> <literal value="="/>        &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
+      <seq> <literal value="&lt;&gt;"/> &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
+      <seq> <literal value="!="/>       &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
+      <seq> <literal value="&lt;"/>     &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
+      <seq> <literal value="&gt;"/>     &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
+      <seq> <literal value="&lt;="/>    &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
+      <seq> <literal value="&gt;="/>    &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
     </alt>
   </production>
 
