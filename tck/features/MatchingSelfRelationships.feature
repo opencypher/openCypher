@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-Feature: SimplePatternSemantics
+Feature: MatchingSelfRelationships
 
   Scenario: Undirected match in self-relationship graph
     Given an empty graph
@@ -257,4 +257,82 @@ Feature: SimplePatternSemantics
     Then the result should be:
       | count(r) |
       | 1        |
+    And no side effects
+
+  Scenario: Mixing directed and undirected pattern parts with self-relationship, simple
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A)-[:T1]->(l:Looper),
+             (l)-[:LOOP]->(l),
+             (l)-[:T2]->(:B)
+      """
+    When executing query:
+      """
+      MATCH (x:A)-[r1]->(y)-[r2]-(z)
+      RETURN x, r1, y, r2, z
+      """
+    Then the result should be:
+      | x    | r1    | y         | r2      | z         |
+      | (:A) | [:T1] | (:Looper) | [:LOOP] | (:Looper) |
+      | (:A) | [:T1] | (:Looper) | [:T2]   | (:B)      |
+    And no side effects
+
+  Scenario: Mixing directed and undirected pattern parts with self-relationship, count
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A)-[:T1]->(l:Looper),
+             (l)-[:LOOP]->(l),
+             (l)-[:T2]->(:B)
+      """
+    When executing query:
+      """
+      MATCH (:A)-->()--()
+      RETURN count(*)
+      """
+    Then the result should be:
+      | count(*) |
+      | 2        |
+    And no side effects
+
+  Scenario: Mixing directed and undirected pattern parts with self-relationship, undirected
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A)-[:T1]->(l:Looper),
+             (l)-[:LOOP]->(l),
+             (l)-[:T2]->(:B)
+      """
+    When executing query:
+      """
+      MATCH (x)-[r1]-(y)-[r2]-(z)
+      RETURN x, r1, y, r2, z
+      """
+    Then the result should be:
+      | x         | r1      | y         | r2      | z         |
+      | (:A)      | [:T1]   | (:Looper) | [:LOOP] | (:Looper) |
+      | (:A)      | [:T1]   | (:Looper) | [:T2]   | (:B)      |
+      | (:Looper) | [:LOOP] | (:Looper) | [:T1]   | (:A)      |
+      | (:Looper) | [:LOOP] | (:Looper) | [:T2]   | (:B)      |
+      | (:B)      | [:T2]   | (:Looper) | [:LOOP] | (:Looper) |
+      | (:B)      | [:T2]   | (:Looper) | [:T1]   | (:A)      |
+    And no side effects
+
+  Scenario: Mixing directed and undirected pattern parts with self-relationship, undirected count
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A)-[:T1]->(l:Looper),
+             (l)-[:LOOP]->(l),
+             (l)-[:T2]->(:B)
+      """
+    When executing query:
+      """
+      MATCH ()-[]-()-[]-()
+      RETURN count(*)
+      """
+    Then the result should be:
+      | count(*) |
+      | 6        |
     And no side effects
