@@ -252,14 +252,14 @@ RETURN p.name
 [source, cypher]
 ----
 WITH NULL AS n1, Null AS n2
-RETURN n1 IS NULL && n2 IS NOT NULL
+RETURN n1 IS NULL AND n2 IS NOT NULL
 ----
 +
 .Good
 [source, cypher]
 ----
 WITH null AS n1, null as n2
-RETURN n1 IS NULL && n2 IS NOT NULL
+RETURN n1 IS NULL AND n2 IS NOT NULL
 ----
 
 . Write boolean literals in lower case.
@@ -268,14 +268,14 @@ RETURN n1 IS NULL && n2 IS NOT NULL
 [source, cypher]
 ----
 WITH TRUE AS b1, False AS b2
-RETURN b1 && b2
+RETURN b1 AND b2
 ----
 +
 .Good
 [source, cypher]
 ----
 WITH true AS b1, false AS b2
-RETURN b1 && b2
+RETURN b1 AND b2
 ----
 
 . Use camel case, starting with a lower case character, for:
