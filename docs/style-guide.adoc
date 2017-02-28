@@ -7,12 +7,13 @@
 toc::[]
 
 This is the style guide for the Cypher language, in the context of its standardization through the openCypher project.
-This document contains rules for how to use the language, intended to help construct a consistent and portable usage of the language across many use cases and implementations.
-There are also more peripheral recommendations, which are to be taken more lightly, and reflects attempts at helping users of the language to treat language-related concerns in a consistent manner.
+This document consists of two main parts: <<Rules>> and <<Recommendations>>.
 
-NOTE: Cypher is a language.
-Languages have their own rules, and are not eager to adapt to circumstance.
-Remember not to be too eager to shiv a Cypher expression into the conventions of a different language.
+In <<Rules>>, we list syntax guidelines for composing Cypher queries in a conventional, readability-oriented way.
+The examples provided always transform _valid_, but poorly formatted, queries into a different query in the conventional format, with the exact same semantics.
+
+In <<Recommendations>>, we list guidelines may have an effect on the semantics of queries, such as the way a graph schema is composed through label and relationship types.
+Bear in mind that these recommendations will not work after-the-fact: if the graph has been constructed with one set of label and relationship types, queries in the associated workload can not be re-formatted according to these recommendations without also refactoring the data graph.
 
 == Why is style important?
 
@@ -40,6 +41,10 @@ WHERE NOT (member)-[:HAS_MEMBERSHIP]->(:Membership)-[:OF_GROUP]->(otherGroup)
 RETURN otherGroup.name, collect(topic.name), sum(score) AS score
 ORDER BY score DESC
 ----
+
+---
+
+The purpose of this document is to help users of the language to share queries with each other with minimal friction, and to construct a consistent and portable usage of the lanugage across many use cases and implementations.
 
 == Rules
 
