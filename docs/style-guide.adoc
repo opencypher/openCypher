@@ -241,38 +241,6 @@ WHERE p.name STARTS WITH 'Ma'
 RETURN p.name
 ----
 
-. Write labels in camel case, starting with an upper case character.
-+
-.Bad
-[source, cypher]
-----
-MATCH (e:editor-in-chief)-->(:employee)
-RETURN e.name
-----
-+
-.Good
-[source, cypher]
-----
-MATCH (e:EditorInChief)-->(:Employee)
-RETURN e.name
-----
-
-. Write relationship types in upper case, using an underscore (`_`) to separate words.
-+
-.Bad
-[source, cypher]
-----
-MATCH (:Person)-[own:owns-vehicle]->(:Car)
-RETURN own.since
-----
-+
-.Good
-[source, cypher]
-----
-MATCH (:Person)-[own:OWNS_VEHICLE]->(:Car)
-RETURN own.since
-----
-
 . Write the value `null` in lower case.
 +
 .Bad
@@ -611,4 +579,36 @@ RETURN e.name
 ----
 MATCH (e:Employee)
 RETURN e.name
+----
+
+. Write labels in camel case, starting with an upper case character.
++
+.Bad
+[source, cypher]
+----
+MATCH (e:editor_in_chief)-->(:EMPLOYEE)
+RETURN e.name
+----
++
+.Good
+[source, cypher]
+----
+MATCH (e:EditorInChief)-->(:Employee)
+RETURN e.name
+----
+
+. Write relationship types in upper case, using an underscore (`_`) to separate words.
++
+.Bad
+[source, cypher]
+----
+MATCH (:Person)-[own:ownsVehicle]->(:Car)
+RETURN own.since
+----
++
+.Good
+[source, cypher]
+----
+MATCH (:Person)-[own:OWNS_VEHICLE]->(:Car)
+RETURN own.since
 ----
