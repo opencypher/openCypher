@@ -27,7 +27,7 @@ In a property graph, the following elements may exist:
 
 === Entity
 
-- An entity has a unique, comparable identity which defines whether or not two entities are equal.
+- An entity has a unique, comparable identity which defines whether or not two entities are equal (see the link:../cip/1.accepted/CIP2016-06-14-Define-comparability-and-equality-as-well-as-orderability-and-equivalence{outfilesuffix}#322-comparability[Comparability CIP] for more details).
 - An entity is assigned a set of properties, each of which are uniquely identified in the set by their respective property keys.
 
 ==== Node
