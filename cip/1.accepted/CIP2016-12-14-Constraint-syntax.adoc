@@ -217,6 +217,16 @@ FOR (p:Programmer)
 REQUIRE p:Person
 ----
 
+Assuming a function `acyclic()` that takes a path as argument and returns `true` if and only if the same node does not appear twice in the path, otherwise `false`, we may express:
+
+.Constraint example from CIR-2017-172
+[source, cypher]
+----
+CREATE CONSTRAINT enforce_dag_acyclic_for_R_links
+FOR p = ()-[:R*]-()
+REQUIRE acyclic(p)
+----
+
 === Interaction with existing features
 
 The main interaction between the constraints and the rest of the language occurs during updating statements.
