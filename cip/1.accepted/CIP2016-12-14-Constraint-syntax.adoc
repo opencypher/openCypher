@@ -33,9 +33,8 @@ The constraint syntax is defined as follows:
 [source, ebnf]
 ----
 constraint command = create-constraint | drop-constraint ;
-create-constraint  = "CREATE", "CONSTRAINT", constraint-name, "FOR", constraint-pattern, "REQUIRE", constraint-expr, { "REQUIRE", constraint-expr } ;
+create-constraint  = "CREATE", "CONSTRAINT", constraint-name, "FOR", pattern, "REQUIRE", constraint-expr, { "REQUIRE", constraint-expr } ;
 constraint-name    = symbolic-name
-constraint-pattern = node-pattern | simple-pattern ;
 constraint-expr    = uniqueness-expr | expression ;
 uniquness-expr     = "UNIQUE", property-expression, { ",", property-expression }
 drop-constraint    = "DROP", "CONSTRAINT", constraint-name ;
@@ -50,8 +49,6 @@ To that set of valid expressions, this CIP further specifies a special prefix op
 
 All constraints require the user to specify a nonempty _name_ at constraint creation time.
 This name is subsequently the handle with which a user may refer to the constraint, for example when dropping it.
-
-// TODO: Should we impose restrictions on the domain of constraint names, or are all Unicode characters allowed?
 
 ==== Removing constraints
 
@@ -184,6 +181,22 @@ REQUIRE exists(c.rgb)
 This composite constraint will make sure that all `:Color` nodes has a value for their `rgb` property, and that its value is unique for each `name`.
 
 More complex constraint definitions are considered below:
+
+.Multiple property existence using conjunction
+[source, cypher]
+----
+CREATE CONSTRAINT person_properties
+FOR (p:Person)
+REQUIRE exists(p.name) AND exists(p.email)
+----
+
+.Using larger pattern
+[source, cypher]
+----
+CREATE CONSTRAINT not_rating_own_posts
+FOR (u1:User)-[:RATED]->(:Post)<-[:POSTED_BY]-(u2:User)
+REQUIRE u.name <> u2.name
+----
 
 .Property value limitations
 [source, cypher]
