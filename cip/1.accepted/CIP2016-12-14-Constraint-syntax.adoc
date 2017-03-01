@@ -26,40 +26,45 @@ Constraints allow us to mould the heterogeneous nature of the property graph int
 
 == Proposal
 
-This CIP includes the following proposed constraints:
+This CIP specifies the general syntax for constraint definition (and constraint removal), and provides several examples of possible use cases for constraints.
+However, the specification does not otherwise specify or limit the space of expressible constraints that the syntax and semantics allow.
 
-* <<uniqueness>>
-* <<existence, Node property existence constraint>>
-* <<existence, Relationship property existence constraint>>
-
-Each constraint is detailed in the sections below.
+===== Mutability
 
 Once a constraint has been created, it may not be amended.
 Should a user wish to change its definition, it has to be dropped and recreated with an updated structure.
 
-==== Constraint names
+===== Constraint names
 
 All constraints require the user to specify a nonempty _name_ at constraint creation time.
 This name is subsequently the handle with which a user may refer to the constraint, for example when dropping it.
 
 // TODO: Should we impose restrictions on the domain of constraint names, or are all Unicode characters allowed?
 
-=== Syntax overview
+=== Syntax
 
-The syntax for all constraints follow the same basic outline.
+The constraint syntax is defined as follows:
 
 .Grammar definition for constraint syntax.
 [source, ebnf]
 ----
 constraint command = create-constraint | drop-constraint ;
-create-constraint  = "CREATE", "CONSTRAINT", constraint-name, "FOR", constraint-pattern, "REQUIRE", constraint-expr ;
+create-constraint  = "CREATE", "CONSTRAINT", constraint-name, "FOR", constraint-pattern, "REQUIRE", constraint-expr, { "REQUIRE", constraint-expr } ;
 constraint-name    = symbolic-name
 constraint-pattern = node-pattern | simple-pattern ;
-constraint-expr    = uniqueness-constraint | existence-constraint ;
+constraint-expr    = uniqueness-expr | expression ;
+uniquness-expr     = "UNIQUE", property-expression, { ",", property-expression }
 drop-constraint    = "DROP", "CONSTRAINT", constraint-name ;
 ----
 
-The constraint expressions vary depending on the actual constraint (see the detailed sections).
+The constraint expression (`constraint-expr` above) is any expression that evaluates to a boolean value.
+This allows for very complex concrete constraint definitions within the specified syntax.
+
+To that set of valid expressions, this CIP further specifies a special prefix operator `UNIQUE`, which is used to assert uniqueness of one or more property expressions.
+
+==== Removing constraints
+
+A constraint is removed by referring to its name.
 
 .Example of dropping a constraint with name `foo`:
 [source, cypher]
@@ -67,7 +72,33 @@ The constraint expressions vary depending on the actual constraint (see the deta
 DROP CONSTRAINT foo
 ----
 
-=== Semantics overview
+=== Semantics
+
+The semantics for constraints follow these general rules:
+
+1. The constraint pattern define the constraint domain, where all entities that would be returned by a `MATCH` clause with the same pattern constitute the domain, with one notable exception (see <<domain-exception, 3.>>).
+
+2. The constraint expressions defined in the `REQUIRE` clauses of the constraint definition must all evaluate to `true`. Any other result raises an error (see <<Errors>>).
+
+3. [[domain-exception]]Entities for which a constraint expression evaluate to `null` under Cypher's ternary logic are _excluded_ from the constraint domain, even if they fit within the constraint pattern.
+
+==== Uniqueness
+
+The new operator `UNIQUE` is only valid as part of a constraint expression.
+It takes as argument one or more property expressions, and asserts that the combination of the evaluated values of the expressions (forming a tuple) is unique across the constraint domain.
+
+The domain of the uniqueness expression is limited to entities for which _all_ properties defined as arguments to the `UNIQUE` operator exist.
+In other words, property expressions which evaluate to `null` are not considered for uniqueness (see <<domain-exception,3.>>) above.
+
+.Example of a constraint definition using `UNIQUE`, over the domain of nodes labeled with `:Person`:
+[source, cypher]
+----
+CREATE CONSTRAINT unique_person_details
+FOR (p:Person)
+REQUIRE UNIQUE p.name, p.email, p.address
+----
+
+==== Errors
 
 The following list describes the situations in which an error will be raised:
 
@@ -79,44 +110,19 @@ The following list describes the situations in which an error will be raised:
 The constraints define a _domain_ within which the constraint applies.
 The domain is defined by the constraint pattern.
 
-[[uniqueness]]
-=== Node property uniqueness constraint
+==== Compositionality
 
-This constraint enforces that there cannot be duplicate values of some property `p` for any node labeled with some label `l`.
-For example, this constraint can specify that the `email` property must be unique for all nodes labeled with `:Person`.
+It is possible to define multiple `REQUIRE` clauses within the scope of the same constraint.
+The semantics between these is that of a conjunction between the constraint expressions of the clauses, such that the constraint is upheld if and only if for all `REQUIRE` clauses, the expression evaluates to `true`.
 
-==== Syntax
+This is useful not only for readability and logical separation of different aspects of the same constraint, but also for combining the use of the `UNIQUE` operator with other constraint expressions.
 
-.Grammar definition for the node property uniqueness constraint:
-[source, ebnf]
-----
-uniqueness-constraint = "UNIQUE", property-expression, { ",", property-expression } ;
-----
+=== Examples
 
-.Example of a single-property uniqueness constraint:
-[source, cypher]
-----
-CREATE CONSTRAINT unique_person_email
-FOR (p:Person)
-REQUIRE UNIQUE p.email
-----
+In this section we provide several examples of constraints that are possible to express in the specified syntax.
 
-.Example of a multiple-property uniqueness constraint:
-[source, cypher]
-----
-CREATE CONSTRAINT unique_person_details
-FOR (p:Person)
-REQUIRE UNIQUE p.name, p.email, p.address
-----
-
-==== Semantics
-
-The domain of a property uniqueness constraint is defined as all the nodes with a specific label where the specified property key(s) exist (i.e. are not null).
-When more than one property key is defined as part of the constraint, only nodes where _all_ of the properties exist are part of the domain.
-
-The uniqueness constraint mandates that two distinct nodes within the domain cannot have the same combination of values for the defined properties.
-
-===== Example
+[NOTE]
+The specification in this CIP is limited to the general syntax of constraints, and the following are simply examples of possible uses of the language defined by that syntax. None of the examples provided are to be viewed as mandatory for any Cypher implementation.
 
 Consider the graph created by the statement below.
 The graph contains nodes labeled with `:Color`.
@@ -150,48 +156,7 @@ FOR (c:Color)
 REQUIRE UNIQUE c.rgb, c.name
 ----
 
-[[existence]]
-=== Property existence constraints
-
-Property existence constraints are defined for both nodes and relationships; these have the same semantics.
-We now describe both of these.
-
-==== Syntax
-
-.Grammar definition for the property existence constraint:
-[source, ebnf]
-----
-existence-constraint = "exists", "(", property-expression, ")" ;
-----
-
-.Example of a node property existence constraint:
-[source, cypher]
-----
-CREATE CONSTRAINT colors_must_have_rgb
-FOR (c:Color)
-REQUIRE exists(c.rgb)
-----
-
-.Example of a relationship property existence constraint:
-[source, cypher]
-----
-CREATE CONSTRAINT rates_have_quality
-FOR ()-[l:RATED]-()
-REQUIRE exists(l.rating)
-----
-
-==== Semantics
-
-The domain of a node property existence constraint are all nodes with the specified label.
-Similarly, the domain of a relationship property existence constraint are all relationship with the specified type.
-
-The property existence constraint mandates that the value of the specified property exists (i.e. is not null) for all entities in the domain.
-
-===== Example
-
-Consider once again the graph containing `:Color` nodes.
-
-The following query retrieves the RGB value of a color with a given `name`:
+Now, consider the following query which retrieves the RGB value of a color with a given `name`:
 
 [source, cypher]
 ----
@@ -200,8 +165,8 @@ WHERE exists(c.rgb)
 RETURN c.rgb
 ----
 
-The `WHERE` clause may be used to prevent an application from retrieving `null` values for user-defined colors where the RGB values have not been specified correctly.
-It may, however, be eliminated by the introduction of a node property existence constraint:
+The `WHERE` clause is here used to prevent an application from retrieving `null` values for user-defined colors where the RGB values have not been specified correctly.
+It may, however, be eliminated by the introduction of a constraint asserting the existence of that property:
 
 [source, cypher]
 ----
@@ -210,7 +175,53 @@ FOR (c:Color)
 REQUIRE exists(c.rgb)
 ----
 
-Any updating statement that would create a `:Color` node without specifying a `rgb` property for it would now fail.
+Any updating statement that would create a `:Color` node without specifying an `rgb` property for it would now fail.
+
+Alternatively, we could extend our previous constraint definition with this new requirement:
+
+[source, cypher]
+----
+CREATE CONSTRAINT color_schema
+FOR (c:Color)
+REQUIRE UNIQUE c.rgb, c.name
+REQUIRE exists(c.rgb)
+----
+
+This composite constraint will make sure that all `:Color` nodes has a value for their `rgb` property, and that its value is unique for each `name`.
+
+More complex constraint definitions are considered below:
+
+.Property value limitations
+[source, cypher]
+----
+CREATE CONSTRAINT road_width
+FOR ()-[r:ROAD]-()
+REQUIRE 5 < r.width < 50
+----
+
+.Cardinality
+[source, cypher]
+----
+CREATE CONSTRAINT spread_the_love
+FOR (p:Person)
+REQUIRE size((p)-[:LOVES]->()) > 3
+----
+
+.Endpoint requirements
+[source, cypher]
+----
+CREATE CONSTRAINT can_only_own_things
+FOR ()-[:OWNS]->(t)
+REQUIRE (t:Vehicle) OR (t:Building) OR (t:Object)
+----
+
+.Label coexistence
+[source, cypher]
+----
+CREATE CONSTRAINT programmers_are_people_too
+FOR (p:Programmer)
+REQUIRE p:Person
+----
 
 === Interaction with existing features
 
@@ -224,7 +235,7 @@ Alternative syntaxes have been discussed:
 * `GIVEN`, `CONSTRAIN`, `ASSERT` instead of `FOR`
 * `ASSERT`, `ENFORCE`, `IMPLIES` instead of `REQUIRE`
 
-The use of an existing expression to express uniqueness -- instead of using a new keyword `UNIQUE` -- becomes unwieldy for multiple properties, as exemplified by the following:
+The use of an existing expression to express uniqueness -- instead of using the operator `UNIQUE` -- becomes unwieldy for multiple properties, as exemplified by the following:
 ----
 FOR (p:Person), (q:Person)
 REQUIRE p.email <> q.email AND p <> q
@@ -278,6 +289,9 @@ ADD CONSTRAINT uc_PersonID UNIQUE (P_Id,LastName)
 == Benefits to this proposal
 
 Constraints make Cypher's notion of schema more well-defined, allowing users to maintain graphs in a more regular, easier-to-manage form.
+
+Additionally, this specification is deliberately defining a constraint _language_ within which a great deal of possible concrete constraints are made possible.
+This allows different implementers of Cypher to independently choose how to limit the scope of supported constraint expressions that fit their model and targeted use cases.
 
 == Caveats to this proposal
 
