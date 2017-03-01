@@ -15,10 +15,6 @@ These are language constructs that impose restrictions on the shape of the data 
 
 toc::[]
 
-== Motivation
-
-Constraints provide the means by which various aspects of the data graph may be controlled.
-
 == Background
 
 Cypher has a loose notion of a schema, in which nodes and relationships may take very heterogeneous forms, both in terms of properties and in graph patterns.
