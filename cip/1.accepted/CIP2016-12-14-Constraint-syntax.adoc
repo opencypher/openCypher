@@ -25,18 +25,6 @@ Constraints allow us to mould the heterogeneous nature of the property graph int
 This CIP specifies the general syntax for constraint definition (and constraint removal), and provides several examples of possible use cases for constraints.
 However, the specification does not otherwise specify or limit the space of expressible constraints that the syntax and semantics allow.
 
-===== Mutability
-
-Once a constraint has been created, it may not be amended.
-Should a user wish to change its definition, it has to be dropped and recreated with an updated structure.
-
-===== Constraint names
-
-All constraints require the user to specify a nonempty _name_ at constraint creation time.
-This name is subsequently the handle with which a user may refer to the constraint, for example when dropping it.
-
-// TODO: Should we impose restrictions on the domain of constraint names, or are all Unicode characters allowed?
-
 === Syntax
 
 The constraint syntax is defined as follows:
@@ -58,6 +46,13 @@ This allows for very complex concrete constraint definitions within the specifie
 
 To that set of valid expressions, this CIP further specifies a special prefix operator `UNIQUE`, which is used to assert uniqueness of one or more property expressions.
 
+==== Constraint names
+
+All constraints require the user to specify a nonempty _name_ at constraint creation time.
+This name is subsequently the handle with which a user may refer to the constraint, for example when dropping it.
+
+// TODO: Should we impose restrictions on the domain of constraint names, or are all Unicode characters allowed?
+
 ==== Removing constraints
 
 A constraint is removed by referring to its name.
@@ -77,6 +72,11 @@ The semantics for constraints follow these general rules:
 2. The constraint expressions defined in the `REQUIRE` clauses of the constraint definition must all evaluate to `true`. Any other result raises an error (see <<Errors>>).
 
 3. [[domain-exception]]Entities for which a constraint expression evaluate to `null` under Cypher's ternary logic are _excluded_ from the constraint domain, even if they fit within the constraint pattern.
+
+==== Mutability
+
+Once a constraint has been created, it may not be amended.
+Should a user wish to change its definition, it has to be dropped and recreated with an updated structure.
 
 ==== Uniqueness
 
