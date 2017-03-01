@@ -44,7 +44,7 @@ drop-constraint    = "DROP", "CONSTRAINT", constraint-name ;
 The constraint expression (`constraint-expr` above) is any expression that evaluates to a boolean value.
 This allows for very complex concrete constraint definitions within the specified syntax.
 
-To that set of valid expressions, this CIP further specifies a special prefix operator `UNIQUE`, which is used to assert uniqueness of one or more property expressions.
+To that set of valid expressions, this CIP further specifies a special prefix operator `UNIQUE`, which is used to assert uniqueness of one or more property expressions (see <<uniqueness>> for details).
 
 ==== Constraint names
 
@@ -67,17 +67,27 @@ DROP CONSTRAINT foo
 
 The semantics for constraints follow these general rules:
 
-1. The constraint pattern define the constraint domain, where all entities that would be returned by a `MATCH` clause with the same pattern constitute the domain, with one notable exception (see <<domain-exception, 3.>>).
+1. The constraint pattern define the constraint _domain_, where all entities that would be returned by a `MATCH` clause with the same pattern constitute the domain, with one notable exception (see <<domain-exception, 3.>>).
 
-2. The constraint expressions defined in the `REQUIRE` clauses of the constraint definition must all evaluate to `true`. Any other result raises an error (see <<Errors>>).
+2. The constraint expressions defined in the `REQUIRE` clauses of the constraint definition must all evaluate to `true`.
 
 3. [[domain-exception]]Entities for which a constraint expression evaluate to `null` under Cypher's ternary logic are _excluded_ from the constraint domain, even if they fit within the constraint pattern.
+
+==== Errors
+
+The following list describes the situations in which an error will be raised:
+
+* Attempting to create a constraint on a graph where the data does not comply with the constraint criterion.
+* Attempting to create a constraint with a name that already exists.
+* Attempting to drop a constraint referencing a non-existent name.
+* Attempting to modify the graph in such a way that it would violate a constraint.
 
 ==== Mutability
 
 Once a constraint has been created, it may not be amended.
 Should a user wish to change its definition, it has to be dropped and recreated with an updated structure.
 
+[[uniqueness]]
 ==== Uniqueness
 
 The new operator `UNIQUE` is only valid as part of a constraint expression.
@@ -93,18 +103,6 @@ CREATE CONSTRAINT unique_person_details
 FOR (p:Person)
 REQUIRE UNIQUE p.name, p.email, p.address
 ----
-
-==== Errors
-
-The following list describes the situations in which an error will be raised:
-
-* Attempting to create a constraint on a graph where the data does not comply with the constraint criterion.
-* Attempting to create a constraint with a name that already exists.
-* Attempting to drop a constraint referencing a non-existent name.
-* Attempting to modify the graph in such a way that it would violate a constraint.
-
-The constraints define a _domain_ within which the constraint applies.
-The domain is defined by the constraint pattern.
 
 ==== Compositionality
 
