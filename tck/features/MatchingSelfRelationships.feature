@@ -206,8 +206,8 @@ Feature: MatchingSelfRelationships
       RETURN count(DISTINCT r)
       """
     Then the result should be:
-      | count(r) |
-      | 1        |
+      | count(DISTINCT r) |
+      | 1                 |
     And no side effects
 
   Scenario: Directed match of a simple relationship
