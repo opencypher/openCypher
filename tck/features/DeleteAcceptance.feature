@@ -243,29 +243,6 @@ Feature: DeleteAcceptance
       | -nodes         | 1 |
       | -relationships | 1 |
 
-  Scenario: Delete node from a list
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (u:User)
-      CREATE (u)-[:FRIEND]->()
-      CREATE (u)-[:FRIEND]->()
-      CREATE (u)-[:FRIEND]->()
-      CREATE (u)-[:FRIEND]->()
-      """
-    And parameters are:
-      | friendIndex | 1 |
-    When executing query:
-      """
-      MATCH (:User)-[:FRIEND]->(n)
-      WITH collect(n) AS friends
-      DETACH DELETE friends[$friendIndex]
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | -nodes         | 1 |
-      | -relationships | 1 |
-
   Scenario: Delete relationship from a list
     Given an empty graph
     And having executed:

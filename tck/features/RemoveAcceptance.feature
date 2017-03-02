@@ -125,24 +125,6 @@ Feature: RemoveAcceptance
     And the side effects should be:
       | -properties | 1 |
 
-  Scenario: Remove a single relationship property
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a), (b), (a)-[:X {prop: 42}]->(b)
-      """
-    When executing query:
-      """
-      MATCH ()-[r]->()
-      REMOVE r.prop
-      RETURN exists(r.prop) AS still_there
-      """
-    Then the result should be:
-      | still_there |
-      | false       |
-    And the side effects should be:
-      | -properties | 1 |
-
   Scenario: Remove multiple relationship properties
     Given an empty graph
     And having executed:
