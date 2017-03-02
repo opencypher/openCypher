@@ -440,7 +440,7 @@ Feature: FunctionsAcceptance
       | ['Foo', 'Bar'] |
     And no side effects
 
-  Scenario: `labels()` should accept type Any
+  Scenario: `labels()` failing on a path
     Given an empty graph
     And having executed:
       """
@@ -453,7 +453,7 @@ Feature: FunctionsAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  Scenario: `labels()` should accept type Any
+  Scenario: `labels()` failing on invalid arguments
     Given an empty graph
     And having executed:
       """

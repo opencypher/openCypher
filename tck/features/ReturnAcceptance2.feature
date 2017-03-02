@@ -186,24 +186,6 @@ Feature: ReturnAcceptance2
     And the side effects should be:
       | +properties | 1 |
 
-  Scenario: Setting and returning the size of a list property
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()
-      """
-    When executing query:
-      """
-      MATCH (n)
-      SET n.x = [1, 2, 3]
-      RETURN size(n.x)
-      """
-    Then the result should be:
-      | size(n.x) |
-      | 3         |
-    And the side effects should be:
-      | +properties | 1 |
-
   Scenario: `sqrt()` returning float values
     Given any graph
     When executing query:
