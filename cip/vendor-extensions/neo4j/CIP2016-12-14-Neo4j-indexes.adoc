@@ -1,0 +1,138 @@
+= CIP2016-12-16 - Neo4j Indexes
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Mats Rydberg <mats@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+This CIP details Neo4j's indexing extension to Cypher, which is based on the standardised constraints syntax.
+--
+
+toc::[]
+
+== Background
+
+In Neo4j, indexes are formed using label and property combinations.
+This enables queries that reference these label/property combinations to use the index for faster lookup with reduced cardinality overhead.
+
+== Proposal
+
+Indexes in Neo4j are able to index _labeled nodes_ only.
+These nodes are kept in a separate, persisted data structure which allows lookups based on providing values for the specified indexed properties.
+
+=== Syntax
+
+The index syntax is based on the constraint syntax, and is detailed below:
+
+.Grammar definition for Neo4j index syntax.
+[source, ebnf]
+----
+index command = create-index | drop-index ;
+create-index  = "CREATE", "INDEX", [ index-name ], "FOR", index-pattern, "ON", index-key ;
+index-pattern = node-pattern
+index-name    = symbolic-name
+index-key     = property-expression { ",", property-expression } ;
+drop-index    = "DROP", "INDEX", index-name ;
+----
+
+The `index-key` expression defines the key for the index, and consist of one or more property expressions, which refer to the entity defined in the pattern.
+
+==== Index names
+
+Just like constraints, indexes have names.
+Neo4j does not support user-defined names, but the index will be assigned a system-generated name.
+
+==== Removing indexes
+
+An index is removed by referring to its name.
+
+.Example of dropping an index with name `index-1`:
+[source, cypher]
+----
+DROP INDEX index-1
+----
+
+=== Semantics
+
+Indexes do not impose any semantics on the graph, or on queries.
+They exist solely for performance reasons.
+
+Any query that is matching for nodes using a label and property/ies that match an index is viable to be planned using the matching index.
+The _query key_ is formed by combining the referenced properties, and using this to scan the index for matching entities.
+Predicates in which
+
+==== Domain
+
+Only nodes with the specified label, and values for _all_ the properties are considered part of the index domain.
+This means that only queries that specify _all_ the properties will be able to be planned with index lookups.
+Queries that only reference a subset of properties of an index will need the creation of another, smaller index that is defined using those properties only.
+
+==== Mutability
+
+Once an index has been created, its definition may not be amended.
+Should a user wish to change its definition, the index will have to be dropped and recreated with an updated structure.
+
+=== Examples
+
+Creating indexes is straight-forward following the specified syntax.
+
+.An index with multiple properties
+[source, cypher]
+----
+CREATE INDEX
+FOR (a:Address)
+ON a.street, a.city, a.country
+----
+
+.An index with a single properties
+[source, cypher]
+----
+CREATE INDEX
+FOR (p:Person)
+ON p.name
+----
+
+==== Combination with Neo4j constraints
+
+In Neo4j, constraints are upheld through the use of indexes.
+Neo4j supports three types of constraints: property uniqueness, property existence, and primary key.
+These are expressed as exemplified below.
+
+.A Neo4j property uniqueness constraint
+[source, cypher]
+----
+CREATE CONSTRAINT
+FOR (a:Address)
+REQUIRE UNIQUE a.street
+----
+
+.A Neo4j node property existence constraint
+[source, cypher]
+----
+CREATE CONSTRAINT
+FOR (a:Address)
+REQUIRE exists(a.street)
+----
+
+.A Neo4j relationship property existence constraint
+[source, cypher]
+----
+CREATE CONSTRAINT
+FOR ()-[o:OWNS]->()
+REQUIRE exists(o.since)
+----
+
+.A Neo4j primary key constraint
+[source, cypher]
+----
+CREATE CONSTRAINT
+FOR (a:Address)
+REQUIRE PRIMARY KEY a.street, a.city, a.country
+----
+
+Creating a constraint as outlined above will also create a matching index.
+It will not be possible to drop that index without also dropping the constraint.
