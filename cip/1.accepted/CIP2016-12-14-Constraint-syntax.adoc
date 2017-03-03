@@ -32,23 +32,25 @@ The constraint syntax is defined as follows:
 .Grammar definition for constraint syntax.
 [source, ebnf]
 ----
-constraint command = create-constraint | drop-constraint ;
-create-constraint  = "CREATE", "CONSTRAINT", constraint-name, "FOR", pattern, "REQUIRE", constraint-expr, { "REQUIRE", constraint-expr } ;
-constraint-name    = symbolic-name
-constraint-expr    = uniqueness-expr | expression ;
-uniquness-expr     = "UNIQUE", property-expression, { ",", property-expression }
-drop-constraint    = "DROP", "CONSTRAINT", constraint-name ;
+constraint command    = create-constraint | drop-constraint ;
+create-constraint     = "CREATE", "CONSTRAINT", [ constraint-name ], "FOR", pattern, "REQUIRE", constraint-predicate, { "REQUIRE", constraint-predicate } ;
+constraint-name       = symbolic-name
+constraint-predicate  = expression | unique | primary-key ;
+unique                = "UNIQUE", property-expression
+primary-key           = "PRIMARY KEY", property-expression, { ",", property-expression }
+drop-constraint       = "DROP", "CONSTRAINT", constraint-name ;
 ----
 
-The constraint expression (`constraint-expr` above) is any expression that evaluates to a boolean value.
-This allows for very complex concrete constraint definitions within the specified syntax.
+The `REQUIRE` clause works exactly like the `WHERE` clause in a standard Cypher query, with the addition of also supporting the special constraint operators `UNIQUE` and `PRIMARY KEY`.
+This allows for very complex concrete constraint definitions (using custom predicates) within the specified syntax.
 
-To that set of valid expressions, this CIP further specifies a special prefix operator `UNIQUE`, which is used to assert uniqueness of one or more property expressions (see <<uniqueness>> for details).
+For details on `UNIQUE` and `PRIMARY KEY`, see the dedicated sections below: <<uniqueness>>, <<primary-key>>.
 
 ==== Constraint names
 
-All constraints require the user to specify a nonempty _name_ at constraint creation time.
+All constraints provide the user the option to specify a nonempty _name_ at constraint creation time.
 This name is subsequently the handle with which a user may refer to the constraint, for example when dropping it.
+In the case where a name is not provided, the system will generate a unique name.
 
 ==== Removing constraints
 
@@ -87,26 +89,50 @@ Should a user wish to change its definition, it has to be dropped and recreated 
 [[uniqueness]]
 ==== Uniqueness
 
-The new operator `UNIQUE` is only valid as part of a constraint expression.
-It takes as argument one or more property expressions, and asserts that the combination of the evaluated values of the expressions (forming a tuple) is unique across the constraint domain.
-
-The domain of the uniqueness expression is limited to entities for which _all_ properties defined as arguments to the `UNIQUE` operator exist.
-In other words, property expressions which evaluate to `null` are not considered for uniqueness (see <<domain-exception,3.>>) above.
+The new operator `UNIQUE` is only valid as part of a constraint predicate.
+It takes as argument a single property expression, and asserts that this property is unique across the domain of the constraint.
+Following on rule <<domain-exception,3.>> above, entities for which the property is not defined (is `null`) are not part of the constraint domain.
 
 .Example of a constraint definition using `UNIQUE`, over the domain of nodes labeled with `:Person`:
 [source, cypher]
 ----
-CREATE CONSTRAINT unique_person_details
+CREATE CONSTRAINT only_one_person_per_name
 FOR (p:Person)
-REQUIRE UNIQUE p.name, p.email, p.address
+REQUIRE UNIQUE p.name
+----
+
+[[primary-key]]
+==== Primary key
+
+The new operator `PRIMARY KEY` is only valid as part of a constraint predicate.
+It takes as argument one or more property expressions, and asserts that the combination of the evaluated values of the expressions (forming a tuple) is unique across the constraint domain.
+It further asserts that the property expressions all exist on the entities of the domain, and thus avoids applicability of rule <<domain-exception, 3.>> above. The domain of a primary key constraint is thus exactly defined as all entities which fit the constraint pattern.
+
+.Example of a constraint definition using `PRIMARY KEY`, over the domain of nodes labeled with `:Person`:
+[source, cypher]
+----
+CREATE CONSTRAINT person_details
+FOR (p:Person)
+REQUIRE PRIMARY KEY p.name, p.email, p.address
+----
+
+A semantically equivalent constraint is achieved by composing the use of the `UNIQUE` operator with `exists()` predicates, as exemplified by:
+
+.Example of a constraint definition equivalent to the above `PRIMARY KEY` example:
+[source, cypher]
+----
+CREATE CONSTRAINT person_details
+FOR (p:Person)
+REQUIRE UNIQUE p.name
+REQUIRE UNIQUE p.email
+REQUIRE UNIQUE p.address
+REQUIRE exists(p.name) AND exists(p.email) AND exists(p.address)
 ----
 
 ==== Compositionality
 
 It is possible to define multiple `REQUIRE` clauses within the scope of the same constraint.
-The semantics between these is that of a conjunction between the constraint expressions of the clauses, such that the constraint is upheld if and only if for all `REQUIRE` clauses, the expression evaluates to `true`.
-
-This is useful not only for readability and logical separation of different aspects of the same constraint, but also for combining the use of the `UNIQUE` operator with other constraint expressions.
+The semantics between these is that of a conjunction (under standard 2-valued boolean logic) between the constraint predicates of the clauses, such that the constraint is upheld if and only if for all `REQUIRE` clauses, the joint predicate evaluates to `true`.
 
 === Examples
 
@@ -144,7 +170,8 @@ We could then use the following constraint, without modifying our data:
 ----
 CREATE CONSTRAINT unique_color_nodes
 FOR (c:Color)
-REQUIRE UNIQUE c.rgb, c.name
+REQUIRE UNIQUE c.rgb
+REQUIRE UNIQUE c.name
 ----
 
 Now, consider the following query which retrieves the RGB value of a color with a given `name`:
@@ -168,17 +195,16 @@ REQUIRE exists(c.rgb)
 
 Any updating statement that would create a `:Color` node without specifying an `rgb` property for it would now fail.
 
-Alternatively, we could extend our previous constraint definition with this new requirement:
+If we also want to mandate the existence of the `name` property, we could use a `PRIMARY KEY` operator to capture all these requirements in a single constraint:
 
 [source, cypher]
 ----
 CREATE CONSTRAINT color_schema
 FOR (c:Color)
-REQUIRE UNIQUE c.rgb, c.name
-REQUIRE exists(c.rgb)
+REQUIRE PRIMARY KEY c.rgb, c.name
 ----
 
-This composite constraint will make sure that all `:Color` nodes has a value for their `rgb` property, and that its value is unique for each `name`.
+This constraint will make sure that all `:Color` nodes has a value for their `rgb` and `name` properties, and that the combination is unique across all the nodes.
 
 More complex constraint definitions are considered below:
 
@@ -269,8 +295,9 @@ In SQL, the following constraints exist (inspired by http://www.w3schools.com/sq
 * `CHECK` - Ensures that the value in a column meets a specific condition
 * `DEFAULT` - Specifies a default value for a column.
 
-The property existence constraints correspond to the `NOT NULL` SQL constraint.
-The node property uniqueness constraint corresponds to the `PRIMARY KEY` SQL constraint.
+The `NOT NULL` SQL constraint is expressible using an `exists()` constraint predicate.
+The `UNIQUE` SQL constraint is exactly as Cypher's `UNIQUE` constraint predicate.
+The `PRIMARY KEY` SQL constraint is exactly as Cypher's `PRIMARY KEY` constraint predicate.
 
 SQL constraints may be introduced at table creation time in a `CREATE TABLE` statement, or in an `ALTER TABLE` statement:
 
