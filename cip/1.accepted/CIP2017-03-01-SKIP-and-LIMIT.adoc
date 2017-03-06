@@ -1,0 +1,101 @@
+= CIP2017-03-01 - LIMIT subclause
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Mats Rydberg <mats@neotechnology.com>
+
+toc::[]
+
+== Background
+
+This CIP is a proposal in answer to link:https://github.com/opencypher/openCypher/issues/194[CIR-2017-194].
+
+== Proposal
+
+The `LIMIT` subclause is used to constrain the cardinality of its parent clause by providing an upper limit.
+This can be useful for data exploration, or verifying partial results of expensive queries.
+
+=== Syntax
+
+.Syntax overview:
+[source, ebnf]
+----
+clause-with-limit = read-only-clause, [ limit ] ;
+read-only-clause  = match
+                  | with
+                  | unwind
+                  | return
+                  ;
+limit             = "LIMIT", expr ;
+----
+
+=== Semantics
+
+The `LIMIT` subclause prevents records passing through its parent clause after the specified amount of rows, as determined by the limit expression, has been processed.
+For these semantics to be well defined, the limit expression must be constant over the query lifetime, such as parameters or literals.
+
+==== Updating queries
+
+The use of `LIMIT` opens the possibility for certain performance optimisations.
+Clauses that come early in the query do not have to be evaluated over the full dataset, just enough to reach the subsequent limit.
+These optimisations are however not always applicable in combination with updating clauses.
+Semantics between clauses is defined such that _all_ of a previous clause is processed (logically) before _any_ of a subsequent clause is processed.
+This means that _all_ side effects must happen before a `LIMIT` is allowed to halt the processing of records in preceding clauses.
+
+Consider the below query:
+
+.Create a producer for each item, return first 100 product ids.
+[source, cypher]
+----
+MATCH (i:Item)
+CREATE (i)-[:PRODUCED_BY]->(:Producer)
+RETURN i.productId
+LIMIT 100
+----
+
+This query must execute its `CREATE` clause once for every `:Item` node, even though only 100 records are to be returned.
+
+If the user intention is to only do a partial update of the graph, the query must be rewritten:
+
+.Create a producer for the 100 first items, return their product ids.
+[source, cypher]
+----
+MATCH (i:Item)
+LIMIT 100
+CREATE (i)-[:PRODUCED_BY]->(:Producer)
+RETURN i.productId
+----
+
+=== Examples
+
+.Limiting a pattern match:
+[source, cypher]
+----
+MATCH (a:Person)
+WHERE a.name STARTS WITH 'And'
+LIMIT $limit
+RETURN a.age, a.name
+----
+
+.Limiting between query parts:
+[source, cypher]
+----
+MATCH (a:Person)
+WHERE a.age < 18
+SET a.child = true
+WITH a
+LIMIT 100
+MATCH (a)<-[:PARENT_OF]-(p)
+RETURN p.age, p.name
+----
+
+.Limiting the query result:
+[source, cypher]
+----
+MATCH (a:Person)
+WHERE a.age > 18
+RETURN p.age, p.name
+LIMIT 100
+----
