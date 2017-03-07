@@ -32,8 +32,8 @@ The constraint syntax is defined as follows:
 .Grammar definition for constraint syntax.
 [source, ebnf]
 ----
-constraint command    = create-constraint | drop-constraint ;
-create-constraint     = "CREATE", "CONSTRAINT", [ constraint-name ], "FOR", pattern, "REQUIRE", constraint-predicate, { "REQUIRE", constraint-predicate } ;
+constraint command    = add-constraint | drop-constraint ;
+add-constraint        = "ADD", "CONSTRAINT", [ constraint-name ], "FOR", pattern, "REQUIRE", constraint-predicate, { "REQUIRE", constraint-predicate } ;
 constraint-name       = symbolic-name
 constraint-predicate  = expression | unique | node-key ;
 unique                = "UNIQUE", property-expression
@@ -76,15 +76,16 @@ The semantics for constraints follow these general rules:
 
 The following list describes the situations in which an error will be raised:
 
-* Attempting to create a constraint on a graph where the data does not comply with the constraint criterion.
-* Attempting to create a constraint with a name that already exists.
+* Attempting to add a constraint on a graph where the data does not comply with the constraint criterion.
+* Attempting to add a constraint with a name that already exists.
+* Attempting to add a constraint that the underlying engine does not support enforcing.
 * Attempting to drop a constraint referencing a non-existent name.
 * Attempting to modify the graph in such a way that it would violate a constraint.
 
 ==== Mutability
 
-Once a constraint has been created, it may not be amended.
-Should a user wish to change its definition, it has to be dropped and recreated with an updated structure.
+Once a constraint has been added, it may not be amended.
+Should a user wish to change its definition, it has to be dropped and added anew with an updated structure.
 
 [[uniqueness]]
 ==== Uniqueness
@@ -96,7 +97,7 @@ Following on rule <<domain-exception,3.>> above, entities for which the property
 .Example of a constraint definition using `UNIQUE`, over the domain of nodes labeled with `:Person`:
 [source, cypher]
 ----
-CREATE CONSTRAINT only_one_person_per_name
+ADD CONSTRAINT only_one_person_per_name
 FOR (p:Person)
 REQUIRE UNIQUE p.name
 ----
@@ -112,7 +113,7 @@ The domain of a node key constraint is thus exactly defined as all entities whic
 .Example of a constraint definition using `NODE KEY`, over the domain of nodes labeled with `:Person`:
 [source, cypher]
 ----
-CREATE CONSTRAINT person_details
+ADD CONSTRAINT person_details
 FOR (p:Person)
 REQUIRE NODE KEY p.name, p.email, p.address
 ----
@@ -122,7 +123,7 @@ In the context of a single property, a semantically equivalent constraint is ach
 .Example of a constraint definition equivalent to a `NODE KEY` on a single property `name`:
 [source, cypher]
 ----
-CREATE CONSTRAINT person_details
+ADD CONSTRAINT person_details
 FOR (p:Person)
 REQUIRE UNIQUE p.name
 REQUIRE exists(p.name)
@@ -140,7 +141,7 @@ In this section we provide several examples of constraints that are possible to 
 [NOTE]
 The specification in this CIP is limited to the general syntax of constraints, and the following are simply examples of possible uses of the language defined by that syntax. None of the examples provided are to be viewed as mandatory for any Cypher implementation.
 
-Consider the graph created by the statement below.
+Consider the graph added by the statement below.
 The graph contains nodes labeled with `:Color`.
 Each color is represented as an integer-type RGB value in a property `rgb`.
 Users may look up nodes labeled with `:Color` to extract their RGB values for application processing.
@@ -153,11 +154,11 @@ CREATE (:Color {name: 'black', rgb: 0x000000})
 CREATE (:Color {name: 'very, very dark grey', rgb: 0x000000}) // rounding error!
 ----
 
-Owing to the duplication of the `rgb` property, the following attempt at creating a constraint will fail:
+Owing to the duplication of the `rgb` property, the following attempt at adding a constraint will fail:
 
 [source, cypher]
 ----
-CREATE CONSTRAINT only_one_color_per_rgb
+ADD CONSTRAINT only_one_color_per_rgb
 FOR (c:Color)
 REQUIRE UNIQUE c.rgb
 ----
@@ -176,7 +177,7 @@ It may, however, be eliminated by the introduction of a constraint asserting the
 
 [source, cypher]
 ----
-CREATE CONSTRAINT colors_must_have_rgb
+ADD CONSTRAINT colors_must_have_rgb
 FOR (c:Color)
 REQUIRE exists(c.rgb)
 ----
@@ -187,7 +188,7 @@ If we instead want to make the _combination_ of the properties `name` and `rgb` 
 
 [source, cypher]
 ----
-CREATE CONSTRAINT color_schema
+ADD CONSTRAINT color_schema
 FOR (c:Color)
 REQUIRE NODE KEY c.rgb, c.name
 ----
@@ -200,7 +201,7 @@ More complex constraint definitions are considered below:
 .Multiple property existence using conjunction
 [source, cypher]
 ----
-CREATE CONSTRAINT person_properties
+ADD CONSTRAINT person_properties
 FOR (p:Person)
 REQUIRE exists(p.name) AND exists(p.email)
 ----
@@ -208,7 +209,7 @@ REQUIRE exists(p.name) AND exists(p.email)
 .Using larger pattern
 [source, cypher]
 ----
-CREATE CONSTRAINT not_rating_own_posts
+ADD CONSTRAINT not_rating_own_posts
 FOR (u1:User)-[:RATED]->(:Post)<-[:POSTED_BY]-(u2:User)
 REQUIRE u.name <> u2.name
 ----
@@ -216,7 +217,7 @@ REQUIRE u.name <> u2.name
 .Property value limitations
 [source, cypher]
 ----
-CREATE CONSTRAINT road_width
+ADD CONSTRAINT road_width
 FOR ()-[r:ROAD]-()
 REQUIRE 5 < r.width < 50
 ----
@@ -224,7 +225,7 @@ REQUIRE 5 < r.width < 50
 .Cardinality
 [source, cypher]
 ----
-CREATE CONSTRAINT spread_the_love
+ADD CONSTRAINT spread_the_love
 FOR (p:Person)
 REQUIRE size((p)-[:LOVES]->()) > 3
 ----
@@ -232,7 +233,7 @@ REQUIRE size((p)-[:LOVES]->()) > 3
 .Endpoint requirements
 [source, cypher]
 ----
-CREATE CONSTRAINT can_only_own_things
+ADD CONSTRAINT can_only_own_things
 FOR ()-[:OWNS]->(t)
 REQUIRE (t:Vehicle) OR (t:Building) OR (t:Object)
 ----
@@ -240,7 +241,7 @@ REQUIRE (t:Vehicle) OR (t:Building) OR (t:Object)
 .Label coexistence
 [source, cypher]
 ----
-CREATE CONSTRAINT programmers_are_people_too
+ADD CONSTRAINT programmers_are_people_too
 FOR (p:Programmer)
 REQUIRE p:Person
 ----
@@ -250,7 +251,7 @@ Assuming a function `acyclic()` that takes a path as argument and returns `true`
 .Constraint example from CIR-2017-172
 [source, cypher]
 ----
-CREATE CONSTRAINT enforce_dag_acyclic_for_R_links
+ADD CONSTRAINT enforce_dag_acyclic_for_R_links
 FOR p = ()-[:R*]-()
 REQUIRE acyclic(p)
 ----
