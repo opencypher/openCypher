@@ -25,6 +25,8 @@ Constraints allow us to mould the heterogeneous nature of the property graph int
 This CIP specifies the general syntax for constraint definition (and constraint removal), and provides several examples of possible use cases for constraints.
 However, the specification does not otherwise specify or limit the space of expressible constraints that the syntax and semantics allow.
 
+This specification also covers the return structure of constraint commands, see <<return-record>>.
+
 === Syntax
 
 The constraint syntax is defined as follows:
@@ -133,6 +135,45 @@ REQUIRE exists(p.name)
 
 It is possible to define multiple `REQUIRE` clauses within the scope of the same constraint.
 The semantics between these is that of a conjunction (under standard 2-valued boolean logic) between the constraint predicates of the clauses, such that the constraint is upheld if and only if for all `REQUIRE` clauses, the joint predicate evaluates to `true`.
+
+[[return-record]]
+==== Return record
+
+Since constraints always are named, but user-defined names are optional, the system must sometimes generate a constraint name.
+In order for a user to be able to drop such a constraint, the system-generated name is therefore returned in a standard Cypher result record.
+The result record has a fixed structure, with three string fields: `name`, `definition`, and `details`.
+
+A constraint command will always return exactly one record, if successful.
+Note that also `DROP CONSTRAINT` will return a record.
+
+===== Name
+
+This field contains the name of the constraint, either user- or system-defined.
+
+===== Definition
+
+This field contains the constraint definition, which is the contents of the constraint creation command following (and including) the `FOR` clause.
+
+===== Details
+
+The contents of this field are left unspecified, to be used for implementation-specific messages and/or details.
+
+Consider the following constraint:
+[source, Cypher]
+----
+ADD CONSTRAINT myConstraint
+FOR (n:Node)
+REQUIRE NODE KEY n.prop1, n.prop2
+----
+
+A correct result record for it could be:
+
+----
+name         | definition                                     | details
+-----------------------------------------------------------------------
+myConstraint | FOR (n:NODE)                                   | n/a
+             | REQUIRE NODE KEY n.prop1, n.prop2              |
+----
 
 === Examples
 
