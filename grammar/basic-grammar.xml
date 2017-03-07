@@ -593,16 +593,7 @@
     </description>
     <alt>
       <character set="ID_Start"/>
-      <literal value="&#x005f;"/> <!-- '_' - LOW LINE -->
-      <literal value="&#x203f;"/> <!-- '‿' - UNDERTIE -->
-      <literal value="&#x2040;"/> <!-- '⁀' - CHARACTER TIE -->
-      <literal value="&#x2054;"/> <!-- '⁔' - INVERTED UNDERTIE -->
-      <literal value="&#xfe33;"/> <!-- '︳' - PRESENTATION FORM FOR VERTICAL LOW LINE -->
-      <literal value="&#xfe34;"/> <!-- '︴' - PRESENTATION FORM FOR VERTICAL WAVY LOW LINE -->
-      <literal value="&#xfe4d;"/> <!-- '﹍' - DASHED LOW LINE -->
-      <literal value="&#xfe4e;"/> <!-- '﹎' - CENTRELINE LOW LINE -->
-      <literal value="&#xfe4f;"/> <!-- '﹏' - WAVY LOW LINE -->
-      <literal value="&#xff3f;"/> <!-- '＿' - FULLWIDTH LOW LINE -->
+      <character set="Pc"/> <!-- Punctuation connectors (underscores) -->
     </alt>
   </production>
 
@@ -614,7 +605,7 @@
     </description>
     <alt>
       <character set="ID_Continue"/>
-      <character set="Sc"/>
+      <character set="Sc"/> <!-- Currency symbols -->
     </alt>
   </production>
 
