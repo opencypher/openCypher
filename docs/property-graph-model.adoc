@@ -1,5 +1,6 @@
 :numbered:
 
+[[pgm-property-graph-model]]
 = Property Graph Model
 ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
@@ -11,6 +12,8 @@ See Wikipedia's definitions for reference:
 - link:https://en.wikipedia.org/wiki/Multigraph#Directed_multigraph_.28edges_with_own_identity.29[Directed multigraph].
 - link:https://en.wikipedia.org/wiki/Multigraph#Labeling[Labeled multigraph].
 
+
+[[pgm-definitions]]
 == Definitions
 
 In a property graph, the following elements may exist:
@@ -25,11 +28,15 @@ In a property graph, the following elements may exist:
 ** Property key
 * Property
 
+
+[[pgm-definitions-entity]]
 === Entity
 
 - An entity has a unique, comparable identity which defines whether or not two entities are equal (see the link:../cip/1.accepted/CIP2016-06-14-Define-comparability-and-equality-as-well-as-orderability-and-equivalence{outfilesuffix}#322-comparability[Comparability CIP] for more details).
 - An entity is assigned a set of properties, each of which are uniquely identified in the set by their respective property keys.
 
+
+[[pgm-definitions-node]]
 ==== Node
 
 - A _node_ is the basic entity of the graph, with the unique attribute of being able to exist in and of itself.
@@ -37,6 +44,8 @@ In a property graph, the following elements may exist:
 - A node may have zero or more outgoing relationships.
 - A node may have zero or more incoming relationships.
 
+
+[[pgm-definitions-relationship]]
 ==== Relationship
 
 - A _relationship_ is an entity that encodes a directed connection between exactly two nodes, the _source node_ and the _target node_.
@@ -44,6 +53,8 @@ In a property graph, the following elements may exist:
 - An _incoming_ relationship is a directed relationship from the point of view of its target node.
 - A relationship is assigned exactly one relationship type.
 
+
+[[pgm-definitions-path]]
 === Path
 
 - A path represents a walk through a property graph and consists of a sequence of alternating nodes and relationships.
@@ -52,28 +63,40 @@ In a property graph, the following elements may exist:
 - A path has a _length_, which is an integer greater than or equal to zero, which is equal to the number of relationships in the path.
 - Equality of paths is detailed in the link:../cip/1.accepted/CIP2016-06-14-Define-comparability-and-equality-as-well-as-orderability-and-equivalence{outfilesuffix}#322-comparability[Comparability CIP].
 
+
+[[pgm-definitions-token]]
 === Token
 
 - A _token_ is a nonempty string of Unicode characters.
 
+
+[[pgm-definitions-label]]
 ==== Label
 
 - A _label_ is a token that is assigned to nodes only.
 
+
+[[pgm-definitions-relationship-type]]
 ==== Relationship type
 
 - A _relationship type_ is a token that is assigned to relationships only.
 
+
+[[pgm-definitions-property-key]]
 ==== Property key
 
 - A _property key_ is a token which uniquely identifies an entity's property.
 
+
+[[pgm-definitions-property]]
 === Property
 
 - A _property_ is a pair consisting of a _property key_ and a _property value_.
 - A property value is an instantiation of one of Cypher's concrete, scalar types, or a list of a concrete, scalar type.
   See the link:../cip/1.accepted/CIP2015-09-16-public-type-system-type-annotation{outfilesuffix}#types-and-type-literal-syntax[type system CIP] for reference.
 
+
+[[pgm-graph-attributes]]
 == Graph attributes
 
 - The _size_ of the graph is an integer greater than or equal to zero, and is equal to the number of nodes in the graph.
