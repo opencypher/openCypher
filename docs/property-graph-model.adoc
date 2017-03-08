@@ -4,6 +4,11 @@
 = Property Graph Model
 ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
+ifdef::backend-pdf[]
+[discrete]
+= {doctitle}
+endif::[]
+
 Cypher is a graph query language which operates on a _property graph_.
 A property graph may be defined in graph theoretical terms as a directed, vertex-labeled, edge-labeled multigraph with self-edges, where edges have their own identity.
 In the property graph, we use the term node to denote a vertex, and relationship to denote an edge.
