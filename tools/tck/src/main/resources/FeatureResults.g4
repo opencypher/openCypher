@@ -34,7 +34,7 @@ nodeDesc : '(' (label)* WS? (propertyMap)? ')' ;
 
 relationship : relationshipDesc ;
 
-relationshipDesc : '[' relationshipType (WS propertyMap)* ']' ;
+relationshipDesc : '[' relationshipType WS? (propertyMap)? ']' ;
 
 path : '<' pathBody '>' ;
 
