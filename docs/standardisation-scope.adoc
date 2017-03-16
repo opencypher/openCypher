@@ -45,6 +45,7 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `STARTS WITH`
 * `CONTAINS`
 * `ENDS WITH`
+* `IN`
 * `=`
 * `<>`
 * `<`
@@ -55,6 +56,8 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `-`
 * `/`
 * `*`
+* `%`
+* `^`
 * `AND`
 * `OR`
 * `NOT`
