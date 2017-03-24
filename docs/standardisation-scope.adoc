@@ -73,14 +73,6 @@ It is the goal of this project to create a good and feature-rich standard langua
 * Pattern comprehensions
 * Parameters with new syntax (`$`)
 * Literals
-* `count()`
-* `collect()`
-* `avg()`
-* `sum()`
-* `max()`
-* `min()`
-* `stdDev()`
-* `stdDevP()`
 
 === Functions
 
@@ -89,13 +81,13 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `asin()`
 * `atan()`
 * `atan2()`
-* `ceil()`
 * `coalesce()`
 * `ceil()`
 * `cos()`
 * `cot()`
 * `degrees()`
 * `e()`
+* `endNode()`
 * `exists()`
 * `exp()`
 * `floor()`
@@ -109,8 +101,6 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `lTrim()`
 * `nodes()`
 * `pi()`
-* `percentileCont()`
-* `percentileDisc()`
 * `keys()`
 * `radians()`
 * `rand()`
@@ -126,6 +116,7 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `size()`
 * `sqrt()`
 * `split()`
+* `startNode()`
 * `substring()`
 * `tail()`
 * `tan()`
@@ -136,10 +127,22 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `properties()`
 * `trim()`
 * `type()`
-* `startNode()`
-* `endNode()`
 * `toUpper()`
 * `toLower()`
+
+==== Aggregating functions
+
+* `count()`
+* `collect()`
+* `avg()`
+* `sum()`
+* `max()`
+* `min()`
+* `percentileCont()`
+* `percentileDisc()`
+* `stdev()`
+* `stdevP()`
+
 
 === Types
 
@@ -179,24 +182,24 @@ It is the goal of this project to create a good and feature-rich standard langua
 
 * Parameters with old syntax (`{}`)
 * `CASE`
-* `reduce`
-* `extract`
-* `filter`
-* `any`
-* `all`
-* `none`
-* `single`
 
 === Functions
 
+* `all()`
+* `any()`
 * `distance()`
-* `point()`
+* `extract()`
+* `filter()`
 * `haversin()`
 * `id()`
 * `lower()`
-* `upper()`
-* `timestamp()`
+* `none()`
+* `point()`
+* `reduce()`
 * `rels()`
+* `single()`
+* `timestamp()`
+* `upper()`
 
 === Types
 
