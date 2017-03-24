@@ -16,55 +16,70 @@ It is the goal of this project to create a good and feature-rich standard langua
 
 === Clauses
 
-* `MATCH`
-* `RETURN`
-* `UNWIND`
-* `OPTIONAL MATCH`
-* `WITH`
-* `UNION`
+* `CALL ... YIELD`
 * `CREATE`
-* `MERGE`
-* `SET`
 * `DELETE`
 * `DETACH DELETE`
+* `MATCH`
+* `MERGE`
+* `OPTIONAL MATCH`
 * `REMOVE`
-* `CALL ... YIELD`
+* `RETURN`
+* `SET`
+* `UNION`
+* `UNWIND`
+* `WITH`
 
 ==== Sub-clauses
 
+* `LIMIT`
 * `ON CREATE`
 * `ON MATCH`
-* `WHERE`
 * `ORDER BY`
 * `SKIP`
-* `LIMIT`
+* `WHERE`
 
 === Operators
 
+==== General
+
+* `.` (property access)
+* `[]` (subscript)
 * `DISTINCT`
-* `STARTS WITH`
-* `CONTAINS`
-* `ENDS WITH`
 * `IN`
-* `=`
-* `<>`
-* `<`
-* `>`
-* `\<=`
-* `>=`
+
+==== Mathematical operators
+
 * `+`
 * `-`
 * `/`
 * `*`
 * `%`
 * `^`
+
+==== String operators
+
+* `+` (string concatenation)
+* `CONTAINS`
+* `ENDS WITH`
+* `STARTS WITH`
+
+==== Comparison operators
+
+* `=`
+* `<>`
+* `<`
+* `>`
+* `\<=`
+* `>=`
+
+==== Logical operators
+
 * `AND`
-* `OR`
-* `NOT`
 * `IS NULL`
 * `IS NOT NULL`
-* `.` (property access)
-* `[]` (subscript)
+* `NOT`
+* `OR`
 * `XOR`
 
 === Expressions
@@ -132,17 +147,16 @@ It is the goal of this project to create a good and feature-rich standard langua
 
 ==== Aggregating functions
 
-* `count()`
-* `collect()`
 * `avg()`
-* `sum()`
+* `collect()`
+* `count()`
 * `max()`
 * `min()`
 * `percentileCont()`
 * `percentileDisc()`
 * `stdev()`
 * `stdevP()`
-
+* `sum()`
 
 === Types
 
@@ -157,22 +171,22 @@ It is the goal of this project to create a good and feature-rich standard langua
 
 === Clauses
 
-* `FOREACH`
 * `CREATE UNIQUE`
+* `FOREACH`
 * `START`
 * `LOAD CSV`
 
 === Hints
 
-* `USING PERIODIC COMMIT`
 * `USING INDEX`
-* `USING SCAN`
 * `USING JOIN`
+* `USING PERIODIC COMMIT`
+* `USING SCAN`
 
 === Commands
 
-* `CREATE INDEX`
 * `CREATE CONSTRAINT`
+* `CREATE INDEX`
 
 === Operators
 
