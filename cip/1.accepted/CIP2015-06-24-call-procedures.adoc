@@ -134,7 +134,8 @@ In this case, the trailing `RETURN` clause is omitted and all projected fields a
 
 Procedures may be called standalone either using explicitly passed arguments or using implicitly passed arguments constructed from statement parameters.
 
-If the `YIELD` subclause is omitted in the standalone form of `CALL`, the semantics are the same as in the _in-query_ form, i.e. the query will not project any fields into the result, but the query will still return as many (empty) rows as produced by the called procedure.
+The `YIELD` subclause may only be omitted in the standalone form of `CALL` to call a procedure that does not return any result fields.
+In this case the query will return as many (empty) rows as produced by the called procedure.
 
 A further simplification allowed in the standalone form is to use `YIELD *` to denote that all non-deprecated result fields produced by the procedure are to be returned by the statement.
 The `YIELD *` form is _only_ allowed in the standalone form of `CALL`.
