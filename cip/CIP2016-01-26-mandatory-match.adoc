@@ -18,19 +18,15 @@ toc::[]
 
 When writing applications using Cypher, many queries will start off by looking up multiple individual nodes based on an unique id with the implied expectation of matching exactly one node. When that expectation is not fulfilled (either due to sending a wrong id or the node having been deleted) it becomes important to identify which lookup failed. Achieving  this currently is not well supported by Cypher.
 
-== Background
-
-The idea for this CIP grew out of a (now abandoned) dog fooding project for storing benchmarking information in Neo4j.
-
 == Proposal
 
 This CIP suggests the introduction of a new clause called `MANDATORY MATCH` that has the same basic form as the existing `MATCH` clause (i.e. `MANDATORY MATCH <pattern> [WHERE <predicate>]`).
 
-If matching the graph pattern described by `MANDATORY MATCH` fails to match at least a single row, the execution of the whole Cypher query fails with a descriptive error message that points to which `MANDATORY MATCH` clause failed and includes all bound identifiers and parameters used in trying to match the described graph pattern.
+If matching the graph pattern described by `MANDATORY MATCH` fails to match at least a single row, the execution of the whole Cypher query fails immediately with a descriptive error message that points to which `MANDATORY MATCH` clause failed and includes all bound identifiers and parameters used in trying to match the described graph pattern.
 
 === Example
 
-Find some nodes for which uniqueness constraints have been created up-front:
+Find some individual nodes as starting points for further exploration of the graph:
 
 [source, cypher]
 ----
@@ -38,6 +34,8 @@ MANDATORY MATCH (u:User {id: {userId}})
 MANDATORY MATCH (p:Product {id: {productId}})
 RETURN (u)-[:OWNS]->(p)
 ----
+
+In a very common variant of this scenario, nodes will be selected based on a uniqueness constraint.
 
 === Syntax
 
@@ -54,10 +52,10 @@ It is an error to try to combine `MANDATORY` and `OPTIONAL` in the same `MATCH` 
 
 === Alternatives
 
-Care should be taken to not confuse usecases: This CIP allows applications to propagate some of their argument verification to Cypher by providing a fail-early mechanism for non-matching patterns.
+Care should be taken to not confuse use-cases: This CIP allows applications to propagate some of their argument verification to Cypher by providing a fail-early mechanism for non-matching patterns.
 
 Alternatively, Cypher could provide a more general, heavyweight mechanism for raising errors.
-Such a facility might also achieve the goals of this CIP while additionally supporting other usecases.
+Such a facility might also achieve the goals of this CIP while additionally supporting other use-cases.
 However in the interest of keeping this proposal small and specific, this is not considered here.
 
 == What others do
@@ -66,8 +64,7 @@ No similar facility exists in SQL.
 
 == Benefits to this proposal
 
-Application programmers get a new powerful facility for detecting semantical errors in their applications while
-also failing early in the case of an error (thus avoiding unnecessary work).
+Application programmers get a new powerful facility for detecting semantical errors in their applications while also failing early in the case of an error (thus avoiding unnecessary work).
 
 == Caveats to this proposal
 
