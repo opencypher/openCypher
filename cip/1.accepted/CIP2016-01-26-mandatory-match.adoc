@@ -22,7 +22,7 @@ When writing applications using Cypher, many queries will start off by looking u
 
 This CIP suggests the introduction of a new clause called `MANDATORY MATCH` that has the same basic form as the existing `MATCH` clause (i.e. `MANDATORY MATCH <pattern> [WHERE <predicate>]`).
 
-If matching the graph pattern described by `MANDATORY MATCH` fails to match at least a single row, the execution of the whole Cypher query fails immediately with a descriptive error message that points to which `MANDATORY MATCH` clause failed and includes all bound identifiers and parameters used in trying to match the described graph pattern.
+If matching the graph pattern described by `MANDATORY MATCH` fails to match at least a single row, the execution of the whole Cypher query fails immediately with a descriptive error message that points to which `MANDATORY MATCH` clause failed and includes all bound variables and parameters used in trying to match the described graph pattern.
 
 === Example
 
@@ -30,8 +30,8 @@ Find some individual nodes as starting points for further exploration of the gra
 
 [source, cypher]
 ----
-MANDATORY MATCH (u:User {id: {userId}})
-MANDATORY MATCH (p:Product {id: {productId}})
+MANDATORY MATCH (u:User {id: $userId})
+MANDATORY MATCH (p:Product {id: $productId})
 RETURN (u)-[:OWNS]->(p)
 ----
 
