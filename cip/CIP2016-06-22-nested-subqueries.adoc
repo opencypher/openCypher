@@ -33,7 +33,7 @@ This CIP may be viewed in light of the EXISTS CIP and the forthcoming Pattern Co
 
 This proposal suggests the introduction of two new subquery constructs to Cypher.
 
-**1. Read-only subqueries**
+**1. Read-only match subqueries**
 
 We propose the addition of new syntax to the `MATCH` clause for expressing nested read-only subqueries.
 
@@ -45,7 +45,23 @@ Nested subqueries may be correlated - i.e. the subquery has a dependency on the 
 
 As this proposal extends the `MATCH` clause, nested subqueries can be contained within other nested subqueries at arbitrary depth.
 
-**2. Write-only/read-write subqueries**
+**2. Read-only optional match subqueries**
+
+We propose the addition of new, abbreviated syntax for expressing nested read-only optional match subqueries.
+
+A nested read-only optional match subquery takes the form: `OPTIONAL { <subquery> }`.
+
+Nested optional match subqueries may be correlated - i.e. the subquery has a dependency on the outer query - or uncorrelated.
+
+**3. Read-only mandatory match subqueries**
+
+We propose the addition of new, abbreviated syntax for expressing nested read-only mandatory match subqueries.
+
+A nested read-only mandatory match subquery takes the form: `MANDATORY { <subquery> }`.
+
+Nested mandatory match subqueries may be correlated - i.e. the subquery has a dependency on the outer query - or uncorrelated.
+
+**4. Write-only/read-write subqueries**
 
 We further propose the addition of a new syntax - the `DO` clause - for expressing nested write-only/read-write subqueries that _do not return any data_.
 
@@ -53,8 +69,24 @@ A nested write-only/read-write subquery is denoted using the following syntax: `
 
 We additionally propose removing the `FOREACH` clause from the current language as it is rendered obsolete by the introduction of `DO`.
 
+=== Read-only subquery syntax
 
-=== Syntax
+All kinds of read-only subqueries support the following syntactical forms:
+
+* `KEYWORD { <subquery> }`
+* `KEYWORD { <pattern> [WHERE <predicate>] <subquery> }` which is syntactic sugar for `KEYWORD { MATCH <pattern> [WHERE <predicate>] WITH * <subquery> }`
+* `KEYWORD MATCH <pattern> [WHERE <predicate>]` which is syntactic sugar for `KEYWORD { MATCH <pattern> [WHERE <predicate>] RETURN * }`
+
+Here keyword is
+
+* `OPTIONAL` for read-only optional match subqueries
+* `MANDATORY` for read-only mandatory match subqueries
+* `MATCH` for read-only match subqueries except for the last form which is just written as `MATCH <pattern> [WHERE <predicate>]`
+
+All read-only subqueries may end in `RETURN`.
+If they do not end with a `RETURN` clause, `RETURN *` is added implicitly.
+
+=== Grammar changes
 
 We extend the https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml[grammar] as follows:
 
