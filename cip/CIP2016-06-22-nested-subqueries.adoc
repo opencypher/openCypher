@@ -31,107 +31,92 @@ This CIP may be viewed in light of the EXISTS CIP and the forthcoming Pattern Co
 
 == Proposal
 
-This proposal suggests the introduction of two new subquery constructs to Cypher.
+Nested subqueries are self-contained Cypher queries that are run within the scope of an outer Cypher query.
 
-**1. Read-only match subqueries**
+This proposal suggests the introduction of new nested subquery constructs to Cypher.
 
-We propose the addition of new syntax to the `MATCH` clause for expressing nested read-only subqueries.
+* Read-only nested match subqueries of the form `MATCH { [(a)->(b) [WHERE ...]] ... RETURN * }`
+* Read-only nested optional match subqueries of the form `OPTIONAL { [(a)->(b) [WHERE ...]] ... RETURN * }`
+* Read-only nested mandatory match subqueries of the form `MANDATORY { [(a)->(b) [WHERE ...]] ... [RETURN *] }`
+* Read/Write nested subqueries of the form `DO WHEN ... { ... }` (not ending with `RETURN`)
 
-Nested subqueries are self-contained, read-only Cypher queries.
+All forms are introduced with a keyword in conjunction with optional subclauses which are then followed by an inner query in curly braces.
 
-A nested read-only subquery is denoted using the following syntax: `MATCH { <subquery> }`.
+Nested subqueries may be correlated - i.e. the inner query may use variables from the outer query - or uncorrelated.
 
-Nested subqueries may be correlated - i.e. the subquery has a dependency on the outer query - or uncorrelated.
+Nested subqueries can be contained within other nested subqueries at an arbitrary (but finite) depth.
 
-As this proposal extends the `MATCH` clause, nested subqueries can be contained within other nested subqueries at arbitrary depth.
 
-**2. Read-only optional match subqueries**
+**1. Read-only nested match subqueries**
 
-We propose the addition of new, abbreviated syntax for expressing nested read-only optional match subqueries.
+We propose the addition of new syntax to the `MATCH` clause for expressing read-only nested match subqueries.
 
-A nested read-only optional match subquery takes the form: `OPTIONAL { <subquery> }`.
+A nested read-only match subquery is denoted using the following syntax: `MATCH { <inner-match-query> }`.
 
-Nested optional match subqueries may be correlated - i.e. the subquery has a dependency on the outer query - or uncorrelated.
+The inner match query is a full read-only Cypher query.
 
-**3. Read-only mandatory match subqueries**
+Moreover, any valid read-only Cypher query from which the leading `MATCH` keyword has been omitted may also be used as an inner match query.
 
-We propose the addition of new, abbreviated syntax for expressing nested read-only mandatory match subqueries.
+This rule only applies if the leading `MATCH` clause is the root clause of the inner query (i.e. is not the first clause inside a nested query or a `UNION`).
 
-A nested read-only mandatory match subquery takes the form: `MANDATORY { <subquery> }`.
 
-Nested mandatory match subqueries may be correlated - i.e. the subquery has a dependency on the outer query - or uncorrelated.
+**2. Read-only nested optional match subqueries**
 
-**4. Write-only/read-write subqueries**
+We propose the addition of a new `OPTIONAL` clause for expressing read-only nested optional match subqueries.
 
-We further propose the addition of a new syntax - the `DO` clause - for expressing nested write-only/read-write subqueries that _do not return any data_.
+A nested read-only optional match subquery is denoted using the following syntax: `OPTIONAL { <inner-match-query> }`.
 
-A nested write-only/read-write subquery is denoted using the following syntax: `DO { <subquery> }`.
 
+**3. Read-only nested mandatory match subqueries**
+
+We propose the addition of a new `MANDATORY` clause for expressing read-only nested mandatory match subqueries.
+
+A nested read-only mandatory match subquery is denoted using the following syntax: `MANDATORY { <inner-mandatory-query> }`.
+
+The inner mandatory query is any inner match query.
+
+Moreover, any inner match query from which the trailing final `RETURN` clause has been omitted may also be used as an inner mandatory query.
+
+
+**4. Read/Write nested subqueries**
+
+We propose the addition of a new `DO` clause for expressing read/write nested subqueries that _do no return any data_.
+
+A nested read/write subquery is denoted using the following syntax: `DO [WHEN predicate] { <inner-update-query> }`.
+
+Any updating Cypher query from which the trailing final `RETURN` clause has been omitted may be used as an inner update query.
+
+Using a
 We additionally propose removing the `FOREACH` clause from the current language as it is rendered obsolete by the introduction of `DO`.
 
-=== Read-only subquery syntax
-
-All kinds of read-only subqueries support the following syntactical forms:
-
-* `KEYWORD { <subquery> }`
-* `KEYWORD { <pattern> [WHERE <predicate>] <subquery> }` which is syntactic sugar for `KEYWORD { MATCH <pattern> [WHERE <predicate>] WITH * <subquery> }`
-* `KEYWORD MATCH <pattern> [WHERE <predicate>]` which is syntactic sugar for `KEYWORD { MATCH <pattern> [WHERE <predicate>] RETURN * }`
-
-Here keyword is
-
-* `OPTIONAL` for read-only optional match subqueries
-* `MANDATORY` for read-only mandatory match subqueries
-* `MATCH` for read-only match subqueries except for the last form which is just written as `MATCH <pattern> [WHERE <predicate>]`
-
-All read-only subqueries may end in `RETURN`.
-If they do not end with a `RETURN` clause, `RETURN *` is added implicitly.
-
-=== Grammar changes
-
-We extend the https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml[grammar] as follows:
-
-**1. Read-only subqueries**
-
-[source, ebnf]
-----
-Match = [ "OPTIONAL" ], ( MatchPattern | NestedReadOnlySubquery ), [ "WHERE", Predicate ] ;
-MatchPattern = "MATCH", Pattern ;
-NestedReadOnlySubquery = "MATCH", "{", RegularQuery, "}" ;
-----
-
-**2. Write-only/read-write subqueries**
-
-[source, ebnf]
-----
-Match = [ "OPTIONAL" ], "MATCH", Pattern, [ "WHERE", Predicate ], NestedWriteSubquery ;
-NestedWriteSubquery = Unwind, "DO", "{", WriteSubquery, "}" ;
-WriteSubquery = WriteOnlyClauseWithNoReturn, [ NestedWriteSubquery ] |
-                ReadWriteClauseWithNoReturn, [ NestedWriteSubquery ] ;
-----
 
 === Semantic clarification
 
-**1. Read-only subqueries**
+**1. Read-only nested subqueries**
 
 Conceptually, a nested subquery is evaluated for each incoming record and may produce an arbitrary number of result records.
 
 All incoming variables remain in scope.
-
-Any new variable bindings introduced by the final `RETURN` clause when evaluating the subquery will augment the variable bindings of the initial record. Therefore, nested subqueries cannot shadow variables present in the outer scope, and thus behave in the same way as `UNWIND` and `CALL` with regard to the introduction of new variable bindings. Any other variable bindings introduced in the subquery will not be visible to the outer scope.
+Any new variable bindings introduced by the final `RETURN` clause when evaluating the subquery will augment the variable bindings of the initial record.
+Therefore, nested subqueries cannot shadow variables present in the outer scope, and thus behave in the same way as `UNWIND` and `CALL` with regard to the introduction of new variable bindings.
+Any other variable bindings that are introduced temporarily in the subquery will not be visible to the outer scope.
 
 Subqueries interact with write clauses in the same way as `MATCH` does.
 
-It is an error for a nested subquery to try to rebind (shadow) a pre-existing outer variable binding.
 
-**2. Write-only/read-write subqueries**
+**2. Read/Write subqueries**
 
-Execution of a `DO` subquery does not change the cardinality; i.e. the full subquery is run for each incoming record and then the record is passed on to the remainder of the outer query.
+Execution of a `DO` subquery does not change the cardinality; i.e. the inner update query is run for each incoming record (optionally filtered by the given predicate if a `WHEN` sub-clause is present).
+
+Any input record is always passed on to the clause succeeding the `DO` subquery, irrespective of whether it was eligible for processing by the inner update query.
+
+A `DO` clause that uses `WHEN` sub-clause is called _conditional DO_.
 
 A query may end with a `DO` subquery in the same way that a query can currently end with any update clause.
 
 === Examples
 
-**1. Read-only subqueries**
+**1. Read-only nested match subqueries**
 
 Post-UNION processing:
 [source, cypher]
@@ -153,7 +138,7 @@ ORDER BY time DESC
 LIMIT 10
 ----
 
-Uncorrelated nested subquery:
+Uncorrelated nested match subquery:
 [source, cypher]
 ----
 MATCH (f:Farm {id: $farmId})
@@ -170,7 +155,7 @@ MATCH {
 RETURN f, name, code
 ----
 
-Correlated nested subquery:
+Correlated nested match subquery:
 [source, cypher]
 ----
 MATCH (f:Farm {id: $farmId})-[:IS_IN]->(country:Country)
@@ -188,7 +173,7 @@ MATCH {
 RETURN f, name, code
 ----
 
-Filtered and correlated nested subquery:
+Filtered and correlated nested match subquery:
 [source, cypher]
 ----
 MATCH (f:Farm)-[:IS_IN]->(country:Country)
@@ -209,12 +194,12 @@ WHERE f.type = 'organic'
 RETURN f, brand.name AS name, code
 ----
 
-Doubly-nested subquery:
+Doubly-nested match subquery:
 [source, cypher]
 ----
 MATCH (f:Farm {id: $farmId})
 MATCH {
-  MATCH (c:Customer)-[:BUYS_FOOD_AT]->(f)
+  (c:Customer)-[:BUYS_FOOD_AT]->(f)
   MATCH {
      MATCH (c)-[:RETWEETS]->(t:Tweet)<-[:TWEETED_BY]-(f)
      RETURN c, count(*) AS count
@@ -231,7 +216,7 @@ MATCH {
 RETURN f.name AS name, type, sum(endorsement) AS endorsement
 ----
 
-**2. Write-only/read-write subqueries**
+**2. Read/Write nested subqueries**
 
 We illustrate these by means of an 'old' version of the query, in which `FOREACH` is used, followed by the 'new' version, using `DO`.
 
@@ -292,6 +277,18 @@ DO {
   }
 }
 ----
+
+Conditional `DO`
+[source, cypher]
+----
+MATCH (r:Root)
+UNWIND range(1, 10) AS x
+DO WHEN x % 2 = 1 {
+  MERGE (c:Odd:Child {id: x})
+  MERGE (r)-[:PARENT]->(c)
+}
+----
+
 
 === Interaction with existing features
 
