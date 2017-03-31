@@ -18,40 +18,36 @@ Cypher features several _subclause_ constructs.
 These are elements of the language able to amend the semantics of a (parent) clause with specific behaviour, but that do not make sense in and of themselves.
 The complete list of subclauses is:
 
-- `LIMIT`
+- `WHERE`
 - `ORDER BY`
 - `SKIP`
-- `WHERE`
+- `LIMIT`
 
-The `LIMIT` subclause is used to constrain the cardinality of its parent clause by providing an upper limit.
+The `WHERE` subclause is used to reduce the cardinality of its parent clause by passing records through a predicate.
+Only records for which the predicate evaluates to `true` (under Cypher's three-value logic) are kept for further processing.
 
 The `ORDER BY` subclause is used to order records, in an order determined by the expression provided to the subclause.
 
 The `SKIP` subclause is used to reduce the cardinality of its parent clause by a constant amount.
 
-The `WHERE` subclause is used to reduce the cardinality of its parent clause by passing records through a predicate.
-Only records for which the predicate evaluates to `true` (under Cypher's three-value logic) are kept for further processing.
+The `LIMIT` subclause is used to constrain the cardinality of its parent clause by providing an upper limit.
 
 === Syntax
 
 .Syntax overview:
 [source, ebnf]
 ----
-read-only-clause = read-only-parent, subclause ;
+read-only-clause = read-only-parent, subclauses ;
 read-only-parent = match
                  | with
                  | unwind
                  | return
                  ;
-subclause        = limit
-                 | order-by
-                 | skip
-                 | where
-                 ;
-limit            = "LIMIT", expr ;
+subclauses       = [ where ], [ order-by ], [ skip ], [ limit ] ;
+where            = "WHERE", expr ;
 order-by         = "ORDER BY", expr ;
 skip             = "SKIP", expr ;
-where            = "WHERE", expr ;
+limit            = "LIMIT", expr ;
 ----
 
 === Semantics
@@ -64,6 +60,37 @@ For `SKIP` and `LIMIT`, the subclause expression is constrained to only expressi
 In other words, arbitrary expressions or variables are not valid, as the values of these may change across records, and it would not be clear which value should be used by the subclause.
 
 This restriction does not apply to `WHERE` or `ORDER BY`.
+
+==== WHERE
+
+The `WHERE` subclause is used for filtering using an arbitrary (boolean) expression, or _predicate_.
+The predicate is evaluated for each incoming record, and the record is kept if and only if the predicate evaluated to `true`.
+Since Cypher expressions work under three-valued logic, this means that records for which the predicate evaluates to `null` as well as `false` are discarded.
+Further details on the semantics of expression evaluation is out of scope of this CIP.
+
+==== SKIP
+
+The `SKIP` subclause acts as a drop-all filter with an upper bound.
+The first `n` records, as determined by the subclause expression, are discarded from further processing.
+Which exact records that are discarded is generally undefined, but may be controlled through the use of `ORDER BY`.
+
+.Parameters and literals are global constants, and may be used as arguments to `SKIP`:
+[source, cypher]
+----
+MATCH (a:Label)
+SKIP $skipAmount
+RETURN a.prop
+SKIP 100
+----
+
+.Variables and expressions involving variables are (in general) not constant, and may not be used as arguments to `SKIP`:
+[source, cypher]
+----
+MATCH (a:Label)
+SKIP a.prop // not guaranteed to be constant -- error!
+RETURN a.prop
+SKIP size((a)-->()) // not guaranteed to be constant -- error!
+----
 
 ==== LIMIT
 
@@ -118,37 +145,6 @@ MATCH (i:Item)
 LIMIT 100
 CREATE (i)-[:PRODUCED_BY]->(:Producer)
 RETURN i.productId
-----
-
-==== WHERE
-
-The `WHERE` subclause is used for filtering using an arbitrary (boolean) expression, or _predicate_.
-The predicate is evaluated for each incoming record, and the record is kept if and only if the predicate evaluated to `true`.
-Since Cypher expressions work under three-valued logic, this means that records for which the predicate evaluates to `null` as well as `false` are discarded.
-Further details on the semantics of expression evaluation is out of scope of this CIP.
-
-==== SKIP
-
-The `SKIP` subclause acts as a drop-all filter with an upper bound.
-The first `n` records, as determined by the subclause expression, are discarded from further processing.
-Which exact records that are discarded is generally undefined, but may be controlled through the use of `ORDER BY`.
-
-.Parameters and literals are global constants, and may be used as arguments to `SKIP`:
-[source, cypher]
-----
-MATCH (a:Label)
-SKIP $skipAmount
-RETURN a.prop
-SKIP 100
-----
-
-.Variables and expressions involving variables are (in general) not constant, and may not be used as arguments to `SKIP`:
-[source, cypher]
-----
-MATCH (a:Label)
-SKIP a.prop // not guaranteed to be constant -- error!
-RETURN a.prop
-SKIP size((a)-->()) // not guaranteed to be constant -- error!
 ----
 
 === Examples
