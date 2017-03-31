@@ -1,4 +1,4 @@
-= CIP2017-03-01 - LIMIT subclause
+= CIP2017-03-01 - Subclauses
 :numbered:
 :toc:
 :toc-placement: macro
