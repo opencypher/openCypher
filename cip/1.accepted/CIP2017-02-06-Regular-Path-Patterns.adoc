@@ -17,73 +17,78 @@ In Cypher Regular Path Queries are expressed through the use of _Regular Path Pa
 A Regular Path Pattern is defined as:
 
 • A simple relationship type +
-  `()-/:X/-()` denotes a Regular Path Pattern matching relationships of type `X`.
+  `()-[:X]-()` denotes a Regular Path Pattern matching relationships of type `X`.
 • A predicate on the labels of a node +
-  `()-/(:Z)/-()` denotes a Regular Path Pattern matching nodes with label `Z`.
+  `()-[(:Z)]-()` denotes a Regular Path Pattern matching nodes with label `Z`.
 • A sequence of Regular Path Patterns +
-  `()-/_a_ _b_/-()` denotes a Regular Path Pattern matching first the pattern defined by `_a_`, then the pattern defined by `_b_` (in order left to right).
+  `()-[_a_ _b_]-()` denotes a Regular Path Pattern matching first the pattern defined by `_a_`, then the pattern defined by `_b_` (in order left to right).
 • An alternative between Regular Path Patterns +
-  `()-/_a_ | _b_/-()` denotes a Regular Path Pattern matching either the pattern defined by `_a_` or the pattern defined by `_b_`.
+  `()-[_a_ | _b_]-()` denotes a Regular Path Pattern matching either the pattern defined by `_a_` or the pattern defined by `_b_`.
 • A repetition of a Regular Path Pattern +
-  `()-/_a_*/-()` denotes a Regular Path Pattern matching the pattern defined by `_a_` zero or more times. +
-  `()-/_a_+/-()` denotes a Regular Path Pattern matching the pattern defined by `_a_` one or more times. +
-  `()-/_a_*_x_../-()` denotes a Regular Path Pattern matching the pattern defined by `_a_` `_x_` or more times. +
-  `()-/_a_*_x_.._y_/-()` denotes a Regular Path Pattern matching the pattern defined by `_a_` at least `_x_` times and at most `_y_` times.
+  `()-[_a_*]-()` denotes a Regular Path Pattern matching the pattern defined by `_a_` zero or more times. +
+  `()-[_a_+]-()` denotes a Regular Path Pattern matching the pattern defined by `_a_` one or more times. +
+  `()-[_a_*_x_..]-()` denotes a Regular Path Pattern matching the pattern defined by `_a_` `_x_` or more times. +
+  `()-[_a_*_x_.._y_]-()` denotes a Regular Path Pattern matching the pattern defined by `_a_` at least `_x_` times and at most `_y_` times.
 • A grouping of a Regular Path Pattern +
-  `()-/[_a_]/-()` denotes a grouping of the pattern `_a_`.
+  `()-[[_a_]]-()` denotes a grouping of the pattern `_a_`.
 • A specification of direction for a Regular Path Pattern +
-  `()-/  _a_ >/-()` denotes that the Regular Path Pattern `_a_` should be interpreted in a left-to-right direction. +
-  `()-/< _a_  /-()` denotes that the Regular Path Pattern `_a_` should be interpreted in a right-to-left direction. +
-  `()-/< _a_ >/-()` denotes that the Regular Path Pattern `_a_` should be interpreted in any direction.
+  `()-[  _a_ >]-()` denotes that the Regular Path Pattern `_a_` should be interpreted in a left-to-right direction. +
+  `()-[< _a_  ]-()` denotes that the Regular Path Pattern `_a_` should be interpreted in a right-to-left direction. +
+  `()-[< _a_ >]-()` denotes that the Regular Path Pattern `_a_` should be interpreted in any direction.
 • A reference to a Defined Path Predicate +
-  `()-/alpha/-()` denotes a reference to a Defined Path Predicate named `alpha`.
+  `()-[alpha]-()` denotes a reference to a Defined Path Predicate named `alpha`.
 
-Regular Path Patterns are written similarly to how relationship patterns are written, but enclosed within two slash (`/`) characters instead of brackets (`[]`).
-
-Contrary to Relationship Patterns, Regular Path Patterns do _not_ allow binding a relationship to a variable.
-In order to bind the matching path to a variable, a Path Assignment should be used, by preceding the path with an identifier and an equals sign (`=`).
-This avoids a problem that existed in the past with repetition of relationships (a syntax that is deprecated with the introduction of Regular Path Patterns), where a relationship variable would bind to a list, making it hard to express predicates over the actual relationships.
+Binding of a relationship to a variable is only allowed in the most simple case of a Path Pattern, where only a single relationship is matched by the pattern.
+For binding a whole path to a variable, Path Assignment should be used, by preceding the path with an identifier and an equals sign (`=`).
+This avoids a problem that existed in the past with repetition of relationships (a syntax that is unsupported as of the introduction of Regular Path Patterns), where a relationship variable would bind to a list, making it hard to express predicates over the actual relationships.
 Predicates on parts of a Regular Path Pattern are instead expressed through the use of explicitly defined path predicates.
 
 === Syntax
 
-The syntax of Regular Path Patterns fit into the greater Cypher syntax through `PatternElementChain`.
+Regular Path Patterns are part of the Pattern syntax of Cypher.
 
+[source, ebnf]
 ----
-PatternElementChain = (RelationshipPattern | RegularPathPattern), NodePattern ;
+Pattern = PathPattern, {',', PathPattern} ;
+PathPattern = [Variable, '='], NodePattern, {RegularPathPattern, NodePattern} ;
 
-RegularPathPattern = (LeftArrowHead, Dash, '/', [RegularPathExpression], '/', Dash, RightArrowHead)
-                   | (LeftArrowHead, Dash, '/', [RegularPathExpression], '/', Dash)
-                   | (Dash, '/', [RegularPathExpression], '/', Dash, RightArrowHead)
-                   | (Dash, '/', [RegularPathExpression], '/', Dash)
+NodePattern = '(', [Variable], [NodeLabels], [Properties], ')' ;
+
+RegularPathPattern = (LeftArrowHead, Dash, '[', [RegularPathExpression], ']', Dash, RightArrowHead)
+                   | (LeftArrowHead, Dash, '[', [RegularPathExpression], ']', Dash)
+                   | (Dash, '[', [RegularPathExpression], ']', Dash, RightArrowHead)
+                   | (Dash, '[', [RegularPathExpression], ']', Dash)
                    ;
-RegularPathExpression  = {RegularPathAlternative}- ;
-RegularPathAlternative = RegularPathSequence, {'|', RegularPathSequence} ;
-RegularPathSequence    = {RegularPathStar}- ;
-RegularPathStar        = RegularPathDirected [('*', [RangeLiteral]) | '+'] ;
+
+RegularPathExpression  = {RegularPathAlternative} | BoundEdge ;
+RegularPathAlternative = RegularPathRepetition, {'|', RegularPathRepetition} ;
+RegularPathRepetition  = RegularPathDirected, [('*', [RangeDetail]) | '+' | '?'] ;
 RegularPathDirected    = ['<'], RegularPathBase, ['>'] ;
-RegularPathBase = RegularPathRelationship
-                | RegularPathAnyRelationship
+RegularPathBase = RegularPathEdge
+                | RegularPathAny
                 | RegularPathNode
                 | RegularPathReference
-                | '[' RegularPathExpression ']'
+                | ('[', RegularPathExpression, ']')
                 ;
-RegularPathRelationship    = RelType ;
-RegularPathAnyRelationship = '-' ;
-RegularPathNode            = '(' NodeLabels ')' ;
-RegularPathReference       = SymbolicName ;
+RegularPathEdge      = (EdgeLabels, [Properties]) | Properties ;
+RegularPathAny       = '-' ;
+RegularPathNode      = '(', [NodeLabels], [Properties], ')' ;
+RegularPathReference = '~', SymbolicName ;
+
+BoundEdge  = Variable, [EdgeLabels], [Properties] ;
+EdgeLabels = ':', LabelName, {'|', LabelName} ;
+NodeLabels = ':', LabelName, {':', LabelName} ;
+LabelName  = SymbolicName ;
+
+RangeDetail = [IntegerLiteral | Parameter], '..', [IntegerLiteral | Parameter] ;
 ----
 
 The `RegularPathReference` is a reference to a Defined Path Predicate.
 These are defined using the following syntax:
 
+[source, ebnf]
 ----
-DefinedPathPredicate   = 'PATH' PathPredicatePrototype, 'IS', Pattern, [Where] ;
-PathPredicatePrototype = '(', Variable, ')', RegularPathPrototype, '(', Variable, ')' ;
-RegularPathPrototype = (LeftArrowHead, Dash, '/', DefinedPathName, '/', Dash)
-                     | (Dash, '/', DefinedPathName, '/', Dash, RightArrowHead)
-                     | (Dash, '/', DefinedPathName, '/', Dash)
-                     ;
+DefinedPathPredicate   = 'PATH', 'PATTERN', DefinedPathName, '=', PathPattern, [Where] ;
 DefinedPathName = SymbolicName ;
 ----
 
@@ -91,9 +96,9 @@ DefinedPathName = SymbolicName ;
 === Directions
 
 The direction of relationships matched by a Regular Path Pattern is primarily decided by the directional arrow surrounding the pattern.
-If the arrow points from left to right (i.e. `(left)-/pattern/\->(right)`), the paths described by the pattern are paths in the left-to-right direction, i.e. paths that are _outgoing_ from the node to the left of the pattern, and _incoming_ to the node to the right of the pattern.
-If the arrow points from right to left (i.e. `(left)\<-/pattern/-(right)`), the paths described by the pattern are paths in the right-to-left paths direction, i.e. paths that are _incoming_ to the node to the left of the pattern, and _outgoing_ from the node to the right of the pattern.
-If there are no arrowheads (i.e. `(left)-/pattern/-(right)`), or if both arrowheads are present (i.e. `(left)\<-/pattern/\->(right)`), the paths described by the pattern are paths in either the left-to-right or the right-to-left direction.
+If the arrow points from left to right (i.e. `(left)-[pattern]\->(right)`), the paths described by the pattern are paths in the left-to-right direction, i.e. paths that are _outgoing_ from the node to the left of the pattern, and _incoming_ to the node to the right of the pattern.
+If the arrow points from right to left (i.e. `(left)\<-[pattern]-(right)`), the paths described by the pattern are paths in the right-to-left paths direction, i.e. paths that are _incoming_ to the node to the left of the pattern, and _outgoing_ from the node to the right of the pattern.
+If there are no arrowheads (i.e. `(left)-[pattern]-(right)`), or if both arrowheads are present (i.e. `(left)\<-[pattern]\->(right)`), the paths described by the pattern are paths in either the left-to-right or the right-to-left direction.
 
 All parts of a Regular Path Pattern will assume the direction of the surrounding arrow, unless the direction is explicitly overridden for that particular part of the pattern.
 A prefix of `<` to part of a pattern overrides the direction of that part to be right-to-left.
@@ -103,7 +108,7 @@ Direction overrides only apply to a single pattern part.
 In order to apply the direction override to multiple parts of the pattern, those parts should be grouped.
 
 Using both a `<` prefix and a `>` suffix on the same pattern is always the same thing as a disjunction between that pattern with a `<` prefix and that pattern with a `>` suffix.
-This means that `()-/< _a_ >/-()` is the same as `()-/[< _a_] | [_a_ >]/-()`.
+This means that `()-[< _a_ >]-()` is the same as `()-[[< _a_] | [_a_ >]]-()`.
 
 ==== Directions and Defined Path Predicates
 
@@ -116,24 +121,24 @@ A Defined Path Predicate declared without a direction must have a definition tha
 
 ==== Direction examples
 
-• `()-/a <[b c] d/\->()` is the same as `()-/a/\->()\<-/b c/-()-/d/\->(d)`, i.e. the direction of the group `b c` has been overridden to be right-to-left in a pattern where the overall direction is left-to-right.
-• `()-/a <b> c/\->()` is the same as `()-/a/\->()-/b/-()-/c/\->()`, i.e. the direction of `b` has been overridden to be _either direction_.
-• `()-/a/-()`, `()-/<a>/-()`, `()-/<a>/\->()`, `()\<-/<a>/-()`, `()\<-/<a>/\->()`, and `()\<-/a/\->()` all mean the same thing: matching `a` in _either direction_.
+• `()-[a <[b c] d]\->()` is the same as `()-[a]\->()\<-[b c]-()-[d]\->(d)`, i.e. the direction of the group `b c` has been overridden to be right-to-left in a pattern where the overall direction is left-to-right.
+• `()-[a <b> c]\->()` is the same as `()-[a]\->()-[b]-()-[c]\->()`, i.e. the direction of `b` has been overridden to be _either direction_.
+• `()-[a]-()`, `()-[<a>]-()`, `()-[<a>]\->()`, `()\<-[<a>]-()`, `()\<-[<a>]\->()`, and `()\<-[a]\->()` all mean the same thing: matching `a` in _either direction_.
 
 Given these Defined Path Predicates:
 
 [source, cypher]
 ----
-PATH (l)-/alpha/->(r) IS (l)-[:X]->()-[:Y]->(r)
-PATH (l)-/beta/->(r)  IS (l)<-[:Y]-()<-[:X]-(r)
-PATH (l)-/gamma/-(r)  IS (l)-/[:X :Y]> | <[:Y :X]/-(r)
+PATH (l)-[alpha]->(r) IS (l)-[:X]->()-[:Y]->(r)
+PATH (l)-[beta]->(r)  IS (l)<-[:Y]-()<-[:X]-(r)
+PATH (l)-[gamma]-(r)  IS (l)-[[:X :Y]> | <[:Y :X]]-(r)
 ----
 
-• `()-/alpha/\->()` is equivalent to `()\<-/beta/-()`
-• `()\<-/alpha/-()` is equivalent to `()-/beta/\->()`
-• `()-/gamma/\->()` is equivalent to `()\<-/gamma/-()`, since both are equivalent to `()-/gamma/-()`
-• `()-/gamma/-()` is equivalent to `()-/alpha/-()`, since `()-/alpha/-()` is the same as `()-/alpha> | <alpha/-()`, which is equivalent to the declaration of `gamma`. +
-  It is also equivalent to `()-/<beta | beta>/-()` which is the same as `()-/beta/-()`.
+• `()-[alpha]\->()` is equivalent to `()\<-[beta]-()`
+• `()\<-[alpha]-()` is equivalent to `()-[beta]\->()`
+• `()-[gamma]\->()` is equivalent to `()\<-[gamma]-()`, since both are equivalent to `()-[gamma]-()`
+• `()-[gamma]-()` is equivalent to `()-[alpha]-()`, since `()-[alpha]-()` is the same as `()-[alpha> | <alpha]-()`, which is equivalent to the declaration of `gamma`. +
+  It is also equivalent to `()-[<beta | beta>]-()` which is the same as `()-[beta]-()`.
 
 === Regular Path Pattern Examples
 
@@ -141,38 +146,35 @@ The astute reader of the syntax will have noticed that it is possible to express
 
 [source, cypher]
 ----
-MATCH (a)-//-(b)
+MATCH (a)-[]-(b)
 ----
 
-This pattern simply states that `a` and `b` must be the same node, and is thus the same as:
+The semantics of this query is to match any single relationship between `a` and `b`.
+It is thus equivalent to `(a)-[-]-(b)` or `(a)--(b)`.
+
+It is possible to express a completely empty pattern, a pattern that matches `a` and `b` to the same node.
+This is done by using only a single node predicate in the path pattern:
+
+[source, cypher]
+.A pattern matching a path of length 0
+----
+MATCH (a)-[()]-(b)
+----
+
+This pattern states that `a` and `b` must be the same node, by virtue of stating a pattern that matches any node.
+It is thus the same as:
 
 [source, cypher]
 ----
 MATCH (a), (b) WHERE a = b
 ----
 
-The same reader will also have noticed that it is possible to define a pattern containing just a relationship type:
-
-[source, cypher]
-----
-MATCH (a)-/:KNOWS/->(b)
-----
-
-That pattern is indeed equivalent to the very similar relationship pattern:
-
-[source, cypher]
-----
-MATCH (a)-[:KNOWS]->(b)
-----
-
-The main difference being that the variant with a relationship pattern is able to bind that relationship and express further predicates over it.
-
 The Regular Path Patterns start becoming interesting when larger expressions are put together:
 
 [source, cypher]
 .Finding someone loved by someone hated by someone you know, transitively
 ----
-MATCH (you)-/[:KNOWS :HATES]+ :LOVES/->(someone)
+MATCH (you)-[[:KNOWS :HATES]+ :LOVES]->(someone)
 ----
 
 Note the `+` expressing one or more occurrences of the sequence `KNOWS` followed by `HATES`.
@@ -185,7 +187,7 @@ It is possible to both prefix the part with `<` and suffix it with `>`, indicati
 [source, cypher]
 .Specifying the direction for different parts of the pattern
 ----
-MATCH (you)-/[:KNOWS <:HATES]+ :LOVES/->(someone)
+MATCH (you)-[[:KNOWS <:HATES]+ :LOVES]->(someone)
 ----
 
 In the example above we say that the `HATES` relationships should have the opposite direction to the other relationships in the path.
@@ -195,8 +197,8 @@ Through the use of Defined Path Predicates we can express even more predicates o
 [source, cypher]
 .Find a chain of unreciprocated lovers
 ----
-MATCH (you)-/unreciprocated_love*/->(someone)
-PATH (a)-/unreciprocated_love/->(b) IS
+MATCH (you)-[unreciprocated_love*]->(someone)
+PATH (a)-[unreciprocated_love]->(b) IS
      (a)-[:LOVES]->(b)
      WHERE NOT EXISTS { (b)-[:LOVES]->(a) }
 ----
@@ -209,8 +211,8 @@ This can be achieved by using a Defined Path Predicate where the nodes on both e
 [source, cypher]
 .Find friends of friends that are not haters
 ----
-MATCH (you)-/:KNOWS not_a_hater :KNOWS/-(friendly_friend_of_friend)
-PATH (x)-/not_a_hater/-(x) IS (x)
+MATCH (you)-[:KNOWS not_a_hater :KNOWS]-(friendly_friend_of_friend)
+PATH (x)-[not_a_hater]-(x) IS (x)
      WHERE NOT EXISTS { (x)-[:HATES]->() }
 ----
 
@@ -222,8 +224,8 @@ This is obviously the case when both nodes are the same, but it would also be th
 [source, cypher]
 .Find chains of co-authorship
 ----
-MATCH (you)-/co_author*/-(someone)
-PATH (a)-/co_author/-(b) IS
+MATCH (you)-[co_author*]-(someone)
+PATH (a)-[co_author]-(b) IS
      (a)-[:AUTHORED]->(:Book)<-[:AUTHORED]-(b)
      WHERE a <> b
 ----
