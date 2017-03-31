@@ -14,28 +14,61 @@ This CIP is a proposal in response to link:https://github.com/opencypher/openCyp
 
 == Proposal
 
+Cypher features several _subclause_ constructs.
+These are elements of the language able to amend the semantics of a (parent) clause with specific behaviour, but that do not make sense in and of themselves.
+The complete list of subclauses is:
+
+- `LIMIT`
+- `ORDER BY`
+- `SKIP`
+- `WHERE`
+
 The `LIMIT` subclause is used to constrain the cardinality of its parent clause by providing an upper limit.
-This can be useful for data exploration, or verifying partial results of expensive queries.
+
+The `ORDER BY` subclause is used to order records, in an order determined by the expression provided to the subclause.
+
+The `SKIP` subclause is used to reduce the cardinality of its parent clause by a constant amount.
+
+The `WHERE` subclause is used to reduce the cardinality of its parent clause by passing records through a predicate.
+Only records for which the predicate evaluates to `true` (under Cypher's three-value logic) are kept for further processing.
 
 === Syntax
 
 .Syntax overview:
 [source, ebnf]
 ----
-clause-with-limit = read-only-clause, [ limit ] ;
-read-only-clause  = match
-                  | with
-                  | unwind
-                  | return
-                  ;
-limit             = "LIMIT", expr ;
+read-only-clause = read-only-parent, subclause ;
+read-only-parent = match
+                 | with
+                 | unwind
+                 | return
+                 ;
+subclause        = limit
+                 | order-by
+                 | skip
+                 | where
+                 ;
+limit            = "LIMIT", expr ;
+order-by         = "ORDER BY", expr ;
+skip             = "SKIP", expr ;
+where            = "WHERE", expr ;
 ----
 
 === Semantics
 
-The `LIMIT` subclause prevents records passing through its parent clause after the specified amount of rows, as determined by the expression used as the argument to `LIMIT`, has been processed.
-For these semantics to be well defined, the limit expression must be constant over the query lifetime, such as parameters or literals.
-In other words, arbitrary expressions or variables are not valid, as the values of these may change across records, and it would not be clear which value should be used by the `LIMIT`.
+Detailed semantics of `ORDER BY` and ordering is out of scope of this CIP.
+Instead, refer to the https://github.com/opencypher/openCypher/blob/master/cip/1.accepted/CIP2016-06-14-Define-comparability-and-equality-as-well-as-orderability-and-equivalence.adoc[comparability CIP].
+
+All subclauses require an expression as argument, the _subclause expression_, which determines the exact behaviour of the subclause.
+For `SKIP` and `LIMIT`, the subclause expression is constrained to only expressions which are constant over the query lifetime, such as (expressions derived from) parameters and literals.
+In other words, arbitrary expressions or variables are not valid, as the values of these may change across records, and it would not be clear which value should be used by the subclause.
+
+This restriction does not apply to `WHERE` or `ORDER BY`.
+
+==== LIMIT
+
+The `LIMIT` subclause prevents records passing through its parent clause after the specified amount of records, as determined by the subclause expression, has been processed.
+Which exact records that are kept is generally undefined, but may be controlled through the use of `ORDER BY`.
 
 .Parameters and literals are global constants, and may be used as arguments to `LIMIT`:
 [source, cypher]
@@ -55,7 +88,7 @@ RETURN a.prop
 LIMIT size((a)-->()) // not guaranteed to be constant -- error!
 ----
 
-==== Updating queries
+===== Updating queries
 
 The use of `LIMIT` opens up the possibility for certain performance optimisations.
 Clauses appearing earlier in the query only need to be evaluated until the limit is reached, as opposed to evaluating the entire dataset.
@@ -87,6 +120,37 @@ CREATE (i)-[:PRODUCED_BY]->(:Producer)
 RETURN i.productId
 ----
 
+==== WHERE
+
+The `WHERE` subclause is used for filtering using an arbitrary (boolean) expression, or _predicate_.
+The predicate is evaluated for each incoming record, and the record is kept if and only if the predicate evaluated to `true`.
+Since Cypher expressions work under three-valued logic, this means that records for which the predicate evaluates to `null` as well as `false` are discarded.
+Further details on the semantics of expression evaluation is out of scope of this CIP.
+
+==== SKIP
+
+The `SKIP` subclause acts as a drop-all filter with an upper bound.
+The first `n` records, as determined by the subclause expression, are discarded from further processing.
+Which exact records that are discarded is generally undefined, but may be controlled through the use of `ORDER BY`.
+
+.Parameters and literals are global constants, and may be used as arguments to `SKIP`:
+[source, cypher]
+----
+MATCH (a:Label)
+SKIP $skipAmount
+RETURN a.prop
+SKIP 100
+----
+
+.Variables and expressions involving variables are (in general) not constant, and may not be used as arguments to `SKIP`:
+[source, cypher]
+----
+MATCH (a:Label)
+SKIP a.prop // not guaranteed to be constant -- error!
+RETURN a.prop
+SKIP size((a)-->()) // not guaranteed to be constant -- error!
+----
+
 === Examples
 
 .Limiting a pattern match:
@@ -116,5 +180,16 @@ RETURN p.age, p.name
 MATCH (a:Person)
 WHERE a.age > 18
 RETURN p.age, p.name
+LIMIT 100
+----
+
+.Combining `SKIP`, `LIMIT` and `ORDER BY`:
+[source, cypher]
+----
+MATCH (a:Person)
+WHERE a.age > 18
+RETURN p.age, p.name
+ORDER BY p.age
+SKIP 10
 LIMIT 100
 ----
