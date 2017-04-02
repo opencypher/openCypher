@@ -1,0 +1,103 @@
+CIP2015-02-17 WHERE in Variable Length Patterns
+===============================================
+:Title: CIP2015-02-17b_WHERE_in_Variable_Length_Patterns
+:Status: Draft
+:Author: Stefan_Plantikow
+:Email: <stefan.plantikow@neotechnology.com>
+:source-highlighter: pygments
+:toc: manual
+
+Abstract
+--------
+Currently, we do not allow restricting the individual relationship in a variable length pattern using literal
+property contraints. We do however support restricting the type of all relationships returned. Furthermore, all found
+paths may at least be filtered using regular WHERE.
+
+[source, cypher]
+----
+MATCH p=()-[r:KNOWS*]->()
+WHERE all( r in rels(p) | r.flag = true )
+RETURN p;
+----
+
+The situation is worse for shortest path: There is a semantic difference between a relationship filter that limits
+which parts of the graph are searched and filtering based on the relationships of the actual shortest path found.
+
+This CIP proposes to address this situation by introducing an optional predicate in the scope
+of variable length patterns.
+
+toc::[]
+
+Examples
+--------
+
+Only return variable length paths where the relationship is flagged:
+
+[source, cypher]
+----
+MATCH p=()-[:KNOWS { flag: true } IN r*]->()
+RETURN p;
+----
+
+Find all shortest paths only using relationships with a maximum weight and filter out cycles:
+
+[source, cypher]
+----
+MATCH p = allShortestPaths( ()-[rel:KNOWS IN r* WHERE rel.weight > 50]->() )
+WHERE startNode(r[0]) != endNode(r[-1])
+RETURN p;
+----
+
+Syntax Changes
+--------------
+
+Extend variable length patterns to support the following form
+
+[source%nowrap, ebnf]
+----
+rel types      = ":", rel type, { "|",  rel type } ;
+cardinality    = "*", [ [ number ], [ "..", number ] ] ;
+var identifier = identifier, cardinality ;
+rel pattern    = ( "[", identifier, [ rel types ], "IN", var identifier, "WHERE", predicate, "]" )
+               | ( "[", ? existing definition of rel pattern ?, " ]" )
+               ;
+----
+
+Note that the relationship identifier is mandatory in the newly introduced form as including a predicate is
+non-sensical otherwise.
+
+Semantics of introduced variable length pattern predicates
+----------------------------------------------------------
+
+The inner predicate is expected to hold for all considered candidate paths, i.e for both variable length paths
+as well as for shortest paths the inner predicate limits the set of candidate paths from which the result may be selected.
+
+When evaluating the inner predicate, the relationship set identifier (`r` in `r*`) will point to any relationships found up to this point.
+
+Interaction with existing features
+----------------------------------
+
+Currently the use of literal property constraints is forbidden in shortest path and variable length patterns.
+If this CIP is accepted, literal property constraints could be interpreted in terms of inner predicates:
+
+[source, cypher]
+----
+MATCH ()-[r* {name: "Person"}]->()
+RETURN r;
+----
+
+would be the same as:
+
+[source, cypher]
+----
+MATCH ()-[r IN r* WHERE r.name = "Person"]->()
+RETURN r;
+----
+
+This would be in line with the current treatment of relationship type constraints in variable length patterns.
+
+Alternatives
+------------
+
+* Introduce a new keyword (`MATCH ... SELECT ...` ?)
+* Do not support inner predicates
