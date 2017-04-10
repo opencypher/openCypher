@@ -120,7 +120,7 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `radians()`
 * `rand()`
 * `range()`
-* `relationships()`
+* `relationships()`/rels()
 * `replace()`
 * `reverse()`
 * `right()`
@@ -210,7 +210,6 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `none()`
 * `point()`
 * `reduce()`
-* `rels()`
 * `single()`
 * `timestamp()`
 * `upper()`
