@@ -181,7 +181,8 @@ Feature: ComparisonOperatorAcceptance
       WHERE 10 < n.value <= 3
       RETURN n.value
       """
-    Then the result should be empty
+    Then the result should be:
+      | n.value |
     And no side effects
 
   Scenario: Handling long chains of operators

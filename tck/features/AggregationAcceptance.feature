@@ -74,7 +74,8 @@ Feature: AggregationAcceptance
       MATCH (a {name: 'Andres'})<-[:FATHER]-(child)
       RETURN {foo: a.name='Andres', kids: collect(child.name)}
       """
-    Then the result should be empty
+    Then the result should be:
+      | {foo: a.name='Andres', kids: collect(child.name)} |
     And no side effects
 
   Scenario: Count nodes
