@@ -150,7 +150,8 @@ Feature: UnwindAcceptance
       UNWIND [] AS empty
       RETURN empty
       """
-    Then the result should be empty
+    Then the result should be:
+      | empty |
     And no side effects
 
   Scenario: Unwinding null
@@ -160,7 +161,8 @@ Feature: UnwindAcceptance
       UNWIND null AS nil
       RETURN nil
       """
-    Then the result should be empty
+    Then the result should be:
+      | nil |
     And no side effects
 
   Scenario: Unwinding list with duplicates

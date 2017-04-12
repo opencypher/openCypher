@@ -384,7 +384,8 @@ Feature: MatchAcceptance
       WHERE length(p) = 10
       RETURN x
       """
-    Then the result should be empty
+    Then the result should be:
+      | x |
     And no side effects
 
   Scenario: Pass the path length test
@@ -546,5 +547,6 @@ Feature: MatchAcceptance
       WHERE 1 = 0
       RETURN n SKIP 0
       """
-    Then the result should be empty
+    Then the result should be:
+      | n |
     And no side effects
