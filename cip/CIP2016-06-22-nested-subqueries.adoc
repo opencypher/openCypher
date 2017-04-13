@@ -28,6 +28,7 @@ Subqueries - i.e. queries within queries - are a powerful and expressive feature
 == Background
 
 This CIP may be viewed in light of the EXISTS CIP and the forthcoming Pattern Comprehension CIP, both of which propose variants of subqueries.
+In contrast, this CIP focusses on subqueries operating at a clause level while both the EXISTS CIP and the forthcoming Pattern Comprehension CIP propose subqueries operating at an expression level.
 
 == Proposal
 
@@ -37,7 +38,7 @@ This proposal suggests the introduction of new nested subquery constructs to Cyp
 
 * Read-only nested match subqueries of the form `MATCH { [(a)->(b) [WHERE ...]] ... RETURN * }`
 * Read-only nested optional match subqueries of the form `OPTIONAL { [(a)->(b) [WHERE ...]] ... RETURN * }`
-* Read-only nested mandatory match subqueries of the form `MANDATORY { [(a)->(b) [WHERE ...]] ... [RETURN *] }`
+* Read-only nested mandatory match subqueries of the form `MANDATORY { [(a)->(b) [WHERE ...]] ... RETURN * }`
 * Read/Write nested subqueries of the form `DO WHEN ... { ... }` (not ending with `RETURN`)
 
 All forms are introduced with a keyword in conjunction with optional subclauses which are then followed by an inner query in curly braces.
@@ -45,6 +46,8 @@ All forms are introduced with a keyword in conjunction with optional subclauses 
 Nested subqueries may be correlated - i.e. the inner query may use variables from the outer query - or uncorrelated.
 
 Nested subqueries can be contained within other nested subqueries at an arbitrary (but finite) depth.
+
+Finally, this CIP proposes new shorthand syntax for non-subquery optional match and mandatory match clauses as well as the ability to return no variables through the introduction of `RETURN -`.
 
 
 **1. Read-only nested match subqueries**
@@ -56,8 +59,6 @@ A nested read-only match subquery is denoted using the following syntax: `MATCH 
 The inner match query is a full read-only Cypher query.
 
 Moreover, any valid read-only Cypher query from which the leading `MATCH` keyword has been omitted may also be used as an inner match query.
-
-This rule only applies if the leading `MATCH` clause is the root clause of the inner query (i.e. is not the first clause inside a nested query or a `UNION`).
 
 
 **2. Read-only nested optional match subqueries**
@@ -71,11 +72,7 @@ A nested read-only optional match subquery is denoted using the following syntax
 
 We propose the addition of a new `MANDATORY` clause for expressing read-only nested mandatory match subqueries.
 
-A nested read-only mandatory match subquery is denoted using the following syntax: `MANDATORY { <inner-mandatory-query> }`.
-
-The inner mandatory query is any inner match query.
-
-Moreover, any inner match query from which the trailing final `RETURN` clause has been omitted may also be used as an inner mandatory query.
+A nested read-only mandatory match subquery is denoted using the following syntax: `MANDATORY { <inner-match-query> }`.
 
 
 **4. Read/Write nested subqueries**
@@ -86,8 +83,16 @@ A nested read/write subquery is denoted using the following syntax: `DO [WHEN pr
 
 Any updating Cypher query from which the trailing final `RETURN` clause has been omitted may be used as an inner update query.
 
-Using a
 We additionally propose removing the `FOREACH` clause from the current language as it is rendered obsolete by the introduction of `DO`.
+
+
+**5. Shorthand syntax**
+
+We propose the addition of new shorthand syntax for harmonizing the integration of subqueries into the language:
+
+* A query of the form `OPTIONAL <patterns>` shall be semantically equivalent to `OPTIONAL MATCH <patterns>`.
+* A query of the form `MANDATORY <patterns>` shall be semantically equivalent to `MANDATORY MATCH <patterns>`.
+* A projection clause of the form `RETURN -` will retain the input cardinality but project no result fields, i.e. this allows for *only* checking the cardinality in a mandatory match subquery.
 
 
 === Semantic clarification
