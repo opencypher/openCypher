@@ -1,0 +1,68 @@
+= CIP2017-03-29 Scalar Subqueries and List Subqueries
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Tobias Lindaaker <tobias.lindaaker@neotechnology.com>
+
+toc::[]
+
+== Scalar Subqueries and List Subqueries
+
+Scalar Subqueries are read-only subqueries that produce a single value in a single row.
+The result of a Scalar Subquery is the single value (in the single row) produced by the subquery.
+
+List Subqueries are read-only subqueries that produce a single value per row, and zero or more rows.
+The result of a List Subquery is to collect the value of all rows produced by the subquery into a list.
+
+=== Syntax
+
+[source, ebnf]
+----
+ListSubquery = '[', SingleValueSubquery, ']' ;
+
+ScalarSubquery = '<(((<', SingleValueSubquery, '>)))>' ;
+
+SingleValueSubquery = SingleValuePatternSubquery
+                    | SingleValueUnwindSubquery
+                    | SingleValueReadSubquery
+                    ;
+
+SingleValuePatternSubquery = PatternPart, Filter, SingleValueReturn ;
+SingleValueUnwindSubquery = 'UNWIND', Expression, ['AS', Variable, Filter] ;
+SingleValueReadSubquery = {{Match | Unwind}-, {With}}-, SingleValueReturn ;
+SingleValueReturn = 'RETURN', (Expression | ProjectedMap | Aggregation), Filter ;
+
+Filter = [Where], [Order], [Skip], [Limit] ;
+----
+
+=== Scalar Subqueries
+
+=== List Subqueries
+
+=== Examples
+
+[source, cypher]
+.Filter the contents of an existing list
+----
+...
+RETURN [
+    UNWIND existing_list_of_items AS item
+    WHERE item.size < 15
+    RETURN item
+] AS small_items
+----
+
+[source, cypher]
+.Collect separate lists of friends and enemies
+----
+MATCH (me:Person{name:$my_name})
+RETURN me.name, [
+    MATCH (me)-[:FRIEND]-(friend)
+    RETURN friend.name
+] AS friends, [
+    MATCH (me)-[:ENEMY]-(enemy)
+    RETURN enemy.name
+] AS enemies
+----
