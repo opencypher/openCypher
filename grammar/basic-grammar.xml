@@ -314,7 +314,6 @@
     <alt>
       <seq> <literal value="="/>        &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
       <seq> <literal value="&lt;&gt;"/> &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
-      <seq> <literal value="!="/>       &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
       <seq> <literal value="&lt;"/>     &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
       <seq> <literal value="&gt;"/>     &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
       <seq> <literal value="&lt;="/>    &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
