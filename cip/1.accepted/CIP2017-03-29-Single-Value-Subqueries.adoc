@@ -14,7 +14,7 @@ Scalar Subqueries are read-only subqueries that produce a single value in a sing
 The result of a Scalar Subquery is the single value (in the single row) produced by the subquery.
 
 List Subqueries are read-only subqueries that produce a single value per row, and zero or more rows.
-The result of a List Subquery is to collect the value of all rows produced by the subquery into a list.
+The result of a List Subquery is the list formed by collecting all of the values of all rows produced by the subquery.
 
 === Syntax
 
@@ -57,7 +57,7 @@ RETURN [
 [source, cypher]
 .Collect separate lists of friends and enemies
 ----
-MATCH (me:Person{name:$my_name})
+MATCH (me:Person {name: $my_name})
 RETURN me.name, [
     MATCH (me)-[:FRIEND]-(friend)
     RETURN friend.name
