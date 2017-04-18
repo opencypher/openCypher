@@ -22,7 +22,7 @@ The result of a List Subquery is to collect the value of all rows produced by th
 ----
 ListSubquery = '[', SingleValueSubquery, ']' ;
 
-ScalarSubquery = '<(((<', SingleValueSubquery, '>)))>' ;
+ScalarSubquery = 'SCALAR', '(', SingleValueSubquery, ')' ;
 
 SingleValueSubquery = SingleValuePatternSubquery
                     | SingleValueUnwindSubquery
