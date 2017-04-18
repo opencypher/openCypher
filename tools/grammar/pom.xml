@@ -45,7 +45,7 @@
     <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr4</artifactId>
-      <version>4.5.2-1</version>
+      <version>${antlr.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
