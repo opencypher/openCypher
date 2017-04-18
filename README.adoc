@@ -64,7 +64,7 @@ There are several ways to get in touch with the openCypher project and its parti
 
 == Copyright
 
-© Copyright 2015-2016 Neo Technology, Inc.
+© Copyright 2015-2017 Neo Technology, Inc.
 
 == Feedback
 
