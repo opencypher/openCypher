@@ -10,9 +10,8 @@ toc::[]
 
 == Map Projection
 
-Map projection takes a map or entity (node or relationship) and creates a map based on selected properties from map or entity.
-The map projection largely reuses the map syntax of curly braces and comma separated entries.
-But the projection entries are just a single identifier starting with a dot (.).
+Map projection takes a map or entity (node or relationship) and creates a map based on selected properties from that map or entity.
+The map projection largely reuses the map syntax of curly braces and comma separated entries, with the exception that the projection entries only use a single identifier starting with a dot (`.`).
 The projected map entries use the same key in the projected map as in the source map.
 
 The following example:
@@ -29,7 +28,7 @@ is thus equivalent to:
 {alpha: someMap.alpha, beta: someMap.beta}
 ----
 
-In order to be further useful, map projection allow other types of selectors to augment the projected map.
+In order to be further useful, map projections allow other types of selectors (see section on "Selectors" below) to augment the projected map.
 
 Projected maps are also allowed as a `ReturnItem` in the `RETURN` and `WITH` clauses, in this case the projected map occurs without a preceding variable and instead projects variables from the current scope into a map.
 While both _property selectors_ and _variable selectors_ are syntactically allowed in this case, the semantics of both of these selectors are equivalent.
@@ -58,7 +57,7 @@ The EBNF syntax of map projection takes the following place in the Cypher syntax
 
 [source, ebnf]
 ----
-Atom = … | MapProjection | … ;
+Atom = ... | MapProjection | ... ;
 
 MapProjection = Variable, ProjectedMap ;
 
@@ -84,7 +83,7 @@ ReturnItem = Expression
 [source, cypher]
 .Fetch name and address for a person
 ----
-MATCH (person:Person{userId=$user})-[:ADDRESS]->(address)
+MATCH (person:Person {userId:$user})-[:ADDRESS]->(address)
 RETURN person {.firstName, .lastName, id: $user,
                address {.streetAddress, .city, .postalCode} }
 ----
@@ -94,28 +93,28 @@ RETURN person {.firstName, .lastName, id: $user,
 +----------------------------------------------------------------------------------------+
 | person                                                                                 |
 +----------------------------------------------------------------------------------------+
-| {firstName: "Sherlock", lastName: "Holmes", id: "0099CC",                              |
-|  address: {streetAddress: "221B Baker Street", city: "London", postalCode: "NW1 6XE"}} |
+| {firstName: 'Sherlock', lastName: 'Holmes', id: '0099CC',                              |
+|  address: {streetAddress: '221B Baker Street', city: 'London', postalCode: 'NW1 6XE'}} |
 +----------------------------------------------------------------------------------------+
 ----
 
 [source, cypher]
 .Bind variables into a map
 ----
-MATCH (group:Group{name:$groupName})<-[:MEMBER_OF]-(member)-[:KNOWS]-(friend)-[:ADDRESS]->(address)
-RETURN member.name, collect( {friend{.name},address{.city}} ) AS friends
+MATCH (group:Group {name: $groupName})<-[:MEMBER_OF]-(member)-[:KNOWS]-(friend)-[:ADDRESS]->(address)
+RETURN member.name, collect({friend{.name}, address{.city}}) AS friends
 ----
 
 .Example result
 ----
-+-------------+---------------------------------------------------------------+
-| member.name | friends                                                       |
-+-------------+---------------------------------------------------------------+
-| John Doe    | • {friend: {name:"Heather Taylor"}, address:{city:"Miami"}}   |
-|             | • {friend: {name:"Leroy Jenkins"}, address:{city:"New York"}} |
-+-------------+---------------------------------------------------------------+
-| Eve Longman | • {friend: {name:"Mickey Mouse"}, address:{city:"Orlando"}}   |
-|             | • {friend: {name:"Leroy Jenkins"}, address:{city:"New York"}} |
-|             | • {friend: {name:"Minnie Mouse"}, address:{city:"Orlando"}}   |
-+-------------+---------------------------------------------------------------+
++-------------+------------------------------------------------------------------+
+| member.name | friends                                                          |
++-------------+------------------------------------------------------------------+
+| John Doe    | • {friend: {name: 'Heather Taylor'}, address: {city: 'Miami'}}   |
+|             | • {friend: {name: 'Leroy Jenkins'}, address: {city: 'New York'}} |
++-------------+------------------------------------------------------------------+
+| Eve Longman | • {friend: {name: 'Mickey Mouse'}, address: {city: 'Orlando'}}   |
+|             | • {friend: {name: 'Leroy Jenkins'}, address: {city: 'New York'}} |
+|             | • {friend: {name: 'Minnie Mouse'}, address: {city: 'Orlando'}}   |
++-------------+------------------------------------------------------------------+
 ----
