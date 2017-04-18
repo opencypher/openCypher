@@ -24,14 +24,14 @@ ListSubquery = '[', SingleValueSubquery, ']' ;
 
 ScalarSubquery = 'SCALAR', '(', SingleValueSubquery, ')' ;
 
-SingleValueSubquery = SingleValuePatternSubquery
-                    | SingleValueUnwindSubquery
-                    | SingleValueReadSubquery
+SingleValueSubquery = SingleValuePatternQuery
+                    | SingleValueUnwindQuery
+                    | SingleValueQuery
                     ;
 
-SingleValuePatternSubquery = PatternPart, Filter, SingleValueReturn ;
-SingleValueUnwindSubquery = 'UNWIND', Expression, ['AS', Variable, Filter] ;
-SingleValueReadSubquery = {{Match | Unwind}-, {With}}-, SingleValueReturn ;
+SingleValuePatternQuery = PatternPart, Filter, SingleValueReturn ;
+SingleValueUnwindQuery = 'UNWIND', Expression, ['AS', Variable, Filter] ;
+SingleValueQuery = {{Match | Unwind | Call}-, {With}}-, SingleValueReturn ;
 SingleValueReturn = 'RETURN', (Expression | ProjectedMap | Aggregation), Filter ;
 
 Filter = [Where], [Order], [Skip], [Limit] ;
