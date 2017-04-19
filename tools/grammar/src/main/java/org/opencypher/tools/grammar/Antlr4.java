@@ -20,8 +20,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
@@ -76,14 +78,18 @@ public class Antlr4 extends BnfWriter
     {
         // We need to do some custom post-processing to get the lexer rules right
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        execute( Antlr4::write, out, args );
+        execute( Antlr4::write, out, "grammar/cypher.xml" );
 
-        System.out.print( Antlr4Massager.postProcess( out.toString( UTF_8.name() ) ) );
+        System.out.print( out.toString( UTF_8.name() ) );
     }
 
-    private final Map<String, CharacterSet> lexerRules = new HashMap<>();
-    // rule name -> rule value
-    private final Map<String, String> keyWords = new LinkedHashMap<>();
+    private final Map<String, CharacterSet> fragmentRules = new HashMap<>();
+    private final Set<String> seenKeywords = new HashSet<>();
+    /*
+     * Mutable state -- this map keeps track of the keywords in the current production,
+     * and is emptied when the production is exited.
+     */
+    private final Map<String, String> keywordsInProduction = new LinkedHashMap<>();
 
     private Antlr4( Output output )
     {
@@ -93,21 +99,11 @@ public class Antlr4 extends BnfWriter
     @Override
     public void close()
     {
-        for ( Map.Entry<String, String> lexerRule : keyWords.entrySet() )
-        {
-            caseInsensitiveProductionStart( lexerRule.getKey() );
-            for ( char c : lexerRule.getValue().toCharArray() )
-            {
-                groupWith( '(', () -> {
-                    literal( String.valueOf( c ).toUpperCase() );
-                    alternativesSeparator();
-                    literal( String.valueOf( c ).toLowerCase() );
-                }, ')' );
-                sequenceSeparator();
-            }
-            productionEnd();
-        }
-        for ( Map.Entry<String,CharacterSet> rule : lexerRules.entrySet() )
+        /*
+         * This prints all the 'fragment' rules (rules that are used to construct lexer tokens,
+         * and the only type of rule that can use the character set syntax []) at the bottom of the grammar file.
+         */
+        for ( Map.Entry<String,CharacterSet> rule : fragmentRules.entrySet() )
         {
             CharacterSet set = rule.getValue();
             output.append( "fragment " );
@@ -166,13 +162,40 @@ public class Antlr4 extends BnfWriter
     protected void productionEnd()
     {
         output.println( " ;" ).println();
+
+        /*
+         * We print out lexer rules for all literal words mentioned in the production
+         */
+        for ( Map.Entry<String,String> lexerRule : keywordsInProduction.entrySet() )
+        {
+            String ruleName = lexerRule.getKey();
+            // Except the ones we've already seen!
+            if ( !seenKeywords.contains( ruleName ) )
+            {
+                seenKeywords.add( ruleName );
+                caseInsensitiveProductionStart( ruleName );
+                for ( char c : lexerRule.getValue().toCharArray() )
+                {
+                    groupWith( '(', () ->
+                    {
+                        literal( String.valueOf( c ).toUpperCase() );
+                        alternativesSeparator();
+                        literal( String.valueOf( c ).toLowerCase() );
+                    }, ')' );
+                    sequenceSeparator();
+                }
+                output.println( " ;" ).println();
+            }
+        }
+        keywordsInProduction.clear();
+
         currentProduction = null;
     }
 
-    private void newLexerRule( CharacterSet characters )
+    private void addFragmentRule( CharacterSet characters )
     {
         String rule = currentProduction + "_" + nextLexerRule++;
-        lexerRules.put( rule, characters );
+        fragmentRules.put( rule, characters );
         lexerRule( rule );
     }
 
@@ -273,7 +296,7 @@ public class Antlr4 extends BnfWriter
         String setName = characters.name();
         if ( setName == null )
         {
-            newLexerRule( characters );
+            addFragmentRule( characters );
         }
         else if ( setName.equals( CharacterSet.EOI ) )
         {
@@ -281,7 +304,7 @@ public class Antlr4 extends BnfWriter
         }
         else
         {
-            lexerRules.put( setName, characters );
+            fragmentRules.put( setName, characters );
             lexerRule( setName );
         }
     }
@@ -395,7 +418,7 @@ public class Antlr4 extends BnfWriter
                 lexerRule = "L_" + lexerRule;
             }
             output.append( lexerRule );
-            keyWords.put( lexerRule, value );
+            keywordsInProduction.put( lexerRule, value );
         }
     }
 

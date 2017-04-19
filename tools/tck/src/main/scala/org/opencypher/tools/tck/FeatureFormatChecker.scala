@@ -138,7 +138,8 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
       case Success(_) =>
       case Failure(exception: AssertionError) =>
         // too much output
-//        println(s"Grammar reports violation: $query")
+        println(currentScenarioName)
+        println(s"Grammar reports violation: $query")
         println(s"Total # of grammar violations: ${count.incrementAndGet()}")
       case Failure(e) => throw e
     }

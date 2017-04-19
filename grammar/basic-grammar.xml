@@ -160,11 +160,11 @@
   </production>
 
   <production name="LabelName" rr:inline="true">
-    <non-terminal ref="SymbolicName" rr:title="label"/>
+    <non-terminal ref="SchemaName" rr:title="label"/>
   </production>
 
   <production name="RelTypeName" rr:inline="true">
-    <non-terminal ref="SymbolicName" rr:title="relationship type"/>
+    <non-terminal ref="SchemaName" rr:title="relationship type"/>
   </production>
 
   <!-- \ PATTERNS / -->
@@ -348,7 +348,10 @@
   </production>
 
   <production name="FunctionName" rr:inline="true">
-    <non-terminal ref="SymbolicName" rr:title="function name"/>
+    <alt>
+      <non-terminal ref="SymbolicName" rr:title="function name"/>
+      EXISTS
+    </alt>
   </production>
 
   <production name="ExplicitProcedureInvocation">
@@ -483,7 +486,7 @@
   </production>
 
   <production name="PropertyKeyName" rr:inline="true">
-    <non-terminal ref="SymbolicName" rr:title="property key"/>
+    <non-terminal ref="SchemaName" rr:title="property key"/>
   </production>
 
   <production name="IntegerLiteral">
@@ -591,10 +594,73 @@
 
   <!-- / UTILITY DEFINITIONS \ -->
 
+  <production name="SchemaName">
+    <alt>
+      <non-terminal ref="SymbolicName"/>
+      <non-terminal ref="ReservedWord"/>
+    </alt>
+  </production>
+
+  <production name="ReservedWord">
+    <alt>
+      ALL
+      ASC
+      ASCENDING
+      BY
+      CREATE
+      DELETE
+      DESC
+      DESCENDING
+      DETACH
+      EXISTS
+      LIMIT
+      MATCH
+      MERGE
+      ON
+      OPTIONAL
+      ORDER
+      REMOVE
+      RETURN
+      SET
+      SKIP
+      WHERE
+      WITH
+      UNION
+      UNWIND
+      AND
+      AS
+      CONTAINS
+      DISTINCT
+      ENDS
+      IN
+      IS
+      NOT
+      OR
+      STARTS
+      XOR
+      FALSE
+      TRUE
+      NULL
+      CONSTRAINT
+      DO
+      FOR
+      REQUIRE
+      UNIQUE
+    </alt>
+  </production>
+
   <production name="SymbolicName">
     <alt>
       <non-terminal ref="UnescapedSymbolicName"/>
       <non-terminal ref="EscapedSymbolicName"/>
+      <non-terminal ref="HexLetter"/>
+      COUNT
+      FILTER
+      EXTRACT
+      ANY
+      ALL
+      NONE
+      SINGLE
     </alt>
   </production>
 
