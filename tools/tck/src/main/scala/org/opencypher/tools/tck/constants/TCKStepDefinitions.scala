@@ -31,6 +31,7 @@ object TCKStepDefinitions {
   val PARAMETERS = "^parameters are:$"
   val SIDE_EFFECTS = "^the side effects should be:$"
   val NO_SIDE_EFFECTS = "^no side effects$"
+  val INSTALLED_PROCEDURE = """^there exists a procedure (.+):$"""
 
   // for When
   val EXECUTING_QUERY = "^executing query:$"

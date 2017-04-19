@@ -27,6 +27,7 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
 
   private var lastSeenQuery = ""
   private val orderBy = "(?si).*ORDER BY.*"
+  private val call = "(?si).*CALL.*"
   private var currentScenarioName = ""
   private val stepValidator = new ScenarioFormatValidator
 
@@ -54,6 +55,10 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
 
   And(PARAMETERS) { (table: DataTable) =>
     validateParameters(table).map(msg => throw InvalidFeatureFormatException(msg))
+  }
+
+  And(INSTALLED_PROCEDURE) { (signatureText: String, values: DataTable) =>
+    stepValidator.reportStep("Procedure")
   }
 
   When(EXECUTING_QUERY) { (query: String) => whenStep(query)}
@@ -85,9 +90,9 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
 
   Then(EXPECT_SORTED_RESULT) { (table: DataTable) =>
     validateResults(table).map(msg => throw InvalidFeatureFormatException(msg))
-    if (!lastSeenQuery.matches(orderBy))
+    if (!lastSeenQuery.matches(orderBy) && !lastSeenQuery.matches(call))
       throw InvalidFeatureFormatException(
-        "Queries with ordered expectations should have `ORDER BY` in them. Please see the readme.")
+        "Queries with ordered expectations should have `ORDER BY` or `CALL` in them. Please see the `tck/readme`.")
     stepValidator.reportStep("Results")
   }
 
@@ -149,8 +154,10 @@ case class InvalidFeatureFormatException(message: String) extends RuntimeExcepti
 
 class ScenarioFormatValidator {
   private var hadGiven = false
+  private var hadPending = false
   private var numberOfWhenQueries = 0
   private var numberOfThenAssertions = 0
+  private var requiredProcedures = false
   private var hadError = false
   private var hadSideEffects = false
   private var hadControlQuery = false
@@ -165,6 +172,8 @@ class ScenarioFormatValidator {
       if (numberOfThenAssertions > numberOfWhenQueries && !hadControlQuery) error("Extra `Then expect results` steps specified! Only one is allowed.")
       else if (hadError) error("Both results and error expectations found; they are mutually exclusive.")
       numberOfThenAssertions = numberOfThenAssertions + 1
+    case "Procedure" =>
+      requiredProcedures = true
     case "Error" =>
       if (hadError) error("Extra `Then expect error` steps specified! Only one is allowed.")
       else if (numberOfThenAssertions > 0) error("Both results and error expectations found; they are mutually exclusive.")
@@ -172,23 +181,28 @@ class ScenarioFormatValidator {
     case "Side-effects" =>
       if (hadSideEffects) error("Extra `And side effects` steps specified! Only one is allowed.")
       else hadSideEffects = true
-    case "Control-query" => hadControlQuery = true
+    case "Control-query" =>
+      hadControlQuery = true
 
     case _ => throw new IllegalArgumentException("Unknown step identifier. Valid identifiers are Given, Query, Results, Error, Side-effects.")
   }
 
   def checkRequiredSteps() = {
-    val correctWhenThenSetup = numberOfWhenQueries == (if (hadControlQuery) numberOfThenAssertions - 1 else numberOfThenAssertions)
-    if (hadGiven && numberOfWhenQueries > 0 && (correctWhenThenSetup && hadSideEffects || hadError)) {
-      reset()
-    } else
-      error(s"The scenario setup was incomplete: Given: $hadGiven, Query: $numberOfWhenQueries, Results or error: ${numberOfThenAssertions > 0 || hadError}, Side effects: $hadSideEffects")
+    if (!hadPending) {
+      val correctWhenThenSetup = numberOfWhenQueries == (if (hadControlQuery) numberOfThenAssertions - 1 else numberOfThenAssertions)
+      if (hadGiven && numberOfWhenQueries > 0 && (correctWhenThenSetup && hadSideEffects || hadError || requiredProcedures)) {
+        reset()
+      } else
+        error(s"The scenario setup was incomplete: Given: $hadGiven, Query: $numberOfWhenQueries, Results or error: ${numberOfThenAssertions > 0 || hadError}, Side effects: $hadSideEffects")
+    }
   }
 
   private def reset() = {
     hadGiven = false
+    hadPending = false
     numberOfWhenQueries = 0
     numberOfThenAssertions = 0
+    requiredProcedures = false
     hadError = false
     hadSideEffects = false
     hadControlQuery = false

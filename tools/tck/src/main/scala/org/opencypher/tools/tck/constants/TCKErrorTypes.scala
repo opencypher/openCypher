@@ -29,11 +29,12 @@ object TCKErrorTypes {
   val TYPE_ERROR = "TypeError"
   val ARGUMENT_ERROR = "ArgumentError"
   val ARITHMETIC_ERROR = "ArithmeticError"
+  val PROCEDURE_ERROR = "ProcedureError"
 
   val ALL = Set(SYNTAX_ERROR, SEMANTIC_ERROR, PARAMETER_MISSING,
                 CONSTRAINT_VERIFICATION_FAILED, CONSTRAINT_VALIDATION_FAILED,
                 ENTITY_NOT_FOUND, PROPERTY_NOT_FOUND, LABEL_NOT_FOUND, TYPE_ERROR,
-                ARGUMENT_ERROR, ARITHMETIC_ERROR)
+                ARGUMENT_ERROR, ARITHMETIC_ERROR, PROCEDURE_ERROR)
 }
 
 object TCKErrorPhases {
@@ -79,6 +80,10 @@ object TCKErrorDetails {
   val COLUMN_NAME_CONFLICT = "ColumnNameConflict"
   val NO_VARIABLES_IN_SCOPE = "NoVariablesInScope"
   val DELETED_ENTITY_ACCESS = "DeletedEntityAccess"
+  val INVALID_ARGUMENT_PASSING_MODE = "InvalidArgumentPassingMode"
+  val INVALID_NUMBER_OF_ARGUMENTS = "InvalidNumberOfArguments"
+  val MISSING_PARAMETER = "MissingParameter"
+  val PROCEDURE_NOT_FOUND = "ProcedureNotFound"
 
   val ALL = Set(INVALID_ELEMENT_ACCESS,
                 MAP_ELEMENT_ACCESS_BY_NON_STRING,
@@ -115,5 +120,9 @@ object TCKErrorDetails {
                 INVALID_PROPERTY_TYPE,
                 COLUMN_NAME_CONFLICT,
                 NO_VARIABLES_IN_SCOPE,
+                INVALID_ARGUMENT_PASSING_MODE,
+                INVALID_NUMBER_OF_ARGUMENTS,
+                MISSING_PARAMETER,
+                PROCEDURE_NOT_FOUND,
                 DELETED_ENTITY_ACCESS)
 }
