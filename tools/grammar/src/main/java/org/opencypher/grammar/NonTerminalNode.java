@@ -16,6 +16,7 @@
  */
 package org.opencypher.grammar;
 
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import org.opencypher.tools.xml.Attribute;
@@ -37,27 +38,31 @@ final class NonTerminalNode extends Node implements NonTerminal
     private ProductionNode origin;
 
     @Override
-    public Production production()
+    public ProductionNode production()
     {
+        if ( production == null )
+        {
+            throw new NoSuchElementException( ref );
+        }
         return production;
     }
 
     @Override
     public boolean skip()
     {
-        return skip == null ? production.skip : skip;
+        return skip == null ? production().skip : skip;
     }
 
     @Override
     public boolean inline()
     {
-        return inline == null ? production.inline : inline;
+        return inline == null ? production().inline : inline;
     }
 
     @Override
     public String title()
     {
-        return title == null ? production.name : title;
+        return title == null ? production().name : title;
     }
 
     @Override

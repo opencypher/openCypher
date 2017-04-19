@@ -132,13 +132,13 @@
     <dependency>
       <groupId>org.opencypher</groupId>
       <artifactId>grammar</artifactId>
-      <version>${version}</version>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.opencypher</groupId>
       <artifactId>grammar</artifactId>
-      <version>${version}</version>
+      <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
