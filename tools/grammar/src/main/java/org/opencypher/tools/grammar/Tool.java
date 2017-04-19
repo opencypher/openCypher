@@ -95,7 +95,7 @@ abstract class Tool implements Function<Method, Object>
     @SafeVarargs
     protected final <T> T options( Class<T> type, Option<T>... options )
     {
-        return dynamicOptions( type, this );
+        return dynamicOptions( type, this, options );
     }
 
     protected final Path outputDir() throws IOException

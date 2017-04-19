@@ -19,11 +19,23 @@ package org.opencypher.tools.grammar;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
 import javax.xml.stream.XMLStreamException;
 
+import org.opencypher.grammar.Alternatives;
+import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
+import org.opencypher.grammar.Literal;
+import org.opencypher.grammar.NonTerminal;
+import org.opencypher.grammar.Optional;
 import org.opencypher.grammar.Production;
+import org.opencypher.grammar.Repetition;
+import org.opencypher.grammar.Sequence;
+import org.opencypher.grammar.TermTransformation;
+import org.opencypher.grammar.TermVisitor;
 import org.opencypher.railroad.Diagram;
 import org.opencypher.railroad.SVGShapes;
 import org.opencypher.railroad.ShapeRenderer;
@@ -33,9 +45,12 @@ import org.opencypher.tools.io.Output;
 import static org.opencypher.tools.grammar.RailRoadDiagrams.canvas;
 import static org.opencypher.tools.grammar.RailRoadDiagrams.renderer;
 import static org.opencypher.tools.io.HtmlTag.html;
+import static org.opencypher.tools.io.HtmlTag.meta;
 
-public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Linker
+public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Linker, ISO14977.HtmlLinker
 {
+    private final Diagram.BuilderOptions options;
+
     public static void main( String... args ) throws Exception
     {
         main( RailRoadDiagramPages::new, RailRoadDiagramPages::generate, args );
@@ -44,6 +59,7 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
     private RailRoadDiagramPages( Map<?, ?> properties )
     {
         super( properties );
+        this.options = options( Diagram.BuilderOptions.class );
     }
 
     private void generate( Grammar grammar, Output output ) throws IOException, XMLStreamException
@@ -52,7 +68,7 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
         ShapeRenderer<XMLStreamException> renderer = renderer( this );
         Diagram.CanvasProvider<SVGShapes, XMLStreamException> canvas = canvas( output, outputDir );
         int diagrams = 0;
-        for ( Diagram diagram : Diagram.build( grammar, options( Diagram.BuilderOptions.class ) ) )
+        for ( Diagram diagram : Diagram.build( grammar, options ) )
         {
             grammar.transform( diagram.name(), ( param, production ) -> {
                 writeHtml( param, production );
@@ -62,6 +78,21 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
             diagrams++;
         }
         output.append( "Rendered " ).append( diagrams ).println( " diagrams." );
+    }
+
+    @Override
+    public String referenceLink( NonTerminal reference )
+    {
+        if ( reference.inline() )
+        {
+            return "#" + reference.productionName();
+        }
+        Production production = reference.production();
+        while ( options.shouldSkip( production ) )
+        {
+            production = production.transform( SIMPLE_DEFINITION, null );
+        }
+        return production == null ? null : referenceLink( production.name() );
     }
 
     @Override
@@ -81,7 +112,7 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
         String svg = production.name() + ".svg";
         try ( HtmlTag.Html html = html( dir.resolve( production.name() + ".html" ) ) )
         {
-            html.head( title -> production.name() );
+            html.head( title -> production.name(), meta( "charset", "UTF-8" ) );
             try ( HtmlTag body = html.body() )
             {
                 body.tag( "h1" ).text( production.name() ).close();
@@ -92,6 +123,25 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
                     body.p();
                     body.text( description );
                 }
+                body.tag( "h2" ).text( "EBNF" ).close();
+                for ( NonTerminal nonTerminal : production.references() )
+                {
+                    Production site = nonTerminal.declaringProduction();
+                    if ( site.skip() )
+                    {
+                        ISO14977.html( body, site, this );
+                    }
+                }
+                ISO14977.html( body, production, this );
+                production.definition().accept( new InlinedProductions()
+                {
+                    @Override
+                    void inline( Production production )
+                    {
+                        body.tag( "a", name -> production.name() ).close();
+                        ISO14977.html( body, production, RailRoadDiagramPages.this );
+                    }
+                } );
                 Collection<Production> references = production.referencedFrom();
                 if ( !references.isEmpty() )
                 {
@@ -111,4 +161,121 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
             }
         }
     }
+
+    private static abstract class InlinedProductions implements TermVisitor<RuntimeException>, Consumer<Grammar.Term>
+    {
+        abstract void inline( Production production );
+
+        private final Set<String> inlined = new HashSet<>();
+
+        @Override
+        public void accept( Grammar.Term term )
+        {
+            term.accept( this );
+        }
+
+        @Override
+        public void visitNonTerminal( NonTerminal nonTerminal )
+        {
+            if ( nonTerminal.inline() )
+            {
+                if ( inlined.add( nonTerminal.productionName() ) )
+                {
+                    inline( nonTerminal.production() );
+                    nonTerminal.productionDefinition().accept( this );
+                }
+            }
+        }
+
+        @Override
+        public void visitAlternatives( Alternatives alternatives )
+        {
+            alternatives.forEach( this );
+        }
+
+        @Override
+        public void visitSequence( Sequence sequence )
+        {
+            sequence.forEach( this );
+        }
+
+        @Override
+        public void visitOptional( Optional optional )
+        {
+            optional.term().accept( this );
+        }
+
+        @Override
+        public void visitRepetition( Repetition repetition )
+        {
+            repetition.term().accept( this );
+        }
+
+        @Override
+        public void visitLiteral( Literal literal )
+        {
+        }
+
+        @Override
+        public void visitEpsilon()
+        {
+        }
+
+        @Override
+        public void visitCharacters( CharacterSet characters )
+        {
+        }
+    }
+
+    private static final TermTransformation<Void,Production,RuntimeException> SIMPLE_DEFINITION =
+            new TermTransformation<Void,Production,RuntimeException>()
+            {
+                @Override
+                public Production transformNonTerminal( Void param, NonTerminal nonTerminal ) throws RuntimeException
+                {
+                    return nonTerminal.production();
+                }
+
+                @Override
+                public Production transformOptional( Void param, Optional optional ) throws RuntimeException
+                {
+                    return optional.term().transform( this, param );
+                }
+
+                @Override
+                public Production transformRepetition( Void param, Repetition repetition ) throws RuntimeException
+                {
+                    return repetition.term().transform( this, param );
+                }
+
+                @Override
+                public Production transformAlternatives( Void param, Alternatives alternatives ) throws RuntimeException
+                {
+                    return null;
+                }
+
+                @Override
+                public Production transformSequence( Void param, Sequence sequence ) throws RuntimeException
+                {
+                    return null;
+                }
+
+                @Override
+                public Production transformLiteral( Void param, Literal literal ) throws RuntimeException
+                {
+                    return null;
+                }
+
+                @Override
+                public Production transformEpsilon( Void param ) throws RuntimeException
+                {
+                    return null;
+                }
+
+                @Override
+                public Production transformCharacters( Void param, CharacterSet characters ) throws RuntimeException
+                {
+                    return null;
+                }
+            };
 }

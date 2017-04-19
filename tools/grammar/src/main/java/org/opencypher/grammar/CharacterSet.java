@@ -442,14 +442,16 @@ public interface CharacterSet
                         public void excludeSet( String name )
                         {
                             init( false );
-                            result.append( "-[:" ).append( name ).append( ":]" );
+                            result.append( '-' );
+                            namedSet( name );
                         }
 
                         void init( boolean openSet )
                         {
                             if ( result.length() == 0 )
                             {
-                                result.append( "[[:" ).append( base ).append( ":]" );
+                                result.append('[');
+                                namedSet( base );
                             }
                             if ( openSet )
                             {
@@ -474,7 +476,7 @@ public interface CharacterSet
                         {
                             if ( result.length() == 0 )
                             {
-                                result.append( "[:" ).append( base ).append( ":" );
+                                namedSet( base );
                             }
                             else if ( inSet )
                             {
@@ -519,6 +521,18 @@ public interface CharacterSet
                 void append( int cp )
                 {
                     result.append( escapeCodePoint( cp ) );
+                }
+
+                void namedSet( String name )
+                {
+                    try
+                    {
+                        Unicode.valueOf( name ).set.setName( result );
+                    }
+                    catch ( Exception ignored )
+                    {
+                        result.append( "[:" ).append( name ).append( ":" );
+                    }
                 }
             } );
             return result.append( ']' ).toString();

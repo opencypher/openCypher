@@ -41,7 +41,13 @@ public final class Diagram
         default boolean skipNone() { return false; }
         default boolean inlineNone() { return false; }
         default boolean optimizeDiagram() { return true; }
-    } //</pre>
+      //</pre>
+
+        default boolean shouldSkip( Production production )
+        {
+            return (production.skip() || production.inline()) && !skipNone();
+        }
+    }
 
     public interface Renderer<Canvas, Text, EX extends Exception>
     {
@@ -76,7 +82,7 @@ public final class Diagram
 
         Size sizeOfCharset( Text text );
 
-        void renderCharset( Canvas canvas, double x, double y, Text text ) throws EX;
+        void renderCharset( Canvas canvas, double x, double y, Text text, String set ) throws EX;
 
         Size sizeOfLine( Collection<Figure> sequence );
 
@@ -192,7 +198,7 @@ public final class Diagram
     }
 
     private static final ProductionTransformation<BuilderOptions, Optional<Diagram>, RuntimeException> PRODUCTION =
-            ( options, production ) -> ((production.skip() || production.inline()) && !options.skipNone())
+            ( options, production ) -> options.shouldSkip( production )
                                        ? Optional.empty() : Optional.of( build( production, options ) );
 
     private final String name;

@@ -34,6 +34,16 @@ public class OptionTest
         {
             long mandatory();
         }
+
+        interface WithOperator
+        {
+            default String anOperator( String parameter )
+            {
+                return prefix() + parameter;
+            }
+
+            String prefix();
+        }
     }
 
     @Test
@@ -88,5 +98,18 @@ public class OptionTest
         {
             assertEquals( "Missing required option: mandatory", e.getMessage() );
         }
+    }
+
+    @Test
+    public void shouldAllowOperators() throws Exception
+    {
+        // given
+        Options.WithOperator operator = Option.options( Options.WithOperator.class, prefix -> "Hello " );
+
+        // when
+        String result = operator.anOperator( "World" );
+
+        // then
+        assertEquals( "Hello World", result );
     }
 }

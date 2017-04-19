@@ -23,6 +23,7 @@ import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.NonTerminal;
 import org.opencypher.grammar.Production;
+import org.opencypher.tools.io.HtmlTag;
 import org.opencypher.tools.io.Output;
 
 import static org.opencypher.tools.io.Output.output;
@@ -73,9 +74,111 @@ public class ISO14977 extends BnfWriter
         return str.append( production.definition(), ISO14977::append );
     }
 
+    public static void html( HtmlTag parent, Production production, HtmlLinker linker )
+    {
+        try ( HtmlTag pre = parent.tag( "pre" );
+              HtmlTag code = pre.tag( "code" ) )
+        {
+            new ISO14977.Html( code, linker ).visitProduction( production );
+        }
+    }
+
+    public interface HtmlLinker
+    {
+        String referenceLink( NonTerminal reference );
+
+        default String charsetLink( CharacterSet charset )
+        {
+            return charsetLink( CharacterSet.Unicode.toSetString( charset ) );
+        }
+
+        String charsetLink( String charset );
+    }
+
     private ISO14977( Output output )
     {
         super( output );
+    }
+
+    private static class Html extends ISO14977
+    {
+        private final HtmlTag html;
+        private final HtmlLinker linker;
+
+        Html( HtmlTag html, HtmlLinker linker )
+        {
+            super( html.output() );
+            this.html = html;
+            this.linker = linker;
+        }
+
+        @Override
+        protected void nonTerminal( NonTerminal nonTerminal )
+        {
+            try ( HtmlTag ignored = link( linker.referenceLink( nonTerminal ) ) )
+            {
+                super.nonTerminal( nonTerminal );
+            }
+        }
+
+        @Override
+        protected void characterSet( CharacterSet characters )
+        {
+            try ( HtmlTag ignored = link( linker.charsetLink( characters ) ) )
+            {
+                super.characterSet( characters );
+            }
+        }
+
+        @Override
+        protected void literal( String value )
+        {
+            try ( HtmlTag ignored = link( literalLink( value ) ) )
+            {
+                super.literal( value );
+            }
+        }
+
+        @Override
+        void appendCaseChar( int cp )
+        {
+            int lo = Character.toLowerCase( cp ), up = Character.toUpperCase( cp ), title = Character.toTitleCase( cp );
+            Output.Readable link = Output.stringBuilder();
+            link.append( '[' ).format( "[\\u%04X]", lo );
+            if ( up != lo )
+            {
+                link.format( "[\\u%04X]", up );
+            }
+            if ( title != up && title != lo )
+            {
+                link.format( "[\\u%04X]", title );
+            }
+            try ( HtmlTag ignored = link( linker.charsetLink( link.append( ']' ).toString() ) ) )
+            {
+                super.appendCaseChar( cp );
+            }
+        }
+
+        private HtmlTag link( String target )
+        {
+            return target == null ? null : html.tag( "a", href -> target );
+        }
+
+        private String literalLink( String literal )
+        {
+            int cp;
+            if ( !literal.isEmpty() && literal.length() == Character.charCount( cp = literal.codePointAt( 0 ) ) )
+            {
+                return linker.charsetLink( String.format( "[\\u%04X]", cp ) );
+            }
+            return null;
+        }
+
+        @Override
+        protected void productionEnd()
+        {
+            output.println( " ;" );
+        }
     }
 
     @Override
@@ -161,7 +264,7 @@ public class ISO14977 extends BnfWriter
                     start = i + Character.charCount( cp );
                     cp = Character.toUpperCase( cp );
                     addCaseChar( cp );
-                    output.appendCodePoint( cp );
+                    appendCaseChar( cp );
                 }
             }
             if ( start < value.length() )
@@ -170,6 +273,11 @@ public class ISO14977 extends BnfWriter
                 enclose( value.substring( start ) );
             }
         } );
+    }
+
+    void appendCaseChar( int cp )
+    {
+        output.appendCodePoint( cp );
     }
 
     private void enclose( String value )

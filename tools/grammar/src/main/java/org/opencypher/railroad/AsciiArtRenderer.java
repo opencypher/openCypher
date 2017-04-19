@@ -115,7 +115,7 @@ public class AsciiArtRenderer extends PositionedText.Renderer
      * </ul>
      */
     @Override
-    public void renderCharset( PositionedText target, double x, double y, String text )
+    public void renderCharset( PositionedText target, double x, double y, String text, String set )
     {
         target.add( x, y, text );
     }

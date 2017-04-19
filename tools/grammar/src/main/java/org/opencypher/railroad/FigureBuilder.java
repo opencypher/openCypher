@@ -67,7 +67,7 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
 
     static Diagram.Figure charset( String set )
     {
-        return new Charset( set );
+        return new Charset( set, set );
     }
 
     static Diagram.Figure line( Diagram.Figure... content )
@@ -192,7 +192,7 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
         for ( int i = 0, cp; i < text.length(); i += Character.charCount( cp ) )
         {
             cp = text.codePointAt( i );
-            if ( Character.isLetterOrDigit( cp ) || (cp >= 0x20 && cp < 0xFF) )
+            if ( Character.isLetterOrDigit( cp ) || (cp >= 0x20 && cp < 0x7F) )
             {
                 continue;
             }
@@ -267,7 +267,9 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
     @Override
     public Void transformCharacters( Group group, CharacterSet characters )
     {
-        group.add( new Charset( CharacterSet.Unicode.toSetString( characters ) ) );
+        String name = characters.name();
+        String set = CharacterSet.Unicode.toSetString( characters );
+        group.add( new Charset( name == null ? set : name, set ) );
         return null;
     }
 
@@ -739,9 +741,12 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
      */
     private static class Charset extends Node
     {
-        Charset( String set )
+        private final String set;
+
+        Charset( String name, String set )
         {
-            super( set );
+            super( name );
+            this.set = set;
         }
 
         @Override
@@ -754,7 +759,7 @@ class FigureBuilder implements TermTransformation<FigureBuilder.Group, Void, Run
         <O, T, EX extends Exception> void render( O target, double x, double y, Diagram.Renderer<O, T, EX> renderer,
                                                   T text ) throws EX
         {
-            renderer.renderCharset( target, x, y, text );
+            renderer.renderCharset( target, x, y, text, set );
         }
     }
 

@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+import org.opencypher.tools.io.Output;
+
 abstract class CodePointSet implements Comparable<CodePointSet>
 {
     public static CodePointSet single( int codePoint )
@@ -409,6 +411,11 @@ abstract class CodePointSet implements Comparable<CodePointSet>
         return cp;
     }
 
+    void setName( Output output )
+    {
+        output.append( "[:" ).append( name ).append( ":]" );
+    }
+
     private static final class Disjunction extends CodePointSet
     {
         private final CodePointSet excluded;
@@ -723,6 +730,12 @@ abstract class CodePointSet implements Comparable<CodePointSet>
         public int randomCodePoint( Random random )
         {
             return codePoint;
+        }
+
+        @Override
+        void setName( Output output )
+        {
+            output.format( "[\\u%04X]", codePoint );
         }
     }
 

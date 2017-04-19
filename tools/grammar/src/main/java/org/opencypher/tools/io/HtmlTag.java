@@ -139,32 +139,61 @@ public final class HtmlTag implements AutoCloseable
     }
 
     /**
+     * Generate meta tags for use in {@link HtmlTag.Html#head &lt;head&gt;}.
+     *
+     * @param name  the name of the meta attribute.
+     * @param value the value of the meta attribute.
+     * @return an object that generates the tag in the head.
+     */
+    public static Attribute<HtmlTag> meta( String name, String value )
+    {
+        return head( "meta", ignored ->
+        {
+        }, new Attribute<Void>()
+        {
+            @Override
+            public String name()
+            {
+                return name;
+            }
+
+            @Override
+            public String value( Void target )
+            {
+                return value;
+            }
+        } );
+    }
+
+    /**
+     * Generate html tags for use in {@link HtmlTag.Html#head &lt;head&gt;}.
+     *
+     * Allows adding attributes to a head tag.
+     *
+     * @param tag        the name and contents of the head tag.
+     * @param attributes the attributes of the head tag.
+     * @return an object that generates the tag in the head.
+     */
+    public static Attribute<HtmlTag> head( Attribute<HtmlTag> tag, Attribute<Void>... attributes )
+    {
+        return head( tag.name(), tag::value, attributes );
+    }
+
+    /**
      * Generate html tags for use in {@link HtmlTag.Html#head &lt;head&gt;}.
      *
      * This is an alternative to {@code html.head( title -> "my title" )}, allowing the use of the API on earlier
      * builds of the JDK as {@code html.head( head( "title", title -> title.text( "my title" ) ) )}.
      *
-     * @param tag     the name of the head tag.
-     * @param content generator for the content of the head tag.
+     * @param tag        the name of the head tag.
+     * @param content    generator for the content of the head tag.
+     * @param attributes the attributes of the head tag.
      * @return an object that generates the tag in the head.
      */
-    public static Attribute<HtmlTag> head( String tag, Consumer<HtmlTag> content )
+    @SafeVarargs
+    public static Attribute<HtmlTag> head( String tag, Consumer<HtmlTag> content, Attribute<Void>... attributes )
     {
-        return new Attribute<HtmlTag>()
-        {
-            @Override
-            public String name()
-            {
-                return tag;
-            }
-
-            @Override
-            public String value( HtmlTag target )
-            {
-                content.accept( target );
-                return null;
-            }
-        };
+        return new HeadTag( tag, content, attributes );
     }
 
     private final Output output;
@@ -186,7 +215,7 @@ public final class HtmlTag implements AutoCloseable
             {
                 for ( Attribute<HtmlTag> tag : tags )
                 {
-                    try ( HtmlTag headTag = head.tag( tag.name() ) )
+                    try ( HtmlTag headTag = head.tag( tag.name(), HeadTag.attributes( tag ) ) )
                     {
                         String text = tag.value( headTag );
                         if ( text != null )
@@ -258,5 +287,53 @@ public final class HtmlTag implements AutoCloseable
     public void close()
     {
         output.format( "</%s>", tag );
+    }
+
+    /**
+     * Unsafe access to the underlying {@link Output}.
+     *
+     * This provides direct access to the underlying {@link Output} and should be used carefully, since its use might
+     * result in invalid HTML.
+     *
+     * @return the underlying {@link Output}
+     */
+    public Output output()
+    {
+        return output;
+    }
+
+    private static class HeadTag implements Attribute<HtmlTag>
+    {
+        @SuppressWarnings( "unchecked" )
+        private static final Attribute<Void>[] NO_ATTRIBUTES = new Attribute[0];
+
+        static Attribute<Void>[] attributes( Attribute<HtmlTag> tag )
+        {
+            return tag instanceof HeadTag ? ((HeadTag) tag).attributes : NO_ATTRIBUTES;
+        }
+
+        private final String tag;
+        private final Consumer<HtmlTag> content;
+        private final Attribute<Void>[] attributes;
+
+        HeadTag( String tag, Consumer<HtmlTag> content, Attribute<Void>[] attributes )
+        {
+            this.tag = tag;
+            this.content = content;
+            this.attributes = attributes;
+        }
+
+        @Override
+        public String name()
+        {
+            return tag;
+        }
+
+        @Override
+        public String value( HtmlTag target )
+        {
+            content.accept( target );
+            return null;
+        }
     }
 }

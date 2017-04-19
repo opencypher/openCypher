@@ -551,12 +551,12 @@ public final class ShapeRenderer<EX extends Exception>
     }
 
     @Override
-    public void renderCharset( Shapes<? extends EX> shapes, double x, double y, TextGlyphs text ) throws EX
+    public void renderCharset( Shapes<? extends EX> shapes, double x, double y, TextGlyphs text, String set ) throws EX
     {
         double margin = tokenMargin, hPadding = tokenPadding, vPadding = tokenPadding;
         double width = text.getWidth(), height = text.getHeight();
         double radius = (vPadding + height + vPadding) / 2;
-        Shapes.Group<? extends EX> group = shapes.group( linker.charsetLink( text.text() ) );
+        Shapes.Group<? extends EX> group = shapes.group( linker.charsetLink( set ) );
         group.text(
                 text,
                 x + margin + radius + hPadding,

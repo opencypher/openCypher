@@ -27,7 +27,6 @@ import java.util.function.Function;
 
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
-
 import static org.opencypher.tools.Functions.map;
 import static org.opencypher.tools.Reflection.defaultInvoker;
 
@@ -135,6 +134,10 @@ public interface Option<T> extends Serializable
                 }
                 if ( method.getParameterCount() != 0 )
                 {
+                    if ( method.isDefault() )
+                    {
+                        return null;
+                    }
                     throw new IllegalArgumentException(
                             "Options interface may not have methods with parameters: " + method );
                 }
@@ -179,6 +182,13 @@ public interface Option<T> extends Serializable
                 case "equals":
                     return proxy == args[0];
                 }
+            }
+            if ( args != null && args.length > 0 )
+            {
+                Object[] arguments = new Object[args.length + 1];
+                arguments[0] = proxy;
+                System.arraycopy( args, 0, arguments, 1, args.length );
+                return defaultInvoker( method ).invokeWithArguments( arguments );
             }
             String name = method.getName();
             Option<? super T> option = options.get( name );
