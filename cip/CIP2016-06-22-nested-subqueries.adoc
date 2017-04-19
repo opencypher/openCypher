@@ -32,54 +32,73 @@ In contrast, this CIP focusses on subqueries operating at a clause level while b
 
 == Proposal
 
-Nested subqueries are self-contained Cypher queries that are run within the scope of an outer Cypher query.
+Nested subqueries are self-contained Cypher queries that are usually run within the scope of an outer Cypher query.
 
 This proposal suggests the introduction of new nested subquery constructs to Cypher.
 
-* Read-only nested match subqueries of the form `MATCH { [(a)->(b) [WHERE ...]] ... RETURN * }`
-* Read-only nested optional match subqueries of the form `OPTIONAL { [(a)->(b) [WHERE ...]] ... RETURN * }`
-* Read-only nested mandatory match subqueries of the form `MANDATORY { [(a)->(b) [WHERE ...]] ... RETURN * }`
+* Read-only nested major subqueries of the form `{ ... RETURN ... }`
+* Read-only nested chained subqueries of the form `THEN { ... RETURN ... }`
+* Read-only nested optional subqueries of the form `OPTIONAL { ... RETURN ... }`
+* Read-only nested mandatory subqueries of the form `MANDATORY { ... RETURN ... }`
 * Read/Write nested subqueries of the form `DO WHEN ... { ... }` (not ending with `RETURN`)
 
-All forms are introduced with a keyword in conjunction with optional subclauses which are then followed by an inner query in curly braces.
+A nested major subquery just consists of an inner query in curly braces.
+
+All nested non-major subqueries are introduced with a keyword in conjunction with an inner query in curly braces.
 
 Nested subqueries may be correlated - i.e. the inner query may use variables from the outer query - or uncorrelated.
 
 Nested subqueries can be contained within other nested subqueries at an arbitrary (but finite) depth.
 
-Finally, this CIP proposes new shorthand syntax for non-subquery optional match and mandatory match clauses as well as the ability to return no variables through the introduction of `RETURN -`.
+Finally, this CIP proposes new shorthand syntax for returning no fields through the introduction of `WITH -`, `RETURN -`, and `YIELD -`.
 
 
-**1. Read-only nested match subqueries**
+**1. Read-only nested major subqueries**
 
-We propose the addition of new syntax to the `MATCH` clause for expressing read-only nested match subqueries.
+We propose the addition of read-only nested major subqueries as a new form of read-only Cypher query.
 
-A nested read-only match subquery is denoted using the following syntax: `MATCH { <inner-match-query> }`.
+A nested read-only major subquery is denoted using the following syntax: `{ <inner-query> }`.
 
-The inner match query is a full read-only Cypher query.
+The inner query could be any complete read-only Cypher query.
 
-Moreover, any valid read-only Cypher query from which the leading `MATCH` keyword has been omitted may also be used as an inner match query.
+A nested read-only major subquery may only be used as a primary clause, i.e. as a
+
+* top-level Cypher query,
+* inner query of another nested subquery,
+* inner query of another expression-level subquery (like a pattern comprehension, or an `EXISTS` subquery),
+* argument query to `UNION` and similar clause-level binary operators
+
+A nested read-only major subquery may not be used as a secondary clause after a preceding primary clause
+(However, a nested read-only chained subquery may be used in this case).
 
 
-**2. Read-only nested optional match subqueries**
+**2. Read-only nested chained subqueries**
 
-We propose the addition of a new `OPTIONAL` clause for expressing read-only nested optional match subqueries.
+We propose the addition of read-only nested chained subqueries for using nested subqueries as a secondary clause.
+This is called _subquery chaining_.
 
-A nested read-only optional match subquery is denoted using the following syntax: `OPTIONAL { <inner-match-query> }`.
+After a chain of clauses, a new nested chained subquery may be introduced as a secondary clause using the `THEN` keyword followed by an inner query in curly braces, i.e. it is denoted using the following syntax: `... THEN { <inner-query> }`.
 
 
-**3. Read-only nested mandatory match subqueries**
+**3. Read-only nested optional subqueries**
 
-We propose the addition of a new `MANDATORY` clause for expressing read-only nested mandatory match subqueries.
+We propose the addition of a new `OPTIONAL` clause for expressing read-only nested optional subqueries.
 
-A nested read-only mandatory match subquery is denoted using the following syntax: `MANDATORY { <inner-match-query> }`.
+A read-only nested optional subquery is denoted using the following syntax: `OPTIONAL { <inner-query> }`.
+
+
+**4. Read-only nested mandatory subqueries**
+
+We propose the addition of a new `MANDATORY` clause for expressing read-only nested mandatory subqueries.
+
+A read-only nested mandatory subquery is denoted using the following syntax: `MANDATORY { <inner-query> }`.
 
 
 **4. Read/Write nested subqueries**
 
 We propose the addition of a new `DO` clause for expressing read/write nested subqueries that _do no return any data_.
 
-A nested read/write subquery is denoted using the following syntax: `DO [WHEN predicate] { <inner-update-query> }`.
+A read/write nested subquery is denoted using the following syntax: `DO [WHEN predicate] { <inner-update-query> }`.
 
 Any updating Cypher query from which the trailing final `RETURN` clause has been omitted may be used as an inner update query.
 
@@ -88,11 +107,9 @@ We additionally propose removing the `FOREACH` clause from the current language 
 
 **5. Shorthand syntax**
 
-We propose the addition of new shorthand syntax for harmonizing the integration of subqueries into the language:
+We propose the addition of a new projection clauses of the form `WITH -` and `RETURN -` which will retain the input cardinality but project no result fields, i.e. this allows for *only* checking the cardinality in a read-only nested mandatory subquery.
 
-* A query of the form `OPTIONAL <patterns>` shall be semantically equivalent to `OPTIONAL MATCH <patterns>`.
-* A query of the form `MANDATORY <patterns>` shall be semantically equivalent to `MANDATORY MATCH <patterns>`.
-* A projection clause of the form `RETURN -` will retain the input cardinality but project no result fields, i.e. this allows for *only* checking the cardinality in a mandatory match subquery.
+We propose the addition of a new subclause to `CALL` of the form `YIELD -` which will retain the output cardinality of a call but project no result fields, i.e. this allows for *only* checking the cardinality in an `EXISTS` subquery.
 
 
 === Semantic clarification
@@ -121,12 +138,12 @@ A query may end with a `DO` subquery in the same way that a query can currently 
 
 === Examples
 
-**1. Read-only nested match subqueries**
+**1. Read-only nested subqueries**
 
 Post-UNION processing:
 [source, cypher]
 ----
-MATCH {
+{
   // authored tweets
   MATCH (me:User {name: 'Alice'})-[:FOLLOWS]->(user:User),
         (user)<-[:AUTHORED]-(tweet:Tweet)
@@ -143,11 +160,11 @@ ORDER BY time DESC
 LIMIT 10
 ----
 
-Uncorrelated nested match subquery:
+Uncorrelated nested subquery:
 [source, cypher]
 ----
 MATCH (f:Farm {id: $farmId})
-MATCH {
+THEN {
   MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(p:Lawnmower)
   RETURN b.name AS name, p.code AS code
@@ -160,11 +177,11 @@ MATCH {
 RETURN f, name, code
 ----
 
-Correlated nested match subquery:
+Correlated nested subquery:
 [source, cypher]
 ----
 MATCH (f:Farm {id: $farmId})-[:IS_IN]->(country:Country)
-MATCH {
+THEN {
   MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(p:Lawnmower)
   RETURN b.name AS name, p.code AS code
@@ -178,12 +195,12 @@ MATCH {
 RETURN f, name, code
 ----
 
-Filtered and correlated nested match subquery:
+Filtered and correlated nested subquery:
 [source, cypher]
 ----
 MATCH (f:Farm)-[:IS_IN]->(country:Country)
 WHERE country.name IN $countryNames
-MATCH {
+THEN {
   MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(p:Lawnmower)
   RETURN b AS brand, p.code AS code
@@ -199,13 +216,13 @@ WHERE f.type = 'organic'
 RETURN f, brand.name AS name, code
 ----
 
-Doubly-nested match subquery:
+Doubly-nested subquery:
 [source, cypher]
 ----
 MATCH (f:Farm {id: $farmId})
-MATCH {
-  (c:Customer)-[:BUYS_FOOD_AT]->(f)
-  MATCH {
+THEN {
+  MATCH (c:Customer)-[:BUYS_FOOD_AT]->(f)
+  THEN {
      MATCH (c)-[:RETWEETS]->(t:Tweet)<-[:TWEETED_BY]-(f)
      RETURN c, count(*) AS count
      UNION
@@ -221,7 +238,32 @@ MATCH {
 RETURN f.name AS name, type, sum(endorsement) AS endorsement
 ----
 
-**2. Read/Write nested subqueries**
+**2. Read-only nested optional match and mandatory subqueries**
+
+This proposal also provides nested subquery forms of `OPTIONAL MATCH` and `MANDATORY MATCH`:
+
+[source, cypher]
+----
+MANDATORY MATCH (p:Person {name: 'Petra'})
+MANDATORY {
+    MATCH (p)-[:ATTENDS]->(conf:Conference {name: $conf})
+    RETURN conf
+    UNION
+    MATCH (p)-[:LIVES_IN]->(:City)<-[:IN]-(conf:Conference {name: $conf})
+    RETURN conf
+}
+OPTIONAL {
+    MATCH (p)-[:KNOWS]->(a:Attendee)-[:PUBLISHED_AT]->(conf)
+    RETURN a.name AS name
+    UNION
+    MATCH (p)-[:KNOWS]->(a:Attendee)-[:PRESENTED_AT]->(conf)
+    RETURN a.name AS name
+}
+RETURN name
+----
+
+
+**3. Read/Write nested subqueries**
 
 We illustrate these by means of an 'old' version of the query, in which `FOREACH` is used, followed by the 'new' version, using `DO`.
 
