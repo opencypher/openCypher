@@ -31,6 +31,7 @@ The most notable example of query combinators are set operations.
 This CIP proposes the introduction of several new multi-arm query combinators.
 
 * `UNION`
+* `UNION MAX`
 * `UNION ALL`
 * `INTERSECT`
 * `INTERSECT ALL`
@@ -38,6 +39,8 @@ This CIP proposes the introduction of several new multi-arm query combinators.
 * `EXCEPT ALL`
 * `EXCLUSIVE UNION`
 * `EXCLUSIVE UNION ALL`
+* `CROSS`
+* `CROSS ALL`
 * `OTHERWISE`
 * `OTHERWISE ALL`
 
@@ -45,6 +48,7 @@ Multi-arm query combinators can only appear as a primary clause (at the top-leve
 
 The `<combinator>` can be any of the combinators given above.
 Multi-arm query combinators are interpreted left-associative.
+Therefore in the following, we only consider combinator semantics regarding two arms (left and right).
 
 The `RETURN` clause of each arm is either a `RETURN *` or specifies record fields explicitly.
 All arms that specify record fields explicitly must specify the exact same set of record fields in the exact same order.
@@ -59,27 +63,39 @@ Additionally, query combinators may be used in a secondary clause position via n
 
 === UNION
 
-`UNION` computes the logical set union between two sets of input records (i.e discards any duplicates).
+`UNION` computes the logical set union between two sets of input records (i.e.discards any duplicates).
 
-`UNION ALL` computes the logical multiset union between two bags of input records (i.e. preserves duplicates).
+`UNION MAX` computes the logical multiset union between two bags of input records (i.e. preserves the larget numer of duplicates from either arm).
+
+`UNION ALL` computes the logical multiset union between two bags of input records (i.e. preserves all duplicates from both arms).
 
 === INTERSECT
 
-`INTERSECT` computes the logical set intersection between two sets of input records (i.e discards any duplicates).
+`INTERSECT` computes the logical set intersection between two sets of input records (i.e.discards any duplicates).
 
 `INTERSECT ALL` computes the logical multiset intersection between two bags of input records (i.e. preserves shared duplicates).
 
 === EXCEPT
 
-`EXCEPT` computes the logical set difference between two sets of input records (i.e discards any duplicates).
+`EXCEPT` computes the logical set difference between two sets of input records (i.e.discards any duplicates).
 
 `EXCEPT ALL` computes the logical multiset difference between two bags of input records (i.e. preserves excess duplicates on the left-hand side).
 
 === EXCLUSIVE UNION
 
-`EXCLUSIVE UNION` computes the exclusive logical set union between two sets of input records (i.e discards any duplicates in the final outcome).
+`EXCLUSIVE UNION` computes the exclusive logical set union between two sets of input records (i.e.discards any duplicates in the final outcome).
 
 `EXCLUSIVE UNION ALL` computes the exclusive logical multiset union between two bags of input records (i.e. returns the largest remaining excess multiplicity of each record in any argument bag).
+
+=== CROSS
+
+`CROSS` computes the cartesian product between two sets of input records (i.e. discards any duplicates).
+
+`CROSS ALL` computes the cartesian product between two bags of input records (i.e. preserves duplicates).
+
+Contrary to the other query combinators, the rules regarding result fields do not apply to `CROSS` and `CROSS ALL`.
+Instead, the set of return fields of both arms of a `CROSS` or a `CROSS ALL` must be non-overlapping.
+The final result fields of a `CROSS` or a `CROSS ALL` are the exact same fields from the left arm in the exact same order given by the left arm followed by the exact same fields from the right arm in the exact same order given by the right arm.
 
 === OTHERWISE
 
@@ -107,7 +123,11 @@ This CIP adds `INTERSECT`, `EXCLUSIVE`, and `OTHERWISE` as new keywords.
 
 `OTHERWISE` is not provided by SQL and could be omitted.
 
+SQL does not have `UNION MAX` (it has been suggested in the literature though).
+
 SQL allows `MINUS` as an alias for `EXCEPT`.
+
+SQL uses `CROSS JOIN` for `CROSS ALL` and does not provide `CROSS` directly.
 
 == What others do
 
