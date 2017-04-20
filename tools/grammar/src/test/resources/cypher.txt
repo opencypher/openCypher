@@ -257,13 +257,13 @@ RETURN 1§
 MATCH (a)
 WHERE all   (   a   IN   []   WHERE   a.prop   )
 RETURN 1§
-CALL proc(  a  ,  b  ,  c  ) RETURN *§
-CALL proc(a,b  ,  c  ) RETURN *§
-CALL proc(  a  ) RETURN *§
-CALL proc() RETURN *§
-CALL proc() YIELD a AS v RETURN *§
-CALL proc(   ) RETURN *§
-MATCH (a) CALL proc(   )§
-MATCH (a) CALL proc( a, b   ,   c  )§
-MATCH (a) CALL proc( a, b   ,   c  ) YIELD a, b , c§
-CALL proc(   ) RETURN *§
+CALL test.proc(  a  ,  b  ,  c  ) RETURN *§
+CALL test.proc(a,b  ,  c  ) RETURN *§
+CALL test.proc(  a  ) RETURN *§
+CALL test.proc() RETURN *§
+CALL test.proc() YIELD a AS v RETURN *§
+CALL test.proc(   ) RETURN *§
+MATCH (a) CALL test.proc(   )§
+MATCH (a) CALL test.proc( a, b   ,   c  )§
+MATCH (a) CALL test.proc( a, b   ,   c  ) YIELD a, b , c§
+CALL test.proc(   ) RETURN *§
