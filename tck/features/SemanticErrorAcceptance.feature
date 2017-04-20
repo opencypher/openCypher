@@ -141,7 +141,7 @@ Feature: SemanticErrorAcceptance
   Scenario: Failing when using parameter as node predicate in MATCH
     When executing query:
       """
-      MATCH (n {param})
+      MATCH (n $param)
       RETURN n
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
@@ -149,7 +149,7 @@ Feature: SemanticErrorAcceptance
   Scenario: Failing when using parameter as relationship predicate in MATCH
     When executing query:
       """
-      MATCH ()-[r:FOO {param}]->()
+      MATCH ()-[r:FOO $param]->()
       RETURN r
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
@@ -157,7 +157,7 @@ Feature: SemanticErrorAcceptance
   Scenario: Failing when using parameter as node predicate in MERGE
     When executing query:
       """
-      MERGE (n {param})
+      MERGE (n $param)
       RETURN n
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
@@ -167,7 +167,7 @@ Feature: SemanticErrorAcceptance
       """
       MERGE (a)
       MERGE (b)
-      MERGE (a)-[r:FOO {param}]->(b)
+      MERGE (a)-[r:FOO $param]->(b)
       RETURN r
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
