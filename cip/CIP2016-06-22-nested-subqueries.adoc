@@ -36,39 +36,42 @@ Nested subqueries are self-contained Cypher queries that are usually run within 
 
 This proposal suggests the introduction of new nested subquery constructs to Cypher.
 
-* Read-only nested major subqueries of the form `{ ... RETURN ... }`
+* Read-only nested simple subqueries of the form `{ ... RETURN ... }`
 * Read-only nested chained subqueries of the form `THEN { ... RETURN ... }`
 * Read-only nested optional subqueries of the form `OPTIONAL { ... RETURN ... }`
 * Read-only nested mandatory subqueries of the form `MANDATORY { ... RETURN ... }`
-* Read/Write nested subqueries of the form `DO WHEN ... { ... }` (not ending with `RETURN`)
+* Read/Write nested simple updating subqueries of the form `DO { ... }` (inner query not ending with `RETURN`)
+* Read/Write nested conditionally updating subqueries of the form `DO [WHEN cond THEN { ... }]+ [ELSE { ... }] END` (inner queries not ending with `RETURN`)
 
-A nested major subquery just consists of an inner query in curly braces.
+A nested simple subquery just consists of an inner query in curly braces.
 
-All nested non-major subqueries are introduced with a keyword in conjunction with an inner query in curly braces.
+All other nested subquery constructs are introduced with a keyword in conjunction with an inner query in curly braces.
 
 Nested subqueries may be correlated - i.e. the inner query may use variables from the outer query - or uncorrelated.
 
 Nested subqueries can be contained within other nested subqueries at an arbitrary (but finite) depth.
 
-Finally, this CIP proposes new shorthand syntax for returning no fields through the introduction of `WITH -`, `RETURN -`, and `YIELD -`.
+Read/Write nested subqueries cannot be contained within other read-only nested subqueries.
+
+Finally, this CIP proposes new shorthand syntax for starting a query with `WHERE` and for returning no fields through the introduction of `WITH -`, `RETURN -`, and `YIELD -`.
 
 
-**1. Read-only nested major subqueries**
+**1. Read-only nested simple subqueries**
 
-We propose the addition of read-only nested major subqueries as a new form of read-only Cypher query.
+We propose the addition of read-only nested simple subqueries as a new form of read-only Cypher query.
 
-A nested read-only major subquery is denoted using the following syntax: `{ <inner-query> }`.
+A nested read-only simple subquery is denoted using the following syntax: `{ <inner-query> }`.
 
 The inner query could be any complete read-only Cypher query.
 
-A nested read-only major subquery may only be used as a primary clause, i.e. as a
+A nested read-only simple subquery may only be used as a primary clause, i.e. as a
 
 * top-level Cypher query,
 * inner query of another nested subquery,
 * inner query of another expression-level subquery (like a pattern comprehension, or an `EXISTS` subquery),
 * argument query to `UNION` and similar clause-level binary operators
 
-A nested read-only major subquery may not be used as a secondary clause after a preceding primary clause
+A nested read-only simple subquery may not be used as a secondary clause after a preceding primary clause
 (However, a nested read-only chained subquery may be used in this case).
 
 
@@ -94,18 +97,31 @@ We propose the addition of a new `MANDATORY` clause for expressing read-only nes
 A read-only nested mandatory subquery is denoted using the following syntax: `MANDATORY { <inner-query> }`.
 
 
-**4. Read/Write nested subqueries**
+**4. Read/Write nested simple updating subqueries**
 
-We propose the addition of a new `DO` clause for expressing read/write nested subqueries that _do no return any data_.
+We propose the addition of a new `DO` clause for expressing read/write nested simple updating subqueries that _do no return any data_.
 
-A read/write nested subquery is denoted using the following syntax: `DO [WHEN predicate] { <inner-update-query> }`.
+A read/write nested simple udating subquery is denoted using the following syntax: `DO { <inner-update-query> }`.
 
 Any updating Cypher query from which the trailing final `RETURN` clause has been omitted may be used as an inner update query.
 
 We additionally propose removing the `FOREACH` clause from the current language as it is rendered obsolete by the introduction of `DO`.
 
 
-**5. Shorthand syntax**
+**5. Read/Write nested conditionally udating subqueries**
+
+We propose the addition of a second form of the `DO` clause for expressing read/write nested conditionally updating subqueries that _do no return any data_.
+
+A read/write nested conditionally updating subquery is denoted using the following syntax: `DO { [WHEN <cond> THEN <inner-update-query>]+ [ELSE <inner-update-query>] END`.
+
+Semantically, the `WHEN` conditions are tested in the order given, and the inner updating query is executed for the first condition that evaluates to true only.
+If no given `WHEN` condition evaluates to true and an `ELSE` branch was given, the inner updating query of the `ELSE` branch is executed.
+If no given `WHEN` condition evaluates to true and no `ELSE` branch was given, no updates will be executed.
+
+
+**6. Shorthand syntax**
+
+We propose the addition of a new clause `WHERE <cond> <subclauses>` as a shorthand syntax for `WITH * WHERE <cond> THEN { <subclauses> }` that may be used as a primary clause only (e.g. as the first clause of a nested subquery).
 
 We propose the addition of a new projection clauses of the form `WITH -` and `RETURN -` which will retain the input cardinality but project no result fields, i.e. this allows for *only* checking the cardinality in a read-only nested mandatory subquery.
 
@@ -118,8 +134,9 @@ We propose the addition of a new subclause to `CALL` of the form `YIELD -` which
 
 Conceptually, a nested subquery is evaluated for each incoming record and may produce an arbitrary number of result records.
 
-All incoming variables remain in scope.
+All incoming variables remain in scope throughout the whole subquery.
 Any new variable bindings introduced by the final `RETURN` clause when evaluating the subquery will augment the variable bindings of the initial record.
+It is valid (though redundant) if incoming variables from the outer scope are passed on explicitly by any projection clause of the subquery (including the final `RETURN`).
 Therefore, nested subqueries cannot shadow variables present in the outer scope, and thus behave in the same way as `UNWIND` and `CALL` with regard to the introduction of new variable bindings.
 Any other variable bindings that are introduced temporarily in the subquery will not be visible to the outer scope.
 
@@ -128,17 +145,17 @@ Subqueries interact with write clauses in the same way as `MATCH` does.
 
 **2. Read/Write subqueries**
 
-Execution of a `DO` subquery does not change the cardinality; i.e. the inner update query is run for each incoming record (optionally filtered by the given predicate if a `WHEN` sub-clause is present).
+Execution of a `DO` subquery does not change the cardinality; i.e. the inner update query is run for each incoming record.
 
-Any input record is always passed on to the clause succeeding the `DO` subquery, irrespective of whether it was eligible for processing by the inner update query.
+Any input record is always passed on to the clause succeeding the `DO` subquery, irrespective of whether it was eligible for processing by any inner update query.
 
-A `DO` clause that uses `WHEN` sub-clause is called _conditional DO_.
+A `DO` clause that uses `WHEN` sub-clause is called a _conditional DO_.
 
 A query may end with a `DO` subquery in the same way that a query can currently end with any update clause.
 
 === Examples
 
-**1. Read-only nested subqueries**
+**1. Read-only nested simple and chained subqueries**
 
 Post-UNION processing:
 [source, cypher]
@@ -245,11 +262,13 @@ This proposal also provides nested subquery forms of `OPTIONAL MATCH` and `MANDA
 [source, cypher]
 ----
 MANDATORY MATCH (p:Person {name: 'Petra'})
+MANDATORY MATCH (conf:Conference {name: $conf})
 MANDATORY {
-    MATCH (p)-[:ATTENDS]->(conf:Conference {name: $conf})
+    WHERE conf.impact > 5
+    MATCH (p)-[:ATTENDS]->(conf)
     RETURN conf
     UNION
-    MATCH (p)-[:LIVES_IN]->(:City)<-[:IN]-(conf:Conference {name: $conf})
+    MATCH (p)-[:LIVES_IN]->(:City)<-[:IN]-(conf)
     RETURN conf
 }
 OPTIONAL {
@@ -263,7 +282,7 @@ RETURN name
 ----
 
 
-**3. Read/Write nested subqueries**
+**3. Read/Write nested simple and conditionally updating subqueries**
 
 We illustrate these by means of an 'old' version of the query, in which `FOREACH` is used, followed by the 'new' version, using `DO`.
 
@@ -330,10 +349,15 @@ Conditional `DO`
 ----
 MATCH (r:Root)
 UNWIND range(1, 10) AS x
-DO WHEN x % 2 = 1 {
-  MERGE (c:Odd:Child {id: x})
-  MERGE (r)-[:PARENT]->(c)
-}
+DO WHEN x % 2 = 1 THEN {
+      MERGE (c:Odd:Child {id: x})
+      MERGE (r)-[:PARENT]->(c)
+  }
+  ELSE {
+      MERGE (c:Even:Child {id: x})
+      MERGE (r)-[:PARENT]->(c)
+  }
+END
 ----
 
 
