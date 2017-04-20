@@ -171,10 +171,10 @@ Feature: FunctionsAcceptance
     When executing query:
       """
       WITH <map> AS map
-      RETURN exists(map.name) AS exists
+      RETURN exists(map.name) AS result
       """
     Then the result should be:
-      | exists   |
+      | result   |
       | <result> |
     And no side effects
 

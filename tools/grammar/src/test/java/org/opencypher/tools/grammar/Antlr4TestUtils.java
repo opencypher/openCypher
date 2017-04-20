@@ -81,7 +81,7 @@ public class Antlr4TestUtils
         try
         {
             Antlr4.write( Fixture.grammarResource( Antlr4.class, resource, options ), out );
-            grammarString = Antlr4Massager.postProcess( out.toString( UTF_8.name() ) );
+            grammarString = out.toString( UTF_8.name() );
         }
         catch ( Throwable t )
         {

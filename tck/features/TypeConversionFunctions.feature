@@ -170,7 +170,7 @@ Feature: TypeConversionFunctions
       | param | 1 |
     When executing query:
       """
-      RETURN toInteger(1 - {param}) AS result
+      RETURN toInteger(1 - $param) AS result
       """
     Then the result should be:
       | result |
