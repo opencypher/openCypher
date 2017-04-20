@@ -1,0 +1,122 @@
+= CIP2017-04-20 - Query Combinators
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Stefan Plantikow <stefan.plantikow@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+This CIP codifies the pre-existing `UNION` and `UNION ALL` clauses as well as proposes the addition of new query combinators for set operations.
+--
+
+toc::[]
+
+== Motivation
+
+Query combinators for set operators are a common feature in other query languages.
+Adding more query combinators to Cypher will increase language expressivity and provide functionality that has been requested (and expected to exist) in the language by users.
+
+== Background
+
+The vast majority of Cypher clauses allows for sequential composition: The records produces by the first clause become an input to the following clause.
+However, some operations require multiple streams of records as inputs.
+These are called query combinators.
+The most notable example of query combinators are set operations.
+
+== Proposal
+
+This CIP proposes the introduction of several new multi-arm query combinators.
+
+* `UNION`
+* `UNION ALL`
+* `INTERSECT`
+* `INTERSECT ALL`
+* `EXCEPT`
+* `EXCEPT ALL`
+* `EXCLUSIVE UNION`
+* `EXCLUSIVE UNION ALL`
+* `OTHERWISE`
+* `OTHERWISE ALL`
+
+Multi-arm query combinators can only appear as a primary clause (at the top-level of a query) using the syntax `<clause>+ RETURN ... [<combinator> <clause>+ RETURN ...]`.
+
+The `<combinator>` can be any of the combinators given above.
+Multi-arm query combinators are interpreted left-associative.
+
+The `RETURN` clause of each arm is either a `RETURN *` or specifies record fields explicitly.
+All arms that specify record fields explicitly must specify the exact same set of record fields in the exact same order.
+If an arm ends in `RETURN *` it must implicitly return the exact same set of record fields as any other arm that specifies record fields explicitly.
+If all arms end in `RETURN *` they must return the exact same set of record fields.
+
+Multi-arm query combinators determine the result signature of a top-level query.
+If any arm specifies recod fields explicitly, the exact same set of record fields in the exact same order is returned by the whole query.
+If all arms end in `RETURN *`, the order of record fields is unspecified and left to the implementation.
+
+Additionally, query combinators may be used in a secondary clause position via nested subqueries (covered in separate CIP).
+
+=== UNION
+
+`UNION` computes the logical set union between two sets of input records (i.e discards any duplicates).
+
+`UNION ALL` computes the logical multiset union between two bags of input records (i.e. preserves duplicates).
+
+=== INTERSECT
+
+`INTERSECT` computes the logical set intersection between two sets of input records (i.e discards any duplicates).
+
+`INTERSECT ALL` computes the logical multiset intersection between two bags of input records (i.e. preserves shared duplicates).
+
+=== EXCEPT
+
+`EXCEPT` computes the logical set difference between two sets of input records (i.e discards any duplicates).
+
+`EXCEPT ALL` computes the logical multiset difference between two bags of input records (i.e. preserves excess duplicates on the left-hand side).
+
+=== EXCLUSIVE UNION
+
+`EXCLUSIVE UNION` computes the exclusive logical set union between two sets of input records (i.e discards any duplicates in the final outcome).
+
+`EXCLUSIVE UNION ALL` computes the exclusive logical multiset union between two bags of input records (i.e. returns the largest remaining excess multiplicity of each record in any argument bag).
+
+=== OTHERWISE
+
+`OTHERWISE` computes the logical choice between two sets of input records.
+It evaluates to all distinct records from the left argument unless that set is empty in which case it evaluates to all distinct records from the right argument.
+
+`OTHERWISE ALL` computes the logical choice between two bags of input records.
+It evaluates to all records from the left argument unless that set is empty in which case it evaluates to all records from the right argument.
+
+=== Handling of NULL values
+
+All query combinators perform record-level comparisons under equivalence (i.e. `NULL` is equivalent to `NULL`).
+
+=== Interaction with existing features
+
+This CIP codifies the pre-existing `UNION` and `UNION ALL` constructs.
+
+The suggested changes are expected to integrate well with the parallel CIP for nested subqueries.
+
+This CIP adds `INTERSECT`, `EXCLUSIVE`, and `OTHERWISE` as new keywords.
+
+=== Alternatives
+
+`EXCLUSIVE UNION` is not provided by SQL and could be omitted.
+
+`OTHERWISE` is not provided by SQL and could be omitted.
+
+SQL allows `MINUS` as an alias for `EXCEPT`.
+
+== What others do
+
+This proposal mainly follows SQL.
+
+== Benefits to this proposal
+
+Set operations are added to the language.
+
+== Caveats to this proposal
+
+Increase in language complexity; adopting controversial `NULL` handling issues from SQL.
