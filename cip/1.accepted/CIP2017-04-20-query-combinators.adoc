@@ -9,7 +9,7 @@
 [abstract]
 .Abstract
 --
-This CIP codifies the pre-existing `UNION` and `UNION ALL` clauses as well as proposes the addition of new query combinators for set operations.
+This CIP codifies the pre-existing `UNION` and `UNION ALL` clauses as well as proposes the addition of new query combinators for set operations and pipelining.
 --
 
 toc::[]
@@ -39,27 +39,26 @@ This CIP proposes the introduction of several new multi-arm query combinators.
 * `EXCEPT ALL`
 * `EXCLUSIVE UNION`
 * `EXCLUSIVE UNION ALL`
-* `CROSS`
-* `CROSS ALL`
 * `OTHERWISE`
-* `OTHERWISE ALL`
+* `CROSS`
+* `THEN`
 
-Multi-arm query combinators can only appear as a primary clause (at the top-level of a query) using the syntax `<clause>+ RETURN ... [<combinator> <clause>+ RETURN ...]`.
+Multi-arm query combinators can only appear as a query  using the syntax `<query> [<combinator> <query>]+`.
 
 The `<combinator>` can be any of the combinators given above.
 Multi-arm query combinators are interpreted left-associative.
 Therefore in the following, we only consider combinator semantics regarding two arms (left and right).
 
+For all proposed query combinators but not for `CROSS` and `THEN`, the following standard rules regarding returned We fields apply:
+
 The `RETURN` clause of each arm is either a `RETURN *` or specifies record fields explicitly.
-All arms that specify record fields explicitly must specify the exact same set of record fields in the exact same order.
-If an arm ends in `RETURN *` it must implicitly return the exact same set of record fields as any other arm that specifies record fields explicitly.
-If all arms end in `RETURN *` they must return the exact same set of record fields.
+If both arms specify record fields explicitly, then they must specify the exact same set of record fields in the exact same order.
+If an arm ends in `RETURN *` and the other arm specifies record fields explicitly, it must implicitly return the exact same set of record fields as the other arm.
+If both arms end in `RETURN *` they must return the exact same set of record fields.
+If both arms end in `RETURN *`, the order of record fields is unspecified and left to the implementation.
 
-Multi-arm query combinators determine the result signature of a top-level query.
+Multi-arm query combinators may determine the result signature of a top-level query.
 If any arm specifies recod fields explicitly, the exact same set of record fields in the exact same order is returned by the whole query.
-If all arms end in `RETURN *`, the order of record fields is unspecified and left to the implementation.
-
-Additionally, query combinators may be used in a secondary clause position via nested subqueries (covered in separate CIP).
 
 === UNION
 
@@ -87,23 +86,28 @@ Additionally, query combinators may be used in a secondary clause position via n
 
 `EXCLUSIVE UNION ALL` computes the exclusive logical multiset union between two bags of input records (i.e. returns the largest remaining excess multiplicity of each record in any argument bag).
 
-=== CROSS
-
-`CROSS` computes the cartesian product between two sets of input records (i.e. discards any duplicates).
-
-`CROSS ALL` computes the cartesian product between two bags of input records (i.e. preserves duplicates).
-
-Contrary to the other query combinators, the rules regarding result fields do not apply to `CROSS` and `CROSS ALL`.
-Instead, the set of return fields of both arms of a `CROSS` or a `CROSS ALL` must be non-overlapping.
-The final result fields of a `CROSS` or a `CROSS ALL` are the exact same fields from the left arm in the exact same order given by the left arm followed by the exact same fields from the right arm in the exact same order given by the right arm.
-
 === OTHERWISE
 
-`OTHERWISE` computes the logical choice between two sets of input records.
-It evaluates to all distinct records from the left argument unless that set is empty in which case it evaluates to all distinct records from the right argument.
+`OTHERWISE` computes the logical choice between two bags of input records.
+It evaluates to all records from the left argument unless that bag is empty in which case it evaluates to all records from the right argument.
 
-`OTHERWISE ALL` computes the logical choice between two bags of input records.
-It evaluates to all records from the left argument unless that set is empty in which case it evaluates to all records from the right argument.
+=== CROSS
+
+`CROSS` computes the cartesian product between two bags of input records (i.e. preserves duplicates).
+
+Contrary to the other query combinators, the standard rules regarding returned record fields do not apply to `CROSS`.
+Instead, the set of returned record fields of both arms of a `CROSS` must be non-overlapping.
+The finally returned record fields of a `CROSS` are the exact same fields from the left arm in the exact same order given by the left arm followed by the exact same fields from the right arm in the exact same order given by the right arm.
+
+=== THEN
+
+`THEN` computes query-level pipelining, i.e. it executes the right-hand query for each input record from the left-hand side and returns the flattened concatenation of all such records produced.
+
+The main feature of `THEN` is that it allows pipelining between nested subqueries due to it's syntatic status as a query combinator.
+
+Contrary to the other query combinators, the standard rules regarding returned record fields do not apply to `THEN`.
+Instead, the set of returned record fields of both arms of `THEN` must be non-overlapping.
+The finally returned record fields of a `THEN` are the exact same fields from the right arm in the exact same order given by the right arm.
 
 === Handling of NULL values
 
@@ -127,8 +131,6 @@ SQL does not have `UNION MAX` (it has been suggested in the literature though).
 
 SQL allows `MINUS` as an alias for `EXCEPT`.
 
-SQL uses `CROSS JOIN` for `CROSS ALL` and does not provide `CROSS` directly.
-
 == What others do
 
 This proposal mainly follows SQL.
@@ -140,3 +142,7 @@ Set operations are added to the language.
 == Caveats to this proposal
 
 Increase in language complexity; adopting controversial `NULL` handling issues from SQL.
+
+This does not provide for aliasing of subqueries; henceforth set operations over the same argument queries need to repeat the argument subqueries.
+
+This could be addressed in a future CIP.
