@@ -95,7 +95,7 @@
     </alt>
   </production>
 
-  <production name="StartingClause">
+  <production name="StartingClause" rr:inline="true">
     <alt>
       <non-terminal ref="LoadCSV"/>
       <non-terminal ref="Start"/>
@@ -106,7 +106,7 @@
     </alt>
   </production>
 
-  <production name="StartAndEndClause">
+  <production name="StartAndEndClause" rr:inline="true">
     <alt>
       <non-terminal ref="Return"/>
       <non-terminal ref="Create"/>
@@ -116,7 +116,7 @@
     </alt>
   </production>
 
-  <production name="EndingClause">
+  <production name="EndingClause" rr:inline="true">
     <alt>
       <non-terminal ref="Return"/>
       <non-terminal ref="Create"/>
