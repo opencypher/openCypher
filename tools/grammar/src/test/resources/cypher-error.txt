@@ -2,7 +2,7 @@
 // clauses that are invalid on their own
 MATCH ()§
 OPTIONAL MATCH ()§
-START ()§
+START n = node(1)§
 WITH 1 AS a§
 UNWIND [] AS foo§
 LOAD CSV from $url AS list§
@@ -20,3 +20,8 @@ RETURN 1 WITH 2 AS foo§
 CREATE () MATCH () RETURN 1§
 CREATE () UNWIND [] AS foo RETURN 1§
 MERGE () UNWIND [] AS foo RETURN 1§
+MATCH (a), (b), (c)
+CREATE ()
+WITH *
+DELETE a
+RETURN a§
