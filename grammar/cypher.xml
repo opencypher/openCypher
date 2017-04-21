@@ -33,6 +33,7 @@
     <non-terminal ref="Statement"/>
     <opt>&WS; ;</opt>
     &WS;
+    <character set="EOI"/>
   </production>
 
 
