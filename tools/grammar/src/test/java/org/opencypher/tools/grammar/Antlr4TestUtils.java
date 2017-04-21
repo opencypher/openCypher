@@ -49,6 +49,14 @@ public class Antlr4TestUtils
         parse( g, query );
     }
 
+    static void parseLegacyWithListeners( String query, ANTLRErrorListener lexerListener, ANTLRErrorListener parserListener )
+    {
+        System.setProperty( INCLUDE_LEGACY.name(), "true" );
+
+        initLegacyGrammar( "/cypher.xml" );
+        parseWithListeners( legacyGrammar, query, lexerListener, parserListener );
+    }
+
     static void parseLegacy( String query )
     {
         System.setProperty( INCLUDE_LEGACY.name(), "true" );
@@ -99,12 +107,19 @@ public class Antlr4TestUtils
 
     private static void parse( Grammar grammar, String query )
     {
+        parseWithListeners( grammar, query,
+                new FailingErrorListener( query ),
+                new FailingErrorListener( query ) );
+    }
+
+    private static void parseWithListeners( Grammar grammar, String query, ANTLRErrorListener lexerListener, ANTLRErrorListener parserListener )
+    {
         LexerInterpreter lexer = grammar.createLexerInterpreter( new ANTLRInputStream( query ) );
         ParserInterpreter parser = grammar.createParserInterpreter( new CommonTokenStream( lexer ) );
         lexer.removeErrorListeners();
         parser.removeErrorListeners();
-        lexer.addErrorListener( new FailingErrorListener( query ) );
-        parser.addErrorListener( new FailingErrorListener( query ) );
+        lexer.addErrorListener( lexerListener );
+        parser.addErrorListener( parserListener );
         parser.parse( grammar.getRule( "cypher" ).index );
     }
 

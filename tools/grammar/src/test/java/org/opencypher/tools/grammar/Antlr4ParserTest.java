@@ -24,17 +24,49 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
+import javafx.util.Pair;
+import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.LexerInterpreter;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.atn.ATNConfigSet;
+import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.tool.ast.GrammarRootAST;
 import org.junit.Test;
 
+import static org.junit.Assert.fail;
+
 public class Antlr4ParserTest
 {
+
+    @Test
+    public void shouldReportInvalidCypher() throws FileNotFoundException, URISyntaxException
+    {
+        List<String> queries = getQueries( "/cypher-error.txt" );
+        Stream<Pair<Boolean,String>> results = queries.stream().map( query ->
+        {
+            SyntaxError lexerListener = new SyntaxError();
+            SyntaxError parserListener = new SyntaxError();
+            Antlr4TestUtils.parseLegacyWithListeners( query, lexerListener, parserListener );
+            return new Pair<>( parserListener.errorFound, query );
+        } );
+
+        results.forEach( r ->
+        {
+            if ( !r.getKey() )
+            {
+                fail( "Expected query to raise syntax error, but it did not: " + r.getValue() );
+            }
+        } );
+    }
 
     @Test
     public void shouldParseValidCypher() throws FileNotFoundException, URISyntaxException
@@ -67,12 +99,41 @@ public class Antlr4ParserTest
     {
         URL resource = getClass().getResource( queryFile );
         Scanner scanner = new Scanner( new FileReader( Paths.get( resource.toURI() ).toFile() ) );
-        scanner.useDelimiter( "§\n" );
+        scanner.useDelimiter( "§\n(//.*\n)*" );
         ArrayList<String> queries = new ArrayList<>();
-        while ( scanner.hasNext() )
-        {
-            queries.add( scanner.next() );
-        }
+            while ( scanner.hasNext() )
+            {
+                String next = scanner.next();
+                queries.add( next );
+            }
         return queries;
+    }
+
+    private static class SyntaxError implements ANTLRErrorListener
+    {
+        boolean errorFound = false;
+
+        @Override
+        public void syntaxError( Recognizer<?,?> recognizer, Object o, int i, int i1, String s, RecognitionException e )
+        {
+            errorFound = true;
+        }
+
+        @Override
+        public void reportAmbiguity( Parser parser, DFA dfa, int i, int i1, boolean b, BitSet bitSet,
+                ATNConfigSet atnConfigSet )
+        {
+        }
+
+        @Override
+        public void reportAttemptingFullContext( Parser parser, DFA dfa, int i, int i1, BitSet bitSet,
+                ATNConfigSet atnConfigSet )
+        {
+        }
+
+        @Override
+        public void reportContextSensitivity( Parser parser, DFA dfa, int i, int i1, int i2, ATNConfigSet atnConfigSet )
+        {
+        }
     }
 }
