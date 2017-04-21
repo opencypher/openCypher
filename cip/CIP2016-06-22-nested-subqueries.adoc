@@ -81,6 +81,7 @@ We propose the addition of read-only nested chained subqueries for using nested 
 This is called _subquery chaining_.
 
 After a chain of clauses, a new nested chained subquery may be introduced as a secondary clause using the `THEN` keyword followed by an inner query in curly braces, i.e. it is denoted using the following syntax: `... THEN { <inner-query> }`.
+`THEN` is a query combinator and more details may be found in the Query Combinator CIP.
 
 
 **3. Read-only nested optional subqueries**
