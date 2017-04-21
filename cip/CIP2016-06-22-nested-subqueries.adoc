@@ -23,12 +23,12 @@ Subqueries - i.e. queries within queries - are a powerful and expressive feature
   * Better query construction and readability
   * Easier query composition and reuse
   * Post-processing as a single unit results from multiple queries
-  * Perform a sequence of multiple write commands for each record
+  * Performing a sequence of multiple write commands for each record
 
 == Background
 
-This CIP may be viewed in light of the EXISTS CIP and the forthcoming Pattern Comprehension CIP, both of which propose variants of subqueries.
-In contrast, this CIP focusses on subqueries operating at a clause level while both the EXISTS CIP and the forthcoming Pattern Comprehension CIP propose subqueries operating at an expression level.
+This CIP may be viewed in light of the EXISTS CIP, the Scalar Subqueries and List Subqueries CIP, and the Map Projection CIP, all of which propose variants of subqueries.
+In contrast, this CIP focusses on subqueries operating at a clause level while the EXISTS CIP and Map Projection CIP propose subqueries operating at an expression level.
 
 == Proposal
 
@@ -41,9 +41,9 @@ This proposal suggests the introduction of new nested subquery constructs to Cyp
 * Read-only nested optional subqueries of the form `OPTIONAL { ... RETURN ... }`
 * Read-only nested mandatory subqueries of the form `MANDATORY { ... RETURN ... }`
 * Read/Write nested simple updating subqueries of the form `DO { ... }` (inner query not ending with `RETURN`)
-* Read/Write nested conditionally updating subqueries of the form `DO [WHEN cond THEN { ... }]+ [ELSE { ... }] END` (inner queries not ending with `RETURN`)
+* Read/Write nested conditionally-updating subqueries of the form `DO [WHEN cond THEN { ... }]+ [ELSE { ... }] END` (inner queries not ending with `RETURN`)
 
-A nested simple subquery just consists of an inner query in curly braces.
+A nested simple subquery consists of an inner query in curly braces.
 
 All other nested subquery constructs are introduced with a keyword in conjunction with an inner query in curly braces.
 
@@ -53,7 +53,7 @@ Nested subqueries can be contained within other nested subqueries at an arbitrar
 
 Read/Write nested subqueries cannot be contained within other read-only nested subqueries.
 
-Finally, this CIP proposes new shorthand syntax for starting a query with `WHERE` and for returning no fields through the introduction of `WITH -`, `RETURN -`, and `YIELD -`.
+Finally, this CIP proposes new shorthand syntax for starting a query with `WHERE`, along with the ability to specify that no fields are to be returned through the introduction of `WITH -`, `RETURN -`, and `YIELD -`.
 
 
 **1. Read-only nested simple subqueries**
@@ -62,17 +62,17 @@ We propose the addition of read-only nested simple subqueries as a new form of r
 
 A nested read-only simple subquery is denoted using the following syntax: `{ <inner-query> }`.
 
-The inner query could be any complete read-only Cypher query.
+The inner query can be any complete read-only Cypher query.
 
 A nested read-only simple subquery may only be used as a primary clause, i.e. as a
 
 * top-level Cypher query,
 * inner query of another nested subquery,
-* inner query of another expression-level subquery (like a pattern comprehension, or an `EXISTS` subquery),
+* inner query of another expression-level subquery (such as a pattern comprehension, or an `EXISTS` subquery),
 * argument query to `UNION` and similar clause-level binary operators
 
-A nested read-only simple subquery may not be used as a secondary clause after a preceding primary clause
-(However, a nested read-only chained subquery may be used in this case).
+A nested read-only simple subquery may not be used as a secondary clause after a preceding primary clause.
+(However, a nested read-only chained subquery may be used in this case.)
 
 
 **2. Read-only nested chained subqueries**
@@ -87,45 +87,58 @@ After a chain of clauses, a new nested chained subquery may be introduced as a s
 
 We propose the addition of a new `OPTIONAL` clause for expressing read-only nested optional subqueries.
 
-A read-only nested optional subquery is denoted using the following syntax: `OPTIONAL { <inner-query> }`.
+A read-only nested optional subquery is denoted by the following syntax: `OPTIONAL { <inner-query> }`.
 
 
 **4. Read-only nested mandatory subqueries**
 
 We propose the addition of a new `MANDATORY` clause for expressing read-only nested mandatory subqueries.
 
-A read-only nested mandatory subquery is denoted using the following syntax: `MANDATORY { <inner-query> }`.
+A read-only nested mandatory subquery is denoted by the following syntax: `MANDATORY { <inner-query> }`.
 
 
 **4. Read/Write nested simple updating subqueries**
 
-We propose the addition of a new `DO` clause for expressing read/write nested simple updating subqueries that _do no return any data_.
+We propose the addition of a new `DO` clause for expressing read/write nested simple updating subqueries that _do not return any data_.
 
-A read/write nested simple udating subquery is denoted using the following syntax: `DO { <inner-update-query> }`.
+A read/write nested simple updating subquery is denoted by the following syntax: `DO { <inner-update-query> }`.
 
 Any updating Cypher query from which the trailing final `RETURN` clause has been omitted may be used as an inner update query.
 
 We additionally propose removing the `FOREACH` clause from the current language as it is rendered obsolete by the introduction of `DO`.
 
 
-**5. Read/Write nested conditionally udating subqueries**
+**5. Read/Write nested conditionally-updating subqueries**
 
-We propose the addition of a second form of the `DO` clause for expressing read/write nested conditionally updating subqueries that _do no return any data_.
+We propose the addition of a second form of the `DO` clause for expressing read/write nested conditionally-updating subqueries that _do not return any data_.
 
-A read/write nested conditionally updating subquery is denoted using the following syntax: `DO { [WHEN <cond> THEN <inner-update-query>]+ [ELSE <inner-update-query>] END`.
+A read/write nested conditionally-updating subquery is denoted by the following syntax:
 
-Semantically, the `WHEN` conditions are tested in the order given, and the inner updating query is executed for the first condition that evaluates to true only.
-If no given `WHEN` condition evaluates to true and an `ELSE` branch was given, the inner updating query of the `ELSE` branch is executed.
-If no given `WHEN` condition evaluates to true and no `ELSE` branch was given, no updates will be executed.
+```
+DO
+  [WHEN <cond> THEN <inner-update-query>]+
+  [ELSE <inner-update-query>]
+END
+```
+
+
+Evaluation proceeds as follows:
+
+* Semantically, the `WHEN` conditions are tested in the order given, and the inner updating query is executed for only the first condition that evaluates to `true`.
+* If no given `WHEN` condition evaluates to `true` and an `ELSE` branch is provided, the inner updating query of the `ELSE` branch is executed.
+* If no given `WHEN` condition evaluates to `true` and no `ELSE` branch is provided, no updates will be executed.
 
 
 **6. Shorthand syntax**
 
-We propose the addition of a new clause `WHERE <cond> <subclauses>` as a shorthand syntax for `WITH * WHERE <cond> THEN { <subclauses> }` that may be used as a primary clause only (e.g. as the first clause of a nested subquery).
+We propose the addition of a new clause `WHERE <cond> <subclauses>` as a shorthand syntax for `WITH * WHERE <cond> THEN { <subclauses> }`.
+The idea is for this to be used exclusively as a primary clause; for example, as the first clause of a nested subquery.
 
-We propose the addition of a new projection clauses of the form `WITH -` and `RETURN -` which will retain the input cardinality but project no result fields, i.e. this allows for *only* checking the cardinality in a read-only nested mandatory subquery.
+We propose the addition of a new projection clauses of the form `WITH -` and `RETURN -`, which will retain the input cardinality but project no result fields.
+This allows for *only* checking the cardinality in a read-only nested mandatory subquery.
 
-We propose the addition of a new subclause to `CALL` of the form `YIELD -` which will retain the output cardinality of a call but project no result fields, i.e. this allows for *only* checking the cardinality in an `EXISTS` subquery.
+We propose the addition of a new subclause to `CALL` of the form `YIELD -`, which will retain the output cardinality of a call but project no result fields.
+This allows for *only* checking the cardinality in an `EXISTS` subquery.
 
 
 === Semantic clarification
@@ -134,11 +147,13 @@ We propose the addition of a new subclause to `CALL` of the form `YIELD -` which
 
 Conceptually, a nested subquery is evaluated for each incoming record and may produce an arbitrary number of result records.
 
-All incoming variables remain in scope throughout the whole subquery.
-Any new variable bindings introduced by the final `RETURN` clause when evaluating the subquery will augment the variable bindings of the initial record.
-It is valid (though redundant) if incoming variables from the outer scope are passed on explicitly by any projection clause of the subquery (including the final `RETURN`).
-Therefore, nested subqueries cannot shadow variables present in the outer scope, and thus behave in the same way as `UNWIND` and `CALL` with regard to the introduction of new variable bindings.
-Any other variable bindings that are introduced temporarily in the subquery will not be visible to the outer scope.
+The rules regarding variable scoping are detailed as follows:
+
+* All incoming variables remain in scope throughout the whole subquery.
+* When evaluating the subquery, any new variable bindings introduced by the final `RETURN` clause will augment the variable bindings of the initial record.
+* It is valid (though redundant) if incoming variables from the outer scope are passed on explicitly by any projection clause of the subquery (including the final `RETURN`).
+* Nested subqueries therefore cannot shadow variables present in the outer scope, and thus behave in the same way as `UNWIND` and `CALL` with regard to the introduction of new variable bindings.
+* Any other variable bindings that are introduced temporarily in the subquery will not be visible to the outer scope.
 
 Subqueries interact with write clauses in the same way as `MATCH` does.
 
@@ -282,7 +297,7 @@ RETURN name
 ----
 
 
-**3. Read/Write nested simple and conditionally updating subqueries**
+**3. Read/Write nested simple and conditionally-updating subqueries**
 
 We illustrate these by means of an 'old' version of the query, in which `FOREACH` is used, followed by the 'new' version, using `DO`.
 
@@ -418,7 +433,7 @@ FROM
   FROM Orders) AS D
 ----
 
-Both scalar and table expression subqueries are out of scope for the purposes of this CIP. They will be addressed in forthcoming CIPs.
+Scalar and list subqueries are addressed in the Scalar Subqueries and List Subqueries CIP.
 
 === SPARQL
 
