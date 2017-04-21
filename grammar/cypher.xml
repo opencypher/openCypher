@@ -67,11 +67,6 @@
     <non-terminal ref="LoadCSVQuery"/>
   </production>
 
-  <production name="SingleQuery" rr:inline="true">
-    <non-terminal ref="Clause"/>
-    <repeat>&WS; <non-terminal ref="Clause"/></repeat>
-  </production>
-
   <production name="PeriodicCommitHint" rr:inline="true" oc:legacy="true">
     USING &SP; PERIODIC &SP; COMMIT
     <opt>&SP;<non-terminal ref="IntegerLiteral"/></opt>
@@ -86,6 +81,51 @@
     <alt>
       <seq>UNION &SP; ALL &WS;<non-terminal ref="SingleQuery"/></seq>
       <seq>UNION &WS;<non-terminal ref="SingleQuery"/></seq>
+    </alt>
+  </production>
+
+  <production name="SingleQuery" rr:inline="true">
+    <alt>
+      <seq>
+        <non-terminal ref="StartingClause"/> &WS;
+        <repeat><non-terminal ref="Clause"/> &WS;</repeat>
+        <non-terminal ref="EndingClause"/>
+      </seq>
+      <non-terminal ref="StartAndEndClause"/>
+    </alt>
+  </production>
+
+  <production name="StartingClause">
+    <alt>
+      <non-terminal ref="LoadCSV"/>
+      <non-terminal ref="Start"/>
+      <non-terminal ref="Match"/>
+      <non-terminal ref="Unwind"/>
+      <non-terminal ref="InQueryCall"/>
+      <non-terminal ref="With"/>
+    </alt>
+  </production>
+
+  <production name="StartAndEndClause">
+    <alt>
+      <non-terminal ref="Return"/>
+      <non-terminal ref="Create"/>
+      <non-terminal ref="Merge"/>
+      <non-terminal ref="CreateUnique"/>
+      <non-terminal ref="Foreach"/>
+    </alt>
+  </production>
+
+  <production name="EndingClause">
+    <alt>
+      <non-terminal ref="Return"/>
+      <non-terminal ref="Create"/>
+      <non-terminal ref="Merge"/>
+      <non-terminal ref="CreateUnique"/>
+      <non-terminal ref="Foreach"/>
+      <non-terminal ref="Delete"/>
+      <non-terminal ref="Set"/>
+      <non-terminal ref="Remove"/>
     </alt>
   </production>
 
