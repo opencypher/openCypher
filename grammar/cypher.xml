@@ -100,12 +100,12 @@
     </alt>
   </production>
 
-  <production name="ReadOnlyEnd">
+  <production name="ReadOnlyEnd" rr:inline="true">
     <non-terminal ref="ReadPart"/>
     <non-terminal ref="Return"/>
   </production>
 
-  <production name="ReadUpdateEnd">
+  <production name="ReadUpdateEnd" rr:inline="true">
     <non-terminal ref="ReadingClauseExceptWith"/>
     <repeat>
       &WS; <non-terminal ref="ReadingClauseExceptWith"/>
@@ -116,7 +116,7 @@
     <opt>&WS; <non-terminal ref="Return"/></opt>
   </production>
 
-  <production name="UpdatingEnd">
+  <production name="UpdatingEnd" rr:inline="true">
     <non-terminal ref="UpdatingStartClause"/>
     <repeat>
       &WS; <non-terminal ref="UpdatingClause"/>
@@ -146,13 +146,13 @@
     <non-terminal ref="SinglePartQuery"/>
   </production>
 
-  <production name="ReadPart">
+  <production name="ReadPart" rr:inline="true">
     <repeat>
       <non-terminal ref="ReadingClauseExceptWith"/> &WS;
     </repeat>
   </production>
 
-  <production name="UpdatingPart">
+  <production name="UpdatingPart" rr:inline="true">
     <repeat>
       <non-terminal ref="UpdatingClause"/> &WS;
     </repeat>
