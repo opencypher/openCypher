@@ -396,7 +396,7 @@
     </alt>
   </production>
 
-  <production name="CaseExpression" oc:legacy="true">
+  <production name="CaseExpression">
     <alt>
       <seq>CASE <repeat min="1">&WS; <non-terminal ref="CaseAlternatives"/></repeat></seq>
       <seq>CASE &WS; &expr; <repeat min="1">&WS; <non-terminal ref="CaseAlternatives"/></repeat></seq>
@@ -405,7 +405,7 @@
     &WS; END
   </production>
 
-  <production name="CaseAlternatives" rr:inline="true" oc:legacy="true">
+  <production name="CaseAlternatives" rr:inline="true">
     WHEN &WS; &expr; &WS; THEN &WS; &expr;
   </production>
 
@@ -646,6 +646,11 @@
       FOR
       REQUIRE
       UNIQUE
+      CASE
+      WHEN
+      THEN
+      ELSE
+      END
     </alt>
   </production>
 

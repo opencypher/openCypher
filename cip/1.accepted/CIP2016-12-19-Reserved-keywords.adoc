@@ -63,10 +63,13 @@ In addition to this, we list a number of words that are reserved for future use.
 * ASCENDING
 * BY
 * CREATE
+* CASE
 * DELETE
 * DESC
 * DESCENDING
 * DETACH
+* ELSE
+* END
 * EXISTS
 * LIMIT
 * MATCH
@@ -78,6 +81,8 @@ In addition to this, we list a number of words that are reserved for future use.
 * RETURN
 * SET
 * SKIP
+* THEN
+* WHEN
 * WHERE
 * WITH
 * UNION
