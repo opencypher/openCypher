@@ -106,9 +106,9 @@
   </production>
 
   <production name="ReadUpdateEnd" rr:inline="true">
-    <non-terminal ref="ReadingClauseExceptWith"/>
+    <non-terminal ref="ReadingClause"/>
     <repeat>
-      &WS; <non-terminal ref="ReadingClauseExceptWith"/>
+      &WS; <non-terminal ref="ReadingClause"/>
     </repeat>
     <repeat min="1">
       &WS; <non-terminal ref="UpdatingClause"/>
@@ -148,7 +148,7 @@
 
   <production name="ReadPart" rr:inline="true">
     <repeat>
-      <non-terminal ref="ReadingClauseExceptWith"/> &WS;
+      <non-terminal ref="ReadingClause"/> &WS;
     </repeat>
   </production>
 
@@ -179,7 +179,7 @@
     </alt>
   </production>
 
-  <production name="ReadingClauseExceptWith" rr:inline="true">
+  <production name="ReadingClause" rr:inline="true">
     <alt>
       <non-terminal ref="LoadCSV"/>
       <non-terminal ref="Start"/>
