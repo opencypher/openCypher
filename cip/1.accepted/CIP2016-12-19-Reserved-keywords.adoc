@@ -116,10 +116,15 @@ In addition to this, we list a number of words that are reserved for future use.
 
 ===== Reserved for future use
 
+* ADD
 * CONSTRAINT
 * DO
+* DROP
 * FOR
+* MANDATORY
+* OF
 * REQUIRE
+* SCALAR
 * UNIQUE
 
 ==== Examples

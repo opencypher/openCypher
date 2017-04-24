@@ -651,6 +651,11 @@
       THEN
       ELSE
       END
+      MANDATORY
+      SCALAR
+      OF
+      ADD
+      DROP
     </alt>
   </production>
 
