@@ -332,7 +332,7 @@
 
   <production name="FilterExpression">
     <non-terminal ref="IdInColl"/>
-    <opt>&WS;<non-terminal ref="Where"/></opt>
+    <opt>&WS;<non-terminal ref="Where"/>&SP;<non-terminal ref="Expression"/></opt>
   </production>
 
   <production name="IdInColl" rr:inline="true">
