@@ -1,0 +1,71 @@
+= CIP2016-12-19-UNWIND
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Mats Rydberg <mats@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+This CIP details the `UNWIND` clause, which can be used to turn a list into a set of records.
+--
+
+toc::[]
+
+== Proposal
+
+In Cypher, the `collect()` aggregator collapses the records of a query into a list (or groups of lists).
+The `UNWIND` clause provides the inverse of these semantics, turning an argument list into a set of records, one for each element, and producing as output the product of the incoming records and the list records.
+
+=== Syntax
+
+The syntax for `UNWIND` follows the simple pattern below.
+
+.UNWIND clause:
+[source, ebnf]
+----
+unwind = "UNWIND", expression, "AS", variable ;
+----
+
+=== Semantics
+
+The argument to the `UNWIND` clause is an expression that is assumed to be a list.
+In case it is not a list, the value of the expression will be considered as comprising a single-element list.
+
+The cardinality of the query after the `UNWIND` will be the product of the incoming cardinality and the size of the argument list.
+
+No fields are hidden by the `UNWIND` clause, which is to say that it functions similarly to `WITH *`.
+In fact, in case the argument to `UNWIND` is a single-element list, or not a list, `UNWIND` will function purely as an aliasing operation.
+
+=== Examples
+
+.Unwinding a literal list:
+[source, cypher]
+----
+WITH [1, 2, 3] AS list
+UNWIND list AS number
+RETURN number
+----
+
+The result of executing the above query will be three records with one field `number` containing the values `1`, `2`, and `3`, respectively.
+
+.Unwinding a collected list:
+[source, cypher]
+----
+MATCH (:Person {name: $parent})<-[:CHILD_OF]-(child:Person)
+WITH $parent AS parent, collect(child.age) AS childAges
+UNWIND [age IN childAges WHERE age < $param] AS youngChild
+RETURN parent, youngChild
+----
+
+.Unwinding a non-list
+[source, cypher]
+----
+WITH 1 AS one, 2 AS two
+UNWIND one AS element
+RETURN one, two, element
+----
+
+The above query will return a single record with the field/value pairs `one: 1`, `two: 2`, `element: 1`.
