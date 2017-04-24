@@ -113,6 +113,7 @@
     <repeat min="1">
       &WS; <non-terminal ref="UpdatingClause"/>
     </repeat>
+    <opt>&WS; <non-terminal ref="Return"/></opt>
   </production>
 
   <production name="UpdatingEnd">
@@ -120,6 +121,7 @@
     <repeat>
       &WS; <non-terminal ref="UpdatingClause"/>
     </repeat>
+    <opt>&WS; <non-terminal ref="Return"/></opt>
   </production>
 
   <production name="MultiPartQuery">
@@ -132,10 +134,13 @@
       </seq>
     </alt>
 
-    <repeat min="1">
-      <non-terminal ref="With"/> &WS;
+    <non-terminal ref="With"/>
+    &WS;
+
+    <repeat>
       <non-terminal ref="ReadPart"/>
       <non-terminal ref="UpdatingPart"/>
+      <non-terminal ref="With"/> &WS;
     </repeat>
 
     <non-terminal ref="SinglePartQuery"/>
