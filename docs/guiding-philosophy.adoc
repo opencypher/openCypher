@@ -19,3 +19,4 @@ Suggestions for changing the language ought to be guided by the following rules:
 13. Progress is more important than perfection, but consideration beats hastiness.
 14. Don’t leave holes in the specification that allow the implementation to leak through.
 15. Never be too proud to throw something away.
+16. Only raise errors if necessary; raised errors must not be opaque.
