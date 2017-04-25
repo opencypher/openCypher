@@ -35,6 +35,7 @@ The argument to the `UNWIND` clause is an expression that is assumed to be a lis
 In case it is not a list, the value of the expression will be considered as comprising a single-element list.
 
 The cardinality of the query after the `UNWIND` will be the product of the incoming cardinality and the size of the argument list.
+This means that _single-element lists_ will just be unwrapped into a new variable, and _empty lists_ will cancel out the cardinality of the surrounding context, effectively halting execution of that query branch.
 
 No fields are hidden by the `UNWIND` clause, which is to say that it functions similarly to `WITH *`.
 In fact, in case the argument to `UNWIND` is a single-element list, or not a list, `UNWIND` will function purely as an aliasing operation.
