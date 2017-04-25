@@ -74,16 +74,19 @@ In addition to this, we list a number of words that are reserved for future use.
 
 ===== Subclauses
 
+* LIMIT
+* ORDER
+* SKIP
+* WHERE
+
+===== Modifiers
+
 * ASC
 * ASCENDING
 * BY
 * DESC
 * DESCENDING
-* LIMIT
 * ON
-* ORDER
-* SKIP
-* WHERE
 
 ===== Expressions
 
