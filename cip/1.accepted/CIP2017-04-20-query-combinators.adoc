@@ -32,6 +32,7 @@ This CIP proposes the introduction of several new multi-arm query combinators:
 
 * `UNION`
 * `UNION MAX`
+* `UNION MIN`
 * `UNION ALL`
 * `INTERSECT`
 * `INTERSECT ALL`
@@ -43,7 +44,7 @@ This CIP proposes the introduction of several new multi-arm query combinators:
 * `CROSS`
 * `THEN`
 
-Multi-arm query combinators can only appear within a query using the syntax `<query> [<combinator> <query>]+`.
+Multi-arm query combinators can only be used to constuct a compound multi-arm query using the syntax `<query> [<combinator> <query>]+`.
 
 The `<combinator>` can be any of the combinators given above.
 Multi-arm query combinators are interpreted left-associative; that is, the operations are grouped from the left.
@@ -64,9 +65,12 @@ If any arm specifies record fields explicitly, the same set of record fields in 
 
 `UNION` computes the logical set union between two sets of input records (i.e. any duplicates are discarded).
 
-`UNION MAX` computes the logical multiset union between two bags of input records (i.e. preserves the largest number of duplicates from either arm).
-
 `UNION ALL` computes the logical multiset union between two bags of input records (i.e. all duplicates from both arms are retained).
+
+`UNION MAX` computes the logical max-bounded multiset union between two bags of input records (i.e. retains the largest number of duplicates from either arm).
+
+`UNION MIN` computes the logical min-bounded multiset union between two bags of input records (i.e. retains the smallest, non-zero number of duplicates from either arm).
+
 
 === INTERSECT
 
@@ -107,7 +111,8 @@ The main feature of `THEN` is that it allows pipelining between nested subquerie
 This is due to its syntactic status as a query combinator.
 
 In contrast to the other query combinators, the standard rules regarding returned record fields do not apply to `THEN`.
-Instead, the set of returned record fields of both arms of `THEN` must be non-overlapping.
+Instead, the set of returned record fields of both arms of `THEN` may overlap arbitrarily.
+All record fields that are returned in the left arm are made visible at the start of the right-arm query.
 `THEN` returns the record fields that are specified in the right arm, in the order specified in the right arm.
 
 === Handling of NULL values
@@ -128,7 +133,7 @@ This CIP adds `INTERSECT`, `EXCLUSIVE`, and `OTHERWISE` as new keywords.
 
 `OTHERWISE` is not provided by SQL and could be omitted.
 
-SQL does not have `UNION MAX` (it has been suggested in the literature though).
+SQL does not have `UNION MIN` or `UNION MAX` (it has been suggested in the literature though).
 
 SQL allows `MINUS` as an alias for `EXCEPT`.
 
@@ -145,5 +150,4 @@ Set operations are added to the language.
 Increase in language complexity; adopting controversial `null` handling issues from SQL.
 
 This does not consider aliasing of subqueries; henceforth set operations over the same argument queries need to repeat the argument subqueries.
-
 This could be addressed in a future CIP.
