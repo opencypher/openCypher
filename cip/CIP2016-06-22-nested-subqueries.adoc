@@ -22,7 +22,7 @@ Subqueries - i.e. queries within queries - are a powerful and expressive feature
   * Increased query expressivity
   * Better query construction and readability
   * Easier query composition and reuse
-  * Post-processing as a single unit results from multiple queries
+  * Post-processing results from multiple queries as a single unit
   * Performing a sequence of multiple write commands for each record
 
 == Background
@@ -77,10 +77,10 @@ A nested read-only simple subquery may not be used as a secondary clause after a
 
 **2. Read-only nested chained subqueries**
 
-We propose the addition of read-only nested chained subqueries for using nested subqueries as a secondary clause.
+We propose the addition of read-only nested chained subqueries for using nested subqueries in a similar position as a secondary clause.
 This is called _subquery chaining_.
 
-After a chain of clauses, a new nested chained subquery may be introduced as a secondary clause using the `THEN` keyword followed by an inner query in curly braces, i.e. it is denoted using the following syntax: `... THEN { <inner-query> }`.
+After a chain of clauses that together form a query, a new nested chained subquery may be introduced as a secondary clause using the `THEN` keyword followed by an inner query in curly braces, i.e. it is denoted using the following syntax: `... THEN { <inner-query> }`.
 `THEN` is a query combinator and more details may be found in the Query Combinator CIP.
 
 
