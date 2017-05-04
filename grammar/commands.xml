@@ -69,7 +69,7 @@
   <!-- / NEW CONSTRAINT SYNTAX \ -->
 
   <production name="CreateConstraint">
-    CREATE &SP; CONSTRAINT &SP; <non-terminal ref="ConstraintName"/> &SP;
+    ADD &SP; CONSTRAINT &SP; <non-terminal ref="ConstraintName"/> &SP;
     FOR &SP; <non-terminal ref="ConstraintPattern"/> &SP;
     REQUIRE &SP; <non-terminal ref="ConstraintExpression"/>
   </production>
@@ -91,17 +91,18 @@
 
   <production name="ConstraintExpression">
     <alt>
-      <non-terminal ref="NodePropertyUniquenessConstraint"/>
-      <non-terminal ref="PropertyExistenceConstraint"/>
+      <non-terminal ref="Uniqueness"/>
+      <non-terminal ref="NodeKey"/>
+      <non-terminal ref="Expression"/>
     </alt>
   </production>
 
-  <production name="NodePropertyUniquenessConstraint">
-    UNIQUE &SP; <non-terminal ref="PropertyExpression"/> <repeat>&WS; , &WS; <non-terminal ref="PropertyExpression"/></repeat>
+  <production name="Uniqueness">
+    UNIQUE &SP; <non-terminal ref="PropertyExpression"/>
   </production>
 
-  <production name="PropertyExistenceConstraint">
-    exists ( <non-terminal ref="PropertyExpression"/> )
+  <production name="NodeKey">
+    NODE &SP; KEY &SP; <non-terminal ref="PropertyExpression"/> <repeat>&WS; , &WS; <non-terminal ref="PropertyExpression"/></repeat>
   </production>
 
   <!-- / LEGACY COMMANDS \ -->

@@ -312,16 +312,22 @@ CALL db.labels() YIELD *
 WHERE label CONTAINS 'User' AND foo + bar = foo
 RETURN count(label) AS numLabels§
 CALL db.labels() YIELD x WHERE label CONTAINS 'User' AND foo + bar = foo RETURN count(label) AS numLabels§
-CREATE CONSTRAINT foo
+ADD CONSTRAINT foo
 FOR (p:Person)
 REQUIRE UNIQUE p.name§
-CREATE CONSTRAINT bar
-FOR (p:Person)
-REQUIRE UNIQUE p.name, p.email§
-CREATE CONSTRAINT baz
+ADD CONSTRAINT baz
 FOR (p:Person)
 REQUIRE exists(p.name)§
-CREATE CONSTRAINT cru
+ADD CONSTRAINT cru
 FOR ()-[r:REL]-()
 REQUIRE exists(r.property)§
 DROP CONSTRAINT foo_bar_baz§
+ADD CONSTRAINT nodeKey
+FOR (n:Node)
+REQUIRE NODE KEY n.prop§
+ADD CONSTRAINT nodeKey
+FOR (n:Node)
+REQUIRE NODE KEY n.p1, n.p2, n.p3§
+ADD CONSTRAINT nodeKey
+FOR (n:Node)
+REQUIRE NODE KEY n.p1   ,n.p2,    n.p3§
