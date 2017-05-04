@@ -716,6 +716,8 @@
       ANY
       NONE
       SINGLE
+      NODE
+      KEY
     </alt>
   </production>
 
