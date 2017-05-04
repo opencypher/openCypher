@@ -55,7 +55,7 @@ public class Antlr4ParserTest
         String query = "CREATE (a)";
         org.antlr.v4.Tool tool = new org.antlr.v4.Tool();
 
-        GrammarRootAST ast = tool.parseGrammarFromString( new String( Files.readAllBytes(Paths.get("/Users/mats/gitRoots/openCypher/grammar/generated/Cypher.g4"))) );
+        GrammarRootAST ast = tool.parseGrammarFromString( new String( Files.readAllBytes(Paths.get("../../grammar/generated/Cypher.g4"))) );
         org.antlr.v4.tool.Grammar g = tool.createGrammar( ast );
         tool.process( g, false );
 
