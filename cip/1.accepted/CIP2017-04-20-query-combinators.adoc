@@ -31,15 +31,14 @@ The most notable example of query combinators are _set operations_.
 This CIP proposes the introduction of several new multi-arm query combinators:
 
 * `UNION`
-* `UNION MAX`
-* `UNION MIN`
 * `UNION ALL`
+* `UNION MAX`
 * `INTERSECT`
 * `INTERSECT ALL`
 * `EXCEPT`
 * `EXCEPT ALL`
 * `EXCLUSIVE UNION`
-* `EXCLUSIVE UNION ALL`
+* `EXCLUSIVE UNION MAX`
 * `OTHERWISE`
 * `CROSS`
 * `THEN`
@@ -65,11 +64,9 @@ If any arm specifies record fields explicitly, the same set of record fields in 
 
 `UNION` computes the logical set union between two sets of input records (i.e. any duplicates are discarded).
 
-`UNION ALL` computes the logical multiset union between two bags of input records (i.e. all duplicates from both arms are retained).
+`UNION ALL` computes the logical multiset sum between two bags of input records (i.e. all duplicates from both arms are retained).
 
 `UNION MAX` computes the logical max-bounded multiset union between two bags of input records (i.e. retains the largest number of duplicates from either arm).
-
-`UNION MIN` computes the logical min-bounded multiset union between two bags of input records (i.e. retains the smallest, non-zero number of duplicates from either arm).
 
 
 === INTERSECT
@@ -88,7 +85,7 @@ If any arm specifies record fields explicitly, the same set of record fields in 
 
 `EXCLUSIVE UNION` computes the exclusive logical set union between two sets of input records (i.e. any duplicates in the final outcome are discarded).
 
-`EXCLUSIVE UNION ALL` computes the exclusive logical multiset union between two bags of input records (i.e. the largest remaining excess multiplicity of each record in any argument bag is returned).
+`EXCLUSIVE UNION MAX` computes the exclusive logical multiset union between two bags of input records (i.e. the largest remaining excess multiplicity of each record in any argument bag is returned).
 
 === OTHERWISE
 
@@ -129,11 +126,11 @@ This CIP adds `INTERSECT`, `EXCLUSIVE`, and `OTHERWISE` as new keywords.
 
 === Alternatives
 
-`EXCLUSIVE UNION` is not provided by SQL and could be omitted.
+SQL does not provide `UNION MAX` (it has been suggested in the literature though).
+
+`EXCLUSIVE UNION` and `EXCLUSIVE UNION MAX` are not provided by SQL and could be omitted.
 
 `OTHERWISE` is not provided by SQL and could be omitted.
-
-SQL does not have `UNION MIN` or `UNION MAX` (it has been suggested in the literature though).
 
 SQL allows `MINUS` as an alias for `EXCEPT`.
 
