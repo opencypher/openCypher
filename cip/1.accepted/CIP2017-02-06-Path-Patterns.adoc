@@ -362,27 +362,27 @@ In the table below `𝑣` is partial function from a variable `x` to the memory 
 
 | Single edge.
 | `⟦a, 𝑣⟧^G^ = {(v, w) \| (v, a, w) ∈ E }`
-| `(v)-[:a]->(w)`
+| `(v)-[:a]\->(w)`
 
 | Inversion of single edge.
 | `⟦a^-^, 𝑣⟧^G^ = {(v, w) \| (w, a, v) ∈ E }`
-| `(v)-[<:a]->(w)`
+| `(v)-[<:a]\->(w)`
 
 | Concatenation.
 | `⟦𝜶 · 𝛽, 𝑣⟧^G^ = ⟦𝜶, 𝑣⟧^G^ ⸰ ⟦𝛽, 𝑣⟧^G^`
-| `(v)-[𝜶 𝛽]->(w)`
+| `(v)-[𝜶 𝛽]\->(w)`
 
 | Disjunction.
 | `⟦𝜶 ∪ 𝛽, 𝑣⟧^G^ = ⟦𝜶, 𝑣⟧^G^ ∪ ⟦𝛽, 𝑣⟧^G^`
-| `(v)-[𝜶 \| 𝛽]->(w)`
+| `(v)-[𝜶 \| 𝛽]\->(w)`
 
 | Transitive closure.
 | `⟦𝜶^+^, 𝑣⟧^G^ =` transitive closure of `⟦𝜶, 𝑣⟧^G^`
-| `(v)-[𝜶+]->(w)`
+| `(v)-[𝜶+]\->(w)`
 
 | Data value (and memory state 𝑣) matching condition `c`.
 | `⟦𝜶[c], 𝑣⟧^G^ = {(v, w) \| (v, w) ∈ ⟦𝜶, 𝑣⟧^G^, (𝜌(w),𝑣)⊨c }`
-| `(v)-[𝜶]->(w) WHERE c`
+| `(v)-[𝜶]\->(w) WHERE c`
 
 | Assignment of variable.
 | `⟦↓[overline]#x#.{𝜶}, 𝑣⟧^G^ = {(v,w ) \| (v, w) ∈ ⟦𝜶, 𝑣［[overline]#x# = 𝜌(v)］⟧^G^}`
