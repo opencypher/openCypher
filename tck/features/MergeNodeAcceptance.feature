@@ -468,7 +468,6 @@ Feature: MergeNodeAcceptance
     And the side effects should be:
       | +nodes  | 1 |
       | -nodes  | 2 |
-      | +labels | 1 |
 
   Scenario: ON CREATE on created nodes
     Given an empty graph
