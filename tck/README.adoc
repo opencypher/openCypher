@@ -66,18 +66,18 @@ Scenario: Indexing a list with a string
 <2> This step is used to specify an initialization query by scenarios that require certain patterns to exist in the graph.
 <3> If `Q` uses parameters, this step will specify a two-column table detailing the required parameter names and values. The parameter values are in the same format as the expected results.
 <4> The actual Cypher query, `Q`.
-<5> This step specifies the expected results of executing `Q`, represented in a table format if not empty. The first row contains the column names, and subsequent rows contain values. However, if `Q` contains an `ORDER BY` clause, then this line should instead be `Then the result should be, in order:`, thus ensuring that the result table will be ordered by the first column appearing after `ORDER BY`.
+<5> This step specifies the expected results of executing `Q`, represented in a table format if not empty. The first row contains the column names, and subsequent rows contain values. However, if `Q` contains a `RETURN` clause with an `ORDER BY` subclause, then this line should instead be `Then the result should be, in order:`, thus ensuring that the result table will be ordered by the first column appearing after `ORDER BY`.
 <6> This step specifies the expected side effects of executing `Q`, with the side effect name and the relevant quantity. Read about the possible side effects in <<side-effects>>.
-<7> This step specifies the expected error should be raised by executing the invalid `Q`. This step is described in detail in <<errors>>.
+<7> This step specifies the expected error that should be raised by executing the invalid `Q`. This step is described in detail in <<errors>>.
 
 [[named-graphs]]
 === Graphs for initial states
 
 The keyword `Given` in the TCK's scenarios specifies the required initial state for the scenario.
 In order to not obfuscate the purpose of the scenario - which is to display the behaviour of the query - the initial state is usually simple.
-Certain queries do require a more complex graph structure in order to yield less obvious behavior, and in these cases a named graph included in the TCK will need to be set up by the implementation before the query is executed.
+Certain queries do require a more complex graph structure in order to yield less obvious behavior, and in these cases a named graph included in the TCK must be set up by the implementation before the query is executed.
 
-The TCK currently supports these named graphs:
+The TCK currently contains these named graphs:
 
 * binary-tree-1
 ** A binary tree of depth 4, with only label `:X` on non-root nodes, and three different relationship types.
@@ -108,9 +108,9 @@ For 'negative' tests, where errors are expected (see <<errors>>), it is implied 
 Values that can be returned from Cypher can be categorized into three groups: primitives (integers, floats, booleans, and strings), containers (lists and maps), and graph elements (nodes, relationships, and paths).
 Please refer to the https://github.com/opencypher/openCypher/blob/master/cip/CIP2015-09-16-public-type-system-type-annotation.adoc[Cypher Type System specification] for more information about types and values in Cypher.
 
-Unless there is an `ORDER BY` present in the Cypher query, Cypher provides no guarantees as to the order in which the values are returned.
-In theory, this means that executing the same query twice could yield the same values returned in different orders.
-For this reason, the rows of the expected results table are to be considered a set, rather than a list, unless there is an `ORDER BY` clause in the query.
+Unless there is an `ORDER BY` present in the `RETURN` clause of the Cypher query, Cypher provides no guarantees as to the order in which the records are returned.
+In theory, this means that executing the same query twice could yield the same records returned in different orders.
+For this reason, the rows of the expected results table are to be considered a set, rather than a list, unless the above condition on the `RETURN` clause is met.
 
 * Primitives:
 ** An integer will be written as a simple string of decimal digits.
@@ -132,11 +132,12 @@ For this reason, the rows of the expected results table are to be considered a s
 ** A path will be written as `<n~0~, r~1~, n~1~, r~2~, ..., r~k~, n~k~>`, where `n~i~` and `r~i~` are the nodes and relationships, respectively, that make up the path.
 *** Note that the smallest possible path, with length zero, consists of one node and zero relationships.
 
-=== How to implement the TCK
+=== Downloading the TCK
 
-In order to implement the Cypher TCK, you will have to retrieve the full suite of TCK feature files, hosted at this GitHub repository, https://github.com/opencypher/openCypher/tree/master/tck/features[in this subdirectory].
+In order to implement the Cypher TCK, you will have to retrieve the full suite of TCK feature files, which are best found at the http://www.opencypher.org/#resources[openCypher website] (stable and snapshot) or in this GitHub repository under `features`.
 
-// TODO: Mention Cucumber ?
+The TCK feature files are also included in the `resources` path of a Maven JAR archive that is periodically released as part of the openCypher release process.
+Find the latest version via https://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.opencypher%22%20AND%20a%3A%22tck%22[Maven Central].
 
 [[errors]]
 === Cypher errors
