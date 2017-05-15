@@ -102,6 +102,63 @@ If the side effects step reads `And no side effects`, this implies that all quan
 
 For 'negative' tests, where errors are expected (see <<errors>>), it is implied that the graph suffers no side effects.
 
+==== Observability of side effects
+
+In order for a side effect to be reported, it has to be _observable_ from the point of view of a subsequent Cypher query executed against the same graph.
+This means that side effects that are only temporarily in effect during the execution of a query are not measured in this metric.
+
+For example, the query `CREATE (n) DELETE n`, which creates a node only to immediately delete it, may be correctly implemented as a no-op by a Cypher implementation, and a TCK scenario featuring it should not specify any side effects.
+
+Concretely, observability of each metric is defined by one Cypher query per metric, which will present the metric as the difference in returned records from executing the query before and after the query `Q` under test.
+These defining queries are listed in the following.
+
+===== Nodes
+
+.Observability of the `nodes` metric:
+[source, cypher]
+----
+MATCH (n)
+RETURN n
+----
+
+===== Relationships
+
+.Observability of the `relationships` metric:
+[source, cypher]
+----
+MATCH ()-[r]->()
+RETURN r
+----
+
+===== Properties
+
+.Observability of the `properties` metric:
+[source, cypher]
+----
+MATCH (n)
+UNWIND keys(n) AS key
+WITH properties(n) AS properties, key, n
+RETURN n AS entity, key, properties[key] AS value
+UNION ALL
+MATCH ()-[r]->()
+UNWIND keys(r) AS key
+WITH properties(r) AS properties, key, r
+RETURN r AS entity, key, properties[key] AS value
+----
+
+Note that in the definition above, a property is defined as the triple of containing entity, key, and value.
+Therefore the operation of copying a property between two entities will be noted as one removal and one addition in the side effects.
+
+===== Labels
+
+.Observability of the `labels` metric:
+[source, cypher]
+----
+MATCH (n)
+UNWIND labels(n) AS label
+RETURN DISTINCT label
+----
+
 [[results-format]]
 === Format of the expected results
 
