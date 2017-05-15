@@ -370,7 +370,14 @@
   </production>
 
   <production name="ProcedureName" rr:inline="true">
+    <non-terminal ref="Namespace" rr:title="procedure namespace"/>
     <non-terminal ref="SymbolicName" rr:title="procedure name"/>
+  </production>
+
+  <production name="Namespace" rr:inline="true">
+    <repeat>
+      <non-terminal ref="SymbolicName"/> .
+    </repeat>
   </production>
 
   <production name="ListComprehension" rr:inline="true">

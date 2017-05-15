@@ -484,7 +484,7 @@ Feature: ProcedureCallAcceptance
   Scenario: In-query call to unknown procedure should fail
     When executing query:
       """
-      CALL test.my.proc YIELD out
+      CALL test.my.proc() YIELD out
       RETURN out
       """
     Then a ProcedureError should be raised at compile time: ProcedureNotFound
