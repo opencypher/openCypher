@@ -1,4 +1,4 @@
-= CIP2016-12-19-UNWIND
+= CIP2016-12-19 UNWIND
 :numbered:
 :toc:
 :toc-placement: macro
@@ -70,3 +70,14 @@ RETURN one, two, element
 ----
 
 The above query will return a single record with the field/value pairs `one: 1`, `two: 2`, `element: 1`.
+
+.Unwinding an empty list
+[source, cypher]
+----
+WITH [[], [1, 2, 3]] AS lists
+UNWIND lists AS list
+UNWIND list AS element  // will 'skip' the empty list
+RETURN element
+----
+
+The above query will return three records with the values `1`, `2`, and `3` for the field `element`.
