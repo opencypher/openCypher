@@ -1,4 +1,4 @@
-= CIP2016-12-19-Reserved-keywords
+= CIP2016-12-19 Reserved keywords
 :numbered:
 :toc:
 :toc-placement: macro
@@ -53,40 +53,49 @@ By _escaping_ any of the reserved words (encapsulating in backticks ```), they w
 
 ==== Reserved words
 
-We list the reserved words in the three categories from which they are drawn: keywords, operators, and literals.
+We list the reserved words grouped by the categories from which they are drawn.
 In addition to this, we list a number of words that are reserved for future use.
 
-===== Keywords
+===== Clauses
 
-* ALL
-* ASC
-* ASCENDING
-* BY
 * CREATE
-* CASE
 * DELETE
-* DESC
-* DESCENDING
 * DETACH
-* ELSE
-* END
 * EXISTS
-* LIMIT
 * MATCH
 * MERGE
-* ON
 * OPTIONAL
-* ORDER
 * REMOVE
 * RETURN
 * SET
-* SKIP
-* THEN
-* WHEN
-* WHERE
-* WITH
 * UNION
 * UNWIND
+* WITH
+
+===== Subclauses
+
+* LIMIT
+* ORDER
+* SKIP
+* WHERE
+
+===== Modifiers
+
+* ASC
+* ASCENDING
+* BY
+* DESC
+* DESCENDING
+* ON
+
+===== Expressions
+
+* ALL
+* CASE
+* ELSE
+* END
+* THEN
+* WHEN
 
 ===== Operators
 
@@ -110,10 +119,15 @@ In addition to this, we list a number of words that are reserved for future use.
 
 ===== Reserved for future use
 
+* ADD
 * CONSTRAINT
 * DO
+* DROP
 * FOR
+* MANDATORY
+* OF
 * REQUIRE
+* SCALAR
 * UNIQUE
 
 ==== Examples
