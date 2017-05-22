@@ -114,8 +114,8 @@ Feature: Unwind
       | v         |
       | true      |
       | false     |
-      | "unknown" |
-    And no side effects:
+      | 'unknown' |
+    And no side effects
 
   Scenario: Double unwinding a list of lists
     Given any graph
@@ -156,6 +156,23 @@ Feature: Unwind
       """
     Then the result should be:
       | nil |
+    And no side effects
+
+  Scenario: Unwinding non-empty lists, empty lists, and nulls
+    Given any graph
+    When executing query:
+      """
+      UNWIND [[], [1, 2], null, [], [5, 6], null] AS elements
+      UNWIND elements AS var1
+      UNWIND var1 AS var2
+      RETURN var2, var1
+      """
+    Then the result should be:
+      | elements | var1 | var2 |
+      | [1, 2]   | 1    | 1    |
+      | [1, 2]   | 2    | 2    |
+      | [5, 6]   | 5    | 5    |
+      | [5, 6]   | 6    | 6    |
     And no side effects
 
   Scenario: Unwinding list with duplicates
@@ -259,3 +276,29 @@ Feature: Unwind
       | +nodes      | 1 |
       | +labels     | 1 |
       | +properties | 2 |
+
+  Scenario: Unwinding non-lists repeatedly
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A)-[:T]->(:B)
+      """
+    When executing query:
+      """
+      MATCH p = (a:A)-[r:T]->()
+      UNWIND [1, 3.14, true, 'string', {}, a, r, p] AS nonList
+      UNWIND nonList AS alias1
+      UNWIND nonList AS alias2
+      RETURN nonList, alias1, alias2
+      """
+    Then the result should be:
+      | nonList           | alias1            | alias2            |
+      | 1                 | 1                 | 1                 |
+      | 3.14              | 3.14              | 3.14              |
+      | true              | true              | true              |
+      | 'string'          | 'string'          | 'string'          |
+      | {}                | {}                | {}                |
+      | (:A)              | (:A)              | (:A)              |
+      | [:T]              | [:T]              | [:T]              |
+      | <(:A)-[:T]->(:B)> | <(:A)-[:T]->(:B)> | <(:A)-[:T]->(:B)> |
+    And no side effects
