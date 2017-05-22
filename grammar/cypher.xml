@@ -33,6 +33,7 @@
     <non-terminal ref="Statement"/>
     <opt>&WS; ;</opt>
     &WS;
+    <character set="EOI"/>
   </production>
 
 
@@ -67,11 +68,6 @@
     <non-terminal ref="LoadCSVQuery"/>
   </production>
 
-  <production name="SingleQuery" rr:inline="true">
-    <non-terminal ref="Clause"/>
-    <repeat>&WS; <non-terminal ref="Clause"/></repeat>
-  </production>
-
   <production name="PeriodicCommitHint" rr:inline="true" oc:legacy="true">
     USING &SP; PERIODIC &SP; COMMIT
     <opt>&SP;<non-terminal ref="IntegerLiteral"/></opt>
@@ -79,7 +75,7 @@
 
   <production name="LoadCSVQuery" rr:inline="true" oc:legacy="true">
     <non-terminal ref="LoadCSV"/>
-    <repeat>&WS;<non-terminal ref="Clause"/></repeat>
+    <non-terminal ref="SingleQuery"/>
   </production>
 
   <production name="Union" rr:inline="true">
@@ -89,22 +85,107 @@
     </alt>
   </production>
 
-  <production name="Clause" rr:inline="true">
+  <production name="SingleQuery" rr:inline="true">
+    <alt>
+      <non-terminal ref="SinglePartQuery"/>
+      <non-terminal ref="MultiPartQuery"/>
+    </alt>
+  </production>
+
+  <production name="SinglePartQuery">
+    <alt>
+      <non-terminal ref="ReadOnlyEnd"/>
+      <non-terminal ref="ReadUpdateEnd"/>
+      <non-terminal ref="UpdatingEnd"/>
+    </alt>
+  </production>
+
+  <production name="ReadOnlyEnd" rr:inline="true">
+    <non-terminal ref="ReadPart"/>
+    <non-terminal ref="Return"/>
+  </production>
+
+  <production name="ReadUpdateEnd" rr:inline="true">
+    <non-terminal ref="ReadingClause"/>
+    <repeat>
+      &WS; <non-terminal ref="ReadingClause"/>
+    </repeat>
+    <repeat min="1">
+      &WS; <non-terminal ref="UpdatingClause"/>
+    </repeat>
+    <opt>&WS; <non-terminal ref="Return"/></opt>
+  </production>
+
+  <production name="UpdatingEnd" rr:inline="true">
+    <non-terminal ref="UpdatingStartClause"/>
+    <repeat>
+      &WS; <non-terminal ref="UpdatingClause"/>
+    </repeat>
+    <opt>&WS; <non-terminal ref="Return"/></opt>
+  </production>
+
+  <production name="MultiPartQuery">
+    <alt>
+      <non-terminal ref="ReadPart"/>
+      <seq>
+        <non-terminal ref="UpdatingStartClause"/>
+        &WS;
+        <non-terminal ref="UpdatingPart"/>
+      </seq>
+    </alt>
+
+    <non-terminal ref="With"/>
+    &WS;
+
+    <repeat>
+      <non-terminal ref="ReadPart"/>
+      <non-terminal ref="UpdatingPart"/>
+      <non-terminal ref="With"/> &WS;
+    </repeat>
+
+    <non-terminal ref="SinglePartQuery"/>
+  </production>
+
+  <production name="ReadPart" rr:inline="true">
+    <repeat>
+      <non-terminal ref="ReadingClause"/> &WS;
+    </repeat>
+  </production>
+
+  <production name="UpdatingPart" rr:inline="true">
+    <repeat>
+      <non-terminal ref="UpdatingClause"/> &WS;
+    </repeat>
+  </production>
+
+  <production name="UpdatingStartClause" rr:inline="true">
+    <alt>
+      <non-terminal ref="Create"/>
+      <non-terminal ref="Merge"/>
+      <non-terminal ref="CreateUnique"/>
+      <non-terminal ref="Foreach"/>
+    </alt>
+  </production>
+
+  <production name="UpdatingClause" rr:inline="true">
+    <alt>
+      <non-terminal ref="Create"/>
+      <non-terminal ref="Merge"/>
+      <non-terminal ref="CreateUnique"/>
+      <non-terminal ref="Foreach"/>
+      <non-terminal ref="Delete"/>
+      <non-terminal ref="Set"/>
+      <non-terminal ref="Remove"/>
+    </alt>
+  </production>
+
+  <production name="ReadingClause" rr:inline="true">
     <alt>
       <non-terminal ref="LoadCSV"/>
       <non-terminal ref="Start"/>
       <non-terminal ref="Match"/>
       <non-terminal ref="Unwind"/>
-      <non-terminal ref="Merge"/>
-      <non-terminal ref="Create"/>
-      <non-terminal ref="CreateUnique"/>
-      <non-terminal ref="Set"/>
-      <non-terminal ref="Delete"/>
-      <non-terminal ref="Remove"/>
-      <non-terminal ref="Foreach"/>
       <non-terminal ref="InQueryCall"/>
-      <non-terminal ref="With"/>
-      <non-terminal ref="Return"/>
     </alt>
   </production>
 
@@ -194,7 +275,7 @@
   </production>
 
   <production name="Foreach" scope:rule="nested" oc:legacy="true">
-    FOREACH &WS; ( &WS; &var; &SP; IN &SP; &expr; &WS; | <repeat min="1">&SP;<non-terminal ref="Clause"/></repeat> &WS; )
+    FOREACH &WS; ( &WS; &var; &SP; IN &SP; &expr; &WS; | <repeat min="1">&SP;<non-terminal ref="UpdatingClause"/></repeat> &WS; )
   </production>
 
   <production name="InQueryCall">

@@ -263,7 +263,21 @@ CALL test.proc(  a  ) RETURN *§
 CALL test.proc() RETURN *§
 CALL test.proc() YIELD a AS v RETURN *§
 CALL test.proc(   ) RETURN *§
-MATCH (a) CALL test.proc(   )§
-MATCH (a) CALL test.proc( a, b   ,   c  )§
-MATCH (a) CALL test.proc( a, b   ,   c  ) YIELD a, b , c§
+MATCH (a) CALL test.proc(   ) RETURN *§
+MATCH (a) CALL test.proc( a, b   ,   c  ) RETURN *§
+MATCH (a) CALL test.proc( a, b   ,   c  ) YIELD a, b , c RETURN *§
 CALL test.proc(   ) RETURN *§
+CALL proc() YIELD a AS v RETURN *§
+CALL proc(   ) RETURN *§
+MATCH (a) CALL proc(   ) RETURN *§
+MATCH (a) CALL proc( a, b   ,   c  ) RETURN *§
+MATCH (a) CALL proc( a, b   ,   c  ) YIELD a, b , c RETURN *§
+CALL proc(   ) RETURN *§
+WITH *
+CREATE ()
+RETURN a§
+WITH *
+WITH *
+CREATE ()
+WITH *
+RETURN 1§

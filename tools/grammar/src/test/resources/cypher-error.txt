@@ -1,0 +1,27 @@
+§
+// clauses that are invalid on their own
+MATCH ()§
+OPTIONAL MATCH ()§
+START n = node(1)§
+WITH 1 AS a§
+UNWIND [] AS foo§
+LOAD CSV from $url AS list§
+//
+// clauses that are invalid as first clause
+SET n.prop = 2§
+REMOVE n.prop§
+DELETE n§
+DETACH DELETE n§
+//
+// invalid combinations of clauses
+RETURN 1 RETURN 2§
+RETURN 1 MATCH ()§
+RETURN 1 WITH 2 AS foo§
+CREATE () MATCH () RETURN 1§
+CREATE () UNWIND [] AS foo RETURN 1§
+MERGE () UNWIND [] AS foo RETURN 1§
+MATCH (a), (b), (c)
+CREATE ()
+WITH *
+DELETE a
+RETURN a§
