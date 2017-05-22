@@ -70,7 +70,7 @@ UNWIND [age IN childAges WHERE age < $param] AS youngChild
 RETURN parent, youngChild
 ----
 
-.Unwinding a non-list
+.Unwinding a non-list:
 [source, cypher]
 ----
 WITH 1 AS one, 2 AS two
@@ -80,7 +80,7 @@ RETURN one, two, element
 
 The above query will return a single record with the field/value pairs `one: 1`, `two: 2`, `element: 1`.
 
-.Unwinding an empty list
+.Unwinding an empty list:
 [source, cypher]
 ----
 WITH [[], [1, 2, 3]] AS lists
@@ -90,6 +90,16 @@ RETURN element
 ----
 
 The above query will return three records with the values `1`, `2`, and `3` for the field `element`.
+
+.Unwinding null:
+[source, cypher]
+----
+UNWIND [null, 1, [1]] AS list
+UNWIND list AS element  // will 'skip' the null value
+RETURN element
+----
+
+The above query will return two records with the value `1` for the field `element`.
 
 ==== OPTIONAL UNWIND
 
@@ -103,7 +113,7 @@ RETURN number
 
 The result is the same as with standard `UNWIND` (see above).
 
-.Unwinding an empty list
+.Optionally unwinding an empty list:
 [source, cypher]
 ----
 WITH [[], [1, 2, 3]] AS lists
@@ -113,3 +123,13 @@ RETURN element
 ----
 
 The above query will return four records with the values `null`, `1`, `2`, and `3` for the field `element`.
+
+.Optionally unwinding null:
+[source, cypher]
+----
+UNWIND [null, 1, [1]] AS list
+OPTIONAL UNWIND list AS element
+RETURN element
+----
+
+The above query will return three records with the values `1`, `1`, and `null` for the field `element`.
