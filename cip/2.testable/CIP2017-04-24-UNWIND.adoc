@@ -10,6 +10,7 @@
 .Abstract
 --
 This CIP details the `UNWIND` clause, which can be used to turn a list into a set of records.
+The modified version `OPTIONAL UNWIND` is also contained here.
 --
 
 toc::[]
@@ -19,6 +20,11 @@ toc::[]
 In Cypher, the `collect()` aggregator collapses the records of a query into a list (or groups of lists).
 The `UNWIND` clause provides the inverse of these semantics, turning an argument list into a set of records, one for each element, and producing as output the product of the incoming records and the list records.
 
+Additionally, a modified version of `UNWIND` may be specified by prepending the keyword `OPTIONAL`, which provides a different semantics for the special cases of empty list and `null` arguments.
+This mirrors the way `OPTIONAL` modifies semantics for the `MATCH` clause, and bears similarities to the SQL left outer join.
+
+This CIP aims to resolve https://github.com/opencypher/openCypher/issues/234[CIR-2017-234].
+
 === Syntax
 
 The syntax for `UNWIND` follows the simple pattern below.
@@ -26,19 +32,22 @@ The syntax for `UNWIND` follows the simple pattern below.
 .UNWIND clause:
 [source, ebnf]
 ----
-unwind = "UNWIND", expression, "AS", variable ;
+unwind = ["OPTIONAL"], "UNWIND", expression, "AS", variable ;
 ----
 
 === Semantics
 
 The argument to the `UNWIND` clause is an expression that is assumed to be a list.
-In case it is not a list, the value of the expression will be considered as comprising a single-element list.
+In case the argument is a non-null non-list, the value of the expression will be considered as comprising a single-element list.
 
 The cardinality of the query after the `UNWIND` will be the product of the incoming cardinality and the size of the argument list.
 This means that _single-element lists_ will just be unwrapped into a new variable, and _empty lists_ will cancel out the cardinality of the surrounding context, effectively halting execution of that query branch.
+Arguments that are `null` are interpreted as empty lists, and follow the same semantics.
+
+In `OPTIONAL UNWIND`, empty lists and `null` arguments will yield a single output record with a `null` value.
 
 No fields are hidden by the `UNWIND` clause, which is to say that it functions similarly to `WITH *`.
-In fact, in case the argument to `UNWIND` is a single-element list, or not a list, `UNWIND` will function purely as an aliasing operation.
+In fact, in case the argument to `UNWIND` is a single-element list, or a non-null non-list, `UNWIND` will function purely as an aliasing operation.
 
 === Examples
 
@@ -81,3 +90,26 @@ RETURN element
 ----
 
 The above query will return three records with the values `1`, `2`, and `3` for the field `element`.
+
+==== OPTIONAL UNWIND
+
+.Optionally unwinding a literal list:
+[source, cypher]
+----
+WITH [1, 2, 3] AS list
+OPTIONAL UNWIND list AS number
+RETURN number
+----
+
+The result is the same as with standard `UNWIND` (see above).
+
+.Unwinding an empty list
+[source, cypher]
+----
+WITH [[], [1, 2, 3]] AS lists
+UNWIND lists AS list
+OPTIONAL UNWIND list AS element
+RETURN element
+----
+
+The above query will return four records with the values `null`, `1`, `2`, and `3` for the field `element`.
