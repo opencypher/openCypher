@@ -308,3 +308,29 @@ Feature: OptionalUnwind
       | [:T]              | [:T]              | [:T]              |
       | <(:A)-[:T]->(:B)> | <(:A)-[:T]->(:B)> | <(:A)-[:T]->(:B)> |
     And no side effects
+
+  Scenario: Optionally unwinding a list property
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:Person {name: 'Alice', languages: ['en', 'de', 'gr']}),
+        (:Person {name: 'Bob', languages: ['en', 'de']}),
+        (:Person {name: 'Cecil', languages: []}),
+        (:Person {name: 'Dennis'})
+      """
+    When executing query:
+      """
+      MATCH (n:Person)
+      OPTIONAL UNWIND n.languages AS lang
+      RETURN n.name, lang
+      """
+    Then the results should be:
+      | n.name   | lang |
+      | 'Alice'  | 'en' |
+      | 'Alice'  | 'de' |
+      | 'Alice'  | 'gr' |
+      | 'Bob'    | 'en' |
+      | 'Bob'    | 'de' |
+      | 'Cecil'  | null |
+      | 'Dennis' | null |
+    And no side effects
