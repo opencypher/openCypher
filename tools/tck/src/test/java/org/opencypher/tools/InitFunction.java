@@ -19,6 +19,11 @@ package org.opencypher.tools;
 import java.io.IOException;
 
 import cucumber.api.junit.Cucumber;
+import cucumber.runtime.ClassFinder;
+import cucumber.runtime.Runtime;
+import cucumber.runtime.RuntimeOptions;
+import cucumber.runtime.io.ResourceLoader;
+import cucumber.runtime.io.ResourceLoaderClassFinder;
 import org.junit.runners.model.InitializationError;
 import org.opencypher.tools.grammar.Antlr4TestUtils;
 
@@ -40,5 +45,13 @@ public class InitFunction extends Cucumber
     {
         org.opencypher.tools.tck.validateQueryGrammar.f_$eq( Antlr4TestUtils::parse );
         return clazz;
+    }
+
+    @Override
+    protected Runtime createRuntime( ResourceLoader resourceLoader, ClassLoader classLoader,
+            RuntimeOptions runtimeOptions ) throws InitializationError, IOException
+    {
+        ClassFinder classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
+        return new TckRuntime(resourceLoader, classFinder, classLoader, runtimeOptions);
     }
 }

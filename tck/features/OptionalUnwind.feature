@@ -324,7 +324,7 @@ Feature: OptionalUnwind
       OPTIONAL UNWIND n.languages AS lang
       RETURN n.name, lang
       """
-    Then the results should be:
+    Then the result should be:
       | n.name   | lang |
       | 'Alice'  | 'en' |
       | 'Alice'  | 'de' |
