@@ -147,7 +147,7 @@ RETURN r AS entity, key, properties[key] AS value
 ----
 
 Note that in the definition above, a property is defined as the triple of containing entity, key, and value.
-Therefore the operation of copying a property between two entities will be noted as one removal and one addition in the side effects.
+Therefore the operation of moving a property from one entity to another will be noted as one removal and one addition in the side effects.
 
 ===== Labels
 
