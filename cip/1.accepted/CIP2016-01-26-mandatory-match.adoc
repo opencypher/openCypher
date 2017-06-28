@@ -21,8 +21,10 @@ When writing applications using Cypher, many queries will start off by looking u
 == Proposal
 
 This CIP suggests the introduction of a new clause called `MANDATORY MATCH` that has the same basic form as the existing `MATCH` clause (i.e. `MANDATORY MATCH <pattern> [WHERE <predicate>]`).
+The new clause is a read-only clause that may be mixed freely with all other sequential clauses.
+It may not be used as the last clause of a query.
 
-If matching the graph pattern described by `MANDATORY MATCH` fails to match at least a single row, the execution of the whole Cypher query fails immediately with a descriptive error message that points to which `MANDATORY MATCH` clause failed and includes all bound variables and parameters used in trying to match the described graph pattern.
+If matching the graph pattern described by `MANDATORY MATCH` fails to match at least once (irrespective of the number of matches for already bound variables), the execution of the whole Cypher query fails immediately with a descriptive error message that points to which `MANDATORY MATCH` clause failed and is recommended to include all bound variables and parameters used in trying to match the described graph pattern.
 
 === Example
 
@@ -57,6 +59,13 @@ Care should be taken to not confuse use-cases: This CIP allows applications to p
 Alternatively, Cypher could provide a more general, heavyweight mechanism for raising errors.
 Such a facility might also achieve the goals of this CIP while additionally supporting other use-cases.
 However in the interest of keeping this proposal small and specific, this is not considered here.
+
+=== Extensions
+
+It may be desirable to execute a `MANDATORY MATCH` per incoming match of already bound variables. This is out of the scope of this CIP but may become possible in the future if Cypher adopts functionality for nested correlated subqueries.
+
+It may be desirable that the user provides an error token that would simplify identifying the failed `MANDATORY MATCH`.
+This could be introduced as part of a larger CIP on error handling in general and is out of scope of this CIP.
 
 == What others do
 
