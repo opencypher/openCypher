@@ -37,13 +37,13 @@ A Path Pattern is defined as:
   `()-[  𝜶 >]-()` denotes that the Path Pattern `𝜶` should be interpreted in a left-to-right direction. +
   `()-[< 𝜶  ]-()` denotes that the Path Pattern `𝜶` should be interpreted in a right-to-left direction. +
   `()-[< 𝜶 >]-()` denotes that the Path Pattern `𝜶` should be interpreted in any direction.
-• A reference to a Defined Path Predicate +
-  `()-[~alpha]-()` denotes a reference to a Defined Path Predicate named `alpha`.
+• A reference to a Named Path Predicate +
+  `()-[~alpha]-()` denotes a reference to a Named Path Predicate `alpha`.
 
 Binding of a relationship to a variable is only allowed in the most simple case of a Path Pattern, where only a single relationship is matched by the pattern.
 For binding a whole path to a variable, Path Assignment should be used, by preceding the path with an identifier and an equals sign (`=`).
 This avoids a problem that existed in the past with repetition of relationships (a syntax that is unsupported as of the introduction of Path Patterns), where a relationship variable would bind to a list, making it hard to express predicates over the actual relationships.
-Predicates on parts of a Path Pattern are instead expressed through the use of explicitly defined path predicates.
+Predicates on parts of a Path Pattern are instead expressed through the use of explicitly Named Path Predicates.
 
 === Syntax
 
@@ -85,17 +85,17 @@ LabelName  = SymbolicName ;
 RangeDetail = [IntegerLiteral | Parameter], '..', [IntegerLiteral | Parameter] ;
 ----
 
-The `PathReference` is a reference to a Defined Path Predicate.
+The `PathReference` is a reference to a Named Path Predicate.
 These are defined using the following syntax:
 
 [source, ebnf]
 ----
-DefinedPathPredicate   = 'PATH', 'PATTERN', DefinedPathName, '=', PathPattern, [Where] ;
-DefinedPathName = SymbolicName ;
+NamedPathPredicate   = 'PATH', 'PATTERN', NamedPathName, '=', PathPattern, [Where] ;
+NamedPathName = SymbolicName ;
 ----
 
 
-//=== Defined Path Predicates
+//=== Named Path Predicates
 
 
 === Directions
@@ -115,14 +115,14 @@ In order to apply the direction override to multiple parts of the pattern, those
 Using both a `<` prefix and a `>` suffix on the same pattern is always the same thing as a disjunction between that pattern with a `<` prefix and that pattern with a `>` suffix.
 This means that `()-[< 𝜶 >]-()` is the same as `()-[[< 𝜶] | [𝜶 >]]-()`.
 
-==== Directions and Defined Path Predicates
+==== Directions and Named Path Predicates
 
-When a Defined Path Predicate is referenced the direction of reference is matched with the direction in the declaration of the Defined Path Predicate.
-If the declaration of the Defined Path Predicate is defined left-to-right, but the direction of the reference is right-to-left, the direction of definition of the the Defined Path Predicate is reversed to match that of the reference.
-The same reversal applies if the Defined Path Predicate is defined right-to-left but the direction of the reference is left-to-right.
-If the direction of the reference is _either direction_, the Defined Path Predicate is matched both in its declared direction and its reversed direction.
-If a Defined Path Predicate is declared without a direction, the direction of the reference does not matter, since the direction of the Defined Path Predicate is inherently _any direction_.
-A Defined Path Predicate declared without a direction must have a definition that is equivalent if reversed.
+When a Named Path Predicate is referenced the direction of reference is matched with the direction in the declaration of the Named Path Predicate.
+If the declaration of the Named Path Predicate is defined left-to-right, but the direction of the reference is right-to-left, the direction of definition of the the Named Path Predicate is reversed to match that of the reference.
+The same reversal applies if the Named Path Predicate is defined right-to-left but the direction of the reference is left-to-right.
+If the direction of the reference is _either direction_, the Named Path Predicate is matched both in its declared direction and its reversed direction.
+If a Named Path Predicate is declared without a direction, the direction of the reference does not matter, since the direction of the Named Path Predicate is inherently _any direction_.
+A Named Path Predicate declared without a direction must have a definition that is equivalent if reversed.
 
 ==== Direction examples
 
@@ -130,7 +130,7 @@ A Defined Path Predicate declared without a direction must have a definition tha
 • `()-[a <b> c]\->()` is the same as `()-[a]\->()-[b]-()-[c]\->()`, i.e. the direction of `b` has been overridden to be _either direction_.
 • `()-[a]-()`, `()-[<a>]-()`, `()-[<a>]\->()`, `()\<-[<a>]-()`, `()\<-[<a>]\->()`, and `()\<-[a]\->()` all mean the same thing: matching `a` in _either direction_.
 
-Given these Defined Path Predicates:
+Given these Named Path Predicates:
 
 [source, cypher]
 ----
@@ -197,7 +197,7 @@ MATCH (you)-[[:KNOWS <:HATES]+ :LOVES]->(someone)
 
 In the example above we say that the `HATES` relationships should have the opposite direction to the other relationships in the path.
 
-Through the use of Defined Path Predicates we can express even more predicates over a path:
+Through the use of Named Path Predicates we can express even more predicates over a path:
 
 [source, cypher]
 .Find a chain of unreciprocated lovers
@@ -207,10 +207,10 @@ PATH PATTERN unreciprocated_love = (a)-[:LOVES]->(b)
 MATCH (you)-[~unreciprocated_love*]->(someone)
 ----
 
-Note how there is no colon used for referencing the Defined Path Predicate, the colon is used in Path Patterns only for referencing actual relationship types.
+Note how there is no colon used for referencing the Named Path Predicate, the colon is used in Path Patterns only for referencing actual relationship types.
 
 Sometimes it will be interesting to express a predicate on a node in a Path Pattern.
-This can be achieved by using a Defined Path Predicate where the nodes on both ends are the same:
+This can be achieved by using a Named Path Predicate where the nodes on both ends are the same:
 
 [source, cypher]
 .Find friends of friends that are not haters
@@ -220,9 +220,9 @@ PATH PATTERN not_a_hater = (x)
 MATCH (you)-[:KNOWS ~not_a_hater :KNOWS]-(friend_of_friendly_friend)
 ----
 
-In the case of a Defined Path Predicate where both nodes are the same, the direction of the predicate is irrelevant.
-In general the direction of a Defined Path Predicate is quite important, and used for mapping the pattern in the predicate into the Path Patterns that reference it.
-The only cases where it is allowed to omit the direction of a Defined Path Predicate is when the defined predicate is reflexive.
+In the case of a Named Path Predicate where both nodes are the same, the direction of the predicate is irrelevant.
+In general the direction of a Named Path Predicate is quite important, and used for mapping the pattern in the predicate into the Path Patterns that reference it.
+The only cases where it is allowed to omit the direction of a Named Path Predicate is when the defined predicate is reflexive.
 This is obviously the case when both nodes are the same, but it would also be the case when the internal pattern is symmetrical, such as in the following example:
 
 [source, cypher]
@@ -389,15 +389,15 @@ In the table below `𝑣` is partial function from a variable `x` to the memory 
 | `PATH PATTERN alpha_scope = (v)-[𝜶]\->(w)`
 |=================
 
-Note that in the assignment case in Cypher, the scope of the variables is within a single Defined Path Predicate.
-Internal references to other Defined Path Predicates will not have those variables in scope.
-It is thus important for the expressive power that the other composition rules above do not need to be expressed through Defined Path Predicates.
-Even so the expressive power in terms of variable scope is less in Cypher than it is in Regular Expressions with Binding, since there are no nested scopes in Cyphers Defined Path Predicates.
+Note that in the assignment case in Cypher, the scope of the variables is within a single Named Path Predicate.
+Internal references to other Named Path Predicates will not have those variables in scope.
+It is thus important for the expressive power that the other composition rules above do not need to be expressed through Named Path Predicates.
+Even so the expressive power in terms of variable scope is less in Cypher than it is in Regular Expressions with Binding, since there are no nested scopes in Cyphers Named Path Predicates.
 
 
 ==== Compared to Context Free Languages
 
-The Defined Path Predicates of the Cypher Path Patterns allow the definition of what amounts to a context free language over paths in the graph.
+The Named Path Predicates of the Cypher Path Patterns allow the definition of what amounts to a context free language over paths in the graph.
 Here we will show that type of compositions possible in a context free grammar, have corresponding constructs in Cypher.
 
 In the Context Free Grammar column below, upper case latin characters are used to denote non-terminal symbols, lower case latin characters denote terminal symbols, and greek characters are used to denote strings of non-terminal or terminal symbols.
