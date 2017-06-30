@@ -109,7 +109,7 @@ NamedPathName = SymbolicName ;
 
 //=== Named Path Predicates
 
-
+[[directions]]
 === Directions
 
 The direction of relationships matched by a Path Pattern is primarily decided by the directional arrow surrounding the pattern.
@@ -198,10 +198,7 @@ MATCH (you)-/[:KNOWS :HATES]+ :LOVES/->(someone)
 
 Note the `+` expressing one or more occurrences of the sequence `KNOWS` followed by `HATES`.
 
-The direction of each relationship is governed by the overall direction of the Path Pattern.
-It is however possible to explicitly define the direction for a particular part of the pattern.
-This is done by either prefixing that part with `<` for a right-to-left direction or suffix it with `>` for a left-to-right direction.
-It is possible to both prefix the part with `<` and suffix it with `>`, indicating that this part of the pattern matches in any direction.
+Using the arrowhead syntax introduced in <<directions>>, consider the following query:
 
 [source, cypher]
 .Specifying the direction for different parts of the pattern
@@ -234,10 +231,8 @@ PATH PATTERN not_a_hater = (x)
 MATCH (you)-/:KNOWS ~not_a_hater :KNOWS/-(friend_of_friendly_friend)
 ----
 
-In the case of a Named Path Predicate where both nodes are the same, the direction of the predicate is irrelevant.
-In general the direction of a Named Path Predicate is quite important, and used for mapping the pattern in the predicate into the Path Patterns that reference it.
-The only cases where it is allowed to omit the direction of a Named Path Predicate is when the defined predicate is reflexive.
-This is obviously the case when both nodes are the same, but it would also be the case when the internal pattern is symmetrical, such as in the following example:
+When the pattern of a Named Path Predicate is reflexive, the direction in which the predicate is used is irrelevant.
+A pattern is reflexive if it consists of a single node, if the first and last node of the pattern are the same, or if the pattern is symmetrical as in this example:
 
 [source, cypher]
 .Find chains of co-authorship
@@ -312,61 +307,61 @@ PATH PATTERN different_from_first = (first)-/~some_pattern/-()
 |=================
 || GXPath | Cypher
 
-| The empty pattern, from a node to itself, via nothing.
+| The empty pattern, from a node to itself, via nothing
 | `⟦ε⟧^G^ = {(v,v) \| v ∈ V}`
 | `(v)-/()/-(v)`
 
-| Match an edge with any label.
+| Match an edge with any label
 | `⟦_⟧^G^ = {(v,w) \| ∃ a : (v,a,w) ∈ E}`
 | `(v)-/-/\->(w)`
 
-| Match edge with a given label.
+| Match edge with a given label
 | `⟦a⟧^G^ - {(v,w) \| (v,a,w) ∈ E}`
 | `(v)-/:a/\->(w)`
 
-| Inverted direction of an edge.
+| Inverted direction of an edge
 | `⟦a-⟧^G^ = {(v,w) \| (w,a,v) ∈ E}`
 | `(v)-/<:a/\->(w)`
 
-| Match 𝜶 0 or more times.
+| Match 𝜶 0 or more times
 | `⟦𝜶*⟧^G^ =` reflexive transitive closure of `𝜶`
 | `()-/𝜶*/\->()`
 
-| Match 𝜶 followed by 𝛽.
+| Match 𝜶 followed by 𝛽
 | `⟦𝜶 · 𝛽⟧^G^ = ⟦𝜶⟧^G^ ⸰ ⟦𝛽⟧^G^`
 | `()-/𝜶 𝛽/\->()`
 
-| Disjunction. Either match 𝜶 or match 𝛽.
+| Disjunction: Either match 𝜶 or match 𝛽
 | `⟦𝜶 ∪ 𝛽⟧^G^ = ⟦𝜶⟧^G^ ∪ ⟦𝛽⟧^G^`
 | `()-/𝜶\|𝛽/\->()`
 
-| Any pair of nodes _not_ reachable via 𝜶.
+| Any pair of nodes _not_ reachable via 𝜶
 | `⟦¬𝜶⟧^G^ = V ⨯ V - ⟦𝜶⟧^G^`
 | *_not supported_* +
   _Path Patterns have to match a continuous path in the graph._
 
-| Node matching a given Node Predicate.
+| Node matching a given Node Predicate
 | `⟦[𝝋]⟧^G^ = {(v,v) \| v ∈ ⟦𝝋⟧^G^}`
 | `PATH PATTERN phi = (v) WHERE 𝝋 +
    MATCH ()-/~phi/\->()`
 
-| Repeat pattern 𝜶 between `n` and `m` times.
+| Repeat pattern 𝜶 between `n` and `m` times
 | `⟦𝜶^n,m^⟧^G^ = ⋃~k=n~^m^(⟦𝜶⟧^G^)k`
 | `()-/𝜶*n..m/\->()`
 
-| Path through 𝜶, where data value of origin node is equal to value at destination node.
+| Path through 𝜶, where data value of origin node is equal to value at destination node
 | `⟦𝜶=⟧^G^ = {(v,w) ∈ ⟦𝜶⟧^G^ \| 𝜌(v)=𝜌(w)}`
 | `PATH PATTERN alpha_eq = (v)-/𝜶/\->(w) WHERE v.𝜌 = w.𝜌 +
    MATCH ()-/~alpha_eq/\->()`
 
-| Path through 𝜶, where data value of origin node differs from value at destination node.
+| Path through 𝜶, where data value of origin node differs from value at destination node
 | `⟦𝜶≠⟧^G^ = {(v,w) ∈ ⟦𝜶⟧^G^ \| 𝜌(v)≠𝜌(w)}`
 | `PATH PATTERN alpha_not_eq = (v)-/𝜶/\->(w) WHERE v.𝜌 <> w.𝜌 +
    MATCH ()-/~alpha_not_eq/\->()`
 
 | Conjunctions (not in _GXPath_, allows CRPQs)
 
-  Note that in this case Cypher requires one of the patterns needs to be chosen as the _main_ pattern, this is the pattern that will be seen when binding the matched path.
+  Note that in this case Cypher requires one of the patterns needs to be chosen as the _main_ pattern, this is the pattern that will be seen when binding the matched path
 | `⟦𝜶 ∩ 𝛽⟧^G^ = ⟦𝜶⟧^G^ ∩ ⟦𝛽⟧^G^`
 | `PATH PATTERN alpha_and_beta = (v)-/𝜶/\->(w) WHERE EXISTS { (v)-/𝛽/\->(w) } +
    MATCH ()-/~alpha_and_beta/\->()`
@@ -378,35 +373,35 @@ PATH PATTERN different_from_first = (first)-/~some_pattern/-()
 |=================
 || GXPath | Cypher
 
-| Node has a path matching a path expression.
+| Node has a path matching a path expression
 | `⟦⟨𝜶⟩⟧G = {v \| ∃ w : (v,w) ∈ ⟦𝜶⟧^G^}`
 | `PATH PATTERN has_alpha = (v) WHERE EXISTS { (v)-/𝜶/\->() }`
 
-| Negation of predicate.
+| Negation of predicate
 | `⟦¬𝝋⟧^G^ = V - ⟦𝝋⟧^G^`
 | `PATH PATTERN not_phi = (v) WHERE NOT 𝝋`
 
-| Conjunction of predicates.
+| Conjunction of predicates
 | `⟦𝝋 ∧ 𝜓⟧^G^ = ⟦𝝋⟧^G^ ∩ ⟦𝜓⟧^G^`
 | `PATH PATTERN phi_and_psi = (v) WHERE 𝝋 AND 𝜓`
 
-| Disjunction of predicates.
+| Disjunction of predicates
 | `⟦𝝋 ∨ 𝜓⟧^G^ = ⟦𝝋⟧^G^ ∪ ⟦𝜓⟧^G^`
 | `PATH PATTERN phi_or_psi = (v) WHERE 𝝋 OR 𝜓`
 
-| Value equal to constant.
+| Value equal to constant
 | `⟦c=⟧^G^ = {v ∈ V \| 𝜌(v) = c}`
 | `PATH PATTERN rho_is_c = (v) WHERE v.𝜌 = c`
 
-| Value not equal to constant.
+| Value not equal to constant
 | `⟦c≠⟧^G^ = {v ∈ V \| 𝜌(v) ≠ c}`
 | `PATH PATTERN rho_is_not_c = (v) WHERE v.𝜌 <> c`
 
-| Value reachable from node by path 𝜶 equal to value reachable by path 𝛽.
+| Value reachable from node by path 𝜶 equal to value reachable by path 𝛽
 | `⟦⟨𝜶 = 𝛽⟩⟧^G^ = {v ∈ V \| ∃ w, y : (v, w) ∈ ⟦𝜶⟧^G^, (v, y) ∈ ⟦𝛽⟧^G^, 𝜌(w)=𝜌(y)}`
 | `PATH PATTERN alpha_eq_beta = (v) WHERE EXISTS { (v)-/𝜶/\->(w), (v)-/𝛽/\->(y) WHERE w.𝜌 = y.𝜌 }`
 
-| Value reachable from node by path 𝜶 differs from value reachable by path 𝛽.
+| Value reachable from node by path 𝜶 differs from value reachable by path 𝛽
 | `⟦⟨𝜶 ≠ 𝛽⟩⟧^G^ = {v ∈ V \| ∃ w, y : (v, w) ∈ ⟦𝜶⟧^G^, (v, y) ∈ ⟦𝛽⟧^G^, 𝜌(w)≠𝜌(y)}`
 | `PATH PATTERN alpha_not_eq_beta = (v) WHERE EXISTS { (v)-/𝜶/\->(w), (v)-/𝛽/\->(y) WHERE w.𝜌 <> y.𝜌 }`
 |=================
@@ -425,35 +420,35 @@ In the table below `𝑣` is partial function from a variable `x` to the memory 
 |=================
 || Regular Expressions with Binding | Cypher
 
-| Empty path.
+| Empty path
 | `⟦ε, 𝑣⟧^G^ = {(v, v) \| v ∈ V }`
 | `(v)-/()/-(v)`
 
-| Single edge.
+| Single edge
 | `⟦a, 𝑣⟧^G^ = {(v, w) \| (v, a, w) ∈ E }`
 | `(v)-/:a/\->(w)`
 
-| Inversion of single edge.
+| Inversion of single edge
 | `⟦a^-^, 𝑣⟧^G^ = {(v, w) \| (w, a, v) ∈ E }`
 | `(v)-/<:a/\->(w)`
 
-| Concatenation.
+| Concatenation
 | `⟦𝜶 · 𝛽, 𝑣⟧^G^ = ⟦𝜶, 𝑣⟧^G^ ⸰ ⟦𝛽, 𝑣⟧^G^`
 | `(v)-/𝜶 𝛽/\->(w)`
 
-| Disjunction.
+| Disjunction
 | `⟦𝜶 ∪ 𝛽, 𝑣⟧^G^ = ⟦𝜶, 𝑣⟧^G^ ∪ ⟦𝛽, 𝑣⟧^G^`
 | `(v)-/𝜶 \| 𝛽/\->(w)`
 
-| Transitive closure.
+| Transitive closure
 | `⟦𝜶^+^, 𝑣⟧^G^ =` transitive closure of `⟦𝜶, 𝑣⟧^G^`
 | `(v)-/𝜶+/\->(w)`
 
-| Data value (and memory state 𝑣) matching condition `c`.
+| Data value (and memory state 𝑣) matching condition `c`
 | `⟦𝜶[c], 𝑣⟧^G^ = {(v, w) \| (v, w) ∈ ⟦𝜶, 𝑣⟧^G^, (𝜌(w),𝑣)⊨c }`
 | `(v)-/𝜶/\->(w) WHERE c`
 
-| Assignment of variable.
+| Assignment of variable
 | `⟦↓[overline]#x#.{𝜶}, 𝑣⟧^G^ = {(v,w ) \| (v, w) ∈ ⟦𝜶, 𝑣［[overline]#x# = 𝜌(v)］⟧^G^}`
 | `PATH PATTERN alpha_scope = (v)-/𝜶/\->(w)`
 |=================
