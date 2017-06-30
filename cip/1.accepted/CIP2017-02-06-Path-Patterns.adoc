@@ -246,6 +246,61 @@ PATH PATTERN co_author = (a)-[:AUTHORED]->(:Book)<-[:AUTHORED]-(b)
 MATCH (you)-/~co_author*/-(someone)
 ----
 
+[source, cypher]
+.All pairs of directly connected nodes `(a,b)` where every second node in the path has label `A`
+----
+PATH PATTERN a_and_other = (:A)--()
+MATCH (a)-/ [~a_and_other -]* | [- ~a_and_other]* /-(b)
+RETURN a, b
+----
+
+[source, cypher]
+.All pairs of directly connected nodes `(a,b)` where there are at least 2 instances of a node labelled `X` linked to a node labelled `Y` in the path
+----
+MATCH (a)-/-* (:X)-(:Y) -* (:X)-(:Y) -*/-(b)
+RETURN a, b
+----
+
+=== Limitations
+
+Some things are _not_ possible to express using the Path Pattern syntax, a few of these things are worth highlighting.
+
+==== Negations
+
+It is not possible to denote a pattern that matches a pair of nodes that _does not_ have a path matching a certain Path Pattern between them.
+The reason why it is not possible to match such a pattern using the Path Pattern syntax is because a matching instance would not be a path.
+There would be a discontinuity of a pair of nodes in the result of that pattern that has no edges in between them, and such a result is not a path.
+Path Patterns always match paths, so therefore it is not possible to express such a pattern.
+
+It is however possible to match a pair of nodes (`a` and `b`) that does not have a path matching a given Path Pattern (`𝜶`) between them, it is just not possible to express that as a path:
+
+[source, cypher]
+----
+MATCH (a), (b)
+WHERE NOT EXISTS { (a)-/𝜶/-(b) }
+----
+
+Queries like this are generally not tractable, so arguably it is a good thing that they are not easy to express.
+
+==== Differing property values along a path
+
+While it is possible to express that a certain property should have the same value for all nodes in a path (by saying that each pair of nodes should have the same property value), it is not possible to express that all nodes should have a _different_ property value.
+It has been shown that computing such paths would not be tractable in the general case, so perhaps it is a good thing to not be able to express this.
+
+There is also no convenient way to express that the value of a certain property should in all nodes of the path be different from the value of that property in the first node of the path.
+Having a different value from the property in the first node is a tractable simplification of the problem of differing property values that can be solved by Regular Expressions with Memory (REMs).
+Since Cypher uses lexical scoping of the variables in a path pattern, Cypher is closer to the Regular Queries with Binding variant of REMs, which has been shown not to be able to express such queries.
+
+It is however possible to express this type of path by venturing outside of the Path Pattern syntax and use a predicate over the entire path:
+
+[source, cypher]
+.A path where all nodes have a different value for the `foo` property from the first node
+----
+PATH PATTERN different_from_first = (first)-/~some_pattern/-()
+     WHERE all( n IN nodes(different_from_first)
+                WHERE n = first OR n.foo <> first.foo )
+----
+
 
 === Expressive power
 
