@@ -6,6 +6,8 @@
 
 *Author:* Stefan Plantikow <stefan.plantikow@neotechnology.com>
 
+This material is based on internal contributions of Alastair Green <alastair.green@neotechnology.com>, Mats Rydberg <mats.rydberg@neotechnology.com>, Martin Junghanns <martin.junghanns@neotechnology.com>, Tobias Lindaaker <tobias.lindaaker@neotechnology.com>.
+
 [abstract]
 .Abstract
 --
@@ -65,18 +67,6 @@ Graphs may be made addressable through other means by a conforming implementatio
 The details regarding the format and choice of graph URLs is outside the scope of this proposal.
 
 A graph is considered to have been deleted if it is no longer registered under a graph URL and no other reference to it is retained (e.g. from a running query).
-
-=== Entity Identity
-
-In the single property graph model, nodes and relationships are commonly identified by a single integer id.
-This model was originally not designed for sharing entities between many different graphs while ensuring that entity ids are unique.
-
-In the multiple property graphs model, entities are additionally implicitly associated with a _graph space_ that allows to distinguish between entities with the same original id from different sources (e.g. different databases or even snapshots of the same database).
-
-In the multiple property graphs model, no graph may contain two entities from the same graph space that have the same original id.
-
-Graph spaces may be made identifiable by a conforming implementation by assigning a _graph URI_ to them.
-The details regarding the format and choice of graph URIs is outside the scope of this proposal.
 
 == Background: Single Graph Execution Model
 
@@ -155,11 +145,20 @@ This CIP proposes that `UNION` (and `UNION ALL` respectively) compute the union 
 
 === Updating queries
 
-This CIP proposes that all updating clauses update the provided target graph of their current query context.
+This CIP proposes the following update semantics for Cypher with support for multiple graphs:
 
-This CIP proposes that all entities of bound pattern variables in `CREATE` and `MERGE` are always added to the provided target graph of the current query context.
-
-This CIP proposes that deleting an entity only affects the provided target graph of the current query context.
+* All updating clauses update the provided target graph of their current query context.
+  More concretely:
+  ** Entities are always created in and deleted from the currently provided target graph.
+  ** All entities of bound pattern variables in `CREATE` and `MERGE` are always added to the provided target graph of the current query context.
+  ** Deleting an entity only affects the provided target graph of the current query context.
+* Updating queries always return all variables and graphs in scope, i.e. the behave as if they would end in `RETURN * GRAPHS *` (This syntax is introduced below).
+* Semantically, all effects of an updating clause must be made visible before proceeding with the execution of the next clause.
+In other words, a conforming implementation must ensure that a later clause alway sees the complete set of updates of a preceding updating clause.
+* A single update clause may perform multiple conflicting updates on the same node or relationship.
+In this situation, the outcome is undefined.
+Conflicting updates are considered to be out of scope of this CIP and will be addressed in a future proposal.
+For now it is proposed that a conforming implementation must choose at least either the original value or one of the values written or `NULL` as the final outcome of a conflicting update.
 
 === Simulating the single graph execution model
 
@@ -260,7 +259,7 @@ However if `<graph-return-items>` already passes on a reference for the `SOURCE 
 
 If the current named source graph (or the current named target graph) are not passed on, they are discarded and due to the rules regarding partial query contexts the provided source graph (or target respectively) again are chosen to be the default graph of the outer execution context.
 
-Note: `WITH <return-items> GRAPHS *` may be used to pass through the initial query context without having to alias source and target graphs explicitly.
+Note: `WITH <return-items> GRAPHS *` may be used to pass through the initial query context without having to alias incoming source and target graphs explicitly.
 
 === Discarding available tabular data
 
@@ -286,25 +285,9 @@ INTO < graph-specifier > | '-' { < graph-construction-subquery > }
 
 A `<graph-construction-subquery>` is an updating subquery (i.e. a sequence of clauses, including update clauses) that may or may not end in `RETURN`.
 All variables bound before the nested `FROM` and `INTO` subqueries are made visible to the `<graph-construction-subquery>`.
-All variables bound at the end of the `<graph-construction-subquery>` are made visible to the remaining outer query.
+All variables and graphs visible at the end of the `<graph-construction-subquery>` are made visible to the remaining outer query.
 
 These forms have the exact same effect as creating fresh aliases for the current source and target graph, then changing the current source and target graph as specified before executing the given `<graph-construction-subquery>`, and finally restoring the original source and target graphs using the aliases followed by discarding those aliases from the current scope.
-
-=== Updating graphs
-
-This CIP proposes the following update semantics for Cypher with support for multiple graphs.
-
-Entities are always created in and deleted from the currently provided target graph.
-
-Semantically, all effects of an updating clause must be made visible before proceeding with the execution of the next clause.
-In other words, a conforming implementation must ensure that a later clause alway sees the complete set of updates of a preceding updating clause.
-
-A single update clause may perform multiple conflicting updates on the same node or relationship.
-In this situation, the outcome is undefined.
-
-Conflicting updates are considered to be out of scope of this CIP.
-
-For now it is proposed that a conforming implementation must choose at least either the original value or one of the values written or `NULL` as the final outcome of a conflicting update.
 
 === Query signature declarations
 
