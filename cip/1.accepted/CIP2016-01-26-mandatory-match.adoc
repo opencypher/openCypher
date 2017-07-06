@@ -1,0 +1,80 @@
+= CIP2016-01-26 - Mandatory Match
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Stefan Plantikow <stefan.plantikow@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+This CIP proposes adding a new variant of the `MATCH` clause called `MANDATORY MATCH` that fails when it does not match at least a single row in the underlying graph.
+--
+
+toc::[]
+
+== Motivation
+
+When writing applications using Cypher, many queries will start off by looking up multiple individual nodes based on an unique id with the implied expectation of matching exactly one node. When that expectation is not fulfilled (either due to sending a wrong id or the node having been deleted) it becomes important to identify which lookup failed. Achieving  this currently is not well supported by Cypher.
+
+== Proposal
+
+This CIP suggests the introduction of a new clause called `MANDATORY MATCH` that has the same basic form as the existing `MATCH` clause (i.e. `MANDATORY MATCH <pattern> [WHERE <predicate>]`).
+The new clause is a read-only clause that may be mixed freely with all other sequential clauses.
+It may not be used as the last clause of a query.
+
+If matching the graph pattern described by `MANDATORY MATCH` fails to match at least once (irrespective of the number of matches for already bound variables), the execution of the whole Cypher query fails immediately with a descriptive error message that points to which `MANDATORY MATCH` clause failed and is recommended to include all bound variables and parameters used in trying to match the described graph pattern.
+
+=== Example
+
+Find some individual nodes as starting points for further exploration of the graph:
+
+[source, cypher]
+----
+MANDATORY MATCH (u:User {id: $userId})
+MANDATORY MATCH (p:Product {id: $productId})
+RETURN (u)-[:OWNS]->(p)
+----
+
+In a very common variant of this scenario, nodes will be selected based on a uniqueness constraint.
+
+=== Syntax
+
+[source, ebnf]
+----
+clause  = "MANDATORY", "MATCH", pattern, [ { ",", pattern } ], [ "WHERE", predicate ]
+        | ...
+        ;
+----
+
+=== Interaction with existing features
+
+It is an error to try to combine `MANDATORY` and `OPTIONAL` in the same `MATCH` clause.
+
+=== Alternatives
+
+Care should be taken to not confuse use-cases: This CIP allows applications to propagate some of their argument verification to Cypher by providing a fail-early mechanism for non-matching patterns.
+
+Alternatively, Cypher could provide a more general, heavyweight mechanism for raising errors.
+Such a facility might also achieve the goals of this CIP while additionally supporting other use-cases.
+However in the interest of keeping this proposal small and specific, this is not considered here.
+
+=== Extensions
+
+It may be desirable to execute a `MANDATORY MATCH` per incoming match of already bound variables. This is out of the scope of this CIP but may become possible in the future if Cypher adopts functionality for nested correlated subqueries.
+
+It may be desirable that the user provides an error token that would simplify identifying the failed `MANDATORY MATCH`.
+This could be introduced as part of a larger CIP on error handling in general and is out of scope of this CIP.
+
+== What others do
+
+No similar facility exists in SQL.
+
+== Benefits to this proposal
+
+Application programmers get a new powerful facility for detecting semantical errors in their applications while also failing early in the case of an error (thus avoiding unnecessary work).
+
+== Caveats to this proposal
+
+It increases the size of the language, if only slightly, and adds another keyword.
