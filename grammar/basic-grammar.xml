@@ -675,7 +675,6 @@
       FILTER
       EXTRACT
       ANY
-      ALL
       NONE
       SINGLE
     </alt>
