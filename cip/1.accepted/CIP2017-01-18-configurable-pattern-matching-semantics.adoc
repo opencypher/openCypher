@@ -30,9 +30,60 @@ While Cypher allows omitting path, node, and relationship variables in a pattern
 
 == Proposal
 
+This CIP has been submitted in the belief that *CIP2017-02-06 Path Pattern Queries* will be accepted and is aligned with it.
+
+=== Deprecations
+
 This CIP proposes to replace the notion of *uniqueness scope* and *cyphermorphism* and all associated rules by providing new, configurable pattern matching semantics for Cypher as outlined in this section.
 
-This CIP has been submitted in the belief that *CIP2017-02-06 Path Pattern Queries* will be accepted and is aligned with it.
+This CIP proposes to deprecate support for binding relationship list variables in variable length relationship patterns.
+
+This CIP proposes to deprecate the existing syntax for both `shortestPath` and `allShortestPaths` matching of Cypher.
+
+
+=== Basic pattern matching semantics
+
+Each pattern consists of one or more top-level pattern parts that are given in a comma separated list.
+
+[source=cypher]
+----
+MATCH (a)-->(b), (c)<--(d)
+RETURN *
+----
+
+The solution (set of succesful matches) of a pattern is the cross product over the solutions of all it's top-level pattern parts, i.e. the above is the same as
+
+[source=cypher]
+----
+MATCH (a)-->(b)
+// sequence of matches acts like a cross product:name: value
+// for each incoming row with a and b, find all matches (c)<--(d)
+MATCH (c)<--(d)
+RETURN *
+----
+
+(ignoring uniqueness).
+
+Binding any two node patterns, relationship patterns, or path patterns that are contained in the same pattern are bound to the same pattern variable describes an implicit join, i.e.
+
+[source=cypher]
+----
+MATCH (a)-->()<--(a)-->(b)
+RETURN a
+----
+
+is semantically the same as
+
+[source=cypher]
+----
+MATCH (n1)-->(n2), (n3)<--(n4), (n4)-->(b) WHERE n1 = n4 AND n2 = n3
+RETURN v1 AS a
+----
+
+=== Pattern binders
+
+This CIP proposes to name the path variable that occurs before a pattern element of a pattern part to *pattern binder* in the grammar.
+Note that such variables are always bound to a linear sequence of node, relationship, and path patterns of its pattern element.
 
 === Walks
 
@@ -46,27 +97,28 @@ Note that every `PATH` is a `TRAIL` and that every `TRAIL` is a `WALK`.
 
 This CIP proposes to rename the cypher type `PATH` to `WALK`.
 
-=== Pattern binders
-
-This CIP proposes to name the path variable that occurs before a pattern element of a pattern part to *pattern binder* in the grammar.
-Note that such variables are always bound to a linear sequence of node, relationship, and path query patterns of its pattern element.
+=== Pattern binder class
 
 This CIP proposes introducing the notion of a *pattern binder class* that may be writtern before a pattern binder in a read-only pattern (i.e. a pattern that is not used as an argument to an updating clause) and restricts the set of valid pattern matches for the following pattern element.
-The proposed pattern binder classes are:
+The proposed pattern binder classes in both singular and plural form are:
 
-* `WALK` This pattern binder should only be bound to a `WALK` that matches all node, relationship, and path query patterns given in the following pattern element
-* `TRAIL` This pattern binder should only be bound to a `TRAIL` that matches all node, relationship, and path query patterns given in the following pattern element
-* `PATH` This pattern binder should only be bound to a simple `PATH` that matches all node, relationship, and path query patterns given in the following pattern element
+* `WALK` (plural: `WALKS`) This pattern binder should only be bound to a `WALK` that matches all node, relationship, and path patterns given in the following pattern element.
+* `TRAIL` (plural: `TRAILS`) This pattern binder should only be bound to a `TRAIL` that matches all node, relationship, and path patterns given in the following pattern element
+* `PATH` (plural: `PATHS`) This pattern binder should only be bound to a simple `PATH` that matches all node, relationship, and path patterns given in the following pattern element
+
+This CIP proposes the default pattern binder class to be `WALK`.
 
 The pattern binder class may be futher qualified with one of the following prefixes:
 
-* `OPEN WALK|TRAIL|PATH` This pattern binder should only be bound to walks (or trails, or paths respectively) whose start and end nodes are _not the same node_
-* `CLOSED WALK|TRAIL|PATH` This pattern binder should only be bound to walks (or trails, or paths respectively) whose start and end nodes are _the same node_
+* `OPEN WALK[S]|TRAIL[S]|PATH[S]` This pattern binder should only be bound to walks (or trails, or paths respectively) whose start and end nodes are _not the same node_
+* `CLOSED WALK[S]|TRAIL[S]|PATH[S]` This pattern binder should only be bound to walks (or trails, or paths respectively) whose start and end nodes are _the same node_
 
 The following additional pattern binder classes are proposed to accomodate existing terminology that is commonly used in graph theory:
 
 * `CIRCUIT` is a synonym for `CLOSED TRAIL`
 * `CYCLE` is a synonym for `CLOSED PATH`
+* `CIRCUITS` is a synonym for `CLOSED TRAILS`
+* `CYCLES` is a synonym for `CLOSED PATHS`
 
 Implementations are advised to signal a warning for every use of an `OPEN` pattern binder class if the two endpoints of the pattern element are both unbound and both use the same variable name.
 
@@ -78,85 +130,82 @@ This CIP proposes introducing the notion of a *pattern match mode* that may be w
 
 A pattern match mode is always written before any pattern binder class that has been explicitly given for the same pattern binder.
 
-==== MATCH EVERY mode
+==== Matching node patterns
 
-This CIP proposes the new `MATCH EVERY` pattern match mode that matches every walk (or trail, or path respectively) as described by all node, relationship, and path query patterns given in the following pattern elements.
-This may return an infinite or at least a very large result for some graphs.
+A node pattern always matches all described nodes from the graph.
 
-Implementations are advised to signal a warning for every use of `MATCH EVERY (OPEN|CLOSED) WALK` that may lead to the generation of an infinite result set.
+Different pattern match modes do not influence the set of matched nodes.
+
+==== MATCH ALL mode
+
+This CIP proposes the new `MATCH ALL` pattern match mode that matches every walk (or trail, or path respectively) as described by all node, relationship, and path patterns given in the following pattern elements.
+
+`MATCH ALL` may only be used in conjunction with a binder class in plural form (i.e. `WALKS`, `TRAILS`, `PATHS`).
+
+This CIP proposes that an error should be raised for any use of `MATCH ALL` without an explicit binder class in combination with variable length relationship or path patterns.
+
+Implementations are advised to signal a warning for any use of `MATCH ALL (OPEN|CLOSED) WALKS` that may return an infinite or prohibitively large result.
+
+==== MATCH ALL SHORTEST mode
+
+This CIP proposes the new `MATCH ALL SHORTEST` pattern match mode that matches every _shortest_ walk (or trail, or path respectively) as described by all node, relationship, and path patterns in the following pattern elements.
+
+`MATCH ALL SHORTEST` may only be used in conjunction with a binder class in plural form (i.e. `WALKS`, `TRAILS`, `PATHS`).
 
 ==== MATCH SHORTEST mode
 
-This CIP proposes the new `MATCH SHORTEST` pattern match mode that matches every _shortest_ walk (or trail, or path respectively) as described by all node, relationship, and path query patterns in the following pattern elements.
+This CIP proposes the new `MATCH SHORTEST` pattern match mode that matches one _shortest_ walk (or trail, or path respectively) as described by all node, relationship, and path patterns in the following pattern elements.
 
-This CIP proposes to deprecate the existing syntax for both `shortestPath` and `allShortestPaths` matching of Cypher.
+`MATCH SHORTEST` may only be used in conjunction with a binder class in singular form (i.e. `WALK`, `TRAIL`, `PATH`).
 
-==== Weight declarations
+=== Default MATCH mode
 
-This CIP proposes that pattern elements may optionally be followed by weight declarations of one of the following forms:
+This CIP proposes a new default pattern match mode that assigns a different pattern match mode to each type of pattern element:
 
-* `WEIGHT <numerical-aggregation> OVER <rel> AS <weight>` Calculates a weight `<weight>` by evaluating the given `<numerical-aggregation>` for each relationship `<rel>` in the associated match
-* `WEIGHT |<expr>| AS <weight>` Calculates a weight `<weight>` by summing the results of evaluating `abs(<expr>)` for each relationship `r` in the associated match in a special scope that only contains all properties of `r` as variables
+* Simple relationship patterns (e.g. `()-[]->()`) are to be matched using `MATCH ALL` (which is identical to `MATCH ALL SHORTEST` for simple relationship patterns)
+* Bounded variable length relationship patterns (e.g. `()-[*2..4]->()`) are to be matched using `MATCH ALL`
+* Unbounded variable length relationship patterns (e.g. `()-[*]->()`) are to be matched using `MATCH ALL`
+* Path patterns (e.g. `()-/../->()`) are to be matched using `MATCH ALL SHORTEST`
 
-Multiple weight declarations may be given as long as they do not define the same `<weight>` variable.
+This CIP proposes that an error should be raised for any use of the default pattern match mode without an explicit binder class in combination with variable length relationship patterns.
 
-==== MATCH CHEAPEST mode
+The default pattern match mode may only be used in conjunction with a binder class in plural form (i.e. `WALKS`, `TRAILS`, `PATHS`).
 
-This CIP proposes the new `MATCH CHEAPEST` pattern match mode that matches every cheapest walk (or trail, or path respectively) as described by all node, relationship, and path query patterns given in the following pattern element and according to the pattern element's concluding first _mandatory_ weight declaration.
-
-==== Mandatory weight declarations
-
-A mandatory weight declaration is prefixed with `BY`, may omit specifying a variable name for the computed weight, and it's aggregation must be monotone (i.e. the sequence of intermediary results obtained by computing the aggregation incrementally over all input values in any order is always monotonically increasing).
-
-A conforming implementation is expected to raise a runtime error when the monotonicity of a mandatory weight declaration is violated at runtime.
-
-A conforming implementation may raise a compile time error when it can statically prove that the monotonicity of a mandatory weight declaration may be violated at runtime.
-
-Additional weight declarations may be given after a mandatory weight declaration as long as no two weight declarations define conflicting aliases.
-
-==== Singular matches
-
-This CIP proposes optionally prefixing pattern match modes and pattern binder classes with the `ONE [OF]` marker to support returning at most one match.
-
-=== Multiple pattern parts
-
-If a pattern consists of multiple pattern parts, they are first solved independently before returning their cross product as the final result of the pattern.
-
-=== Default pattern matching semantics
-
-This CIP defines three classes of pattern parts:
-
-* *Fixed length pattern parts* are top-level pattern parts that may consist of node patterns or single length relationship patterns only.
-* *Variable length pattern parts* are top-level pattern parts that may consist of node patterns, single length relationship patterns, or path query patterns only.
-* *Legacy variable length pattern parts* are top-level pattern parts that may consist of node patterns, single length relationship patterns, or path query patterns and contain at least one legacy variable length pattern (including chains of single length patterns expressed as bounded variable length patterns).
-
-Current Cypher pattern matching semantics correspond to using `MATCH EVERY TRAIL` by default for all top-level pattern parts (i.e. `MATCH` behaves like `MATCH EVERY TRAIL`)
-
-This CIP proposes to adopt the following new default pattern match modes and default pattern binder classes:
-
-* `EVERY WALK` for fixed length pattern parts,
-* `SHORTEST WALK` for variable length pattern parts, and
-* `EVERY TRAIL` for legacy variable length pattern parts only.
-
-This CIP aligns with the introduction of path query patterns by proposing that existing bounded and unbounded variable length patterns are to be deprecated in favor of path query patterns.
-
-This changes Cypher to use homomorphic matching for all non-deprecated pattern parts.
+This changes Cypher to use homomorphic matching for simple relationship patterns.
 
 === Predicates and functions for working with walks
 
 This CIP proposes to introduce additional predicates and functions for working with walks
 
-* `open(p)`: true if the start node and the end node of `p` are not the same node
-* `closed(p)`: true if the start node and the end node of `p` are the same node
-* `trail(p)`: `p` if `p` contains no duplicate relationships, `NULL` otherwise
-* `path(p)`: `p` if `p` contains no duplicate relationships and either no duplicate nodes at all or the start node and the end node are the same node, `NULL` otherwise
-* `circuit(p)`:  `trail(p)`, if `closed(p)` is true, `NULL` otherwise
-* `cycle(p)`: `path(p)`, if `closed(p)` is true, `NULL` otherwise
+* `isOpen(p)`: true if the start node and the end node of `p` are not the same node
+* `isClosed(p)`: true if the start node and the end node of `p` are the same node
+* `toTrail(p)`: `p` if `p` contains no duplicate relationships, `NULL` otherwise
+* `toPath(p)`: `p` if `p` contains no duplicate relationships and either no duplicate nodes at all or the start node and the end node are the same node, `NULL` otherwise
+* `toCircuit(p)`:  return `toTrail(p)` if `closed(p)` is true, `NULL` otherwise
+* `toCycle(p)`: returns `toPath(p)` if `closed(p)` is true, `NULL` otherwise
 * `disjoint(list1, list2, ..., list_n)` is true if the lists do not share any elements
 
-To support a common family of weight calculations, this CIP proposes the introduction of a new aggregate function `product` for computing the product of a set of numbers.
+=== Multiline patterns
 
-Evaluating `product` for an empty set returns `1`.
+Finally, this CIP proposes additional syntax for splitting a pattern binding accross multiple lines:
+
+[source=cypher]
+----
+MATCH p=(a)-/~very_long_path_pattern/->(b)-/~another-long_path_pattern/->(c)
+RETURN *
+----
+
+may be split as:
+
+[source=cypher]
+----
+MATCH p=(a)-/~very_long_path_pattern/->(b)
+      + (b)-/~another-long_path_pattern/->(c)
+RETURN *
+----
+
+This additional syntax is necessary due to the changes uniqueness scoping rules for pattern binders.
+Splitting the pattern using `,` instead of the proposed `+` would have changed the result by only binding the first part of the pattern to `p`.
 
 == Examples
 
@@ -166,34 +215,26 @@ The following examples demonstrates various ways in which the newly proposed con
 
 [source=cypher]
 ----
-// shortestPath(...) today becomes:
-MATCH ONE SHORTEST [TRAIL] p=(a)-[r*]->(b)
+// MATCH p=shortestPath((a)-[:X*]->()) today becomes:
+MATCH SHORTEST TRAIL p=(a)-[:X*]->()
 RETURN *
 
-// allShortestPaths(...) today becomes:
-MATCH SHORTEST [TRAIL] p=(a)-[r*]->(b)
-RETURN p
-----
+// MATCH p=shortestPaths((a)-[:X*]->()) may be approximated using path patterns:
+MATCH SHORTEST p=(a)-/:X*/->()
+RETURN *
 
-=== Matching cheapest paths
+// MATCH p=allShortestPaths((a)-[:X*]->()) today becomes:
+MATCH ALL SHORTEST TRAILS p=(a)-[:X*]->()
+RETURN *
 
-[source=cypher]
-----
-MATCH CHEAPEST PATH p=(a)-/(:LOVES|:LIKES)*/->(b) BY WEIGHT |strength| AS w
-RETURN p AS path, w AS weight
-----
-
-=== Matching one path and computing its weight
-
-[source=cypher]
-----
-MATCH ONE PATH p=(a)-[*]->(b) WEIGHT product(r.score+r.handicap) OVER r AS w
-RETURN p, w
+// MATCH p=allShortestPaths((a)-[:X*]->()) today may be approximated using path patterns:
+MATCH p=(a)-/:X*/->()
+RETURN *
 ----
 
 === Matching with existing semantics
 
-`overlap` may be used to precisely express Cypher's current pattern matching semantics.
+`disjoint` may be used to precisely express Cypher's current pattern matching semantics.
 
 [source=cypher]
 ----
@@ -201,25 +242,24 @@ RETURN p, w
 MATCH pat1=..., pat2=..., pat3=...
 
 // This CIP
-MATCH EVERY TRAIL pat1=...
-MATCH EVERY TRAIL pat2=...
-MATCH EVERY TRAIL pat3=...
+MATCH pat1=...
+MATCH pat2=...
+MATCH pat3=...
 WHERE disjoint(rels(pat1), rels(pat2), rels(pat3))
 ----
 
-== Per-parser options
+== Pre-parser options
 
-It is suggested that a conforming implementation should provide pre-parser options for defining the default pattern binder class for each pattern match mode as well as the default pattern match mode for each class of pattern parts:
+It is suggested that a conforming implementation should provide pre-parser options for defining the default pattern binder class as well as the default pattern match mode:
 
-* `match-every=walk|trail|path` for configuring the default pattern binder class for each use of the `MATCH EVERY` pattern match mode
-* `match-shortest=walk|trail|path` for configuring the default pattern binder class for each use of the `MATCH SHORTEST` pattern match mode
-* `match-cheapest=walk|trail|path` for configuring the default pattern binder class for each use of the `MATCH CHEAPEST` pattern match mode
-* `fixlen-mode=every|shortest` for configuring the default pattern match mode of fixed length pattern parts
-* `varlen-mode=every|shortest` for configuring the default pattern match mode of variable length pattern parts
+for each pattern match mode as well as the default pattern match mode for each class of pattern parts:
+
+* `binder-class=walk[s]|trail[s]|path[s]` for configuring a different default pattern binder class
+* `match-mode=all|all-shortest|shortest` for configuring a different default pattern match mode
 
 == Benefits to this proposal
 
-This proposal adds a generic facility to Cypher for expressing desired pattern matching semantics.
+This proposal adds a facility to Cypher for selecting from multiple desirable pattern matching semantics.
 
 == Caveats to this proposal
 
@@ -228,4 +268,4 @@ A moderate increase in language complexity.
 A substantial departure from current pattern matching semantics.
 However, care has been taken to retain access to current semantics.
 
-`MATCH EVERY [OPEN|CLOSED] WALK` allows for non-terminating queries.
+`MATCH ALL [OPEN|CLOSED] WALKS` allows for non-terminating queries.
