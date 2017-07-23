@@ -10,12 +10,12 @@ This proposal is a response to CIR-2017-174.
 
 == Motivation
 
-Currently Cypher uses pattern matching semantics that treats all patterns that occur in a `MATCH` clause as a unit (called a *uniqueness scope*) and only considers pattern instances that bind different relationships to each fixed length relationship pattern variable and to each element of a variable length relationship pattern variable.
-This has come to be called *cypermorphism* informally and is a variation of edge isomorphism.
+Currently Cypher uses pattern matching semantics that treats _all_ patterns that occur in a `MATCH` clause as a unit (called a *uniqueness scope*) and only considers pattern instances that bind different relationships to each fixed length relationship pattern variable and to each element of a variable length relationship pattern variable.
+This has come to be called *cypermorphism* informally and is a form of edge isomorphism that is based on Cypher's notion of uniqueness scope.
 
 Cyphermorphism lies at the intersection of returning as many results as possible while still ruling out returning an infinite number of paths when matching graphs that contain cycles.
 
-However, the notion of *uniqueness scope* has proven to be non-standard and is occasionally confusing for users and cyphermorphic matching is not tractable in terms of computational complexity for some graphs.
+However, the notion of uniqueness scope has proven to be non-standard and is occasionally confusing for users and cyphermorphic matching is not tractable in terms of computational complexity for some graphs.
 
 The CIP aims to address these issues.
 
@@ -142,7 +142,7 @@ This CIP proposes the new `MATCH ALL` pattern match mode that matches every walk
 
 `MATCH ALL` may only be used in conjunction with a binder class in plural form (i.e. `WALKS`, `TRAILS`, `PATHS`).
 
-This CIP proposes that an error should be raised for any use of `MATCH ALL` without an explicit binder class in combination with variable length relationship or path patterns.
+This CIP proposes that an error should be raised for any use of `MATCH ALL` without an explicit binder class in combination with an unbounded variable length relationship pattern or an unbounded path pattern.
 
 Implementations are advised to signal a warning for any use of `MATCH ALL (OPEN|CLOSED) WALKS` that may return an infinite or prohibitively large result.
 
@@ -167,7 +167,7 @@ This CIP proposes a new default pattern match mode that assigns a different patt
 * Unbounded variable length relationship patterns (e.g. `()-[*]->()`) are to be matched using `MATCH ALL`
 * Path patterns (e.g. `()-/../->()`) are to be matched using `MATCH ALL SHORTEST`
 
-This CIP proposes that an error should be raised for any use of the default pattern match mode without an explicit binder class in combination with variable length relationship patterns.
+This CIP proposes that an error should be raised for any use of the default pattern match mode without an explicit binder class in combination with an unbounded variable length relationship pattern only.
 
 The default pattern match mode may only be used in conjunction with a binder class in plural form (i.e. `WALKS`, `TRAILS`, `PATHS`).
 
@@ -181,8 +181,8 @@ This CIP proposes to introduce additional predicates and functions for working w
 * `isClosed(p)`: true if the start node and the end node of `p` are the same node
 * `toTrail(p)`: `p` if `p` contains no duplicate relationships, `NULL` otherwise
 * `toPath(p)`: `p` if `p` contains no duplicate relationships and either no duplicate nodes at all or the start node and the end node are the same node, `NULL` otherwise
-* `toCircuit(p)`:  return `toTrail(p)` if `closed(p)` is true, `NULL` otherwise
-* `toCycle(p)`: returns `toPath(p)` if `closed(p)` is true, `NULL` otherwise
+* `toCircuit(p)`:  return `toTrail(p)` if `isClosed(p)` is true, `NULL` otherwise
+* `toCycle(p)`: returns `toPath(p)` if `isClosed(p)` is true, `NULL` otherwise
 * `disjoint(list1, list2, ..., list_n)` is true if the lists do not share any elements
 
 === Multiline patterns
@@ -206,6 +206,15 @@ RETURN *
 
 This additional syntax is necessary due to the changes uniqueness scoping rules for pattern binders.
 Splitting the pattern using `,` instead of the proposed `+` would have changed the result by only binding the first part of the pattern to `p`.
+
+== Pre-parser options
+
+It is suggested that a conforming implementation should provide pre-parser options for defining the default pattern binder class as well as the default pattern match mode:
+
+for each pattern match mode as well as the default pattern match mode for each class of pattern parts:
+
+* `bind=walks|trails|paths` for configuring a different default pattern binder class
+* `match=all|all-shortest|shortest` for configuring a different default pattern match mode
 
 == Examples
 
@@ -240,22 +249,31 @@ RETURN *
 ----
 // Today (using same uniqueness scope for pat1, pat2, and pat)
 MATCH pat1=..., pat2=..., pat3=...
+RETURN *
 
 // This CIP
 MATCH TRAILS pat1=...
 MATCH TRAILS pat2=...
 MATCH TRAILS pat3=...
-WHERE disjoint(rels(pat1), rels(pat2), rels(pat3))
+WITH * WHERE disjoint(rels(pat1), rels(pat2), rels(pat3))
+RETURN *
 ----
 
-== Pre-parser options
+This query may be simplified by using a pre-parser option:
 
-It is suggested that a conforming implementation should provide pre-parser options for defining the default pattern binder class as well as the default pattern match mode:
+[source=cypher]
+----
+// Today (using same uniqueness scope for pat1, pat2, and pat)
+MATCH pat1=..., pat2=..., pat3=...
 
-for each pattern match mode as well as the default pattern match mode for each class of pattern parts:
-
-* `binder-class=walk[s]|trail[s]|path[s]` for configuring a different default pattern binder class
-* `match-mode=all|all-shortest|shortest` for configuring a different default pattern match mode
+// This CIP, using pre-parser option
+CYPHER bind=trails
+MATCH pat1=...
+MATCH pat2=...
+MATCH pat3=...
+WITH * WHERE disjoint(rels(pat1), rels(pat2), rels(pat3))
+RETURN *
+----
 
 == Benefits to this proposal
 
