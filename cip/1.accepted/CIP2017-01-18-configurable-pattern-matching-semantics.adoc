@@ -211,8 +211,6 @@ Splitting the pattern using `,` instead of the proposed `+` would have changed t
 
 It is suggested that a conforming implementation should provide pre-parser options for defining the default pattern binder class as well as the default pattern match mode:
 
-for each pattern match mode as well as the default pattern match mode for each class of pattern parts:
-
 * `bind=walks|trails|paths` for configuring a different default pattern binder class
 * `match=all|all-shortest|shortest` for configuring a different default pattern match mode
 
