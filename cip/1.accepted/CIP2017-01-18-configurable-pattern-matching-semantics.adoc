@@ -89,9 +89,9 @@ Note that path patterns are assumed from the *CIP2017-02-06 Path Pattern Queries
 [source,ebnf]
 ----
 Pattern = PatternPart, { ',', PatternPart } ;
-PatternPart = [ PatternVariableSpec, '=' ], NodePattern, { (EdgePattern | PathPattern), NodePattern } ;
+PatternPart = [ PatternVariableSpec ], NodePattern, { (EdgePattern | PathPattern), NodePattern } ;
 
-PatternVariableSpec = [ PatternMatchMode ], [ PatternVariableClass ], Variable ;
+PatternVariableSpec = [ PatternMatchMode ], [ PatternVariableClass ], [ Variable, '=' ] ;
 
 PatternMatchMode     = 'ALL'
                      | 'ALL SHORTEST'
