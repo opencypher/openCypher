@@ -91,18 +91,20 @@ Note that path patterns are assumed from the *CIP2017-02-06 Path Pattern Queries
 Pattern = PatternPart, { ',', PatternPart } ;
 PatternPart = [ PatternVariableSpec, '=' ], NodePattern, { (EdgePattern | PathPattern), NodePattern } ;
 
-PatternVariableSpec = [ PatternMatchMode ], [ PVClassModifier ], [ PatternVariableClass ], Variable ;
+PatternVariableSpec = [ PatternMatchMode ], [ PatternVariableClass ], Variable ;
 
-PatternVariableClass = 'WALK' | 'WALKS'
-                     | 'TRAIL' | 'TRAILS'
-                     | 'PATH' | 'PATHS'
-                     ;
-PVClassModifier      = 'OPEN'
-                     | 'CLOSED'
-                     ;
 PatternMatchMode     = 'ALL'
                      | 'ALL SHORTEST'
                      | 'SHORTEST'
+                     ;
+PatternVariableClass = ([ PVClassModifier ], 'WALK', ['S'])
+                     | ([ PVClassModifier ], 'TRAIL', ['S'])
+                     | ([ PVClassModifier ], 'PATH', ['S'])
+                     | ('CYCLE', ['S'])
+                     | ('CIRCUIT', ['S'])
+                     ;
+PVClassModifier      = 'OPEN'
+                     | 'CLOSED'
                      ;
 ----
 
