@@ -209,13 +209,6 @@ This CIP proposes to introduce additional predicates and functions for working w
 * `toCycle(p)`: returns `toPath(p)` if `isClosed(p)` is true, `NULL` otherwise
 * `disjoint(list1, list2, ..., list_n)` is true if the lists do not share any elements
 
-== Pre-parser options
-
-It is suggested that a conforming implementation should provide pre-parser options for defining the default pattern variable class as well as the default pattern match mode:
-
-* `bind=walks|trails|paths` for configuring a different default pattern variable class
-* `match=all|all-shortest|shortest` for configuring a different default pattern match mode
-
 == Examples
 
 The following examples demonstrates various ways in which the newly proposed constructs may be used if this CIP is adopted.
@@ -245,7 +238,8 @@ RETURN *
 
 `disjoint` may be used to precisely express Cypher's current pattern matching semantics.
 
-[source=cypher]
+.Query 4.2.1
+[source,cypher]
 ----
 // Today (using same uniqueness scope for pat1, pat2, and pat)
 MATCH pat1=..., pat2=..., pat3=...
@@ -259,15 +253,16 @@ WITH * WHERE disjoint(rels(pat1), rels(pat2), rels(pat3))
 RETURN *
 ----
 
-This query may be simplified by using a pre-parser option:
+Assuming a pre-parser option `class` which allows overriding the default pattern variable class, we may reduce the verbosity of Query 4.2.1 as in Query 4.2.2:
 
-[source=cypher]
+.Query 4.2.2
+[source,cypher]
 ----
 // Today (using same uniqueness scope for pat1, pat2, and pat)
 MATCH pat1=..., pat2=..., pat3=...
 
 // This CIP, using pre-parser option
-CYPHER bind=trails
+CYPHER class=trails
 MATCH pat1=...
 MATCH pat2=...
 MATCH pat3=...
