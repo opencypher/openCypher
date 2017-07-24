@@ -93,9 +93,9 @@ PatternPart = [ PatternVariableSpec, '=' ], NodePattern, { (EdgePattern | PathPa
 
 PatternVariableSpec = [ PatternMatchMode ], [ PVClassModifier ], [ PatternVariableClass ], Variable ;
 
-PatternVariableClass = 'WALK'
-                     | 'TRAIL'
-                     | 'PATH'
+PatternVariableClass = 'WALK' | 'WALKS'
+                     | 'TRAIL' | 'TRAILS'
+                     | 'PATH' | 'PATHS'
                      ;
 PVClassModifier      = 'OPEN'
                      | 'CLOSED'
