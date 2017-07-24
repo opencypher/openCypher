@@ -209,28 +209,6 @@ This CIP proposes to introduce additional predicates and functions for working w
 * `toCycle(p)`: returns `toPath(p)` if `isClosed(p)` is true, `NULL` otherwise
 * `disjoint(list1, list2, ..., list_n)` is true if the lists do not share any elements
 
-=== Multiline patterns
-
-Finally, this CIP proposes additional syntax for splitting a pattern binding accross multiple lines:
-
-[source=cypher]
-----
-MATCH p=(a)-/~very_long_path_pattern/->(b)-/~another-long_path_pattern/->(c)
-RETURN *
-----
-
-may be split as:
-
-[source=cypher]
-----
-MATCH p=(a)-/~very_long_path_pattern/->(b)
-      + (b)-/~another-long_path_pattern/->(c)
-RETURN *
-----
-
-This additional syntax is necessary due to the changes uniqueness scoping rules for pattern variables.
-Splitting the pattern using `,` instead of the proposed `+` would have changed the result by only binding the first part of the pattern to `p`.
-
 == Pre-parser options
 
 It is suggested that a conforming implementation should provide pre-parser options for defining the default pattern variable class as well as the default pattern match mode:
