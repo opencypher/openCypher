@@ -35,6 +35,7 @@ image::CIP2017-01-18-WTP-Graph.jpg[Graph,300,200]
 
 For the remainder of this CIP, we use the notation `r^-^` to indicate that a relationship `r` was traversed in the inverse direction; i.e. that `r` was traversed from its target node to its source node.
 
+[[walks]]
 === Walk
 
 A walk is an arbitrary, non-empty sequence of alternating nodes and relationships that starts with a node and ends with a node.
@@ -48,6 +49,7 @@ Moreover, `S~1~` is not a _closed_ walk, as `B` (the start node) ≠ `A` (the en
 
 A walk corresponds to the standard definition of _homomorphic_ graph pattern matching.
 
+[[trails]]
 === Trail
 
 A trail is a walk that does not contain any duplicate relationships.
@@ -60,6 +62,7 @@ Moreover, `S~2~` is not a **closed trail**, as `B` (the start node) ≠ `C` (the
 
 A trail corresponds to the notion of _Cyphermorphic_ graph pattern matching.
 
+[[paths]]
 === Path
 
 A path is a trail that does not contain the same node twice unless that node is both the start node and the end node of the path.
@@ -76,6 +79,7 @@ A path corresponds to the standard definition of _isomorphic_ graph pattern matc
 
 This CIP has been submitted in the belief that *CIP2017-02-06 Path Pattern Queries* will be accepted and is aligned with it.
 
+[[syntax]]
 === Syntax
 
 Below is outlined the syntactical changes proposed in this CIP.
@@ -110,7 +114,7 @@ While Cypher allows omitting path, node, and relationship variables in a pattern
 
 === Deprecations
 
-This CIP proposes to replace the notion of *uniqueness scope* and *cyphermorphism* and all associated rules with new, configurable pattern matching semantics.
+This CIP proposes to replace the notion of *uniqueness scope* and *Cyphermorphism* and all associated rules with new, configurable pattern matching semantics.
 
 Likewise to what is proposed by *CIP2017-02-06 Path Pattern Queries*, support for binding relationship list variables in variable length patterns will be deprecated.
 
@@ -158,35 +162,25 @@ WHERE n1 = n4 AND n2 = n3 AND n4 = n5
 RETURN n1 AS a
 ----
 
-=== Walks, trails and paths
+=== Pattern variables and classes
 
-This CIP introduces the following kinds of walks:
+This CIP proposes to name the variable to which a pattern part may be assigned a _pattern variable_.
+Note that pattern variables are always bound to a connected sequence of node, relationship, and path patterns (see <<syntax>>).
 
-* `WALK`: A walk is an arbitrary, non-empty sequence of alternating nodes and relationships that starts with a node and ends with a node.
-* `TRAIL`: A trail is a walk in which all relationships are distinct.
-* `PATH`: A path is a trail in which all nodes are distinct, except when the path starts and ends at the same node.
-
-Note that every `PATH` is a `TRAIL` and that every `TRAIL` is a `WALK`.
-
-This CIP proposes to rename the cypher type `PATH` to `WALK`.
-
-=== Pattern variables
-
-This CIP proposes to name the variable to which a pattern part may be assigned a *pattern variable* in the grammar.
-Note that pattern variables are always bound to a connected sequence of node, relationship, and path patterns of its pattern part.
-
-.In the query, `p` and `q` are examples of pattern variables. A named path pattern `foo` is assumed.
+.In the query, `p` and `q` are examples of pattern variables. A named path pattern `foo` is assumed:
 [source, cypher]
 ----
 MATCH p = (:A)-->(:B)-[:KNOWS]->(), q = (a)-/~foo/->(b)
 RETURN p, q
 ----
 
-Three different classes of pattern variables are proposed by this CIP:
+Three classes of pattern variables are proposed:
 
-* `WALK`: This pattern variable should only be bound to a `WALK` that matches all node, relationship, and path patterns given.
-* `TRAIL`: This pattern variable should only be bound to a `TRAIL` that matches all node, relationship, and path patterns given.
-* `PATH`: This pattern variable should only be bound to a `PATH` that matches all node, relationship, and path patterns given.
+* `WALK`: Pattern variables of this class may only be bound to pattern instances that are walks, as defined in <<walks>>.
+* `TRAIL`: Pattern variables of this class may only be bound to pattern instances that are trails, as defined in <<trails>>.
+* `PATH`: Pattern variables of this class may only be bound to pattern instances that are paths, as defined in <<paths>>.
+
+NOTE: This CIP proposes to rename the Cypher type `PATH` to `WALK`.
 
 .Example of using pattern variable classes for the pattern variables `p` and `q`:
 [source, cypher]
@@ -195,7 +189,7 @@ MATCH TRAIL p = (:A)-->(:B)-[:KNOWS]->(), PATH q = (a)-/~foo/->(b)
 RETURN p, q
 ----
 
-This CIP proposes the default pattern variable class to be `WALK`.
+NOTE: This CIP proposes the default pattern variable class to be `WALK`.
 
 The pattern variable class may be further qualified with one of the following prefixes:
 
@@ -257,13 +251,13 @@ The following examples demonstrates various ways in which the newly proposed con
 
 === Matching shortest paths
 
-[source=cypher]
+[source,cypher]
 ----
 // MATCH p=shortestPath((a)-[:X*]->()) today becomes:
 MATCH SHORTEST TRAIL p=(a)-[:X*]->()
 RETURN *
 
-// MATCH p=shortestPaths((a)-[:X*]->()) may be approximated using path patterns:
+// MATCH p=shortestPath((a)-[:X*]->()) may be approximated using path patterns:
 MATCH SHORTEST p=(a)-/:X*/->()
 RETURN *
 
