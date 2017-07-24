@@ -21,8 +21,8 @@ The CIP aims to address these issues.
 
 == Background
 
-This CIP is based upon the notions of _walks_, _trails_ and _paths_, as defined by _Jungnickel_ in [1].
-We note that walks, trails and paths are not universally used, and correspond to _paths_, _simple paths_ and _tidy paths_ as defined by _Rosen_ [2].
+This CIP is based upon the notions of _walks_, _trails_ and _paths_, as defined by _Jungnickel_ <<Jung10>>.
+We note that walks, trails and paths are not universally used, and correspond to _paths_, _simple paths_ and _tidy paths_ as defined by _Rosen_ <<Rose02>>.
 However, we use Jungnickel's definitions as the terms lend themselves better from a syntactic perspective.
 
 We define and provide an example for each of these terms below.
@@ -325,9 +325,11 @@ However, care has been taken to retain access to current semantics.
 
 == References
 
-[1] D. Jungnickel. Graphs, Networks and Algorithms. Springer Publishing Company, 2010.
+[[Jung10]]
+[Jung10] D. Jungnickel. _Graphs, Networks and Algorithms_. Springer Publishing Company, 2010.
 
-[2] K. H. Rosen. Discrete Mathematics and Its Applications. McGraw-Hill, 2002.
+[[Rose02]]
+[Rose02] K. H. Rosen. _Discrete Mathematics and Its Applications_. McGraw-Hill, 2002.
 
 [appendix]
 == Functions for working with walks
