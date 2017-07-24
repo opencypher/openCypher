@@ -224,7 +224,7 @@ This CIP proposes the new `ALL` pattern match mode that matches every walk (or t
 
 This CIP proposes that an error should be raised for any use of the `ALL` pattern match mode without an explicit pattern variable class in combination with an unbounded variable length relationship pattern or an unbounded path pattern.
 
-Implementations are advised to signal a warning for any use of `MATCH ALL (OPEN|CLOSED) WALKS` that may return an infinite or prohibitively large result.
+Implementations are advised to signal a warning for any use of `MATCH ALL (OPEN|CLOSED) WALKS` that may return an infinite result.
 
 ==== ALL SHORTEST mode
 
@@ -244,6 +244,8 @@ This CIP proposes a new default pattern match mode that assigns a different patt
 * Path patterns (e.g. `()-/../\->()`) are to be matched using `ALL SHORTEST`.
 
 This CIP proposes that an error should be raised for any use of the default pattern match mode without an explicit pattern variable class in combination with an unbounded variable length relationship pattern only.
+
+Implementations are advised to signal a warning for any use of the default pattern match mode that may return an infinite result.
 
 == Examples
 
