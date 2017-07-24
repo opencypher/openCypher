@@ -197,18 +197,6 @@ This CIP proposes a new default pattern match mode that assigns a different patt
 
 This CIP proposes that an error should be raised for any use of the default pattern match mode without an explicit pattern variable class in combination with an unbounded variable length relationship pattern only.
 
-=== Predicates and functions for working with walks
-
-This CIP proposes to introduce additional predicates and functions for working with walks
-
-* `isOpen(p)`: true if the start node and the end node of `p` are not the same node
-* `isClosed(p)`: true if the start node and the end node of `p` are the same node
-* `toTrail(p)`: `p` if `p` contains no duplicate relationships, `NULL` otherwise
-* `toPath(p)`: `p` if `p` contains no duplicate relationships and either no duplicate nodes at all or the start node and the end node are the same node, `NULL` otherwise
-* `toCircuit(p)`:  return `toTrail(p)` if `isClosed(p)` is true, `NULL` otherwise
-* `toCycle(p)`: returns `toPath(p)` if `isClosed(p)` is true, `NULL` otherwise
-* `disjoint(list1, list2, ..., list_n)` is true if the lists do not share any elements
-
 == Examples
 
 The following examples demonstrates various ways in which the newly proposed constructs may be used if this CIP is adopted.
@@ -236,7 +224,11 @@ RETURN *
 
 === Matching with existing semantics
 
-`disjoint` may be used to precisely express Cypher's current pattern matching semantics.
+Assume a function `disjoint()` defined as follows:
+
+* `disjoint(list1, list2, ..., list_n)`: returns `true` if all argument lists are pairwise disjoint.
+
+The function `disjoint()` may now be used to precisely express Cypher's current pattern matching semantics.
 
 .Query 4.2.1
 [source,cypher]
@@ -282,3 +274,17 @@ A substantial departure from current pattern matching semantics.
 However, care has been taken to retain access to current semantics.
 
 `MATCH ALL [OPEN|CLOSED] WALKS` allows for non-terminating queries.
+
+[appendix]
+== Functions for working with walks
+
+Related to the concepts outlined in this CIP, but peripheral to the model and semantics described, several functions are envisioned as useful for working with the various types of patterns bound to pattern variables.
+This section presents a few such functions:
+
+* `isOpen(p)`: returns `true` if the source and target nodes of `p` are distinct.
+* `isClosed(p)`: returns `true` if the source and target nodes of `p` are equal.
+* `toTrail(p)`: returns `p` if `p` contains no duplicate relationships, `null` otherwise.
+* `toPath(p)`: returns `toTrail(p)` if `p` contains no duplicate nodes at all or if the only two duplicate nodes are the source and target nodes of `p`, `null` otherwise.
+* `toCircuit(p)`:  returns `toTrail(p)` if `isClosed(p)` is true, `null` otherwise.
+* `toCycle(p)`: returns `toPath(p)` if `isClosed(p)` is true, `null` otherwise.
+
