@@ -83,13 +83,13 @@ WHERE n1 = n4 AND n2 = n3 AND n4 = n5
 RETURN n1 AS a
 ----
 
-=== Walks
+=== Walks, trails and paths
 
 This CIP introduces the following kinds of walks:
 
 * `WALK`: A walk is an arbitrary, non-empty sequence of alternating nodes and relationships that starts with a node and ends with a node.
-* `TRAIL`: A trail is a walk that does not contain the same relationship twice.
-* `PATH`: A simple path is a trail that does not contain the same node twice unless that node is both the start node and the end node of the path.
+* `TRAIL`: A trail is a walk in which all relationships are distinct.
+* `PATH`: A path is a trail in which all nodes are distinct, except when the path starts and ends at the same node.
 
 Note that every `PATH` is a `TRAIL` and that every `TRAIL` is a `WALK`.
 
