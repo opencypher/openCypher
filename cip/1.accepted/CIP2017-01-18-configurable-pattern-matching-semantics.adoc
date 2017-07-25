@@ -347,3 +347,14 @@ This section presents a few such functions:
 * `toPath(p)`: returns `toTrail(p)` if `p` contains no duplicate nodes at all or if the only two duplicate nodes are the source and target nodes of `p`, `null` otherwise.
 * `toCircuit(p)`:  returns `toTrail(p)` if `isClosed(p)` is true, `null` otherwise.
 * `toCycle(p)`: returns `toPath(p)` if `isClosed(p)` is true, `null` otherwise.
+
+[appendix]
+== Pre-parser options
+
+It is suggested that a conforming implementation should provide pre-parser options for defining the default pattern variable class as well as the default pattern match mode:
+
+* `match=one of(all|all-shortest|shortest)` for configuring a different default pattern match mode
+* `match=one of(walks|trails|paths)` for configuring a different default pattern variable class
+* `match=one of(all|all-shortest|shortest)`, `-`, `one of(walks|trails|paths)` for configuring both a different default pattern match mode and a different default pattern variable class
+
+An example of the latter would be `match=all-shortest-trails`.
