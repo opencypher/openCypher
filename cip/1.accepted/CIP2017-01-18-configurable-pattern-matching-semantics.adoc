@@ -8,6 +8,8 @@
 
 This proposal is a response to link:https://github.com/opencypher/openCypher/issues/174[CIR-2017-174].
 
+toc::[]
+
 == Motivation
 
 Currently Cypher uses pattern matching semantics that treats _all_ patterns that occur in a `MATCH` clause as a unit (called a *uniqueness scope*) and only considers pattern instances that bind different relationships to each fixed length relationship pattern variable and to each element of a variable length relationship pattern variable.
