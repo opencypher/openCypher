@@ -32,7 +32,6 @@ Assume graph `G` is given as follows:
 
 image::CIP2017-01-18-WTP-Graph.jpg[Graph,300,200]
 
-
 For the remainder of this CIP, we use the notation `r^-^` to indicate that a relationship `r` was traversed in the inverse direction; i.e. that `r` was traversed from its target node to its source node.
 
 [[walks]]
@@ -253,24 +252,59 @@ Implementations are advised to signal a warning for any use of the default patte
 
 The following examples demonstrates various ways in which the newly proposed constructs may be used if this CIP is adopted.
 
+The following graph is used:
+
+image::DataGraph.jpg[Graph,600,600]
+
+=== Homomorphic matching using walks
+
+We'll illustrate the benefits of the new homomorphic pattern matching by means of a series of queries.
+
+Assume we wish to know which two people have grandchildren in common, as well as the names of the grandchildren.
+Intuitively, we can see that the only two people in the graph have grandchildren in common, namely _Michael Redgrave_ and _Rachel Kempson_, and that there are two grandchildren, _Natasha Richardson_ and _Jemma Redgrave_.
+
+
+
+
+[source,cypher]
+----
+MATCH [ALL WALKS] (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild),
+      (grandparent2:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild)
+WHERE grandparent1 <> grandparent2
+RETURN grandparent1.name, grandparent2.name, grandchild.name
+----
+
+Equivalent to `MATCH ALL WALKS`
+
+[queryresult]
+----
++------------------------------------------------------------+
+| grandparent1.name | grandparent2.name | grandchild.name    |
++------------------------------------------------------------+
+| Michael Redgrave  | Rachel Kempson    | Natasha Richardson |
+| Michael Redgrave  | Rachel Kempson    | Jemma Redgrave     |
++------------------------------------------------------------+
+2 rows
+----
+
 === Matching shortest paths
 
 [source,cypher]
 ----
 // MATCH p=shortestPath((a)-[:X*]->()) today becomes:
-MATCH SHORTEST TRAIL p=(a)-[:X*]->()
+MATCH SHORTEST TRAIL p = (a)-[:X*]->()
 RETURN *
 
 // MATCH p=shortestPath((a)-[:X*]->()) may be approximated using path patterns:
-MATCH SHORTEST p=(a)-/:X*/->()
+MATCH SHORTEST p = (a)-/:X*/->()
 RETURN *
 
 // MATCH p=allShortestPaths((a)-[:X*]->()) today becomes:
-MATCH ALL SHORTEST TRAILS p=(a)-[:X*]->()
+MATCH ALL SHORTEST TRAILS p = (a)-[:X*]->()
 RETURN *
 
 // MATCH p=allShortestPaths((a)-[:X*]->()) today may be approximated using path patterns:
-MATCH p=(a)-/:X*/->()
+MATCH p = (a)-/:X*/->()
 RETURN *
 ----
 
@@ -286,13 +320,13 @@ The function `disjoint()` may now be used to precisely express Cypher's current 
 [source,cypher]
 ----
 // Today (using same uniqueness scope for pat1, pat2, and pat)
-MATCH pat1=..., pat2=..., pat3=...
+MATCH pat1 = ..., pat2 = ..., pat3 = ...
 RETURN *
 
 // This CIP
-MATCH TRAILS pat1=...
-MATCH TRAILS pat2=...
-MATCH TRAILS pat3=...
+MATCH TRAILS pat1 = ...
+MATCH TRAILS pat2 = ...
+MATCH TRAILS pat3 = ...
 WITH * WHERE disjoint(rels(pat1), rels(pat2), rels(pat3))
 RETURN *
 ----
@@ -303,13 +337,13 @@ Assuming a pre-parser option `class` which allows overriding the default pattern
 [source,cypher]
 ----
 // Today (using same uniqueness scope for pat1, pat2, and pat)
-MATCH pat1=..., pat2=..., pat3=...
+MATCH pat1 = ..., pat2 = ..., pat3 = ...
 
 // This CIP, using pre-parser option
 CYPHER class=trails
-MATCH pat1=...
-MATCH pat2=...
-MATCH pat3=...
+MATCH pat1 = ...
+MATCH pat2 = ...
+MATCH pat3 = ...
 WITH * WHERE disjoint(rels(pat1), rels(pat2), rels(pat3))
 RETURN *
 ----
