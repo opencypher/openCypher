@@ -101,8 +101,6 @@ PatternMatchMode     = 'ALL'
 PatternVariableClass = ([ PVClassModifier ], 'WALK', ['S'])
                      | ([ PVClassModifier ], 'TRAIL', ['S'])
                      | ([ PVClassModifier ], 'PATH', ['S'])
-                     | ('CYCLE', ['S'])
-                     | ('CIRCUIT', ['S'])
                      ;
 PVClassModifier      = 'OPEN'
                      | 'CLOSED'
@@ -203,14 +201,9 @@ Implementations are advised to signal a warning for uses of `OPEN` pattern varia
 
 Implementations are advised to signal a warning for uses of `CLOSED` pattern variable classes where the two endpoints of the pattern both use a _different_ variable name.
 
-==== Synonyms and plural forms
+==== Plural forms
 
-The following additional pattern variable classes are proposed to accommodate existing terminology that is commonly used in graph theory:
-
-* `CIRCUIT` is a synonym for `CLOSED TRAIL`
-* `CYCLE` is a synonym for `CLOSED PATH`
-
-Additionally, this CIP proposes to allow for plural forms of all pattern variable classes, which will be synonymous with their respective singular forms.
+This CIP proposes to allow for plural forms of all pattern variable classes, which will be synonymous with their respective singular forms.
 The plural forms are as follows: `WALKS`, `TRAILS`, `PATHS`, `CIRCUITS`, and `CYCLES`.
 The main motivation is to aid readability when used in conjunction with different pattern match modes (see <<modes>>).
 
