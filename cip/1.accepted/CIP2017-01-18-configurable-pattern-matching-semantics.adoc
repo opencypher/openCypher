@@ -264,7 +264,8 @@ Assume we wish to know which two people have grandchildren in common, as well as
 Intuitively, we can see that the only two people in the graph who have grandchildren in common are _Michael Redgrave_ and _Rachel Kempson_, and that there are two grandchildren, _Natasha Richardson_ and _Jemma Redgrave_.
 Although _Roy Redgrave_ is a grandfather, there is no one else in the graph who has grandchildren in common with him.
 
-.Query 4.1.1: Current semantics: single patterns
+_Query 4.1.1 - Current semantics: single patterns_
+
 [source,cypher]
 ----
 MATCH (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild),
@@ -277,7 +278,8 @@ Query 4.1.1 comprises two comma-separated matches which form a single pattern, `
 As the query runs under the current semantics, relationship uniqueness (aka Cyphermorphism) is applied to `p~1~`.
 This means that the `:HAS_CHILD` relationship given by `()-[:HAS_CHILD]->(grandchild)` is only traversed once, which results in no rows being returned.
 
-.Query 4.1.2: Current semantics: breaking the pattern to prevent the effects of Cyphermorphism
+_Query 4.1.2 - Current semantics: breaking the pattern to prevent the effects of Cyphermorphism_
+
 [source,cypher]
 ----
 MATCH (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild)
@@ -304,7 +306,7 @@ Running Query 4.1.2 returns the following results:
 4 rows
 ----
 
-.Query 4.1.3: New semantics: achieving homomorphism by default
+_Query 4.1.3 - New semantics: achieving homomorphism by default_
 
 The method to achieve homomorphism as exemplified by Query 4.1.2 is undoubtedly effective, but is potentially unintuitive and contrived.
 In contrast, Query 4.1.3 uses the new default semantics for simple relationship patterns, and achieves the desired result without the need to consciously manipulate the structure of the matching clause.
@@ -332,7 +334,7 @@ RETURN grandparent1.name, grandparent2.name, grandchild.name
 
 We could omit `ALL WALKS` from Query 4.1.3, as these are the default pattern match mode and pattern variable class, respectively, for simple relationship patterns.
 
-.Query 4.1.4: New semantics: achieving Cyphermorphism by default
+_Query 4.1.4 - New semantics: achieving Cyphermorphism by default_
 
 What happens in the scenarios where the current semantics -- i.e. Cyphermorphism -- are desirable?
 All that is required is to alter the pattern variable class in the `MATCH` clause from `WALKS` to `TRAILS` (or to just add `TRAILS` if no pattern variable class was previously specified).
