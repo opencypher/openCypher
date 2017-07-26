@@ -216,7 +216,7 @@ Node patterns are unaffected by the pattern match mode, and will always match al
 
 This CIP proposes the new `ALL` pattern match mode that matches every walk (or trail, or path respectively) as described by all node, relationship, and path patterns given in the subsequent pattern elements.
 
-This CIP proposes the default pattern variable class for `MATCH ALL` to be `TRAILS`.
+This CIP proposes the default pattern variable class for the `ALL` pattern match mode to be `TRAILS`.
 
 This CIP proposes that an error should be raised for any use of the `ALL` pattern match mode without an explicit pattern variable class in combination with an unbounded variable length relationship pattern or an unbounded path pattern.
 
@@ -226,13 +226,13 @@ Implementations are advised to signal a warning for any use of `MATCH ALL (OPEN|
 
 This CIP proposes the new `ALL SHORTEST` pattern match mode that matches every _shortest_ walk (or trail, or path respectively) as described by all node, relationship, and path patterns in the subsequent pattern elements.
 
-This CIP proposes the default pattern variable class for `MATCH ALL SHORTEST` to be `WALKS`.
+This CIP proposes the default pattern variable class for the `ALL SHORTEST` pattern match mode to be `WALKS`.
 
 ==== SHORTEST mode
 
 This CIP proposes the new `SHORTEST` pattern match mode that matches _one shortest_ walk (or trail, or path respectively) as described by all node, relationship, and path patterns in the following pattern elements.
 
-This CIP proposes the default pattern variable class for `MATCH SHORTEST` to be `WALKS`.
+This CIP proposes the default pattern variable class for the `SHORTEST` pattern match mode to be `WALK`.
 
 ==== Default pattern match mode
 
@@ -246,6 +246,8 @@ This CIP proposes a new default pattern match mode that assigns a different patt
 This CIP proposes that an explicitly specified pattern variable class overrides the implicit pattern variable class assigned to each pattern part by using the default pattern match mode.
 
 This CIP proposes that when using the default patter match mode without an explicitly specified pattern variable class only, all pattern parts that are to be matched as `ALL TRAILS` according to the default pattern match mode are to be matched together (i.e. may not bind the same relationship twice between them) while all other pattern parts are to be matched independently from any other pattern part.
+
+NOTE: This rule emulates the current behaviour of Cypher.
 
 This CIP proposes that an error should be raised for any use of the default pattern match mode without an explicit pattern variable class in combination with an unbounded variable length relationship pattern only.
 
@@ -357,18 +359,18 @@ Running Query 4.1.4 will return no results.
 [source,cypher]
 ----
 // MATCH p=shortestPath((a)-[:X*]->()) today becomes:
-MATCH SHORTEST TRAIL p = (a)-[:X*]->()
+MATCH SHORTEST p = (a)-[:X*]->()
 RETURN *
 
-// MATCH p=shortestPath((a)-[:X*]->()) may be approximated using path patterns:
-MATCH SHORTEST p = (a)-/:X*/->()
-RETURN *
+// MATCH p=shortestPath((a)-[:X*]->()) may be expressed using path patterns, too:
+MATCH p = (a)-/:X*/->()
+RETURN * LIMIT 1
 
 // MATCH p=allShortestPaths((a)-[:X*]->()) today becomes:
-MATCH ALL SHORTEST TRAILS p = (a)-[:X*]->()
+MATCH ALL SHORTEST p = (a)-[:X*]->()
 RETURN *
 
-// MATCH p=allShortestPaths((a)-[:X*]->()) today may be approximated using path patterns:
+// MATCH p=allShortestPaths((a)-[:X*]->()) may be expressed using path patterns, too:
 MATCH p = (a)-/:X*/->()
 RETURN *
 ----
@@ -389,27 +391,8 @@ MATCH pat1 = ..., pat2 = ..., pat3 = ...
 RETURN *
 
 // This CIP
-MATCH TRAILS pat1 = ...
-MATCH TRAILS pat2 = ...
-MATCH TRAILS pat3 = ...
-WITH * WHERE disjoint(rels(pat1), rels(pat2), rels(pat3))
-RETURN *
-----
-
-Assuming a pre-parser option `class` which allows overriding the default pattern variable class, we may reduce the verbosity of Query 4.2.1 as in Query 4.2.2:
-
-.Query 4.2.2
-[source,cypher]
-----
-// Today (using same uniqueness scope for pat1, pat2, and pat)
 MATCH pat1 = ..., pat2 = ..., pat3 = ...
-
-// This CIP, using pre-parser option
-CYPHER class=trails
-MATCH pat1 = ...
-MATCH pat2 = ...
-MATCH pat3 = ...
-WITH * WHERE disjoint(rels(pat1), rels(pat2), rels(pat3))
+WHERE disjoint(rels(pat1), rels(pat2), rels(pat3))
 RETURN *
 ----
 
