@@ -60,7 +60,7 @@ We note that `S~2~` contains the duplicated notes `C` and `D`, and no duplicate 
 Moreover, `S~2~` is not a **closed trail**, as `B` (the start node) ≠ `C` (the end node).
 `S~2~` is also a walk.
 
-A trail corresponds to the notion of _Cyphermorphic_ graph pattern matching.
+A path corresponds to the standard definition of _(relationship-)isomorphic_ graph pattern matching as well as the notion of _Cyphermorphic_ graph pattern matching.
 
 [[paths]]
 === Path
@@ -73,7 +73,7 @@ We note that `S~3~` contains no duplicated relationships, and that there are no 
 However, as `B` is both the start node and end node, `S~3~` is still a valid path, and is, in fact, an example of a **closed path**.
 `S~3~` is also an example of a _closed_ walk and a _closed_ trail.
 
-A path corresponds to the standard definition of _isomorphic_ graph pattern matching.
+A path corresponds to the standard definition of _(node-)isomorphic_ graph pattern matching.
 
 == Proposal
 
