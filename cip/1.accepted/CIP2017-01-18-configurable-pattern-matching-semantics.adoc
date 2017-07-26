@@ -11,7 +11,7 @@ This proposal is a response to link:https://github.com/opencypher/openCypher/iss
 == Motivation
 
 Currently Cypher uses pattern matching semantics that treats _all_ patterns that occur in a `MATCH` clause as a unit (called a *uniqueness scope*) and only considers pattern instances that bind different relationships to each fixed length relationship pattern variable and to each element of a variable length relationship pattern variable.
-This has come to be called *cypermorphism* informally and is a form of edge isomorphism that is based on Cypher's notion of uniqueness scope.
+This has come to be called *Cypermorphism* informally and is a form of edge isomorphism that is based on Cypher's notion of uniqueness scope.
 
 Cyphermorphism lies at the intersection of returning as many results as possible while still ruling out returning an infinite number of paths when matching graphs that contain cycles.
 
@@ -117,7 +117,7 @@ While Cypher allows omitting path, node, and relationship variables in a pattern
 
 This CIP proposes to replace the notion of *uniqueness scope* and *Cyphermorphism* and all associated rules with new, configurable pattern matching semantics.
 
-Likewise to what is proposed by *CIP2017-02-06 Path Pattern Queries*, support for binding relationship list variables in variable length patterns will be deprecated.
+As proposed in *CIP2017-02-06 Path Pattern Queries*, support for binding relationship list variables in variable length patterns will be deprecated.
 
 This CIP proposes to deprecate the existing syntax for both `shortestPath` and `allShortestPaths` matching of Cypher.
 
@@ -125,7 +125,7 @@ This CIP proposes to deprecate the existing syntax for both `shortestPath` and `
 
 Each pattern consists of one or more top-level pattern parts that are given in a comma separated list.
 
-.Query 3.2.1
+.Query 3.3.1
 [source,cypher]
 ----
 MATCH (a)-->(b), (c)<--(d)
@@ -133,9 +133,9 @@ RETURN *
 ----
 
 The solution (set of successful matches) of a pattern is the cross product over the solutions of all its top-level pattern parts.
-Thus, if we ignore uniqueness, Query 3.2.1 is semantically identical to Query 3.2.2.
+Thus, if we ignore uniqueness, Query 3.3.1 is semantically identical to Query 3.3.2.
 
-.Query 3.2.2
+.Query 3.3.2
 [source,cypher]
 ----
 MATCH (a)-->(b)
@@ -146,16 +146,16 @@ RETURN *
 ----
 
 Binding several nodes or relationships in a pattern to the same variable describes an implicit join.
-Thus, queries 3.2.3 and 3.2.4 are semantically identical.
+Thus, queries 3.3.3 and 3.3.4 are semantically equivalent.
 
-.Query 3.2.3
+.Query 3.3.3
 [source,cypher]
 ----
 MATCH (a)-->()<--(a)-->(b)
 RETURN a
 ----
 
-.Query 3.2.4
+.Query 3.3.4
 [source,cypher]
 ----
 MATCH (n1)-->(n2), (n3)<--(n4), (n5)-->(b)
@@ -209,7 +209,7 @@ The following additional pattern variable classes are proposed to accommodate ex
 * `CYCLE` is a synonym for `CLOSED PATH`
 
 Additionally, this CIP proposes to allow for plural forms of all pattern variable classes, which will be synonymous with their respective singular forms.
-The plural forms are as follows: `WALKS`, `TRAILS`, `PATHS`, `CIRCUITS`, `CYCLES`.
+The plural forms are as follows: `WALKS`, `TRAILS`, `PATHS`, `CIRCUITS`, and `CYCLES`.
 The main motivation is to aid readability when used in conjunction with different pattern match modes (see <<modes>>).
 
 [[modes]]
@@ -254,27 +254,42 @@ The following examples demonstrates various ways in which the newly proposed con
 
 The following graph is used:
 
-image::DataGraph.jpg[Graph,600,600]
+image::DataGraph.jpg[Graph,800,700]
 
 === Homomorphic matching using walks
 
 We'll illustrate the benefits of the new homomorphic pattern matching by means of a series of queries.
 
 Assume we wish to know which two people have grandchildren in common, as well as the names of the grandchildren.
-Intuitively, we can see that the only two people in the graph have grandchildren in common, namely _Michael Redgrave_ and _Rachel Kempson_, and that there are two grandchildren, _Natasha Richardson_ and _Jemma Redgrave_.
+Intuitively, we can see that the only two people in the graph who have grandchildren in common are _Michael Redgrave_ and _Rachel Kempson_, and that there are two grandchildren, _Natasha Richardson_ and _Jemma Redgrave_.
+Although _Roy Redgrave_ is a grandfather, there is no one else in the graph who has grandchildren in common with him.
 
-
-
-
+.Query 4.1.1: Current semantics: single patterns
 [source,cypher]
 ----
-MATCH [ALL WALKS] (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild),
+MATCH (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild),
       (grandparent2:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild)
 WHERE grandparent1 <> grandparent2
 RETURN grandparent1.name, grandparent2.name, grandchild.name
 ----
 
-Equivalent to `MATCH ALL WALKS`
+Query 4.1.1 comprises two comma-separated matches which form a single pattern, `p~1~`.
+As the query runs under the current semantics, relationship uniqueness (aka Cyphermorphism) is applied to `p~1~`.
+This means that the `:HAS_CHILD` relationship given by `()-[:HAS_CHILD]->(grandchild)` is only traversed once, which results in no rows being returned.
+
+.Query 4.1.2: Current semantics: breaking the pattern to prevent the effects of Cyphermorphism
+[source,cypher]
+----
+MATCH (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild)
+MATCH (grandparent2:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild)
+WHERE grandparent1 <> grandparent2
+RETURN grandparent1.name, grandparent2.name, grandchild.name
+----
+
+By splitting out the matches using a separate `MATCH` clause, Query 4.1.2 in effect considers two patterns, `p~2~` and `p~3~`.
+Cyphermorphism is applied to `p~2~` and `p~3~` separately, which resolves the limitation inherent in Query 4.1.1.
+
+Running Query 4.1.2 returns the following results:
 
 [queryresult]
 ----
@@ -283,9 +298,54 @@ Equivalent to `MATCH ALL WALKS`
 +------------------------------------------------------------+
 | Michael Redgrave  | Rachel Kempson    | Natasha Richardson |
 | Michael Redgrave  | Rachel Kempson    | Jemma Redgrave     |
+| Rachel Kempson    | Michael Redgrave  | Natasha Richardson |
+| Rachel Kempson    | Michael Redgrave  | Jemma Redgrave     |
 +------------------------------------------------------------+
-2 rows
+4 rows
 ----
+
+.Query 4.1.3: New semantics: achieving homomorphism by default
+
+The method to achieve homomorphism as exemplified by Query 4.1.2 is undoubtedly effective, but is potentially unintuitive and contrived.
+In contrast, Query 4.1.3 uses the new default semantics for simple relationship patterns, and achieves the desired result without the need to consciously manipulate the structure of the matching clause.
+
+[source,cypher]
+----
+MATCH ALL WALKS (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild),
+      (grandparent2:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild)
+WHERE grandparent1 <> grandparent2
+RETURN grandparent1.name, grandparent2.name, grandchild.name
+----
+
+[queryresult]
+----
++------------------------------------------------------------+
+| grandparent1.name | grandparent2.name | grandchild.name    |
++------------------------------------------------------------+
+| Michael Redgrave  | Rachel Kempson    | Natasha Richardson |
+| Michael Redgrave  | Rachel Kempson    | Jemma Redgrave     |
+| Rachel Kempson    | Michael Redgrave  | Natasha Richardson |
+| Rachel Kempson    | Michael Redgrave  | Jemma Redgrave     |
++------------------------------------------------------------+
+4 rows
+----
+
+We could omit `ALL WALKS` from Query 4.1.3, as these are the default pattern match mode and pattern variable class, respectively, for simple relationship patterns.
+
+.Query 4.1.4: New semantics: achieving Cyphermorphism by default
+
+What happens in the scenarios where the current semantics -- i.e. Cyphermorphism -- are desirable?
+All that is required is to alter the pattern variable class in the `MATCH` clause from `WALKS` to `TRAILS` (or to just add `TRAILS` if no pattern variable class was previously specified).
+
+[source,cypher]
+----
+MATCH ALL TRAILS (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild),
+      (grandparent2:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild)
+WHERE grandparent1 <> grandparent2
+RETURN grandparent1.name, grandparent2.name, grandchild.name
+----
+
+Running Query 4.1.4 will return no results.
 
 === Matching shortest paths
 
