@@ -8,6 +8,7 @@ CREATE (richard:Person:Actor {firstname: 'Richard', surname: 'Harris'})
 CREATE (dennis:Person:Actor {firstname: 'Dennis', surname: 'Quaid'})
 CREATE (lindsay:Person:Actor {firstname: 'Lindsay', surname: 'Lohan'})
 CREATE (jemma:Person:Actor {firstname: 'Jemma', surname: 'Redgrave'})
+CREATE (roy:Person:Actor {firstname: 'Roy', surname: 'Redgrave'})
 
 CREATE (john:Person {firstname: 'John', surname: 'Williams'})
 CREATE (christopher:Person {firstname: 'Christopher', surname: 'Nolan'})
@@ -28,6 +29,7 @@ CREATE (rachel)-[:HAS_CHILD]->(vanessa),
        (michael)-[:HAS_CHILD]->(corin),
        (corin)-[:HAS_CHILD]->(jemma),
        (vanessa)-[:HAS_CHILD]->(natasha),
+       (roy)-[:HAS_CHILD]->(michael),
 
        (rachel)-[:MARRIED]->(michael),
        (michael)-[:MARRIED]->(rachel),
