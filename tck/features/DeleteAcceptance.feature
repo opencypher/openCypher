@@ -170,9 +170,7 @@ Feature: DeleteAcceptance
       DELETE n
       """
     Then the result should be empty
-    And the side effects should be:
-      | +nodes | 1 |
-      | -nodes | 1 |
+    And no side effects
 
   Scenario: Delete optionally matched relationship
     Given an empty graph

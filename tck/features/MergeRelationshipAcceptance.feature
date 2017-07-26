@@ -484,8 +484,8 @@ Feature: MergeRelationshipAcceptance
       | -nodes         | 4 |
       | +relationships | 2 |
       | -relationships | 4 |
-      | +labels        | 2 |
       | +properties    | 1 |
+      | -properties    | 2 |
 
   Scenario: Do not match on deleted relationships
     Given an empty graph
@@ -510,6 +510,7 @@ Feature: MergeRelationshipAcceptance
       | +relationships | 1 |
       | -relationships | 2 |
       | +properties    | 1 |
+      | -properties    | 2 |
 
   Scenario: Aliasing of existing nodes 1
     Given an empty graph

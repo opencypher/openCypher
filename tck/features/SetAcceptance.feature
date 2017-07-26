@@ -267,7 +267,7 @@ Feature: SetAcceptance
       | -properties | 1 |
 
   Scenario: Non-existent values in a property map are removed with SET =
-    Given any graph
+    Given an empty graph
     And having executed:
       """
       CREATE (:X {foo: 'A', bar: 'B'})
