@@ -4,7 +4,11 @@
 :toc-placement: macro
 :source-highlighter: codemirror
 
-*Author:* Stefan Plantikow <stefan.plantikow@neo4j.com>, Mats Rydberg <mats.rydberg@neo4j.com>, Petra Selmer <petra.selmer@neo4j.com>
+*Authors:*
+
+ * Stefan Plantikow <stefan.plantikow@neo4j.com>
+ * Mats Rydberg <mats.rydberg@neo4j.com>
+ * Petra Selmer <petra.selmer@neo4j.com>
 
 This proposal is a response to link:https://github.com/opencypher/openCypher/issues/174[CIR-2017-174].
 
@@ -133,7 +137,7 @@ RETURN *
 ----
 
 The solution (set of successful matches) of a pattern is the cross product over the solutions of all its top-level pattern parts.
-Thus, if we ignore uniqueness, Query 3.3.1 is semantically identical to Query 3.3.2.
+Thus, if we ignore uniqueness, Query 3.3.1 is semantically equivalent to Query 3.3.2.
 
 .Query 3.3.2
 [source,cypher]
@@ -245,7 +249,7 @@ This CIP proposes a new default pattern match mode that assigns a different patt
 
 This CIP proposes that an explicitly specified pattern variable class overrides the implicit pattern variable class assigned to each pattern part by using the default pattern match mode.
 
-This CIP proposes that when using the default patter match mode without an explicitly specified pattern variable class only, all pattern parts that are to be matched as `ALL TRAILS` according to the default pattern match mode are to be matched together (i.e. may not bind the same relationship twice between them) while all other pattern parts are to be matched independently from any other pattern part.
+This CIP proposes that when using the default pattern match mode without an explicitly specified pattern variable class only, all pattern parts that are to be matched as `ALL TRAILS` according to the default pattern match mode are to be matched together (i.e. may not bind the same relationship twice between them) while all other pattern parts are to be matched independently from any other pattern part.
 
 NOTE: This rule emulates the current behaviour of Cypher.
 
@@ -311,7 +315,7 @@ Running Query 4.1.2 returns the following results:
 4 rows
 ----
 
-_Query 4.1.3 - New semantics: achieving homomorphism by default_
+_Query 4.1.3 - New semantics: achieving homomorphism_
 
 The method to achieve homomorphism as exemplified by Query 4.1.2 is undoubtedly effective, but is potentially unintuitive and contrived.
 In contrast, Query 4.1.3 uses the new default semantics for simple relationship patterns, and achieves the desired result without the need to consciously manipulate the structure of the matching clause.
@@ -337,12 +341,10 @@ RETURN grandparent1.name, grandparent2.name, grandchild.name
 4 rows
 ----
 
-We could omit `ALL WALKS` from Query 4.1.3, as these are the default pattern match mode and pattern variable class, respectively, for simple relationship patterns.
-
-_Query 4.1.4 - New semantics: achieving Cyphermorphism by default_
+_Query 4.1.4 - New semantics: achieving Cyphermorphism_
 
 What happens in the scenarios where the current semantics -- i.e. Cyphermorphism -- are desirable?
-All that is required is to alter the pattern variable class in the `MATCH` clause from `WALKS` to `TRAILS` (or to just add `TRAILS` if no pattern variable class was previously specified).
+All that is required is to alter the pattern variable class in the `MATCH` clause from `WALKS` to `TRAILS` (which is, in fact, the default).
 
 [source,cypher]
 ----
