@@ -187,6 +187,8 @@ Three classes of pattern variables are proposed:
 
 NOTE: This CIP proposes to rename the Cypher type `PATH` to `WALK`.
 
+IMPORTANT: This CIP proposes that the default pattern variable class is `TRAIL` with the exception that any path pattern part is to be matched separately using the `WALK` pattern variable class.
+
 .Example of using pattern variable classes for the pattern variables `p` and `q`:
 [source, cypher]
 ----
@@ -220,8 +222,6 @@ Node patterns are unaffected by the pattern match mode, and will always match al
 
 This CIP proposes the new `ALL` pattern match mode that matches every walk (or trail, or path respectively) as described by all node, relationship, and path patterns given in the subsequent pattern elements.
 
-This CIP proposes the default pattern variable class for the `ALL` pattern match mode to be `TRAILS`.
-
 This CIP proposes that an error should be raised for any use of the `ALL` pattern match mode without an explicit pattern variable class in combination with an unbounded variable length relationship pattern or an unbounded path pattern.
 
 Implementations are advised to signal a warning for any use of `MATCH ALL (OPEN|CLOSED) WALKS` that may return an infinite result.
@@ -230,32 +230,29 @@ Implementations are advised to signal a warning for any use of `MATCH ALL (OPEN|
 
 This CIP proposes the new `ALL SHORTEST` pattern match mode that matches every _shortest_ walk (or trail, or path respectively) as described by all node, relationship, and path patterns in the subsequent pattern elements.
 
-This CIP proposes the default pattern variable class for the `ALL SHORTEST` pattern match mode to be `WALKS`.
-
 ==== SHORTEST mode
 
 This CIP proposes the new `SHORTEST` pattern match mode that matches _one shortest_ walk (or trail, or path respectively) as described by all node, relationship, and path patterns in the following pattern elements.
 
-This CIP proposes the default pattern variable class for the `SHORTEST` pattern match mode to be `WALK`.
-
 ==== Default pattern match mode
 
-This CIP proposes a new default pattern match mode that assigns a different pattern match mode and pattern variable class to each type of pattern part:
+This CIP proposes a new default pattern match mode that assigns a different pattern match mode to each type of pattern part:
 
-* Simple relationship patterns (e.g. `()-[]\->()`) are to be matched using `ALL TRAILS`.
-* Bounded variable length relationship patterns (e.g. `()-[*2..4]\->()`) are to be matched using `ALL TRAILS`.
-* Unbounded variable length relationship patterns (e.g. `()-[*]\->()`) are to be matched using `ALL TRAILS`.
-* Path patterns (e.g. `()-/../\->()`) are to be matched using `ALL SHORTEST WALKS`.
-
-This CIP proposes that an explicitly specified pattern variable class overrides the implicit pattern variable class assigned to each pattern part by using the default pattern match mode.
-
-This CIP proposes that when using the default pattern match mode without an explicitly specified pattern variable class only, all pattern parts that are to be matched as `ALL TRAILS` according to the default pattern match mode are to be matched together (i.e. may not bind the same relationship twice between them) while all other pattern parts are to be matched independently from any other pattern part.
-
-NOTE: This rule emulates the current behaviour of Cypher.
+* Simple relationship patterns (e.g. `()-[]\->()`) are to be matched using `ALL`.
+* Bounded variable length relationship patterns (e.g. `()-[*2..4]\->()`) are to be matched using `ALL`.
+* Unbounded variable length relationship patterns (e.g. `()-[*]\->()`) are to be matched using `ALL`.
+* Path patterns (e.g. `()-/../\->()`) are to be matched using `ALL SHORTEST`.
 
 This CIP proposes that an error should be raised for any use of the default pattern match mode without an explicit pattern variable class in combination with an unbounded variable length relationship pattern only.
 
 Implementations are advised to signal a warning for any use of the default pattern match mode that may return an infinite result.
+
+=== `disjoint` function
+
+This CIP finally proposes a function `disjoint()` defined as follows:
+
+* `disjoint(list1, list2, ..., list_n)`: returns `true` if all argument lists are pairwise disjoint
+* If any argument is a walk, it is treated as a list of alternating nodes and relationships
 
 == Examples
 
@@ -379,11 +376,7 @@ RETURN *
 
 === Matching with existing semantics
 
-Assume a function `disjoint()` defined as follows:
-
-* `disjoint(list1, list2, ..., list_n)`: returns `true` if all argument lists are pairwise disjoint.
-
-The function `disjoint()` may now be used to precisely express Cypher's current pattern matching semantics.
+The function `disjoint()` may now be used to precisely express Cypher's current pattern matching semantics:
 
 .Query 4.2.1
 [source,cypher]
@@ -419,7 +412,6 @@ However, care has been taken to reduce the amount of broken queries and to retai
 [[Rose02]]
 [Rose02] K. H. Rosen. _Discrete Mathematics and Its Applications_. McGraw-Hill, 2002.
 
-[appendix]
 == Functions for working with walks
 
 Related to the concepts outlined in this CIP, but peripheral to the model and semantics described, several functions are envisioned as useful for working with the various types of patterns bound to pattern variables.
