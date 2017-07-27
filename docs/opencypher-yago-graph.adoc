@@ -1,0 +1,15 @@
+= The openCypher YAGO graph
+
+The openCypher YAGO graph is a graph based on the link:http://www.mpi-inf.mpg.de/departments/databases-and-information-systems/research/yago-naga/yago/[YAGO dataset], developed by the Max Planck Institute for Informatics.
+The graph is intended to serve as a common model for examples sections in Cypher Improvement Proposals and Requests.
+
+== Data model
+
+The graph is based on real-world data extracted from link:https://www.wikipedia.org/[Wikipedia].
+It models actors, cities they live in, films they act in, and their relationships to family and colleagues.
+
+== Distribution
+
+// TODO: Add link to website once deployed
+
+The openCypher YAGO graph, or `oc-yago-graph`, is distributed as a standalone openCypher artifact and as a built-in graph in the link:https://github.com/opencypher/openCypher/tree/master/tck[openCypher TCK].
