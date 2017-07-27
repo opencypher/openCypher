@@ -1,3 +1,9 @@
+/*
+This graph is based upon YAGO, which is derived from Wikipedia.
+The idea is to enlarge it over time.
+http://www.mpi-inf.mpg.de/departments/databases-and-information-systems/research/yago-naga/yago/
+*/
+
 CREATE (rachel:Person:Actor {firstname: 'Rachel', surname: 'Kempson'})
 CREATE (michael:Person:Actor {firstname: 'Michael', surname: 'Redgrave'})
 CREATE (vanessa:Person:Actor {firstname: 'Vanessa', surname: 'Redgrave'})
