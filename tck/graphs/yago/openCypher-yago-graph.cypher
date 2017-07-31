@@ -4,20 +4,20 @@ The idea is to enlarge it over time.
 http://www.mpi-inf.mpg.de/departments/databases-and-information-systems/research/yago-naga/yago/
 */
 
-CREATE (rachel:Person:Actor {firstname: 'Rachel', surname: 'Kempson'})
-CREATE (michael:Person:Actor {firstname: 'Michael', surname: 'Redgrave'})
-CREATE (vanessa:Person:Actor {firstname: 'Vanessa', surname: 'Redgrave'})
-CREATE (corin:Person:Actor {firstname: 'Corin', surname: 'Redgrave'})
-CREATE (liam:Person:Actor {firstname: 'Liam', surname: 'Neeson'})
-CREATE (natasha:Person:Actor {firstname: 'Natasha', surname: 'Richardson'})
-CREATE (richard:Person:Actor {firstname: 'Richard', surname: 'Harris'})
-CREATE (dennis:Person:Actor {firstname: 'Dennis', surname: 'Quaid'})
-CREATE (lindsay:Person:Actor {firstname: 'Lindsay', surname: 'Lohan'})
-CREATE (jemma:Person:Actor {firstname: 'Jemma', surname: 'Redgrave'})
-CREATE (roy:Person:Actor {firstname: 'Roy', surname: 'Redgrave'})
+CREATE (rachel:Person:Actor {name: 'Rachel Kempson'})
+CREATE (michael:Person:Actor {name: 'Michael Redgrave'})
+CREATE (vanessa:Person:Actor {name: 'Vanessa Redgrave'})
+CREATE (corin:Person:Actor {name: 'Corin Redgrave'})
+CREATE (liam:Person:Actor {name: 'Liam Neeson'})
+CREATE (natasha:Person:Actor {name: 'Natasha Richardson'})
+CREATE (richard:Person:Actor {name: 'Richard Harris'})
+CREATE (dennis:Person:Actor {name: 'Dennis Quaid'})
+CREATE (lindsay:Person:Actor {name: 'Lindsay Lohan'})
+CREATE (jemma:Person:Actor {name: 'Jemma Redgrave'})
+CREATE (roy:Person:Actor {name: 'Roy Redgrave'})
 
-CREATE (john:Person {firstname: 'John', surname: 'Williams'})
-CREATE (christopher:Person {firstname: 'Christopher', surname: 'Nolan'})
+CREATE (john:Person {name: 'John Williams'})
+CREATE (christopher:Person {name: 'Christopher Nolan'})
 
 CREATE (newyork:City {name: 'New York'})
 CREATE (london:City {name: 'London'})
