@@ -24,7 +24,7 @@ CREATE (london:City {name: 'London'})
 CREATE (houston:City {name: 'Houston'})
 
 CREATE (mrchips:Film {title: 'Goodbye, Mr. Chips'})
-CREATE (darkknight:Film {title: 'The Dark Knight Rises'})
+CREATE (batmanbegins:Film {title: 'Batman Begins'})
 CREATE (harrypotter:Film {title: 'Harry Potter and the Sorcerer\'s Stone'})
 CREATE (parent:Film {title: 'The Parent Trap'})
 CREATE (camelot:Film {title: 'Camelot'})
@@ -49,7 +49,7 @@ CREATE (rachel)-[:HAS_CHILD]->(vanessa),
        (lindsay)-[:BORN_IN]->(newyork),
        (john)-[:BORN_IN]->(newyork),
 
-       (christopher)-[:DIRECTED]->(darkknight),
+       (christopher)-[:DIRECTED]->(batmanbegins),
 
        (john)-[:WROTE_MUSIC_FOR]->(harrypotter),
        (john)-[:WROTE_MUSIC_FOR]->(mrchips),
@@ -61,4 +61,4 @@ CREATE (rachel)-[:HAS_CHILD]->(vanessa),
        (natasha)-[:ACTED_IN {charactername: 'Liz James'}]->(parent),
        (dennis)-[:ACTED_IN {charactername: 'Nick Parker'}]->(parent),
        (lindsay)-[:ACTED_IN {charactername: 'Halle/Annie'}]->(parent),
-       (liam)-[:ACTED_IN {charactername: 'Henri Ducard'}]->(darkknight)
+       (liam)-[:ACTED_IN {charactername: 'Henri Ducard'}]->(batmanbegins)
