@@ -40,7 +40,7 @@ Therefore background material regarding current semantics is given in line with 
 
 == Proposal: Multiple Property Graphs Model
 
-Before proposing changes to the language, it is necessary to first address required changes to the underlying property graph model.
+Before proposing changes to the language, it is necessary to first address required changes to the underlying https://github.com/opencypher/openCypher/blob/master/docs/property-graph-model.adoc[*property graph model*].
 
 The revised property graph model used in this CIP is called the *multiple property graphs model* and assumes everything specified in the original property graph model extended with the notion of multiple, optionally overlapping graphs outlined in the following.
 
@@ -55,18 +55,18 @@ Graphs may be updatable, i.e. the set of contained nodes and relationships may c
 It is an error to attempt to update a read-only graph.
 
 The same node or relationship may be part of many graphs.
-A relationship may only be part of a graph if it's start node and it's end node are both also part of the same graph.
-Therefore removing a node from a graph may require removing some of it's relationships from the graph, too.
+A relationship may only be part of a graph if its start node and its end node are both also part of the same graph.
+Therefore removing a node from a graph will require removing all of its relationships from the graph, too.
 An entity is considered to be deleted if it is no longer part of any graph.
 
 === Graph Addressing
 
 Graphs do not expose an identity like nodes or relationships do.
 
-Graphs may be made addressable through other means by a conforming implementation (e.g. through exposing the graph under a _graph URL_ for referencing and loading it).
+Graphs may be made addressable through other means by a conforming implementation, e.g. through exposing the graph under a _graph URL_ for referencing and loading it.
 The details regarding the format and choice of graph URLs is outside the scope of this proposal.
 
-A graph is considered to have been deleted if it is no longer registered under a graph URL and no other reference to it is retained (e.g. from a running query).
+A graph is considered to have been deleted if it is no longer registered under a graph URL and no other reference to it is retained, e.g. from a running query.
 
 == Background: Single Graph Execution Model
 
@@ -82,7 +82,7 @@ Therefore the *query context* that conceptually is passed between clauses in the
 
 With this terminology in place, execution of a parameterized Cypher query in the single graph execution model can be described as executing within (and operating on) a given execution context and an initial query context and finally returning the query context produced as output for the top-most `RETURN` clause.
 
-Note: This formulation is introduced to describe a high-level model for the execution of queries; A real world implementation is free to choose any other internal representation (e.g. based on an algebra) as long as it does not violate the specified semantics.
+Note: This formulation is introduced to describe a high-level model for the execution of queries; a real world implementation is free to choose any other internal representation (e.g. based on an algebra) as long as it does not violate the specified semantics.
 
 == Proposal: Multiple Graphs Execution Model
 
@@ -96,7 +96,7 @@ This CIP proposes the adoption of the multiple graphs execution model by Cypher 
 
 This CIP proposes to redefine the *execution context* to be
 
-* a set of graphs in multiple graphs execution model
+* a set of graphs in the multiple graphs execution model
 * a special graph drawn from this set that is called the *default graph*
 
 This CIP proposes to redefine the *query context* to be
@@ -108,8 +108,8 @@ This CIP proposes to redefine the *query context* to be
 
 These redefinitions constitute the multiple graphs execution model. A parameterized Cypher query under this model can _also_ be described as executing within (and operating on) a given execution context and an initial query context and finally returning the query context produced as output for the top-most `RETURN` clause.
 
-As a consequence of adopting the new the multiple graphs execution model, the semantics of each clause needs to be (re-)define how the execution of the clause transforms all given input query contexts into an output query context
-This CIP proposes to preserves all existing semantics by defining how to simulate the single graph execution model in the multiple graphs execution model as outlined below.
+As a consequence of adopting the new multiple graphs execution model, the semantics of each clause needs to be (re-)defined as to how the execution of the clause transforms all given input query contexts into an output query context.
+This CIP preserves all existing semantics by defining how to simulate the single graph execution model in the multiple graphs execution model as outlined below.
 
 === Partial query contexts
 
@@ -131,7 +131,7 @@ The multiple graphs execution model provides a natural way for the sequential co
 
 A query `Q1` whose output signature is an acceptable (in terms of provided bindings) input signature for another query `Q2` may be composed sequentially with `Q2` into a new query `Q3` that first runs `Q1` on the initial query context, next runs `Q2` on the query context returned by `Q1`, and finally returns the query context returned by `Q2`.
 
-This homogenous query composition is enabled by using an uniform query context that is passed between clauses.
+This homogenous query composition is enabled by using a uniform query context that is passed between clauses.
 
 Note: The currently drafted subquery CIP proposes a language addition (e.g. `THEN`) for expressing this kind of query composition directly. In terms of this CIP, `THEN` is simply syntactic sugar for `WITH * GRAPHS *`
 
@@ -180,7 +180,7 @@ The newly introduced `FROM` clause may be used to change both the source and the
 
 === INTO clause
 
-The newly introduced `INTO` clause may be used to only change the target graph of the current query context to the graph described by the given `<graph-specifier>`.
+The newly introduced `INTO` clause may be used to change the target graph of the current query context to the graph described by the given `<graph-specifier>`.
 
 === Graph specifiers
 
@@ -198,7 +198,7 @@ This CIP proposes the following kinds of graph specifiers:
 If a graph specifier is not referencing an already bound named graph and does not specify a `<new-graph-name>`, it is bound to a fresh system generated name.
 The details of this are left to implementations.
 
-It is an error to use a `<graph-specifier>` in a context where it's introduced `<new-graph-name>` is already bound.
+It is an error to use a `<graph-specifier>` in a context where its introduced `<new-graph-name>` is already bound.
 
 ==== Graph names
 
@@ -447,7 +447,7 @@ MATCH p=(a)--(b)--(c)--(a) WHERE NOT (a)--(c)
 INTO NEW GRAPH swedish_triangles {
   ADD p
 }
-// and return it together with a count of it's content
+// and return it together with a count of its content
 RETURN count(p) AS num_triangles GRAPHS swedish_triangles, sweden_people, german_people
 ----
 
