@@ -133,7 +133,7 @@ A query `Q1` whose output signature is an acceptable (in terms of provided bindi
 
 This homogenous query composition is enabled by using a uniform query context that is passed between clauses.
 
-Note: The currently drafted subquery CIP proposes a language addition (e.g. `THEN`) for expressing this kind of query composition directly. In terms of this CIP, `THEN` is simply syntactic sugar for `WITH * GRAPHS *`
+Note: The currently drafted https://github.com/opencypher/openCypher/pull/100[subquery CIP] proposes a language addition (e.g. `THEN`) for expressing this kind of query composition directly. In terms of this CIP, `THEN` is simply syntactic sugar for `WITH * GRAPHS *`
 
 === Query combinators
 
@@ -144,11 +144,11 @@ For the multiple property graphs execution model, it is necessary to define how 
 This CIP proposes that the multi-arm query combinators `UNION` (and `UNION ALL` respectively) combine their contexts according to the following rules:
 
 * Tabular data is combined as today, i.e. the tabular result is either a concatenation (`UNION ALL` case) or a distinct union (`UNION` case) of the tabular data from both arms
-*  All graphs from both arms are returned; if both arms return a graph with the same name, then the union of those graphs is returned under the shared name
+*  All graphs from both arms are returned; if both arms return a graph with the same name, then the union of those graphs is returned under that shared name
 * If both graphs have specified a graph with the same name as their current source graph, then the union of those source graphs under that name again becomes the source graph for further processing.
-Otherwise, the next source graph will be again the default graph.
+Otherwise, the default graph becomes the source graph for further processing.
 * If both graphs have specified a graph with the same name as their current target graph, then the union of those target graphs under that name again becomes the target graph for further processing.
-Otherwise, the next target graph will be again the default graph.
+Otherwise, the default graph becomes the target graph for further processing.
 
 === Updating queries
 
@@ -167,46 +167,28 @@ In this situation, the outcome is undefined.
 Conflicting updates are considered to be out of scope of this CIP and will be addressed in a future proposal.
 For now it is proposed that a conforming implementation must choose at least either the original value or one of the values written or `NULL` as the final outcome of a conflicting update.
 
+This CIP proposes to allow `MERGE` to be followed by a non-empty, comma separated list of bound variables for explicitly adding an entity to the target graph.
+
 === Simulating the single graph execution model
 
 Execution under the single graph execution model can be simulated in the multiple graphs execution model by executing the query in an execution context that uses the single graph as the default graph and by running it on an empty initial query context.
 
 == Proposal: Multiple Graphs Syntax
 
-As a first language addition, this CIP proposes syntax for changing the source and the target graph of the current query context:
+This CIP first proposes some auxiliary syntax definitions before proceeding to add new and extend existing clauses.
 
-[source, cypher]
-----
-FROM < graph-specifier >
-INTO < graph-specifier >
-----
+=== Graph reference
 
-=== FROM clause
+This CIP defines the notion of `<graph-reference>` as a means to introduce and refer to graphs.
+This CIP proposes the following kinds of graph references:
 
-The newly introduced `FROM` clause may be used to change both the source and the target graph of the current query context to the graph described by the given `<graph-specifier>`.
-
-=== INTO clause
-
-The newly introduced `INTO` clause may be used to change the target graph of the current query context to the graph described by the given `<graph-specifier>`.
-
-=== Graph specifiers
-
-This CIP defines the notion of `<graph-specifier>` as a means to introduce, refer to, and alias named graphs.
-
-This CIP proposes the following kinds of graph specifiers:
-
-* `NEW [GRAPH] [<new-graph-name>] [AT <graph-url>]`: Reference to a newly created, empty graph that is to be bound as `<new-graph-name>` and may potentially overwrite any pre-existing graph at the provided `<graph-url>`
-* `GRAPH [<new-graph-name] AT <graph-url>`: Reference to the graph at the given `<graph-url>` that is to be bound as `<new-graph-name>`
-* `[GRAPH] <graph-name> [AS <new-graph-name>]`: Reference to an already bound named graph
-* `COPY [GRAPH] <graph-name> [AS <new-graph-name>]`: Reference to a copy of an already bound named graph
-* `SOURCE [GRAPH] [<new-graph-name>]`: Reference to the currently _provided source graph_, optionally to be bound as `<new-graph-name>`
-* `TARGET [GRAPH] [<new-graph-name>]`: Reference to the currently _provided target graph_, optionally to be bound as `<new-graph-name>`
-* `DEFAULT [GRAPH] [<new-graph-name>]`: Reference to the _default graph_, optionally to be bound as `<new-graph-name>`
-
-If a graph specifier is not referencing an already bound named graph and does not specify a `<new-graph-name>`, it is bound to a fresh system generated name.
-The details of this are left to implementations.
-
-It is an error to use a `<graph-specifier>` in a context where its introduced `<new-graph-name>` is already bound.
+* `NEW GRAPH [AT <graph-url>]`: Reference to a newly created, empty graph that may potentially overwrite any pre-existing graph at the provided `<graph-url>`
+* `COPY OF <graph-reference>`: Reference to a copy of the graph referred to by `<graph-reference>`
+* `GRAPH AT <graph-url>`: Reference to the graph at the given `<graph-url>`
+* `GRAPH <graph-name>`: Reference to an already bound named graph
+* `SOURCE GRAPH`: Reference to the currently _provided source graph_
+* `TARGET GRAPH`: Reference to the currently _provided target graph_
+* `DEFAULT GRAPH`: Reference to the _default graph_
 
 ==== Graph names
 
@@ -222,20 +204,47 @@ This CIP however proposes that a `<graph-url>` must always be given as either a 
 
 This allows parameterization of queries by controlling which graphs from which graph URLs they should use.
 
-=== Discarding the current source and target graphs
+=== Aliased graph
 
-Additionally, this CIP proposes new syntax for discarding the source and the target graph of the current query:
+This CIP defines the notion of `<aliased-graph>` for describing the aliasing of graphs.
+An `<aliased-graph>` is a `<graph-reference>` that may optionally be followed by `AS <new-graph-name>`.
+
+The alias of an `<aliased-graph>` is either the explicitly given `<new-graph-name>` if present or an implicit fresh system generated name otherwise.
+It is an error to use an `<aliased-graph>` in a context where its introduced `<new-graph-name>` is already bound.
+
+`NEW GRAPH <new-graph-name> [AT <graph-url>]` is proposed as a shorthand for `NEW GRAPH [AT <graph-url>] AS <new-graph-name>`.
+
+`GRAPH <new-graph-name> AT <graph-url>` is proposed as a shorthand for `GRAPH AT <graph-url> AS <new-graph-name>`.
+
+This CIP defines `<aliased-graphs-list>` as a non-empty, comma separated list of `<aliased-graph>`.
+
+=== Changing query context graphs
+
+As a first language addition, this CIP proposes syntax for changing the source and the target graph of the current query context:
 
 [source, cypher]
 ----
+FROM < aliased-graph >
 FROM -
+INTO < aliased-graph >
 INTO -
 ----
 
-`-` is not a graph specifier; rather this syntax is a special form for discarding the current source and target graph such that the provided source and target graph are again chosen to be the default graph as specified for partial query contexts.
+==== FROM clause
 
-In consequence, both `FROM -` and `INTO -` will not bind the default graph to a generated fresh name.
-This is different from `<graph-specifier>` semantics that will ensure that referenced graphs are always bound to a name.
+The newly introduced `FROM` clause may be used to change both the source and the target graph of the current query context to the graph described by the given `<aliased-graph>`.
+
+`FROM` always binds the referenced graph of the `<aliased-graph>` to its alias.
+
+`FROM -` may be used to discard the current source and the current target graph.
+
+==== INTO clause
+
+The newly introduced `INTO` clause may be used to change the target graph of the current query context to the graph described by the given `<aliased-graph>`.
+
+`INTO` always binds the referenced graph of the `<aliased-graph>` to its alias.
+
+`INTO -` may be used to discard the current target graph.
 
 === Returning, aliasing, and selecting graphs
 
@@ -244,17 +253,18 @@ The newly proposed syntax is:
 
 [source, cypher]
 ----
-WITH < return-items > [ GRAPHS < graph-return-items > ]
-RETURN < return-items > [ GRAPHS < graph-return-items > ]
+WITH < return-items > [ GRAPHS < graph-return-items > | < aliased-graphs-list > ]
+RETURN < return-items > [ GRAPHS < graph-return-items > | < aliased-graphs-list > ]
 ----
 
 This CIP proposes the following kinds of `<graph-return-items>`:
 
-* `<graph-specifier-list>`: A comma separated list of `<graph-specifier>` that are to be passed on
-* `*`: All named graphs are to be passed on
-* `*, <graph-specifier-list>`: All named graphs are to be passed on together with any additional named graphs that are newly bound in `<graph-specifier-list>`
+* `<returned-graphs-list>`: A non-empty, comma separated list that describes graphs that are to be passed on.
+A valid element of the list is either an `<aliased-graph>` or as a shorthand the name of an already bound graph.
+* `*`: All named graphs currently in scope are to be passed on
+* `*, <returned-graphs-list>`: All named graphs are to be passed on together with any additional named graphs that are bound in `<returned-graphs-list>`
 
-The order of named graphs inherently given by `<graph-return-items>` is semantically insignificant.
+The order of named graphs inherently given by `<graph-return-items>` or `<aliased-graphs-list>` is semantically insignificant.
 However it is recommended that conforming implementations preserve this order at least in programmatic output operations (e.g. a textual display of the list of returned graphs).
 This in essence mirrors the semantics for tabular data returned by Cypher.
 
@@ -262,7 +272,7 @@ Both `WITH ... GRAPHS ...` and `RETURN ... GRAPHS ...` will pass on (or return r
 
 Note: Both regular `WITH <return-items>` and `RETURN <return-items>` are taken to pass on no graphs.
 
-If the current named source graph (or the current named target graph) are not passed on, they are discarded and due to the rules regarding partial query contexts the provided source graph (or target respectively) again are chosen to be the default graph of the outer execution context.
+If the current named source graph (or the current named target graph) are not passed on, they are discarded and due to the rules regarding partial query contexts the provided source graph (or target graph respectively) again are chosen to be the default graph of the outer execution context.
 
 Note: `WITH * GRAPHS *` may be used to pass through the initial query context without having to alias incoming source and target graphs explicitly.
 
@@ -271,10 +281,12 @@ Note: `WITH * GRAPHS *` may be used to pass through the initial query context wi
 [source, cypher]
 ----
 WITH GRAPHS < graph-return-items >
+WITH < aliased-graphs-list >
 RETURN GRAPHS < graph-return-items >
+RETURN < aliased-graphs-list >
 ----
 
-It is additionally proposed that both `WITH GRAPHS <graph-return-items>` and `RETURN GRAPHS <graph-return-items>` may be used for discarding all tabular data such that the provided tabular input for the following clause (or query respectively) would again be the provided single record without any fields as specified by the rules for partial query contexts.
+It is additionally proposed that these forms may be used for discarding all tabular data such that the provided tabular input for the following clause (or query respectively) would again be the provided single record without any fields as specified by the rules for partial query contexts.
 
 Note: This syntax may be used to indicate when the gradual construction of a named graph is finished since neither fields nor the cardinality of tabular data is preserved after this point.
 
@@ -289,8 +301,8 @@ The proposed syntax is:
 
 [source, cypher]
 ----
-FROM < graph-specifier > | '-' { < graph-construction-subquery > }
-INTO < graph-specifier > | '-' { < graph-construction-subquery > }
+FROM < aliased-graph > | - { < graph-construction-subquery > }
+INTO < aliased-graph > | - { < graph-construction-subquery > }
 ----
 
 A `<graph-construction-subquery>` is an updating subquery (i.e. a sequence of clauses, including update clauses) that may or may not end in `RETURN`.
@@ -305,8 +317,9 @@ Finally this CIP proposed using the `WITH` clause as the initial clause in a que
 
 [source, cypher]
 ----
-WITH < return-items > [ GRAPHS < graph-return-items > ]
+WITH < return-items > [ GRAPHS < graph-return-items > | < aliased-graphs-list > ]
 WITH GRAPHS < graph-return-items >
+WITH < aliased-graphs-list >
 ----
 
 It is proposed that using `WITH` as the initial clause in a query is to be called a *query input declaration* while the use of `RETURN` as the last clause is to be called a *query output declaration*.
@@ -455,7 +468,7 @@ FROM GRAPH sweden_people
 MATCH p=(a)--(b)--(c)--(a) WHERE NOT (a)--(c)
 // Create a temporary graph 'swedish_triangles'
 INTO NEW GRAPH swedish_triangles {
-  ADD p
+  MERGE p
 }
 // and return it together with a count of its content
 RETURN count(p) AS num_triangles GRAPHS swedish_triangles, sweden_people, german_people
