@@ -113,7 +113,7 @@ This CIP preserves all existing semantics by defining how to simulate the single
 
 === Partial query contexts
 
-A query context may not return a source graph, a target graph, or even tabular data.
+A query context may _not_ return a source graph, a target graph, or even tabular data.
 Such a query context is called a *partial query context*.
 The following rules are proposed to provide defaults for executing a query (or a clause) on a partial query context:
 
@@ -141,7 +141,14 @@ Query combinators only need to handle tabular query contexts in the single graph
 
 For the multiple property graphs execution model, it is necessary to define how query combinators combine the query contexts of all child queries into a new result query context (c.f. query composition).
 
-This CIP proposes that `UNION` (and `UNION ALL` respectively) compute the union between both the source and target graphs, as well as the tabular data (i.e. the records) of all child queries to combine their query contexts.
+This CIP proposes that the multi-arm query combinators `UNION` (and `UNION ALL` respectively) combine their contexts according to the following rules:
+
+* Tabular data is combined as today, i.e. the tabular result is either a concatenation (`UNION ALL` case) or a distinct union (`UNION` case) of the tabular data from both arms
+*  All graphs from both arms are returned; if both arms return a graph with the same name, then the union of those graphs is returned under the shared name
+* If both graphs have specified a graph with the same name as their current source graph, then the union of those source graphs under that name again becomes the source graph for further processing.
+Otherwise, the next source graph will be again the default graph.
+* If both graphs have specified a graph with the same name as their current target graph, then the union of those target graphs under that name again becomes the target graph for further processing.
+Otherwise, the next target graph will be again the default graph. 
 
 === Updating queries
 
