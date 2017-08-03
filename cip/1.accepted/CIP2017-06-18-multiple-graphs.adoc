@@ -148,7 +148,7 @@ This CIP proposes that the multi-arm query combinators `UNION` (and `UNION ALL` 
 * If both graphs have specified a graph with the same name as their current source graph, then the union of those source graphs under that name again becomes the source graph for further processing.
 Otherwise, the next source graph will be again the default graph.
 * If both graphs have specified a graph with the same name as their current target graph, then the union of those target graphs under that name again becomes the target graph for further processing.
-Otherwise, the next target graph will be again the default graph. 
+Otherwise, the next target graph will be again the default graph.
 
 === Updating queries
 
@@ -195,12 +195,13 @@ This CIP defines the notion of `<graph-specifier>` as a means to introduce, refe
 
 This CIP proposes the following kinds of graph specifiers:
 
-* `NEW GRAPH [<new-graph-name>] [AT <graph-url>]`: Reference to a newly created, empty graph that is to be bound as `<new-graph-name>` and may potentially overwrite any pre-existing graph at the provided `<graph-url>`
+* `NEW [GRAPH] [<new-graph-name>] [AT <graph-url>]`: Reference to a newly created, empty graph that is to be bound as `<new-graph-name>` and may potentially overwrite any pre-existing graph at the provided `<graph-url>`
 * `GRAPH [<new-graph-name] AT <graph-url>`: Reference to the graph at the given `<graph-url>` that is to be bound as `<new-graph-name>`
 * `[GRAPH] <graph-name> [AS <new-graph-name>]`: Reference to an already bound named graph
 * `COPY [GRAPH] <graph-name> [AS <new-graph-name>]`: Reference to a copy of an already bound named graph
-* `SOURCE GRAPH [<new-graph-name>]`: Reference to the currently _provided source graph_, optionally to be bound as `<new-graph-name>`
-* `TARGET GRAPH [<new-graph-name>]`: Reference to the currently _provided target graph_, optionally to be bound as `<new-graph-name>`
+* `SOURCE [GRAPH] [<new-graph-name>]`: Reference to the currently _provided source graph_, optionally to be bound as `<new-graph-name>`
+* `TARGET [GRAPH] [<new-graph-name>]`: Reference to the currently _provided target graph_, optionally to be bound as `<new-graph-name>`
+* `DEFAULT [GRAPH] [<new-graph-name>]`: Reference to the _default graph_, optionally to be bound as `<new-graph-name>`
 
 If a graph specifier is not referencing an already bound named graph and does not specify a `<new-graph-name>`, it is bound to a fresh system generated name.
 The details of this are left to implementations.
@@ -221,7 +222,7 @@ This CIP however proposes that a `<graph-url>` must always be given as either a 
 
 This allows parameterization of queries by controlling which graphs from which graph URLs they should use.
 
-=== Changing back to no graph
+=== Discarding the current source and target graphs
 
 Additionally, this CIP proposes new syntax for discarding the source and the target graph of the current query:
 
@@ -243,8 +244,8 @@ The newly proposed syntax is:
 
 [source, cypher]
 ----
-WITH [ < return-items > ] [ [ INPUT ] GRAPHS < graph-return-items > ]
-RETURN [ < return-items > ] [ [ INPUT ] GRAPHS < graph-return-items > ]
+WITH < return-items > [ GRAPHS < graph-return-items > ]
+RETURN < return-items > [ GRAPHS < graph-return-items > ]
 ----
 
 This CIP proposes the following kinds of `<graph-return-items>`:
@@ -252,26 +253,28 @@ This CIP proposes the following kinds of `<graph-return-items>`:
 * `<graph-specifier-list>`: A comma separated list of `<graph-specifier>` that are to be passed on
 * `*`: All named graphs are to be passed on
 * `*, <graph-specifier-list>`: All named graphs are to be passed on together with any additional named graphs that are newly bound in `<graph-specifier-list>`
-* `-`: No named graphs are to be passed on
 
 The order of named graphs inherently given by `<graph-return-items>` is semantically insignificant.
 However it is recommended that conforming implementations preserve this order at least in programmatic output operations (e.g. a textual display of the list of returned graphs).
 This in essence mirrors the semantics for tabular data returned by Cypher.
 
 Both `WITH ... GRAPHS ...` and `RETURN ... GRAPHS ...` will pass on (or return respectively) exactly the set of described named graphs.
-To simplify passing on available graphs it is proposed by this CIP that regular `WITH <return-items>` is taken to be syntactic sugar for `WITH <return-items> GRAPHS -` and that regular `RETURN <return-items>` is taken to be syntactic sugar for `RETURN <return-items> GRAPHS -`.
 
-To even further simplify, it is additionally proposed that `WITH|RETURN <return-items> INPUT GRAPHS <graph-return-items>` is to be syntactic sugar for `WITH|RETURN <return-items> GRAPHS <graph-return-items>, SOURCE GRAPH, TARGET GRAPH`.
-However if `<graph-return-items>` already passes on a reference for the `SOURCE GRAPH`, no additional reference for it is added and if `<graph-return-items>` already passes on a reference for the `TARGET GRAPH`, no additional reference for it is added.
+Note: Both regular `WITH <return-items>` and `RETURN <return-items>` are taken to pass on no graphs.
 
 If the current named source graph (or the current named target graph) are not passed on, they are discarded and due to the rules regarding partial query contexts the provided source graph (or target respectively) again are chosen to be the default graph of the outer execution context.
 
-Note: `WITH <return-items> GRAPHS *` may be used to pass through the initial query context without having to alias incoming source and target graphs explicitly.
+Note: `WITH * GRAPHS *` may be used to pass through the initial query context without having to alias incoming source and target graphs explicitly.
 
 === Discarding available tabular data
 
-It is additionally proposed that both `WITH GRAPHS <graph-return-items>` and `RETURN GRAPHS <graph-return-items>` are syntactic sugar for `WITH - GRAPHS <graph-return-items>` (and `RETURN - GRAPHS <graph-return-items>` respectively).
-These special forms may be used for discarding all tabular data such that the provided tabular input for the following clause (or query respectively) would again be the provided single record without any fields as specified by the rules for partial query contexts.
+[source, cypher]
+----
+WITH GRAPHS < graph-return-items >
+RETURN GRAPHS < graph-return-items >
+----
+
+It is additionally proposed that both `WITH GRAPHS <graph-return-items>` and `RETURN GRAPHS <graph-return-items>` may be used for discarding all tabular data such that the provided tabular input for the following clause (or query respectively) would again be the provided single record without any fields as specified by the rules for partial query contexts.
 
 Note: This syntax may be used to indicate when the gradual construction of a named graph is finished since neither fields nor the cardinality of tabular data is preserved after this point.
 
@@ -302,8 +305,8 @@ Finally this CIP proposed using the `WITH` clause as the initial clause in a que
 
 [source, cypher]
 ----
-WITH < return-items > [ [ INPUT ] GRAPHS < graph-return-items > ]
-WITH [ < return-items > ] [ INPUT ] GRAPHS < graph-return-items >
+WITH < return-items > [ GRAPHS < graph-return-items > ]
+WITH GRAPHS < graph-return-items >
 ----
 
 It is proposed that using `WITH` as the initial clause in a query is to be called a *query input declaration* while the use of `RETURN` as the last clause is to be called a *query output declaration*.
@@ -312,9 +315,9 @@ Query input declarations are subject to the following limitations:
 
 * All return item expressions are expected to reference an imagined set of input variables from the previous query
 * All such referenced variables must be declared or aliased explicitly by another return item unless the query input declaration starts with `WITH *` or `WITH *,`
-* If the input query context provides additional, undeclared variables or graphs, those inputs are to be silently discarded by query composition or execution
+* If the input query context provides additional, undeclared variables or graphs, those inputs are to be silently discarded
 
-A query that does not start with a query input declaration is assumed to start with `WITH - GRAPHS -`, i.e. to run in isolation and to initially read and write to the default graph.
+A query that does not start with a query input declaration is assumed to start with `WITH -`, i.e. to run in isolation and to initially read and write to the default graph.
 
 == Grammar
 
