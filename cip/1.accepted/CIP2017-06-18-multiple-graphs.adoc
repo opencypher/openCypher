@@ -349,6 +349,9 @@ Proposed syntax changes
 
 == Examples
 
+The following examples are intended to show how multiple graphs may be used, and focus on syntax.
+We show a fully worked-through example <<complete-example, here>>, describing and illustrating every step of the pipeline in detail.
+
 === A template for a multiple graph pipeline
 [source, cypher]
 ----
@@ -446,7 +449,7 @@ INTO NEW GRAPH rollup {
 RETURN GRAPHS rollup
 ----
 
-=== A more complex pipeline: using and materializing multiple graphs
+=== A more complex pipeline: using and persisting multiple graphs
 
 [source, cypher]
 ----
@@ -484,6 +487,214 @@ INTO NEW GRAPH swedish_triangles {
 }
 // and return it together with a count of its content
 RETURN count(p) AS num_triangles GRAPHS swedish_triangles, sweden_people, german_people
+----
+
+[[complete-example]]
+=== A complete example illustrating a data integration scenario
+
+Assume we have two graphs, *ActorsFilmsCities* and *Events*, each of which is contained in a separate location.
+This example will show how these two graphs can be integrated into a single graph.
+
+The *ActorsFilmsCities* graph models actors and people fulfilling other roles in the film-industry; films in which they acted, or directed, or for which they wrote the soundtrack; cities in which they were born; and their relationships to family members and colleagues.
+
+Each node is labelled and contains one or two properties (where `YOB` stands for 'year of birth'), and each relationship of type `ACTED_IN` has a `charactername` property indicating the name of the character the relevant `Actor` played in the `Film`.
+
+image::opencypher-PersonActorCityFilm-graph.jpg[Graph,800,700]
+
+The other graph, *Events*, models information on events.
+Each event is linked to an event type by an `IS_A` relationship, to a year by an `IN_YEAR` relationship, and to a city by an `IN_CITY` relationship.
+For example, the _Battle of Britain_ event is classified as a _War Event_, occurred in the year _1940_, and took place in _London_.
+
+In contrast to the *ActorsFilmsCities* graph, *Events* contains no labels on any node, no properties on any relationship, and only a single `value` property on each node.
+*Events* can be considered to be a snapshot of data from an RDF graph, in the sense that every node has one and only one value; i.e. in contrast to a property graph, an RDF graph has properties on neither nodes nor relationships.
+(For easier visibility, we have coloured accordingly the cities and city-related relationships, event types and event-type relationships, and year and year-related relationships.)
+
+image::opencypher-Events-graph.jpg[Graph,800,600]
+
+The aims of the data integration exercise are twofold:
+
+* Create and persist to disk (for future use) a new graph, *PersonCityEvents*, containing an amalgamation of data from *ActorsFilmsCities* and *Events*.
+*PersonCityEvents* must contain all the event information from *Events*, and only `Person` nodes connected to `City` nodes from *ActorsFilmsCities*.
+
+* Create and return a temporary graph, *Temp-PersonCityCrimes*.
+*Temp-PersonCityCrimes* must contain a subset of the data from *PersonCityEvents*, consisting only of the criminal events, their associated `City` nodes, and `Person` nodes associated with the `City` nodes.
+
+==== Step 1:
+
+The first action to take in our data integration exercise is to set the source graph to *ActorsFilmsCities*, for which we need to provide the physical address:
+
+[source, cypher]
+----
+FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
+----
+
+Next, match all `Person` nodes who have a `BORN_IN` relationship to a `City`:
+
+[source, cypher]
+----
+MATCH (p:Person)-[:BORN_IN]->(c:City)
+----
+
+Create the new graph *PersonCityEvents*, persist it to _some-location_, and set it as the target graph:
+
+[source, cypher]
+----
+INTO NEW GRAPH PersonCityEvents AT 'some-location'
+----
+
+Write the subgraph induced by the `MATCH` clause above into *PersonCityEvents*:
+
+[source, cypher]
+----
+CREATE XXXX TODO
+----
+
+Putting all these statements together, we get:
+
+_Query sequence for Step 1_:
+[source, cypher]
+----
+FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
+MATCH (p:Person)-[:BORN_IN]->(c:City)
+INTO NEW GRAPH PersonCityEvents AT 'some-location' {
+   CREATE XXX TODO
+}
+//Discard all tabular data and cardinality
+WITH GRAPHS *
+----
+
+At this stage, *PersonCityEvents* is given by:
+
+image::opencypher-PersonCity-graph.jpg[Graph,800,600]
+
+==== Step 2:
+
+The next stage in the pipeline is to add the events information from *Events* to *PersonCityEvents*.
+
+Firstly, the source graph is set to *Events*, for which we need to provide the physical address:
+
+[source, cypher]
+----
+FROM GRAPH Events AT 'graph://events...'
+----
+
+At this point, the *Events* graph is in scope.
+
+All the events information -- the event itself, its type, the year in which it occurred, and the city in which it took place -- is matched:
+
+[source, cypher]
+----
+MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
+      (e)-[:IS_A]->(et)
+----
+
+The target graph is set to the *PersonCityEvents* graph (created earlier):
+
+[source, cypher]
+----
+INTO GRAPH PersonCityEvents
+----
+
+Using the results from the `MATCH` clause, create a subgraph with more intelligible semantics through the transformation of the events information into a less verbose form through greater use of node-level properties.
+ Write the subgraph to *PersonCityEvents*.
+
+[source, cypher]
+----
+CREATE XXXX TODO
+----
+
+Putting all these statements together, we get:
+
+_Query sequence for Step 2_:
+[source, cypher]
+----
+FROM GRAPH Events AT 'graph://events...'
+MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
+      (e)-[:IS_A]->(et)
+INTO GRAPH PersonCityEvents {
+   CREATE XXX TODO
+}
+//Discard all tabular data and cardinality
+WITH GRAPHS *
+----
+
+*PersonCityEvents* now contains the following data:
+
+image::opencypher-PersonCityEvents-graph.jpg[Graph,800,700]
+
+==== Step 3:
+
+The last step in the data integration pipeline is the creation of a new, temporary graph, *Temp-PersonCityCrimes*, which is to be populated with the subgraph of all the criminal events and associated nodes from *PersonCityEvents*.
+
+Set *PersonCityEvents* to be in scope:
+
+[source, cypher]
+----
+FROM GRAPH PersonCityEvents
+----
+
+Next, obtain the subgraph of all criminal events -- i.e. nodes labelled with `CriminalEvent` -- and their associated `City` nodes, and `Person` nodes associated with the `City` nodes:
+
+[source, cypher]
+----
+MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
+----
+
+Create the new, temporary graph *Temp-PersonCityCrimes*, and set it as the target graph:
+
+[source, cypher]
+----
+INTO NEW GRAPH Temp-PersonCityCrimes
+----
+
+Write the subgraph acquired earlier to *Temp-PersonCityCrimes*.
+
+[source, cypher]
+----
+CREATE XXXX TODO
+----
+
+Putting all these statements together, we get:
+
+_Query sequence for Step 3_:
+[source, cypher]
+----
+FROM GRAPH PersonCityEvents
+MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
+INTO NEW GRAPH Temp-PersonCityCrimes {
+   CREATE XXX TODO
+}
+----
+
+And, as the final step of the entire data integration pipeline, return *Temp-PersonCityCrimes*, which is comprised of the following data:
+
+image::opencypher-PersonCityCriminalEvents-graph.jpg[Graph,800,700]
+
+The full data integration query pipeline is given by:
+
+[source, cypher]
+----
+FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
+MATCH (p:Person)-[:BORN_IN]->(c:City)
+INTO NEW GRAPH PersonCityEvents AT 'some-location' {
+   CREATE XXX TODO
+}
+WITH GRAPH *
+
+FROM GRAPH Events AT 'graph://events...'
+MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
+      (e)-[:IS_A]->(et)
+INTO GRAPH PersonCityEvents {
+   CREATE XXX TODO
+}
+WITH GRAPH *
+
+FROM GRAPH PersonCityEvents
+MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
+INTO NEW GRAPH Temp-PersonCityCrimes {
+   CREATE XXX TODO
+}
+RETURN GRAPH Temp-PersonCityCrimes
 ----
 
 == Interaction with existing features
