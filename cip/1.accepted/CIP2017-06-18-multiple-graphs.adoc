@@ -216,8 +216,6 @@ It is an error to use an `<aliased-graph>` in a context where its introduced `<n
 
 `GRAPH <new-graph-name> AT <graph-url>` is proposed as a shorthand for `GRAPH AT <graph-url> AS <new-graph-name>`.
 
-This CIP defines `<aliased-graphs-list>` as a non-empty, comma separated list of `<aliased-graph>`.
-
 === Changing query context graphs
 
 As a first language addition, this CIP proposes syntax for changing the source and the target graph of the current query context:
@@ -253,18 +251,24 @@ The newly proposed syntax is:
 
 [source, cypher]
 ----
-WITH < return-items > [ GRAPHS < graph-return-items > | < aliased-graphs-list > ]
-RETURN < return-items > [ GRAPHS < graph-return-items > | < aliased-graphs-list > ]
+WITH < return-items > [ < graph-return-items > ]
+RETURN < return-items > [ < graph-return-items > ]
 ----
 
-This CIP proposes the following kinds of `<graph-return-items>`:
+This CIP defines that `<graph-return-items>` is a non-empty, comma separated list of `<graph-return-item>` that describes which graphs are to be passed on.
 
-* `<returned-graphs-list>`: A non-empty, comma separated list that describes graphs that are to be passed on.
-A valid element of the list is either an `<aliased-graph>` or as a shorthand the name of an already bound graph.
-* `*`: All named graphs currently in scope are to be passed on
-* `*, <returned-graphs-list>`: All named graphs are to be passed on together with any additional named graphs that are bound in `<returned-graphs-list>`
+This CIP defines that each `<graph-return-item>` is one of:
 
-The order of named graphs inherently given by `<graph-return-items>` or `<aliased-graphs-list>` is semantically insignificant.
+* `GRAPHS *`: All named graphs currently in scope are to be passed on
+* `GRAPHS <graph-alias-list>`: All explicitly listed graphs are to be passed on.
+* `GRAPHS *, <graph-alias-list>`: All named graphs currently in scope together with any additionally introduced aliases rom `<graph-alias-list>` are to be passed on
+* `<graph-alias>`: A single graph alias is to be passed on
+
+`GRAPHS *` and `GRAPHS *, <graph-alias-list>` may only be used as the first `<graph-return-item>`.
+
+This CIP defines `<graph-alias-list>` as a non-empty, comma separated list of names of graphs that are currently in scope that each may optionally be followed by an alias of the form `AS <new-graph-name>`.
+
+The order of named graphs inherently given by `<graph-return-items>` is semantically insignificant.
 However it is recommended that conforming implementations preserve this order at least in programmatic output operations (e.g. a textual display of the list of returned graphs).
 This in essence mirrors the semantics for tabular data returned by Cypher.
 
@@ -280,10 +284,8 @@ Note: `WITH * GRAPHS *` may be used to pass through the initial query context wi
 
 [source, cypher]
 ----
-WITH GRAPHS < graph-return-items >
-WITH < aliased-graphs-list >
-RETURN GRAPHS < graph-return-items >
-RETURN < aliased-graphs-list >
+WITH < graph-return-items >
+RETURN < graph-return-items >
 ----
 
 It is additionally proposed that these forms may be used for discarding all tabular data such that the provided tabular input for the following clause (or query respectively) would again be the provided single record without any fields as specified by the rules for partial query contexts.
@@ -317,9 +319,8 @@ Finally this CIP proposed using the `WITH` clause as the initial clause in a que
 
 [source, cypher]
 ----
-WITH < return-items > [ GRAPHS < graph-return-items > | < aliased-graphs-list > ]
-WITH GRAPHS < graph-return-items >
-WITH < aliased-graphs-list >
+WITH < return-items > [ < graph-return-items > ]
+WITH < graph-return-items >
 ----
 
 It is proposed that using `WITH` as the initial clause in a query is to be called a *query input declaration* while the use of `RETURN` as the last clause is to be called a *query output declaration*.
