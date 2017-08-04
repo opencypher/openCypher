@@ -183,7 +183,7 @@ This CIP defines the notion of `<graph-reference>` as a means to introduce and r
 This CIP proposes the following kinds of graph references:
 
 * `NEW GRAPH [AT <graph-url>]`: Reference to a newly created, empty graph that may potentially overwrite any pre-existing graph at the provided `<graph-url>`
-* `COPY OF <graph-reference>`: Reference to a copy of the graph referred to by `<graph-reference>`
+* `COPY <graph-reference> [TO <graph-url>]`: Reference to a copy of the graph referred to by `<graph-reference>`
 * `GRAPH AT <graph-url>`: Reference to the graph at the given `<graph-url>`
 * `GRAPH <graph-name>`: Reference to an already bound named graph
 * `SOURCE GRAPH`: Reference to the currently _provided source graph_
@@ -223,14 +223,18 @@ As a first language addition, this CIP proposes syntax for changing the source a
 [source, cypher]
 ----
 FROM < aliased-graph >
+FROM < graph-name > [AS < new-graph-name >]
 FROM -
 INTO < aliased-graph >
+INTO < graph-name > [AS < new-graph-name >]
 INTO -
 ----
 
 ==== FROM clause
 
 The newly introduced `FROM` clause may be used to change both the source and the target graph of the current query context to the graph described by the given `<aliased-graph>`.
+
+`FROM <graph-name> [AS <new-graph-name>]` is a shorthand for `FROM GRAPH <graph-name> [AS <new-graph-name>]`.
 
 `FROM` always binds the referenced graph of the `<aliased-graph>` to its alias.
 
@@ -241,6 +245,8 @@ The newly introduced `FROM` clause may be used to change both the source and the
 The newly introduced `INTO` clause may be used to change the target graph of the current query context to the graph described by the given `<aliased-graph>`.
 
 `INTO` always binds the referenced graph of the `<aliased-graph>` to its alias.
+
+`INTO <graph-name> [AS <new-graph-name>]` is a shorthand for `INTO GRAPH <graph-name> [AS <new-graph-name>]`.
 
 `INTO -` may be used to discard the current target graph.
 
@@ -303,8 +309,8 @@ The proposed syntax is:
 
 [source, cypher]
 ----
-FROM < aliased-graph > | - { < graph-construction-subquery > }
-INTO < aliased-graph > | - { < graph-construction-subquery > }
+FROM < aliased-graph > | < graph-name > [ AS < new-graph-name > ] | - { < graph-construction-subquery > }
+INTO < aliased-graph > | < graph-name > [ AS < new-graph-name > ] | - { < graph-construction-subquery > }
 ----
 
 A `<graph-construction-subquery>` is an updating subquery (i.e. a sequence of clauses, including update clauses) that may or may not end in `RETURN`.
