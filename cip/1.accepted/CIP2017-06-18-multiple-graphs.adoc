@@ -349,7 +349,7 @@ Proposed syntax changes
 
 == Examples
 
-Example 1
+=== A template for a multiple graph pipeline
 [source, cypher]
 ----
 // Query input signature: Records with fields 'a', 'b' and two graphs 'g1', 'g2'
@@ -367,7 +367,8 @@ INTO NEW GRAPH result AT 'graph://...'
 RETURN a, b GRAPHS result, g1, g2
 ----
 
-Example 2
+=== A template for pipelining and interleaving queries
+
 [source, cypher]
 ----
 WITH a, b GRAPHS g1, g2 ... // First query
@@ -375,7 +376,8 @@ WITH GRAPHS g3, g4 ...      // Second query over first query
 RETURN c, d GRAPHS g5       // Third query over second query over first query
 ----
 
-Example 3
+=== Creating and returning a new graph and columns: a simple example
+
 [source, cypher]
 ----
 FROM GRAPH persons AT 'graph://...'
@@ -389,7 +391,8 @@ FROM -
 RETURN c.name AS city, count(r) AS num_friends GRAPHS berlin, santiago
 ----
 
-Example 4
+=== Creating a new graph, switching contexts and returning a graph
+
 [source, cypher]
 ----
 // Set scope to whole social network ...
@@ -413,7 +416,8 @@ RETURN a.name, b.name, count(e) AS cnt
     GRAPHS recommendations
 ----
 
-Example 5
+=== Using a pipeline of temporary graphs to process and return a subgraph
+
 [source, cypher]
 ----
 // Set scope to the whole social network ...
@@ -442,7 +446,8 @@ INTO NEW GRAPH rollup {
 RETURN GRAPHS rollup
 ----
 
-Example 5
+=== A more complex pipeline: using and materializing multiple graphs
+
 [source, cypher]
 ----
 // Set scope to the whole social network ...
