@@ -546,7 +546,9 @@ Write the subgraph induced by the `MATCH` clause above into *PersonCityEvents*:
 
 [source, cypher]
 ----
-CREATE XXXX TODO
+MERGE (p:Person {name: p.name, YOB: p.YOB})
+MERGE (c:City {name: c.name})
+MERGE (p)-[:BORN_IN]->(c)
 ----
 
 Putting all these statements together, we get:
@@ -557,7 +559,9 @@ _Query sequence for Step 1_:
 FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
 MATCH (p:Person)-[:BORN_IN]->(c:City)
 INTO NEW GRAPH PersonCityEvents AT 'some-location' {
-   CREATE XXX TODO
+   MERGE (p:Person {name: p.name, YOB: p.YOB})
+   MERGE (c:City {name: c.name})
+   MERGE (p)-[:BORN_IN]->(c)
 }
 //Discard all tabular data and cardinality
 WITH GRAPHS *
@@ -585,7 +589,10 @@ All the events information -- the event itself, its type, the year in which it o
 [source, cypher]
 ----
 MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
-      (e)-[:IS_A]->(et)
+      (e)-[:IS_A]->(et {value: 'Criminal Event'})
+
+//Do matches for all other event types: Public Event, War Event....
+...
 ----
 
 The target graph is set to the *PersonCityEvents* graph (created earlier):
@@ -600,7 +607,13 @@ Using the results from the `MATCH` clause, create a subgraph with more intelligi
 
 [source, cypher]
 ----
-CREATE XXXX TODO
+MERGE (c:City {name: c.value})
+MERGE (e {title: e.value, year: y.value})
+MERGE (e)-[:HAPPENED_IN]->(c)
+SET e :WarEvent
+
+//Do for all remaining event types
+...
 ----
 
 Putting all these statements together, we get:
@@ -610,9 +623,18 @@ _Query sequence for Step 2_:
 ----
 FROM GRAPH Events AT 'graph://events...'
 MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
-      (e)-[:IS_A]->(et)
+      (e)-[:IS_A]->(et {value: 'Criminal Event'})
+
+//Do matches for all other event types: Public Event, War Event....
+...
 INTO GRAPH PersonCityEvents {
-   CREATE XXX TODO
+   MERGE (c:City {name: c.value})
+   MERGE (e {title: e.value, year: y.value})
+   MERGE (e)-[:HAPPENED_IN]->(c)
+   SET e :WarEvent
+
+   //Do for all remaining event types
+   ...
 }
 //Discard all tabular data and cardinality
 WITH GRAPHS *
@@ -651,7 +673,11 @@ Write the subgraph acquired earlier to *Temp-PersonCityCrimes*.
 
 [source, cypher]
 ----
-CREATE XXXX TODO
+MERGE (p:Person {name: p.name, YOB: p.YOB})
+MERGE (c:City {name: c.name})
+MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
+MERGE (p)-[:BORN_IN]->(c)
+MERGE (ce)-[:HAPPENED_IN]->(c)
 ----
 
 Putting all these statements together, we get:
@@ -662,7 +688,11 @@ _Query sequence for Step 3_:
 FROM GRAPH PersonCityEvents
 MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
 INTO NEW GRAPH Temp-PersonCityCrimes {
-   CREATE XXX TODO
+   MERGE (p:Person {name: p.name, YOB: p.YOB})
+   MERGE (c:City {name: c.name})
+   MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
+   MERGE (p)-[:BORN_IN]->(c)
+   MERGE (ce)-[:HAPPENED_IN]->(c)
 }
 ----
 
@@ -679,22 +709,37 @@ The full data integration query pipeline is given by:
 FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
 MATCH (p:Person)-[:BORN_IN]->(c:City)
 INTO NEW GRAPH PersonCityEvents AT 'some-location' {
-   CREATE XXX TODO
+   MERGE (p:Person {name: p.name, YOB: p.YOB})
+   MERGE (c:City {name: c.name})
+   MERGE (p)-[:BORN_IN]->(c)
 }
 WITH GRAPH *
 
 FROM GRAPH Events AT 'graph://events...'
 MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
-      (e)-[:IS_A]->(et)
+      (e)-[:IS_A]->(et {value: 'Criminal Event'})
+
+//Do matches for all other event types: Public Event, War Event....
+...
 INTO GRAPH PersonCityEvents {
-   CREATE XXX TODO
+    MERGE (c:City {name: c.value})
+    MERGE (e {title: e.value, year: y.value})
+    MERGE (e)-[:HAPPENED_IN]->(c)
+    SET e :WarEvent
+
+    //Do for all remaining event types
+    ...
 }
 WITH GRAPH *
 
 FROM GRAPH PersonCityEvents
 MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
 INTO NEW GRAPH Temp-PersonCityCrimes {
-   CREATE XXX TODO
+   MERGE (p:Person {name: p.name, YOB: p.YOB})
+   MERGE (c:City {name: c.name})
+   MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
+   MERGE (p)-[:BORN_IN]->(c)
+   MERGE (ce)-[:HAPPENED_IN]->(c)
 }
 RETURN GRAPH Temp-PersonCityCrimes
 ----
