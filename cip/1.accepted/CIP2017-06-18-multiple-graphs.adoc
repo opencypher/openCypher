@@ -519,7 +519,7 @@ The aims of the data integration exercise are twofold:
 * Create and return a temporary graph, *Temp-PersonCityCrimes*.
 *Temp-PersonCityCrimes* must contain a subset of the data from *PersonCityEvents*, consisting only of the criminal events, their associated `City` nodes, and `Person` nodes associated with the `City` nodes.
 
-==== Step 1:
+==== Step 1
 
 The first action to take in our data integration exercise is to set the source graph to *ActorsFilmsCities*, for which we need to provide the physical address:
 
@@ -565,9 +565,9 @@ WITH GRAPHS *
 
 At this stage, *PersonCityEvents* is given by:
 
-image::opencypher-PersonCity-graph.jpg[Graph,800,600]
+image::opencypher-PersonCity-graph.jpg[Graph,600,400]
 
-==== Step 2:
+==== Step 2
 
 The next stage in the pipeline is to add the events information from *Events* to *PersonCityEvents*.
 
@@ -622,7 +622,7 @@ WITH GRAPHS *
 
 image::opencypher-PersonCityEvents-graph.jpg[Graph,800,700]
 
-==== Step 3:
+==== Step 3
 
 The last step in the data integration pipeline is the creation of a new, temporary graph, *Temp-PersonCityCrimes*, which is to be populated with the subgraph of all the criminal events and associated nodes from *PersonCityEvents*.
 
@@ -668,7 +668,9 @@ INTO NEW GRAPH Temp-PersonCityCrimes {
 
 And, as the final step of the entire data integration pipeline, return *Temp-PersonCityCrimes*, which is comprised of the following data:
 
-image::opencypher-PersonCityCriminalEvents-graph.jpg[Graph,800,700]
+image::opencypher-PersonCityCriminalEvents-graph.jpg[Graph,700,550]
+
+==== Full pipeline
 
 The full data integration query pipeline is given by:
 
