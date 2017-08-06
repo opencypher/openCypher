@@ -207,11 +207,11 @@ This CIP defines the notion of a graph definition `<graph-def>` for describing t
 A `<graph-def>` may have one of the following forms:
 
 * `<graph-ref> [AS <new-graph-name>]`: Reference to an existing graph
-* `NEW GRAPH [<new-graph-name>] [AT <graph-url>]`: Introduce a newly created, empty graph that is to be made available at the provided `<graph-url>`
+* `NEW GRAPH [AT <graph-url>] [AS <new-graph-name>]`: Introduce a newly created, empty graph that is to be made available at the provided `<graph-url>`
 * `COPY <graph-reference> [TO <graph-url>] [AS <new-graph-name>]`: Introduce a copy of the graph referred to by provided `<graph-reference>`
-* `GRAPH <new-graph-name> AT <graph-url>`: Load and introduce the graph that is available at the provided `<graph-url>`
+* `GRAPH AT <graph-url> [AS <new-graph-name>]`: Load and introduce the graph that is available at the provided `<graph-url>`
 
-The alias of a `<graph-def>` is either the explicitly given `<new-graph-name>` if present or an implicit fresh system generated name otherwise.
+The alias of a `<graph-def>` is either the explicitly given `<new-graph-name>` or `<graph-name>` if present or an implicit fresh system generated name otherwise.
 It is an error to use a `<graph-def>` in a context where its introduced `<new-graph-name>` is already bound.
 
 === Changing query context graphs
@@ -350,7 +350,7 @@ WITH a, b GRAPHS g1, g2
 FROM GRAPH AT 'graph://...'
 
 // Creates and sets new target graph for the following statements at the given physical address
-INTO NEW GRAPH result AT 'graph://...'
+INTO NEW GRAPH AT 'graph://...' AS result
 
 // Return records with 'a', 'b' and three graphs 'result', 'g1', 'g2' (query output signature)
 // Source graph for future reads is again the default graph, the target graph for future writes is 'result'
@@ -373,9 +373,9 @@ RETURN c, d GRAPHS g5       // Third query over second query over first query
 FROM persons AT 'graph://...'
 MATCH (a:Person)-[r:KNOWS]->(b:Person)
 MATCH (a)-[:LIVES_IN->(c:City)<-[:LIVES_IN]-(b)
-INTO NEW GRAPH berlin
+INTO NEW GRAPH AS berlin
 CREATE (a)-[:FRIEND]->(b) WHERE c.name = "Berlin"
-INTO NEW GRAPH santiago
+INTO NEW GRAPH AS santiago
 CREATE (a)-[:FRIEND]->(b) WHERE c.name = "Santiago"
 FROM -
 RETURN c.name AS city, count(r) AS num_friends GRAPHS berlin, santiago
@@ -391,7 +391,7 @@ FROM GRAPH AT 'graph://social-network'
 MATCH (a:Person)-[:KNOWS]->(b:Person)-[:KNOWS]->(c:Person) WHERE NOT (a)--(c)
 
 // Create a temporary named graph,
-INTO NEW GRAPH recommendations
+INTO NEW GRAPH AS recommendations
 // containing existing nodes and new rels ...
 CREATE (a)-[:POSSIBLE_FRIEND]->(c)
 // ... and finally discard all tabular data and cardinality
@@ -418,7 +418,7 @@ MATCH (a:Person)-[:IS_LOCATED_IN]->(c:City),
       (a)-[e:KNOWS]-(b)
 
 // Create a new temporary named graph,
-INTO NEW GRAPH sn_updated
+INTO NEW GRAPH AS sn_updated
 // add previous matches to new graph,
 CREATE (a)-[e]-(b)
 // update existing nodes.
@@ -429,7 +429,7 @@ WITH GRAPHS *
 FROM sn_updated
 MATCH (a:Person)-[e:KNOWS]->(b:Person)
 WITH a.country AS a_country, b.country AS b_country, count(a) AS a_cnt, count(b) AS b_cnt, count(e) AS e_cnt
-INTO NEW GRAPH rollup {
+INTO NEW GRAPH AS rollup {
   MERGE (:Persons {country: a_country, cnt: a_cnt})-[:KNOW {cnt: e_cnt}]->(:Persons {country: b_country, cnt: b_cnt})
 }
 // Return final graph output
@@ -447,7 +447,7 @@ MATCH (a:Person)-[e]->(b:Person),
       (a)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c:Country {name: ‘Sweden’}),
       (b)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c)
 // Create a persistent graph at 'graph://social-network/swe'
-INTO NEW GRAPH sweden_people AT './swe' {
+INTO NEW GRAPH AT './swe' AS sweden_people {
   // connecting persons that live in the same city in Sweden.
   CREATE (a)-[e]->(b)
 }
@@ -458,7 +458,7 @@ MATCH (a:Person)-[e]->(b:Person),
       (a)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c:Country {name: ‘Germany’}),
       (b)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c)
 // Create a persistent graph at 'graph://social-network/ger'
-INTO NEW GRAPH german_people AT './ger' {
+INTO NEW GRAPH AT './ger' AS german_people {
   // connecting persons that live in the same city in Germany.
   CREATE (a)-[e]->(b)
 }
@@ -469,7 +469,7 @@ WITH GRAPHS *
 FROM sweden_people
 MATCH p=(a)--(b)--(c)--(a) WHERE NOT (a)--(c)
 // Create a temporary graph 'swedish_triangles'
-INTO NEW GRAPH swedish_triangles {
+INTO NEW GRAPH AS swedish_triangles {
   MERGE p
 }
 // and return it together with a count of its content
@@ -517,7 +517,7 @@ The first action to take in our data integration exercise is to set the source g
 
 [source, cypher]
 ----
-FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
+FROM GRAPH AT 'graph://actors_films_cities...' AS ActorsFilmsCities
 ----
 
 Next, match all `Person` nodes who have a `BORN_IN` relationship to a `City`:
@@ -531,7 +531,7 @@ Create the new graph *PersonCityEvents*, persist it to _some-location_, and set 
 
 [source, cypher]
 ----
-INTO NEW GRAPH PersonCityEvents AT 'some-location'
+INTO NEW GRAPH AT 'some-location' AS PersonCityEvents
 ----
 
 Write the subgraph induced by the `MATCH` clause above into *PersonCityEvents*:
@@ -548,9 +548,9 @@ Putting all these statements together, we get:
 _Query sequence for Step 1_:
 [source, cypher]
 ----
-FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
+FROM GRAPH AT 'graph://actors_films_cities...' AS ActorsFilmsCities
 MATCH (p:Person)-[:BORN_IN]->(c:City)
-INTO NEW GRAPH PersonCityEvents AT 'some-location' {
+INTO NEW GRAPH AT 'some-location' AS PersonCityEvents {
    MERGE (p:Person {name: p.name, YOB: p.YOB})
    MERGE (c:City {name: c.name})
    MERGE (p)-[:BORN_IN]->(c)
@@ -613,7 +613,7 @@ Putting all these statements together, we get:
 _Query sequence for Step 2_:
 [source, cypher]
 ----
-FROM GRAPH Events AT 'graph://events...'
+FROM GRAPH AT 'graph://events...' AS Events
 MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
       (e)-[:IS_A]->(et {value: 'Criminal Event'})
 
@@ -658,7 +658,7 @@ Create the new, temporary graph *Temp-PersonCityCrimes*, and set it as the targe
 
 [source, cypher]
 ----
-INTO NEW GRAPH Temp-PersonCityCrimes
+INTO NEW GRAPH AS Temp-PersonCityCrimes
 ----
 
 Write the subgraph acquired earlier to *Temp-PersonCityCrimes*.
@@ -679,7 +679,7 @@ _Query sequence for Step 3_:
 ----
 FROM PersonCityEvents
 MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
-INTO NEW GRAPH Temp-PersonCityCrimes {
+INTO NEW GRAPH AS Temp-PersonCityCrimes {
    MERGE (p:Person {name: p.name, YOB: p.YOB})
    MERGE (c:City {name: c.name})
    MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
@@ -698,16 +698,16 @@ The full data integration query pipeline is given by:
 
 [source, cypher]
 ----
-FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
+FROM GRAPH AT 'graph://actors_films_cities...' AS ActorsFilmsCities
 MATCH (p:Person)-[:BORN_IN]->(c:City)
-INTO NEW GRAPH PersonCityEvents AT 'some-location' {
+INTO NEW GRAPH AT 'some-location' AS PersonCityEvents {
    MERGE (p:Person {name: p.name, YOB: p.YOB})
    MERGE (c:City {name: c.name})
    MERGE (p)-[:BORN_IN]->(c)
 }
-WITH GRAPH *
+WITH GRAPHS *
 
-FROM GRAPH Events AT 'graph://events...'
+FROM GRAPH AT 'graph://events...' AS Events
 MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
       (e)-[:IS_A]->(et {value: 'Criminal Event'})
 
@@ -726,7 +726,7 @@ WITH GRAPHS *
 
 FROM PersonCityEvents
 MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
-INTO NEW GRAPH Temp-PersonCityCrimes {
+INTO NEW GRAPH AS Temp-PersonCityCrimes {
    MERGE (p:Person {name: p.name, YOB: p.YOB})
    MERGE (c:City {name: c.name})
    MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
