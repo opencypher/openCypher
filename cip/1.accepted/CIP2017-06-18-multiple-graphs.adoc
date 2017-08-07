@@ -158,6 +158,7 @@ This CIP proposes the following update semantics for Cypher with support for mul
   More concretely:
   ** Entities are always created in and deleted from the currently provided target graph.
   ** All entities of bound pattern variables in `CREATE` and `MERGE` are always added to the provided target graph of the current query context.
+  ** Expressions in `MERGE` are evaluated using the provided target graph of the current query context.
   ** Deleting an entity only affects the provided target graph of the current query context.
 * Updating queries always return all variables and graphs in scope, i.e. the behave as if they would end in `RETURN * GRAPHS *` (This syntax is introduced below).
 * Semantically, all effects of an updating clause must be made visible before proceeding with the execution of the next clause.
@@ -175,72 +176,77 @@ Execution under the single graph execution model can be simulated in the multipl
 
 == Proposal: Multiple Graphs Syntax
 
-This CIP first proposes some auxiliary syntax definitions before proceeding to add new and extend existing clauses.
+This CIP first proposes new syntactical concepts for them before proceeding to add new and extend existing clauses.
 
-=== Graph reference
+=== Named graphs
 
-This CIP defines the notion of a graph reference `<graph-ref>` as a means to refer to existing graphs.
-This CIP proposes the following kinds of graph references:
+This CIP introduces the notion of multiple named graphs.
 
-* `<graph-name>`: Reference to an already bound named graph
-* `SOURCE GRAPH`: Reference to the currently _provided source graph_
-* `TARGET GRAPH`: Reference to the currently _provided target graph_
-* `DEFAULT GRAPH`: Reference to the _default graph_
+A graph is referenced in the current query context via its name.
+Graph names `<graph-name>` use the same syntax as variable names.
+It is an error to use the same name for both a regular variable and a graph at the same time.
 
-==== Graph names
+==== Graph references and aliases
 
-Graph names use the same syntax as existing variable names.
+An explicit reference to a `<graph-ref>` is just the `<graph-name>` of the graph.
+A `<graph-alias>` is a `<graph-ref>` that is optionally followed by `AS <new-graph-name>`.
 
-It is an error to use the same name for both a regular variable or the name of a graph.
+==== Graph definitions
 
-==== Graph URLs
+This CIP defines the notion of a graph definition `<graph-def>` as a means to introduce additional named graphs.
+This CIP proposes the following kinds of graph definitions:
 
-The exact shape and form of graph URL lies outside the scope of this CIP.
+* `NEW GRAPH [<new-graph-name>] [AT <graph-url]`: A newly created, empty graph that is to be made available at the provided `<graph-url>`
+* `GRAPH [<new-graph-name>] AT <graph-url>`: The graph that is available at the provided `<graph-url>`
+* `SOURCE GRAPH [<new-graph-name>]`: The currently _provided source graph_
+* `TARGET GRAPH [<new-graph-name>]`: The currently _provided target graph_
+* `DEFAULT GRAPH [<new-graph-name>]`: The _default graph_
 
-This CIP however proposes that a `<graph-url>` must always be given as either a string literal or a query parameter.
+If no `<new-graph-name>` is provided in the input query, a fresh name is generated implicitly.
 
+Note: The exact shape and form of graph URLs `<graph-url>` lies outside the scope of this CIP.
+However, this CIP proposes that a `<graph-url>` must always be given as either a string literal or a query parameter.
 This allows parameterization of queries by controlling which graphs from which graph URLs they should use.
 
-=== Graph definition
+==== Graph specifiers
 
-This CIP defines the notion of a graph definition `<graph-def>` for describing the introduction and aliasing of new named graphs.
-A `<graph-def>` may have one of the following forms:
+This CIP defines the notion of a graph specifier `<graph-spec>` to be either a `<graph-def>` or the keyword `GRAPH` followed by a `<graph-ref>` or `-` for referring to the default graph without naming it.
 
-* `<graph-ref> [AS <new-graph-name>]`: Reference to an existing graph
-* `NEW GRAPH [AT <graph-url>] [AS <new-graph-name>]`: Introduce a newly created, empty graph that is to be made available at the provided `<graph-url>`
-* `COPY <graph-reference> [TO <graph-url>] [AS <new-graph-name>]`: Introduce a copy of the graph referred to by provided `<graph-reference>`
-* `GRAPH AT <graph-url> [AS <new-graph-name>]`: Load and introduce the graph that is available at the provided `<graph-url>`
+=== Introducing graphs
 
-The alias of a `<graph-def>` is either the explicitly given `<new-graph-name>` or `<graph-name>` if present or an implicit fresh system generated name otherwise.
-It is an error to use a `<graph-def>` in a context where its introduced `<new-graph-name>` is already bound.
-
-=== Changing query context graphs
-
-As a first language addition, this CIP proposes syntax for changing the source and the target graph of the current query context:
+As a first language addition, this CIP proposes syntax for introducing graphs into the current query context:
 
 [source, cypher]
 ----
-FROM < graph-def >
-FROM -
-INTO < graph-def >
-INTO -
+DEFINE < graph-def >
+FROM < graph-spec >
+INTO < graph-spec >
+COPY GRAPH < graph-ref > [ TO < graph-url > ] AS < new-graph-name >
 ----
+
+==== DEFINE clause
+
+This CIP proposes to the `DEFINE` clause for introducing new graphs using the form `DEFINE <graph-def>`.
 
 ==== FROM clause
 
-The newly introduced `FROM` clause may be used to change both the source and the target graph of the current query context to the graph described by the given `<graph-def>`.
+This CIP proposes a new `FROM` clause to change both the source and the target graph of the current query context as described.
 
-`FROM` always binds the referenced graph of the `<graph-def>` to its alias.
+`FROM <graph-def>` aliases the defined graph to the given `<new-graph-name>`.
 
 `FROM -` may be used to discard the current source and the current target graph.
 
 ==== INTO clause
 
-The newly introduced `INTO` clause may be used to change the target graph of the current query context to the graph described by the given `<graph-def>`.
+This CIP proposes a new `INTO` clause to change the target graph of the current query context as described.
 
-`INTO` always binds the referenced graph of the `<graph-def>` to its alias.
+`INTO <graph-def>` aliases the defined graph to the given `<new-graph-name>`.
 
-`INTO -` may be used to discard the current target graph.
+`INTO -` may be used to discard the current source and the current target graph.
+
+==== COPY GRAPH clause
+
+This CIP proposes a new `COPY GRAPH` clause to copy graphs using the form `COPY GRAPH <graph-ref> [TO <graph-url>] AS <new-graph-name>`.
 
 === Returning, aliasing, and selecting graphs
 
@@ -256,10 +262,10 @@ RETURN < return-items > [ < graph-return-items > ]
 This CIP defines that `<graph-return-items>` is one of:
 
 * `GRAPHS *`: All named graphs currently in scope are to be passed on
-* `GRAPHS <graph-def-list>`: All explicitly listed graphs are to be passed on.
-* `GRAPHS *, <graph-def-list>`: All named graphs currently in scope together with any additionally introduced named graphs from `<graph-def-list>` are to be passed on
+* `GRAPHS <graph-alias-list>`: All explicitly listed graphs are to be passed on.
+* `GRAPHS *, <graph-alias-list>`: All named graphs currently in scope together with any additionally introduced named graphs from `<graph-alias-list>` are to be passed on
 
-This CIP defines `<graph-def-list>` as a non-empty, comma separated list of `<graph-def>`.
+This CIP defines `<graph-alias-list>` as a non-empty, comma separated list of `<graph-alias>`.
 
 The order of named graphs inherently given by `<graph-return-items>` is semantically insignificant.
 However it is recommended that conforming implementations preserve this order at least in programmatic output operations (e.g. a textual display of the list of returned graphs).
@@ -285,9 +291,31 @@ It is additionally proposed that these forms may be used for discarding all tabu
 
 Note: This syntax may be used to indicate when the gradual construction of a named graph is finished since neither fields nor the cardinality of tabular data is preserved after this point.
 
+=== Match and merge
+
+This CIP proposes to change the `MATCH` clause with the ability to add all matching entities to the target graph.
+
+Note: If the source and the target graph are the same graph, this will have no effect.
+
+=== Redirecting clauses
+
+This CIP proposes to extend some existing clauses with the ability to use different source and target graphs.
+
+[source, cypher]
+----
+[ OPTIONAL ] MATCH [ FROM < graph-spec > ] [ INTO < graph-spec > ]
+CREATE [ INTO < graph-spec > ] ...
+MERGE [ INTO < graph-spec > ] ...
+[ DETACH ] DELETE [ FROM < graph-spec > ] ...
+SET [ INTO < graph-spec > ] ...
+REMOVE [ FROM < graph-spec > ] ...
+----
+
+Note: It may seem odd to specify a source graph for clauses like `SET`.  However, the source graph is used to evaluate all expressions (exception: `MERGE`) and therefore being able to override it temporarily may be useful.
+
 === Nested FROM and INTO subqueries
 
-This CIP additionally proposes the introduction of nested `FROM` and `INTO` subqueries.
+This CIP proposes the introduction of nested `FROM` and `INTO` subqueries.
 
 These subqueries support changing the source graph or the target graph for a bounded sequence of clauses without changing them for the remainder of the query.
 In particular, this additional syntax helps avoid changing the source or the target graph that is returned from the query by limiting the scope of source and target graph changes.
@@ -296,8 +324,8 @@ The proposed syntax is:
 
 [source, cypher]
 ----
-FROM < graph-def > | - { < graph-construction-subquery > }
-INTO < graph-def > | - { < graph-construction-subquery > }
+FROM < graph-spec > { < graph-construction-subquery > }
+INTO < graph-spec > { < graph-construction-subquery > }
 ----
 
 A `<graph-construction-subquery>` is an updating subquery (i.e. a sequence of clauses, including update clauses) that may or may not end in `RETURN`.
@@ -350,7 +378,7 @@ WITH a, b GRAPHS g1, g2
 FROM GRAPH AT 'graph://...'
 
 // Creates and sets new target graph for the following statements at the given physical address
-INTO NEW GRAPH AT 'graph://...' AS result
+INTO NEW GRAPH result AT 'graph://...'
 
 // Return records with 'a', 'b' and three graphs 'result', 'g1', 'g2' (query output signature)
 // Source graph for future reads is again the default graph, the target graph for future writes is 'result'
@@ -373,9 +401,9 @@ RETURN c, d GRAPHS g5       // Third query over second query over first query
 FROM persons AT 'graph://...'
 MATCH (a:Person)-[r:KNOWS]->(b:Person)
 MATCH (a)-[:LIVES_IN->(c:City)<-[:LIVES_IN]-(b)
-INTO NEW GRAPH AS berlin
+INTO NEW GRAPH berlin
 CREATE (a)-[:FRIEND]->(b) WHERE c.name = "Berlin"
-INTO NEW GRAPH AS santiago
+INTO NEW GRAPH santiago
 CREATE (a)-[:FRIEND]->(b) WHERE c.name = "Santiago"
 FROM -
 RETURN c.name AS city, count(r) AS num_friends GRAPHS berlin, santiago
@@ -391,14 +419,14 @@ FROM GRAPH AT 'graph://social-network'
 MATCH (a:Person)-[:KNOWS]->(b:Person)-[:KNOWS]->(c:Person) WHERE NOT (a)--(c)
 
 // Create a temporary named graph,
-INTO NEW GRAPH AS recommendations
+INTO NEW GRAPH recommendations
 // containing existing nodes and new rels ...
 CREATE (a)-[:POSSIBLE_FRIEND]->(c)
 // ... and finally discard all tabular data and cardinality
 WITH GRAPHS *
 
 // Switch context to named graph.
-FROM recommendations
+FROM GRAPH recommendations
 MATCH (a:Person)-[e:POSSIBLE_FRIEND]->(b:Person)
 // Return tabular and graph output
 RETURN a.name, b.name, count(e) AS cnt
@@ -418,7 +446,7 @@ MATCH (a:Person)-[:IS_LOCATED_IN]->(c:City),
       (a)-[e:KNOWS]-(b)
 
 // Create a new temporary named graph,
-INTO NEW GRAPH AS sn_updated
+INTO NEW GRAPH sn_updated
 // add previous matches to new graph,
 CREATE (a)-[e]-(b)
 // update existing nodes.
@@ -426,10 +454,10 @@ SET a.country = cn.name
 // ... and finally discard all tabular data and cardinality
 WITH GRAPHS *
 
-FROM sn_updated
+FROM GRAPH sn_updated
 MATCH (a:Person)-[e:KNOWS]->(b:Person)
 WITH a.country AS a_country, b.country AS b_country, count(a) AS a_cnt, count(b) AS b_cnt, count(e) AS e_cnt
-INTO NEW GRAPH AS rollup {
+INTO NEW GRAPH rollup {
   MERGE (:Persons {country: a_country, cnt: a_cnt})-[:KNOW {cnt: e_cnt}]->(:Persons {country: b_country, cnt: b_cnt})
 }
 // Return final graph output
@@ -447,7 +475,7 @@ MATCH (a:Person)-[e]->(b:Person),
       (a)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c:Country {name: ‘Sweden’}),
       (b)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c)
 // Create a persistent graph at 'graph://social-network/swe'
-INTO NEW GRAPH AT './swe' AS sweden_people {
+INTO NEW GRAPH sweden_people AT './swe' {
   // connecting persons that live in the same city in Sweden.
   CREATE (a)-[e]->(b)
 }
@@ -458,7 +486,7 @@ MATCH (a:Person)-[e]->(b:Person),
       (a)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c:Country {name: ‘Germany’}),
       (b)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c)
 // Create a persistent graph at 'graph://social-network/ger'
-INTO NEW GRAPH AT './ger' AS german_people {
+INTO NEW GRAPH german_people AT './ger' {
   // connecting persons that live in the same city in Germany.
   CREATE (a)-[e]->(b)
 }
@@ -466,10 +494,10 @@ INTO NEW GRAPH AT './ger' AS german_people {
 WITH GRAPHS *
 
 // Start query on the 'sweden_people' graph
-FROM sweden_people
+FROM GRAPH sweden_people
 MATCH p=(a)--(b)--(c)--(a) WHERE NOT (a)--(c)
 // Create a temporary graph 'swedish_triangles'
-INTO NEW GRAPH AS swedish_triangles {
+INTO NEW GRAPH swedish_triangles {
   MERGE p
 }
 // and return it together with a count of its content
@@ -517,7 +545,7 @@ The first action to take in our data integration exercise is to set the source g
 
 [source, cypher]
 ----
-FROM GRAPH AT 'graph://actors_films_cities...' AS ActorsFilmsCities
+FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
 ----
 
 Next, match all `Person` nodes who have a `BORN_IN` relationship to a `City`:
@@ -531,7 +559,7 @@ Create the new graph *PersonCityEvents*, persist it to _some-location_, and set 
 
 [source, cypher]
 ----
-INTO NEW GRAPH AT 'some-location' AS PersonCityEvents
+INTO NEW GRAPH PersonCityEvents AT 'some-location'
 ----
 
 Write the subgraph induced by the `MATCH` clause above into *PersonCityEvents*:
@@ -548,9 +576,9 @@ Putting all these statements together, we get:
 _Query sequence for Step 1_:
 [source, cypher]
 ----
-FROM GRAPH AT 'graph://actors_films_cities...' AS ActorsFilmsCities
+FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
 MATCH (p:Person)-[:BORN_IN]->(c:City)
-INTO NEW GRAPH AT 'some-location' AS PersonCityEvents {
+INTO NEW GRAPH PersonCityEvents AT 'some-location' {
    MERGE (p:Person {name: p.name, YOB: p.YOB})
    MERGE (c:City {name: c.name})
    MERGE (p)-[:BORN_IN]->(c)
@@ -591,7 +619,7 @@ The target graph is set to the *PersonCityEvents* graph (created earlier):
 
 [source, cypher]
 ----
-INTO PersonCityEvents
+INTO GRAPH PersonCityEvents
 ----
 
 Using the results from the `MATCH` clause, create a subgraph with more intelligible semantics through the transformation of the events information into a less verbose form through greater use of node-level properties.
@@ -613,13 +641,13 @@ Putting all these statements together, we get:
 _Query sequence for Step 2_:
 [source, cypher]
 ----
-FROM GRAPH AT 'graph://events...' AS Events
+FROM GRAPH Events AT 'graph://events...'
 MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
       (e)-[:IS_A]->(et {value: 'Criminal Event'})
 
 //Do matches for all other event types: Public Event, War Event....
 ...
-INTO PersonCityEvents {
+INTO GRAPH PersonCityEvents {
    MERGE (c:City {name: c.value})
    MERGE (e {title: e.value, year: y.value})
    MERGE (e)-[:HAPPENED_IN]->(c)
@@ -658,7 +686,7 @@ Create the new, temporary graph *Temp-PersonCityCrimes*, and set it as the targe
 
 [source, cypher]
 ----
-INTO NEW GRAPH AS Temp-PersonCityCrimes
+INTO NEW GRAPH Temp-PersonCityCrimes
 ----
 
 Write the subgraph acquired earlier to *Temp-PersonCityCrimes*.
@@ -679,7 +707,7 @@ _Query sequence for Step 3_:
 ----
 FROM PersonCityEvents
 MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
-INTO NEW GRAPH AS Temp-PersonCityCrimes {
+INTO NEW GRAPH Temp-PersonCityCrimes {
    MERGE (p:Person {name: p.name, YOB: p.YOB})
    MERGE (c:City {name: c.name})
    MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
@@ -698,22 +726,22 @@ The full data integration query pipeline is given by:
 
 [source, cypher]
 ----
-FROM GRAPH AT 'graph://actors_films_cities...' AS ActorsFilmsCities
+FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
 MATCH (p:Person)-[:BORN_IN]->(c:City)
-INTO NEW GRAPH AT 'some-location' AS PersonCityEvents {
+INTO NEW GRAPH PersonCityEvents AT 'some-location' {
    MERGE (p:Person {name: p.name, YOB: p.YOB})
    MERGE (c:City {name: c.name})
    MERGE (p)-[:BORN_IN]->(c)
 }
 WITH GRAPHS *
 
-FROM GRAPH AT 'graph://events...' AS Events
+FROM GRAPH Events AT 'graph://events...'
 MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
       (e)-[:IS_A]->(et {value: 'Criminal Event'})
 
 //Do matches for all other event types: Public Event, War Event....
 ...
-INTO PersonCityEvents {
+INTO GRAPH PersonCityEvents {
     MERGE (c:City {name: c.value})
     MERGE (e {title: e.value, year: y.value})
     MERGE (e)-[:HAPPENED_IN]->(c)
@@ -726,7 +754,7 @@ WITH GRAPHS *
 
 FROM PersonCityEvents
 MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
-INTO NEW GRAPH AS Temp-PersonCityCrimes {
+INTO NEW GRAPH Temp-PersonCityCrimes {
    MERGE (p:Person {name: p.name, YOB: p.YOB})
    MERGE (c:City {name: c.name})
    MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
