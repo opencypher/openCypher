@@ -460,9 +460,9 @@ WITH GRAPHS *
 FROM GRAPH sn_updated
 MATCH (a:Person)-[e:KNOWS]->(b:Person)
 WITH a.country AS a_country, b.country AS b_country, count(a) AS a_cnt, count(b) AS b_cnt, count(e) AS e_cnt
-INTO NEW GRAPH rollup {
-  MERGE (:Persons {country: a_country, cnt: a_cnt})-[:KNOW {cnt: e_cnt}]->(:Persons {country: b_country, cnt: b_cnt})
-}
+INTO NEW GRAPH rollup
+MERGE (:Persons {country: a_country, cnt: a_cnt})-[:KNOW {cnt: e_cnt}]->(:Persons {country: b_country, cnt: b_cnt})
+
 // Return final graph output
 RETURN GRAPHS rollup
 ----
@@ -478,10 +478,10 @@ MATCH (a:Person)-[e]->(b:Person),
       (a)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c:Country {name: ‘Sweden’}),
       (b)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c)
 // Create a persistent graph at 'graph://social-network/swe'
-INTO NEW GRAPH sweden_people AT './swe' {
-  // connecting persons that live in the same city in Sweden.
-  CREATE (a)-[e]->(b)
-}
+INTO NEW GRAPH sweden_people AT './swe'
+// connecting persons that live in the same city in Sweden.
+CREATE (a)-[e]->(b)
+
 // Finally discard all tabular data and cardinality
 WITH GRAPHS *
 
@@ -489,10 +489,10 @@ MATCH (a:Person)-[e]->(b:Person),
       (a)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c:Country {name: ‘Germany’}),
       (b)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c)
 // Create a persistent graph at 'graph://social-network/ger'
-INTO NEW GRAPH german_people AT './ger' {
-  // connecting persons that live in the same city in Germany.
-  CREATE (a)-[e]->(b)
-}
+INTO NEW GRAPH german_people AT './ger'
+// connecting persons that live in the same city in Germany.
+CREATE (a)-[e]->(b)
+
 // Finally discard all tabular data and cardinality
 WITH GRAPHS *
 
@@ -500,9 +500,9 @@ WITH GRAPHS *
 FROM GRAPH sweden_people
 MATCH p=(a)--(b)--(c)--(a) WHERE NOT (a)--(c)
 // Create a temporary graph 'swedish_triangles'
-INTO NEW GRAPH swedish_triangles {
-  MERGE p
-}
+INTO NEW GRAPH swedish_triangles
+MERGE p
+
 // and return it together with a count of its content
 RETURN count(p) AS num_triangles GRAPHS swedish_triangles, sweden_people, german_people
 ----
@@ -581,11 +581,11 @@ _Query sequence for Step 1_:
 ----
 FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
 MATCH (p:Person)-[:BORN_IN]->(c:City)
-INTO NEW GRAPH PersonCityEvents AT 'some-location' {
-   MERGE (p:Person {name: p.name, YOB: p.YOB})
-   MERGE (c:City {name: c.name})
-   MERGE (p)-[:BORN_IN]->(c)
-}
+INTO NEW GRAPH PersonCityEvents AT 'some-location'
+MERGE (p:Person {name: p.name, YOB: p.YOB})
+MERGE (c:City {name: c.name})
+MERGE (p)-[:BORN_IN]->(c)
+
 //Discard all tabular data and cardinality
 WITH GRAPHS *
 ----
@@ -650,15 +650,15 @@ MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
 
 //Do matches for all other event types: Public Event, War Event....
 ...
-INTO GRAPH PersonCityEvents {
-   MERGE (c:City {name: c.value})
-   MERGE (e {title: e.value, year: y.value})
-   MERGE (e)-[:HAPPENED_IN]->(c)
-   SET e :WarEvent
+INTO GRAPH PersonCityEvents
+MERGE (c:City {name: c.value})
+MERGE (e {title: e.value, year: y.value})
+MERGE (e)-[:HAPPENED_IN]->(c)
+SET e :WarEvent
 
-   //Do for all remaining event types
-   ...
-}
+//Do for all remaining event types
+...
+
 //Discard all tabular data and cardinality
 WITH GRAPHS *
 ----
@@ -710,13 +710,13 @@ _Query sequence for Step 3_:
 ----
 FROM PersonCityEvents
 MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
-INTO NEW GRAPH Temp-PersonCityCrimes {
-   MERGE (p:Person {name: p.name, YOB: p.YOB})
-   MERGE (c:City {name: c.name})
-   MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
-   MERGE (p)-[:BORN_IN]->(c)
-   MERGE (ce)-[:HAPPENED_IN]->(c)
-}
+INTO NEW GRAPH Temp-PersonCityCrimes
+MERGE (p:Person {name: p.name, YOB: p.YOB})
+MERGE (c:City {name: c.name})
+MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
+MERGE (p)-[:BORN_IN]->(c)
+MERGE (ce)-[:HAPPENED_IN]->(c)
+
 ----
 
 And, as the final step of the entire data integration pipeline, return *Temp-PersonCityCrimes*, which is comprised of the following data:
@@ -731,11 +731,11 @@ The full data integration query pipeline is given by:
 ----
 FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
 MATCH (p:Person)-[:BORN_IN]->(c:City)
-INTO NEW GRAPH PersonCityEvents AT 'some-location' {
-   MERGE (p:Person {name: p.name, YOB: p.YOB})
-   MERGE (c:City {name: c.name})
-   MERGE (p)-[:BORN_IN]->(c)
-}
+INTO NEW GRAPH PersonCityEvents AT 'some-location'
+MERGE (p:Person {name: p.name, YOB: p.YOB})
+MERGE (c:City {name: c.name})
+MERGE (p)-[:BORN_IN]->(c)
+
 WITH GRAPHS *
 
 FROM GRAPH Events AT 'graph://events...'
@@ -744,26 +744,26 @@ MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
 
 //Do matches for all other event types: Public Event, War Event....
 ...
-INTO GRAPH PersonCityEvents {
-    MERGE (c:City {name: c.value})
-    MERGE (e {title: e.value, year: y.value})
-    MERGE (e)-[:HAPPENED_IN]->(c)
-    SET e :WarEvent
+INTO GRAPH PersonCityEvents
+MERGE (c:City {name: c.value})
+MERGE (e {title: e.value, year: y.value})
+MERGE (e)-[:HAPPENED_IN]->(c)
+SET e :WarEvent
 
-    //Do for all remaining event types
-    ...
-}
+//Do for all remaining event types
+...
+
 WITH GRAPHS *
 
 FROM PersonCityEvents
 MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
-INTO NEW GRAPH Temp-PersonCityCrimes {
-   MERGE (p:Person {name: p.name, YOB: p.YOB})
-   MERGE (c:City {name: c.name})
-   MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
-   MERGE (p)-[:BORN_IN]->(c)
-   MERGE (ce)-[:HAPPENED_IN]->(c)
-}
+INTO NEW GRAPH Temp-PersonCityCrimes
+MERGE (p:Person {name: p.name, YOB: p.YOB})
+MERGE (c:City {name: c.name})
+MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
+MERGE (p)-[:BORN_IN]->(c)
+MERGE (ce)-[:HAPPENED_IN]->(c)
+
 RETURN GRAPHS Temp-PersonCityCrimes
 ----
 
