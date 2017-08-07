@@ -398,7 +398,7 @@ RETURN c, d GRAPHS g5       // Third query over second query over first query
 
 [source, cypher]
 ----
-FROM persons AT 'graph://...'
+FROM GRAPH persons AT 'graph://...'
 MATCH (a:Person)-[r:KNOWS]->(b:Person)
 MATCH (a)-[:LIVES_IN->(c:City)<-[:LIVES_IN]-(b)
 INTO NEW GRAPH berlin
