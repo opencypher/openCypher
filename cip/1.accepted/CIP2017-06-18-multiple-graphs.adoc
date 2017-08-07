@@ -11,7 +11,7 @@ This material is based on internal contributions of Alastair Green <alastair.gre
 [abstract]
 .Abstract
 --
-This CIP proposes to extend Cypher with support for the construction, transformation, and querying of multiple graphs by adopting the proposed multiple property graphs model and by adopting a new execution model that is called the multiple graphs execution model and by introducing new syntax for working with multiple graphs.
+This CIP proposes extending Cypher to support the construction, transformation, and querying of multiple graphs (i) by adopting the proposed multiple property graphs model, (ii) by adopting a new execution model, namely the 'multiple graphs execution model', and (iii) by introducing new syntax for working with multiple graphs.
 --
 
 toc::[]
@@ -26,23 +26,23 @@ However it seems desirable that a language for property graphs should not only e
 Furthermore, adding support for working with multiple graphs has recently been identified as a frequently requested feature:
 
 * It would enable the dynamic construction of graph views (e.g. for access control)
-* It allows reasoning over multiple versions of the same graph (e.g. comparing daily snapshots)
-* It may provide a great grouping mechanism for naturally partitioned data (e.g. per-continent graph)
+* It would allow reasoning over multiple versions of the same graph (e.g. comparing daily snapshots)
+* It would provide an effective grouping mechanism for naturally-partitioned data (e.g. per-continent graph)
 * It could be used for combining data from disparate data sources in one system (e.g. in federation and data integration scenarios)
-* It fits the paradigm of prominent analytical big-data processing systems (like e.g. Apache Spark)
+* It fits the paradigm of prominent analytical big-data processing systems (e.g. Apache Spark)
 * It mirrors mathematical graph theory where working with multiple graphs is standard
 
 == Background and Overview
 
 This proposal needs to modify and extend different aspects of the language consistently.
 
-Therefore background material regarding current semantics is given in line with the different individual sections of this proposal.
+We thus provide background material regarding current semantics in line with the different individual sections of this proposal.
 
 == Proposal: Multiple Property Graphs Model
 
-Before proposing changes to the language, it is necessary to first address required changes to the underlying https://github.com/opencypher/openCypher/blob/master/docs/property-graph-model.adoc[*property graph model*].
+Before proposing changes to the language, it is necessary to first address changes required to the underlying https://github.com/opencypher/openCypher/blob/master/docs/property-graph-model.adoc[*property graph model*].
 
-The revised property graph model used in this CIP is called the *multiple property graphs model* and assumes everything specified in the original property graph model extended with the notion of multiple, optionally overlapping graphs outlined in the following.
+The revised property graph model used in this CIP is called the *multiple property graphs model* and assumes everything specified in the original property graph model is extended with the notion of multiple, optionally overlapping graphs outlined in the following sub-sections.
 
 === Model definition
 
@@ -50,34 +50,35 @@ This CIP defines an instance of the *multiple property graphs model* to be a set
 
 === (Property) Graph
 
-_Definition_ A *property graph* is a set of labeled nodes and typed relationships both together with their properties (a property is a tuple of a named key and a value).
+_Definition_: A *property graph* is a set of labeled nodes and typed relationships, where each node and relationship contains zero or more properties. A property is a tuple consisting of a named key and value.
+
 Graphs may be updatable, i.e. the set of contained nodes and relationships may change during the lifetime of the graph.
 It is an error to attempt to update a read-only graph.
 
-The same node or relationship may be part of many graphs.
-A relationship may only be part of a graph if its start node and its end node are both also part of the same graph.
-Therefore removing a node from a graph will require removing all of its relationships from the graph, too.
-An entity is considered to be deleted if it is no longer part of any graph.
+The same node or relationship may be contained within many graphs.
+A relationship may only be part of a graph if its start node and its end node are both also contained in the same graph.
+Thus, the removal of a node from a graph will require the removal of all of its relationships from the graph.
+An entity -- i.e. a node or a relationship -- is considered to be deleted if it is no longer contained within any graph.
 
 === Graph Addressing
 
-Graphs do not expose an identity like nodes or relationships do.
+Graphs do not expose an identity in the same way that nodes or relationships do.
 
-Graphs may be made addressable through other means by a conforming implementation, e.g. through exposing the graph under a _graph URL_ for referencing and loading it.
-The details regarding the format and choice of graph URLs is outside the scope of this proposal.
+Graphs may be made addressable through other means by a conforming implementation, e.g. through exposing the graph via a _graph URL_ for referencing and loading it.
+The details regarding the format and choice of graph URLs is beyond the scope of this proposal.
 
 A graph is considered to have been deleted if it is no longer registered under a graph URL and no other reference to it is retained, e.g. from a running query.
 
 == Background: Single Graph Execution Model
 
-To describe the foundational shift proposed by this CIP, we'll define some terminology for describing the state that is manipulated by Cypher's current single graph execution model.
+Before detailing the foundational changes proposed by this CIP, we will define some basic terms and concepts for describing the state that is manipulated by Cypher's current single graph execution model.
 
 A Cypher query currently takes a set of parameters as input, queries a single, global, implicit property graph, potentially updates it, and finally returns tabular data derived from it.
 Query parameters are conceptually thought to be inlined before the start of query execution.
 Therefore the *execution context* of a whole Cypher query is a single, global, implicit property graph.
 
 Each sequence of clauses (sometimes called a *pipeline*) optionally operates on this single implicit graph and takes a single table input in order to produce a new single table output.
-Furthermore, Cypher supports query combinator clauses like `UNION` and `UNION ALL` for merging two pipelines into one.
+Furthermore, Cypher supports query combinator clauses like `UNION` and `UNION ALL` for merging two pipelines into a single pipeline.
 Therefore the *query context* that conceptually is passed between clauses in the single graph execution model is simply a single table.
 
 With this terminology in place, execution of a parameterized Cypher query in the single graph execution model can be described as executing within (and operating on) a given execution context and an initial query context and finally returning the query context produced as output for the top-most `RETURN` clause.
@@ -94,36 +95,37 @@ This CIP proposes the adoption of the multiple graphs execution model by Cypher 
 
 === Model definition
 
-This CIP proposes to redefine the *execution context* to be
+This CIP proposes redefining the *execution context* to be
 
 * a set of graphs in the multiple graphs execution model
 * a special graph drawn from this set that is called the *default graph*
 
-This CIP proposes to redefine the *query context* to be
+This CIP proposes redefining the *query context* to be
 
 * a set of named graphs from the *execution context*
-* an optional information that indicates which of these named graphs if any is the *source graph*
-* an optional information that indicates which of these named graphs if any is the *target graph*
-* optional *tabular data*, i.e. a potentially ordered bag of records, each having the same fixed set of fields
+* optional information indicating which of these named graphs, if any, is the *source graph*
+* optional information indicating which of these named graphs, if any, is the *target graph*
+* optional *tabular data*; i.e. a potentially ordered bag of records, each having the same fixed set of fields
 
-These redefinitions constitute the multiple graphs execution model. A parameterized Cypher query under this model can _also_ be described as executing within (and operating on) a given execution context and an initial query context and finally returning the query context produced as output for the top-most `RETURN` clause.
+These redefinitions comprise the multiple graphs execution model.
+A parameterized Cypher query under this model can _also_ be described as executing within (and operating on) a given execution context and an initial query context and finally returning the query context produced as output for the top-most `RETURN` clause.
 
-As a consequence of adopting the new multiple graphs execution model, the semantics of each clause needs to be (re-)defined as to how the execution of the clause transforms all given input query contexts into an output query context.
+As a consequence of adopting the new multiple graphs execution model, the semantics of each clause need to be (re-)defined as to how the execution of the clause transforms all given input query contexts into an output query context.
 This CIP preserves all existing semantics by defining how to simulate the single graph execution model in the multiple graphs execution model as outlined below.
 
 === Partial query contexts
 
 A query context may _not_ return a source graph, a target graph, or even tabular data.
 Such a query context is called a *partial query context*.
+
+
 The following rules are proposed to provide defaults for executing a query (or a clause) on a partial query context:
 
-If the input query context of a query (or a clause) does not return a source graph, the *provided source graph* of that query is taken to be the default graph.
+* If the input query context of a query (or a clause) does not return a source graph, the *provided source graph* of that query is taken to be the default graph.
+* If the input query context of a query (or a clause) does not return a target graph, the *provided target graph* of that query is taken to be the default graph.
+* If the input query context of a query (or a clause) does not return tabular data, the *provided tabular data* of that query is taken to be a single record without any fields.
 
-If the input query context of a query (or a clause) does not return a target graph, the *provided target graph* of that query is taken to be the default graph.
-
-If the input query context of a query (or a clause) does not return tabular data, the *provided tabular data* of that query is taken to be a single record without any fields.
-
-These rules ensures that a follow-up query (or a clause) that is executed on a partial query context is always provided with a source graph for graph matching, a target graph for graph manipulation, and tabular data such that it will iterate over at least one row.
+These rules ensure that a follow-up query (or a clause) that is executed on a partial query context is always provided with a source graph for graph matching, a target graph for graph manipulation, and tabular data such that it will iterate over at least one row.
 
 === Query composition
 
@@ -162,21 +164,21 @@ This CIP proposes the following update semantics for Cypher with support for mul
   ** Deleting an entity only affects the provided target graph of the current query context.
 * Updating queries always return all variables and graphs in scope, i.e. the behave as if they would end in `RETURN * GRAPHS *` (This syntax is introduced below).
 * Semantically, all effects of an updating clause must be made visible before proceeding with the execution of the next clause.
-In other words, a conforming implementation must ensure that a later clause alway sees the complete set of updates of a preceding updating clause.
+In other words, a conforming implementation must ensure that a later clause always sees the complete set of updates of a preceding updating clause.
 * A single update clause may perform multiple conflicting updates on the same node or relationship.
 In this situation, the outcome is undefined.
-Conflicting updates are considered to be out of scope of this CIP and will be addressed in a future proposal.
+Conflicting updates are considered to be beyond the scope of this CIP and will be addressed in a future proposal.
 For now it is proposed that a conforming implementation must choose at least either the original value or one of the values written or `NULL` as the final outcome of a conflicting update.
 
-This CIP proposes to allow `MERGE` to be followed by a non-empty, comma separated list of bound variables for explicitly adding an entity to the target graph.
+This CIP proposes allowing `MERGE` to be followed by a non-empty, comma-separated list of bound variables for explicitly adding an entity to the target graph.
 
 === Simulating the single graph execution model
 
-Execution under the single graph execution model can be simulated in the multiple graphs execution model by executing the query in an execution context that uses the single graph as the default graph and by running it on an empty initial query context.
+Execution under the single graph execution model can be simulated in the multiple graphs execution model by executing the query in an execution context that uses the single graph as the default graph, and by running it on an empty initial query context.
 
 == Proposal: Multiple Graphs Syntax
 
-This CIP first proposes new syntactical concepts for them before proceeding to add new and extend existing clauses.
+This CIP first proposes new syntactical concepts before proceeding to add new and extend existing clauses.
 
 === Named graphs
 
@@ -184,7 +186,7 @@ This CIP introduces the notion of multiple named graphs.
 
 A graph is referenced in the current query context via its name.
 Graph names `<graph-name>` use the same syntax as variable names.
-It is an error to use the same name for both a regular variable and a graph at the same time.
+It is an error to use simultaneously the same name for both a regular variable and a graph.
 
 ==== Graph references and aliases
 
@@ -193,7 +195,7 @@ A `<graph-alias>` is a `<graph-ref>` that is optionally followed by `AS <new-gra
 
 ==== Graph definitions
 
-This CIP defines the notion of a graph definition `<graph-def>` as a means to introduce additional named graphs.
+This CIP defines the notion of a graph definition `<graph-def>` as a means by which to introduce additional named graphs.
 This CIP proposes the following kinds of graph definitions:
 
 * `NEW GRAPH [<new-graph-name>] [AT <graph-url]`: A newly created, empty graph that is to be made available at the provided `<graph-url>`
@@ -226,7 +228,7 @@ COPY GRAPH < graph-ref > [ TO < graph-url > ] AS < new-graph-name >
 
 ==== DEFINE clause
 
-This CIP proposes to the `DEFINE` clause for introducing new graphs using the form `DEFINE <graph-def>`.
+This CIP proposes the `DEFINE` clause for introducing new graphs using the form `DEFINE <graph-def>`.
 
 ==== FROM clause
 
@@ -265,7 +267,7 @@ This CIP defines that `<graph-return-items>` is one of:
 * `GRAPHS <graph-alias-list>`: All explicitly listed graphs are to be passed on.
 * `GRAPHS *, <graph-alias-list>`: All named graphs currently in scope together with any additionally introduced named graphs from `<graph-alias-list>` are to be passed on
 
-This CIP defines `<graph-alias-list>` as a non-empty, comma separated list of `<graph-alias>`.
+This CIP defines `<graph-alias-list>` as a non-empty, comma-separated list of `<graph-alias>`.
 
 The order of named graphs inherently given by `<graph-return-items>` is semantically insignificant.
 However it is recommended that conforming implementations preserve this order at least in programmatic output operations (e.g. a textual display of the list of returned graphs).
@@ -275,7 +277,7 @@ Both `WITH ... GRAPHS ...` and `RETURN ... GRAPHS ...` will pass on (or return r
 
 Note: Both regular `WITH <return-items>` and `RETURN <return-items>` are taken to pass on no graphs.
 
-If the current named source graph (or the current named target graph) are not passed on, they are discarded and due to the rules regarding partial query contexts the provided source graph (or target graph respectively) again are chosen to be the default graph of the outer execution context.
+If the current named source graph (or the current named target graph) are not passed on, they are discarded, and owing to the rules regarding partial query contexts, the provided source graph (or target graph respectively) again are chosen to be the default graph of the outer execution context.
 
 Note: `WITH * GRAPHS *` may be used to pass through the initial query context without having to alias incoming source and target graphs explicitly.
 
@@ -311,7 +313,8 @@ SET [ INTO < graph-spec > ] ...
 REMOVE [ FROM < graph-spec > ] ...
 ----
 
-Note: It may seem odd to specify a source graph for clauses like `SET`.  However, the source graph is used to evaluate all expressions (exception: `MERGE`) and therefore being able to override it temporarily may be useful.
+Note: It may seem odd to specify a source graph for clauses like `SET`.
+However, the source graph is used to evaluate all expressions (exception: `MERGE`) and therefore being able to override it temporarily may be useful.
 
 === Nested FROM and INTO subqueries
 
@@ -772,7 +775,7 @@ However, the change has been carefully designed to not change the semantics of e
 
 == Alternatives
 
-The scope of this CIP could be reduced by not separating between source and target graph.
+The scope of this CIP could be reduced by not separating between the source and target graph.
 
 == What others do
 
