@@ -500,7 +500,7 @@ MERGE (p)-[:BORN_IN]->(c)
 
 Putting all these statements together, we get:
 
-.Query sequence for Step 1:
+._Query sequence for Step 1_:
 [source, cypher]
 ----
 FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
@@ -565,7 +565,7 @@ SET e :WarEvent
 
 Putting all these statements together, we get:
 
-.Query sequence for Step 2:
+._Query sequence for Step 2_:
 [source, cypher]
 ----
 FROM GRAPH Events AT 'graph://events...'
@@ -629,7 +629,7 @@ MERGE (ce)-[:HAPPENED_IN]->(c)
 
 Putting all these statements together, we get:
 
-.Query sequence for Step 3:
+._Query sequence for Step 3_:
 [source, cypher]
 ----
 FROM PersonCityEvents
@@ -647,7 +647,7 @@ And, as the final step of the entire data integration pipeline, return *Temp-Per
 
 image::opencypher-PersonCityCriminalEvents-graph.jpg[Graph,700,550]
 
-.The full data integration query pipeline is given by:
+._The full data integration query pipeline is given by_:
 [source, cypher]
 ----
 FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
@@ -810,6 +810,7 @@ The *SalesSummary* graph is comprised of the following:
 image::opencypher-SalesSummary-graph.jpg[Graph,800,700]
 
 The high-level summarized tabular data consists of the following:
+
 [source, cypher]
 ----
 +------------+-----------+-----------------+
@@ -824,7 +825,7 @@ The high-level summarized tabular data consists of the following:
 
 We note that the *SalesSummary* graph can be used to generate further high-level sales summaries, such as the total sales of a particular product within a region, as well as more detailed views.
 
-.The full aggregation query pipeline is given by:
+._The full aggregation query pipeline is given by_:
 [source, cypher]
 ----
 FROM GRAPH SalesDetail AT ‘graph://...’
