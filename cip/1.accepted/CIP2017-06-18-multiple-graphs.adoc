@@ -292,7 +292,7 @@ Proposed syntax changes
 == Examples
 
 The following examples are intended to show how multiple graphs may be used, and focus on syntax.
-We show a fully worked-through example <<complete-example, here>>, describing and illustrating every step of the pipeline in detail.
+We show two fully worked-through examples <<data-integration-example, here>> and <<data-aggregation-example, here>>, describing and illustrating every step of the pipeline in detail.
 
 === A template for a multiple graph pipeline
 [source, cypher]
@@ -431,7 +431,7 @@ MERGE p
 RETURN count(p) AS num_triangles GRAPHS swedish_triangles, sweden_people, german_people
 ----
 
-[[complete-example]]
+[[data-integration-example]]
 === A complete example illustrating a data integration scenario
 
 Assume we have two graphs, *ActorsFilmsCities* and *Events*, each of which is contained in a separate location.
@@ -687,6 +687,8 @@ MERGE (ce)-[:HAPPENED_IN]->(c)
 
 RETURN GRAPHS Temp-PersonCityCrimes
 ----
+
+[[data-aggregation-example]]
 === Using a pipeline to perform aggregations and return tabular data and graphs
 
 This example shows how to aggregate detailed sales data within a graph -- in effect, performing a 'roll-up' -- in order to obtain a high-level summarized view of the data, stored and returned in another graph, as well as returning an even higher-level view as an executive report.
@@ -790,7 +792,7 @@ WHERE p.code = productCode
 
 //Update all (:Product)-[SOLD_IN]->(:Store) relationships with the new sold property
 MATCH (p:Product)-[r:SOLD_IN]->(s:Store)
-    SET r.sold = storeProductTotal
+SET r.sold = storeProductTotal
 WHERE p.code = productCode
 AND s.code = storeCode
 ----
@@ -823,7 +825,7 @@ The high-level summarized tabular data consists of the following:
 3 rows
 ----
 
-We note that the *SalesSummary* graph can be used to generate further high-level sales summaries, such as the total sales of a particular product within a region, as well as more detailed views.
+We note that the *SalesSummary* graph can be used to generate further high-level sales summaries, such as the total sales of a particular product (shown <<data-aggregation-external-example, here>>), as well as more detailed views.
 
 ._The full aggregation query pipeline is given by_:
 [source, cypher]
@@ -839,9 +841,9 @@ WITH reg.name AS regionName,
 MATCH (p:Product)-[:IN]->(o:Order)<-[:HAS]-(s:Store)-[:IN]->(r:Region)
 
 INTO NEW GRAPH SalesSummary
-MERGE (s:Store {storeCode: s.code})
+MERGE (s:Store {code: s.code})
 MERGE (r:Region {name: r.name})
-MERGE (p:Product {productCode: p.code, RRP: p.RRP})
+MERGE (p:Product {code: p.code, RRP: p.RRP})
 MERGE (s)-[:IN]->(r)
 MERGE (p)-[:SOLD_IN]->(s)
 
@@ -862,7 +864,7 @@ WHERE p.code = productCode
 
 //Update all (:Product)-[SOLD_IN]->(:Store) relationships with the new sold property
 MATCH (p:Product)-[r:SOLD_IN]->(s:Store)
-    SET r.sold = storeProductTotal
+SET r.sold = storeProductTotal
 WHERE p.code = productCode
 AND s.code = storeCode
 
@@ -870,6 +872,51 @@ RETURN regionName,
        storeCode,
        sum(storeProductTotal) AS totalStoreSales
 GRAPH SalesSummary
+----
+
+[[data-aggregation-external-example]]
+=== Using a pipeline in an external execution context
+
+We show how a pipeline may be used in an external execution context; i.e. where processes external to the pipeline -- for example, an SQL query engine invoking a Cypher query as a graph function, or an automated business workflow system -- can be used to orchestrate externally query composition within the pipeline.
+
+Assume that the pipeline defined <<data-aggregation-example, above>> has executed and produced the *SalesSummary* graph, and that there is in scope a table, populated by some external process, containing the following list of codes (given by 'product_code') of the products of interest:
+
+[source, cypher]
+----
+TOY -1
+BOOK-5
+BULB-2
+----
+
+We obtain the graph and the table:
+
+[source, cypher]
+----
+WITH product_code AS productCode GRAPH SalesSummary
+FROM GRAPH SalesSummary
+----
+
+We then match the products in the *SalesSummary* graph with the ones from the input table, and produce a high-level report on the sales by product for only those products:
+
+[source, cypher]
+----
+MATCH (p:Product)
+WHERE p.code = productCode
+RETURN p.code AS productCode, p.soldTotal AS totalProductSales
+----
+
+The resulting 'sales by product' report contains:
+
+[source, cypher]
+----
++-------------+-------------------+
+| productCode | totalProductSales |
++-------------+-------------------+
+| TOY-1       | 85.00             |
+| BOOK-5      | 33.00             |
+| BULB-2      | 190.00            |
++-------------+-------------------+
+3 rows
 ----
 
 == Interaction with existing features
