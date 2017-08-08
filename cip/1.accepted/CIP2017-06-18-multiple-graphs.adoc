@@ -321,7 +321,7 @@ WITH GRAPHS g3, g4 ...      // Second query over first query
 RETURN c, d GRAPHS g5       // Third query over second query over first query
 ----
 
-=== Creating and returning a new graph and columns: a simple example
+=== Creating and returning a new graph and fields: a simple example
 
 [source, cypher]
 ----
@@ -500,7 +500,7 @@ MERGE (p)-[:BORN_IN]->(c)
 
 Putting all these statements together, we get:
 
-_Query sequence for Step 1_:
+.Query sequence for Step 1:
 [source, cypher]
 ----
 FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
@@ -565,7 +565,7 @@ SET e :WarEvent
 
 Putting all these statements together, we get:
 
-_Query sequence for Step 2_:
+.Query sequence for Step 2:
 [source, cypher]
 ----
 FROM GRAPH Events AT 'graph://events...'
@@ -629,7 +629,7 @@ MERGE (ce)-[:HAPPENED_IN]->(c)
 
 Putting all these statements together, we get:
 
-_Query sequence for Step 3_:
+.Query sequence for Step 3:
 [source, cypher]
 ----
 FROM PersonCityEvents
@@ -647,10 +647,7 @@ And, as the final step of the entire data integration pipeline, return *Temp-Per
 
 image::opencypher-PersonCityCriminalEvents-graph.jpg[Graph,700,550]
 
-==== Full pipeline
-
-The full data integration query pipeline is given by:
-
+.The full data integration query pipeline is given by:
 [source, cypher]
 ----
 FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
@@ -690,6 +687,113 @@ MERGE (ce)-[:HAPPENED_IN]->(c)
 
 RETURN GRAPHS Temp-PersonCityCrimes
 ----
+=== Using a pipeline to aggregate and return tabular data and graphs
+
+Assume we have the graph *SalesDetail*, representing the sale of products in stores across various regions:
+
+image::opencypher-SalesDetail-graph.jpg[Graph,800,650]
+
+This models the following entities:
+
+* Regions may have many stores.
+* Stores:
+** A store is identified by a unique `code`.
+** A store is contained in exactly one region.
+** A store may have multiple orders.
+* Products:
+** A product is identified by a unique `code`.
+** A product has a `RRP` property (Recommended Retail Price).
+** A product may appear in one or more orders as a product _item_.
+* Sales orders:
+** An order is identified by a unique order number, given by `num`.
+** The `YYYYMM` property represents the year and month portion of the date of the order.
+** An order is associated with exactly one store and contains one or more product items, representing the fact that the product item was sold in the store and is a part of the order.
+** The relationship of between an order and a product contains the following properties:
+*** `soldPrice`: the price at which the product item was actually sold (usually lower than the product's RRP).
+*** `numItemsSold`: the number of the actual product items sold in the order.
+
+We begin by referencing the *SalesDetail* graph, and matching on all products in all orders for all stores in all regions.
+
+[source, cypher]
+----
+FROM GRAPH SalesDetail AT ‘graph://...’
+MATCH (p:Product)-[r:IN]->(o:Order)<-[HAS]-(s:Store)-[:IN]->(reg:Region)
+----
+
+We aggregate the (tabular) data across all orders in order to obtain the total sales amount grouped by the product, store and region, and alias this value as `storeProductTotal`.
+We pass this tabular data along with the *SalesDetail* graph further down the pipeline:
+
+[source, cypher]
+----
+WITH reg.name AS regionName,
+     s.code AS storeCode,
+     p.code AS productCode,
+     sum(r.soldPrice * r.numItemsSold) AS storeProductTotal
+GRAPH SalesDetail
+----
+
+.The values of the tabular data:
+[source, cypher]
+----
++------------+-----------+-------------+-------------------+
+| regionName | storeCode | productCode | storeProductTotal |
++------------+-----------+-------------+-------------------+
+| APAC       | AC-888    | PEN-1       | 20.00             |
+| APAC       | AC-888    | TOY-1       | 45.00             |
+| EMEA       | LK-709    | BOOK-2      | 10.00             |
+| EMEA       | LK-709    | TOY-1       | 40.00             |
+| EMEA       | LK-709    | BOOK-5      | 15.00             |
+| EMEA       | WW-531    | BOOK-5      | 18.00             |
+| EMEA       | WW-531    | BULB-2      | 190.00            |
+| EMEA       | WW-531    | PC-1        | 440.00            |
++------------+-----------+-------------+-------------------+
+8 rows
+----
+
+At this juncture, using an external pipeline, this summarized sales data could be sent to an executive sales manager.
+
+Next, we read from the *SalesDetail* graph to get the store, product and region information:
+
+[source, cypher]
+----
+MATCH (p:Product)-[:IN]->(o:Order)<-[:HAS]-(s:Store)-[:IN]->(r:Region)
+----
+
+We now create a new graph, *SalesSummary*, containing the summarized view of the sales information across regions, products and stores:
+
+[source, cypher]
+----
+INTO NEW GRAPH SalesSummary
+MERGE (s:Store {storeCode: s.code})
+MERGE (r:Region {name: r.name})
+MERGE (p:Product {productCode: p.code, RRP: p.RRP})
+MERGE (s)-[:IN]->(r)
+MERGE (p)-[:SOLD_IN]->(r)
+
+//Get the total amount sold for a store
+WITH storeCode, sum(storeProductTotal) AS totalSales
+//Get the total amount sold for a product
+WITH productCode, sum(storeProductTotal) AS soldTotal
+
+//Update all store nodes with the new totalSales property
+MATCH (s:Store)
+SET s.totalSales = totalSales
+WHERE s.code = storeCode
+
+//Update all product nodes with the new soldTotal property
+MATCH (p:Product)
+SET p.soldTotal = soldTotal
+WHERE p.code = productCode
+
+//Update all (Product)-SOLD_IN->(Region) relationships with the new sold property
+TODO
+
+RETURN GRAPHS SalesSummary
+----
+
+The *SalesSummary* graph is returned:
+
+image::opencypher-SalesSummary-graph.jpg[Graph,800,650]
 
 == Interaction with existing features
 
