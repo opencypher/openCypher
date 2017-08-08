@@ -75,13 +75,13 @@ Before detailing the foundational changes proposed by this CIP, we will define s
 
 A Cypher query currently takes a set of parameters as input, queries a single, global, implicit property graph, potentially updates it, and finally returns tabular data derived from it.
 Query parameters are conceptually thought to be inlined before the start of query execution.
-Therefore the *execution context* of a whole Cypher query is a single, global, implicit property graph.
+Therefore the *session context* of a whole Cypher query is a single, global, implicit property graph.
 
 Each sequence of clauses (sometimes called a *pipeline*) optionally operates on this single implicit graph and takes a single table input in order to produce a new single table output.
 Furthermore, Cypher supports query combinator clauses like `UNION` and `UNION ALL` for merging two pipelines into a single pipeline.
 Therefore the *query context* that conceptually is passed between clauses in the single graph execution model is simply a single table.
 
-With this terminology in place, execution of a parameterized Cypher query in the single graph execution model can be described as executing within (and operating on) a given execution context and an initial query context and finally returning the query context produced as output for the top-most `RETURN` clause.
+With this terminology in place, execution of a parameterized Cypher query in the single graph execution model can be described as executing within (and operating on) a given session context and an initial query context and finally returning the query context produced as output for the top-most `RETURN` clause.
 
 Note: This formulation is introduced to describe a high-level model for the execution of queries; a real world implementation is free to choose any other internal representation (e.g. based on an algebra) as long as it does not violate the specified semantics.
 
@@ -95,20 +95,20 @@ This CIP proposes the adoption of the multiple graphs execution model by Cypher 
 
 === Model definition
 
-This CIP proposes redefining the *execution context* to be
+This CIP proposes redefining the *session context* to be
 
 * a set of graphs in the multiple graphs execution model
 * a special graph drawn from this set that is called the *default graph*
 
 This CIP proposes redefining the *query context* to be
 
-* a set of named graphs from the *execution context*
-* optional information indicating which of these named graphs, if any, is the *source graph*
-* optional information indicating which of these named graphs, if any, is the *target graph*
-* optional *tabular data*; i.e. a potentially ordered bag of records, each having the same fixed set of fields
+* a set of named graphs from the *session context*
+* *tabular data*, i.e. a potentially ordered bag of records, each having the same fixed set of fields
+* a special graph drawn from the *session context* that is called the *source graph*
+* a special graph drawn from the *session context* that is called the *target graph*
 
 These redefinitions comprise the multiple graphs execution model.
-A parameterized Cypher query under this model can _also_ be described as executing within (and operating on) a given execution context and an initial query context and finally returning the query context produced as output for the top-most `RETURN` clause.
+A parameterized Cypher query under this model can _also_ be described as executing within (and operating on) a given session context and an initial query context and finally returning the query context produced as output for the top-most `RETURN` clause.
 
 As a consequence of adopting the new multiple graphs execution model, the semantics of each clause need to be (re-)defined as to how the execution of the clause transforms all given input query contexts into an output query context.
 This CIP preserves all existing semantics by defining how to simulate the single graph execution model in the multiple graphs execution model as outlined below.
@@ -117,7 +117,6 @@ This CIP preserves all existing semantics by defining how to simulate the single
 
 A query context may _not_ return a source graph, a target graph, or even tabular data.
 Such a query context is called a *partial query context*.
-
 
 The following rules are proposed to provide defaults for executing a query (or a clause) on a partial query context:
 
@@ -174,7 +173,7 @@ This CIP proposes allowing `MERGE` to be followed by a non-empty, comma-separate
 
 === Simulating the single graph execution model
 
-Execution under the single graph execution model can be simulated in the multiple graphs execution model by executing the query in an execution context that uses the single graph as the default graph, and by running it on an empty initial query context.
+Execution under the single graph execution model can be simulated in the multiple graphs execution model by executing the query in an session context that uses the single graph as the default graph, and by running it on an empty initial query context.
 
 == Proposal: Multiple Graphs Syntax
 
@@ -191,21 +190,20 @@ It is an error to use simultaneously the same name for both a regular variable a
 ==== Graph references and aliases
 
 An explicit reference to a `<graph-ref>` is just the `<graph-name>` of the graph.
-A `<graph-alias>` is a `<graph-ref>` that is optionally followed by `AS <new-graph-name>`.
+A `<graph-alias>` is a `<graph-ref>` that is followed by `AS <new-graph-name>`.
 
 ==== Graph definitions
 
 This CIP defines the notion of a graph definition `<graph-def>` as a means by which to introduce additional named graphs.
 This CIP proposes the following kinds of graph definitions:
 
-* `NEW GRAPH [<new-graph-name>] [AT <graph-url]`: A newly created, empty graph that is to be made available at the provided `<graph-url>`
+* `NEW GRAPH <new-graph-name> [AT <graph-url]`: A newly created, empty graph that is to be made available at the provided `<graph-url>`
 * `COPY GRAPH <graph-ref> [ TO <graph-url> ] AS <new-graph-name>`: A copy of the given graph `<grap-ref>` that is to be made available as `<new-graph-name>` at the provided `<graph-url>`
-* `GRAPH [<new-graph-name>] AT <graph-url>`: The graph that is available at the provided `<graph-url>`
-* `SOURCE GRAPH [<new-graph-name>]`: The currently _provided source graph_
-* `TARGET GRAPH [<new-graph-name>]`: The currently _provided target graph_
-* `DEFAULT GRAPH [<new-graph-name>]`: The _default graph_
-
-If no `<new-graph-name>` is provided in the input query, a fresh name is generated implicitly.
+* `GRAPH <new-graph-name> AT <graph-url>`: The graph that is available at the provided `<graph-url>`
+* `GRAPH <graph-alias>` (i.e. `GRAPH <graph-ref> AS <new-graph-name>`): A new alias for an existing graph
+* `SOURCE GRAPH AS <new-graph-name>`: The currently _provided source graph_
+* `TARGET GRAPH AS <new-graph-name>`: The currently _provided target graph_
+* `DEFAULT GRAPH AS <new-graph-name>`: The _default graph_
 
 Note: The exact shape and form of graph URLs `<graph-url>` lies outside the scope of this CIP.
 However, this CIP proposes that a `<graph-url>` must always be given as either a string literal or a query parameter.
@@ -221,14 +219,9 @@ As a first language addition, this CIP proposes syntax for introducing graphs in
 
 [source, cypher]
 ----
-DEFINE < graph-def >
 FROM < graph-spec >
 INTO < graph-spec >
 ----
-
-==== DEFINE clause: Naming graphs
-
-This CIP proposes the `DEFINE` clause for introducing new graphs using the form `DEFINE <graph-def>`.
 
 ==== FROM clause: Change the source and the target graph
 
