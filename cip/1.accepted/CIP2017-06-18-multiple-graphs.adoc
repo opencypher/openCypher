@@ -726,7 +726,7 @@ MATCH (p:Product)-[r:IN]->(o:Order)<-[HAS]-(s:Store)-[:IN]->(reg:Region)
 ----
 
 We aggregate the (tabular) data across all orders in order to obtain the total sales amount grouped by the product, store and region, and alias this value as `storeProductTotal`.
-As this tabular data is required to populate the summary graph later on, we pass it along with the *SalesDetail* graph further down the pipeline:
+As this tabular data is required to populate the summary graph later on, we pass it further down the pipeline:
 
 [source, cypher]
 ----
@@ -734,7 +734,6 @@ WITH reg.name AS regionName,
      s.code AS storeCode,
      p.code AS productCode,
      sum(r.soldPrice * r.numItemsSold) AS storeProductTotal
-GRAPH SalesDetail
 ----
 
 The tabular data consists of the following:
@@ -824,6 +823,53 @@ The high-level summarized tabular data consists of the following:
 ----
 
 We note that the *SalesSummary* graph can be used to generate further high-level sales summaries, such as the total sales of a particular product within a region, as well as more detailed views.
+
+.The full aggregation query pipeline is given by:
+[source, cypher]
+----
+FROM GRAPH SalesDetail AT ‘graph://...’
+MATCH (p:Product)-[r:IN]->(o:Order)<-[HAS]-(s:Store)-[:IN]->(reg:Region)
+
+WITH reg.name AS regionName,
+     s.code AS storeCode,
+     p.code AS productCode,
+     sum(r.soldPrice * r.numItemsSold) AS storeProductTotal
+
+MATCH (p:Product)-[:IN]->(o:Order)<-[:HAS]-(s:Store)-[:IN]->(r:Region)
+
+INTO NEW GRAPH SalesSummary
+MERGE (s:Store {storeCode: s.code})
+MERGE (r:Region {name: r.name})
+MERGE (p:Product {productCode: p.code, RRP: p.RRP})
+MERGE (s)-[:IN]->(r)
+MERGE (p)-[:SOLD_IN]->(s)
+
+//Get the total amount sold for a store
+WITH storeCode, sum(storeProductTotal) AS totalSales
+//Get the total amount sold for a product
+WITH productCode, sum(storeProductTotal) AS soldTotal
+
+//Update all store nodes with the new totalSales property
+MATCH (s:Store)
+SET s.totalSales = totalSales
+WHERE s.code = storeCode
+
+//Update all product nodes with the new soldTotal property
+MATCH (p:Product)
+SET p.soldTotal = soldTotal
+WHERE p.code = productCode
+
+//Update all (:Product)-[SOLD_IN]->(:Store) relationships with the new sold property
+MATCH (p:Product)-[r:SOLD_IN]->(s:Store)
+    SET r.sold = storeProductTotal
+WHERE p.code = productCode
+AND s.code = storeCode
+
+RETURN regionName,
+       storeCode,
+       sum(storeProductTotal) AS totalStoreSales
+GRAPH SalesSummary
+----
 
 == Interaction with existing features
 
