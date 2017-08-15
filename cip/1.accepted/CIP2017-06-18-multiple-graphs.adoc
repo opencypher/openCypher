@@ -6,12 +6,12 @@
 
 *Author:* Stefan Plantikow <stefan.plantikow@neotechnology.com>
 
-This material is based on internal contributions of Alastair Green <alastair.green@neotechnology.com>, Mats Rydberg <mats.rydberg@neotechnology.com>, Martin Junghanns <martin.junghanns@neotechnology.com>, Tobias Lindaaker <tobias.lindaaker@neotechnology.com>.
+This material is based on internal contributions of Alastair Green <alastair.green@neotechnology.com>, Mats Rydberg <mats.rydberg@neotechnology.com>, Martin Junghanns <martin.junghanns@neotechnology.com>, Tobias Lindaaker <tobias.lindaaker@neotechnology.com>, Petra Selmer <petra.selmer@neotechnology.com>
 
 [abstract]
 .Abstract
 --
-This CIP proposes extending Cypher to support the construction, transformation, and querying of multiple graphs (i) by adopting the proposed multiple property graphs model, (ii) by adopting a new execution model, namely the 'multiple graphs execution model', and (iii) by introducing new syntax for working with multiple graphs.
+This CIP proposes extending Cypher to support the construction, transformation, and querying of multiple graphs by adopting (i) the proposed multiple property graphs model, (ii) the proposed multiple graphs execution model, and (iii) by introducing new syntax for working with multiple graphs.
 --
 
 toc::[]
@@ -81,15 +81,15 @@ Each sequence of clauses (sometimes called a *pipeline*) optionally operates on 
 Furthermore, Cypher supports query combinator clauses like `UNION` and `UNION ALL` for merging two pipelines into a single pipeline.
 Therefore the *query context* that conceptually is passed between clauses in the single graph execution model is simply a single table.
 
-With this terminology in place, execution of a parameterized Cypher query in the single graph execution model can be described as executing within (and operating on) a given session context and an initial query context and finally returning the query context produced as output for the top-most `RETURN` clause.
+With this terminology in place, execution of a parameterized Cypher query in the single graph execution model can be described as executing within (and operating on) a given session context and an initial query context and finally returning the query context produced as output for the final `RETURN` clause.
 
-Note: This formulation is introduced to describe a high-level model for the execution of queries; a real world implementation is free to choose any other internal representation (e.g. based on an algebra) as long as it does not violate the specified semantics.
+NOTE: This formulation is introduced to describe a high-level model for the execution of queries; a real world implementation is free to choose any other internal representation (e.g. based on an algebra) as long as it does not violate the specified semantics.
 
 == Proposal: Multiple Graphs Execution Model
 
 In the single graph execution model, tabular data serves as the basis of iteration while the single implicit global graph serves as the basis of graph matching and graph manipulation.
 
-This section introduces the *multiple graphs execution model* as an evolution of the *single graph execution model* that enables the addition of features to the language for working with multiple graphs, i.e. it changes the basis of graph matching and graph manipulation.
+This section introduces the *multiple graphs execution model* as an evolution of the single graph execution model that enables the addition of features to the language for working with multiple graphs, i.e. it changes the basis of graph matching and graph manipulation.
 
 This CIP proposes the adoption of the multiple graphs execution model by Cypher and to execute existing, single graph queries under this model as outlined below.
 
@@ -108,7 +108,7 @@ This CIP proposes redefining the *query context* to be
 * a special graph drawn from the *session context* that is called the *target graph*
 
 These redefinitions comprise the multiple graphs execution model.
-A parameterized Cypher query under this model can _also_ be described as executing within (and operating on) a given session context and starting from an initial query context and finally returning the query context produced as output for the top-most `RETURN` clause.
+A parameterized Cypher query under this model can _also_ be described as executing within (and operating on) a given session context and starting from an initial query context and finally returning the query context produced as output for the final `RETURN` clause.
 
 As a consequence of adopting the new multiple graphs execution model, the semantics of each clause need to be (re-)defined as to how the execution of the clause transforms all given input query contexts into an output query context.
 This CIP preserves all existing semantics by defining how to simulate the single graph execution model in the multiple graphs execution model as outlined below.
@@ -117,7 +117,7 @@ This CIP preserves all existing semantics by defining how to simulate the single
 
 The multiple graphs execution model provides a natural way for the sequential composition of queries:
 
-A query `Q1` whose output signature is an acceptable (in terms of provided bindings) input signature for another query `Q2` may be composed sequentially with `Q2` into a new query `Q3` that first runs `Q1` on the initial query context, next runs `Q2` on the query context returned by `Q1`, and finally returns the query context returned by `Q2`.
+A query `Q1` whose output signature is (in terms of provided bindings) an acceptable input signature for another query `Q2` may be composed sequentially with `Q2` into a new query `Q3` that first runs `Q1` on the initial query context, next runs `Q2` on the query context returned by `Q1`, and finally returns the query context returned by `Q2`.
 
 This homogenous query composition is enabled by using a uniform query context that is passed between clauses.
 
@@ -181,26 +181,36 @@ A `<graph-alias-list>` is a comma-separated list of `<graph-alias>`.
 ==== Graph definitions
 
 This CIP defines the notion of a graph definition `<graph-def>` as a means by which to introduce additional named graphs.
-This CIP proposes the following kinds of graph definitions:
+
+This CIP proposes three kinds of graph definitions, new graph defintions `<new-graph-def>`, collecting graph definitions `<collect-graph-def>`, and aliasing graph definitions `<alias-graph-def>`.
+
+New graph definitions `<new-graph-def>` always introduce a new graph that was previously not available to the query:
 
 * `NEW GRAPH <new-graph-name> [AT <graph-url]`: A newly created empty graph that is to be made available at the provided `<graph-url>`
 * `COPY GRAPH <new-graph-name> FROM <graph-ref> [TO <graph-url>]`: A newly created copy of the given graph `<graph-ref>` that is to be made available as `<new-graph-name>` at the provided `<graph-url>`
+* `CLONE GRAPH <new-graph-name> FROM <graph-ref> [TO <graph-url>]`: A newly created clone of the given graph `<graph-ref>` (a clone is a deep copy of the graph and its nodes and relationships) that is to be made available as `<new-graph-name>` at the provided `<graph-url>`
 * `GRAPH <new-graph-name> AT <graph-url>`: The graph at the provided `<graph-url>` that is to be made available as `<new-graph-name>`
-* `GRAPH <graph-alias>` (i.e. `GRAPH <graph-ref> [AS <new-graph-name>]`): A new alias for an existing graph
-* `SOURCE GRAPH AS <new-graph-name>`: An alias for the current _source graph_
-* `TARGET GRAPH AS <new-graph-name>`: An alias for the current _target graph_
-* `DEFAULT GRAPH AS <new-graph-name>`: An alias for the current _default graph_
 
-Note: The syntax follows the simple rule that if a graph definition aliases a definitely already existing graph, then the alias name of that graph is given last using `AS`.
-Otherwise, the name is given right after the leading keywords of the graph definition.
+Collecting graph definitions `<collect-graph-def>` have the form `GRAPH <new-graph-name> OF <match-pattern> [AT <graph-url>]` and define the graph newly constructed from tabular input records by collecting all entities from bound variables and creating new entities for all unbound variables in the patterns given in `<match-pattern>` that is to be made available at the provided `<graph-url>`.
 
-Note: The exact shape and form of graph URLs `<graph-url>` lies outside the scope of this CIP.
+Aliasing graph definitions `<alias-graph-def>` alias an existing graph that previously already was available to the query to a new name:
+
+* `GRAPH <graph-alias> [AT <graph-url>]` (i.e. `GRAPH <graph-ref> AS <new-graph-name> [AT <graph-url>]`): A new alias for an existing graph, optionally to be made available at the provided `<graph-url>`
+* `SOURCE GRAPH AS <new-graph-name> [AT <graph-url>]`: An alias for the current _source graph_
+* `TARGET GRAPH AS <new-graph-name> [AT <graph-url>]`: An alias for the current _target graph_
+* `DEFAULT GRAPH AS <new-graph-name> [AT <graph-url>]`: An alias for the current _default graph_
+
+This CIP defines the notion of an optional graph definition `<opt-graph-def>` that does not provide a `<new-graph-name>` and does not contain a subclause of the form `[AT|TO] <graph-url>` for aliasing graph definitions.
+
+`GRAPH <match-pattern>` is proposed to be a shorthand for the valid optional graph definition of the form `GRAPH OF <match-pattern>`
+
+NOTE: The exact shape and form of graph URLs `<graph-url>` lies outside the scope of this CIP.
 However, this CIP proposes that a `<graph-url>` must always be given as either a string literal or a query parameter.
 This allows parameterization of queries by controlling which graphs from which graph URLs they should use.
 
 ==== Graph specifiers
 
-This CIP defines the notion of a graph specifier `<graph-spec>` to be either a `<graph-def>` or  `DEFAULT GRAPH` for referring to the default graph without naming it.
+This CIP defines the notion of a graph specifier `<graph-spec>` to be either a `<graph-def>` or an `<opt-graph-def>`.
 
 === Introducing multiple graphs
 
@@ -216,23 +226,15 @@ INTO < graph-spec >
 
 This CIP proposes a new `FROM` clause to change both the source and the target graph of the current query context as described.
 
-`FROM <graph-def>` aliases the defined graph to the given `<new-graph-name>`.
-
-`FROM DEFAULT GRAPH` may be used to discard the current source and the current target graph.
-
 ==== INTO clause: Change the target graph only
 
 This CIP proposes a new `INTO` clause to change the target graph of the current query context as described.
-
-`INTO <graph-def>` aliases the defined graph to the given `<new-graph-name>`.
-
-`INTO DEFAULT GRAPH` may be used to discard the current source and the current target graph.
 
 === THEN clause: Discarding available tabular data
 
 This CIP additionally proposes a new `THEN` clause that may be used for passing on all named graphs while discarding all tabular data such that the tabular input for the following clause (or query respectively) becomes a single record without any fields.
 
-Note: This syntax may be used to indicate when the gradual construction of a named graph is finished since neither fields nor the cardinality of tabular data is preserved after this point.
+NOTE: This syntax may be used to indicate when the gradual construction of a named graph is finished since neither fields nor the cardinality of tabular data is preserved after this point.
 
 === Returning, aliasing, and selecting graphs
 
@@ -247,16 +249,26 @@ RETURN < return-items > < graph-return-items >
 WITH < graph-return-items >
 ----
 
-This CIP defines that `<graph-return-items>` is either just `GRAPHS -` for indicating that all named graphs currently in scope are to be discarded or a comma-separated list of:
+This CIP defines that `<graph-return-items>` is either just `GRAPHS -` for indicating that all named graphs currently in scope are to be discarded or a space-separated list of:
 
-* `<graph-def>`: The defined graph is to be passed on
-* `GRAPHS *`: All named graphs currently in scope are to be passed on
-* `GRAPHS <graph-alias-list>`: All explicitly listed graphs are to be passed on.
-* `GRAPHS *, <graph-alias-list>`: All named graphs currently in scope together with any additionally introduced named graphs from `<graph-alias-list>` are to be passed on
+* `<graph-def>`: to indicate that the defined graph is to be passed on,
+* `GRAPHS *`: to indicate that all named graphs currently in scope are to be passed on,
+* `GRAPHS <graph-alias-list>`: to indicate that all explicitly listed named graphs are to be passed on.
 
-Both `WITH ... GRAPHS ...` and `RETURN ... GRAPHS ...` will pass on (or return respectively) exactly the set of described named graphs described by `<graph-return-items>`.
+Both `WITH ... GRAPHS ...` and `RETURN ... GRAPHS ...` will pass on (or return respectively) exactly the set of graphs described by `<graph-return-items>`.
 
-The order of named graphs inherently given by `<graph-return-items>` is semantically insignificant.
+A projection that returns graphs will change the source and target graph to the first explicitly mentioned graph unless the first `<graph-return-item>` is either `GRAPHS -` or `GRAPHS *`.
+
+NOTE: These rule ensures that `GRAPHS *` will not change the current source graph or the current target graph if no graphs are in scope, and also will prevent implicitly setting the current source and the current target graph via a projection clause whose first `<graph-return-item>` is `GRAPHS *`.
+
+For brevity, it is proposed that the first `<graph-return-item>` only may also be given as a `<opt-graph-def>` (i.e. without providing a name).
+
+`GRAPHS *, <graph-alias-list>` is proposed to be a shorthand for `GRAPHS * GRAPHS <graph-alias-list>`.
+Similarly, `GRAPHS <graph-alias-list>, *` is proposed to be a shorthand for `GRAPHS <graph-alias-list> GRAPHS *`.
+Both forms indicate that all named graphs currently in scope amended with any additionally introduced named graphs from `<graph-alias-list>` are to be passed on.
+It is an error if this leads to shadowing of already bound named graphs by newly introduced named graphs.
+
+The order of named graphs inherently given by `<graph-return-items>` is otherwise semantically insignificant.
 However it is recommended that conforming implementations preserve this order at least in programmatic output operations (e.g. a textual display of the list of returned graphs).
 This in essence mirrors the semantics for tabular data returned by Cypher.
 
@@ -358,7 +370,7 @@ MATCH (a:Person)-[e:POSSIBLE_FRIEND]->(b:Person)
 // Return tabular and graph output
 RETURN a.name, b.name, count(e) AS cnt
     ORDER BY cnt DESC
-    GRAPHS recommendations
+    GRAPH recommendations
 ----
 
 === Using a pipeline of temporary graphs to process and return a subgraph
@@ -388,7 +400,7 @@ INTO NEW GRAPH rollup
 MERGE (:Persons {country: a_country, cnt: a_cnt})-[:KNOW {cnt: e_cnt}]->(:Persons {country: b_country, cnt: b_cnt})
 
 // Return final graph output
-RETURN GRAPHS rollup
+RETURN GRAPH rollup
 ----
 
 === A more complex pipeline: using and persisting multiple graphs
@@ -510,7 +522,7 @@ MERGE (p:Person {name: p.name, YOB: p.YOB})
 MERGE (c:City {name: c.name})
 MERGE (p)-[:BORN_IN]->(c)
 
-//Discard all tabular data and cardinality
+// Discard all tabular data and cardinality
 WITH GRAPHS *
 ----
 
@@ -538,7 +550,7 @@ All the events information -- the event itself, its type, the year in which it o
 MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
       (e)-[:IS_A]->(et {value: 'Criminal Event'})
 
-//Do matches for all other event types: Public Event, War Event....
+// Do matches for all other event types: Public Event, War Event....
 ...
 ----
 
@@ -559,7 +571,7 @@ MERGE (e {title: e.value, year: y.value})
 MERGE (e)-[:HAPPENED_IN]->(c)
 SET e :WarEvent
 
-//Do for all remaining event types
+// Do for all remaining event types
 ...
 ----
 
@@ -572,7 +584,7 @@ FROM GRAPH Events AT 'graph://events...'
 MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
       (e)-[:IS_A]->(et {value: 'Criminal Event'})
 
-//Do matches for all other event types: Public Event, War Event....
+// Do matches for all other event types: Public Event, War Event....
 ...
 INTO GRAPH PersonCityEvents
 MERGE (c:City {name: c.value})
@@ -580,10 +592,10 @@ MERGE (e {title: e.value, year: y.value})
 MERGE (e)-[:HAPPENED_IN]->(c)
 SET e :WarEvent
 
-//Do for all remaining event types
+// Do for all remaining event types
 ...
 
-//Discard all tabular data and cardinality
+// Discard all tabular data and cardinality
 WITH GRAPHS *
 ----
 
@@ -663,7 +675,7 @@ FROM GRAPH Events AT 'graph://events...'
 MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
       (e)-[:IS_A]->(et {value: 'Criminal Event'})
 
-//Do matches for all other event types: Public Event, War Event....
+// Do matches for all other event types: Public Event, War Event....
 ...
 INTO GRAPH PersonCityEvents
 MERGE (c:City {name: c.value})
@@ -671,7 +683,7 @@ MERGE (e {title: e.value, year: y.value})
 MERGE (e)-[:HAPPENED_IN]->(c)
 SET e :WarEvent
 
-//Do for all remaining event types
+// Do for all remaining event types
 ...
 
 WITH GRAPHS *
@@ -775,22 +787,22 @@ MERGE (p:Product {productCode: p.code, RRP: p.RRP})
 MERGE (s)-[:IN]->(r)
 MERGE (p)-[:SOLD_IN]->(s)
 
-//Get the total amount sold for a store
+// Get the total amount sold for a store
 WITH storeCode, sum(storeProductTotal) AS totalSales
-//Get the total amount sold for a product
+// Get the total amount sold for a product
 WITH productCode, sum(storeProductTotal) AS soldTotal
 
-//Update all store nodes with the new totalSales property
+// Update all store nodes with the new totalSales property
 MATCH (s:Store)
 SET s.totalSales = totalSales
 WHERE s.code = storeCode
 
-//Update all product nodes with the new soldTotal property
+// Update all product nodes with the new soldTotal property
 MATCH (p:Product)
 SET p.soldTotal = soldTotal
 WHERE p.code = productCode
 
-//Update all (:Product)-[SOLD_IN]->(:Store) relationships with the new sold property
+// Update all (:Product)-[SOLD_IN]->(:Store) relationships with the new sold property
 MATCH (p:Product)-[r:SOLD_IN]->(s:Store)
 SET r.sold = storeProductTotal
 WHERE p.code = productCode
@@ -847,22 +859,22 @@ MERGE (p:Product {code: p.code, RRP: p.RRP})
 MERGE (s)-[:IN]->(r)
 MERGE (p)-[:SOLD_IN]->(s)
 
-//Get the total amount sold for a store
+// Get the total amount sold for a store
 WITH storeCode, sum(storeProductTotal) AS totalSales
 //Get the total amount sold for a product
 WITH productCode, sum(storeProductTotal) AS soldTotal
 
-//Update all store nodes with the new totalSales property
+// Update all store nodes with the new totalSales property
 MATCH (s:Store)
 SET s.totalSales = totalSales
 WHERE s.code = storeCode
 
-//Update all product nodes with the new soldTotal property
+// Update all product nodes with the new soldTotal property
 MATCH (p:Product)
 SET p.soldTotal = soldTotal
 WHERE p.code = productCode
 
-//Update all (:Product)-[SOLD_IN]->(:Store) relationships with the new sold property
+// Update all (:Product)-[SOLD_IN]->(:Store) relationships with the new sold property
 MATCH (p:Product)-[r:SOLD_IN]->(s:Store)
 SET r.sold = storeProductTotal
 WHERE p.code = productCode
