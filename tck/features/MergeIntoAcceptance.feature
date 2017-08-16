@@ -124,7 +124,7 @@ Feature: MergeIntoAcceptance
       MATCH ()-[r:TYPE]->()
       RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
       """
-    Then the result should be:
+    Then the result should be (ignoring element order for lists):
       | keyValue                 |
       | ['foo->bar', 'bar->baz'] |
 
@@ -148,6 +148,6 @@ Feature: MergeIntoAcceptance
       MATCH ()-[r:TYPE]->()
       RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
       """
-    Then the result should be:
+    Then the result should be (ignoring element order for lists):
       | keyValue                 |
       | ['foo->baz', 'bar->baz'] |
