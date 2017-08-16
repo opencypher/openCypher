@@ -148,9 +148,9 @@ This CIP proposes the following update semantics for Cypher with support for mul
   More concretely:
   ** Entities are always created in, updated in, and deleted from the currently provided target graph.
   ** All entities of bound pattern variables in `CREATE` and `MERGE` are always added to the provided target graph of the current query context.
-  ** `MERGE` still uses the source graph to find existing entities
+  ** `MERGE` uses the source graph to find existing entities
   ** Deleting an entity only affects the provided target graph of the current query context.
-* Updating queries always return all variables and graphs in scope, i.e. the behave as if they would end in `RETURN *, GRAPHS *` (This syntax is introduced below).
+* Updating queries behave as if they would end in `RETURN - GRAPHS -` (This syntax is introduced below).
 * Semantically, all effects of an updating clause must be made visible before proceeding with the execution of the next clause.
 In other words, a conforming implementation must ensure that a later clause always sees the complete set of updates of a preceding updating clause.
 
@@ -184,7 +184,7 @@ This CIP defines the notion of a graph definition `<graph-def>` as a means by wh
 
 This CIP proposes three kinds of graph definitions, new graph defintions `<new-graph-def>`, collecting graph definitions `<collect-graph-def>`, and aliasing graph definitions `<alias-graph-def>`.
 
-New graph definitions `<new-graph-def>` always introduce a new graph that was previously not available to the query:
+New graph definitions `<new-graph-def>` always introduce a new graph:
 
 * `NEW GRAPH <new-graph-name> [AT <graph-url]`: A newly created empty graph that is to be made available at the provided `<graph-url>`
 * `COPY GRAPH <new-graph-name> FROM <graph-ref> [TO <graph-url>]`: A newly created copy of the given graph `<graph-ref>` that is to be made available as `<new-graph-name>` at the provided `<graph-url>`
@@ -193,7 +193,7 @@ New graph definitions `<new-graph-def>` always introduce a new graph that was pr
 
 Collecting graph definitions `<collect-graph-def>` have the form `GRAPH <new-graph-name> OF <match-pattern> [AT <graph-url>]` and define the graph newly constructed from tabular input records by collecting all entities from bound variables and creating new entities for all unbound variables in the patterns given in `<match-pattern>` that is to be made available at the provided `<graph-url>`.
 
-Aliasing graph definitions `<alias-graph-def>` alias an existing graph that previously already was available to the query to a new name:
+Aliasing graph definitions `<alias-graph-def>` alias an existing graph under a new name:
 
 * `GRAPH <graph-alias> [AT <graph-url>]` (i.e. `GRAPH <graph-ref> AS <new-graph-name> [AT <graph-url>]`): A new alias for an existing graph, optionally to be made available at the provided `<graph-url>`
 * `SOURCE GRAPH AS <new-graph-name> [AT <graph-url>]`: An alias for the current _source graph_
@@ -251,22 +251,16 @@ WITH < graph-return-items >
 
 This CIP defines that `<graph-return-items>` is either just `GRAPHS -` for indicating that all named graphs currently in scope are to be discarded or a space-separated list of:
 
-* `<graph-def>`: to indicate that the defined graph is to be passed on,
+*  `<graph-def>`: to indicate that the defined graph is to be passed on,
 * `GRAPHS *`: to indicate that all named graphs currently in scope are to be passed on,
 * `GRAPHS <graph-alias-list>`: to indicate that all explicitly listed named graphs are to be passed on.
 
 Both `WITH ... GRAPHS ...` and `RETURN ... GRAPHS ...` will pass on (or return respectively) exactly the set of graphs described by `<graph-return-items>`.
 
-A projection that returns graphs will change the source and target graph to the first explicitly mentioned graph unless the first `<graph-return-item>` is either `GRAPHS -` or `GRAPHS *`.
-
-NOTE: These rule ensures that `GRAPHS *` will not change the current source graph or the current target graph if no graphs are in scope, and also will prevent implicitly setting the current source and the current target graph via a projection clause whose first `<graph-return-item>` is `GRAPHS *`.
-
-For brevity, it is proposed that the first `<graph-return-item>` only may also be given as a `<opt-graph-def>` (i.e. without providing a name).
-
 `GRAPHS *, <graph-alias-list>` is proposed to be a shorthand for `GRAPHS * GRAPHS <graph-alias-list>`.
-Similarly, `GRAPHS <graph-alias-list>, *` is proposed to be a shorthand for `GRAPHS <graph-alias-list> GRAPHS *`.
-Both forms indicate that all named graphs currently in scope amended with any additionally introduced named graphs from `<graph-alias-list>` are to be passed on.
+This forms indicates that all named graphs currently in scope together with any additionally introduced named graphs from `<graph-alias-list>` are to be passed on.
 It is an error if this leads to shadowing of already bound named graphs by newly introduced named graphs.
+Similarly, `GRAPHS <graph-alias-list>, *` is proposed to be a shorthand for `GRAPHS <graph-alias-list> GRAPHS *`.
 
 The order of named graphs inherently given by `<graph-return-items>` is otherwise semantically insignificant.
 However it is recommended that conforming implementations preserve this order at least in programmatic output operations (e.g. a textual display of the list of returned graphs).
@@ -279,6 +273,16 @@ Furthermore, this CIP proposes the following shorthands:
 * `RETURN <return-items>` is to be a shorthand for `RETURN <return-items> GRAPHS -`
 * `RETURN <graph-return-items>` is to be a shorthand for `THEN RETURN - <graph-return-items>`
 
+=== Selecting context graphs from projections
+
+It is proposed that at most once either the `<new-graph-name>` of a named graph described by a `<graph-return-item>`  may be prefixed with the keyword `SOURCE` or the keyword `GRAPH` in a `<graph-def>` should be replaced with `SOURCE GRAPH` to indicate that the described graph should be set as new source and target graph of the next clause.
+
+It is proposed that a `<graph-return-item>` of the form `<opt-graph-def>` is a shorthand for setting the new source graph and target graph of the next clause.
+
+It is proposed that at most once either the `<new-graph-name>` of a named graph described by a `<graph-return-item>`  may be prefixed with the keyword `TARGET` or the keyword `GRAPH` in a `<graph-def>` should be replaced with `TARGET GRAPH` to indicate that the described graph should be set as new target graph of the next clause.
+
+It is propsed that specifying a target graph this way overrides any specification of a source graph given in the same projection clause.
+
 === Query signature declarations
 
 Finally this CIP proposed using the `WITH` clause as the initial clause in a query for declaring all query inputs.
@@ -287,8 +291,8 @@ It is proposed that using `WITH` as the initial clause in a query is to be calle
 
 Query input declarations are subject to the following limitations:
 
-* All return items must be simple variables
-* Explicitly aliasing fields and named graphs is not allowed
+* All expected tabular input arguments must be given as simple variables
+* All expected graph input arguments should be given as graph return items for named graphs only
 * If the input query context provides additional, undeclared variables or graphs, those inputs are to be silently discarded
 
 A query that does not start with a query input declaration is assumed to start with `WITH - GRAPHS -`.
