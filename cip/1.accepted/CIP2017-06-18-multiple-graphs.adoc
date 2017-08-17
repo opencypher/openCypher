@@ -169,46 +169,56 @@ This CIP first proposes new syntactical concepts before proceeding to add new an
 
 === Named graphs
 
-This CIP introduces the notion of multiple named graphs.
+Here we introduce the notion of _named graphs_.
+The name of a graph is used to reference the graph in the query context.
+Graph names are denoted here with `<graph-name>`, and use the same syntax as normal variables.
 
-A graph is referenced in the current query context via its name.
-Graph names `<graph-name>` use the same syntax as variable names.
-It is an error to use simultaneously the same name for both a regular variable and a graph.
+NOTE: Graph names live in the same namespace as variables, thus it is an error to define a graph with a name of a previously existing variable, and vice versa.
 
 ==== Graph references and aliases
 
-An explicit reference to a `<graph-ref>` is just the `<graph-name>` of the graph.
-A `<graph-alias>` is a `<graph-ref>` that is optionally followed by `AS <new-graph-name>`.
-A `<graph-alias-list>` is a comma-separated list of `<graph-alias>`.
+An explicit reference to a graph is simply the name of the graph.
+A _graph alias_ is a graph reference optionally followed by `AS <graph-name>`, denoted here as `<graph-alias>`.
+A _graph alias list_ is a comma-separated list of graph aliases, denoted here as `<graph-alias-list>`.
+
+==== Resolving external graphs
+
+Graphs are loaded into the query context by resolving a given graph URL in _graph URL subclause_.
+Graph URL subclauses are on the form `AT <graph-url>` or `TO <graph-url>`, where the exact shape and form of `<graph-url>` lies outside the scope of this CIP.
+However, this CIP proposes that a graph URL should be given as either a string literal or a query parameter, in order to give a query planner static knowledge of loaded graphs, and allowing queries to be parametrised on its input and output graphs.
 
 ==== Graph definitions
 
-This CIP defines the notion of a graph definition `<graph-def>` as a means by which to introduce additional named graphs.
+Let `<graph-def>` denote a _graph definition_, which is a construct used to introduce additional named graphs.
 
-This CIP proposes three kinds of graph definitions, new graph defintions `<new-graph-def>`, collecting graph definitions `<collect-graph-def>`, and aliasing graph definitions `<alias-graph-def>`.
+There are three kinds of graph definitions:
 
-New graph definitions `<new-graph-def>` always introduce a new graph:
+* _new_ graph definitions, denoted by `<new-graph-def>`,
+* _collecting_ graph definitions, denoted by `<collect-graph-def>`,
+* _aliasing_ graph definitions, denoted by `<alias-graph-def>`.
 
-* `NEW GRAPH <new-graph-name> [AT <graph-url]`: A newly created empty graph that is to be made available at the provided `<graph-url>`
-* `COPY GRAPH <new-graph-name> FROM <graph-ref> [TO <graph-url>]`: A newly created copy of the given graph `<graph-ref>` that is to be made available as `<new-graph-name>` at the provided `<graph-url>`
-* `CLONE GRAPH <new-graph-name> FROM <graph-ref> [TO <graph-url>]`: A newly created clone of the given graph `<graph-ref>` (a clone is a deep copy of the graph and its nodes and relationships) that is to be made available as `<new-graph-name>` at the provided `<graph-url>`
-* `GRAPH <new-graph-name> AT <graph-url>`: The graph at the provided `<graph-url>` that is to be made available as `<new-graph-name>`
+Many graph definitions allow an optional graph url subclause, where optionality is denoted using `[]`.
 
-Collecting graph definitions `<collect-graph-def>` have the form `GRAPH <new-graph-name> OF <match-pattern> [AT <graph-url>]` and define the graph newly constructed from tabular input records by collecting all entities from bound variables and creating new entities for all unbound variables in the patterns given in `<match-pattern>` that is to be made available at the provided `<graph-url>`.
+New graph definitions always introduce a new graph:
+
+* `NEW GRAPH <graph-name> [AT <graph-url]`: Defines an empty graph with name `<graph-name>`, optionally published at `<graph-url>`.
+* `COPY GRAPH <graph-name> FROM <graph-ref> [TO <graph-url>]`: Defines a copy of the graph given by `<graph-ref>` with name `<graph-name>`, optionally published at `<graph-url>`.
+A copied graph shares the same entities of its original.
+* `CLONE GRAPH <graph-name> FROM <graph-ref> [TO <graph-url>]`: Same as `COPY`, except entities are also copied instead of shared.
+* `GRAPH <graph-name> AT <graph-url>`: Defines a graph with name `<graph-name>` loaded from the given `<graph-url>`.
+
+Collecting graph definitions are on the form `GRAPH <graph-name> OF <match-pattern> [AT <graph-url>]` and defines a graph newly constructed from tabular input records by collecting all entities from bound variables and creating new entities for all unbound variables in the patterns given in `<match-pattern>`, optionally published at `<graph-url>`.
 
 Aliasing graph definitions `<alias-graph-def>` alias an existing graph under a new name:
 
-* `GRAPH <graph-alias> [AT <graph-url>]` (i.e. `GRAPH <graph-ref> AS <new-graph-name> [AT <graph-url>]`): A new alias for an existing graph, optionally to be made available at the provided `<graph-url>`
-* `SOURCE GRAPH AS <new-graph-name> [AT <graph-url>]`: An alias for the current _source graph_
-* `TARGET GRAPH AS <new-graph-name> [AT <graph-url>]`: An alias for the current _target graph_
-* `DEFAULT GRAPH AS <new-graph-name> [AT <graph-url>]`: An alias for the current _default graph_
+* `GRAPH <graph-alias> [AT <graph-url>]` (i.e. `GRAPH <graph-ref> AS <new-graph-name> [AT <graph-url>]`): A new alias for an existing graph, optionally published at `<graph-url>`.
+* `SOURCE GRAPH AS <new-graph-name> [AT <graph-url>]`: An alias for the current _source graph_.
+* `TARGET GRAPH AS <new-graph-name> [AT <graph-url>]`: An alias for the current _target graph_.
+* `DEFAULT GRAPH AS <new-graph-name> [AT <graph-url>]`: An alias for the current _default graph_.
 
 This CIP defines the notion of an optional graph definition `<opt-graph-def>` that does not provide a `<new-graph-name>` and does not contain a subclause of the form `[AT|TO] <graph-url>` for aliasing graph definitions.
 
 `GRAPH <match-pattern>` is proposed to be a shorthand for the valid optional graph definition of the form `GRAPH OF <match-pattern>`
-
-NOTE: The exact shape and form of graph URLs `<graph-url>` lies outside the scope of this CIP.
-However, this CIP proposes that a `<graph-url>` must always be given as either a string literal or a query parameter, allowing a query to be parametrised on its input and output graphs.
 
 ==== Graph specifiers
 
