@@ -42,7 +42,7 @@ We thus provide background material regarding current semantics in line with the
 
 Before proposing changes to the language, it is necessary to first address changes required to the underlying https://github.com/opencypher/openCypher/blob/master/docs/property-graph-model.adoc[*property graph model*].
 
-The revised property graph model used in this CIP is called the *multiple property graphs model* and assumes everything specified in the original property graph model is extended with the notion of multiple, optionally overlapping graphs outlined in the following sub-sections.
+The revised property graph model used in this CIP is called the *multiple property graphs model* and assumes everything specified in the original property graph model is extended with the notion of multiple, optionally overlapping graphs outlined in the following subsections.
 
 === Model definition
 
@@ -50,15 +50,18 @@ This CIP defines an instance of the *multiple property graphs model* to be a set
 
 === (Property) Graph
 
-_Definition_: A *property graph* is a set of labeled nodes and typed relationships, where each node and relationship contains zero or more properties. A property is a tuple consisting of a named key and value.
-
-Graphs may be updatable, i.e. the set of contained nodes and relationships may change during the lifetime of the graph.
-It is an error to attempt to update a read-only graph.
+_Definition_: A *property graph* is a set of labeled nodes and typed relationships, where each node and relationship contains zero or more properties.
+A property is a tuple consisting of a named key and value.
 
 The same node or relationship may be contained within many graphs.
 A relationship may only be part of a graph if its start node and its end node are both also contained in the same graph.
 Thus, the removal of a node from a graph will require the removal of all of its relationships from the graph.
 An entity -- i.e. a node or a relationship -- is considered to be deleted if it is no longer contained within any graph.
+
+Graphs may be read-only or updatable.
+Nodes and relationships in updatable graphs may change (for example changing the value of a property), while it is an error to update an entity in a read-only graph.
+Thus, an entity may only be updated if it is not contained in any read-only graph.
+
 
 === Graph Addressing
 
@@ -131,9 +134,9 @@ This CIP proposes that the multi-arm query combinators `UNION` (and `UNION ALL` 
 
 * Tabular data is combined as today, i.e. the tabular result is either a concatenation (`UNION ALL` case) or a distinct union (`UNION` case) of the tabular data from both arms
 *  All graphs from both arms are returned; if both arms return a graph with the same name, then the union of those graphs is returned under that shared name
-* If both graphs have specified a graph with the same name as their current source graph, then the union of those source graphs under that name again becomes the source graph for further processing.
+* If both queries have specified a graph with the same name as their current source graph, then the union of those source graphs under that name again becomes the source graph for further processing.
 Otherwise, the default graph becomes the source graph for further processing.
-* If both graphs have specified a graph with the same name as their current target graph, then the union of those target graphs under that name again becomes the target graph for further processing.
+* If both queries have specified a graph with the same name as their current target graph, then the union of those target graphs under that name again becomes the target graph for further processing.
 Otherwise, the default graph becomes the target graph for further processing.
 
 === Expression evaluation
@@ -147,14 +150,14 @@ This CIP proposes the following update semantics for Cypher with support for mul
 * All updating clauses read from the source graph and write to the target graph of their current query context.
   More concretely:
   ** Entities are always created in, updated in, and deleted from the currently provided target graph.
-  ** All entities of bound pattern variables in `CREATE` and `MERGE` are always added to the provided target graph of the current query context.
-  ** `MERGE` uses the source graph to find existing entities
+  ** Variables used in `CREATE` and `MERGE` that have been previously bound will cause the bound entity to be added to the target graph of the current query context.
+  ** `MERGE` uses the source graph to find existing entities.
   ** Deleting an entity only affects the provided target graph of the current query context.
-* Updating queries behave as if they would end in `RETURN - GRAPHS -` (This syntax is introduced below).
+* Updating queries behave as if they would end in `RETURN - GRAPHS -` (this syntax is introduced below).
 * Semantically, all effects of an updating clause must be made visible before proceeding with the execution of the next clause.
 In other words, a conforming implementation must ensure that a later clause always sees the complete set of updates of a preceding updating clause.
 
-This CIP proposes allowing `MERGE` to be followed by a non-empty, comma-separated list of bound variables for explicitly adding an entity to the target graph.
+This CIP proposes allowing `MERGE` to be followed by a non-empty, comma-separated list of bound variables for explicitly adding entities to the target graph.
 
 === Simulating the single graph execution model
 
@@ -205,8 +208,7 @@ This CIP defines the notion of an optional graph definition `<opt-graph-def>` th
 `GRAPH <match-pattern>` is proposed to be a shorthand for the valid optional graph definition of the form `GRAPH OF <match-pattern>`
 
 NOTE: The exact shape and form of graph URLs `<graph-url>` lies outside the scope of this CIP.
-However, this CIP proposes that a `<graph-url>` must always be given as either a string literal or a query parameter.
-This allows parameterization of queries by controlling which graphs from which graph URLs they should use.
+However, this CIP proposes that a `<graph-url>` must always be given as either a string literal or a query parameter, allowing a query to be parametrised on its input and output graphs.
 
 ==== Graph specifiers
 
