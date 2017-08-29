@@ -97,6 +97,7 @@ Feature: DeleteAcceptance
     And the side effects should be:
       | -nodes         | 1 |
       | -relationships | 3 |
+      | -labels        | 1 |
 
   Scenario: Detach deleting paths
     Given an empty graph
@@ -116,6 +117,7 @@ Feature: DeleteAcceptance
     And the side effects should be:
       | -nodes         | 4 |
       | -relationships | 3 |
+      | -labels        | 1 |
 
   Scenario: Undirected expand followed by delete and count
     Given an empty graph
@@ -277,7 +279,8 @@ Feature: DeleteAcceptance
       """
     Then the result should be empty
     And the side effects should be:
-      | -nodes | 2 |
+      | -nodes  | 2 |
+      | -labels | 1 |
 
   Scenario: Delete relationships from a map
     Given an empty graph
@@ -352,6 +355,7 @@ Feature: DeleteAcceptance
     And the side effects should be:
       | -nodes         | 2 |
       | -relationships | 2 |
+      | -labels        | 1 |
 
   Scenario: Delete relationship with bidirectional matching
     Given an empty graph
@@ -368,3 +372,4 @@ Feature: DeleteAcceptance
     Then the result should be empty
     And the side effects should be:
       | -relationships | 1 |
+      | -properties    | 1 |

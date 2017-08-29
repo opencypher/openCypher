@@ -148,6 +148,7 @@ RETURN r AS entity, key, properties[key] AS value
 
 Note that in the definition above, a property is defined as the triple of containing entity, key, and value.
 Therefore the operation of moving a property from one entity to another will be noted as one removal and one addition in the side effects.
+Likewise, the operation of changing the value of a property is noted as one removal and one addition in the side effects.
 
 ===== Labels
 
@@ -158,6 +159,8 @@ MATCH (n)
 UNWIND labels(n) AS label
 RETURN DISTINCT label
 ----
+
+Note that this definition measures the amount of distinct labels present in the graph, and not the amount of nodes that are assigned these labels.
 
 [[results-format]]
 === Format of the expected results

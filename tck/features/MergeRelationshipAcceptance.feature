@@ -454,7 +454,7 @@ Feature: MergeRelationshipAcceptance
     And the side effects should be:
       | +nodes         | 5 |
       | +relationships | 4 |
-      | +labels        | 5 |
+      | +labels        | 2 |
       | +properties    | 5 |
 
   Scenario: Do not match on deleted entities

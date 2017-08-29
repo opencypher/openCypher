@@ -71,6 +71,7 @@ Feature: SetAcceptance
       | (:A {name: 'Michael'}) |
     And the side effects should be:
       | +properties | 1 |
+      | -properties | 1 |
 
   Scenario: Set a property to an expression
     Given an empty graph
@@ -90,6 +91,7 @@ Feature: SetAcceptance
       | (:A {name: 'Andres was here'}) |
     And the side effects should be:
       | +properties | 1 |
+      | -properties | 1 |
 
   Scenario: Set a property by selecting the node using a simple expression
     Given an empty graph
@@ -195,7 +197,7 @@ Feature: SetAcceptance
       | [1, 2, 3, 4, 5] |
     And the side effects should be:
       | +nodes      | 1 |
-      | +properties | 2 |
+      | +properties | 1 |
 
   Scenario: Concatenate elements in reverse onto a list property
     Given any graph
@@ -210,7 +212,7 @@ Feature: SetAcceptance
       | [1, 2, 3, 4, 5] |
     And the side effects should be:
       | +nodes      | 1 |
-      | +properties | 2 |
+      | +properties | 1 |
 
   Scenario: Overwrite values when using +=
     Given an empty graph
@@ -229,6 +231,7 @@ Feature: SetAcceptance
       | (:X {foo: 'A', bar: 'C'}) |
     And the side effects should be:
       | +properties | 1 |
+      | -properties | 1 |
 
   Scenario: Retain old values when using +=
     Given an empty graph
@@ -283,4 +286,4 @@ Feature: SetAcceptance
       | (:X {foo: 'B', baz: 'C'}) |
     And the side effects should be:
       | +properties | 2 |
-      | -properties | 1 |
+      | -properties | 2 |
