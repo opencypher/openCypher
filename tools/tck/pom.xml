@@ -72,6 +72,7 @@
           <include>**/*.cypher</include>
           <include>**/*.json</include>
         </includes>
+        <targetPath>graphs</targetPath>
       </resource>
     </resources>
   </build>
