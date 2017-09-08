@@ -125,7 +125,6 @@ Feature: MergeNodeAcceptance
       | 43     |
     And the side effects should be:
       | +nodes      | 1 |
-      | +labels     | 1 |
       | +properties | 1 |
 
   Scenario: Merge node with prop and label
@@ -208,7 +207,7 @@ Feature: MergeNodeAcceptance
     Then the result should be empty
     And the side effects should be:
       | +nodes  | 2 |
-      | +labels | 2 |
+      | +labels | 1 |
 
   Scenario: Should handle argument properly
     Given an empty graph
@@ -259,7 +258,7 @@ Feature: MergeNodeAcceptance
     Then the result should be empty
     And the side effects should be:
       | +nodes      | 3 |
-      | +labels     | 3 |
+      | +labels     | 1 |
       | +properties | 3 |
 
   Scenario: Should be able to use properties from match in ON CREATE
@@ -330,7 +329,7 @@ Feature: MergeNodeAcceptance
     And the side effects should be:
       | +nodes      | 1 |
       | +labels     | 1 |
-      | +properties | 2 |
+      | +properties | 1 |
 
   Scenario: Should be able to set labels on match
     Given an empty graph
@@ -395,7 +394,7 @@ Feature: MergeNodeAcceptance
       | 2 | 2 |
     And the side effects should be:
       | +nodes      | 15 |
-      | +labels     | 15 |
+      | +labels     | 1  |
       | +properties | 30 |
 
   Scenario: Merge must properly handle multiple labels
@@ -414,7 +413,7 @@ Feature: MergeNodeAcceptance
       | ['L', 'B'] |
     And the side effects should be:
       | +nodes      | 1 |
-      | +labels     | 2 |
+      | +labels     | 1 |
       | +properties | 1 |
 
   Scenario: Merge followed by multiple creates
@@ -466,8 +465,9 @@ Feature: MergeNodeAcceptance
       | null     |
       | null     |
     And the side effects should be:
-      | +nodes  | 1 |
-      | -nodes  | 2 |
+      | +nodes      | 1 |
+      | -nodes      | 2 |
+      | -properties | 2 |
 
   Scenario: ON CREATE on created nodes
     Given an empty graph

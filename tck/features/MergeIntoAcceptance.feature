@@ -143,6 +143,7 @@ Feature: MergeIntoAcceptance
     Then the result should be empty
     And the side effects should be:
       | +properties    | 2 |
+      | -properties    | 1 |
     When executing control query:
       """
       MATCH ()-[r:TYPE]->()

@@ -121,7 +121,7 @@ Feature: UnwindAcceptance
     And the side effects should be:
       | +nodes         | 2 |
       | +relationships | 2 |
-      | +labels        | 2 |
+      | +labels        | 1 |
       | +properties    | 2 |
 
   Scenario: Double unwinding a list of lists
@@ -264,5 +264,5 @@ Feature: UnwindAcceptance
       | 'name2' | 'login2' |
     And the side effects should be:
       | +nodes      | 2 |
-      | +labels     | 2 |
+      | +labels     | 1 |
       | +properties | 4 |
