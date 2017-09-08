@@ -1,0 +1,15 @@
+= Building pdf docs
+
+Commands and tools for generating PDF versions of the openCypher documents.
+
+The Asciidoc to PDF tool used is `asciidoctor-pdf`, read more about it link:http://asciidoctor.org/docs/convert-asciidoc-to-pdf/[here].
+
+== Style guide
+
+Use the font configuration file `style-guide.yml`, which is mostly a copy of the default configuration file that ships with `asciidoctor-pdf` with the Consolas font added.
+Fonts used are loaded from the `fonts` directory (downloaded from link:http://www.fontpalace.com/font-details/Consolas/[fontpalace.com]).
+
+[source, cmd]
+----
+asciidoctor-pdf -a pdf-style=build/style-guide.yml -a pdf-fontsdir=build/fonts style-guide.adoc
+----
