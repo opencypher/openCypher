@@ -18,7 +18,7 @@
 Feature: CreateAcceptance
 
   Scenario: Create a single node with multiple labels
-    Given any graph
+    Given an empty graph
     When executing query:
       """
       CREATE (:A:B:C:D)
@@ -131,7 +131,7 @@ Feature: CreateAcceptance
       | +relationships | 1 |
 
   Scenario: Create a self loop
-    Given any graph
+    Given an empty graph
     When executing query:
       """
       CREATE (root:R)-[:LINK]->(root)
@@ -288,7 +288,7 @@ Feature: CreateAcceptance
       | (:A) | (:B) | (:C) |
 
   Scenario: Create a pattern with multiple hops in the reverse direction
-    Given any graph
+    Given an empty graph
     When executing query:
       """
       CREATE (:A)<-[:R]-(:B)<-[:R]-(:C)
@@ -308,7 +308,7 @@ Feature: CreateAcceptance
       | (:A) | (:B) | (:C) |
 
   Scenario: Create a pattern with multiple hops in varying directions
-    Given any graph
+    Given an empty graph
     When executing query:
       """
       CREATE (:A)-[:R]->(:B)<-[:R]-(:C)
