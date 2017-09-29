@@ -16,7 +16,7 @@
 
 Feature: Aggregation
 
-  Scenario: `max()` should aggregate strings
+  Scenario: `max()` over strings
     Given any graph
     When executing query:
       """
@@ -28,7 +28,7 @@ Feature: Aggregation
       | 'b'    |
     And no side effects
 
-  Scenario: `min()` should aggregate strings
+  Scenario: `min()` over strings
     Given any graph
     When executing query:
       """
@@ -40,7 +40,7 @@ Feature: Aggregation
       | 'B'    |
     And no side effects
 
-  Scenario: `max()` should aggregate integers
+  Scenario: `max()` over integers
     Given any graph
     When executing query:
       """
@@ -52,7 +52,7 @@ Feature: Aggregation
       | 2      |
     And no side effects
 
-  Scenario: `min()` should aggregate integers
+  Scenario: `min()` over integers
     Given any graph
     When executing query:
       """
@@ -64,7 +64,7 @@ Feature: Aggregation
       | -1     |
     And no side effects
 
-  Scenario: `max()` should aggregate floats
+  Scenario: `max()` over floats
     Given any graph
     When executing query:
       """
@@ -76,7 +76,7 @@ Feature: Aggregation
       | 2.0    |
     And no side effects
 
-  Scenario: `min()` should aggregate floats
+  Scenario: `min()` over floats
     Given any graph
     When executing query:
       """
@@ -88,7 +88,7 @@ Feature: Aggregation
       | 0.5    |
     And no side effects
 
-  Scenario: `max()` should aggregate numeric values
+  Scenario: `max()` over mixed numeric values
     Given any graph
     When executing query:
       """
@@ -100,7 +100,7 @@ Feature: Aggregation
       | 5      |
     And no side effects
 
-  Scenario: `min()` should aggregate numeric values
+  Scenario: `min()` over mixed numeric values
     Given any graph
     When executing query:
       """
@@ -112,11 +112,11 @@ Feature: Aggregation
       | 0.1    |
     And no side effects
 
-  Scenario: `max()` should aggregate mixed values
+  Scenario: `max()` over mixed values
     Given any graph
     When executing query:
       """
-      UNWIND [1, 'a', null, [1,2], 0.2, 'b'] AS x
+      UNWIND [1, 'a', null, [1, 2], 0.2, 'b'] AS x
       RETURN max(x)
       """
     Then the result should be:
@@ -124,38 +124,38 @@ Feature: Aggregation
       | 1      |
     And no side effects
 
-  Scenario: `min()` should aggregate mixed values
+  Scenario: `min()` over mixed values
     Given any graph
     When executing query:
       """
-      UNWIND [1, 'a', null, [1,2], 0.2, 'b'] AS x
+      UNWIND [1, 'a', null, [1, 2], 0.2, 'b'] AS x
       RETURN min(x)
       """
     Then the result should be:
       | min(x) |
-      | [1,2]  |
+      | [1, 2] |
     And no side effects
 
-  Scenario: `max()` should aggregate list values
+  Scenario: `max()` over list values
     Given any graph
     When executing query:
       """
-      UNWIND [[1], [2], [2, 1]] AS x RETURN
-      max(x)
+      UNWIND [[1], [2], [2, 1]] AS x
+      RETURN max(x)
       """
     Then the result should be:
       | max(x) |
       | [2, 1] |
     And no side effects
 
-  Scenario: `min()` should aggregate list values
+  Scenario: `min()` over list values
     Given any graph
     When executing query:
       """
-      UNWIND [[1], [2], [2, 1]] AS x RETURN
-      min(x)
+      UNWIND [[1], [2], [2, 1]] AS x
+      RETURN min(x)
       """
     Then the result should be:
       | min(x) |
-      | [1] |
+      | [1]    |
     And no side effects
