@@ -235,7 +235,7 @@
       <seq> &WS; [ <opt>&expr;</opt> .. <opt>&expr;</opt> ] </seq>
       <seq>
         <alt>
-          <seq>&WS; =~</seq>
+          <non-terminal ref="RegularExpression"/>
           <seq>&SP; IN</seq>
           <seq>&SP; STARTS &SP; WITH</seq>
           <seq>&SP; ENDS &SP; WITH</seq>
@@ -247,6 +247,10 @@
       <seq> &SP; IS &SP; NULL </seq>
       <seq> &SP; IS &SP; NOT &SP; NULL </seq>
     </alt></repeat>
+  </production>
+
+  <production name="RegularExpression" oc:legacy="true">
+    <seq>&WS; =~</seq>
   </production>
 
   <production name="PropertyOrLabelsExpression" rr:inline="true">
