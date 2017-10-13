@@ -200,6 +200,7 @@ It is the goal of this project to create a good and feature-rich standard langua
 === Functions
 
 * `all()`
+* `allShortestPaths()`
 * `any()`
 * `distance()`
 * `extract()`
@@ -210,6 +211,7 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `none()`
 * `point()`
 * `reduce()`
+* `shortestPath()`
 * `single()`
 * `timestamp()`
 * `upper()`
