@@ -168,6 +168,22 @@ Note:: This mechanism allows guaranteed execution of `<Q2>` irrespective of the 
 
 Note:: In general, `<Q1>` is expected to be an updating query and it is recommended that implementations generate a warning if this is not the case (to inform the user that `<Q1>` is essentially superfluous).
 
+==== Precedence of subquery chaining
+
+This CIP proposes to distinguish between full (top-level) queries and argument queries.
+
+A full top-level query is any Cypher query.
+In particular, a full top-level query may be formed by composing argument queries using subquery chaining or other query combinators (like `UNION`).
+
+An argument query is a sequence of clauses that ends in either an updating clause or `RETURN`.
+An argument query may not contain subquery chaining or another query combinator.
+
+These rules establish left-associative precedence of subquery chaining and other query combinators over argument queries.
+
+In other words, `<Q1> UNION <Q2> WITH <Q3>` is always interpreted as  `(<Q1> UNION <Q2>) WITH <Q3>` but never as `<Q1> UNION (<Q2> WITH <Q3>)` (The same rule applies to `THEN`).
+
+Note:: Subquery chaining and other query combinators may still be used from inside an argument query via inner nested subqueries.
+
 ==== Discarding variables in scope
 
 Finally, this CIP proposes new shorthand syntax for discarding all variables in scope without discarding the cardinality of input records using `WITH|RETURN|YIELD NOTHING`.
