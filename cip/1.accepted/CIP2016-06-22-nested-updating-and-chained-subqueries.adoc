@@ -138,10 +138,10 @@ A query may end with a conditional `DO` subquery in the same way that a query ca
 
 === Chained subqueries
 
-Chained subqueries are queries that compose two (argument) subqueries using a _query combinator_ clause.
+Chained subqueries are queries that compose a top-level result query using a _query combinator_ clause from two input queries: a left-hand side top-level query and a right-hand side argument query.
 
-While (full) top-level queries are arbitrary Cypher queries, argument queries are queries that may not contain query combinators.
-They may however contain nested subqueries which may use query combinators in their inner queries (which again may be top-level queries).
+In this definition, top-level queries are arbitrary Cypher queries, while argument queries are queries that may *not* contain query combinators.
+Argument queries may however contain nested subqueries whose inner queries again may be top-level queries (that may very well contain query combinators).
 
 Currently Cypher only supports the `UNION` and `UNION ALL` query combinators.
 This CIP proposes to extend this set of query combinators with new forms as outlined below.
@@ -180,7 +180,7 @@ Note:: In general, `<Q1>` is expected to be an updating query and it is recommen
 
 ==== Query combinator precedence
 
-This CIP proposes that all Cypher query combinators are left-associative regarding their argument queries.
+This CIP proposes that all Cypher query combinators are left-associative regarding their left-hand side and right-hand side input queries.
 
 Note:: In other words, `<Q1> UNION <Q2> WITH <Q3>` is always interpreted as  `(<Q1> UNION <Q2>) WITH <Q3>` but never as `<Q1> UNION (<Q2> WITH <Q3>)` (The same rule applies to `THEN`).
 
