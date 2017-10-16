@@ -43,8 +43,8 @@ This proposal suggests the introduction of new subquery constructs to Cypher.
 ** Read/Write simple updating subqueries of the form `DO { <updating-query> }` (inner query not ending with `RETURN`)
 ** Read/Write conditionally-updating subqueries of the form `DO [WHEN <predicate> THEN { <updating-query> }]+ [ELSE { <updating-query> }] END` (inner queries not ending with `RETURN`)
 * Chained subqueries
-** Chained data-dependent subqueries by extending the `WITH` projection clause that have the form `<query> <with-clause> <query>`. Additionally, this CIP proposes new shorthand syntax for starting a query with `WITH` to compose a query with external inputs.
-** Chained data-independent subqueries by introducing the new `THEN` clause for discarding all variables in scope as well as the cardinality of all input records. Additionally, this CIP proposes new shorthand syntax for discarding all variables in scope without discarding the cardinality of input records using `WITH|RETURN|YIELD NOTHING`.
+** Chained data-dependent subqueries that extend the `WITH` projection clause with the form `<query> <with-clause> <query>`. Additionally, this CIP proposes new shorthand syntax for starting a query with `WITH` to compose a query with external inputs.
+** Chained data-independent subqueries based on the newly introduced `THEN` clause for discarding all variables in scope as well as the cardinality of all input records. Additionally, this CIP proposes new shorthand syntax for discarding all variables in scope without discarding the cardinality of input records using `WITH|RETURN|YIELD NOTHING`.
 
 We additionally propose removing the `FOREACH` clause from the current language (it is rendered obsolete by the introduction of `DO`).
 
@@ -83,17 +83,19 @@ A read-only nested mandatory subquery is denoted by the following syntax: `MANDA
 
 ==== Semantics
 
-The nested subquery will be provided with all variables visible in the outer query as subquery input.
+The nested subquery will be provided with all variables visible in the outer query as input.
 
-All records returned by the final `RETURN` clause of the subquery will be augmented with the variable bindings of the initial input record from the outer query to form the output records of the subquery.
-No other variable bindings will be added to the output records.
-If an incoming variable is either discarded or shadows within the subquery, an error will be raised if the subquery returns that variable to the outer query.
+Each record returned by the final `RETURN` clause of the subquery augments the variable bindings of the initial input record from the outer query to form an output record of the subquery.
+This may shadow existing bindings of the initial input record.
+No other variable bindings are added to output records.
+
+Note:: It is recommended that implementations generate a warning if an incoming variable is both discarded within the inner query while the same inner also query returns a (potentially different) value for that variable to the outer query, i.e. is shadowing (replacing) it.
 
 Finally, the result records of the different forms of nested subqueries are formed as follows:
 
 * The result records of a read-only regular subquery are just the output records.
 * The result records of a read-only optional subquery are all the output records (if there is at least one output record), or a single record with the same fields as the output records where all newly introduced variable bindings are set to `NULL`.
-* The result records of a read-only mandatory subquery are just the output records. However, if the set of output records is empty, an error is raised in the same way as regular `MANDATORY MATCH`.
+* The result records of a read-only mandatory subquery are just the output records. However, if the set of output records is empty, an error is raised in the same way as regular `MANDATORY MATCH` raises an error when no matches are found.
 
 Nested subqueries interact with write clauses in the same way as `MATCH` does.
 
@@ -104,7 +106,7 @@ Updating subqueries never change the cardinality; i.e. the inner update query is
 
 ==== Read/Write simple updating subqueries
 
-We propose the addition of a new `DO` clause for expressing read/write simple updating subqueries that _do not return any data_ from the inner query.
+We propose the addition of a new `DO` clause for expressing read/write simple updating subqueries that _do not return any data_ from the inner query to the outer query.
 
 A read/write simple updating subquery is denoted by the following syntax: `DO { <inner-update-query> }`.
 
@@ -114,7 +116,7 @@ A query may end with a `DO` subquery in the same way that a query can currently 
 
 ==== Read/Write conditionally-updating subqueries
 
-We propose the addition of a new conditional `DO` clause for expressing read/write conditionally-updating subqueries that _do not return any data_ from the inner query.
+We propose the addition of a new conditional `DO` clause for expressing read/write conditionally-updating subqueries that _do not return any data_ from the inner query to the outer query.
 
 A read/write conditionally-updating subquery is denoted by the following syntax:
 
@@ -128,61 +130,59 @@ END
 Evaluation proceeds as follows:
 
 * Semantically, the `WHEN` predicates are tested in the order given, and the inner updating query is executed for only the first predicate that evaluates to `true`.
-* If no given `WHEN` predicates evaluates to `true` and an `ELSE` branch is provided, the inner updating query of the `ELSE` branch is executed.
+* If no given `WHEN` predicate evaluates to `true` and an `ELSE` branch is provided, the inner updating query of the `ELSE` branch is executed.
 * If no given `WHEN` predicates evaluates to `true` and no `ELSE` branch is provided, no updates will be executed.
 
-A query may end with a conditional `DO` subquery in the same way that a query can currently end with any update clause.
+A query may end with a conditional `DO` subquery in the same way that a query can currently end with an update clause.
 
 
 === Chained subqueries
 
+Chained subqueries are queries that compose two (argument) subqueries using a _query combinator_ clause.
+
+While (full) top-level queries are arbitrary Cypher queries, argument queries are queries that may not contain query combinators.
+They may however contain nested subqueries which may use query combinators in their inner queries (which again may be top-level queries).
+
+Currently Cypher only supports the `UNION` and `UNION ALL` query combinators.
+This CIP proposes to extend this set of query combinators with new forms as outlined below.
+
 ==== Chained data-dependent subqueries
 
-We propose extending the `WITH` projection clause to sequentially compose arbitrary queries to form a chained data-dependent subquery without resorting to nesting and indentation (e.g. as a short-hand syntax for post-UNION processing).
+We propose the introduction of using the `WITH` projection clause as a new query combinator that can sequentially compose arbitrary queries to form a chained data-dependent subquery without having to resort to nesting and indentation (e.g. as a short-hand syntax for post-UNION processing).
 
 Chained data-dependent subqueries have the following general form `<Q1> WITH ... <Q2>`.
 
-Both `<Q1`> and `<Q2>` are arbitrary, complete Cypher queries.
+Both `<Q1`> and `<Q2>` are arbitrary argument queries.
 
 Conceptually, the query `<Q2>` is evaluated for each incoming input record from the query `<Q1>` and may produce an arbitrary number of result records.
 In other words, the query `<Q2>` will be provided with all variables returned by the query `<Q1>` as input variable bindings.
 
-Furthermore, this CIP proposes allowing a leading `WITH` to project variables from expressions that refer to unbound variables from the preceding scope (or query).
+Furthermore, this CIP proposes allowing a leading `WITH` to project new variables from expressions that refer to unbound variables from the preceding scope (or query).
 This set of referenced, unbound variables of such a leading `WITH` is understood to implicitly declare the input variables required for the query to execute.
 
 Note:: This mechanism allows composing a Cypher query with inputs that have been constructed programmatically.
 
 ==== Chained data-independent subqueries
 
-We propose introducing the `THEN` projection clause to sequentially compose two arbitrary subqueries to form a chained data-independent subquery without resorting to nesting and indentation.
+We propose introducing the `THEN` projection clause as a new query combinator that can sequentially compose two arbitrary subqueries to form a chained data-independent subquery without having to resort to nesting and indentation.
 
 Chained data-independent subqueries have the following general form `<Q1> THEN <Q2>`.
 
-Both `<Q1`> and `<Q2>` are arbitrary, complete Cypher queries.
+Both `<Q1`> and `<Q2>` are arbitrary argument queries.
 No variables and no input records are passed from `<Q1>` to `<Q2>`.
 Instead `<Q2>` is executed in a standalone fashion after the execution of `<Q1>` has finished.
 
 Furthermore, this CIP proposes allowing queries to start with a leading `THEN` for discarding all variables in scope as well as the cardinality of all input records provided by the surrounding execution environment.
 
-Note:: This mechanism allows guaranteed execution of `<Q2>` irrespective of the number of records produced by `<Q1>`.
+Note:: This mechanism allows guaranteed execution of an (usually updating) query `<Q2>` irrespective of the number of records produced by query `<Q1>`.
 
 Note:: In general, `<Q1>` is expected to be an updating query and it is recommended that implementations generate a warning if this is not the case (to inform the user that `<Q1>` is essentially superfluous).
 
-==== Precedence of subquery chaining
+==== Query combinator precedence
 
-This CIP proposes to distinguish between full (top-level) queries and argument queries.
+This CIP proposes that all Cypher query combinators are left-associative regarding their argument queries.
 
-A full top-level query is any Cypher query.
-In particular, a full top-level query may be formed by composing argument queries using subquery chaining or other query combinators (like `UNION`).
-
-An argument query is a sequence of clauses that ends in either an updating clause or `RETURN`.
-An argument query may not contain subquery chaining or another query combinator.
-
-These rules establish left-associative precedence of subquery chaining and other query combinators over argument queries.
-
-In other words, `<Q1> UNION <Q2> WITH <Q3>` is always interpreted as  `(<Q1> UNION <Q2>) WITH <Q3>` but never as `<Q1> UNION (<Q2> WITH <Q3>)` (The same rule applies to `THEN`).
-
-Note:: Subquery chaining and other query combinators may still be used from inside an argument query via inner nested subqueries.
+Note:: In other words, `<Q1> UNION <Q2> WITH <Q3>` is always interpreted as  `(<Q1> UNION <Q2>) WITH <Q3>` but never as `<Q1> UNION (<Q2> WITH <Q3>)` (The same rule applies to `THEN`).
 
 ==== Discarding variables in scope
 
