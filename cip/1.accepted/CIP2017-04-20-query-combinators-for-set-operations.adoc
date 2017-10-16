@@ -1,4 +1,4 @@
-= CIP2017-04-20 - Query Combinators
+= CIP2017-04-20 - Query combinators for set operations
 :numbered:
 :toc:
 :toc-placement: macro
@@ -9,7 +9,7 @@
 [abstract]
 .Abstract
 --
-This CIP codifies the pre-existing `UNION` and `UNION ALL` clauses, and proposes additional query combinators for set operations and pipelining.
+This CIP codifies the pre-existing `UNION` and `UNION ALL` clauses, and proposes additional query combinators for set operations.
 --
 
 toc::[]
@@ -23,12 +23,12 @@ Adding more query combinators to Cypher will increase language expressivity and 
 
 The vast majority of Cypher clauses are underpinned by sequential composition; i.e. the records produced by the first clause act as an input to the next clause and so on.
 However, some operations require multiple streams of records as inputs.
-These are called _query combinators_.
+These are called _query combinators_ (CIP2016-06-22 Nested, updating, and chained subqueries).
 The most notable example of query combinators are _set operations_.
 
 == Proposal
 
-This CIP proposes the introduction of several new multi-arm query combinators:
+This CIP proposes the specification of pre-existing and the introduction of several new query combinators for set operations:
 
 * `UNION`
 * `UNION ALL`
@@ -41,24 +41,19 @@ This CIP proposes the introduction of several new multi-arm query combinators:
 * `EXCLUSIVE UNION MAX`
 * `OTHERWISE`
 * `CROSS`
-* `THEN`
 
-Multi-arm query combinators can only be used to constuct a compound multi-arm query using the syntax `<query> [<combinator> <query>]+`.
+Query combinators are used to construct a (compound) top-level query from two input queries: a left-hand side top-level query and a right-hand side argument query, i.e. always have the form
+`<top-level-query> <combinator> <argument-query>`(where `<combinator>` may be any of the combinators given above).
+Query combinators are left-associative; that is, their operations are grouped from the left.
 
-The `<combinator>` can be any of the combinators given above.
-Multi-arm query combinators are interpreted left-associative; that is, the operations are grouped from the left.
-Thus, for the remainder of this proposal, we only consider combinator semantics regarding two arms (left and right) -- the semantics follow on straightforwardly by induction for the multi-arm cases.
+For all proposed query combinators -- except for `CROSS` -- the fields returned are subject to the following standard rules:
 
-For all proposed query combinators -- excluding `CROSS` and `THEN` -- the fields returned are subject to the following standard rules:
+* Both input queries must return precisely the same set of variables
+* If both input queries specify the order of returned variables explicitly, they must both return those variables in exactly the same order.
+* If one of the input queries does not specify the order of returned variables explicitly (e.g. by using `RETURN *`), then the other input query must specify the order of returned variables explicitly.
+This order will then be the order in which variables are returned by the query combinator.
+* If both input queries do not specify the order of returned variables explicitly (e.g. by using `RETURN *`), variables are returned in the same order as map keys (i.e. sorted according to their UNICODE name).
 
-* The `RETURN` clause of each arm is either a `RETURN *` or specifies record fields explicitly (e.g. `RETURN n.prop1, n.prop2, ...`).
-* If both arms specify record fields explicitly, then they must specify precisely the same set of record fields (by name) in exactly the same order.
-* If one of the arms, _arm1_, ends with `RETURN *`, and the other arm, _arm2_, specifies record fields explicitly, then _arm1_ must implicitly return exactly the same set of record fields as _arm2_; i.e. the arm with the explicitly-defined record fields will determine which record fields are returned as well as the order thereof.
-* If both arms end with `RETURN *`, they must return exactly the same set of record fields.
-* If both arms end with `RETURN *`, the order of record fields is unspecified and left to the implementation.
-
-Multi-arm query combinators may determine the result signature of a top-level query.
-If any arm specifies record fields explicitly, the same set of record fields in exactly the same order is returned by the entire query.
 
 === UNION
 
@@ -75,6 +70,7 @@ If any arm specifies record fields explicitly, the same set of record fields in 
 
 `INTERSECT ALL` computes the logical multiset intersection between two bags of input records (i.e. shared duplicates are retained).
 
+
 === EXCEPT
 
 `EXCEPT` computes the logical set difference between two sets of input records (i.e. any duplicates are discarded).
@@ -87,30 +83,21 @@ If any arm specifies record fields explicitly, the same set of record fields in 
 
 `EXCLUSIVE UNION MAX` computes the exclusive logical multiset union between two bags of input records (i.e. the largest remaining excess multiplicity of each record in any argument bag is returned).
 
+
 === OTHERWISE
 
 `OTHERWISE` computes the logical choice between two bags of input records.
 It evaluates to all records from the left-hand side argument provided the bag of input records is non-empty; otherwise it evaluates to all records from the right-hand side argument.
+
 
 === CROSS
 
 `CROSS` computes the cartesian product between two bags of input records (i.e. preserves duplicates).
 
 In contrast to the other query combinators, the standard rules regarding returned record fields do not apply to `CROSS`.
-Instead, the set of returned record fields of both arms of a `CROSS` must be non-overlapping.
-The returned record fields of a `CROSS` operation consist of all the fields specified in the left arm (appearing in the order specified), followed by all the fields specified in the right arm (appearing in the order specified).
+Instead, the set of variables returned from both input queries of a `CROSS` must be non-overlapping.
+The returned variables of a `CROSS` operation consist of all the variables returned by the left-hand side input query (appearing in the order specified), followed by all the variables returned by the right-hand side input query (appearing in the order specified).
 
-=== THEN
-
-`THEN` computes query-level pipelining; i.e. it executes the right-hand side query for each input record from the left-hand side, and returns the flattened concatenation of all such records produced.
-
-The main feature of `THEN` is that it allows pipelining between nested subqueries.
-This is due to its syntactic status as a query combinator.
-
-In contrast to the other query combinators, the standard rules regarding returned record fields do not apply to `THEN`.
-Instead, the set of returned record fields of both arms of `THEN` may overlap arbitrarily.
-All record fields that are returned in the left arm are made visible at the start of the right-arm query.
-`THEN` returns the record fields that are specified in the right arm, in the order specified in the right arm.
 
 === Handling of NULL values
 
