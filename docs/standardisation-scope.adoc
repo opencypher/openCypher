@@ -33,11 +33,16 @@ It is the goal of this project to create a good and feature-rich standard langua
 ==== Sub-clauses
 
 * `LIMIT`
-* `ON CREATE`
-* `ON MATCH`
 * `ORDER BY`
 * `SKIP`
 * `WHERE`
+
+=== Patterns
+
+* Simple patterns with binding
+* Variable length patterns without binding
+* `allShortestPaths()`
+* `shortestPath()`
 
 === Operators
 
@@ -92,6 +97,7 @@ It is the goal of this project to create a good and feature-rich standard langua
 
 === Functions
 
+* user-defined functions
 * `abs()`
 * `acos()`
 * `asin()`
@@ -104,7 +110,6 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `degrees()`
 * `e()`
 * `endNode()`
-* `exists()`
 * `exp()`
 * `floor()`
 * `head()`
@@ -121,7 +126,7 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `radians()`
 * `rand()`
 * `range()`
-* `relationships()`/rels()
+* `relationships()`/`rels()`
 * `replace()`
 * `reverse()`
 * `right()`
@@ -141,12 +146,29 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `toString()`
 * `toBoolean()`
 * `properties()`
+* `timestamp()`
 * `trim()`
 * `type()`
 * `toUpper()`
 * `toLower()`
 
-==== Aggregating functions
+=== Types
+
+* primitives
+* list
+* map
+* node
+* relationship
+* path
+
+== Language features included in openCypher with new definitions
+
+=== General
+
+* pattern expressions
+* `id()`
+
+=== Aggregating functions
 
 * `avg()`
 * `collect()`
@@ -159,15 +181,6 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `stdevP()`
 * `sum()`
 
-=== Types
-
-* primitives
-* list
-* map
-* node
-* relationship
-* path
-
 == Language features excluded from openCypher
 
 === Clauses
@@ -176,6 +189,17 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `FOREACH`
 * `START`
 * `LOAD CSV`
+
+==== Sub-clauses
+
+* `ON CREATE`
+* `ON MATCH`
+
+=== Patterns
+
+* Variable length patterns with binding
+* double-arrow syntax to describe undirected patterns (`()\<-[]\->()`)
+* double-dash syntax to describe undirected patterns (`()--()`)
 
 === Hints
 
@@ -200,20 +224,17 @@ It is the goal of this project to create a good and feature-rich standard langua
 === Functions
 
 * `all()`
-* `allShortestPaths()`
 * `any()`
 * `distance()`
+* `exists()`
 * `extract()`
 * `filter()`
 * `haversin()`
-* `id()`
 * `lower()`
 * `none()`
 * `point()`
 * `reduce()`
-* `shortestPath()`
 * `single()`
-* `timestamp()`
 * `upper()`
 
 === Types
