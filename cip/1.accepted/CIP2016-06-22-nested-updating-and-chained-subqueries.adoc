@@ -138,13 +138,14 @@ A query may end with a conditional `DO` subquery in the same way that a query ca
 
 === Chained subqueries
 
-_Chained_ subqueries are queries that compose a top-level result query using a _query combinator_ clause from two input queries: a left-hand side 'top-level' query and a right-hand side argument query.
+Chained subqueries are queries that compose a top-level result query using a sequence of _query combinator_ clauses each followed by a query component.
 
-In this definition, top-level queries are arbitrary Cypher queries, while argument queries are queries that may *not* contain query combinators.
-Argument queries may however contain nested subqueries whose inner queries again may be top-level queries (that may very well contain query combinators).
+A query component is a sequence of clauses that either describes an updating query or a read-only that ends in a `RETURN` clause but does not contain any top-level query combinator clauses.
+Query components may however contain nested subqueries whose inner queries contain query combinator clauses.
 
 Currently Cypher only supports the `UNION` and `UNION ALL` query combinators.
 This CIP proposes to extend this set of query combinators with new forms as outlined below.
+
 
 ==== Chained data-dependent subqueries
 
@@ -152,7 +153,7 @@ We propose the introduction of using the `WITH` projection clause as a new query
 
 Chained data-dependent subqueries have the following general form `<Q1> WITH ... <Q2>`.
 
-Both `<Q1`> and `<Q2>` are arbitrary argument queries.
+Both `<Q1`> and `<Q2>` are arbitrary query components.
 
 Conceptually, the query `<Q2>` is evaluated for each incoming input record from the query `<Q1>` and may produce an arbitrary number of result records.
 In other words, the query `<Q2>` will be provided with all variables returned by the query `<Q1>` as input variable bindings.
@@ -168,7 +169,7 @@ We propose introducing the `THEN` projection clause as a new query combinator th
 
 Chained data-independent subqueries have the following general form `<Q1> THEN <Q2>`.
 
-Both `<Q1`> and `<Q2>` are arbitrary argument queries.
+Both `<Q1`> and `<Q2>` are query components.
 No variables and no input records are passed from `<Q1>` to `<Q2>`.
 Instead `<Q2>` is executed in a standalone fashion after the execution of `<Q1>` has finished.
 
