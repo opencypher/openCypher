@@ -31,7 +31,7 @@ This CIP may be viewed in light of CIPs for query combinators and set operations
 
 == Proposal
 
-Subqueries are self-contained Cypher queries that are usually run within the scope of an outer, containing Cypher query.
+Subqueries are self-contained Cypher queries that are usually run within the scope of an outer Cypher query.
 
 This proposal suggests the introduction of new subquery constructs to Cypher.
 
@@ -40,11 +40,11 @@ This proposal suggests the introduction of new subquery constructs to Cypher.
 ** Read-only nested optional subqueries of the form `OPTIONAL MATCH { <reading-query> }`
 ** Read-only nested mandatory subqueries of the form `MANDATORY MATCH { <reading-query> }`
 * Read/Write updating subqueries
-** Read/Write simple updating subqueries of the form `DO { <updating-query> }` (inner query not ending with `RETURN`)
-** Read/Write conditionally-updating subqueries of the form `DO [WHEN <predicate> THEN { <updating-query> }]+ [ELSE { <updating-query> }] END` (inner queries not ending with `RETURN`)
+** Read/Write simple updating subqueries of the form `DO { <updating-query> }` (the inner query not ending with `RETURN`)
+** Read/Write conditionally-updating subqueries of the form `DO [WHEN <predicate> THEN { <updating-query> }]+ [ELSE { <updating-query> }] END` (the inner queries not ending with `RETURN`)
 * Chained subqueries
-** Chained data-dependent subqueries that extend the `WITH` projection clause with the form `<query> <with-clause> <query>`. Additionally, this CIP proposes new shorthand syntax for starting a query with `WITH` to compose a query with external inputs.
-** Chained data-independent subqueries based on the newly introduced `THEN` clause for discarding all variables in scope as well as the cardinality of all input records. Additionally, this CIP proposes new shorthand syntax for discarding all variables in scope without discarding the cardinality of input records using `WITH|RETURN|YIELD NOTHING`.
+** Chained _data-dependent_ subqueries that extend the `WITH` projection clause with the form `<query> <with-clause> <query>`. Additionally, this CIP proposes new shorthand syntax for starting a query with `WITH` to compose a query with external inputs.
+** Chained _data-independent_ subqueries based on the newly-introduced `THEN` clause for discarding all variables in scope as well as the cardinality of all input records. Additionally, this CIP proposes new shorthand syntax for discarding all variables in scope without discarding the cardinality of input records using `WITH|RETURN|YIELD NOTHING`.
 
 We additionally propose removing the `FOREACH` clause from the current language (it is rendered obsolete by the introduction of `DO`).
 
@@ -59,15 +59,15 @@ Read/Write subqueries cannot be contained within other read-only subqueries.
 
 === Read-only nested subqueries
 
-Conceptually, a nested subquery is evaluated for each incoming input record and may produce an arbitrary number of output records.
+A nested subquery is evaluated for each incoming input record and may produce an arbitrary number of output records.
+
+In all instances below, `<inner-query>` denotes any complete, read-only Cypher query.
 
 ==== Read-only nested regular subqueries
 
 We propose the addition of read-only nested regular subqueries as a new form of read-only Cypher query.
 
 A nested read-only simple subquery is denoted using the following syntax: `MATCH { <inner-query> }`.
-
-The inner query can be any complete read-only Cypher query.
 
 ==== Read-only nested optional subqueries
 
@@ -89,15 +89,15 @@ Each record returned by the final `RETURN` clause of the subquery augments the v
 This may shadow existing bindings of the initial input record.
 No other variable bindings are added to output records.
 
-Note:: It is recommended that implementations generate a warning if an incoming variable is both discarded within the inner query while the same inner also query returns a (potentially different) value for that variable to the outer query, i.e. is shadowing (replacing) it.
+Note:: It is recommended that implementations generate a warning if an incoming variable is both discarded within the inner query while the same inner query also returns a (potentially different) value for that variable to the outer query, i.e. is shadowing (replacing) it.
 
 Finally, the result records of the different forms of nested subqueries are formed as follows:
 
 * The result records of a read-only regular subquery are just the output records.
-* The result records of a read-only optional subquery are all the output records (if there is at least one output record), or a single record with the same fields as the output records where all newly introduced variable bindings are set to `NULL`.
+* The result records of a read-only optional subquery are all the output records (if there is at least one output record), or a single record with the same fields as the output records where all newly-introduced variable bindings are set to `NULL`.
 * The result records of a read-only mandatory subquery are just the output records. However, if the set of output records is empty, an error is raised in the same way as regular `MANDATORY MATCH` raises an error when no matches are found.
 
-Nested subqueries interact with write clauses in the same way as `MATCH` does.
+Nested subqueries interact with write clauses in the same way that `MATCH` does.
 
 
 === Read/Write updating subqueries
@@ -129,7 +129,7 @@ END
 
 Evaluation proceeds as follows:
 
-* Semantically, the `WHEN` predicates are tested in the order given, and the inner updating query is executed for only the first predicate that evaluates to `true`.
+* Semantically, the `WHEN` predicates are tested in the order given, and the inner updating query is executed only for the first predicate that evaluates to `true`.
 * If no given `WHEN` predicate evaluates to `true` and an `ELSE` branch is provided, the inner updating query of the `ELSE` branch is executed.
 * If no given `WHEN` predicates evaluates to `true` and no `ELSE` branch is provided, no updates will be executed.
 
@@ -138,7 +138,7 @@ A query may end with a conditional `DO` subquery in the same way that a query ca
 
 === Chained subqueries
 
-Chained subqueries are queries that compose a top-level result query using a _query combinator_ clause from two input queries: a left-hand side top-level query and a right-hand side argument query.
+_Chained_ subqueries are queries that compose a top-level result query using a _query combinator_ clause from two input queries: a left-hand side 'top-level' query and a right-hand side argument query.
 
 In this definition, top-level queries are arbitrary Cypher queries, while argument queries are queries that may *not* contain query combinators.
 Argument queries may however contain nested subqueries whose inner queries again may be top-level queries (that may very well contain query combinators).
