@@ -225,7 +225,7 @@ MATCH {
   MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(v:Vehicle),
         (v)<-[:IS_A]-(:Category {name: 'Tractor'})
-  RETURN b.name AS name, p.code AS code
+  RETURN b.name AS name, v.code AS code
 }
 RETURN f, name, code
 ----
@@ -243,7 +243,7 @@ MATCH {
         (b)-[:PRODUCES]->(v:Vehicle),
         (v)<-[:IS_A]-(:Category {name: 'Tractor'})
   WHERE v.leftHandDrive = country.leftHandDrive
-  RETURN b.name AS name, p.code AS code
+  RETURN b.name AS name, v.code AS code
 }
 RETURN f, name, code
 ----
@@ -262,7 +262,7 @@ MATCH {
         (b)-[:PRODUCES]->(v:Vehicle),
         (v)<-[:IS_A]-(:Category {name: 'Tractor'})
   WHERE v.leftHandDrive = country.leftHandDrive
-  RETURN b AS brand, p.code AS code
+  RETURN b AS brand, v.code AS code
 }
 WHERE f.type = 'organic'
   AND b.certified
