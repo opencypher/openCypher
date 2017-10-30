@@ -120,7 +120,7 @@ We propose that <<comparability-con,comparability>> should be defined between an
   * Lists are compared in dictionary order, i.e. list elements are compared pairwise in ascending order from the start of the list to the end. Elements missing in a shorter list are considered to be less than any other value (including `null` values).
   For example, `[1] < [1, 0]` but also `[1] < [1, null]`.
   * If comparing two lists requires comparing at least a single `null` value to some other value, these lists are <<incomparable>>.
-  For example, `[1, 2] >= [1, null]` evaluates to `null` (ncomparable), but `[1, 2] >= [3, null]` evaluates to `false`.
+  For example, `[1, 2] >= [1, null]` evaluates to `null` (incomparable), but `[1, 2] >= [3, null]` evaluates to `false`.
   * Lists are <<incomparable>> to any value that is not also a list.
 - Maps
   * [[regular-maps,regular maps]]Regular maps
