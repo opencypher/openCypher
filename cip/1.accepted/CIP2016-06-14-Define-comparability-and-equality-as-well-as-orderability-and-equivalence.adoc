@@ -120,7 +120,7 @@ We propose that <<comparability-con,comparability>> should be defined between an
   * Lists are compared in dictionary order, i.e. list elements are compared pairwise in ascending order from the start of the list to the end. Elements missing in a shorter list are considered to be less than any other value (including `null` values).
   For example, `[1] < [1, 0]` but also `[1] < [1, null]`.
   * If comparing two lists requires comparing at least a single `null` value to some other value, these lists are <<incomparable>>.
-  For example, `[1, 2] >= [1, null]` evaluates to `null`.
+  For example, `[1, 2] >= [1, null]` evaluates to `null` (ncomparable), but `[1, 2] >= [3, null]` evaluates to `false`.
   * Lists are <<incomparable>> to any value that is not also a list.
 - Maps
   * [[regular-maps,regular maps]]Regular maps
@@ -172,13 +172,20 @@ In order to align equality with <<comparability-def>>, we change equality of lis
 Specifically, we propose to redefine how equality works for lists in Cypher.
 To determine if two lists `l1` and `l2` are equal, we propose two simple tests, as exemplified by the following:
 
-* `l1` and `l2` must have the same size, i.e. inversely `size(l1) <> size(l2) \=> l1 <> l2`
+* `l1` and `l2` must have the same size, i.e. inversely `size(l1) <> size(l2) \=> l1 <> l2`. This also applies when any of the lists contains null, i.e. `[a1, a2, ..., an] = [b1, b2, ..., null, ..., bm]` evaluates to false if `m <> n`.
 * the pairwise elements of both `l1` and `l2` must be equal, i.e.
 ----
 [a1, a2, ..., an] = [b1, b2, ..., bn]
 <=>
 a1 = b1 && a2 = b2 && ... && an = bn
 ----
+* If the second test requires comparing at least a single `null` value to some other value, these lists are <<incomparable>>. E.g., `[1, 2] = [1, null]` evaluates to `null` (incomparable), but `[1, 2] = [null, 'foo']` evaluates to `false`.
+* For nested lists, the two tests above are carried out recursively, i.e.
+---
+[[1]] = [[1], [null]] evaluates to false
+[[1, 2], [1, 3]] = [[1, 2], [null, 'foo']] evaluates to false
+[[1, 2], ['foo', 'bar']] = [[1, 2], [null, 'bar']] evaluates to null (incomparable)
+---
 
 ===== Map equality =====
 
