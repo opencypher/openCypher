@@ -46,7 +46,11 @@
       <groupId>org.antlr</groupId>
       <artifactId>antlr4</artifactId>
       <version>${antlr.version}</version>
-      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr4-runtime</artifactId>
+      <version>${antlr.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.xmlgraphics</groupId>

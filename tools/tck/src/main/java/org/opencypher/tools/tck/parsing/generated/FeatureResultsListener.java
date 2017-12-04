@@ -14,8 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Generated from /Users/mats/gitRoots/openCypher/tools/tck/src/main/resources/FeatureResults.g4 by ANTLR 4.6
-package org.opencypher.tools.tck.parsing.generated;
+package org.opencypher.tools.tck.parsing.generated;// Generated from /Users/stutz/Documents/GitHub/openCypher/tools/tck/src/main/resources/FeatureResults.g4 by ANTLR 4.7
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
