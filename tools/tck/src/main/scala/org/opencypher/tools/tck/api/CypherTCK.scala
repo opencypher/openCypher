@@ -40,7 +40,7 @@ object CypherTCK {
   private lazy val parser = new Parser[GherkinDocument](new AstBuilder)
   private lazy val matcher = new TokenMatcher
 
-  def allTckScenarios: Seq[Feature] = parseClasspathFeatures(featuresPath)
+  def allTckScenarios: Seq[Scenario] = parseClasspathFeatures(featuresPath).flatMap(_.scenarios)
 
   private[tck] def allTckScenariosFromFilesystem = {
     parseFilesystemFeatures(new File(getClass.getResource(featuresPath).toURI))
