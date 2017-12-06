@@ -1,59 +1,27 @@
-package org.opencypher.tools.tck
+/*
+ * Copyright (c) 2015-2017 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.opencypher.tools.tck.values
 
-import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
-import org.opencypher.tools.tck.parsing.generated.{FeatureResultsBaseVisitor, FeatureResultsLexer, FeatureResultsParser}
+import org.opencypher.tools.tck.parsing.generated.{FeatureResultsBaseVisitor, FeatureResultsParser}
 
 import scala.collection.JavaConverters._
 import scala.util.Try
 
 case class CypherValueParseException(msg: String) extends Exception(msg)
-
-object CypherValue {
-
-  def apply(s: String, orderedLists: Boolean = true): CypherValue = {
-    val stream = CharStreams.fromString(s)
-    val tokenStream = new FeatureResultsLexer(stream)
-    val tokens = new CommonTokenStream(tokenStream)
-    val parser = new FeatureResultsParser(tokens)
-    val featureResultsContext = parser.value
-    val visitor = CypherValueVisitor(orderedLists)
-    val value = visitor.visit(featureResultsContext)
-    value
-  }
-
-}
-
-sealed trait CypherValue
-
-case class CypherNode(labels: Set[String] = Set.empty, properties: CypherPropertyMap = CypherPropertyMap())
-  extends CypherValue
-
-case class CypherRelationship(relType: String, properties: CypherPropertyMap = CypherPropertyMap()) extends CypherValue
-
-case class CypherString(s: String) extends CypherValue
-
-case class CypherInteger(value: Long) extends CypherValue
-
-case class CypherFloat(value: Double) extends CypherValue
-
-case class CypherBoolean(value: Boolean) extends CypherValue
-
-case class CypherProperty(key: String, value: CypherValue) extends CypherValue
-
-case class CypherPropertyMap(properties: Map[String, CypherValue] = Map.empty)
-  extends CypherValue
-
-trait CypherList extends CypherValue
-
-case class CypherOrderedList(elements: List[CypherValue] = List.empty) extends CypherList
-
-case class CypherUnorderedList(elements: Set[CypherValue] = Set.empty) extends CypherList
-
-case object CypherNull extends CypherValue
-
-case class CypherPath(startingNode: CypherNode, connections: List[Connection] = List.empty) extends CypherValue
-
-case class Connection(s: CypherNode, r: CypherRelationship, t: CypherNode)
 
 case class CypherValueVisitor(orderedLists: Boolean) extends FeatureResultsBaseVisitor[CypherValue] {
 
@@ -70,14 +38,14 @@ case class CypherValueVisitor(orderedLists: Boolean) extends FeatureResultsBaseV
 
   override def visitNode(ctx: NodeContext) = {
     Try(visitNodeDesc(ctx.nodeDesc))
-      .getOrElse(CypherNode(Set.empty, CypherPropertyMap(Map.empty)))
+      .getOrElse(CypherNode(Set.empty, CypherPropertyMap()))
   }
 
   override def visitNodeDesc(ctx: NodeDescContext) = {
     val labels =
       Try(ctx.label.asScala.map(_.labelName.getText).toSet).getOrElse(Set.empty)
     val properties: CypherPropertyMap = Try(visitPropertyMap(ctx.propertyMap))
-      .getOrElse(CypherPropertyMap(Map.empty))
+      .getOrElse(CypherPropertyMap())
     CypherNode(labels, properties)
   }
 
@@ -89,7 +57,7 @@ case class CypherValueVisitor(orderedLists: Boolean) extends FeatureResultsBaseV
     val relType = ctx.relationshipType.relationshipTypeName.getText
     val properties: CypherPropertyMap =
       Try(visitPropertyMap(ctx.propertyMap))
-        .getOrElse(CypherPropertyMap(Map.empty))
+        .getOrElse(CypherPropertyMap())
     CypherRelationship(relType, properties)
   }
 
@@ -105,9 +73,9 @@ case class CypherValueVisitor(orderedLists: Boolean) extends FeatureResultsBaseV
         val backward = Try(visitRelationshipDesc(nextLink.backwardsRelationship.relationshipDesc)).toOption
         val otherNode = visitNodeDesc(nextLink.nodeDesc)
         val updatedConnections = if (forward.isDefined) {
-          Connection(currentNode, forward.get, otherNode) :: pathSoFar
+          Forward(forward.get, otherNode) :: pathSoFar
         } else {
-          Connection(otherNode, backward.get, currentNode) :: pathSoFar
+          Backward(backward.get, otherNode) :: pathSoFar
         }
         (updatedConnections, otherNode)
     }
@@ -144,7 +112,7 @@ case class CypherValueVisitor(orderedLists: Boolean) extends FeatureResultsBaseV
     if (orderedLists) {
       CypherOrderedList(contents)
     } else {
-      CypherUnorderedList(contents.toSet)
+      CypherUnorderedList(contents.sorted(CypherValue.ordering))
     }
   }
 

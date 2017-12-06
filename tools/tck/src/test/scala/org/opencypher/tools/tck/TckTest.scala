@@ -17,13 +17,18 @@
 package org.opencypher.tools.tck
 
 import org.junit.jupiter.api.{DynamicTest, TestFactory}
+import org.opencypher.tools.tck.api._
+import org.opencypher.tools.tck.values.CypherValue
 
 import scala.collection.JavaConverters._
 
-object FakeGraph extends Graph {
-  override def cypher(query: String, params: Map[String, Any] = Map.empty): Records = {
-    Records.empty
+object FakeGraph extends Graph with ProcedureSupport {
+  override def cypher(query: String, params: Map[String, CypherValue] = Map.empty): Records = {
+    CypherValueRecords.empty
   }
+
+  override def registerProcedure(signature: String, values: CypherValueRecords): Unit =
+    ()
 }
 
 class TckTest {

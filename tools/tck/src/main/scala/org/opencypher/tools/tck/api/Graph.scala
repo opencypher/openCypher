@@ -14,7 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opencypher.tools.tck
+package org.opencypher.tools.tck.api
+
+import org.opencypher.tools.tck.values.CypherValue
 
 /**
   * Mutable implementations implement .cypher
@@ -23,9 +25,19 @@ package org.opencypher.tools.tck
   * An implementation will not have to implement .cypher if .execute is overridden.
   */
 trait Graph {
-  def execute(query: String, params: Map[String, Any] = Map.empty): (Graph, Records) =
+  def execute(query: String, params: Map[String, CypherValue] = Map.empty): (Graph, Records) =
     this -> cypher(query, params)
 
-  def cypher(query: String, params: Map[String, Any] = Map.empty): Records =
+  def cypher(query: String, params: Map[String, CypherValue] = Map.empty): Records =
     throw new UnsupportedOperationException("To use the TCK, implement this method or override .execute()")
+}
+
+/**
+  * Mix in this trait in your `Graph` implementation to opt in to running
+  * scenarios pertaining to the CALL clause and procedures.
+  */
+trait ProcedureSupport {
+  self: Graph =>
+
+  def registerProcedure(signature: String, values: CypherValueRecords): Unit
 }

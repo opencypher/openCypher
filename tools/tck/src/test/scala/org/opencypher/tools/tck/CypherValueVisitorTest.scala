@@ -1,5 +1,22 @@
+/*
+ * Copyright (c) 2015-2017 "Neo Technology,"
+ * Network Engine for Objects in Lund AB [http://neotechnology.com]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.opencypher.tools.tck
 
+import org.opencypher.tools.tck.values._
 import org.scalatest.{FunSuite, Matchers}
 
 class CypherValueVisitorTest extends FunSuite with Matchers {
@@ -10,7 +27,6 @@ class CypherValueVisitorTest extends FunSuite with Matchers {
     val expected = CypherNode(Set.empty, CypherPropertyMap(Map.empty))
     parsed should equal(expected)
   }
-
 
   test("node") {
     val string = "(:A {name: 'Hans'})"
@@ -47,18 +63,15 @@ class CypherValueVisitorTest extends FunSuite with Matchers {
   test("complex path") {
     val string = "<({a: true})-[:R]->(:A)<-[:T {b: 'true'}]-()>"
     val parsed = CypherValue(string)
-    val expected = CypherPath(CypherNode(
-      properties = CypherPropertyMap(Map("a" -> CypherBoolean(true)))),
+    val expected = CypherPath(
+      CypherNode(properties = CypherPropertyMap(Map("a" -> CypherBoolean(true)))),
       List(
-        Connection(
-          CypherNode(properties = CypherPropertyMap(Map("a" -> CypherBoolean(true)))),
+        Forward(
           CypherRelationship("R"),
           CypherNode(Set("A"))),
-        Connection(
-          CypherNode(),
-          CypherRelationship("T",CypherPropertyMap(Map("b" -> CypherString("true")))),
-          CypherNode(Set("A"))
-        )
+        Backward(
+          CypherRelationship("T", CypherPropertyMap(Map("b" -> CypherString("true")))),
+          CypherNode())
       )
     )
     parsed should equal(expected)
@@ -76,7 +89,7 @@ class CypherValueVisitorTest extends FunSuite with Matchers {
       CypherOrderedList(List(CypherInteger(1), CypherInteger(2), CypherNull)))
     CypherValue("[]", orderedLists = false) should equal(CypherUnorderedList())
     CypherValue("[1, 2, null]", orderedLists = false) should equal(
-      CypherUnorderedList(Set(CypherInteger(1), CypherInteger(2), CypherNull)))
+      CypherUnorderedList(List(CypherInteger(1), CypherInteger(2), CypherNull).sorted(CypherValue.ordering)))
   }
 
 }
