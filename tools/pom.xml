@@ -21,7 +21,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <license.header>${project.baseUri}../ASL-2-header.txt</license.header>
-    <antlr.version>4.7</antlr.version>
+    <antlr.runtime.version>4.7</antlr.runtime.version>
+    <antlr.generator.version>4.5.3</antlr.generator.version>
   </properties>
 
   <licenses>
