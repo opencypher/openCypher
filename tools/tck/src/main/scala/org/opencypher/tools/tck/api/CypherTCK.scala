@@ -89,8 +89,9 @@ object CypherTCK {
       val gherkinDocument = parser.parse(featureString, matcher)
       val compiler = new Compiler
       val pickles = compiler.compile(gherkinDocument).asScala
+      val nonPending = pickles.filterNot(_.getTags.asScala.exists(_.getName == "pending"))
       val featureName = gherkinDocument.getFeature.getName
-      val scenarios = pickles.map(toScenario(featureName, _))
+      val scenarios = nonPending.map(toScenario(featureName, _))
       Feature(scenarios)
     }
   }
