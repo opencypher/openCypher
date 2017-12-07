@@ -32,6 +32,7 @@ import org.opencypher.tools.tck.values.CypherValue
 
 import scala.collection.JavaConverters._
 import scala.io.Source
+import scala.util.{Failure, Success, Try}
 
 object CypherTCK {
 
@@ -54,30 +55,44 @@ object CypherTCK {
     val paths = Files.newDirectoryStream(directoryPath).asScala.toSeq
     val featurePathStrings = paths.map(path => path.toString).filter(_.endsWith(featureSuffix))
     val featureUrls = featurePathStrings.map(getClass.getResource(_))
-    featureUrls.map(parseClasspathFeature)
+    filterErrorsAndNotify(featureUrls.map(parseClasspathFeature))
   }
 
   def parseFilesystemFeatures(directory: File): Seq[Feature] = {
     require(directory.isDirectory)
     val featureFileNames = directory.listFiles.filter(_.getName.endsWith(featureSuffix))
-    featureFileNames.map(parseFilesystemFeature)
+    filterErrorsAndNotify(featureFileNames.map(parseFilesystemFeature))
   }
 
-  def parseFilesystemFeature(file: File): Feature = {
+  def filterErrorsAndNotify(fs: Seq[Try[Feature]]): Seq[Feature] = {
+    fs.flatMap { maybeFeature =>
+      maybeFeature match {
+        case Success(f) =>
+          Some(f)
+        case Failure(ex) =>
+          println(ex.getMessage)
+          None
+      }
+    }
+  }
+
+  def parseFilesystemFeature(file: File): Try[Feature] = {
     parseFeature(Source.fromFile(file).mkString)
   }
 
-  def parseClasspathFeature(pathUrl: URL): Feature = {
+  def parseClasspathFeature(pathUrl: URL): Try[Feature] = {
     parseFeature(Source.fromURL(pathUrl).mkString)
   }
 
-  def parseFeature(featureString: String): Feature = {
-    val gherkinDocument = parser.parse(featureString, matcher)
-    val compiler = new Compiler
-    val pickles = compiler.compile(gherkinDocument).asScala
-    val featureName = gherkinDocument.getFeature.getName
-    val scenarios = pickles.map(toScenario(featureName, _))
-    Feature(scenarios)
+  def parseFeature(featureString: String): Try[Feature] = {
+    Try {
+      val gherkinDocument = parser.parse(featureString, matcher)
+      val compiler = new Compiler
+      val pickles = compiler.compile(gherkinDocument).asScala
+      val featureName = gherkinDocument.getFeature.getName
+      val scenarios = pickles.map(toScenario(featureName, _))
+      Feature(scenarios)
+    }
   }
 
   def toScenario(featureName: String, pickle: Pickle): Scenario = {
