@@ -79,10 +79,10 @@ object SideEffectOps {
   }
 
   private val nodesQuery =
-    s"""MATCH (n) RETURN n"""
+    s"""MATCH (n) RETURN id(n)"""
 
   private val relsQuery =
-    s"""MATCH ()-[r]->() RETURN r"""
+    s"""MATCH ()-[r]->() RETURN id(r)"""
 
   private val labelsQuery =
     s"""MATCH (n)
@@ -93,19 +93,19 @@ object SideEffectOps {
     s"""MATCH (n)
        |UNWIND keys(n) AS key
        |WITH properties(n) AS properties, key, n
-       |RETURN n AS entity, key, properties[key] AS value
+       |RETURN id(n) AS entityId, key, properties[key] AS value
        |UNION ALL
        |MATCH ()-[r]->()
        |UNWIND keys(r) AS key
        |WITH properties(r) AS properties, key, r
-       |RETURN r AS entity, key, properties[key] AS value""".stripMargin
+       |RETURN id(r) AS entityId, key, properties[key] AS value""".stripMargin
 
   def measureState(graph: Graph): State = {
     val nodes = execToSet(graph, nodesQuery)
     val rels = execToSet(graph, relsQuery)
     val labels = execToSet(graph, labelsQuery)
     val props = graph.execute(propsQuery, Map.empty, SideEffectQuery)._2.toCypherValues.rows.map { row =>
-      Tuple3(row("entity"), row("key"), row("value"))
+      Tuple3(row("entityId"), row("key"), row("value"))
     }.toSet
 
     State(nodes, rels, labels, props)
