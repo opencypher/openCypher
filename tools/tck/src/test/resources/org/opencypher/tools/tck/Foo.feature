@@ -14,20 +14,9 @@
 # limitations under the License.
 #
 
-Feature: Comparability
+Feature: Foo
 
   Scenario: Return literal
-    Given an empty graph
-    When executing query:
-      """
-      RETURN 1
-      """
-    Then the result should be:
-      | 1 |
-      | 1 |
-    And no side effects
-
-  Scenario: Fail
     Given an empty graph
     When executing query:
       """

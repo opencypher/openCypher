@@ -16,6 +16,9 @@
  */
 package org.opencypher.tools.tck
 
+import java.io.File
+import java.util
+
 import org.junit.jupiter.api.{DynamicTest, TestFactory}
 import org.opencypher.tools.tck.api._
 import org.opencypher.tools.tck.values.CypherValue
@@ -24,7 +27,7 @@ import scala.collection.JavaConverters._
 
 object FakeGraph extends Graph with ProcedureSupport {
   override def cypher(query: String, params: Map[String, CypherValue] = Map.empty): Records = {
-    CypherValueRecords.empty
+    StringRecords(List("1"), List(Map("1" -> "1")))
   }
 
   override def registerProcedure(signature: String, values: CypherValueRecords): Unit =
@@ -33,20 +36,31 @@ object FakeGraph extends Graph with ProcedureSupport {
 
 class TckTest {
 
-  val tckScenarios = CypherTCK.allTckScenariosFromFilesystem.flatMap(_.scenarios)
-
-  val fooUri = getClass.getResource("Foo.feature").toURI
-  //val ourScenarios = CypherTCK.parseFeature(new File(fooUri)).scenarios
-
-  val allScenarios = tckScenarios //++ ourScenarios
-
   @TestFactory
-  def testGraphTests() = {
+  def testCustomFeature(): util.Collection[DynamicTest] = {
+    val fooUri = getClass.getResource("Foo.feature").toURI
+    val scenarios = CypherTCK.parseFilesystemFeature(new File(fooUri)).scenarios
+
     def createTestGraph(): Graph = FakeGraph
 
-    val dynamicTests = allScenarios.map { scenario =>
-      val name = scenario.toString
-      val executable = scenario(createTestGraph)
+    val dynamicTests = scenarios.map { scenario =>
+      val name = scenario.toString()
+      val executable = scenario(createTestGraph())
+      DynamicTest.dynamicTest(name, executable)
+    }
+    dynamicTests.asJavaCollection
+  }
+
+  // this can't run as we don't know what the correct results would be
+//  @TestFactory
+  def testStandardTCK(): util.Collection[DynamicTest] = {
+    val tckScenarios = CypherTCK.allTckScenariosFromFilesystem.flatMap(_.scenarios)
+
+    def createTestGraph(): Graph = FakeGraph
+
+    val dynamicTests = tckScenarios.map { scenario =>
+      val name = scenario.toString()
+      val executable = scenario(createTestGraph())
       DynamicTest.dynamicTest(name, executable)
     }
     dynamicTests.asJavaCollection
