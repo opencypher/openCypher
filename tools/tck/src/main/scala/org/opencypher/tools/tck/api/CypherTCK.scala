@@ -43,7 +43,7 @@ object CypherTCK {
 
   def allTckScenarios: Seq[Scenario] = parseClasspathFeatures(featuresPath).flatMap(_.scenarios)
 
-  private[tck] def allTckScenariosFromFilesystem = {
+  def allTckScenariosFromFilesystem = {
     parseFilesystemFeatures(new File(getClass.getResource(featuresPath).toURI))
   }
 
