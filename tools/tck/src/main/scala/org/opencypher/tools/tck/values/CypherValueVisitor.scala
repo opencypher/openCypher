@@ -32,7 +32,7 @@ case class CypherValueVisitor(orderedLists: Boolean) extends FeatureResultsBaseV
   }
 
   override def visitString(ctx: StringContext) = {
-    val s = Try(ctx.STRING_LITERAL.getText).getOrElse("")
+    val s = Try(ctx.STRING_LITERAL.getText).getOrElse("''")
     CypherString(s.dropRight(1).drop(1))
   }
 
