@@ -26,8 +26,15 @@ import org.opencypher.tools.tck.values.CypherValue
 import scala.collection.JavaConverters._
 
 object FakeGraph extends Graph with ProcedureSupport {
-  override def cypher(query: String, params: Map[String, CypherValue] = Map.empty): Records = {
-    StringRecords(List("1"), List(Map("1" -> "1")))
+  override def cypher(query: String, params: Map[String, CypherValue], queryType: QueryType): Records = {
+    queryType match {
+      case InitQuery =>
+        CypherValueRecords.empty
+      case SideEffectQuery =>
+        CypherValueRecords.empty
+      case ExecQuery =>
+        StringRecords(List("1"), List(Map("1" -> "1")))
+    }
   }
 
   override def registerProcedure(signature: String, values: CypherValueRecords): Unit =

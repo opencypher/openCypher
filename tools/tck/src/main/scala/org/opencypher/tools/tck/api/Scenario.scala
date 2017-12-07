@@ -32,8 +32,8 @@ case class Scenario(featureName: String, name: String, steps: List[Step]) extend
 
   def executeOnGraph(empty: Graph): Unit = {
     steps.foldLeft(ScenarioContext(empty)) {
-      case (ctx, Execute(query)) =>
-        ctx.execute(query)
+      case (ctx, Execute(query, qt)) =>
+        ctx.execute(query, qt)
       case (ctx, Measure) =>
         ctx.measure
       case (ctx, RegisterProcedure(signature, table)) =>
@@ -77,8 +77,8 @@ case class ScenarioContext(
     state: State = State(),
     parameters: Map[String, CypherValue] = Map.empty) {
 
-  def execute(query: String): ScenarioContext = {
-    val (g, r) = graph.execute(query, parameters)
+  def execute(query: String, queryType: QueryType): ScenarioContext = {
+    val (g, r) = graph.execute(query, parameters, queryType)
     copy(graph = g, lastResult = r.toCypherValues)
   }
 

@@ -25,10 +25,43 @@ import org.opencypher.tools.tck.values.CypherValue
   * An implementation will not have to implement .cypher if .execute is overridden.
   */
 trait Graph {
-  def execute(query: String, params: Map[String, CypherValue] = Map.empty): (Graph, Records) =
-    this -> cypher(query, params)
 
-  def cypher(query: String, params: Map[String, CypherValue] = Map.empty): Records =
+  /**
+    * Executes a Cypher query with the provided parameters. This version also
+    * returns the graph in its state after the query has been executed, for
+    * implementations that have immutable graphs.
+    *
+    * Additionally, this call provides a metadata tag for the step type that
+    * requests the query to be executed. This allows implementations to use the
+    * TCK for validation of supported subsets of Cypher functionality by
+    * mapping initial state setup and side effect validation to alternative
+    * functionality in the implementation. Implementations that support all the
+    * necessary constructs used in these steps should ignore this parameter.
+    *
+    * @param query the Cypher query to execute.
+    * @param params the parameters for the query.
+    * @param meta metadata tag which specifies what kind of step the query is executed in.
+    * @return the graph in its state after having executed the query, and the result table of the query.
+    */
+  def execute(query: String, params: Map[String, CypherValue], meta: QueryType): (Graph, Records) =
+    this -> cypher(query, params, meta)
+
+  /**
+    * Executes a Cypher query with the provided parameters.
+    *
+    * Additionally, this call provides a metadata tag for the step type that
+    * requests the query to be executed. This allows implementations to use the
+    * TCK for validation of supported subsets of Cypher functionality by
+    * mapping initial state setup and side effect validation to alternative
+    * functionality in the implementation. Implementations that support all the
+    * necessary constructs used in these steps should ignore this parameter.
+    *
+    * @param query the Cypher query to execute.
+    * @param params the parameters for the query.
+    * @param meta metadata tag which specifies what kind of step the query is executed in.
+    * @return the graph in its state after having executed the query, and the result table of the query.
+    */
+  def cypher(query: String, params: Map[String, CypherValue], meta: QueryType): Records =
     throw new UnsupportedOperationException("To use the TCK, implement this method or override .execute()")
 }
 

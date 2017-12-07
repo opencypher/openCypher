@@ -26,6 +26,7 @@ import gherkin.pickles.{Compiler, Pickle, PickleRow, PickleString, PickleTable}
 import gherkin.{AstBuilder, Parser, TokenMatcher}
 import org.opencypher.tools.tck.SideEffectOps.Diff
 import org.opencypher.tools.tck._
+import org.opencypher.tools.tck.constants.TCKSideEffects
 import org.opencypher.tools.tck.constants.TCKStepDefinitions._
 import org.opencypher.tools.tck.values.CypherValue
 
@@ -126,17 +127,17 @@ object CypherTCK {
       val scenarioSteps: List[Step] = step.getText match {
         // Given
         case emptyGraphR() => List.empty
-        case namedGraphR(name) => List(Execute(NamedGraphs.graphs(name)))
-        case anyGraphR() => List(Execute(NamedGraphs.graphs.values.head))
+        case namedGraphR(name) => List(Execute(NamedGraphs.graphs(name), InitQuery))
+        case anyGraphR() => List(Execute(NamedGraphs.graphs.values.head, InitQuery))
 
         // And
-        case initQueryR() => List(Execute(queryFromStep))
+        case initQueryR() => List(Execute(queryFromStep, InitQuery))
         case parametersR() => List(Parameters(parseParameters))
         case installedProcedureR(signature) => List(RegisterProcedure(signature, parseTable()))
 
         // When
-        case executingQueryR() => List(Measure, Execute(queryFromStep))
-        case executingControlQueryR() => List(Execute(queryFromStep))
+        case executingQueryR() => List(Measure, Execute(queryFromStep, ExecQuery))
+        case executingControlQueryR() => List(Execute(queryFromStep, ExecQuery))
 
         // Then
         case expectEmptyResultR() => List(ExpectResult(CypherValueRecords.empty))
@@ -146,8 +147,8 @@ object CypherTCK {
         case expectErrorR(errorType, time, detail) => List(ExpectError(errorType, time, detail))
 
         // And
-        case noSideEffectsR() => List(SideEffects())
-        case sideEffectsR() => List(SideEffects(parseSideEffectsTable))
+        case noSideEffectsR() => List(SideEffects().fillInZeros)
+        case sideEffectsR() => List(SideEffects(parseSideEffectsTable).fillInZeros)
 
         // Unsupported step
         case other => throw new UnsupportedOperationException(s"Unsupported step: $other")
@@ -163,7 +164,9 @@ case class Feature(scenarios: Seq[Scenario])
 
 sealed trait Step
 
-case class SideEffects(expected: Diff = Diff()) extends Step
+case class SideEffects(expected: Diff = Diff()) extends Step {
+  def fillInZeros: SideEffects = copy(expected = expected.fillInZeros)
+}
 
 case object Measure extends Step
 
@@ -171,8 +174,13 @@ case class RegisterProcedure(signature: String, values: CypherValueRecords) exte
 
 case class Parameters(values: Map[String, CypherValue]) extends Step
 
-case class Execute(query: String) extends Step
+case class Execute(query: String, qt: QueryType) extends Step
 
 case class ExpectResult(expectedResult: CypherValueRecords, sorted: Boolean = false) extends Step
 
 case class ExpectError(errorType: String, time: String, detail: String) extends Step
+
+sealed trait QueryType
+case object InitQuery extends QueryType
+case object ExecQuery extends QueryType
+case object SideEffectQuery extends QueryType

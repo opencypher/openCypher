@@ -16,7 +16,7 @@
  */
 package org.opencypher.tools.tck
 
-import org.opencypher.tools.tck.api.Graph
+import org.opencypher.tools.tck.api.{Graph, SideEffectQuery}
 import org.opencypher.tools.tck.constants.TCKSideEffects._
 import org.opencypher.tools.tck.values.CypherValue
 
@@ -33,6 +33,14 @@ object SideEffectOps {
     }
 
     private def fill(s: String) = (s + ":                 ").take(16)
+
+    def fillInZeros: Diff = {
+      val setToZero = ALL -- v.keySet
+      val withZeros = setToZero.foldLeft(v) {
+        case (m, s) => m.updated(s, 0)
+      }
+      copy(withZeros)
+    }
   }
 
   case class State(nodes: Set[CypherValue] = Set.empty,
@@ -96,7 +104,7 @@ object SideEffectOps {
     val nodes = execToSet(graph, nodesQuery)
     val rels = execToSet(graph, relsQuery)
     val labels = execToSet(graph, labelsQuery)
-    val props = graph.execute(propsQuery)._2.toCypherValues.rows.map { row =>
+    val props = graph.execute(propsQuery, Map.empty, SideEffectQuery)._2.toCypherValues.rows.map { row =>
       Tuple3(row("entity"), row("key"), row("value"))
     }.toSet
 
@@ -104,5 +112,5 @@ object SideEffectOps {
   }
 
   private def execToSet(graph: Graph, q: String): Set[CypherValue] =
-    graph.execute(q)._2.toCypherValues.rows.flatMap(_.values).toSet
+    graph.execute(q, Map.empty, SideEffectQuery)._2.toCypherValues.rows.flatMap(_.values).toSet
 }
