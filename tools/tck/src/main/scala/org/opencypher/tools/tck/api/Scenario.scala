@@ -24,11 +24,15 @@ import org.opencypher.tools.tck.values.CypherValue
 
 import scala.compat.Platform.EOL
 import scala.language.implicitConversions
+import scala.util.{Failure, Success, Try}
 
-case class Scenario(featureName: String, name: String, steps: List[Step]) extends (Graph => Executable) {
-  override def toString() = s"""Feature "$featureName": Scenario "$name""""
+case class Scenario(featureName: String, name: String, steps: List[Step]) {
 
-  override def apply(graph: Graph): Executable = new Executable {
+  self =>
+
+  override def toString = s"""Feature "$featureName": Scenario "$name""""
+
+  def apply(graph: => Graph): Executable = new Executable {
     override def execute(): Unit =
       try {
         executeOnGraph(graph)
@@ -36,7 +40,7 @@ case class Scenario(featureName: String, name: String, steps: List[Step]) extend
   }
 
   def executeOnGraph(empty: Graph): Unit = {
-    steps.foldLeft(ScenarioContext(empty)) {
+    steps.foldLeft(ScenarioExecutionContext(empty)) {
 
       case (ctx, Execute(query, qt)) =>
         ctx.execute(query, qt)
@@ -63,25 +67,26 @@ case class Scenario(featureName: String, name: String, steps: List[Step]) extend
 
             if (!correctResult) {
               val detail = if (sorted) "ordered rows" else "in any order of rows"
-              throw ScenarioFailedException(this, s"${EOL}Expected ($detail):$EOL$expected${EOL}Actual:$EOL${ctx.lastResult}")
+              throw ScenarioFailedException(
+                s"${EOL}Expected ($detail):$EOL$expected${EOL}Actual:$EOL${ctx.lastResult}")
             }
           case Left(error) =>
-            throw ScenarioFailedException(this, s"Expected: $expected, got error $error")
+            throw ScenarioFailedException(s"Expected: $expected, got error $error")
         }
         ctx
 
-      case (ctx, e@ExpectError(errorType, phase, detail)) =>
+      case (ctx, e @ ExpectError(errorType, phase, detail)) =>
         ctx.lastResult match {
           case Left(error) =>
             if (error.errorType != errorType)
-              throw new ScenarioFailedException(s"Wrong error type: expected $errorType, got ${error.errorType}")
+              throw ScenarioFailedException(s"Wrong error type: expected $errorType, got ${error.errorType}")
             if (error.phase != phase)
-              throw new ScenarioFailedException(s"Wrong error phase: expected $phase, got ${error.phase}")
+              throw ScenarioFailedException(s"Wrong error phase: expected $phase, got ${error.phase}")
             if (error.detail != detail)
-              throw new ScenarioFailedException(s"Wrong error detail: expected $detail, got ${error.detail}")
+              throw ScenarioFailedException(s"Wrong error detail: expected $detail, got ${error.detail}")
 
           case Right(records) =>
-            throw ScenarioFailedException(this, s"Expected: $e, got records $records")
+            throw ScenarioFailedException(s"Expected: $e, got records $records")
         }
 
         ctx
@@ -91,7 +96,7 @@ case class Scenario(featureName: String, name: String, steps: List[Step]) extend
         val after = ctx.measure.state
         val diff = before diff after
         if (diff != expected)
-          throw ScenarioFailedException(this,
+          throw ScenarioFailedException(
             s"${EOL}Expected side effects:$EOL$expected${EOL}Actual side effects:$EOL$diff")
         ctx
 
@@ -107,28 +112,28 @@ case class Scenario(featureName: String, name: String, steps: List[Step]) extend
     // there should be either a ExpectResult with ExpectSideEffects or ExpectError
     // etc..
   }
-}
 
-case class ScenarioContext(
-    graph: Graph,
-    lastResult: Result = Right(CypherValueRecords.empty),
-    state: State = State(),
-    parameters: Map[String, CypherValue] = Map.empty) {
+  case class ScenarioExecutionContext(
+      graph: Graph,
+      lastResult: Result = Right(CypherValueRecords.empty),
+      state: State = State(),
+      parameters: Map[String, CypherValue] = Map.empty) {
 
-  def execute(query: String, queryType: QueryType): ScenarioContext = {
-    val (g, r) = graph.execute(query, parameters, queryType)
-    copy(graph = g, lastResult = r)
+    def execute(query: String, queryType: QueryType): ScenarioExecutionContext = {
+      val (g, r) = graph.execute(query, parameters, queryType)
+      copy(graph = g, lastResult = r)
+    }
+
+    def measure: ScenarioExecutionContext = {
+      Try(SideEffectOps.measureState(graph)) match {
+        case Success(measuredState) => copy(state = measuredState)
+        case Failure(error) =>
+          val msg = s"Side effect measurement failed with $error"
+          throw ScenarioFailedException(msg)
+      }
+    }
   }
 
-  def measure: ScenarioContext = {
-    copy(state = SideEffectOps.measureState(graph))
-  }
+  case class ScenarioFailedException(msg: String) extends Throwable(s"$self failed with message: $msg")
 }
 
-object ScenarioFailedException {
-  def apply(scenario: Scenario, msg: String): ScenarioFailedException = {
-    ScenarioFailedException(s"$scenario failed with message: $msg")
-  }
-}
-
-case class ScenarioFailedException(msg: String) extends Throwable(msg)

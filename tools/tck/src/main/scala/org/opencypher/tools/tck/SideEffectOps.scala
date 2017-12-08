@@ -16,7 +16,7 @@
  */
 package org.opencypher.tools.tck
 
-import org.opencypher.tools.tck.api.{Graph, SideEffectQuery}
+import org.opencypher.tools.tck.api.{ExecutionFailed, Graph, SideEffectQuery}
 import org.opencypher.tools.tck.constants.TCKSideEffects._
 import org.opencypher.tools.tck.values.CypherValue
 
@@ -27,9 +27,12 @@ object SideEffectOps {
   case class Diff(v: Map[String, Int] = Map.empty) {
     override def toString: String = {
       val nonZeroSideEffects = ALL intersect v.keySet
-      nonZeroSideEffects.toSeq.sortBy(_.charAt(1)).map { key =>
-        s"${fill(key)}${v(key)}"
-      }.mkString(Platform.EOL)
+      nonZeroSideEffects.toSeq
+        .sortBy(_.charAt(1))
+        .map { key =>
+          s"${fill(key)}${v(key)}"
+        }
+        .mkString(Platform.EOL)
     }
 
     private def fill(s: String) = (s + ":                 ").take(16)
@@ -43,10 +46,11 @@ object SideEffectOps {
     }
   }
 
-  case class State(nodes: Set[CypherValue] = Set.empty,
-                   rels: Set[CypherValue] = Set.empty,
-                   labels: Set[CypherValue] = Set.empty,
-                   props: Set[(CypherValue, CypherValue, CypherValue)] = Set.empty) {
+  case class State(
+      nodes: Set[CypherValue] = Set.empty,
+      rels: Set[CypherValue] = Set.empty,
+      labels: Set[CypherValue] = Set.empty,
+      props: Set[(CypherValue, CypherValue, CypherValue)] = Set.empty) {
 
     /**
       * Computes the difference in between this state and a later state (the argument).
@@ -65,16 +69,17 @@ object SideEffectOps {
       val propsCreated = (later.props diff props).size
       val propsDeleted = (props diff later.props).size
 
-      Diff(Map(
-        ADDED_NODES -> nodesCreated,
-        DELETED_NODES -> nodesDeleted,
-        ADDED_RELATIONSHIPS -> relsCreated,
-        DELETED_RELATIONSHIPS -> relsDeleted,
-        ADDED_LABELS -> labelsCreated,
-        DELETED_LABELS -> labelsDeleted,
-        ADDED_PROPERTIES -> propsCreated,
-        DELETED_PROPERTIES -> propsDeleted
-      ))
+      Diff(
+        Map(
+          ADDED_NODES -> nodesCreated,
+          DELETED_NODES -> nodesDeleted,
+          ADDED_RELATIONSHIPS -> relsCreated,
+          DELETED_RELATIONSHIPS -> relsDeleted,
+          ADDED_LABELS -> labelsCreated,
+          DELETED_LABELS -> labelsDeleted,
+          ADDED_PROPERTIES -> propsCreated,
+          DELETED_PROPERTIES -> propsDeleted
+        ))
     }
   }
 
@@ -104,13 +109,25 @@ object SideEffectOps {
     val nodes = execToSet(graph, nodesQuery)
     val rels = execToSet(graph, relsQuery)
     val labels = execToSet(graph, labelsQuery)
-    val props = graph.execute(propsQuery, Map.empty, SideEffectQuery)._2.asRecords.rows.map { row =>
-      Tuple3(row("entityId"), row("key"), row("value"))
-    }.toSet
+    val props = graph.execute(propsQuery, Map.empty, SideEffectQuery)._2 match {
+      case Left(error) =>
+        throw MeasurementFailed(error)
+      case Right(records) =>
+        records.rows.map { row =>
+          Tuple3(row("entityId"), row("key"), row("value"))
+        }.toSet
+    }
 
     State(nodes, rels, labels, props)
   }
 
   private def execToSet(graph: Graph, q: String): Set[CypherValue] =
-    graph.execute(q, Map.empty, SideEffectQuery)._2.asRecords.rows.flatMap(_.values).toSet
+    graph.execute(q, Map.empty, SideEffectQuery)._2 match {
+      case Left(error) =>
+        throw MeasurementFailed(error)
+      case Right(records) =>
+        records.rows.flatMap(_.values).toSet
+    }
 }
+
+case class MeasurementFailed(failed: ExecutionFailed) extends Throwable
