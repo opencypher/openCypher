@@ -68,7 +68,7 @@ case class Scenario(featureName: String, name: String, tags: Set[String], steps:
             if (!correctResult) {
               val detail = if (sorted) "ordered rows" else "in any order of rows"
               throw ScenarioFailedException(
-                s"${EOL}Expected ($detail):$EOL$expected${EOL}Actual:$EOL${ctx.lastResult}")
+                s"${EOL}Expected ($detail):$EOL$expected${EOL}Actual:$EOL$records")
             }
           case Left(error) =>
             throw ScenarioFailedException(s"Expected: $expected, got error $error")
