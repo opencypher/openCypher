@@ -34,7 +34,11 @@ object CypherValue {
     value
   }
 
-  implicit val ordering: Ordering[CypherValue] = (x: CypherValue, y: CypherValue) => x.hashCode() - y.hashCode()
+  implicit val ordering: Ordering[CypherValue] = new Ordering[CypherValue] {
+    override def compare(x: CypherValue, y: CypherValue): Int =
+      x.hashCode() - y.hashCode()
+  }
+
 }
 
 sealed trait CypherValue
