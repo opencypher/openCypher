@@ -26,3 +26,11 @@ Feature: Foo
       | 1 |
       | 1 |
     And no side effects
+
+  Scenario: Fail
+    Given an empty graph
+    When executing query:
+      """
+      RETURN foo()
+      """
+    Then a SyntaxError should be raised at compile time: UnknownFunction

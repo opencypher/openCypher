@@ -20,8 +20,10 @@ import org.opencypher.tools.tck.values.CypherValue
 
 import scala.compat.Platform.EOL
 
-trait Records {
-  def toCypherValues: CypherValueRecords
+trait Result {
+  def asRecords: CypherValueRecords
+  def asError: ExecutionFailed =
+    throw new UnsupportedOperationException("Execution did not fail")
 }
 
 /**
@@ -30,14 +32,14 @@ trait Records {
   * parsed and converted by the TCK automatically.
   *
   */
-case class StringRecords(header: List[String], rows: List[Map[String, String]]) extends Records {
-  override def toCypherValues: CypherValueRecords = {
+case class StringRecords(header: List[String], rows: List[Map[String, String]]) extends Result {
+  override def asRecords: CypherValueRecords = {
     val converted = rows.map(_.mapValues(CypherValue(_)))
     CypherValueRecords(header, converted)
   }
 }
 
-case class CypherValueRecords(header: List[String], rows: List[Map[String, CypherValue]]) extends Records {
+case class CypherValueRecords(header: List[String], rows: List[Map[String, CypherValue]]) extends Result {
 
   def equalsUnordered(otherRecords: CypherValueRecords): Boolean = {
     def equalHeaders = header == otherRecords.header
@@ -45,7 +47,7 @@ case class CypherValueRecords(header: List[String], rows: List[Map[String, Cyphe
     equalHeaders && equalRows
   }
 
-  override def toCypherValues: CypherValueRecords = this
+  override def asRecords: CypherValueRecords = this
 
   override def toString: String = {
     if (header.isEmpty)
@@ -70,4 +72,12 @@ object CypherValueRecords {
 
   val empty = CypherValueRecords(List.empty, List.empty)
   def emptyWithHeader(header: List[String]) = CypherValueRecords(header, List.empty)
+}
+
+case class ExecutionFailed(errorType: String, phase: String, detail: String) extends Result {
+
+  override def asRecords =
+    throw new UnsupportedOperationException("Execution failed, no records can be produced")
+
+  override def asError: ExecutionFailed = this
 }

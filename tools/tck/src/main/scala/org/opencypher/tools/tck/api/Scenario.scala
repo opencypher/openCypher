@@ -22,6 +22,7 @@ import org.opencypher.tools.tck.SideEffectOps._
 import org.opencypher.tools.tck.values.CypherValue
 
 import scala.compat.Platform.EOL
+import scala.language.implicitConversions
 
 case class Scenario(featureName: String, name: String, steps: List[Step]) extends (Graph => Executable) {
   override def toString() = s"""Feature "$featureName": Scenario "$name""""
@@ -32,10 +33,13 @@ case class Scenario(featureName: String, name: String, steps: List[Step]) extend
 
   def executeOnGraph(empty: Graph): Unit = {
     steps.foldLeft(ScenarioContext(empty)) {
+
       case (ctx, Execute(query, qt)) =>
         ctx.execute(query, qt)
+
       case (ctx, Measure) =>
         ctx.measure
+
       case (ctx, RegisterProcedure(signature, table)) =>
         ctx.graph match {
           case support: ProcedureSupport =>
@@ -43,17 +47,31 @@ case class Scenario(featureName: String, name: String, steps: List[Step]) extend
           case _ =>
         }
         ctx
+
       case (ctx, ExpectResult(expected, sorted)) =>
         val success = if (sorted) {
           expected == ctx.lastResult
         } else {
-          expected.equalsUnordered(ctx.lastResult)
+          expected.equalsUnordered(ctx.lastResult.asRecords)
         }
         if (!success) {
           val detail = if (sorted) "ordered rows" else "in any order of rows"
           throw new ScenarioFailedException(s"${EOL}Expected ($detail):$EOL$expected${EOL}Actual:$EOL${ctx.lastResult}")
         }
         ctx
+
+      case (ctx, ExpectError(errorType, phase, detail)) =>
+        val error = ctx.lastResult.asError
+
+        if (error.errorType != errorType)
+          throw new ScenarioFailedException(s"Wrong error type: expected $errorType, got ${error.errorType}")
+        if (error.phase != phase)
+          throw new ScenarioFailedException(s"Wrong error phase: expected $phase, got ${error.phase}")
+        if (error.detail != detail)
+          throw new ScenarioFailedException(s"Wrong error detail: expected $detail, got ${error.detail}")
+
+        ctx
+
       case (ctx, SideEffects(expected)) =>
         val before = ctx.state
         val after = ctx.measure.state
@@ -62,24 +80,33 @@ case class Scenario(featureName: String, name: String, steps: List[Step]) extend
           throw new ScenarioFailedException(
             s"${EOL}Expected side effects:$EOL$expected${EOL}Actual side effects:$EOL$diff")
         ctx
+
       case (_, step) =>
         throw new UnsupportedOperationException(s"Unsupported step: $step")
     }
   }
 
-  implicit def toCypherValueRecords(t: (Graph, Records)): (Graph, CypherValueRecords) =
-    t._1 -> t._2.toCypherValues
+  implicit def toCypherValueRecords(t: (Graph, Result)): (Graph, CypherValueRecords) =
+    t._1 -> t._2.asRecords
+
+  def validate() = {
+    // TODO:
+    // validate similar to FeatureFormatValidator
+    // there should be at least one Execute(_, ExecQuery)
+    // there should be either a ExpectResult with ExpectSideEffects or ExpectError
+    // etc..
+  }
 }
 
 case class ScenarioContext(
     graph: Graph,
-    lastResult: CypherValueRecords = CypherValueRecords.empty,
+    lastResult: Result = CypherValueRecords.empty,
     state: State = State(),
     parameters: Map[String, CypherValue] = Map.empty) {
 
   def execute(query: String, queryType: QueryType): ScenarioContext = {
     val (g, r) = graph.execute(query, parameters, queryType)
-    copy(graph = g, lastResult = r.toCypherValues)
+    copy(graph = g, lastResult = r)
   }
 
   def measure: ScenarioContext = {

@@ -26,8 +26,8 @@ import gherkin.pickles.{Compiler, Pickle, PickleRow, PickleString, PickleTable}
 import gherkin.{AstBuilder, Parser, TokenMatcher}
 import org.opencypher.tools.tck.SideEffectOps.Diff
 import org.opencypher.tools.tck._
-import org.opencypher.tools.tck.constants.TCKSideEffects
 import org.opencypher.tools.tck.constants.TCKStepDefinitions._
+import org.opencypher.tools.tck.constants.{TCKErrorDetails, TCKErrorPhases, TCKErrorTypes}
 import org.opencypher.tools.tck.values.CypherValue
 
 import scala.collection.JavaConverters._
@@ -89,6 +89,7 @@ object CypherTCK {
       val gherkinDocument = parser.parse(featureString, matcher)
       val compiler = new Compiler
       val pickles = compiler.compile(gherkinDocument).asScala
+      // filters out scenarios with @pending
       val nonPending = pickles.filterNot(_.getTags.asScala.exists(_.getName == "pending"))
       val featureName = gherkinDocument.getFeature.getName
       val scenarios = nonPending.map(toScenario(featureName, _))
@@ -160,7 +161,7 @@ object CypherTCK {
         case expectResultR() => List(ExpectResult(parseTable()))
         case expectSortedResultR() => List(ExpectResult(parseTable(), sorted = true))
         case expectResultUnorderedListsR() => List(ExpectResult(parseTable(orderedLists = false)))
-        case expectErrorR(errorType, time, detail) => List(ExpectError(errorType, time, detail))
+        case expectErrorR(errorType, time, detail) => List(ExpectError(errorType, time, detail).validate(), SideEffects().fillInZeros)
 
         // And
         case noSideEffectsR() => List(SideEffects().fillInZeros)
@@ -194,7 +195,17 @@ case class Execute(query: String, qt: QueryType) extends Step
 
 case class ExpectResult(expectedResult: CypherValueRecords, sorted: Boolean = false) extends Step
 
-case class ExpectError(errorType: String, time: String, detail: String) extends Step
+case class ExpectError(errorType: String, phase: String, detail: String) extends Step {
+  def validate(): ExpectError = {
+    if (!TCKErrorTypes.ALL.contains(errorType))
+      throw InvalidFeatureFormatException(s"invalid error type: $errorType, valid ones are ${TCKErrorTypes.ALL.mkString("{ ", ", ", " }")}")
+    if (!TCKErrorPhases.ALL.contains(phase))
+      throw InvalidFeatureFormatException(s"invalid error phase: $phase, valid ones are ${TCKErrorPhases.ALL.mkString("{ ", ", ", " }")}")
+    if (!TCKErrorDetails.ALL.contains(detail))
+      throw InvalidFeatureFormatException(s"invalid error detail: $detail, valid ones are ${TCKErrorDetails.ALL.mkString("{ ", ", ", " }")}")
+    this
+  }
+}
 
 sealed trait QueryType
 case object InitQuery extends QueryType

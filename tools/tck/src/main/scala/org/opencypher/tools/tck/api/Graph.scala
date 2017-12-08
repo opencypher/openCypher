@@ -43,7 +43,7 @@ trait Graph {
     * @param meta metadata tag which specifies what kind of step the query is executed in.
     * @return the graph in its state after having executed the query, and the result table of the query.
     */
-  def execute(query: String, params: Map[String, CypherValue], meta: QueryType): (Graph, Records) =
+  def execute(query: String, params: Map[String, CypherValue], meta: QueryType): (Graph, Result) =
     this -> cypher(query, params, meta)
 
   /**
@@ -61,7 +61,7 @@ trait Graph {
     * @param meta metadata tag which specifies what kind of step the query is executed in.
     * @return the graph in its state after having executed the query, and the result table of the query.
     */
-  def cypher(query: String, params: Map[String, CypherValue], meta: QueryType): Records =
+  def cypher(query: String, params: Map[String, CypherValue], meta: QueryType): Result =
     throw new UnsupportedOperationException("To use the TCK, implement this method or override .execute()")
 }
 

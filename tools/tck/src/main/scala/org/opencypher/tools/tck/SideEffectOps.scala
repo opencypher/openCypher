@@ -104,7 +104,7 @@ object SideEffectOps {
     val nodes = execToSet(graph, nodesQuery)
     val rels = execToSet(graph, relsQuery)
     val labels = execToSet(graph, labelsQuery)
-    val props = graph.execute(propsQuery, Map.empty, SideEffectQuery)._2.toCypherValues.rows.map { row =>
+    val props = graph.execute(propsQuery, Map.empty, SideEffectQuery)._2.asRecords.rows.map { row =>
       Tuple3(row("entityId"), row("key"), row("value"))
     }.toSet
 
@@ -112,5 +112,5 @@ object SideEffectOps {
   }
 
   private def execToSet(graph: Graph, q: String): Set[CypherValue] =
-    graph.execute(q, Map.empty, SideEffectQuery)._2.toCypherValues.rows.flatMap(_.values).toSet
+    graph.execute(q, Map.empty, SideEffectQuery)._2.asRecords.rows.flatMap(_.values).toSet
 }

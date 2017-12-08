@@ -21,17 +21,22 @@ import java.util
 
 import org.junit.jupiter.api.{DynamicTest, TestFactory}
 import org.opencypher.tools.tck.api._
+import org.opencypher.tools.tck.constants.TCKErrorDetails.UNKNOWN_FUNCTION
+import org.opencypher.tools.tck.constants.TCKErrorPhases.COMPILE_TIME
+import org.opencypher.tools.tck.constants.TCKErrorTypes.SYNTAX_ERROR
 import org.opencypher.tools.tck.values.CypherValue
 
 import scala.collection.JavaConverters._
 
 object FakeGraph extends Graph with ProcedureSupport {
-  override def cypher(query: String, params: Map[String, CypherValue], queryType: QueryType): Records = {
+  override def cypher(query: String, params: Map[String, CypherValue], queryType: QueryType): Result = {
     queryType match {
       case InitQuery =>
         CypherValueRecords.empty
       case SideEffectQuery =>
         CypherValueRecords.empty
+      case ExecQuery if query.contains("foo()") =>
+        ExecutionFailed(SYNTAX_ERROR, COMPILE_TIME, UNKNOWN_FUNCTION)
       case ExecQuery =>
         StringRecords(List("1"), List(Map("1" -> "1")))
     }
