@@ -100,6 +100,9 @@ case class Scenario(featureName: String, name: String, tags: Set[String], steps:
             s"${EOL}Expected side effects:$EOL$expected${EOL}Actual side effects:$EOL$diff")
         ctx
 
+      case (ctx, Parameters(ps)) =>
+        ctx.copy(parameters = ps)
+
       case (_, step) =>
         throw new UnsupportedOperationException(s"Unsupported step: $step")
     }
@@ -136,4 +139,3 @@ case class Scenario(featureName: String, name: String, tags: Set[String], steps:
 
   case class ScenarioFailedException(msg: String) extends Throwable(s"$self failed with message: $msg")
 }
-
