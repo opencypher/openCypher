@@ -26,7 +26,7 @@ import scala.compat.Platform.EOL
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
-case class Scenario(featureName: String, name: String, steps: List[Step]) {
+case class Scenario(featureName: String, name: String, tags: Set[String], steps: List[Step]) {
 
   self =>
 

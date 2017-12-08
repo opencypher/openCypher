@@ -34,3 +34,11 @@ Feature: Foo
       RETURN foo()
       """
     Then a SyntaxError should be raised at compile time: UnknownFunction
+
+  @ignore
+  Scenario: Ignored
+    Given an unsupported step
+    When executing query:
+      """
+      not really a query
+      """

@@ -89,15 +89,15 @@ object CypherTCK {
       val gherkinDocument = parser.parse(featureString, matcher)
       val compiler = new Compiler
       val pickles = compiler.compile(gherkinDocument).asScala
-      // filters out scenarios with @pending
-      val nonPending = pickles.filterNot(_.getTags.asScala.exists(_.getName == "pending"))
+      // filters out scenarios with @ignore
+      val included = pickles.filterNot(tagNames(_) contains "@ignore")
       val featureName = gherkinDocument.getFeature.getName
-      val scenarios = nonPending.map(toScenario(featureName, _))
+      val scenarios = included.map(toScenario(featureName, _))
       Feature(scenarios)
     }
   }
 
-  def toScenario(featureName: String, pickle: Pickle): Scenario = {
+  private def toScenario(featureName: String, pickle: Pickle): Scenario = {
     val steps = pickle.getSteps.asScala.flatMap { step =>
 
       def stepArguments = step.getArgument.asScala
@@ -172,8 +172,10 @@ object CypherTCK {
       }
       scenarioSteps
     }.toList
-    Scenario(featureName, pickle.getName, steps)
+    Scenario(featureName, pickle.getName, tagNames(pickle), steps)
   }
+
+  private def tagNames(pickle: Pickle): Set[String] = pickle.getTags.asScala.map(_.getName).toSet
 
 }
 
