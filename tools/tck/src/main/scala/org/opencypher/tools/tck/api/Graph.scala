@@ -18,13 +18,17 @@ package org.opencypher.tools.tck.api
 
 import org.opencypher.tools.tck.values.CypherValue
 
+import scala.language.implicitConversions
+
 /**
   * Mutable implementations implement .cypher
   * Immutable implementations implement .execute
   *
   * An implementation will not have to implement .cypher if .execute is overridden.
   */
-trait Graph {
+trait Graph extends ResultCreation {
+
+  type Result = Graph.Result
 
   /**
     * Executes a Cypher query with the provided parameters. This version also
@@ -63,6 +67,20 @@ trait Graph {
     */
   def cypher(query: String, params: Map[String, CypherValue], meta: QueryType): Result =
     throw new UnsupportedOperationException("To use the TCK, implement this method or override .execute()")
+
+  /**
+    * When the Graph is used by a Scenario, this method will be called at the end of execution,
+    * regardless if the result was an error or not. Immutable implementations that return
+    * different graphs have to close the old instances explicitly when returning a new reference.
+    *
+    * @see execute
+    */
+  def close(): Unit =
+    ()
+}
+
+object Graph {
+  type Result = Either[ExecutionFailed, CypherValueRecords]
 }
 
 /**
@@ -73,4 +91,10 @@ trait ProcedureSupport {
   self: Graph =>
 
   def registerProcedure(signature: String, values: CypherValueRecords): Unit
+}
+
+trait ResultCreation {
+  implicit def resultFromValueRecords(records: CypherValueRecords): Graph.Result = Right(records)
+  implicit def resultFromStringRecords(records: StringRecords): Graph.Result = Right(records.asValueRecords)
+  implicit def resultFromError(error: ExecutionFailed): Graph.Result = Left(error)
 }

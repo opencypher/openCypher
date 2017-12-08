@@ -20,34 +20,26 @@ import org.opencypher.tools.tck.values.CypherValue
 
 import scala.compat.Platform.EOL
 
-trait Result {
-  def asRecords: CypherValueRecords
-  def asError: ExecutionFailed =
-    throw new UnsupportedOperationException("Execution did not fail")
-}
-
 /**
   * Convenience implementation for TCK implementers who prefer writing result
   * values in the same string format as the TCK expectations. This is then
   * parsed and converted by the TCK automatically.
   *
   */
-case class StringRecords(header: List[String], rows: List[Map[String, String]]) extends Result {
-  override def asRecords: CypherValueRecords = {
+case class StringRecords(header: List[String], rows: List[Map[String, String]]) {
+  def asValueRecords: CypherValueRecords = {
     val converted = rows.map(_.mapValues(CypherValue(_)))
     CypherValueRecords(header, converted)
   }
 }
 
-case class CypherValueRecords(header: List[String], rows: List[Map[String, CypherValue]]) extends Result {
+case class CypherValueRecords(header: List[String], rows: List[Map[String, CypherValue]]) {
 
   def equalsUnordered(otherRecords: CypherValueRecords): Boolean = {
     def equalHeaders = header == otherRecords.header
     def equalRows = rows.sortBy(_.hashCode()) == otherRecords.rows.sortBy(_.hashCode())
     equalHeaders && equalRows
   }
-
-  override def asRecords: CypherValueRecords = this
 
   override def toString: String = {
     if (header.isEmpty)
@@ -74,10 +66,4 @@ object CypherValueRecords {
   def emptyWithHeader(header: List[String]) = CypherValueRecords(header, List.empty)
 }
 
-case class ExecutionFailed(errorType: String, phase: String, detail: String) extends Result {
-
-  override def asRecords =
-    throw new UnsupportedOperationException("Execution failed, no records can be produced")
-
-  override def asError: ExecutionFailed = this
-}
+case class ExecutionFailed(errorType: String, phase: String, detail: String)

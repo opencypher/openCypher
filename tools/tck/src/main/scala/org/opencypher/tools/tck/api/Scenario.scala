@@ -19,6 +19,7 @@ package org.opencypher.tools.tck.api
 import org.junit.jupiter.api.function.Executable
 import org.opencypher.tools.tck.SideEffectOps
 import org.opencypher.tools.tck.SideEffectOps._
+import org.opencypher.tools.tck.api.Graph.Result
 import org.opencypher.tools.tck.values.CypherValue
 
 import scala.compat.Platform.EOL
@@ -28,7 +29,10 @@ case class Scenario(featureName: String, name: String, steps: List[Step]) extend
   override def toString() = s"""Feature "$featureName": Scenario "$name""""
 
   override def apply(graph: Graph): Executable = new Executable {
-    override def execute(): Unit = executeOnGraph(graph)
+    override def execute(): Unit =
+      try {
+        executeOnGraph(graph)
+      } finally graph.close()
   }
 
   def executeOnGraph(empty: Graph): Unit = {
@@ -49,26 +53,36 @@ case class Scenario(featureName: String, name: String, steps: List[Step]) extend
         ctx
 
       case (ctx, ExpectResult(expected, sorted)) =>
-        val success = if (sorted) {
-          expected == ctx.lastResult
-        } else {
-          expected.equalsUnordered(ctx.lastResult.asRecords)
-        }
-        if (!success) {
-          val detail = if (sorted) "ordered rows" else "in any order of rows"
-          throw new ScenarioFailedException(s"${EOL}Expected ($detail):$EOL$expected${EOL}Actual:$EOL${ctx.lastResult}")
+        ctx.lastResult match {
+          case Right(records) =>
+            val correctResult =
+              if (sorted)
+                expected == records
+              else
+                expected.equalsUnordered(records)
+
+            if (!correctResult) {
+              val detail = if (sorted) "ordered rows" else "in any order of rows"
+              throw ScenarioFailedException(this, s"${EOL}Expected ($detail):$EOL$expected${EOL}Actual:$EOL${ctx.lastResult}")
+            }
+          case Left(error) =>
+            throw ScenarioFailedException(this, s"Expected: $expected, got error $error")
         }
         ctx
 
-      case (ctx, ExpectError(errorType, phase, detail)) =>
-        val error = ctx.lastResult.asError
+      case (ctx, e@ExpectError(errorType, phase, detail)) =>
+        ctx.lastResult match {
+          case Left(error) =>
+            if (error.errorType != errorType)
+              throw new ScenarioFailedException(s"Wrong error type: expected $errorType, got ${error.errorType}")
+            if (error.phase != phase)
+              throw new ScenarioFailedException(s"Wrong error phase: expected $phase, got ${error.phase}")
+            if (error.detail != detail)
+              throw new ScenarioFailedException(s"Wrong error detail: expected $detail, got ${error.detail}")
 
-        if (error.errorType != errorType)
-          throw new ScenarioFailedException(s"Wrong error type: expected $errorType, got ${error.errorType}")
-        if (error.phase != phase)
-          throw new ScenarioFailedException(s"Wrong error phase: expected $phase, got ${error.phase}")
-        if (error.detail != detail)
-          throw new ScenarioFailedException(s"Wrong error detail: expected $detail, got ${error.detail}")
+          case Right(records) =>
+            throw ScenarioFailedException(this, s"Expected: $e, got records $records")
+        }
 
         ctx
 
@@ -77,7 +91,7 @@ case class Scenario(featureName: String, name: String, steps: List[Step]) extend
         val after = ctx.measure.state
         val diff = before diff after
         if (diff != expected)
-          throw new ScenarioFailedException(
+          throw ScenarioFailedException(this,
             s"${EOL}Expected side effects:$EOL$expected${EOL}Actual side effects:$EOL$diff")
         ctx
 
@@ -85,9 +99,6 @@ case class Scenario(featureName: String, name: String, steps: List[Step]) extend
         throw new UnsupportedOperationException(s"Unsupported step: $step")
     }
   }
-
-  implicit def toCypherValueRecords(t: (Graph, Result)): (Graph, CypherValueRecords) =
-    t._1 -> t._2.asRecords
 
   def validate() = {
     // TODO:
@@ -100,7 +111,7 @@ case class Scenario(featureName: String, name: String, steps: List[Step]) extend
 
 case class ScenarioContext(
     graph: Graph,
-    lastResult: Result = CypherValueRecords.empty,
+    lastResult: Result = Right(CypherValueRecords.empty),
     state: State = State(),
     parameters: Map[String, CypherValue] = Map.empty) {
 
@@ -114,4 +125,10 @@ case class ScenarioContext(
   }
 }
 
-class ScenarioFailedException(msg: String) extends Throwable(msg)
+object ScenarioFailedException {
+  def apply(scenario: Scenario, msg: String): ScenarioFailedException = {
+    ScenarioFailedException(s"$scenario failed with message: $msg")
+  }
+}
+
+case class ScenarioFailedException(msg: String) extends Throwable(msg)
