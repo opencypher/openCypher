@@ -51,7 +51,7 @@ class TckTest {
   @TestFactory
   def testCustomFeature(): util.Collection[DynamicTest] = {
     val fooUri = getClass.getResource("Foo.feature").toURI
-    val scenarios = CypherTCK.parseFilesystemFeature(new File(fooUri)).get.scenarios
+    val scenarios = CypherTCK.parseFilesystemFeature(new File(fooUri)).scenarios
 
     def createTestGraph(): Graph = FakeGraph
 

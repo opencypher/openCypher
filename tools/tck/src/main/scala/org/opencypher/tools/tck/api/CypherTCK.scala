@@ -55,51 +55,41 @@ object CypherTCK {
     val paths = Files.newDirectoryStream(directoryPath).asScala.toSeq
     val featurePathStrings = paths.map(path => path.toString).filter(_.endsWith(featureSuffix))
     val featureUrls = featurePathStrings.map(getClass.getResource(_))
-    filterErrorsAndNotify(featureUrls.map(parseClasspathFeature))
+    featureUrls.map(parseClasspathFeature)
   }
 
   def parseFilesystemFeatures(directory: File): Seq[Feature] = {
     require(directory.isDirectory)
     val featureFileNames = directory.listFiles.filter(_.getName.endsWith(featureSuffix))
-    filterErrorsAndNotify(featureFileNames.map(parseFilesystemFeature))
+    featureFileNames.map(parseFilesystemFeature)
   }
 
-  def filterErrorsAndNotify(fs: Seq[Try[Feature]]): Seq[Feature] = {
-    fs.flatMap { maybeFeature =>
-      maybeFeature match {
-        case Success(f) =>
-          Some(f)
-        case Failure(ex) =>
-          println(ex.getMessage)
-          None
-      }
+  def parseFilesystemFeature(file: File): Feature = {
+    parseFeature(file.getAbsolutePath, Source.fromFile(file).mkString)
+  }
+
+  def parseClasspathFeature(pathUrl: URL): Feature = {
+    parseFeature(pathUrl.toString, Source.fromURL(pathUrl).mkString)
+  }
+
+  def parseFeature(source: String, featureString: String): Feature = {
+    val gherkinDocument = Try(parser.parse(featureString, matcher)) match {
+      case Success(doc) => doc
+      case Failure(error) =>
+        throw InvalidFeatureFormatException(
+          s"Could not parse feature from $source: ${error.getMessage}")
     }
-  }
-
-  def parseFilesystemFeature(file: File): Try[Feature] = {
-    parseFeature(Source.fromFile(file).mkString)
-  }
-
-  def parseClasspathFeature(pathUrl: URL): Try[Feature] = {
-    parseFeature(Source.fromURL(pathUrl).mkString)
-  }
-
-  def parseFeature(featureString: String): Try[Feature] = {
-    Try {
-      val gherkinDocument = parser.parse(featureString, matcher)
-      val compiler = new Compiler
-      val pickles = compiler.compile(gherkinDocument).asScala
-      // filters out scenarios with @ignore
-      val included = pickles.filterNot(tagNames(_) contains "@ignore")
-      val featureName = gherkinDocument.getFeature.getName
-      val scenarios = included.map(toScenario(featureName, _))
-      Feature(scenarios)
-    }
+    val compiler = new Compiler
+    val pickles = compiler.compile(gherkinDocument).asScala
+    // filters out scenarios with @ignore
+    val included = pickles.filterNot(tagNames(_) contains "@ignore")
+    val featureName = gherkinDocument.getFeature.getName
+    val scenarios = included.map(toScenario(featureName, _))
+    Feature(scenarios)
   }
 
   private def toScenario(featureName: String, pickle: Pickle): Scenario = {
     val steps = pickle.getSteps.asScala.flatMap { step =>
-
       def stepArguments = step.getArgument.asScala
 
       def queryFromStep: String = {
@@ -143,32 +133,35 @@ object CypherTCK {
 
       val scenarioSteps: List[Step] = step.getText match {
         // Given
-        case emptyGraphR() => List.empty
+        case emptyGraphR()     => List.empty
         case namedGraphR(name) => List(Execute(NamedGraphs.graphs(name), InitQuery))
-        case anyGraphR() => List(Execute(NamedGraphs.graphs.values.head, InitQuery))
+        case anyGraphR()       => List(Execute(NamedGraphs.graphs.values.head, InitQuery))
 
         // And
-        case initQueryR() => List(Execute(queryFromStep, InitQuery))
-        case parametersR() => List(Parameters(parseParameters))
+        case initQueryR()                   => List(Execute(queryFromStep, InitQuery))
+        case parametersR()                  => List(Parameters(parseParameters))
         case installedProcedureR(signature) => List(RegisterProcedure(signature, parseTable()))
 
         // When
-        case executingQueryR() => List(Measure, Execute(queryFromStep, ExecQuery))
+        case executingQueryR()        => List(Measure, Execute(queryFromStep, ExecQuery))
         case executingControlQueryR() => List(Execute(queryFromStep, ExecQuery))
 
         // Then
-        case expectEmptyResultR() => List(ExpectResult(CypherValueRecords.empty))
-        case expectResultR() => List(ExpectResult(parseTable()))
-        case expectSortedResultR() => List(ExpectResult(parseTable(), sorted = true))
+        case expectEmptyResultR()          => List(ExpectResult(CypherValueRecords.empty))
+        case expectResultR()               => List(ExpectResult(parseTable()))
+        case expectSortedResultR()         => List(ExpectResult(parseTable(), sorted = true))
         case expectResultUnorderedListsR() => List(ExpectResult(parseTable(orderedLists = false)))
-        case expectErrorR(errorType, time, detail) => List(ExpectError(errorType, time, detail).validate(), SideEffects().fillInZeros)
+        case expectErrorR(errorType, time, detail) =>
+          List(ExpectError(errorType, time, detail).validate(), SideEffects().fillInZeros)
 
         // And
         case noSideEffectsR() => List(SideEffects().fillInZeros)
-        case sideEffectsR() => List(SideEffects(parseSideEffectsTable).fillInZeros)
+        case sideEffectsR()   => List(SideEffects(parseSideEffectsTable).fillInZeros)
 
         // Unsupported step
-        case other => throw new UnsupportedOperationException(s"Unsupported step: $other")
+        case other =>
+          throw InvalidFeatureFormatException(
+            s"Unsupported step: $other in scenario ${pickle.getName} from feature $featureName")
       }
       scenarioSteps
     }.toList
@@ -200,11 +193,14 @@ case class ExpectResult(expectedResult: CypherValueRecords, sorted: Boolean = fa
 case class ExpectError(errorType: String, phase: String, detail: String) extends Step {
   def validate(): ExpectError = {
     if (!TCKErrorTypes.ALL.contains(errorType))
-      throw InvalidFeatureFormatException(s"invalid error type: $errorType, valid ones are ${TCKErrorTypes.ALL.mkString("{ ", ", ", " }")}")
+      throw InvalidFeatureFormatException(
+        s"invalid error type: $errorType, valid ones are ${TCKErrorTypes.ALL.mkString("{ ", ", ", " }")}")
     if (!TCKErrorPhases.ALL.contains(phase))
-      throw InvalidFeatureFormatException(s"invalid error phase: $phase, valid ones are ${TCKErrorPhases.ALL.mkString("{ ", ", ", " }")}")
+      throw InvalidFeatureFormatException(
+        s"invalid error phase: $phase, valid ones are ${TCKErrorPhases.ALL.mkString("{ ", ", ", " }")}")
     if (!TCKErrorDetails.ALL.contains(detail))
-      throw InvalidFeatureFormatException(s"invalid error detail: $detail, valid ones are ${TCKErrorDetails.ALL.mkString("{ ", ", ", " }")}")
+      throw InvalidFeatureFormatException(
+        s"invalid error detail: $detail, valid ones are ${TCKErrorDetails.ALL.mkString("{ ", ", ", " }")}")
     this
   }
 }
