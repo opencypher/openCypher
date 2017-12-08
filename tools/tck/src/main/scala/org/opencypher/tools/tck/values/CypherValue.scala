@@ -34,10 +34,7 @@ object CypherValue {
     value
   }
 
-  implicit val ordering: Ordering[CypherValue] = new Ordering[CypherValue] {
-    override def compare(x: CypherValue, y: CypherValue): Int =
-      x.hashCode() - y.hashCode()
-  }
+  implicit val ordering: Ordering[CypherValue] = (x: CypherValue, y: CypherValue) => x.hashCode() - y.hashCode()
 }
 
 sealed trait CypherValue
@@ -45,7 +42,10 @@ sealed trait CypherValue
 case class CypherNode(labels: Set[String] = Set.empty, properties: CypherPropertyMap = CypherPropertyMap())
   extends CypherValue {
 
-  override def toString: String = s"(${labels.mkString(":", ":", " ")}$properties)"
+  override def toString: String = {
+    val labelString = if (labels.isEmpty) "" else labels.mkString(":", ":", " ")
+    s"($labelString$properties)"
+  }
 }
 
 case class CypherRelationship(relType: String, properties: CypherPropertyMap = CypherPropertyMap()) extends CypherValue {
