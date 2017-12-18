@@ -47,8 +47,9 @@ case class CypherNode(labels: Set[String] = Set.empty, properties: CypherPropert
   extends CypherValue {
 
   override def toString: String = {
-    val labelString = if (labels.isEmpty) "" else labels.mkString(":", ":", " ")
-    s"($labelString$properties)"
+    val lbls = if (labels.isEmpty) "" else labels.mkString(":", ":", "")
+    val props = if (properties.properties.isEmpty) "" else properties.toString
+    Seq(lbls, props).filter(_.nonEmpty).mkString("(", " ", ")")
   }
 }
 
