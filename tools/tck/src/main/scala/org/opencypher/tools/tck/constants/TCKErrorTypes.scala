@@ -40,6 +40,8 @@ object TCKErrorTypes {
 object TCKErrorPhases {
   val COMPILE_TIME = "compile time"
   val RUNTIME = "runtime"
+
+  val ALL = Set(COMPILE_TIME, RUNTIME)
 }
 
 object TCKErrorDetails {

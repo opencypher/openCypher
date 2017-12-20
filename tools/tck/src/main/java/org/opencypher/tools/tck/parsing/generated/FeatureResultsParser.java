@@ -14,69 +14,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Generated from /Users/mats/gitRoots/openCypher/tools/tck/src/main/resources/FeatureResults.g4 by ANTLR 4.6
-package org.opencypher.tools.tck.parsing.generated;
-
-import java.util.List;
-
-import org.antlr.v4.runtime.NoViableAltException;
-import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.RuntimeMetaData;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
-import org.antlr.v4.runtime.Vocabulary;
-import org.antlr.v4.runtime.VocabularyImpl;
-import org.antlr.v4.runtime.atn.ATN;
-import org.antlr.v4.runtime.atn.ATNDeserializer;
-import org.antlr.v4.runtime.atn.ParserATNSimulator;
-import org.antlr.v4.runtime.atn.PredictionContextCache;
+package org.opencypher.tools.tck.parsing.generated;// Generated from /Users/stutz/Documents/GitHub/openCypher/tools/tck/src/main/resources/FeatureResults.g4 by ANTLR 4.7
+import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.tree.ParseTreeListener;
-import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.*;
+import org.antlr.v4.runtime.tree.*;
+import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class FeatureResultsParser extends Parser {
-	static { RuntimeMetaData.checkVersion("4.6", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.7", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9,
-		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, INTEGER_LITERAL=17,
-		DECIMAL_LITERAL=18, DIGIT=19, NONZERODIGIT=20, INFINITY=21, FLOAT_LITERAL=22,
-		FLOAT_REPR=23, EXPONENTPART=24, SYMBOLIC_NAME=25, WS=26, IDENTIFIER=27,
+		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
+		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, INTEGER_LITERAL=17, 
+		DECIMAL_LITERAL=18, DIGIT=19, NONZERODIGIT=20, INFINITY=21, FLOAT_LITERAL=22, 
+		FLOAT_REPR=23, EXPONENTPART=24, SYMBOLIC_NAME=25, WS=26, IDENTIFIER=27, 
 		STRING_LITERAL=28, STRING_BODY=29, ESCAPED_APOSTROPHE=30;
 	public static final int
-		RULE_value = 0, RULE_node = 1, RULE_nodeDesc = 2, RULE_relationship = 3,
-		RULE_relationshipDesc = 4, RULE_path = 5, RULE_pathBody = 6, RULE_pathLink = 7,
-		RULE_forwardsRelationship = 8, RULE_backwardsRelationship = 9, RULE_integer = 10,
-		RULE_floatingPoint = 11, RULE_bool = 12, RULE_nullValue = 13, RULE_list = 14,
-		RULE_listContents = 15, RULE_listElement = 16, RULE_map = 17, RULE_propertyMap = 18,
-		RULE_mapContents = 19, RULE_keyValuePair = 20, RULE_propertyKey = 21,
-		RULE_propertyValue = 22, RULE_relationshipType = 23, RULE_relationshipTypeName = 24,
+		RULE_value = 0, RULE_node = 1, RULE_nodeDesc = 2, RULE_relationship = 3, 
+		RULE_relationshipDesc = 4, RULE_path = 5, RULE_pathBody = 6, RULE_pathLink = 7, 
+		RULE_forwardsRelationship = 8, RULE_backwardsRelationship = 9, RULE_integer = 10, 
+		RULE_floatingPoint = 11, RULE_bool = 12, RULE_nullValue = 13, RULE_list = 14, 
+		RULE_listContents = 15, RULE_listElement = 16, RULE_map = 17, RULE_propertyMap = 18, 
+		RULE_mapContents = 19, RULE_keyValuePair = 20, RULE_propertyKey = 21, 
+		RULE_propertyValue = 22, RULE_relationshipType = 23, RULE_relationshipTypeName = 24, 
 		RULE_label = 25, RULE_labelName = 26, RULE_string = 27;
 	public static final String[] ruleNames = {
-		"value", "node", "nodeDesc", "relationship", "relationshipDesc", "path",
-		"pathBody", "pathLink", "forwardsRelationship", "backwardsRelationship",
-		"integer", "floatingPoint", "bool", "nullValue", "list", "listContents",
-		"listElement", "map", "propertyMap", "mapContents", "keyValuePair", "propertyKey",
-		"propertyValue", "relationshipType", "relationshipTypeName", "label",
+		"value", "node", "nodeDesc", "relationship", "relationshipDesc", "path", 
+		"pathBody", "pathLink", "forwardsRelationship", "backwardsRelationship", 
+		"integer", "floatingPoint", "bool", "nullValue", "list", "listContents", 
+		"listElement", "map", "propertyMap", "mapContents", "keyValuePair", "propertyKey", 
+		"propertyValue", "relationshipType", "relationshipTypeName", "label", 
 		"labelName", "string"
 	};
 
 	private static final String[] _LITERAL_NAMES = {
-		null, "'('", "')'", "'['", "']'", "'<'", "'>'", "'-'", "'->'", "'<-'",
-		"'true'", "'false'", "'null'", "', '", "'{'", "'}'", "':'", null, null,
+		null, "'('", "')'", "'['", "']'", "'<'", "'>'", "'-'", "'->'", "'<-'", 
+		"'true'", "'false'", "'null'", "', '", "'{'", "'}'", "':'", null, null, 
 		null, null, null, null, null, null, null, "' '", null, null, null, "'\\''"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
-		null, null, null, null, null, null, null, null, null, null, null, null,
-		null, null, null, null, null, "INTEGER_LITERAL", "DECIMAL_LITERAL", "DIGIT",
-		"NONZERODIGIT", "INFINITY", "FLOAT_LITERAL", "FLOAT_REPR", "EXPONENTPART",
-		"SYMBOLIC_NAME", "WS", "IDENTIFIER", "STRING_LITERAL", "STRING_BODY",
+		null, null, null, null, null, null, null, null, null, null, null, null, 
+		null, null, null, null, null, "INTEGER_LITERAL", "DECIMAL_LITERAL", "DIGIT", 
+		"NONZERODIGIT", "INFINITY", "FLOAT_LITERAL", "FLOAT_REPR", "EXPONENTPART", 
+		"SYMBOLIC_NAME", "WS", "IDENTIFIER", "STRING_LITERAL", "STRING_BODY", 
 		"ESCAPED_APOSTROPHE"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
@@ -170,6 +158,11 @@ public class FeatureResultsParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitValue(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitValue(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -279,6 +272,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitNode(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitNode(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final NodeContext node() throws RecognitionException {
@@ -324,6 +322,11 @@ public class FeatureResultsParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitNodeDesc(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitNodeDesc(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -401,6 +404,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitRelationship(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitRelationship(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RelationshipContext relationship() throws RecognitionException {
@@ -443,6 +451,11 @@ public class FeatureResultsParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitRelationshipDesc(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitRelationshipDesc(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -508,6 +521,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitPath(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitPath(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PathContext path() throws RecognitionException {
@@ -556,6 +574,11 @@ public class FeatureResultsParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitPathBody(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitPathBody(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -617,6 +640,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitPathLink(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitPathLink(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PathLinkContext pathLink() throws RecognitionException {
@@ -674,6 +702,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitForwardsRelationship(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitForwardsRelationship(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ForwardsRelationshipContext forwardsRelationship() throws RecognitionException {
@@ -717,6 +750,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitBackwardsRelationship(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitBackwardsRelationship(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final BackwardsRelationshipContext backwardsRelationship() throws RecognitionException {
@@ -758,6 +796,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitInteger(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitInteger(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IntegerContext integer() throws RecognitionException {
@@ -795,6 +838,11 @@ public class FeatureResultsParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitFloatingPoint(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitFloatingPoint(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -841,6 +889,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitBool(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitBool(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final BoolContext bool() throws RecognitionException {
@@ -886,6 +939,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitNullValue(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitNullValue(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final NullValueContext nullValue() throws RecognitionException {
@@ -924,6 +982,11 @@ public class FeatureResultsParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitList(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitList(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -979,6 +1042,11 @@ public class FeatureResultsParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitListContents(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitListContents(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1036,6 +1104,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitListElement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitListElement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ListElementContext listElement() throws RecognitionException {
@@ -1075,6 +1148,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitMap(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitMap(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final MapContext map() throws RecognitionException {
@@ -1113,6 +1191,11 @@ public class FeatureResultsParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitPropertyMap(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitPropertyMap(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1168,6 +1251,11 @@ public class FeatureResultsParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitMapContents(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitMapContents(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1229,6 +1317,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitKeyValuePair(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitKeyValuePair(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final KeyValuePairContext keyValuePair() throws RecognitionException {
@@ -1281,6 +1374,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitPropertyKey(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitPropertyKey(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PropertyKeyContext propertyKey() throws RecognitionException {
@@ -1319,6 +1417,11 @@ public class FeatureResultsParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitPropertyValue(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitPropertyValue(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1359,6 +1462,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitRelationshipType(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitRelationshipType(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RelationshipTypeContext relationshipType() throws RecognitionException {
@@ -1397,6 +1505,11 @@ public class FeatureResultsParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitRelationshipTypeName(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitRelationshipTypeName(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1437,6 +1550,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitLabel(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitLabel(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LabelContext label() throws RecognitionException {
@@ -1476,6 +1594,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitLabelName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitLabelName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LabelNameContext labelName() throws RecognitionException {
@@ -1513,6 +1636,11 @@ public class FeatureResultsParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof FeatureResultsListener ) ((FeatureResultsListener)listener).exitString(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof FeatureResultsVisitor ) return ((FeatureResultsVisitor<? extends T>)visitor).visitString(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StringContext string() throws RecognitionException {
@@ -1537,7 +1665,7 @@ public class FeatureResultsParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3 \u00bc\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3 \u00bc\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -1552,9 +1680,9 @@ public class FeatureResultsParser extends Parser {
 		"\3\26\3\26\3\26\5\26\u00a8\n\26\3\26\3\26\3\27\3\27\3\30\3\30\3\31\3\31"+
 		"\3\31\3\32\3\32\3\33\3\33\3\33\3\34\3\34\3\35\3\35\3\35\2\2\36\2\4\6\b"+
 		"\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60\62\64\668\2\4\3\2\27\30\3"+
-		"\2\f\r\u00b4\2D\3\2\2\2\4F\3\2\2\2\6H\3\2\2\2\bW\3\2\2\2\nY\3\2\2\2\f"+
-		"c\3\2\2\2\16g\3\2\2\2\20p\3\2\2\2\22t\3\2\2\2\24x\3\2\2\2\26|\3\2\2\2"+
-		"\30~\3\2\2\2\32\u0080\3\2\2\2\34\u0082\3\2\2\2\36\u0084\3\2\2\2 \u008a"+
+		"\2\f\r\2\u00b4\2D\3\2\2\2\4F\3\2\2\2\6H\3\2\2\2\bW\3\2\2\2\nY\3\2\2\2"+
+		"\fc\3\2\2\2\16g\3\2\2\2\20p\3\2\2\2\22t\3\2\2\2\24x\3\2\2\2\26|\3\2\2"+
+		"\2\30~\3\2\2\2\32\u0080\3\2\2\2\34\u0082\3\2\2\2\36\u0084\3\2\2\2 \u008a"+
 		"\3\2\2\2\"\u0092\3\2\2\2$\u0094\3\2\2\2&\u0096\3\2\2\2(\u009c\3\2\2\2"+
 		"*\u00a4\3\2\2\2,\u00ab\3\2\2\2.\u00ad\3\2\2\2\60\u00af\3\2\2\2\62\u00b2"+
 		"\3\2\2\2\64\u00b4\3\2\2\2\66\u00b7\3\2\2\28\u00b9\3\2\2\2:E\5\4\3\2;E"+

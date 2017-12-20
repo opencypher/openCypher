@@ -278,7 +278,7 @@ Feature: WithAcceptance
       RETURN *
       """
     Then the result should be:
-      | a | b | r |
+      | a | b |
     And no side effects
 
   Scenario: Nested maps

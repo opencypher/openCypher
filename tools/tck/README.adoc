@@ -1,0 +1,28 @@
+= TCK Tools
+
+This module contains a set of tools to validate the integrity of the TCK (for example, that all scenarios have a `Given` step, a `Then` step, that all steps use valid step definitions, etc), and to check its compliance towards the openCypher grammar.
+Additionally, this module provides a Scala API that could be used to implement the TCK without requiring a Cucumber integration.
+
+== Scala API
+
+The api lives in the `org.opencypher.tools.tck.api` package.
+The object `CypherTCK` is the entry point, where all TCK scenarios may be accessed as Scala objects.
+These accept a `Graph` implementation, to run as JUnit5 dynamic tests by implementing the `Executable` interface (see http://junit.org/junit5/docs/5.0.0-M2/api/org/junit/jupiter/api/Executable.html[Executable javadoc]).
+
+.Example Scala code to generate all TCK scenarios as JUnit5 tests.
+[source, scala]
+----
+  @TestFactory
+  def testStandardTCK(): util.Collection[DynamicTest] = {
+    val tckScenarios = CypherTCK.allTckScenarios
+
+    def emptyGraph(): Graph = ??? // provide your Graph implementation here
+
+    val dynamicTests = tckScenarios.map { scenario =>
+      val name = scenario.toString()
+      val executable = scenario(emptyGraph)
+      DynamicTest.dynamicTest(name, executable)
+    }
+    dynamicTests.asJavaCollection
+  }
+----

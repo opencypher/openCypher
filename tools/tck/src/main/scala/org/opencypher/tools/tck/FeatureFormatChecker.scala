@@ -18,7 +18,7 @@ package org.opencypher.tools.tck
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import cucumber.api.{DataTable, Scenario}
+import cucumber.api.DataTable
 import org.opencypher.tools.tck.constants.TCKStepDefinitions._
 
 import scala.util.{Failure, Success, Try}
@@ -120,7 +120,7 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
     stepValidator.reportStep("Control-query")
   }
 
-  Before { (scenario: Scenario) =>
+  Before { (scenario: cucumber.api.Scenario) =>
     currentScenarioName = scenario.getName
   }
 

@@ -11,9 +11,21 @@ The TCK consists of a number of https://cucumber.io/[Cucumber] `.feature` files,
 ** See <<results-format>> for a description of how the results are formatted
 * Expected side effects from executing `Q`
 
+== Installation instructions
 
-// TODO: installation instructions
-// To test your implementation of Cypher for compliance with the TCK, you must download feature files, get Cucumber, etc
+For JVM-based implementations, there is a Scala API which parses and provides the TCK as an in-memory object structure, where the implementation simply has to hook in via implementing a small interface.
+For details, see the link:../tools/tck/README.adoc[TCK tools README].
+
+If this API is unavailable on your platform, you can integrate the TCK via Cucumber, either by depending on the TCK via Maven, or by copying the feature files directly from this repository.
+
+.Maven coordinates for the TCK:
+[source, xml]
+----
+<dependency>
+    <groupId>org.opencypher</groupId>
+    <artifactId>tck</artifactId>
+</dependency>
+----
 
 == Format of a TCK scenario
 
