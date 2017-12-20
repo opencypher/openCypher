@@ -52,6 +52,22 @@
                     <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>1.0.2</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.junit.vintage</groupId>
+                        <artifactId>junit-vintage-engine</artifactId>
+                        <version>4.12.2</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
         <resources>
             <resource>
@@ -104,6 +120,24 @@
             <version>${antlr.runtime.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>gherkin</artifactId>
+            <version>5.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apiguardian</groupId>
+            <artifactId>apiguardian-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <!-- Test deps -->
 
         <dependency>
@@ -127,12 +161,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.0.2</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.scalacheck</groupId>
             <artifactId>scalacheck_2.11</artifactId>
             <version>1.13.0</version>
@@ -152,12 +180,6 @@
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>gherkin</artifactId>
-            <version>5.0.0</version>
         </dependency>
 
         <dependency>
