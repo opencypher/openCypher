@@ -1,6 +1,7 @@
 :numbered:
 :toc:
 :toc-placement: macro
+:source-highlighter: pygments
 
 = The Cypher Style Guide
 

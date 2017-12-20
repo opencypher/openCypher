@@ -9,7 +9,18 @@ The Asciidoc to PDF tool used is `asciidoctor-pdf`, read more about it link:http
 Use the font configuration file `style-guide.yml`, which is mostly a copy of the default configuration file that ships with `asciidoctor-pdf` with the Consolas font added.
 Fonts used are loaded from the `fonts` directory (downloaded from link:http://www.fontpalace.com/font-details/Consolas/[fontpalace.com]).
 
-[source, cmd]
+[source, shell]
 ----
-asciidoctor-pdf -a pdf-style=build/style-guide.yml -a pdf-fontsdir=build/fonts style-guide.adoc
+$ gem install asciidoctor-pdf --pre
+
+$ asciidoctor-pdf -a pdf-style=build/style-guide.yml -a pdf-fontsdir=build/fonts style-guide.adoc
+----
+
+=== Cypher syntax highlighting
+
+To get Cypher syntax highlighting, you need to install the `pygments` Ruby gem:
+
+[source, shell]
+----
+$ gem install pygments.db
 ----
