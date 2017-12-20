@@ -62,20 +62,4 @@ class TckTest {
     }
     dynamicTests.asJavaCollection
   }
-
-  // this can't run as we don't know what the correct results would be
-//  @TestFactory
-  def testStandardTCK(): util.Collection[DynamicTest] = {
-    val tckScenarios = CypherTCK.allTckScenariosFromFilesystem
-
-    def createTestGraph(): Graph = FakeGraph
-
-    val dynamicTests = tckScenarios.map { scenario =>
-      val name = scenario.toString()
-      val executable = scenario(createTestGraph)
-      DynamicTest.dynamicTest(name, executable)
-    }
-    dynamicTests.asJavaCollection
-  }
-
 }
