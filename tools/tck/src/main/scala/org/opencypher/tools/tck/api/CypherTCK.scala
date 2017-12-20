@@ -42,6 +42,13 @@ object CypherTCK {
   private lazy val parser = new Parser[GherkinDocument](new AstBuilder)
   private lazy val matcher = new TokenMatcher
 
+  /**
+    * Provides all the scenarios in the openCypher TCK.
+    *
+    * @note While each scenario is unique, several scenarios could have the same name.
+    * This happens when the scenario is generated from a Gherkin Scenario Outline, in which case
+    * all variants of the Scenario Outline get the same name.
+    */
   def allTckScenarios: Seq[Scenario] = parseClasspathFeatures(featuresPath).flatMap(_.scenarios)
 
   def allTckScenariosFromFilesystem: Seq[Scenario] = {
