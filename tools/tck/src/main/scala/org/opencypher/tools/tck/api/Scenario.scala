@@ -33,10 +33,12 @@ case class Scenario(featureName: String, name: String, tags: Set[String], steps:
   override def toString = s"""Feature "$featureName": Scenario "$name""""
 
   def apply(graph: => Graph): Executable = new Executable {
-    override def execute(): Unit =
+    override def execute(): Unit = {
+      val g = graph // ensure that lazy parameter is only evaluated once
       try {
-        executeOnGraph(graph)
-      } finally graph.close()
+        executeOnGraph(g)
+      } finally g.close()
+    }
   }
 
   def executeOnGraph(empty: Graph): Unit = {
