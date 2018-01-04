@@ -18,7 +18,7 @@
 Feature: CreateAcceptance
 
   Scenario: Create a single node with multiple labels
-    Given any graph
+    Given an empty graph
     When executing query:
       """
       CREATE (:A:B:C:D)
