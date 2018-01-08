@@ -50,7 +50,7 @@ object SideEffectOps {
       nodes: Set[CypherValue] = Set.empty,
       rels: Set[CypherValue] = Set.empty,
       labels: Set[CypherValue] = Set.empty,
-      props: Set[(CypherValue, CypherValue, CypherValue)] = Set.empty) {
+      props: Seq[(CypherValue, CypherValue, CypherValue)] = Seq.empty) {
 
     /**
       * Computes the difference in between this state and a later state (the argument).
@@ -94,31 +94,40 @@ object SideEffectOps {
        |UNWIND labels(n) AS label
        |RETURN DISTINCT label""".stripMargin
 
-  private val propsQuery =
+  private val nodePropsQuery =
     s"""MATCH (n)
        |UNWIND keys(n) AS key
        |WITH properties(n) AS properties, key, n
-       |RETURN id(n) AS entityId, key, properties[key] AS value
-       |UNION ALL
-       |MATCH ()-[r]->()
-       |UNWIND keys(r) AS key
-       |WITH properties(r) AS properties, key, r
-       |RETURN id(r) AS entityId, key, properties[key] AS value""".stripMargin
+       |RETURN id(n) AS nodeId, key, properties[key] AS value""".stripMargin
+
+  private val relPropsQuery =
+    """MATCH ()-[r]->()
+      |UNWIND keys(r) AS key
+      |WITH properties(r) AS properties, key, r
+      |RETURN id(r) AS relId, key, properties[key] AS value""".stripMargin
 
   def measureState(graph: Graph): State = {
     val nodes = execToSet(graph, nodesQuery)
     val rels = execToSet(graph, relsQuery)
     val labels = execToSet(graph, labelsQuery)
-    val props = graph.execute(propsQuery, Map.empty, SideEffectQuery)._2 match {
+    val nodeProps = graph.execute(nodePropsQuery, Map.empty, SideEffectQuery)._2 match {
       case Left(error) =>
         throw MeasurementFailed(error)
       case Right(records) =>
         records.rows.map { row =>
-          Tuple3(row("entityId"), row("key"), row("value"))
-        }.toSet
+          Tuple3(row("nodeId"), row("key"), row("value"))
+        }
+    }
+    val relProps = graph.execute(relPropsQuery, Map.empty, SideEffectQuery)._2 match {
+      case Left(error) =>
+        throw MeasurementFailed(error)
+      case Right(records) =>
+        records.rows.map { row =>
+          Tuple3(row("relId"), row("key"), row("value"))
+        }
     }
 
-    State(nodes, rels, labels, props)
+    State(nodes, rels, labels, nodeProps ++ relProps)
   }
 
   private def execToSet(graph: Graph, q: String): Set[CypherValue] =
