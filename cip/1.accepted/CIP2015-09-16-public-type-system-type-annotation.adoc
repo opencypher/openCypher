@@ -1,4 +1,4 @@
-= CIP2015-06-16 - Public Type System and Type Annotations
+= CIP2015-09-16 - Public Type System and Type Annotations
 :numbered:
 :toc:
 :toc-placement: macro
