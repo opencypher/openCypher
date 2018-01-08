@@ -288,7 +288,7 @@ Feature: CreateAcceptance
       | (:A) | (:B) | (:C) |
 
   Scenario: Create a pattern with multiple hops in the reverse direction
-    Given any graph
+    Given an empty graph
     When executing query:
       """
       CREATE (:A)<-[:R]-(:B)<-[:R]-(:C)
@@ -308,7 +308,7 @@ Feature: CreateAcceptance
       | (:A) | (:B) | (:C) |
 
   Scenario: Create a pattern with multiple hops in varying directions
-    Given any graph
+    Given an empty graph
     When executing query:
       """
       CREATE (:A)-[:R]->(:B)<-[:R]-(:C)
