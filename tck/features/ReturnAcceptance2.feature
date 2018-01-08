@@ -164,8 +164,8 @@ Feature: ReturnAcceptance2
       RETURN *
       """
     Then the result should be:
-      | p                   | a        | b  |
-      | <(:Start)-[:T]->()> | (:Start) | () |
+      | a        | b  | p                   |
+      | (:Start) | () | <(:Start)-[:T]->()> |
     And no side effects
 
   Scenario: Setting and returning the size of a list property

@@ -514,8 +514,9 @@ Feature: CreateAcceptance
       | +labels        | 3 |
     When executing control query:
       """
-      MATCH (a:A)<-[r1:R1]-(b:B)-[r2:R2]->(c:C) RETURN *
+      MATCH (a:A)<-[r1:R1]-(b:B)-[r2:R2]->(c:C)
+      RETURN *
       """
     Then the result should be:
-      | a    | r1    | b    | r2    | c    |
-      | (:A) | [:R1] | (:B) | [:R2] | (:C) |
+      | a    | b    | c    | r1    | r2    |
+      | (:A) | (:B) | (:C) | [:R1] | [:R2] |

@@ -47,7 +47,7 @@ case class CypherValueRecords(header: List[String], rows: List[Map[String, Cyphe
     else {
       val _header = header.mkString("| ", " | ", " |")
       val _rows = rows.map(row => {
-        val values = row.values
+        val values = header.map(row(_))
         val strings = values.map(_.toString)
         strings.mkString("| ", " | ", " |")
       })
