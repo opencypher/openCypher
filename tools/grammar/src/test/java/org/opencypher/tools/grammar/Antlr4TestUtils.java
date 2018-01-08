@@ -120,7 +120,7 @@ public class Antlr4TestUtils
         parser.removeErrorListeners();
         lexer.addErrorListener( lexerListener );
         parser.addErrorListener( parserListener );
-        parser.parse( grammar.getRule( "cypher" ).index );
+        parser.parse( grammar.getRule( Antlr4.PREFIX + "Cypher" ).index );
     }
 
     private static class FailingErrorListener implements ANTLRErrorListener

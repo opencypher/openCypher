@@ -50,11 +50,11 @@ public class Antlr4Test
                         .build( Grammar.Builder.Option.ALLOW_ROOTLESS ),
                 "grammar foo;",
                 "",
-                "thing1 : '1' ;",
+                "oC_thing1 : '1' ;",
                 "",
-                "thing2 : '2' ;",
+                "oC_thing2 : '2' ;",
                 "",
-                "bar : ( thing1 thing2 )* ;",
+                "oC_bar : ( oC_thing1 oC_thing2 )* ;",
                 "" );
     }
 
@@ -67,7 +67,7 @@ public class Antlr4Test
                         .build( Grammar.Builder.Option.ALLOW_ROOTLESS ),
                 "grammar foo;",
                 "",
-                "bar : 'LIteR@L' ;",
+                "oC_bar : 'LIteR@L' ;",
                 "" );
     }
 
@@ -81,12 +81,12 @@ public class Antlr4Test
                         .build( Grammar.Builder.Option.ALLOW_ROOTLESS ),
                 "grammar foo;",
                 "",
-                "other : 'abc' ;",
+                "oC_other : 'abc' ;",
                 "",
-                "bar : other",
-                "    | '=>~`$&@'",
-                "    | other",
-                "    ;",
+                "oC_bar : oC_other",
+                "       | '=>~`$&@'",
+                "       | oC_other",
+                "       ;",
                 "" );
     }
 
@@ -99,7 +99,7 @@ public class Antlr4Test
                         .build( Grammar.Builder.Option.ALLOW_ROOTLESS ),
                 "grammar foo;",
                 "",
-                "bar : LITER@L ;",
+                "oC_bar : LITER@L ;",
                 "",
                 "LITER@L : ( 'L' | 'l' ) ( 'I' | 'i' ) ( 'T' | 't' ) ( 'E' | 'e' ) ( 'R' | 'r' ) ( '@' | '@' ) ( 'L' | 'l' )  ;",
                 "" );
@@ -116,15 +116,15 @@ public class Antlr4Test
                         .production( "beta", literal( "b" ) ),
                 "grammar MyLanguage;",
                 "",
-                "myLanguage : value ;",
+                "oC_MyLanguage : oC_value ;",
                 "",
-                "value : alpha",
-                "      | beta",
-                "      ;",
+                "oC_value : oC_alpha",
+                "         | oC_beta",
+                "         ;",
                 "",
-                "alpha : 'a' ;",
+                "oC_alpha : 'a' ;",
                 "",
-                "beta : 'b' ;",
+                "oC_beta : 'b' ;",
                 "" );
     }
 
@@ -136,7 +136,7 @@ public class Antlr4Test
                         .production( "FooBar", optional( literal( "foo" ), literal( "bar" ) ) ),
                 "grammar FooBar;",
                 "",
-                "fooBar : ( 'foo' 'bar' )? ;",
+                "oC_FooBar : ( 'foo' 'bar' )? ;",
                 "" );
     }
 
@@ -161,7 +161,7 @@ public class Antlr4Test
                                 '\uFF04', '\uFFE0', '\uFFE1', '\uFFE5', '\uFFE6' ) ),
                 "grammar test;",
                 "",
-                "test : TEST_0 ;",
+                "oC_test : TEST_0 ;",
                 "",
                 "fragment TEST_0 : [$\\u00A2-\\u00A5\\u20A0-\\u20BA] ;",
                 "" );
@@ -174,7 +174,7 @@ public class Antlr4Test
                         .production( "test", charactersOfSet( name ) ),
                 "grammar test;",
                 "",
-                "test : " + name + " ;",
+                "oC_test : " + name + " ;",
                 "",
                 "fragment " + name + " : " + def + " ;",
                 "" );

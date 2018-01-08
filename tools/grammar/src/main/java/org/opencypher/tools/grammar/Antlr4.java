@@ -32,9 +32,7 @@ import org.opencypher.grammar.Production;
 import org.opencypher.tools.io.Output;
 
 import static java.lang.Character.charCount;
-import static java.lang.Character.isLowerCase;
 import static java.lang.Character.isUpperCase;
-import static java.lang.Character.toLowerCase;
 import static java.lang.Character.toUpperCase;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -47,6 +45,8 @@ import static org.opencypher.tools.io.Output.output;
  */
 public class Antlr4 extends BnfWriter
 {
+    static String PREFIX = "oC_";
+
     public static void write( Grammar grammar, Writer writer )
     {
         write( grammar, output( writer ) );
@@ -76,7 +76,6 @@ public class Antlr4 extends BnfWriter
 
     public static void main( String... args ) throws Exception
     {
-        // We need to do some custom post-processing to get the lexer rules right
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         execute( Antlr4::write, out, "grammar/cypher.xml" );
 
@@ -324,20 +323,7 @@ public class Antlr4 extends BnfWriter
 
     private Output parserRule( String name )
     {
-        int cp = name.codePointAt( 0 );
-        if ( !isLowerCase( cp ) )
-        {
-            if ( name.codePoints().noneMatch( Character::isLowerCase ) )
-            {
-                return output.append( name.toLowerCase() );
-            }
-            return output.appendCodePoint( toLowerCase( cp ) )
-                         .append( name, charCount( cp ), name.length() );
-        }
-        else
-        {
-            return output.append( name );
-        }
+        return output.append( prefix( name ) );
     }
 
     private Output lexerRule( String name )
@@ -356,6 +342,12 @@ public class Antlr4 extends BnfWriter
         {
             return output.append( name );
         }
+    }
+
+    @Override
+    protected String prefix( String s )
+    {
+        return Antlr4.PREFIX + s;
     }
 
     @Override

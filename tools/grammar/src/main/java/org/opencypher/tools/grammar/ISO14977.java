@@ -206,6 +206,12 @@ public class ISO14977 extends BnfWriter
     }
 
     @Override
+    protected String prefix( String s )
+    {
+        return s;
+    }
+
+    @Override
     protected void productionEnd()
     {
         output.println( " ;" ).println();
