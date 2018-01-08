@@ -48,4 +48,43 @@ class CypherValueTest extends TckTestSupport {
     oList2 should equal(uList2)
     uList1 should equal(uList2)
   }
+
+  test("list comparisons with strings") {
+    val oList1 = CypherOrderedList(List(CypherString("age"), CypherString("name")))
+    val oList2 = CypherOrderedList(List(CypherString("name"), CypherString("age")))
+    val uList1 = CypherUnorderedList(List(CypherString("name"), CypherString("age")).sorted(CypherValue.ordering))
+    val uList2 = CypherUnorderedList(List(CypherString("age"), CypherString("name")).sorted(CypherValue.ordering))
+
+    oList1 should equal(oList1)
+    oList2 should equal(oList2)
+    uList1 should equal(uList1)
+    uList2 should equal(uList2)
+
+    oList1 should not equal oList2
+    oList2 should not equal oList1
+
+    uList1 should equal(oList1)
+    uList1 should equal(oList2)
+    uList1 should equal(uList2)
+    uList2 should equal(oList1)
+    uList2 should equal(oList2)
+    uList2 should equal(uList1)
+
+    oList1 should equal(uList1)
+    oList2 should equal(uList1)
+    uList2 should equal(uList1)
+    oList1 should equal(uList2)
+    oList2 should equal(uList2)
+    uList1 should equal(uList2)
+  }
+
+  test("list comparisons simple example") {
+    val orderedItems1 = List(CypherString("name"), CypherString("age"), CypherString("address"))
+    val orderedItems2 = List(CypherString("age"), CypherString("name"), CypherString("address"))
+    val l1 = CypherUnorderedList(orderedItems1.sorted(CypherValue.ordering))
+    val l2 = CypherOrderedList(orderedItems1)
+    l1 should equal(l2)
+    l2 should equal(l1)
+  }
+
 }
