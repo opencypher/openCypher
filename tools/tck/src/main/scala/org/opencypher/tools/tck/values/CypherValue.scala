@@ -35,8 +35,10 @@ object CypherValue {
   }
 
   implicit val ordering: Ordering[CypherValue] = new Ordering[CypherValue] {
-    override def compare(x: CypherValue, y: CypherValue): Int =
-      x.hashCode() - y.hashCode()
+    override def compare(x: CypherValue, y: CypherValue): Int = {
+      val stringOrdering = implicitly[Ordering[String]]
+      stringOrdering.compare(x.toString, y.toString)
+    }
   }
 
 }
