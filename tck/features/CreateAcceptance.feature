@@ -131,7 +131,7 @@ Feature: CreateAcceptance
       | +relationships | 1 |
 
   Scenario: Create a self loop
-    Given any graph
+    Given an empty graph
     When executing query:
       """
       CREATE (root:R)-[:LINK]->(root)

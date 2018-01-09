@@ -49,7 +49,7 @@ Feature: Create
       | +relationships | 1 |
 
   Scenario: Creating a node with a label
-    Given any graph
+    Given an empty graph
     When executing query:
       """
       CREATE (:Label)
