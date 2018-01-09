@@ -24,6 +24,11 @@
     <module>tools</module>
   </modules>
 
+  <properties>
+    <project.rootdir>${project.basedir}</project.rootdir>
+    <license.header>${project.rootdir}/ASL-2-header.txt</license.header>
+  </properties>
+
   <developers>
     <developer>
       <id>openCypher</id>
@@ -32,5 +37,44 @@
       <url>http://opencypher.org/</url>
     </developer>
   </developers>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.neo4j.build.plugins</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>3</version>
+        <executions>
+          <execution>
+            <id>check-licenses</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <strictCheck>true</strictCheck>
+          <header>${license.header}</header>
+          <includes>
+            <include>src/**/*.java</include>
+            <include>src/**/*.scala</include>
+            <include>tck/features/*.feature</include>
+            <include>grammar/*.xml</include>
+          </includes>
+          <mapping>
+            <java>SLASHSTAR_STYLE</java>
+            <scala>SLASHSTAR_STYLE</scala>
+            <feature>SCRIPT_STYLE</feature>
+            <xml>XML_STYLE</xml>
+          </mapping>
+          <timestampPropertyName>currentYear</timestampPropertyName>
+          <properties>
+            <inceptionYear>2015</inceptionYear>
+          </properties>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

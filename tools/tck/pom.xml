@@ -22,7 +22,7 @@
     <properties>
         <scala.version>2.11.7</scala.version>
         <scala.binary.version>2.11</scala.binary.version>
-        <license.header>${project.baseUri}../../ASL-2-header.txt</license.header>
+        <project.rootdir>${project.basedir}/../..</project.rootdir>
     </properties>
 
     <licenses>

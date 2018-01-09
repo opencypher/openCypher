@@ -19,8 +19,8 @@
   </scm>
 
   <properties>
+    <project.rootdir>${project.basedir}/..</project.rootdir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <license.header>${project.baseUri}../ASL-2-header.txt</license.header>
     <antlr.runtime.version>4.7</antlr.runtime.version>
     <antlr.generator.version>4.5.3</antlr.generator.version>
   </properties>
@@ -70,36 +70,6 @@
           <compilerArgs>
             <arg>-parameters</arg>
           </compilerArgs>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.neo4j.build.plugins</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <version>3</version>
-        <executions>
-          <execution>
-            <id>check-licenses</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <strictCheck>true</strictCheck>
-          <header>${license.header}</header>
-          <includes>
-            <include>src/**/*.java</include>
-            <include>src/**/*.scala</include>
-          </includes>
-          <mapping>
-            <java>SLASHSTAR_STYLE</java>
-            <scala>SLASHSTAR_STYLE</scala>
-          </mapping>
-          <timestampPropertyName>currentYear</timestampPropertyName>
-          <properties>
-            <inceptionYear>2015</inceptionYear>
-          </properties>
         </configuration>
       </plugin>
     </plugins>

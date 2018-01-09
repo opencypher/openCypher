@@ -19,7 +19,7 @@
   </scm>
 
   <properties>
-    <license.header>${project.baseUri}../../ASL-2-header.txt</license.header>
+    <project.rootdir>${project.basedir}/../..</project.rootdir>
   </properties>
 
   <licenses>
