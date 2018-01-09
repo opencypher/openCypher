@@ -104,7 +104,8 @@ Feature: ProcedureCallAcceptance
       CALL test.doNothing()
       RETURN n
       """
-    Then the result should be empty
+    Then the result should be:
+      | n |
     And no side effects
 
   Scenario: In-query call to VOID procedure does not consume rows
@@ -146,7 +147,8 @@ Feature: ProcedureCallAcceptance
       """
       CALL test.doNothing() YIELD - RETURN 1
       """
-    Then the result should be empty
+    Then the result should be:
+      | 1 |
     And no side effects
 
   Scenario: Standalone call to procedure that takes no arguments and yields no results

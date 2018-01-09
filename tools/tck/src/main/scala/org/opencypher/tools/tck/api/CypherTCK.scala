@@ -46,8 +46,8 @@ object CypherTCK {
     * Provides all the scenarios in the openCypher TCK.
     *
     * @note While each scenario is unique, several scenarios could have the same name.
-    * This happens when the scenario is generated from a Gherkin Scenario Outline, in which case
-    * all variants of the Scenario Outline get the same name.
+    *       This happens when the scenario is generated from a Gherkin Scenario Outline, in which case
+    *       all variants of the Scenario Outline get the same name.
     */
   def allTckScenarios: Seq[Scenario] = parseClasspathFeatures(featuresPath).flatMap(_.scenarios)
 
@@ -96,6 +96,10 @@ object CypherTCK {
   }
 
   private def toScenario(featureName: String, pickle: Pickle): Scenario = {
+
+    val tags = tagNames(pickle)
+    val shouldValidate = !tags.contains("@allowCustomErrors")
+
     val steps = pickle.getSteps.asScala.flatMap { step =>
       def stepArguments = step.getArgument.asScala
 
@@ -140,39 +144,50 @@ object CypherTCK {
 
       val scenarioSteps: List[Step] = step.getText match {
         // Given
-        case emptyGraphR()     => List.empty
+        case emptyGraphR() => List.empty
         case namedGraphR(name) => List(Execute(NamedGraphs.graphs(name), InitQuery))
-        case anyGraphR()       => List(Execute(NamedGraphs.graphs.values.head, InitQuery))
+        case anyGraphR() => List(Execute(NamedGraphs.graphs.values.head, InitQuery))
 
         // And
-        case initQueryR()                   => List(Execute(queryFromStep, InitQuery))
-        case parametersR()                  => List(Parameters(parseParameters))
+        case initQueryR() => List(Execute(queryFromStep, InitQuery))
+        case parametersR() => List(Parameters(parseParameters))
         case installedProcedureR(signature) => List(RegisterProcedure(signature, parseTable()))
 
         // When
-        case executingQueryR()        => List(Measure, Execute(queryFromStep, ExecQuery))
+        case executingQueryR() => List(Measure, Execute(queryFromStep, ExecQuery))
         case executingControlQueryR() => List(Execute(queryFromStep, ExecQuery))
 
         // Then
-        case expectEmptyResultR()          => List(ExpectResult(CypherValueRecords.empty))
-        case expectResultR()               => List(ExpectResult(parseTable()))
-        case expectSortedResultR()         => List(ExpectResult(parseTable(), sorted = true))
+        case expectEmptyResultR() => List(ExpectResult(CypherValueRecords.empty))
+        case expectResultR() => List(ExpectResult(parseTable()))
+        case expectSortedResultR() => List(ExpectResult(parseTable(), sorted = true))
         case expectResultUnorderedListsR() => List(ExpectResult(parseTable(orderedLists = false)))
         case expectErrorR(errorType, time, detail) =>
-          List(ExpectError(errorType, time, detail).validate(), SideEffects().fillInZeros)
+          val expectedError = ExpectError(errorType, time, detail)
+          if (shouldValidate) {
+            expectedError.validate match {
+              case None => // No problem
+              case Some(errorMessage) =>
+                throw new InvalidFeatureFormatException(
+                  s"""Invalid error format in scenario "${pickle.getName}" from feature "$featureName":
+                    $errorMessage
+                    If this is a custom error, then disable this validation with tag "@allowCustomErrors"""")
+            }
+          }
+          List(expectedError, SideEffects().fillInZeros)
 
         // And
         case noSideEffectsR() => List(SideEffects().fillInZeros)
-        case sideEffectsR()   => List(SideEffects(parseSideEffectsTable).fillInZeros)
+        case sideEffectsR() => List(SideEffects(parseSideEffectsTable).fillInZeros)
 
         // Unsupported step
         case other =>
           throw InvalidFeatureFormatException(
-            s"Unsupported step: $other in scenario ${pickle.getName} from feature $featureName")
+            s"""Unsupported step: $other in scenario "${pickle.getName}" from feature "$featureName"""")
       }
       scenarioSteps
     }.toList
-    Scenario(featureName, pickle.getName, tagNames(pickle), steps)
+    Scenario(featureName, pickle.getName, tags, steps)
   }
 
   private def tagNames(pickle: Pickle): Set[String] = pickle.getTags.asScala.map(_.getName).toSet
@@ -198,21 +213,24 @@ case class Execute(query: String, qt: QueryType) extends Step
 case class ExpectResult(expectedResult: CypherValueRecords, sorted: Boolean = false) extends Step
 
 case class ExpectError(errorType: String, phase: String, detail: String) extends Step {
-  def validate(): ExpectError = {
-    if (!TCKErrorTypes.ALL.contains(errorType))
-      throw InvalidFeatureFormatException(
-        s"invalid error type: $errorType, valid ones are ${TCKErrorTypes.ALL.mkString("{ ", ", ", " }")}")
-    if (!TCKErrorPhases.ALL.contains(phase))
-      throw InvalidFeatureFormatException(
-        s"invalid error phase: $phase, valid ones are ${TCKErrorPhases.ALL.mkString("{ ", ", ", " }")}")
-    if (!TCKErrorDetails.ALL.contains(detail))
-      throw InvalidFeatureFormatException(
-        s"invalid error detail: $detail, valid ones are ${TCKErrorDetails.ALL.mkString("{ ", ", ", " }")}")
-    this
+  // Returns None if valid and Some("error message") otherwise.
+  def validate(): Option[String] = {
+    if (!TCKErrorTypes.ALL.contains(errorType)) {
+      Some(s"invalid TCK error type: $errorType, valid ones are ${TCKErrorTypes.ALL.mkString("{ ", ", ", " }")}")
+    } else if (!TCKErrorPhases.ALL.contains(phase)) {
+      Some(s"invalid TCK error phase: $phase, valid ones are ${TCKErrorPhases.ALL.mkString("{ ", ", ", " }")}")
+    } else if (!TCKErrorDetails.ALL.contains(detail)) {
+      Some(s"invalid TCK error detail: $detail, valid ones are ${TCKErrorDetails.ALL.mkString("{ ", ", ", " }")}")
+    } else {
+      None
+    }
   }
 }
 
 sealed trait QueryType
+
 case object InitQuery extends QueryType
+
 case object ExecQuery extends QueryType
+
 case object SideEffectQuery extends QueryType
