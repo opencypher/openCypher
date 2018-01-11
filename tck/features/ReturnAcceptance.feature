@@ -43,7 +43,7 @@ Feature: ReturnAcceptanceTest
       LIMIT 2
       """
     Then the result should be:
-      | i             |
+      | i |
       | 1 |
       | 1 |
     And no side effects
