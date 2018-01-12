@@ -36,6 +36,20 @@ Feature: ReturnAcceptanceTest
 
   Scenario: Limit to two hits
     Given an empty graph
+    When executing query:
+      """
+      UNWIND [1, 1, 1, 1, 1] AS i
+      RETURN i
+      LIMIT 2
+      """
+    Then the result should be:
+      | i |
+      | 1 |
+      | 1 |
+    And no side effects
+
+  Scenario: Limit to two hits with explicit order
+    Given an empty graph
     And having executed:
       """
       CREATE ({name: 'A'}),
@@ -48,6 +62,7 @@ Feature: ReturnAcceptanceTest
       """
       MATCH (n)
       RETURN n
+      ORDER BY n.name ASC
       LIMIT 2
       """
     Then the result should be:
