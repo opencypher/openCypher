@@ -10,14 +10,11 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tck</artifactId>
+    <artifactId>tck-api</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>openCypher TCK Developer Tools</name>
+    <name>openCypher TCK API</name>
     <url>http://opencypher.org</url>
-    <description>openCypher Technology Compatibility Kit</description>
-    <scm>
-        <url>https://github.com/opencypher/opencypher</url>
-    </scm>
+    <description>openCypher Technology Compatibility Kit API</description>
 
     <properties>
         <scala.version>2.11.7</scala.version>
@@ -69,44 +66,9 @@
                 </dependencies>
             </plugin>
         </plugins>
-        <resources>
-            <resource>
-                <directory>../../grammar</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>../../tck/features</directory>
-                <includes>
-                    <include>**/*.feature</include>
-                </includes>
-                <targetPath>features</targetPath>
-            </resource>
-            <resource>
-                <directory>../../tck/graphs</directory>
-                <includes>
-                    <include>**/*.cypher</include>
-                    <include>**/*.json</include>
-                </includes>
-                <targetPath>graphs</targetPath>
-            </resource>
-        </resources>
     </build>
 
     <dependencies>
-
-        <dependency>
-            <groupId>info.cukes</groupId>
-            <artifactId>cucumber-scala_2.11</artifactId>
-            <version>1.2.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>info.cukes</groupId>
-            <artifactId>cucumber-junit</artifactId>
-            <version>1.2.4</version>
-        </dependency>
 
         <dependency>
             <groupId>org.scala-lang</groupId>
@@ -141,13 +103,6 @@
         <!-- Test deps -->
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.11</artifactId>
             <version>2.2.6</version>
@@ -169,17 +124,8 @@
 
         <dependency>
             <groupId>org.opencypher</groupId>
-            <artifactId>grammar</artifactId>
+            <artifactId>tck</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.opencypher</groupId>
-            <artifactId>grammar</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
