@@ -19,6 +19,7 @@ package org.opencypher.tools.tck
 import java.util.concurrent.atomic.AtomicInteger
 
 import cucumber.api.DataTable
+import org.opencypher.tools.tck.api.InvalidFeatureFormatException
 import org.opencypher.tools.tck.constants.TCKStepDefinitions._
 
 import scala.util.{Failure, Success, Try}
@@ -150,8 +151,6 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
         "Keeping used expression 4")
 
 }
-
-case class InvalidFeatureFormatException(message: String) extends RuntimeException(message)
 
 class ScenarioFormatValidator {
   private var hadGiven = false

@@ -227,6 +227,8 @@ case class ExpectError(errorType: String, phase: String, detail: String) extends
   }
 }
 
+case class InvalidFeatureFormatException(message: String) extends RuntimeException(message)
+
 sealed trait QueryType
 
 case object InitQuery extends QueryType

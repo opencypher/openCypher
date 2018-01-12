@@ -16,9 +16,9 @@
  */
 package org.opencypher.tools.tck.values
 
-import org.opencypher.tools.tck.TckTestSupport
+import org.scalatest.{FunSuiteLike, Matchers}
 
-class CypherValueTest extends TckTestSupport {
+class CypherValueTest extends FunSuiteLike with Matchers {
 
   test("list comparisons") {
     val oList1 = CypherOrderedList(List(CypherInteger(1), CypherInteger(2)))
