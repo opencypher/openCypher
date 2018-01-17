@@ -1,4 +1,4 @@
-= CIP2016-12-16 - Constraints syntax
+= CIP2016-12-16 Constraints syntax
 :numbered:
 :toc:
 :toc-placement: macro
