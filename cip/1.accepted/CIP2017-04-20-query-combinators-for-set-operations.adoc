@@ -1,4 +1,4 @@
-= CIP2017-04-20 - Query combinators for set operations
+= CIP2017-04-20 Query combinators for set operations
 :numbered:
 :toc:
 :toc-placement: macro
