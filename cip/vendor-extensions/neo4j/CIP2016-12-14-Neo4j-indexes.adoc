@@ -1,4 +1,4 @@
-= CIP2016-12-16 - Neo4j Indexes
+= CIP2016-12-16 Neo4j Indexes
 :numbered:
 :toc:
 :toc-placement: macro
