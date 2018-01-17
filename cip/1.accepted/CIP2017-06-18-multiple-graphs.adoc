@@ -1,4 +1,4 @@
-= CIP2017-06-18 - Multiple Graphs
+= CIP2017-06-18 Multiple Graphs
 :numbered:
 :toc:
 :toc-placement: macro
