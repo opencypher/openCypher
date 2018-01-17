@@ -1,4 +1,4 @@
-= CIP<CCYY>-<MM>-<DD> - <The title of the CIP>
+= CIP<CCYY>-<MM>-<DD> <The title of the CIP>
 :numbered:
 :toc:
 :toc-placement: macro
