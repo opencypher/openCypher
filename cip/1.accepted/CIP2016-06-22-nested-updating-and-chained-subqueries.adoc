@@ -1,4 +1,4 @@
-= CIP2016-06-22 - Nested, updating, and chained subqueries
+= CIP2016-06-22 Nested, updating, and chained subqueries
 :numbered:
 :toc:
 :toc-placement: macro
