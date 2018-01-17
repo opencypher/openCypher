@@ -1,4 +1,4 @@
-= CIP2016-01-26 - Mandatory Match
+= CIP2016-01-26 The MANDATORY MATCH clause
 :numbered:
 :toc:
 :toc-placement: macro

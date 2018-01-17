@@ -1,4 +1,4 @@
-= CIP2015-10-27 - State visibility between clauses
+= CIP2015-10-27 State visibility between clauses
 :numbered:
 :toc:
 :toc-placement: macro

@@ -1,4 +1,4 @@
-= CIP2015-11-09 - Type coercions
+= CIP2015-11-09 Type coercions
 :numbered:
 :toc:
 :toc-placement: macro

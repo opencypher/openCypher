@@ -1,4 +1,4 @@
-= CIP2016-06-14 - Define Comparability and Equality, as well as Orderability and Equivalence
+= CIP2016-06-14 Definitions for Comparability and Equality, and Orderability and Equivalence
 :numbered:
 :toc:
 :toc-placement: macro
