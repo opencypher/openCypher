@@ -1,4 +1,4 @@
-= CIP2015-09-15 - STARTS WITH and ENDS WITH
+= CIP2015-09-15 STARTS WITH and ENDS WITH
 :numbered:
 :toc:
 :toc-placement: macro

@@ -1,4 +1,4 @@
-= CIP2016-07-07 - Type conversion functions
+= CIP2016-07-07 Type conversion functions
 :numbered:
 :toc:
 :toc-placement: macro

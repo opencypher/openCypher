@@ -1,4 +1,4 @@
-= CIP2016-07-07 - Parameter syntax
+= CIP2016-07-07 Parameter syntax
 :numbered:
 :toc:
 :toc-placement: macro
