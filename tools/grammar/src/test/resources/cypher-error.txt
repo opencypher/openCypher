@@ -25,3 +25,8 @@ CREATE ()
 WITH *
 DELETE a
 RETURN a§
+//
+// Miscellaneous errors
+//
+// Label check predicates shouldn't precede property lookup, see #288
+MATCH (p) WHERE p:Person:Teacher.name RETURN p§
