@@ -133,9 +133,9 @@ public class Antlr4TestUtils
         }
 
         @Override
-        public void syntaxError( Recognizer<?,?> recognizer, Object o, int i, int i1, String s, RecognitionException e )
+        public void syntaxError( Recognizer<?,?> recognizer, Object o, int line, int charPositionInLine, String msg, RecognitionException e )
         {
-            fail( "syntax error in query: " + query );
+            fail( "syntax error in query at line " + line + ":" + charPositionInLine + ": " + msg + ": " + query );
         }
 
         @Override

@@ -258,12 +258,9 @@
   <production name="PropertyOrLabelsExpression" rr:inline="true">
     <non-terminal ref="Atom"/>
     <repeat>
-      &WS;
-      <alt>
-        <non-terminal ref="PropertyLookup"/>
-        <non-terminal ref="NodeLabels"/>
-      </alt>
+      &WS; <non-terminal ref="PropertyLookup"/>
     </repeat>
+    <opt>&WS; <non-terminal ref="NodeLabels"/></opt>
   </production>
 
   <production name="Atom">
