@@ -681,16 +681,10 @@ ORDER BY requires all values to be orderable.
 Comparable values should be ordered in the same order as implied by their comparison order.
 This means that ordering values where all values are of the same temporal instant type is trivial.
 However, ORDER BY in Cypher also needs to support ordering values of different types together.
-Typically this is done by ordering the values first by type, and then by the inherent comparison order (if any) within that type (if no comparison order is defined for the type, values are ordered in any way that ensures equal values are grouped together).
-For temporal values it does however make sense to be able to order values of different types together.
-The ordering rules are as follows:
+For temporal values, this is solved in the same way as for most types in Cypher, by first ordering by type, and then by comparison order within the type.
 
- * _Date_, _DateTime_, and _LocalDateTime_ are ordered together with one another.
- * _Time_ and _LocalTime_ are ordered together with one another, and ordered after _Date_, _DateTime_, and _LocalDateTime_.
- * _Date_ is ordered before _DateTime_ or _LocalDateTime_ with the same date component (as if the time-portion had a value that was just between the last _DateTime_ of the previous date and the first _DateTime_ of the same date as the _Date_), and as if the _Date_ had a timezone of `00:00`.
- * _LocalDateTime_ and _LocalTime_ are ordered based on the timezone of the session (or the timezone of the database instance performing the ordering if no timezone is set in the session).
- * _Duration_ values are ordered separately from values of other types.
- * _Duration_ values are ordered by length, as if all years were +365.25+ days long, all months were +30.4375+ days long, all days were +24+ hours long, and all minutes were +60+ seconds long.
+Since no complete comparison order can be defined for _Duration_ values, we define an order for ORDER BY specifically for _Duration_.
+_Duration_ values are ordered by normalising all components as if all years were +365.25+, all months were +30.4375+ days long and all days were +24+ hours long.
 
 
 ==== String representation of temporal values
