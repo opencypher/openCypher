@@ -467,45 +467,134 @@ For example creating a _Date_ representing the first day of the _current week_, 
     WITH datetime() as now
     RETURN date({year:now.year, week:now.week})
 
-In order to facilitate this use case, Cypher provides selectors for each component type in addition to the logical group selectors (date, time, and datetime), as well as some useful multiples and fractions of a year:
+In order to facilitate this use case, Cypher provides a `.truncate` _"sub-function"_ for each temporal instant type (i.e. `datetime.truncate(...)`, `localdatetime.truncate(...)`, `date.truncate(...)`, `time.truncate(...)`, and `localtime.truncate(...)`).
 
- * `millenniumOf` - selects the temporal value corresponding to the millennium of the _Date_ or _DateTime_ given as parameter.
- * `centuryOf` - selects the temporal value corresponding to the century of the _Date_ or _DateTime_ given as parameter.
- * `decadeOf` - selects the temporal value corresponding to the decade of the _Date_ or _DateTime_ given as parameter.
- * `yearOf` - selects the temporal value corresponding to the year of the _Date_ or _DateTime_ given as parameter.
- * `quarterOf` - selects the temporal value corresponding to the quarter of the year of the _Date_ or _DateTime_ given as parameter.
- * `monthOf` - selects the temporal value corresponding to the month of the _Date_ or _DateTime_ given as parameter.
- * `weekOf` - selects the temporal value corresponding to the week of the _Date_ or _DateTime_ given as parameter.
- * `dayOf` - selects the temporal value corresponding to the day of the _Date_ or _DateTime_ given as parameter.
- * `hourOf` - selects the temporal value corresponding to the hour of the _Time_ or _DateTime_ given as parameter.
- * `minuteOf` - selects the temporal value corresponding to the hour of the _Time_ or _DateTime_ given as parameter.
- * `secondOf` - selects the temporal value corresponding to the hour of the _Time_ or _DateTime_ given as parameter.
- * `millisecondOf` - selects the temporal value corresponding to the hour of the _Time_ or _DateTime_ given as parameter.
- * `microsecondOf` - selects the temporal value corresponding to the hour of the _Time_ or _DateTime_ given as parameter.
- * There is no selector for nanoseconds, since it is the smallest available unit.
-   Truncating to nanoseconds is the same as keeping the same _Time_ or _DateTime_ value.
+The signature of these truncation functions is two mandatory arguments.
+The first argument is a string describing the unit to truncate to.
+The second argument is the value to truncate.
+The output type is always determined by which truncation function is used, but the input value can be of any type that supports the fields required for truncating to the specified unit.
 
-The temporal value is created has the value of all the smaller components than the one corresponding to the selected component set to their minimal value.
-It is however possible to specify values for these components as additional parameters alongside the selector parameter.
+The following table shows the supported truncation units, the functions that support them, and the supported input value types:
+
+|===
+| *Unit* | *Truncate functions* | *Supported input types*
+
+.3+| `millennium` +
+Select the temporal instant corresponding to the millenium of the given instant.
+| `datetime.truncate('*millennium*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*millennium*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*millennium*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+
+.3+| `century` +
+Select the temporal instant corresponding to the century of the given instant.
+| `datetime.truncate('*century*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*century*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*century*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+
+.3+| `decade` +
+Select the temporal instant corresponding to the decade of the given instant.
+| `datetime.truncate('*decade*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*decade*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*decade*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+
+.3+| `year` +
+Select the temporal instant corresponding to the year of the given instant.
+| `datetime.truncate('*year*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*year*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*year*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+
+.3+| `quarter` +
+Select the temporal instant corresponding to the quarter of the year of the given instant.
+| `datetime.truncate('*quarter*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*quarter*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*quarter*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+
+.3+| `month` +
+Select the temporal instant corresponding to the month of the given instant.
+| `datetime.truncate('*month*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*month*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*month*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+
+.3+| `week` +
+Select the temporal instant corresponding to the week of the given instant.
+| `datetime.truncate('*week*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*week*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*week*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+
+.3+| `day` +
+Select the temporal instant corresponding to the month of the given instant.
+| `datetime.truncate('*day*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*day*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*day*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+
+.4+| `hour` +
+Select the temporal instant corresponding to the hour of the given instant.
+| `datetime.truncate('*hour*', _input_)` | _DateTime_
+| `localdatetime.truncate('*hour*', _input_)`, | _DateTime_, _LocalDateTime_
+| `time.truncate('*hour*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+| `localtime.truncate('*hour*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+
+.4+| `minute` +
+Select the temporal instant corresponding to the minute of the given instant.
+| `datetime.truncate('*minute*', _input_)` | _DateTime_
+| `localdatetime.truncate('*minute*', _input_)`, | _DateTime_, _LocalDateTime_
+| `time.truncate('*minute*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+| `localtime.truncate('*minute*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+
+.4+| `second` +
+Select the temporal instant corresponding to the second of the given instant.
+| `datetime.truncate('*second*', _input_)` | _DateTime_
+| `localdatetime.truncate('*second*', _input_)`, | _DateTime_, _LocalDateTime_
+| `time.truncate('*second*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+| `localtime.truncate('*second*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+
+.4+| `millisecond` +
+Select the temporal instant corresponding to the millisecond of the given instant.
+| `datetime.truncate('*millisecond*', _input_)` | _DateTime_
+| `localdatetime.truncate('*millisecond*', _input_)`, | _DateTime_, _LocalDateTime_
+| `time.truncate('*millisecond*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+| `localtime.truncate('*millisecond*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+
+.4+| `microsecond` +
+Select the temporal instant corresponding to the microsecond of the given instant.
+| `datetime.truncate('*microsecond*', _input_)` | _DateTime_
+| `localdatetime.truncate('*microsecond*', _input_)`, | _DateTime_, _LocalDateTime_
+| `time.truncate('*microsecond*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+| `localtime.truncate('*microsecond*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+|===
+
+[horizontal]
+†:: It is possible to truncate a date-based value without timezone to a _DateTime_ value.
+    When doing so the resulting _DateTime_ will have the default timezone, unless a timezone has been specified explicitly through the optional third argument.
+
+The truncation functions accept an optional third argument.
+The third argument, if present, is a map containing fields of smaller units than the truncation unit that are used to supplement the truncated value.
+For `datetime.truncate(...)` and `time.truncate(...)`, the third argument may also be used to specify a timezone (such as `time.truncate('minute', _input_, {timezone:'+0200'})`) in order to override the timezone of the input.
+The third argument of `.truncate` makes for a convenient way to truncate and adjust a temporal instant.
+Such as in the following example which computes the date of Thursday in the current week:
+
+    RETURN date.truncate('week', date(), {dayOfWeek: 4})
+
+When no third argument is specified, or for the fields not present in the third argument, the smaller fields than the truncation unit has a value of those fields set to their minimal value.
 
 Example illustrating querying for sales during the current quarter:
 
-    WITH date({quarterOf:date()}) AS start, start + duration("P3M") AS end
-    MATCH (sale:Sale) WHERE start < sale.salesData < end
+    WITH date.truncate('quarter',date()) AS start, start + duration("P3M") AS end
+    MATCH (sale:Sale) WHERE start < sale.salesDate < end
     RETURN ...
 
 Example illustrating querying for events in the current week:
 
-    WITH datetime({weekOf:date()}) AS start, start + duration("P1W") as END
+    WITH datetime.truncate('week', date()) AS start, start + duration("P1W") as END
     MATCH (event:Event) WHERE start < event.startTime < end
 
 Get the current time of Tuesday of the current week:
 
-    RETURN datetime({weekOf:date(), time:time(), day:2})
+    RETURN datetime.truncate('week', date(), {dayOfWeek:2, time:time()})
 
 Get the last day of the next month:
 
-    RETURN date({date: date() + duration("P2M"), day:1}) - duration("P1D")
+    RETURN date.truncate('month', date() + duration("P2M")) - duration("P1D")
 
 
 [[arithmetic]]
