@@ -357,31 +357,33 @@ If the duration is added to a temporal instant the recomputation will occur, sin
 
 ===== Computing the Duration between two temporal instants
 
-In some cases it might be desirable to compute the _logical difference_ (in days, months, years, etc) between two temporal instant values, this is also supported through the duration function:
+In some cases it might be desirable to compute the _logical difference_ (in days, months, years, etc) between two temporal instant values, this is done through the use of the `duration.between` _"sub-function"_ of `duration`:
 
-    duration({from: date("1984-10-11"), to: date("2015-06-24")})
+    duration.between(date("1984-10-11"), date("2015-06-24"))
 
 _yields_
 
     duration({years:30, months:8, days:13})
 
-In order to compute the difference between two temporal instants in one specific unit, Cypher supports specifying the unit in the parameter name of the from parameter, as in this example:
+In order to compute the difference between two temporal instants in one specific unit, Cypher supports specifying the unit as a _"sub-function"_ of the `duration` function as well, such as in this example:
 
-    duration({weeksFrom: date("2014-10-11"), to: date("2015-08-06")})
+    duration.weeks(date("2014-10-11"), date("2015-08-06"))
 
 _yields_
 
     duration({weeks:42})
 
-The supported _from parameters_ are:
+The supported _duration sub-functions_ are:
 
- * `yearsFrom` - to compute the difference in years.
- * `monthsFrom` - to compute the difference in months.
- * `weeksFrom` - to compute the difference in weeks.
- * `daysFrom` - to compute the difference in days.
- * `hoursFrom` - to compute the difference in hours.
- * `minutesFrom` - to compute the difference in minutes.
- * `secondsFrom` - to compute the difference in seconds.
+ * `duration.between(a, b)` - to compute the difference in multiple components between instant `a` and instant `b`.
+ * `duration.years(a, b)` - to compute the difference in whole years between instant `a` and instant `b`.
+ * `duration.quarters(a, b)` - to compute the difference in whole quarters between instant `a` and instant `b`.
+ * `duration.months(a, b)` - to compute the difference in whole months between instant `a` and instant `b`.
+ * `duration.weeks(a, b)` - to compute the difference in whole weeks between instant `a` and instant `b`.
+ * `duration.days(a, b)` - to compute the difference in whole days between instant `a` and instant `b`.
+ * `duration.hours(a, b)` - to compute the difference in whole hours between instant `a` and instant `b`.
+ * `duration.minutes(a, b)` - to compute the difference in whole minutes between instant `a` and instant `b`.
+ * `duration.seconds(a, b)` - to compute the difference in seconds (and fractions of seconds) between instant `a` and instant `b`.
 
 
 [[converting-composing]]
