@@ -283,6 +283,7 @@ Parsing a _Duration_:
 * `duration("P2.5W")` - _2 weeks, 3 days, and 12 hours_
 
 
+[[current-time]]
 ==== Getting the current temporal instant value
 
 Invoking one of the functions for producing a temporal instant value with no parameter produces a value of the corresponding temporal type representing the current point in time.
@@ -296,6 +297,36 @@ So this invocation would for example produce the current time of the day in Cali
 
     time({timezone:"America/Los Angeles"})
 
+==== Specifying which clock to use
+
+When using the temporal instant functions to <<current-time,retrieve the current instant>>, the default clock of the Cypher implementation is used.
+There are three different explicit clocks available, and which one of them is default is up to each specific Cypher implementation.
+It is possible to specify which clock to use explicitly, by using a _"sub-function"_ of the temporal instant function.
+These _"sub-functions"_ can only be used to retrieve the current instant, and accepts a single optional argument specifying the timezone.
+
+The three explicit clocks are:
+
+ * `_transaction_` - which produces the same instant whenever it is invoked within the same transaction - but may produce a different time for different transactions.
+ * `_statement_` - which produces the same instant whenever it is invoked within the same statement - but may produce a different time for different statements in the same transaction.
+ * `_realtime_` - which will produce the instant of the live clock of the system.
+
+The _"sub-functions"_ used for selecting the clock has the same name as the clock to use, leading to the following _"sub-functions"_ for the different temporal instant types:
+
+|===
+| *Type* 3+| *Clock*
+|| `_transaction_` | `_statement_` | `_realtime_`
+
+| _DateTime_ | `datetime.transaction()` | `datetime.statement()` | `datetime.realtime()`
+| _LocalDateTime_ | `localdatetime.transaction()` | `localdatetime.statement()` | `localdatetime.realtime()`
+| _Date_ | `date.transaction()` | `date.statement()` | `date.realtime()`
+| _Time_ | `time.transaction()` | `time.statement()` | `time.realtime()`
+| _LocalTime_ | `localtime.transaction()` | `localtime.statement()` | `localtime.realtime()`
+|===
+
+Even the types that do not contain timezone information support supplying a timezone to the functions that retrieve the current time, in order to retrieve the current time in that timezone.
+For example:
+
+    RETURN date.realtime('America/Los_Angeles') AS today_in_LA
 
 [[constructing]]
 ==== Constructing temporal instant values
@@ -1048,23 +1079,3 @@ These would be comparable to one another if that single unit is the same, and ot
 If we then further define subtraction on _Date_, _Time_, and _DateTime_ to produce such a single unit duration (with the unit being DAYS for _Date_, and SECONDS for _Time_ and _DateTime_) we would be able to express “is the difference between these two temporal instants shorter than this given duration” in a slightly more intuitive way.
 
 It is questionable if making the type system more complex like this is justified by the small benefit of being able to write such comparisons, especially since the duration in the comparison would be limited to a single time unit.
-
-
-=== Support different interpretations of current time
-
-There are a few different interpretations that makes sense of what the _current time_ means.
-The simplest interpretation is to look at what the current system time is when the current time was queried.
-However, if the use of the _current time_ is for assigning a timestamp to entities updated it would be desirable to have _current__ time_ be the same throughout the entire execution of the current statement, perhaps even throughout the execution of an entire transaction.
-In order to facilitate this the functions for creating temporal instant values accept a parameter called *when* specifying what definition of _current time_ is desired.
-The default is to return the same time throughout an entire statement, and the valid values for the when parameter are:
-
- * now - the actual time of invocation.
- * statement - the time of the statement.
-   Theoretically the start of the statement, but as long as each invocation within the same statement produces the same result, the implementation is free to for example cache the time of the first invocation instead.
-   This is the default value.
- * transaction - the start time of the transaction.
-   The only other parameter that can be specified along with the when parameter is timezone. +
-   An example would be: +
-   `datetime({when:"transaction"})` +
-   This can be combined with specifying the timezone: +
-   `datetime({when:"now", timezone:"+02"})`
