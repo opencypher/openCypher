@@ -41,6 +41,7 @@
                             <goal>compile</goal>
                             <goal>testCompile</goal>
                             <goal>add-source</goal>
+                            <goal>doc-jar</goal>
                         </goals>
                     </execution>
                 </executions>
