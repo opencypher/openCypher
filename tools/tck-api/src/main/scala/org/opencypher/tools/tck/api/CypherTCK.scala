@@ -57,12 +57,14 @@ object CypherTCK {
 
   def parseClasspathFeatures(path: String): Seq[Feature] = {
     val resource = getClass.getResource(path).toURI
-    FileSystems.newFileSystem(resource, new util.HashMap[String, String]) // Needed to support `Paths.get` below
+    val fs = FileSystems.newFileSystem(resource, new util.HashMap[String, String]) // Needed to support `Paths.get` below
     val directoryPath = Paths.get(resource)
     val paths = Files.newDirectoryStream(directoryPath).asScala.toSeq
     val featurePathStrings = paths.map(path => path.toString).filter(_.endsWith(featureSuffix))
     val featureUrls = featurePathStrings.map(getClass.getResource(_))
-    featureUrls.map(parseClasspathFeature)
+    val parsedFeatures = featureUrls.map(parseClasspathFeature)
+    fs.close()
+    parsedFeatures
   }
 
   def parseFilesystemFeatures(directory: File): Seq[Feature] = {
