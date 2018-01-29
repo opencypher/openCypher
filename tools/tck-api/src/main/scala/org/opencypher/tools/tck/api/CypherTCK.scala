@@ -36,7 +36,7 @@ import scala.util.{Failure, Success, Try}
 
 object CypherTCK {
 
-  val featuresPath = "/features"
+  val featuresPath = s"${File.separator}features"
   val featureSuffix = ".feature"
 
   private lazy val parser = new Parser[GherkinDocument](new AstBuilder)
@@ -57,12 +57,16 @@ object CypherTCK {
 
   def parseClasspathFeatures(path: String): Seq[Feature] = {
     val resource = getClass.getResource(path).toURI
-    FileSystems.newFileSystem(resource, new util.HashMap[String, String]) // Needed to support `Paths.get` below
-    val directoryPath = Paths.get(resource)
-    val paths = Files.newDirectoryStream(directoryPath).asScala.toSeq
-    val featurePathStrings = paths.map(path => path.toString).filter(_.endsWith(featureSuffix))
-    val featureUrls = featurePathStrings.map(getClass.getResource(_))
-    featureUrls.map(parseClasspathFeature)
+    val fs = FileSystems.newFileSystem(resource, new util.HashMap[String, String]) // Needed to support `Paths.get` below
+    try {
+      val directoryPath = Paths.get(resource)
+      val paths = Files.newDirectoryStream(directoryPath).asScala.toSeq
+      val featurePathStrings = paths.map(path => path.toString).filter(_.endsWith(featureSuffix))
+      val featureUrls = featurePathStrings.map(getClass.getResource(_))
+      featureUrls.map(parseClasspathFeature)
+    } finally {
+      fs.close()
+    }
   }
 
   def parseFilesystemFeatures(directory: File): Seq[Feature] = {
