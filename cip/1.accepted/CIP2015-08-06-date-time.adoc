@@ -357,6 +357,12 @@ Furthermore these components are available for specifying time:
  * `timezone` (a string identifying the timezone, either as a <<time-zones,logical timezone name>>, or as <<iso-time-zone,an offset from UTC>>)
 
 
+==== Creating temporal instant values from timestamps
+
+* `datetime.fromepoch($seconds,$nanos)`
+* `datetime.fromepochmillis($millis)`
+
+
 [[constructing-duration]]
 ==== Constructing Duration values
 
