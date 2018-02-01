@@ -17,6 +17,7 @@
 package org.opencypher.tools.tck
 
 import org.opencypher.tools.tck.api.{ExecutionFailed, Graph, SideEffectQuery}
+import org.opencypher.tools.tck.constants.TCKQueries._
 import org.opencypher.tools.tck.constants.TCKSideEffects._
 import org.opencypher.tools.tck.values.CypherValue
 
@@ -83,34 +84,11 @@ object SideEffectOps {
     }
   }
 
-  private val nodesQuery =
-    s"""MATCH (n) RETURN id(n)"""
-
-  private val relsQuery =
-    s"""MATCH ()-[r]->() RETURN id(r)"""
-
-  private val labelsQuery =
-    s"""MATCH (n)
-       |UNWIND labels(n) AS label
-       |RETURN DISTINCT label""".stripMargin
-
-  private val nodePropsQuery =
-    s"""MATCH (n)
-       |UNWIND keys(n) AS key
-       |WITH properties(n) AS properties, key, n
-       |RETURN id(n) AS nodeId, key, properties[key] AS value""".stripMargin
-
-  private val relPropsQuery =
-    """MATCH ()-[r]->()
-      |UNWIND keys(r) AS key
-      |WITH properties(r) AS properties, key, r
-      |RETURN id(r) AS relId, key, properties[key] AS value""".stripMargin
-
   def measureState(graph: Graph): State = {
-    val nodes = execToSet(graph, nodesQuery)
-    val rels = execToSet(graph, relsQuery)
-    val labels = execToSet(graph, labelsQuery)
-    val nodeProps = graph.execute(nodePropsQuery, Map.empty, SideEffectQuery)._2 match {
+    val nodes = execToSet(graph, NODES_QUERY)
+    val rels = execToSet(graph, RELS_QUERY)
+    val labels = execToSet(graph, LABELS_QUERY)
+    val nodeProps = graph.execute(NODE_PROPS_QUERY, Map.empty, SideEffectQuery)._2 match {
       case Left(error) =>
         throw MeasurementFailed(error)
       case Right(records) =>
@@ -118,7 +96,7 @@ object SideEffectOps {
           Tuple3(row("nodeId"), row("key"), row("value"))
         }
     }
-    val relProps = graph.execute(relPropsQuery, Map.empty, SideEffectQuery)._2 match {
+    val relProps = graph.execute(REL_PROPS_QUERY, Map.empty, SideEffectQuery)._2 match {
       case Left(error) =>
         throw MeasurementFailed(error)
       case Right(records) =>
