@@ -288,3 +288,9 @@ MATCH (p) WHERE {foo: p}.foo:Person:Teacher RETURN p§
 MATCH (n) CREATE () WITH n RETURN n§
 MATCH (n) CREATE () WITH n SET n.foo = 1 RETURN n.bar§
 MATCH () CREATE () WITH * CREATE ()§
+// while the grammar should parse the following, a runtime error might be raised when executing, because we are to return a node that we just deleted
+MATCH (a), (b), (c)
+CREATE ()
+WITH *
+DELETE a
+RETURN a§
