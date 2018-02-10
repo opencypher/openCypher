@@ -127,14 +127,13 @@
   </production>
 
   <production name="MultiPartQuery">
-    <alt>
-      <non-terminal ref="ReadPart"/>
-      <seq>
-        <non-terminal ref="UpdatingStartClause"/>
-        &WS;
-        <non-terminal ref="UpdatingPart"/>
-      </seq>
-    </alt>
+    <seq>
+      <alt>
+        <non-terminal ref="ReadPart"/>
+        <seq><non-terminal ref="UpdatingStartClause"/> &WS;</seq>
+      </alt>
+      <non-terminal ref="UpdatingPart"/>
+    </seq>
 
     <non-terminal ref="With"/>
     &WS;
