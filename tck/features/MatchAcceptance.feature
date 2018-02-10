@@ -437,7 +437,7 @@ Feature: MatchAcceptance
       | [[:REL {value: 1}], [:REL {value: 2}]] |
     And no side effects
 
-  Scenario: Return relationships by collecting them as a list - wrong way
+  Scenario: Return relationships by collecting them as a list - directed, one way
     Given an empty graph
     And having executed:
       """
@@ -453,11 +453,11 @@ Feature: MatchAcceptance
       | [[:REL {value: 1}], [:REL {value: 2}]] |
     And no side effects
 
-  Scenario: Return relationships by collecting them as a list - undirected
+  Scenario: Return relationships by collecting them as a list - undirected, starting from two extremes
     Given an empty graph
     And having executed:
       """
-      CREATE (a:End {value: 1})-[:REL {value: 1}]->(b:B)-[:REL {value: 2}]->(c:End {value: 2})
+      CREATE (a:End)-[:REL {value: 1}]->(b:B)-[:REL {value: 2}]->(c:End)
       """
     When executing query:
       """
@@ -470,7 +470,7 @@ Feature: MatchAcceptance
       | [[:REL {value:2}], [:REL {value:1}]] |
     And no side effects
 
-  Scenario: Return relationships by collecting them as a list
+  Scenario: Return relationships by collecting them as a list - undirected, starting from one extreme
     Given an empty graph
     And having executed:
       """
