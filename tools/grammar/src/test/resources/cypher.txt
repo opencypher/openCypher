@@ -284,3 +284,5 @@ RETURN 1§
 // see: #288
 MATCH (p) WHERE p:Person:Teacher RETURN p§
 MATCH (p) WHERE {foo: p}.foo:Person:Teacher RETURN p§
+// see: #265
+MATCH (n) CREATE () WITH n RETURN n§
