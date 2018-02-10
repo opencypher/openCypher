@@ -144,7 +144,18 @@
       <non-terminal ref="With"/> &WS;
     </repeat>
 
-    <non-terminal ref="SinglePartQuery"/>
+    <alt>
+      <non-terminal ref="ReadOnlyEnd"/>
+      <seq>
+        <repeat>
+          <non-terminal ref="ReadingClause"/> &WS;
+        </repeat>
+        <repeat min="1">
+          <non-terminal ref="UpdatingClause"/> &WS;
+        </repeat>
+        <opt><non-terminal ref="Return"/></opt>
+      </seq>
+    </alt>
   </production>
 
   <production name="ReadPart" rr:inline="true">
