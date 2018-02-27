@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: WithAcceptance
 
   Scenario: Passing on pattern nodes

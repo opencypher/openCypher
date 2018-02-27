@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: OptionalMatch
 
   Scenario: Satisfies the open world assumption, relationships between same nodes

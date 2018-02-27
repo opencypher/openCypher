@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: SetAcceptance
 
   Scenario: Setting a node property to null removes the existing property

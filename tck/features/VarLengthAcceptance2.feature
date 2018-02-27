@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: VarLengthAcceptance2
 
   Scenario: Handling relationships that are already bound in variable length paths

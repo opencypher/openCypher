@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: TypeConversionFunctions
 
   Scenario: `toBoolean()` on valid literal string

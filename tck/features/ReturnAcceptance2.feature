@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: ReturnAcceptance2
 
   Scenario: Fail when returning properties of deleted nodes

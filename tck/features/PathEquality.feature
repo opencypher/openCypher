@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: PathEquality
 
   Scenario: Direction of traversed relationship is not significant for path equality, simple

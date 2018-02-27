@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: MatchAcceptance2
 
   Scenario: Do not return non-existent nodes

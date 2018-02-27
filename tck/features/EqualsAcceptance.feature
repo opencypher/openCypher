@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: EqualsAcceptance
 
   Scenario: Number-typed integer comparison
