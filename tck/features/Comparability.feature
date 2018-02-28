@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: Comparability
 
   Scenario: Comparing strings and integers using > in an AND'd predicate

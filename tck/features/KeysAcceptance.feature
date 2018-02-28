@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: KeysAcceptance
 
   Scenario: Using `keys()` on a single node, non-empty result

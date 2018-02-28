@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: CreateAcceptance
 
   Scenario: Create a single node with multiple labels

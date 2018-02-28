@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: UnionAcceptance
 
   Scenario: Should be able to create text output from union queries

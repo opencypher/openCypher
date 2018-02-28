@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: VarLengthAcceptance
 
   # TODO: Replace this with a named graph (or two)

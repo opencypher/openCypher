@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: MatchAcceptance
 
   Scenario: Path query should return results in written order

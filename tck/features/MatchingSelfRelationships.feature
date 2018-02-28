@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+#encoding: utf-8
+
 Feature: MatchingSelfRelationships
 
   Scenario: Undirected match in self-relationship graph
