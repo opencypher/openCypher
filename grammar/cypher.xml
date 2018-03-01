@@ -96,18 +96,31 @@
 
   <production name="SinglePartQuery">
     <alt>
-      <non-terminal ref="ReadOnlyEnd"/>
-      <non-terminal ref="ReadUpdateEnd"/>
-      <non-terminal ref="UpdatingEnd"/>
+      <seq>
+        <non-terminal ref="ReadOnlyQueryPartBody"/><!-- whitespace that follows already consumed in rule -->
+        <non-terminal ref="Return"/>
+      </seq>
+      <seq>
+        <non-terminal ref="ReadUpdateQueryPartBody"/>
+        <opt>&WS; <non-terminal ref="Return"/></opt>
+      </seq>
+      <seq>
+        <non-terminal ref="UpdateOnlyQueryPartBody"/>
+        <opt>&WS; <non-terminal ref="Return"/></opt>
+      </seq>
     </alt>
   </production>
 
-  <production name="ReadOnlyEnd" rr:inline="true">
-    <non-terminal ref="ReadPart"/>
-    <non-terminal ref="Return"/>
+  <production name="ReadOnlyQueryPartBody" rr:inline="true">
+    <!-- whitespaces consumed at end of rule -->
+    <repeat>
+      <non-terminal ref="ReadingClause"/>
+      &WS;
+    </repeat>
   </production>
 
-  <production name="ReadUpdateEnd" rr:inline="true">
+  <production name="ReadUpdateQueryPartBody" rr:inline="true">
+    <!-- no whitespaces consumed at begin/end of rule -->
     <non-terminal ref="ReadingClause"/>
     <repeat>
       &WS; <non-terminal ref="ReadingClause"/>
@@ -115,49 +128,67 @@
     <repeat min="1">
       &WS; <non-terminal ref="UpdatingClause"/>
     </repeat>
-    <opt>&WS; <non-terminal ref="Return"/></opt>
   </production>
 
-  <production name="UpdatingEnd" rr:inline="true">
+  <production name="UpdateOnlyQueryPartBody" rr:inline="true">
     <non-terminal ref="UpdatingStartClause"/>
     <repeat>
       &WS; <non-terminal ref="UpdatingClause"/>
     </repeat>
-    <opt>&WS; <non-terminal ref="Return"/></opt>
   </production>
 
   <production name="MultiPartQuery">
-    <alt>
-      <non-terminal ref="ReadPart"/>
-      <seq>
-        <non-terminal ref="UpdatingStartClause"/>
-        &WS;
-        <non-terminal ref="UpdatingPart"/>
-      </seq>
-    </alt>
-
-    <non-terminal ref="With"/>
+    <non-terminal ref="MultiPartQueryBegin"/>
     &WS;
-
     <repeat>
-      <non-terminal ref="ReadPart"/>
-      <non-terminal ref="UpdatingPart"/>
-      <non-terminal ref="With"/> &WS;
+      <non-terminal ref="MultiPartQueryMiddle"/>
+      &WS;
     </repeat>
-
-    <non-terminal ref="SinglePartQuery"/>
+    <non-terminal ref="MultiPartQueryEnd"/>
   </production>
 
-  <production name="ReadPart" rr:inline="true">
+  <production name="MultiPartQueryBegin" rr:inline="true">
+    <alt>
+      <non-terminal ref="ReadOnlyQueryPartBody"/><!-- whitespace that follows already consumed in rule -->
+      <seq>
+        <non-terminal ref="ReadUpdateQueryPartBody"/>
+        &WS;
+      </seq>
+      <seq>
+        <non-terminal ref="UpdateOnlyQueryPartBody"/>
+        &WS;
+      </seq>
+    </alt>
+    <non-terminal ref="With"/>
+  </production>
+
+  <production name="MultiPartQueryMiddle" rr:inline="true">
     <repeat>
       <non-terminal ref="ReadingClause"/> &WS;
     </repeat>
-  </production>
-
-  <production name="UpdatingPart" rr:inline="true">
     <repeat>
       <non-terminal ref="UpdatingClause"/> &WS;
     </repeat>
+    <non-terminal ref="With"/>
+  </production>
+
+  <production name="MultiPartQueryEnd" rr:inline="true">
+    <alt>
+      <seq>
+        <non-terminal ref="ReadOnlyQueryPartBody"/><!-- whitespace that follows already consumed in rule -->
+        <non-terminal ref="Return"/>
+      </seq>
+      <seq>
+        <repeat>
+          <non-terminal ref="ReadingClause"/> &WS;
+        </repeat>
+        <non-terminal ref="UpdatingClause"/>
+        <repeat>
+          &WS; <non-terminal ref="UpdatingClause"/>
+        </repeat>
+        <opt>&WS; <non-terminal ref="Return"/></opt>
+      </seq>
+    </alt>
   </production>
 
   <production name="UpdatingStartClause" rr:inline="true">
