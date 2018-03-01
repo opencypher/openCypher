@@ -28,6 +28,7 @@
   <properties>
     <project.rootdir>${project.basedir}</project.rootdir>
     <license.header>${project.rootdir}/ASL-2-header.txt</license.header>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <developers>
