@@ -137,37 +137,14 @@
   </production>
 
   <production name="MultiPartQuery">
-    <non-terminal ref="MultiPartQueryBegin"/>
-    &WS;
-    <repeat>
-      <non-terminal ref="MultiPartQueryMiddle"/>
-      &WS;
+    <repeat min="1">
+      <non-terminal ref="ReadOnlyQueryPartBody"/>
+      <repeat>
+        <non-terminal ref="UpdatingClause"/> &WS;
+      </repeat>
+      <non-terminal ref="With"/> &WS;
     </repeat>
     <non-terminal ref="SinglePartQuery"/>
-  </production>
-
-  <production name="MultiPartQueryBegin" rr:inline="true">
-    <alt>
-      <non-terminal ref="ReadOnlyQueryPartBody"/><!-- whitespace that follows already consumed in rule -->
-      <seq>
-        <non-terminal ref="ReadUpdateQueryPartBody"/>
-        &WS;
-      </seq>
-      <seq>
-        <non-terminal ref="UpdateOnlyQueryPartBody"/>
-      </seq>
-    </alt>
-    <non-terminal ref="With"/>
-  </production>
-
-  <production name="MultiPartQueryMiddle" rr:inline="true">
-    <repeat>
-      <non-terminal ref="ReadingClause"/> &WS;
-    </repeat>
-    <repeat>
-      <non-terminal ref="UpdatingClause"/> &WS;
-    </repeat>
-    <non-terminal ref="With"/>
   </production>
 
   <production name="UpdatingClause" rr:inline="true">
