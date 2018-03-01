@@ -294,3 +294,9 @@ CREATE ()
 WITH *
 DELETE a
 RETURN a§
+SET null.p = 2§
+REMOVE null.p§
+DELETE null§
+DETACH DELETE null§
+// syntactically correct, although semantically invalid
+DELETE a WITH 1 RETURN 2§

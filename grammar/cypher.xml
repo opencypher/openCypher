@@ -106,7 +106,7 @@
       </seq>
       <seq>
         <non-terminal ref="UpdateOnlyQueryPartBody"/>
-        <opt>&WS; <non-terminal ref="Return"/></opt>
+        <opt><non-terminal ref="Return"/></opt>
       </seq>
     </alt>
   </production>
@@ -131,9 +131,8 @@
   </production>
 
   <production name="UpdateOnlyQueryPartBody" rr:inline="true">
-    <non-terminal ref="UpdatingStartClause"/>
-    <repeat>
-      &WS; <non-terminal ref="UpdatingClause"/>
+    <repeat min="1">
+      <non-terminal ref="UpdatingClause"/> &WS;
     </repeat>
   </production>
 
@@ -156,7 +155,6 @@
       </seq>
       <seq>
         <non-terminal ref="UpdateOnlyQueryPartBody"/>
-        &WS;
       </seq>
     </alt>
     <non-terminal ref="With"/>
@@ -188,15 +186,6 @@
         </repeat>
         <opt>&WS; <non-terminal ref="Return"/></opt>
       </seq>
-    </alt>
-  </production>
-
-  <production name="UpdatingStartClause" rr:inline="true">
-    <alt>
-      <non-terminal ref="Create"/>
-      <non-terminal ref="Merge"/>
-      <non-terminal ref="CreateUnique"/>
-      <non-terminal ref="Foreach"/>
     </alt>
   </production>
 
