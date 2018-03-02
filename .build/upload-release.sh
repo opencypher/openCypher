@@ -18,7 +18,7 @@ echo "Generating EBNF grammars... "
 echo "Done!"
 
 echo "Installing asciidoctor-pdf to generate style guide..."
-gem install asciidoctor-pdf --pre
+gem install --local asciidoctor-pdf --pre
 echo "Done!"
 
 echo "Generating style guide pdf..."
