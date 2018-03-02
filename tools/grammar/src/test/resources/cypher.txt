@@ -300,3 +300,5 @@ DELETE null§
 DETACH DELETE null§
 // syntactically correct, although semantically invalid
 DELETE a WITH 1 RETURN 2§
+MATCH (a  ) DELETE a        RETURN a   §
+MATCH   (a) DELETE    a   WITH  a RETURN   a§
