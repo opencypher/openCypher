@@ -36,7 +36,7 @@ import scala.util.{Failure, Success, Try}
 
 object CypherTCK {
 
-  val featuresPath = s"${File.separator}features"
+  val featuresPath = "/features"
   val featureSuffix = ".feature"
 
   private lazy val parser = new Parser[GherkinDocument](new AstBuilder)
