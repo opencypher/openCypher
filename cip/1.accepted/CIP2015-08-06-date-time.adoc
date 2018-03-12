@@ -165,14 +165,16 @@ When the date and time parts are combined, the date part must be complete, i.e. 
 ====== Dates
 
 Years are always specified with at least four digits.
-For years before `0000` or after `9999` a sign (“`-`” or “`+`”, respectively) must prefix the year, and the year must be separated from the next component (with a “`-`” if the next component is month or day of the year, or with a “`-`” or “`W`” if the next component is week of the year).
+For years before `0000` or after `9999` a sign (“`-`” or “`+`”, respectively) must prefix the year, and the year must be separated from the next component (with a “`-`” if the next component is month or day of the year, or with a “`-`” or “`W`” if the next component is week of the year, or “`Q`” if the next component is quarter of the year).
 If the year is prefixed with a sign (and separated from the next component) the year component is allowed to contain any number of digits, but if the year component is not prefixed with a sign it must have exactly four digits and the year component is interpreted as a year of the _Common Era (CE)_ footnote:[The number of digits in the year component when a sign is used is an area where the ISO 8601 specification allows implementations a degree of freedom. Although it does specify that the interpretation must be agreed upon. Thus for Cypher this is the interpretation we decide.].
 Month is always specified using a two digit number from `01` to `12`.
 Week is always prefixed with “`W`” and specified using a two digit number from `01` to `53`.
+Quarter is always prefixed with “`Q`” and specified using a single digit number from `1` to `4`.
 Day of the month is always specified using a two digit number from `01` to `31`.
 Day of the week is always specified using a single digit number from `1` to `7`.
+Day of the quarter is always specified using a two digit number from `01` to `92`.
 Ordinal day of the year is always specified using a three digit number from `001` to `366`.
-A date is thus specified using either the `_Year-Month-Day_` form for _calendar dates_, the `_Year-Week-Day_` form for _week dates_, or the `_Year-Day_` form for _ordinal dates_.
+A date is thus specified using either the `_Year-Month-Day_` form for _calendar dates_, the `_Year-Week-Day_` form for _week dates_, the `_Year-Quarter-Day_` form for _quarter dates_ footnote:[ISO 8601 does not specify quarter dates, this is an addition made in Cypher to align date input with truncation], or the `_Year-Day_` form for _ordinal dates_.
 In each of these forms the ISO 8601 specification allows the least significant parts to be omitted.
 Cypher will assume omitted parts to have their lowest possible value, so for example Cypher will interpret “2013-06” as the same date as “2013-06-01”.
 
@@ -186,6 +188,10 @@ Thus the following formats are supported for specifying dates:
  * `_YYYY_**W**_wwD_` (Week date, `_Year-Week-Day_`), _Example:_ `2015W302` (`2015-07-21`)
  * `_YYYY_**-W**_ww_` (Week date, `_Year-Week_`), _Example:_ `2015-W30` (`2015-07-20`)
  * `_YYYY_**W**_ww_` (Week date, `_Year-Week_`), _Example:_ `2015W30` (`2015-07-20`)
+ * `_YYYY_**-Q**_Q_**-**__DD__` (Week date, `_Year-Week-Day_`), _Example:_ `2015-Q2-60` (`2015-05-30`)
+ * `_YYYY_**Q**_QDD_` (Week date, `_Year-Quarter-Day_`), _Example:_ `2015Q260` (`2015-05-30`)
+ * `_YYYY_**-Q**_Q_` (Week date, `_Year-Quarter_`), _Example:_ `2015-Q2` (`2015-04-01`)
+ * `_YYYY_**Q**_Q_` (Week date, `_Year-Quarter_`), _Example:_ `2015Q2` (`2015-04-01`)
  * `_YYYY_**-**_DDD_` (Ordinal date, `_Year-Day_`), _Example:_ `2015-202` (`2015-07-21`)
  * `_YYYYDDD_` (Ordinal date, `_Year-Day_`), _Example:_ `2015202` (`2015-07-21`)
  * `_YYYY_` (Year), _Example:_ `2015` (interpreted as `2015-01-01`)
@@ -197,7 +203,8 @@ When specifying time components together with date components, the time must be 
 Time is always specified as `_Hour:Minute:Second_`, with the `_Second_` component being allowed to have a decimal fraction to represent a sub-second component.
 The decimal fraction of the Second can be separated using either a comma (“`,`”) or a full stop (“`.`”).
 All three of these components (hour, minute, and second), are required to be specified as a two digit number, with the decimal fraction of the seconds being in addition to the two digits of the second.
-The hour must be in the range `00` to `23`, the minute within `00` to `59` and the second within `00` to `60` footnote:[To account for leap seconds.].
+The hour must be in the range `00` to `23`, the minute within `00` to `59` and the second within `00` to `59`.
+Cypher does not support leap seconds, instead https://www.cl.cam.ac.uk/~mgk25/time/utc-sls/[UTC-SLS] (_UTC with Smoothed Leap Seconds_) is used to handle the difference in time between UTC and TAI.
 
 Thus the following formats are supported for specifying time:
 
@@ -558,43 +565,45 @@ Select the temporal instant corresponding to the week of the given instant.
 | `localdatetime.truncate('*week*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
 | `date.truncate('*week*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
 
-.3+| `day` +
+.5+| `day` +
 Select the temporal instant corresponding to the month of the given instant.
 | `datetime.truncate('*day*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
 | `localdatetime.truncate('*day*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
 | `date.truncate('*day*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+| `time.truncate('*day*', _input_)`^‡^ | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+| `localtime.truncate('*day*', _input_)`^‡^ | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
 
 .4+| `hour` +
 Select the temporal instant corresponding to the hour of the given instant.
-| `datetime.truncate('*hour*', _input_)` | _DateTime_
+| `datetime.truncate('*hour*', _input_)` | _DateTime_, _LocalDateTime_^†^
 | `localdatetime.truncate('*hour*', _input_)`, | _DateTime_, _LocalDateTime_
 | `time.truncate('*hour*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
 | `localtime.truncate('*hour*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
 
 .4+| `minute` +
 Select the temporal instant corresponding to the minute of the given instant.
-| `datetime.truncate('*minute*', _input_)` | _DateTime_
+| `datetime.truncate('*minute*', _input_)` | _DateTime_, _LocalDateTime_^†^
 | `localdatetime.truncate('*minute*', _input_)`, | _DateTime_, _LocalDateTime_
 | `time.truncate('*minute*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
 | `localtime.truncate('*minute*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
 
 .4+| `second` +
 Select the temporal instant corresponding to the second of the given instant.
-| `datetime.truncate('*second*', _input_)` | _DateTime_
+| `datetime.truncate('*second*', _input_)` | _DateTime_, _LocalDateTime_^†^
 | `localdatetime.truncate('*second*', _input_)`, | _DateTime_, _LocalDateTime_
 | `time.truncate('*second*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
 | `localtime.truncate('*second*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
 
 .4+| `millisecond` +
 Select the temporal instant corresponding to the millisecond of the given instant.
-| `datetime.truncate('*millisecond*', _input_)` | _DateTime_
+| `datetime.truncate('*millisecond*', _input_)` | _DateTime_, _LocalDateTime_^†^
 | `localdatetime.truncate('*millisecond*', _input_)`, | _DateTime_, _LocalDateTime_
 | `time.truncate('*millisecond*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
 | `localtime.truncate('*millisecond*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
 
 .4+| `microsecond` +
 Select the temporal instant corresponding to the microsecond of the given instant.
-| `datetime.truncate('*microsecond*', _input_)` | _DateTime_
+| `datetime.truncate('*microsecond*', _input_)` | _DateTime_, _LocalDateTime_^†^
 | `localdatetime.truncate('*microsecond*', _input_)`, | _DateTime_, _LocalDateTime_
 | `time.truncate('*microsecond*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
 | `localtime.truncate('*microsecond*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
@@ -602,7 +611,10 @@ Select the temporal instant corresponding to the microsecond of the given instan
 
 [horizontal]
 †:: It is possible to truncate a date-based value without timezone to a _DateTime_ value.
+    Just like it is always possible to truncate a _LocalDateTime_ to a _DateTime_.
     When doing so the resulting _DateTime_ will have the default timezone, unless a timezone has been specified explicitly through the optional third argument.
+‡:: Truncating time to day is supported, and yields midnight at the start of the day (`00:00`), regardless of input.
+    It retains the timezone of the input though, so it is not a useless operation.
 
 The truncation functions accept an optional third argument.
 The third argument, if present, is a map containing fields of smaller units than the truncation unit that are used to supplement the truncated value.
@@ -692,8 +704,8 @@ _yields_
 
 Notably not supported is the ability to subtract one temporal instant from another in order to get a _Duration_ representing the difference between those two instants.
 This is because the resulting _Duration_ would not be comparable to other _Durations_ anyhow, and thus there would be little value in producing it.
-Instead the <<constructing-duration,+duration+ function>> is preferred for creating a _Duration_ from one instant to another.
-Since it is quite intuitive to express a comparison of the difference between two temporal instants as `date1 - date2 < duration0` both the subtraction of temporal instants and the comparison of _Duration_ values produce an error that describe <<comparing,the supported way of comparing temporal instants>>.
+Instead the <<constructing-duration,+duration+ functions>> are preferred for creating a _Duration_ from one instant to another.
+Since it is quite intuitive to express a comparison of the difference between two temporal instants as `date1 - date2 < duration0` the subtraction of temporal instants produce an error that describe <<comparing,the supported way of comparing temporal instants>>.
 
 
 [[comparing]]
@@ -731,6 +743,8 @@ This is more involved since we don’t know which instant comes before the other
           ELSE
                date2 + duration("P1D") > date1
           END
+
+Since _Duration_ values are not comparable, the result of applying a comparison operator between two _Duration_ values is `null`.
 
 
 === Accessing components of temporal values
@@ -812,8 +826,10 @@ However, ORDER BY in Cypher also needs to support ordering values of different t
 For temporal values, this is solved in the same way as for most types in Cypher, by first ordering by type, and then by comparison order within the type.
 
 Since no complete comparison order can be defined for _Duration_ values, we define an order for ORDER BY specifically for _Duration_.
-_Duration_ values are ordered by normalising all components as if all years were +365.25+, all months were +30.4375+ days long and all days were +24+ hours long.
-
+_Duration_ values are ordered by normalising all components as if all years were +365.2425+ days long (`PT8765H49M12S`), all months were +30.436875+ (1/12 year) days long (`PT730H29M06S`), and all days were +24+ hours long.
+The +365.2425+ days per year comes from the frequency of leap years.
+A leap year occurs on a year with an ordinal number divisible by 4, that is not divisible by 100, unless it divisible by 400.
+This means that over 400 years there are `((365 * 4 + 1) * 25 - 1) * 4 + 1 = 146097` days, which means an average of +365.2425+ days per year.
 
 ==== String representation of temporal values
 
@@ -910,6 +926,8 @@ Truncation can be performed these fields:
  * `decade`
  * `century`
  * `millennium`
+
+ For ordering (and comparing) intervals, PostgreSQL implements the https://en.wikipedia.org/wiki/360-day_calendar[360-day calendar].
 
 
 === DB2
