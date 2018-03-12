@@ -799,6 +799,99 @@ Components of temporal values are accessed as properties.
 |===
 
 
+==== Components of _Duration_ values
+
+The components of a _Duration_ is split into three groups:
+
+[horizontal]
+YQM:: _Years_, _Quarters_, and _Months_
+WD:: _Weeks_ and _Days_
+HMS:: Time: _Hours_, _Minutes_, _Seconds_ and _sub-seconds_.
+
+Within each group the units can be converted without any loss:
+
+ * There are always 4 _quarters_ in one _year_.
+ * There are always 12 _months_ in one _year_.
+ * There are always 3 _months_ in one _quarters_.
+ * There are always 7 _days_ in one _week_.
+ * There are always 60 _minutes_ in one _hour_.
+ * There are always 60 _seconds_ in one _minute_.
+   This is true because Cypher uses https://www.cl.cam.ac.uk/~mgk25/time/utc-sls/[UTC-SLS], otherwise some minutes would have been 61 seconds long.
+ * There are always 1000 _milliseconds_ in one _second_.
+ * There are always 1000 _microseconds_ in one _millisecond_.
+ * There are always 1000 _nanoseconds_ in one _microsecond_.
+ * There are *not* always 24 _hours_ in one _day_.
+   When switching to/from daylight savings time, a day can have 23 or 25 hours.
+ * There are *not* always the same number of _days_ in a _month_.
+   Some months have 30 days, and some months have 31 days, some months even have 28 or 29 days.
+ * There are *not* always the same number of _days_ in a _year_.
+   Leap years have 366 days, and other years have 365 days.
+
+Implementations are allowed to convert freely between units within component groups.
+For example for normalising when pretty printing a _Duration_.
+
+The main accessors for each unit will truncate the total value in the component group of the specified unit to the specific unit:
+
+ * `duration.years` - The total number of _years_ in the *YQM* component group as an integer
+   (each set of 4 quarters is counted as one year, each set of 12 months is counted as one year).
+ * `duration.quarters` - The total number of _quarters_ in the *YQM* component group as an integer
+   (each year is counted as 4 quarters, each set of 3 months is counted as a quarter).
+ * `duration.months` - The total number of _months_ in the *YQM* component group as an integer
+   (each year is counted as 12 months, each quarter is counted as 3 months).
+ * `duration.weeks` - The total number of _weeks_ in the *WD* component group as an integer
+   (each set of 7 days is counted as a week).
+ * `duration.days` - The total number of _days_ in the *WD* component group as an integer
+   (each week is counted as 7 days).
+ * `duration.hours` - The total number of _hours_ in the *HMS* component group as an integer
+   (each set of 60 minutes is counted as one hour, each set of 3600 seconds is counted as one hour).
+ * `duration.minutes` - The total number of _minutes_ in the *HMS* component group as an integer
+   (each hour is counted as 60 minutes, each set of 60 seconds is counted as one minutes).
+ * `duration.seconds` - The total number of _seconds_ in the *HMS* component group as an integer
+   (each hour is counted as 3600 seconds, each minute is counted as 60 seconds).
+ * `duration.milliseconds` - The total number of _milliseconds_ in the *HMS* component group as an integer.
+ * `duration.microseconds` - The total number of _microseconds_ in the *HMS* component group as an integer.
+ * `duration.nanoseconds` - The total number of _nanoseconds_ in the *HMS* component group as an integer.
+
+It is also possible to access the smaller units of a group limited by the boundary to the larger unit:
+
+ * `duration.quartersOfYear` - The number of _quarters_ in the *YQM* component group that do not make a whole year as an integer.
+ * `duration.monthsOfYear` - The number of _months_ in the *YQM* component group that do not make a whole year as an integer.
+ * `duration.monthsOfQuarter` - The number of _months_ in the *YQM* component group that do not make a whole quarter as an integer.
+ * `duration.daysOfWeek` - The total number of _days_ in the *WD* component group that do not make a whole week as an integer.
+ * `duration.minutesOfHour` - The total number of _minutes_ in the *HMS* component group that do not make a whole hour as an integer.
+ * `duration.secondsOfMinute` - The total number of _seconds_ in the *HMS* component group that do not make a whole minute as an integer.
+ * `duration.millisecondsOfSecond` - The total number of _milliseconds_ in the *HMS* component group that do not make a whole second as an integer.
+ * `duration.microsecondsOfSecond` - The total number of _microseconds_ in the *HMS* component group that do not make a whole second as an integer.
+ * `duration.nanosecondsOfSecond` - The total number of _nanoseconds_ in the *HMS* component group that do not make a whole second as an integer.
+
+The use of these accessors can be illustrated by considering:
+
+```
+WITH duration({years: 1, months:4, days: 111, hours: 1, minutes: 1, seconds: 1, nanoseconds: 111111111}) AS d
+```
+
+Then:
+
+ * `d.years`                returns `1`.
+ * `d.quartersOfYear`       returns `1`.
+ * `d.quarters`             returns `5`.
+ * `d.months`               returns `16`.
+ * `d.monthsOfYear`         returns `4`.
+ * `d.weeks`                returns `15`.
+ * `d.days`                 returns `111`.
+ * `d.daysOfWeek`           returns `6`.
+ * `d.hours`                returns `1`.
+ * `d.minutes`              returns `61`.
+ * `d.minutesOfHour`        returns `1`.
+ * `d.seconds`              returns `3661`.
+ * `d.minutesOfMinute`      returns `1`.
+ * `d.milliseconds`         returns `3661111`.
+ * `d.millisecondsOfSecond` returns     `111`.
+ * `d.microseconds`         returns `3661111111`.
+ * `d.microsecondsOfSecond` returns     `111111`.
+ * `d.nanoseconds`          returns `3661111111111`.
+ * `d.nanosecondsOfSecond`  returns     `111111111`.
+
 === Interactions with other features
 
 The temporal types form a separate type system within the cypher type system, the interaction points are few, but there are still a few points that need to be mentioned.
