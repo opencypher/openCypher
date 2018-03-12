@@ -359,8 +359,8 @@ Furthermore these components are available for specifying time:
  * `hour`   (+0+ - +23+)
  * `minute` (+0+ - +59+)
  * `second` (+0+ - +60+)
- * `millisecond` (+0+ - +999+), `microsecond` (+0+ - +999’999+), or nanosecond (+0+ - +999’999’999+)
-   only one of these can be provided, and is expected to contain the entire fractional second, at the precision implied by the name.
+ * `millisecond` (+0+ - +999+), `microsecond` (+0+ - +999’999+), or `nanosecond` (+0+ - +999’999’999+) +
+   If these are given in combination, either as part of the same set of parameters in construction, or as part of <<truncate,truncating>> to a larger unit and specifying a smaller unit as a supplement, the value must be in the range +0+ - +999+.
  * `timezone` (a string identifying the timezone, either as a <<time-zones,logical timezone name>>, or as <<iso-time-zone,an offset from UTC>>)
 
 
@@ -502,6 +502,7 @@ _yields_
     "09:30:14-0500"
 
 
+[[truncate]]
 ===== Truncating temporal values
 
 The selectors of the temporal functions can also be used for truncating temporal values.
