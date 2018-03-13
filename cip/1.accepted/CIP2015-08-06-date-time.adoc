@@ -223,15 +223,28 @@ The timezone always (except for when using the “`Z`” shorthand) start with e
 Positive offsets are used for timezones east of UTC, and negative offsets for timezones west of UTC.
 The time zone of the international date line is either `+12:00` or `-12:00`, depending on country.
 
+For _DateTime_ Cypher extends the syntax beyond what is specified in ISO 8601 by adding support for parsing timezone by common name.
+The input string may contain either the offset, or the named timezone, or both.
+If it contains both, the offset must match the timezone, otherwise it is treated as a parsing error.
+The named timezone comes last, is enclosed in square brackets, and uses the timezone names of the IANA timezone database.
+
+For other temporal instant types, parsing named timezone is not supported.
+However, you can still create instants based on a named timezone if you use explicit named parameters as described in the <<constructing,section about constructing temporal instant values>>.
+
 The following formats are thus supported for specifying timezone:
 
- * `**Z**` (UTC), _Example:_ `Z` (UTC)
- * `**±**_HH_**:**_MM_` (`_Hour:Minute_`), _Example:_ `+09:30` (ACST)
- * `**±**_HHMM_` (`_Hour:Minute_`), _Example:_ `+0100` (CET)
- * `**±**_HH_` (`_Hour_`), _Example:_ `-08` (PST)
+ * `**Z**`^†‡^ (UTC), _Example:_ `Z` (UTC)
+ * `**±**_HH_**:**_MM_`^†‡^ (`_Hour:Minute_`), _Example:_ `+09:30` (ACST)
+ * `**±**_HH_**:**_MM_**[**_ZoneName_**]**`^‡^ (`_Hour:Minute[ZoneName]_`), _Example:_ `+08:45[Australia/Eucla]` (CWST)
+ * `**±**_HHMM_`^†‡^ (`_Hour:Minute_`), _Example:_ `+0100` (CET)
+ * `**±**_HHMM_**[**_ZoneName_**]**`^‡^ (`_Hour:Minute[ZoneName]_`), _Example:_ `+0200[Africa/Johannesburg]` (SAST)
+ * `**±**_HH_`^†‡^ (`_Hour_`), _Example:_ `-08` (PST)
+ * `**±**_HH_**[**_ZoneName_**]**`^‡^ (`_Hour[ZoneName]_`), _Example:_ `+08[Asia/Singapore]` (SST)
+ * `**[**_ZoneName_**]**`^‡^ (`_[ZoneName]_`), _Example:_ `[America/Regina]` (CST)
 
-To minimize any ambiguity during parsing, specifying the timezone by common name is not supported here.
-However, you can still create DateTime with named timezone if you use explicit named parameters as described in the <<constructing,section about constructing temporal instant values>>.
+[horizontal]
+‡:: Supported for _DateTime_.
+†:: Supported for _Time_.
 
 
 [[iso8601-duration]]
