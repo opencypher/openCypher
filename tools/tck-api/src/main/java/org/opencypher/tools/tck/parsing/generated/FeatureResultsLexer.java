@@ -13,6 +13,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Attribution Notice under the terms of the Apache License 2.0
+ *
+ * This work was created by the collective efforts of the openCypher community.
+ * Without limiting the terms of Section 6, any Derivative Work that is not approved
+ * by the public consensus process of the openCypher Implementers Group should not
+ * be described as “Cypher” (and Cypher® is a registered trademark of Neo4j Inc.) or as "openCypher".
+ * Extensions by implementers or prototypes or proposals for change that have been documented or
+ * implemented should only be described as "implementation extensions to Cypher" or as
+ * "proposed changes to Cypher that are not yet approved by the openCypher community".
  */
 package org.opencypher.tools.tck.parsing.generated;// Generated from /Users/stutz/Documents/GitHub/openCypher/tools/tck/src/main/resources/FeatureResults.g4 by ANTLR 4.7
 import org.antlr.v4.runtime.Lexer;
@@ -32,10 +42,10 @@ public class FeatureResultsLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
-		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, INTEGER_LITERAL=17, 
-		DECIMAL_LITERAL=18, DIGIT=19, NONZERODIGIT=20, INFINITY=21, FLOAT_LITERAL=22, 
-		FLOAT_REPR=23, EXPONENTPART=24, SYMBOLIC_NAME=25, WS=26, IDENTIFIER=27, 
+		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9,
+		T__9=10, T__10=11, T__11=12, T__12=13, T__13=14, T__14=15, T__15=16, INTEGER_LITERAL=17,
+		DECIMAL_LITERAL=18, DIGIT=19, NONZERODIGIT=20, INFINITY=21, FLOAT_LITERAL=22,
+		FLOAT_REPR=23, EXPONENTPART=24, SYMBOLIC_NAME=25, WS=26, IDENTIFIER=27,
 		STRING_LITERAL=28, STRING_BODY=29, ESCAPED_APOSTROPHE=30;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
@@ -46,23 +56,23 @@ public class FeatureResultsLexer extends Lexer {
 	};
 
 	public static final String[] ruleNames = {
-		"T__0", "T__1", "T__2", "T__3", "T__4", "T__5", "T__6", "T__7", "T__8", 
-		"T__9", "T__10", "T__11", "T__12", "T__13", "T__14", "T__15", "INTEGER_LITERAL", 
-		"DECIMAL_LITERAL", "DIGIT", "NONZERODIGIT", "INFINITY", "FLOAT_LITERAL", 
-		"FLOAT_REPR", "EXPONENTPART", "SYMBOLIC_NAME", "WS", "IDENTIFIER", "STRING_LITERAL", 
+		"T__0", "T__1", "T__2", "T__3", "T__4", "T__5", "T__6", "T__7", "T__8",
+		"T__9", "T__10", "T__11", "T__12", "T__13", "T__14", "T__15", "INTEGER_LITERAL",
+		"DECIMAL_LITERAL", "DIGIT", "NONZERODIGIT", "INFINITY", "FLOAT_LITERAL",
+		"FLOAT_REPR", "EXPONENTPART", "SYMBOLIC_NAME", "WS", "IDENTIFIER", "STRING_LITERAL",
 		"STRING_BODY", "ESCAPED_APOSTROPHE"
 	};
 
 	private static final String[] _LITERAL_NAMES = {
-		null, "'('", "')'", "'['", "']'", "'<'", "'>'", "'-'", "'->'", "'<-'", 
-		"'true'", "'false'", "'null'", "', '", "'{'", "'}'", "':'", null, null, 
+		null, "'('", "')'", "'['", "']'", "'<'", "'>'", "'-'", "'->'", "'<-'",
+		"'true'", "'false'", "'null'", "', '", "'{'", "'}'", "':'", null, null,
 		null, null, null, null, null, null, null, "' '", null, null, null, "'\\''"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
-		null, null, null, null, null, null, null, null, null, null, null, null, 
-		null, null, null, null, null, "INTEGER_LITERAL", "DECIMAL_LITERAL", "DIGIT", 
-		"NONZERODIGIT", "INFINITY", "FLOAT_LITERAL", "FLOAT_REPR", "EXPONENTPART", 
-		"SYMBOLIC_NAME", "WS", "IDENTIFIER", "STRING_LITERAL", "STRING_BODY", 
+		null, null, null, null, null, null, null, null, null, null, null, null,
+		null, null, null, null, null, "INTEGER_LITERAL", "DECIMAL_LITERAL", "DIGIT",
+		"NONZERODIGIT", "INFINITY", "FLOAT_LITERAL", "FLOAT_REPR", "EXPONENTPART",
+		"SYMBOLIC_NAME", "WS", "IDENTIFIER", "STRING_LITERAL", "STRING_BODY",
 		"ESCAPED_APOSTROPHE"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
