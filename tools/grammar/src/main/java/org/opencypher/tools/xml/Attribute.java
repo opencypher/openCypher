@@ -17,12 +17,13 @@
  * Attribution Notice under the terms of the Apache License 2.0
  *
  * This work was created by the collective efforts of the openCypher community.
- * Without limiting the terms of Section 6, any Derivative Work that is not approved
- * by the public consensus process of the openCypher Implementers Group should not
- * be described as “Cypher” (and Cypher® is a registered trademark of Neo4j Inc.) or as "openCypher".
- * Extensions by implementers or prototypes or proposals for change that have been documented or
- * implemented should only be described as "implementation extensions to Cypher" or as
- * "proposed changes to Cypher that are not yet approved by the openCypher community".
+ * Without limiting the terms of Section 6, any Derivative Work that is not
+ * approved by the public consensus process of the openCypher Implementers Group
+ * should not be described as “Cypher” (and Cypher® is a registered trademark of
+ * Neo4j Inc.) or as "openCypher". Extensions by implementers or prototypes or
+ * proposals for change that have been documented or implemented should only be
+ * described as "implementation extensions to Cypher" or as "proposed changes to
+ * Cypher that are not yet approved by the openCypher community".
  */
 package org.opencypher.tools.xml;
 
