@@ -1,89 +1,28 @@
-:numbered:
-:toc:
-:toc-placement: macro
-ifdef::env-github,env-browser[:outfilesuffix: .adoc]
+= How to contribute
 
-= Contributing to Cypher
+Before submitting a code contribution please discuss it with the community by creating a new issue.
+Please raise language change proposals as a Cypher Improvement Request (CIR) issue or a Cypher Improvement Proposal (CIP), or as presentations or notes for discussion at openCypher implementers meetings, which are open to anyone interested in the evolution of the Cypher language.
 
-There are multiples ways of contributing to Cypher.
+Please note that CIRs, CIPS and any other contribution to the openCypher projects hosted in the openCypher Github organization repositories, as well as the Cypher Frontend (currently hosted in the neo4j/neo4j Github repository), as well as any content that you agree to share with the community through display on the openCypher website, can only be accepted if you have agreed to the https://www.opencypher.org/occa[openCypher Contributor Agreement (oCCA)].
 
-As a user of Cypher, you might be most comfortable contributing through <<feature-request,suggesting features>> to the language that would help you in your daily work.
-If you are a software developer, you might be interested in contributing <<code,code improvements>> to the Cypher Reference Implementation.
-Should language design be more of your thing, you might consider writing <<cips,Cypher Improvement Proposals>> that detail new features of the language.
+Before raising issues, making language change proposals, or submitting a code contribution, please confirm your agreement to the terms of the oCCA by sending an e-mail to occa@opencypher.org.
+Include your full name, e-mail and attach a copy of the agreement.
+You don’t have to sign it or scan it, but you do need to fill in the name of your organization if you’re contributing as an employee or representative of a company or institution.
 
-No change happens in isolation.
-Regardless of how you choose to contribute, let's all make Cypher an open community by helping each other in our efforts.
-A <<cips,Cypher Improvement Proposal>> describing a change to the language might require help with <<code,implementing the reference implementation>> for that feature.
-Conversely <<code,code contributions>> could sometimes make great changes to the language that would need to be accompanied by a corresponding <<cips,Cypher Improvement Proposal>>.
-Perhaps most importantly, if you want to contribute (either <<code,code>> or <<cips,specification>>), please consider how your contribution solves the most frequently <<feature-request,requested features>>.
+Once you’ve done this your name will be on the list of oCCA signatories, and you’ll be able to contribute to any project under the umbrella of the openCypher initiative.
 
-All contributions to Cypher take place in this repository:
+The contributions of all Neo4j employees or agents (people who have email addresses in either of the neo4j.com or neotechnology.com domains) are and will be https://www.opencypher.org/contributions#neo4j-license-grant[licensed to the community] on the same terms as the contributions of others, and that’s part of the oCCA.
 
- * <<feature-request,Feature Requests>> are submitted as https://github.com/opencypher/cypher/issues[issues] on this repository.
- * <<cips,Cypher Improvement Proposals>> are submitted as https://github.com/opencypher/cypher/pulls[pull requests] that add a document, in asciidoc format, to the `cip` directory.
- * <<code,Code contributions>> are also submitted as https://github.com/opencypher/cypher/pulls[pull requests] that update the _reference implementation_ hosted in this repository.
- * It is encouraged for a pull request that change the language to contain both a <<cips,Cypher Improvement Proposal>> and updates to the <<code,reference implementation>>.
- * Code changes that change the language will typically not be merged until the corresponding <<cips,Cypher Improvement Proposal>> has been accepted.
- * <<cips,Cypher Improvement Proposals>> that do not come with an update to the <<code,reference implementation>> will be followed by an issue <<rfi,requesting an implementation>> of the feature.
+For pull requests to be accepted into an openCypher project, the bottom of your commit message must have the following line using your name and e-mail address as it appears in the list of oCCA signatories:
 
+    Signed-off-by: Your Name you@example.org
 
-toc::[]
+This can be automatically added to pull requests by committing with:
 
+    git commit --signoff
 
-[[feature-request]]
-== Feature Requests
+Only pull requests from committers that can be verified as having signed the oCCA can be accepted.
 
-Submitting a feature request is the easiest way to get involved in the Cypher community.
-There is quite a wide range for the level of detail a feature request contains.
-A simple sentence asking for a way to solve a particular problem is just as welcome as an outline for how some concrete proposed feature would help solve problems more efficiently.
+The oCCA ensures that all implementers and all contributors to language design can work freely in any context (commercial, academic or other not-for-profit), using the contributions of all others, with the best possible protection against the danger of infringing the intellectual property rights of other people or organizations.
 
-An important point is that feature requests is a starting point for the design work of improving Cypher.
-Providing constructive comments to feature requests is an extremely valuable contribution.
-
-
-[[cips]]
-== Cypher Improvement Proposals
-
-A _Cypher Improvement Proposal_, or _CIP_ for short, is a document that describes a feature of Cypher.
-Submitting a CIP is done in the form of a https://github.com/opencypher/cypher/pulls[pull request] to this repository.
-The pull request should create a new CIP document in the `cip` directory of this repository.
-The CIP document should be written using the asciidoc markup language.
-The name of the file containing the CIP should have the form `CIP{year}-{month}-{day}-{title}.adoc`.
-The _date_ part of the CIP file name should typically correspond to the date the CIP pull request is issued.
-The _title_ part of the CIP file name should be the name of the feature the CIP introduced.
-Words in the _title_ should be all lower case, and separated by a single dash (`-`).
-A good example for the _title_ would be the name of the function or keyword the CIP proposes to introduce.
-Please refer to existing CIPs for examples that illustrate the naming.
-
-CIP pull requests should have a title that match the name in the CIP file name.
-That means that it should follow the pattern `CIP{year}-{month}-{day} {Title}`.
-Here the _Title_ is the same as in the file name, but using sensible title casing and separating words with spaces.
-
-After a CIP is submitted, it follows the review process described in link:CIP-PROCESS{outfilesuffix}[The Cypher Improvement Process].
-
-Some proposals are quite simple, and can be written and championed by a single contributor.
-In other cases, when the proposal is more involved, it will be beneficial to form an _<<eg,experts group>>_ around the proposed change.
-A good way to form an <<eg,experts group>> is by starting from a <<feature-request,feature request>> and propose that an experts group be formed either to discuss ideas for solutions, or the details of a particular proposed solution.
-The experts group meet one or more times to work on the Cypher Improvement Proposal before submitting the CIP pull request to this repository.
-
-Please refer to the link:CIP-PROCESS.adoc[The Cypher Improvement Process] for more details.
-
-
-[[eg]]
-=== Experts Groups
-
-Experts groups are welcome to, and encouraged to, publish notes from their meetings.
-The natural place to do so is under the https://github.com/opencypher/meeting-minutes[meeting minutes repository], since minutes published there will show up in the regular news feed for Cypher under https://opencypher.github.com/meeting-minutes/.
-Please refer to the readme in the meeting minutes repository for details on how to structure and submit meeting minutes.
-
-
-[[rfi]]
-=== Requests for Implementation
-
-
-
-
-[[code]]
-== Contributing Code
-
-Just Do It!
+These contribution guidelines are also available on our https://www.opencypher.org/contributions[website].
