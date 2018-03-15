@@ -3,7 +3,7 @@
 Before submitting a code contribution please discuss it with the community by creating a new issue.
 Please raise language change proposals as a Cypher Improvement Request (CIR) issue or a Cypher Improvement Proposal (CIP), or as presentations or notes for discussion at openCypher implementers meetings, which are open to anyone interested in the evolution of the Cypher language.
 
-Please note that CIRs, CIPS and any other contribution to the openCypher projects hosted in the openCypher Github organization repositories, as well as the Cypher Frontend (currently hosted in the neo4j/neo4j Github repository), as well as any content that you agree to share with the community through display on the openCypher website, can only be accepted if you have agreed to the https://www.opencypher.org/occa[openCypher Contributor Agreement (oCCA)].
+Please note that CIRs, CIPs and any other contribution to the openCypher projects hosted in the openCypher Github organization repositories, as well as the Cypher Frontend (currently hosted in the neo4j/neo4j Github repository), as well as any content that you agree to share with the community through display on the openCypher website, can only be accepted if you have agreed to the https://www.opencypher.org/occa[openCypher Contributor Agreement (oCCA)].
 
 Before raising issues, making language change proposals, or submitting a code contribution, please confirm your agreement to the terms of the oCCA by sending an e-mail to occa@opencypher.org.
 Include your full name, e-mail and attach a copy of the agreement.
