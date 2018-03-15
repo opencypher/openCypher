@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Fail if something fails
+set -e
+
+echo "Building release artifacts for ${RELEASE_VERSION} ... "
+
 echo "Creating target directories..."
 mkdir -p ${RELEASE_VERSION}/legacy
 mkdir -p ${RELEASE_VERSION}/docs
@@ -18,7 +23,7 @@ echo "Generating EBNF grammars... "
 echo "Done!"
 
 echo "Installing asciidoctor-pdf to generate style guide..."
-gem install --local asciidoctor-pdf --pre
+gem install asciidoctor-pdf --pre
 echo "Done!"
 
 echo "Generating style guide pdf..."
@@ -29,6 +34,8 @@ echo "Building archives with TCK and grammar source files..."
 zip ${RELEASE_VERSION}/grammar-${RELEASE_VERSION}.zip grammar/*.xml
 zip ${RELEASE_VERSION}/tck-${RELEASE_VERSION}.zip tck/features/*.feature
 echo "Done!"
+
+echo "Artifacts all built!"
 
 echo "Uploading artifacts to S3..."
 aws s3 sync --acl public-read M10 s3://artifacts.opencypher.org/M10
