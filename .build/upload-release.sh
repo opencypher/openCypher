@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
 
+#
+# This script builds all artifacts necessary for an openCypher artifacts release, including
+#   - railroad diagrams
+#   - ANTLR grammar
+#   - ISO14977 grammar
+#   - Cypher Style Guide (requires Ruby)
+#   - TCK as a zip archive
+#   - XML Grammar source as a zip archive
+#
+# Additionally, this will synchronise the produced artifacts to the expected S3 bucket.
+# (This step requires privileges to AWS.)
+#
+# NOTE: Set the environment variable RELEASE_VERSION to the appropriate value (e.g. M10)
+#
+
 # Fail if something fails
 set -e
 
