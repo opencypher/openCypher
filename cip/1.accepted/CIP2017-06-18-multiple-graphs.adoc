@@ -11,7 +11,20 @@ This material is based on internal contributions of Alastair Green <alastair.gre
 [abstract]
 .Abstract
 --
-This CIP proposes extending Cypher to support the construction, transformation, and querying of multiple graphs by adopting (i) the proposed multiple property graphs model, (ii) the proposed multiple graphs execution model, and (iii) by introducing new syntax for working with multiple graphs.
+// This CIP proposes extending Cypher to support the construction, transformation, and querying of multiple graphs by adopting (i) the proposed multiple property graphs model, (ii) the proposed multiple graphs execution model, and (iii) by introducing new syntax for working with multiple graphs.
+* Graph data model
+* Id/stability
+* Graph catalog and related operations
+* Selecting and using the working graph
+* Returning a graph
+* Projecting graphs
+* Scalar subqueries
+* Nested subqueries
+* Graph UNION
+* Named queries in catalog and locally
+* Named graphs in catalog and locally
+* Equivalence (expressions)
+* Syntactic units / queries/ DDL chaining (stmt1; stm2)
 --
 
 toc::[]
@@ -30,37 +43,69 @@ Furthermore, adding support for working with multiple graphs has recently been i
 * It would provide an effective grouping mechanism for naturally-partitioned data (e.g. per-continent graph)
 * It could be used for combining data from disparate data sources in one system (e.g. in federation and data integration scenarios)
 * It fits the paradigm of prominent analytical big-data processing systems (e.g. Apache Spark)
-* It mirrors mathematical graph theory where working with multiple graphs is standard
+* It mirrors mathematical graph theory where working with multiple graphs is common
 
-== Background and Overview
+== Query Execution Model
 
-This proposal needs to modify and extend different aspects of the language consistently.
+_Definition_: A *query processor* is a query processing service that interacts with clients to execute Cypher statements on their behalf and returns the results of processing back to them.
 
-We thus provide background material regarding current semantics in line with the different individual sections of this proposal.
+// Statement = Syntactic Unit
+// - Reading query
+// - Updating query
+// - Updating command
+// - Schema command
+// - Statement chain
 
-// == Proposal: Multiple Property Graphs Model
-//
-// Before proposing changes to the language, it is necessary to first address changes required to the underlying https://github.com/opencypher/openCypher/blob/master/docs/property-graph-model.adoc[*property graph model*].
-//
-// The revised property graph model used in this CIP is called the *multiple property graphs model* and assumes everything specified in the original property graph model is extended with the notion of multiple, optionally overlapping graphs outlined in the following subsections.
-//
-// === Model definition
-//
-// This CIP defines an instance of the *multiple property graphs model* to be a set of property graphs that adhere to the definitions given below.
-//
-// === (Property) Graph
-//
-// _Definition_: A *property graph* is a set of labeled nodes and typed relationships, where each node and relationship contains zero or more properties.
-// A property is a tuple consisting of a named key and value.
-//
-// The same node or relationship may be contained within many graphs.
-// A relationship may only be part of a graph if its start node and its end node are both also contained in the same graph.
-// Thus, the removal of a node from a graph will require the removal of all of its relationships from the graph.
-// An entity -- i.e. a node or a relationship -- is considered to be deleted if it is no longer contained within any graph.
-//
-// Graphs may be read-only or updatable.
-// Nodes and relationships in updatable graphs may change (for example changing the value of a property), while it is an error to update an entity in a read-only graph.
-// Thus, an entity may only be updated if it is not contained in any read-only graph.
+
+== Multiple Property Graphs Model
+
+Before proposing changes to the language, it is necessary to first address changes required to the underlying https://github.com/opencypher/openCypher/blob/master/docs/property-graph-model.adoc[*property graph model*].
+
+The revised property graph model used in this CIP is called the *multiple property graphs model* and assumes everything specified in the original property graph model is extended with the notion of multiple graphs outlined in the following subsections.
+
+=== Model definition
+
+This CIP defines an instance of the *multiple property graphs model* to be a set of property graphs that adhere to the definitions given below.
+
+=== (Property) Graph
+
+_Definition_: A *property graph* is a set of labeled nodes and typed relationships, where each node and relationship contains zero or more properties (a property is a tuple consisting of a named key and value).
+Graphs may be read-only or updatable.
+
+=== Entities
+
+_Definition_: An *entity* is either a node or relationship.
+Every entity exists in exactly one property graph.
+
+=== Identities
+
+Identities are regular values that are used to uniquely identify elements of a set of values (called the domain).
+
+The following identity domains are used:
+* *node identities* uniquely identify a node within its graph
+* *relationship identities* uniquely identify a relationship within its graph
+* *graph identities* uniquely identify a graph that is managed by the query processor
+
+Identity values may not be one of the following:
+ * Values that either are or include elements of the property graph model (nodes, relationships, paths)
+ * `NULL`
+
+Identities are guaranteed to be valid for the duration of executing a statement and consuming it's result.
+
+Notably, the same identity value might reference different elements in results from executing different statements.
+
+Implementations may choose to guarantee the validity of identities across multiple statement executions.
+
+The `graph(e)` function returns the *graph identity* of an entity `e`.
+
+The `id(n)` function returns the *node identity* of a node `n`.
+
+The `id(r)` function returns the *relationship identity* of a relationship `r`.
+
+
+
+
+
 //
 //
 // === Graph Addressing
