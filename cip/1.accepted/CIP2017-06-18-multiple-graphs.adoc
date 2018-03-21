@@ -102,9 +102,31 @@ The `id(n)` function returns the *node identity* of a node `n`.
 
 The `id(r)` function returns the *relationship identity* of a relationship `r`.
 
+=== Catalog
 
+A query processor has one *catalog*, which is the part of the system that know how to translate *qualified graph names* to graphs. A fully qualified graph name consists of an optional graph namespace, and a mandatory graph name.
 
+A query processor might have a catalog shared by all users, or keep one per user.
 
+==== Working graph
+
+A clause operators within the context of a working graph, by reading or updating it. The working graph can be selected either by projecting a new graph, or by selecting a graph that is known by the catalog.
+
+At the end of a query, the current working graph can be returned.
+
+=== Constructing a graph
+
+Graph construction is when a query creates a graph. The created graph can be:
+* returned to the client.
+* stored in the catalog.
+* be used for additional processing in a composed query.
+
+<TODO>
+
+=== Creating and adminitrating graphs in the catalog
+
+Creating a new graph in the catalog is done using the new DDL command `CREATE GRAPH`. `CREATE GRAPH` can be used without a subquery, which results in creating a new graph without any content.
+If CREATE GRAPH is followed by a subquery that returns a graph
 
 //
 //
