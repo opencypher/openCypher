@@ -84,7 +84,7 @@ case class Scenario(featureName: String, name: String, tags: Set[String], steps:
                 s"${EOL}Expected ($detail):$EOL$expected${EOL}Actual:$EOL$records")
             }
           case Left(error) =>
-            throw ScenarioFailedException(s"Expected: $expected, got error $error")
+            throw ScenarioFailedException(s"Expected: $expected, got error $error", error.exception.orNull)
         }
         ctx
 
@@ -150,5 +150,5 @@ case class Scenario(featureName: String, name: String, tags: Set[String], steps:
     }
   }
 
-  case class ScenarioFailedException(msg: String) extends Throwable(s"$self failed with message: $msg")
+  case class ScenarioFailedException(msg: String, cause: Throwable = null) extends Throwable(s"$self failed with message: $msg", cause)
 }

@@ -77,4 +77,4 @@ object CypherValueRecords {
   def emptyWithHeader(header: List[String]) = CypherValueRecords(header, List.empty)
 }
 
-case class ExecutionFailed(errorType: String, phase: String, detail: String)
+case class ExecutionFailed(errorType: String, phase: String, detail: String, exception: Option[Throwable] = None)
