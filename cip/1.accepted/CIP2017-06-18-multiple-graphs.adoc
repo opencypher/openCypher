@@ -92,7 +92,7 @@ Identity values may not be one of the following:
 
 Identities are guaranteed to be valid for the duration of executing a statement and consuming it's result.
 
-Notably, the same identity value might reference different elements in results from executing different statements.
+Note:: The same identity value might reference different elements in results from executing different statements.
 
 Implementations may choose to guarantee the validity of identities across multiple statement executions.
 
@@ -104,26 +104,115 @@ The `id(r)` function returns the *relationship identity* of a relationship `r`.
 
 === Catalog
 
+// TODO: By reference
+
 A query processor has one *catalog*, which is the part of the system that know how to translate *qualified graph names* to graphs. A fully qualified graph name consists of an optional graph namespace, and a mandatory graph name.
 
-A query processor might have a catalog shared by all users, or keep one per user.
+Note:: A query processor might have a catalog shared by all users, or keep one per user.
 
-==== Working graph
+=== Working graph
 
-A clause operators within the context of a working graph, by reading or updating it. The working graph can be selected either by projecting a new graph, or by selecting a graph that is known by the catalog.
+Most Cypher clauses operate within the context of a working graph, by reading or updating it.
 
-At the end of a query, the current working graph can be returned.
+A query processor may choose to establish an *initial working graph* for each executed statement.
+The details of this are left to implementations.
+
+If a query processor has not established an initial working graph and the query does establish a working graph before operating on the working graph, an error is produced.
+
+The working graph may be operated on in the following ways:
+
+* The working graph can be changed by selecting a graph that is known by the catalog.
+* The working graph can be changed by constructing a new graph
+* The working graph may be returned as a query result
+
+=== Selecting the working graph from the catalog
+
+The working graph may be changed for all subsequent clauses using:
+
+[source, cypher]
+----
+FROM GRAPH < graph-name >
+----
+
+`<graph-name>` is expected to be the name of a graph in the catalog.
+
+If `<graph-name>` is not the name of a graph in the catalog, an error is produced.
+
+=== Returning a graph result
+
+The working graph may be returned as a query result using:
+
+[source, cypher]
+----
+RETURN GRAPH
+----
+
+Additionally, the following syntactic form is supported for selecting the working graph from the catalog and returning it at the same time:
+
+[source, cypher]
+----
+RETURN GRAPH < graph-name >
+----
 
 === Constructing a graph
 
-Graph construction is when a query creates a graph. The created graph can be:
-* returned to the client.
-* stored in the catalog.
-* be used for additional processing in a composed query.
+Graph construction dynamically constructs a new working graph in a query in order to query it, store it in the catalog, or return it to the client.
+
+Graph construction is the dual operation to graph matching: While graph matching extracts pattern instances into variable bindings from the working graph, graph construction builds a new working graph from variable bindings.
+
+All nodes and relationships in the newly constructed graph have new entity identities and are different from any previously matched entities.
+
+The general form of graph construction is:
+
+[source, cypher]
+----
+CONSTRUCT
+  [ON < graph-name-list >]
+  CLONE < cloned-entities >
+  NEW < patterns >
+  [YIELD < return-items >]
+----
+
+Graph construction supports sub-clauses for *cloning of existing entities*, the *addition of new entities*, and *yielding of result variable bindings*.
+
+Either the `CLONE` subclause of the `NEW` sub-clause must be present in `CONSTRUCT`.
+
+A statement must not end in a `CONSTRUCT` clause.
+
+==== Newly constructed entities
+
+The `NEW <patterns>` sub-clause may be used to construct new nodes and relationships in the constructed graph in the same way as the `CREATE` clause allows to create new nodes and relationships in existing graphs.
+
+`NEW` creates exactly one pattern instance in the new graph for each input record.
+
+==== Cloned entities
+
+In order to reconstruct subgraph structures from other graphs in the new graph, `CONSTRUCT` supports the addition of *cloned entities* in the new graph.
+
+Cloning ensures that exactly one (representative) cloned entity is created in the new graph for a given cloned entity.
+In particular, if the same input entity is cloned multiple times this will still only create one cloned entity in the new graph.
+
+The `CLONE < return-items >` sub-clause may be used to clone entities and bind the cloned entities to new variable names.
+`CLONE` constructs cloned entities for each input record subject to the following rules:
+
+ * Cloning a single, already bound variable rebinds the variable. In other words `CLONE a` is interpreted as `CLONE a AS a`
+ * Cloning a relationship implicitly clones its start node and its end node
+ * Cloning a path implicitly clones all nodes and relationships of the path
+
+==== Yielding no result variable bindings
+
+If a `CONSTRUCT` clause is not ending in a `YIELD` sub-clause, all variable bindings and the current record cardinality are dropped.
+The next clause then proceeds in the newly constructed working graph on a single record with no fields.
+
+==== Yielding result variable bindings
+
+The `YIELD <return-items>` sub-clause may be used to extend the driving table with additional variable bindings.
+The `YIELD` sub-clause in `CONSTRUCT` may also be used to shadow existing variable bindings in the driving table.
+`YIELD *` may be used to yield variable bindings for all cloned and newly created entities.
 
 <TODO>
 
-=== Creating and adminitrating graphs in the catalog
+=== Creating and administrating graphs in the catalog
 
 Creating a new graph in the catalog is done using the new DDL command `CREATE GRAPH`. `CREATE GRAPH` can be used without a subquery, which results in creating a new graph without any content.
 If CREATE GRAPH is followed by a subquery that returns a graph
