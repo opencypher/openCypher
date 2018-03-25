@@ -92,6 +92,8 @@ Each relationship is contained in exactly one property graph and its start node 
 
 _Term_: Both nodes and relationships are called *entities*.
 
+_Term_: Both node and relationship identities are called *entity identities*.
+
 === Reflective functions
 
 The identities of model elements may be obtained using the following reflective functions:
@@ -112,7 +114,7 @@ _Definition_: A *query processor* is a query processing service that executes a 
 
 === Catalog
 
-Every query processor maintains exactly one *catalog*.
+A query processor maintains exactly one *catalog*.
 
 _Definition_: A _catalog_ is a mapping from *fully qualified graph names* to graph references.
 Multiple entries in the catalog may refer to the same graph.
@@ -132,13 +134,15 @@ A statement may either be a *single statement* or a *statement chain*.
 
 _Definition_: A _single statement_ is one of
 
- * reading query (a query that reads and returns data)
- * updating query (a query that reads, updates, and returns data)
- * updating command (a query that reads and updates data but returns no data)
- * schema command (a query that only updates the data schema)
- * catalog command (a query that only updates the catalog)
+ * *reading query* (a statement that reads and returns data)
+ * *updating query* (a statement that reads, updates, and returns data)
+ * *updating command* (a statement that reads and updates data but returns no data)
+ * *schema command* (a statement that only updates the data schema)
+ * *catalog command* (a statement that only updates the catalog)
 
 Single statements in turn consist of a chain of one ore more clauses which each may be further qualified by clause arguments, sub-clauses and sub-clause arguments.
+
+_Term_: Clauses may be classified according to their side-effects as either _reading_, _updating_, _schema_, or _catalog clauses_.
 
 _Definition_: A _statement chain_ is a single statement followed by a semicolon followed by another statement.
 
@@ -220,6 +224,7 @@ The working graph may be operated on in the following ways:
 * The working graph can be changed by constructing a new graph
 * The working graph can be changed by constructing a disjoint graph union
 
+
 === Selecting the working graph from the catalog for querying
 
 The working graph may be changed for all subsequent querying clauses using:
@@ -233,7 +238,8 @@ FROM [GRAPH] < graph-name >
 
 If `<graph-name>` is not the name of a graph in the catalog, an error is raised.
 
-If is an error to perform an updating operation on a working graph that was introduced using `FROM GRAPH`.
+If is an error to perform an updating operation on a working graph that was introduced using `FROM [GRAPH]`.
+
 
 === Selecting the working graph from the catalog for updating
 
@@ -241,18 +247,19 @@ The working graph may be changed for all subsequent querying and updating clause
 
 [source, cypher]
 ----
-EDIT [GRAPH] < graph-name >
+UPDATE [GRAPH] < graph-name >
 ----
 
 `<graph-name>` is expected to be the name of a graph in the catalog.
 
 If `<graph-name>` is not the name of a graph in the catalog, an error is raised.
 
-If is an error to not perform at least a single updating operation on a working graph that was introduced using `EDIT GRAPH`.
+If is an error to not perform at least a single updating operation on a working graph that was introduced using `UPDATE GRAPH`.
+
 
 === Returning a graph result
 
-The working graph may be returned as a query result using:
+The working graph may be returned as an execution result using:
 
 [source, cypher]
 ----
@@ -266,12 +273,13 @@ Additionally, the following syntactic form is supported for selecting the workin
 RETURN GRAPH < graph-name >
 ----
 
-Graphs are always returned by reference to the caller.
-This does not affect the rules on returning graph model elements together with a snapshot of their content to the client.
+Graphs are always returned by reference during execution inside the query processor.
+This does not affect the rules on returning model elements together with their content to the client which ensure that a graph result will be returned by value to the client.
+
 
 === Constructing a graph
 
-Graph construction dynamically constructs a new working graph in a query in order to query it, store it in the catalog, or return it to the client.
+*Graph construction* dynamically constructs a new working graph in order to query it, store it in the catalog, or return it to the client.
 
 Graph construction is the dual operation to graph matching: While graph matching extracts pattern instances into variable bindings from the working graph, graph construction builds a new working graph from variable bindings.
 
@@ -289,23 +297,25 @@ CONSTRUCT
   [YIELD < return-items >]
 ----
 
-Graph construction supports sub-clauses for *cloning of existing entities*, the *addition of new entities*, and *yielding of result variable bindings*.
+Graph construction supports sub-clauses for the *addition of new entities*, the *cloning of existing entities*, and the optional *yielding of result variable bindings*.
 
 At least either the `ON` sub-clause, the `CLONE` sub-clause, or the `NEW` sub-clause must be present in `CONSTRUCT`.
 
-A statement may not end in a `CONSTRUCT` clause (invalid syntax).
+A single statement may not end in a `CONSTRUCT` clause (invalid syntax).
 
-==== Newly constructed entities
+
+==== Addition of new entities
 
 The `NEW <patterns>` sub-clause may be used to construct new nodes and relationships in the constructed graph in the same way as the `CREATE` clause allows to create new nodes and relationships in existing graphs.
 
 `NEW` creates exactly one pattern instance in the new graph for each input record.
 
+
 ==== Cloned entities
 
 In order to reconstruct subgraph structures from other graphs in the new graph, `CONSTRUCT` supports the addition of *cloned entities* in the new graph.
 
-Cloning ensures that exactly one (representative) cloned entity is created in the new graph for a given cloned entity.
+*Cloning* ensures that exactly one (representative) cloned entity is created in the new graph for a given cloned entity.
 In particular, if the same input entity is cloned multiple times this will still only create one cloned entity in the new graph.
 Cloning a relationship implicitly clones its start node and its end node.
 
@@ -318,6 +328,7 @@ The `CLONE < return-items >` sub-clause may be used to clone entities and bind t
 
  * Cloning a single, already bound variable rebinds the variable. In other words `CLONE a` is interpreted as `CLONE a AS a`.
  * Cloning a nested value (like a path) implicitly clones all contained nodes and relationships
+
 
 ==== Yielding result variable bindings
 
@@ -338,6 +349,7 @@ This will preserve the current record cardinality and all input variable binding
 If a `CONSTRUCT` clause is not ending in a `YIELD` sub-clause, the current record cardinality and all input variable bindings are dropped.
 The next clause then proceeds in the newly constructed working graph on a single record with no fields.
 
+
 === Disjoint graph union
 
 The disjoint graph union of two graphs may be computed using the following syntax:
@@ -352,6 +364,8 @@ RETURN GRAPH
 ----
 
 The resulting union graph consists of clones of all entities from the two input graphs.
+
+
 
 == Creating and administrating graphs in the catalog
 
