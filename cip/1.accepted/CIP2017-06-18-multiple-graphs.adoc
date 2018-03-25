@@ -12,22 +12,25 @@ This material is based on internal contributions of Alastair Green <alastair.gre
 .Abstract
 --
 // This CIP proposes extending Cypher to support the construction, transformation, and querying of multiple graphs by adopting (i) the proposed multiple property graphs model, (ii) the proposed multiple graphs execution model, and (iii) by introducing new syntax for working with multiple graphs.
-* Graph data model
-* Id/stability
-* Graph catalog and related operations
-* Selecting and using the working graph
-* Returning a graph
-* Projecting graphs
-* Scalar subqueries
-* Nested subqueries
-* Graph UNION
-* Named queries in catalog and locally
-* Named graphs in catalog and locally
-* Equivalence (expressions)
-* Syntactic units / queries/ DDL chaining (stmt1; stm2)
+* [X] Graph data model
+* [X] Id/stability
+* [X] Graph catalog
+* [X] Syntactic units / queries/ DDL chaining (stmt1; stm2)
+* [ ] Catalog operations
+* [/] Selecting and using the working graph
+* [/] Returning a graph
+* [/] Projecting graphs
+* [/] Disjoint graph union
+* [ ] Scalar subqueries
+* [ ] Nested subqueries
+* [ ] Named queries in catalog and locally
+* [ ] Named graphs in catalog and locally
+* [ ] Equivalence (expressions)
 --
 
 toc::[]
+
+
 
 == Motivation
 
@@ -45,15 +48,14 @@ Furthermore, adding support for working with multiple graphs has recently been i
 * It fits the paradigm of prominent analytical big-data processing systems (e.g. Apache Spark)
 * It mirrors mathematical graph theory where working with multiple graphs is common
 
-== Multiple property graphs data model
+== Multiple property graphs model
 
-Before proposing changes to the language, it is necessary to first address changes required to the underlying https://github.com/opencypher/openCypher/blob/master/docs/property-graph-model.adoc[*property graph model*].
-
-The revised property graph model used in this CIP is called the *multiple property graphs data model* and assumes everything specified in the original property graph model is extended with the notion of multiple graphs as outlined in the following subsections.
+The data model used here is called the *multiple property graphs data model*.
+It extends the original https://github.com/opencypher/openCypher/blob/master/docs/property-graph-model.adoc[*property graph model*] with the notion of multiple graphs as outlined in the following subsections.
 
 === Model instance
 
-_Definition_: A *multiple property graphs data model instance* is a set of property graphs and by extension their constituting nodes and relationships.
+_Definition_: A *multiple property graphs model instance* is a set of property graphs.
 
 === Basic definitions
 
@@ -65,103 +67,148 @@ _Definition_: A *property* is a tuple consisting of a named *property key* and a
 
 === Model elements
 
-The constituents of an instance of the multiple property graphs data model are called its *model elements*.
+_Term_: The constituents of an instance of the multiple property graphs model are called its *model elements*.
 
 _Definition_: An *identity* is a value that is used to identify individual model elements and to distinguish between multiple model elements from the same context.
+Identities must not be `NULL` and must not be nested values that contain `NULL`.
+Identities must not be model elements and must not be nested values that contain model elements.
 
-_Definition_: A *(property) graph* has a *graph identity* that uniquely identifies the graph and at least allows to distinguish it from other graphs in the same instance of the multiple property graph data model.
+_Term_: The constituents of a model element (including its identity) are called its *content*.
+
+_Definition_: A *(property) graph* has a *graph identity* that uniquely identifies the graph and at least allows to distinguish it from other graphs in the same instance of the multiple property graph  model.
 A property graph further consists of a set of nodes and a set of relationships that connect the nodes of the property graph.
 Each property graph is contained in exactly one instance of the multiple property graphs data model.
 
 Graphs may be either immutable or updatable.
 This is not considered to be part of the content of the graph.
 
-The `graph(e)` function returns the *graph identity* of the graph that contains an entity `e`.
-
 _Definition_: A *node* has a *node identity* that uniquely identifies the node and at least allows to distinguish it from other nodes that are contained in the same property graph.
 A node further consists of a set of zero or more labels and zero or more properties with mutually different property keys.
 Each node is contained in exactly one property graph.
-
-The `id(n)` function returns the *node identity* of a node `n`.
 
 _Definition_: A *relationship* has a *relationship identity* that uniquely identifies the relationship and at least allows to distinguish it from other relationships that are contained in the same property graph.
 A relationship further consists of a *start node*, an *end node*, and exactly one relationship type, and zero or more properties with mutually different property keys.
 Each relationship is contained in exactly one property graph and its start node and its end node are both contained in the same property graph as the relationship.
 
+_Term_: Both nodes and relationships are called *entities*.
+
+=== Reflective functions
+
+The identities of model elements may be obtained using the following reflective functions:
+
+The `graph(e)` function returns the *graph identity* of the graph that contains an entity `e`.
+
+The `id(n)` function returns the *node identity* of a node `n`.
+
 The `id(r)` function returns the *relationship identity* of a relationship `r`.
 
-Both nodes and relationships are called *entities*.
 
-The constituents of a model element (including its identity) are called its *content*.
 
-== Query execution model
+== Query processing
 
-_Definition_: A *query processor* is a query processing service that interacts with clients to execute Cypher statements on their behalf.
+_Definition_: A *source program* is a piece of text that is intended to be both a syntatically valid term according to the root production rule of the grammar of the Cypher property graph query language and also a semantically valid term according to the semantic rules of the Cypher property graph query language.
 
-Clients interact with the query processor by *submitting* a statement together with all required parameters.
-The statement is then executed by the query processor and an *execution result* is returned to the client for consumption.
-
-// Statement = Syntactic Unit
-// - Reading query
-// - Updating query
-// - Updating command
-// - Schema command
-// - Statement chain
+_Definition_: A *query processor* is a query processing service that executes a source program  on behalf of a *client*  and provides the client with the *execution result* that describes the outcome of executing the source program.
 
 === Catalog
 
 Every query processor maintains exactly one *catalog*.
 
-_Definition_: A *catalog* is a mapping from *fully qualified graph names* to graph references.
+_Definition_: A _catalog_ is a mapping from *fully qualified graph names* to graph references.
 Multiple entries in the catalog may refer to the same graph.
 
-A fully qualified graph name is following the syntax for dotted variable identifiers and consists of an optional *graph namespace*, and a mandatory *graph name*.
+A fully qualified graph name should use the syntax for dotted variable identifiers and consists of an optional *graph namespace*, and a mandatory *graph name*.
 
 Note:: In practice, a query processor might have a catalog shared by all users, or provide a different catalog for each user.
 This is not considered here based on the simplifying assumption that all client requests are made by the same user.
 
-=== Working graph
+=== Statements
 
-Most Cypher clauses operate within the context of a working graph, by reading or updating it.
+_Definition_: A *statement* is a source program that is a syntatically valid term according to the root production rule of the grammar of the Cypher property graph query language.
 
-A query processor may choose to establish an *initial working graph* for each executed statement.
-The details of this are left to implementations.
+_Definition_: A *semantically valid statement* is a statement that is valid according to the semantic rules of the Cypher property graph query language.
 
-If a query processor has not established an initial working graph and the query fails to establish a working graph explicitly before attempting to operate on the working graph, an error is produced.
+A statement may either be a *single statement* or a *statement chain*.
 
-=== Identity validity
+_Definition_: A _single statement_ is one of
 
-Identities are guaranteed to be valid for the duration of executing a statement and consuming its result.
-Implementations may choose to guarantee the validity of identities across multiple statement executions.
+ * reading query (a query that reads and returns data)
+ * updating query (a query that reads, updates, and returns data)
+ * updating command (a query that reads and updates data but returns no data)
+ * schema command (a query that only updates the data schema)
+ * catalog command (a query that only updates the catalog)
 
-Implementations may choose any regular Cypher value for representing graph model element identities.
-However, identities may not be one of the following:
+Single statements in turn consist of a chain of one ore more clauses which each may be further qualified by clause arguments, sub-clauses and sub-clause arguments.
 
- * values that either are or contain graph model elements
- * `NULL` or values that contain `NULL`
+_Definition_: A _statement chain_ is a single statement followed by a semicolon followed by another statement.
 
-Note:: The same identity value might reference different elements in results from executing different statements.
+=== Execution of client requests
 
-=== Property values
+==== Client requests
 
-Implementations may choose to support any Cypher value as a valid property value except for values that either are or contain graph model elements.
-Additionally, property values must not be `NULL`.
-Setting the property of an entity to `NULL` is treated as if the property would have been removed.
+_Definition_: A source program together with all required parameters is called a *client request*.
 
-=== Execution result
+==== Execution results
 
-The execution result of a statement can either be
+_Definition_: The result of executing a client request is called an *execution result*.
+An execution result is one of
 
 * a *tabular result*, i.e. a collection of records where each record has the exact same set of named fields.
 Tabular results may contain duplicate results and may optionally be ordered
 * a *graph result*, i.e. the contents of a graph as described by its set of nodes and relationships
 * an *execution error*, i.e. a message describing the reason that prevented the query processor from executing the statement correctly
 
-=== Returning graph model elements
+==== Request execution
 
-If an execution result that is returned _to the client_ contains a graph model element, this graph model element is returned together with its content at the time of terminating the query (i.e. the client always receives snapshots of graph model elements).
+Clients interact with the query processor by submitting a client request.
+The source program is then executed by the query processor and an execution result is returned to the client for consumption.
+An error is raised if the client request does not contain a semantically valid statement.
+
+==== Execution of statement chains
+
+Statement chains are executed by executing all contained single statements in the order given.
+If execution of any contained single statement fails with an error, the execution of the whole statement fails with the same error.
+Otherwise, the query processor discards all intermediary results produced by a statement chain and only returns the execution result for the last single statement.
+
+==== Identity validity
+
+Identities are guaranteed to be valid for the duration of executing a statement and consuming its result.
+
+Implementations may choose to guarantee the validity of identities across multiple client requests.
+
+Note:: The same identity value might reference different model elements in results from executing different statements.
+
+==== Property value validity
+
+Implementations may choose to support the use of any Cypher value as a valid property value except for values that either are or contain model elements.
+Additionally, property values must not be `NULL`.
+
+An error is raised the client request attempts to set a property to an invalid value.
+
+Setting the property of an entity to `NULL` is treated as if the property would have been removed.
+
+
+==== Returning graph model elements
+
+If an execution result that is returned _to the client_ contains a graph model element, this graph model element is returned together with its content at the time of terminating the query (i.e. the client always receives the current content of all graph model elements).
 
 Note:: Additionally, a result may contain implementation specific metadata like a summary of performed update activity (e.g. the number of nodes created) or a detailed query plan.
+
+
+=== Working graph
+
+Most Cypher clauses operate within the context of a *working graph*, by reading or updating it.
+
+_Definition_: The _working graph_ is a reference to a graph that is maintained during statement execution.
+The working graph is optional and may be unset at the start of executing a statement.
+
+The working graph may either reference a graph in the catalog or may reference a graph that was dynamically constructed during statement execution.
+
+A query processor may choose to establish an *initial working graph* for each executed statement.
+The details of this are left to implementations.
+
+If a query processor has not established an initial working graph (i.e. the working graph is unset) and the statement fails to set a working graph explicitly before attempting to operate on the working graph, an error is raised.
+
 
 
 == Graph operations in queries
@@ -184,7 +231,7 @@ FROM [GRAPH] < graph-name >
 
 `<graph-name>` is expected to be the name of a graph in the catalog.
 
-If `<graph-name>` is not the name of a graph in the catalog, an error is produced.
+If `<graph-name>` is not the name of a graph in the catalog, an error is raised.
 
 If is an error to perform an updating operation on a working graph that was introduced using `FROM GRAPH`.
 
@@ -199,7 +246,7 @@ EDIT [GRAPH] < graph-name >
 
 `<graph-name>` is expected to be the name of a graph in the catalog.
 
-If `<graph-name>` is not the name of a graph in the catalog, an error is produced.
+If `<graph-name>` is not the name of a graph in the catalog, an error is raised.
 
 If is an error to not perform at least a single updating operation on a working graph that was introduced using `EDIT GRAPH`.
 
