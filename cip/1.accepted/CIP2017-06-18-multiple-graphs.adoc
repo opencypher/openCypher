@@ -49,82 +49,57 @@ Furthermore, adding support for working with multiple graphs has recently been i
 
 Before proposing changes to the language, it is necessary to first address changes required to the underlying https://github.com/opencypher/openCypher/blob/master/docs/property-graph-model.adoc[*property graph model*].
 
-The revised property graph model used in this CIP is called the *multiple property graphs data model* and assumes everything specified in the original property graph model is extended with the notion of multiple graphs outlined in the following subsections.
+The revised property graph model used in this CIP is called the *multiple property graphs data model* and assumes everything specified in the original property graph model is extended with the notion of multiple graphs as outlined in the following subsections.
 
-=== Multiple property graphs data model instance
+=== Model instance
 
-_Definition_: A *multiple property graphs data model instance* is a set of property graphs.
+_Definition_: A *multiple property graphs data model instance* is a set of property graphs and by extension their constituting nodes and relationships.
 
-=== Property graph
+=== Basic definitions
 
-_Definition_: A *property graph* is a set of labeled nodes and typed relationships, where each node and relationship contains zero or more properties (a property is a tuple consisting of a named key and value).
-Graphs may be read-only or updatable.
+_Definition_: A *label* is a symbolic string that is used for classifying nodes.
 
-=== Entity
+_Definition_: A *relationship type* is a symbolic string that is used for classifying relationships.
 
-_Definition_: An *entity* is either a node or a relationship.
-Every entity exists in exactly one property graph.
+_Definition_: A *property* is a tuple consisting of a named *property key* and a *property value*.
 
-=== Graph model elements
+=== Model elements
 
-Graphs, nodes, and relationships are all called *graph model elements*.
+The constituents of an instance of the multiple property graphs data model are called its *model elements*.
 
-== Query execution model
+_Definition_: An *identity* is a value that is used to identify individual model elements and to distinguish between multiple model elements from the same context.
 
-_Definition_: A *query processor* is a query processing service that interacts with clients to execute Cypher statements on their behalf and returns the results of processing back to them.
+_Definition_: A *(property) graph* has a *graph identity* that uniquely identifies the graph and at least allows to distinguish it from other graphs in the same instance of the multiple property graph data model.
+A property graph further consists of a set of nodes and a set of relationships that connect the nodes of the property graph.
+Each property graph is contained in exactly one instance of the multiple property graphs data model.
 
-Clients interact with the query processor by *submitting* a statement together with required parameters.
-The statement is then executed by the query processor and an *execution result* is returned to the client for consumption.
+Graphs may be either immutable or updatable.
+This is not considered to be part of the content of the graph.
 
-=== Identities of graph model elements
+The `graph(e)` function returns the *graph identity* of the graph that contains an entity `e`.
 
-The query processor addresses graph model elements by assigning a unique *identity* to each of them.
-Identities are regular Cypher values that are used to uniquely identify elements in a set of values (called the domain).
-The following identity domains are used:
-
-* a *node identity* uniquely identifies a node within its graph
-* a *relationship identity* uniquely identifies a relationship within its graph
-* a *graph identity* uniquely identifies a graph
-
-Identities are guaranteed to be valid for the duration of executing a statement and consuming its result.
-Implementations may choose to guarantee the validity of identities across multiple statement executions.
-
-Implementations may choose any regular Cypher value for representing graph model element identities.
-However, identity values may not be one of the following:
-
- * values that either are or contain graph model elements
- * `NULL` or values that contain `NULL`
-
-The `graph(e)` function returns the *graph identity* of an entity `e`.
+_Definition_: A *node* has a *node identity* that uniquely identifies the node and at least allows to distinguish it from other nodes that are contained in the same property graph.
+A node further consists of a set of zero or more labels and zero or more properties with mutually different property keys.
+Each node is contained in exactly one property graph.
 
 The `id(n)` function returns the *node identity* of a node `n`.
 
+_Definition_: A *relationship* has a *relationship identity* that uniquely identifies the relationship and at least allows to distinguish it from other relationships that are contained in the same property graph.
+A relationship further consists of a *start node*, an *end node*, and exactly one relationship type, and zero or more properties with mutually different property keys.
+Each relationship is contained in exactly one property graph and its start node and its end node are both contained in the same property graph as the relationship.
+
 The `id(r)` function returns the *relationship identity* of a relationship `r`.
 
-Note:: The same identity value might reference different elements in results from executing different statements.
+Both nodes and relationships are called *entities*.
 
-=== Contents of graph model elements
+The constituents of a model element (including its identity) are called its *content*.
 
-_Definition_: The content of a node are its node identity, its labels, and its properties.
+== Query execution model
 
-_Definition_: The content of a relationship are its relationship identity, its relationship type, and its properties.
+_Definition_: A *query processor* is a query processing service that interacts with clients to execute Cypher statements on their behalf.
 
-_Definition_: The content of a graph are its graph identity, its set of nodes together with their node content, and its set of relationships that connect the nodes together with their relationship content.
-
-=== Execution result
-
-The execution result of a statement can either be
-
-* a tabular result, i.e. a collection of records where each record has the exact same set of named fields.
-Tabular results may contain duplicate results and may optionally be ordered
-* a graph result, i.e. the contents of a graph as described by its set of nodes and relationships
-* an error indicating a failure to execute the statement correctly
-
-=== Returning graph model elements
-
-If an execution result that is returned _to the client_ contains a graph model element, this graph model element is returned together with its content at the time of terminating the query (i.e. the client always receives snapshots of graph model elements).
-
-Note:: Additionally, a result may contain implementation specific metadata like a summary of performed update activity (e.g. the number of nodes created) or a detailed query plan.
+Clients interact with the query processor by *submitting* a statement together with all required parameters.
+The statement is then executed by the query processor and an *execution result* is returned to the client for consumption.
 
 // Statement = Syntactic Unit
 // - Reading query
@@ -135,12 +110,15 @@ Note:: Additionally, a result may contain implementation specific metadata like 
 
 === Catalog
 
-A query processor has one *catalog*, which is the part of the system that knows how to translate *fully qualified graph names* to graphs.
-Graphs in the catalog are stored by reference, i.e. multiple entries in the catalog may refer to the same graph.
+Every query processor maintains exactly one *catalog*.
 
-A fully qualified graph name is following the syntax for dotted variable identifiers and consists of an optional *graph namespace*, and a *mandatory graph name*.
+_Definition_: A *catalog* is a mapping from *fully qualified graph names* to graph references.
+Multiple entries in the catalog may refer to the same graph.
 
-Note:: A query processor might have a catalog shared by all users, or keep one per user.
+A fully qualified graph name is following the syntax for dotted variable identifiers and consists of an optional *graph namespace*, and a mandatory *graph name*.
+
+Note:: In practice, a query processor might have a catalog shared by all users, or provide a different catalog for each user.
+This is not considered here based on the simplifying assumption that all client requests are made by the same user.
 
 === Working graph
 
@@ -149,7 +127,42 @@ Most Cypher clauses operate within the context of a working graph, by reading or
 A query processor may choose to establish an *initial working graph* for each executed statement.
 The details of this are left to implementations.
 
-If a query processor has not established an initial working graph and the query does establish a working graph before operating on the working graph, an error is produced.
+If a query processor has not established an initial working graph and the query fails to establish a working graph explicitly before attempting to operate on the working graph, an error is produced.
+
+=== Identity validity
+
+Identities are guaranteed to be valid for the duration of executing a statement and consuming its result.
+Implementations may choose to guarantee the validity of identities across multiple statement executions.
+
+Implementations may choose any regular Cypher value for representing graph model element identities.
+However, identities may not be one of the following:
+
+ * values that either are or contain graph model elements
+ * `NULL` or values that contain `NULL`
+
+Note:: The same identity value might reference different elements in results from executing different statements.
+
+=== Property values
+
+Implementations may choose to support any Cypher value as a valid property value except for values that either are or contain graph model elements.
+Additionally, property values must not be `NULL`.
+Setting the property of an entity to `NULL` is treated as if the property would have been removed.
+
+=== Execution result
+
+The execution result of a statement can either be
+
+* a *tabular result*, i.e. a collection of records where each record has the exact same set of named fields.
+Tabular results may contain duplicate results and may optionally be ordered
+* a *graph result*, i.e. the contents of a graph as described by its set of nodes and relationships
+* an *execution error*, i.e. a message describing the reason that prevented the query processor from executing the statement correctly
+
+=== Returning graph model elements
+
+If an execution result that is returned _to the client_ contains a graph model element, this graph model element is returned together with its content at the time of terminating the query (i.e. the client always receives snapshots of graph model elements).
+
+Note:: Additionally, a result may contain implementation specific metadata like a summary of performed update activity (e.g. the number of nodes created) or a detailed query plan.
+
 
 == Graph operations in queries
 
@@ -158,7 +171,7 @@ The working graph may be operated on in the following ways:
 * The working graph can be changed by selecting a graph that is known by the catalog.
 * The working graph may be returned as a query result
 * The working graph can be changed by constructing a new graph
-* The working graph can be changed by computing a disjoint graph union
+* The working graph can be changed by constructing a disjoint graph union
 
 === Selecting the working graph from the catalog for querying
 
@@ -222,9 +235,10 @@ The general form of graph construction is:
 [source, cypher]
 ----
 CONSTRUCT
+  [ON GRAPH]
   [ON < graph-name-list >]
-  CLONE < cloned-entities >
-  NEW < patterns >
+  [CLONE < cloned-entities >]
+  [NEW < patterns >]
   [YIELD < return-items >]
 ----
 
