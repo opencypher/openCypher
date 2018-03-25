@@ -179,7 +179,7 @@ The working graph may be changed for all subsequent querying clauses using:
 
 [source, cypher]
 ----
-FROM GRAPH < graph-name >
+FROM [GRAPH] < graph-name >
 ----
 
 `<graph-name>` is expected to be the name of a graph in the catalog.
@@ -194,7 +194,7 @@ The working graph may be changed for all subsequent querying and updating clause
 
 [source, cypher]
 ----
-EDIT GRAPH < graph-name >
+EDIT [GRAPH] < graph-name >
 ----
 
 `<graph-name>` is expected to be the name of a graph in the catalog.
@@ -272,19 +272,24 @@ The `CLONE < return-items >` sub-clause may be used to clone entities and bind t
  * Cloning a single, already bound variable rebinds the variable. In other words `CLONE a` is interpreted as `CLONE a AS a`.
  * Cloning a nested value (like a path) implicitly clones all contained nodes and relationships
 
-==== Yielding no result variable bindings
-
-If a `CONSTRUCT` clause is not ending in a `YIELD` sub-clause, all variable bindings and the current record cardinality are dropped.
-The next clause then proceeds in the newly constructed working graph on a single record with no fields.
-
 ==== Yielding result variable bindings
 
-The `YIELD *|<return-items>|NONE` sub-clause may be used to preserve all variable bindings and the current record cardinality and optionally introduce new variable bindings.
-The `YIELD` sub-clause in `CONSTRUCT` may also be used to shadow existing variable bindings of cloned entities.
+The `YIELD *|<return-items>|NONE` sub-clause may be used to preserve the current record cardinality and optionally either preserve or shadow input variable bindings as well as introduce new variable bindings.
+
+`YIELD *` may be used to yield the variable bindings for all cloned and newly created entities.
+This will preserve the current record cardinality but may shadow input variable bindings as well as introduce new variable bindings.
+
+`YIELD <return-items>` may be used to yield variable bindings for explicitly selected cloned and newly created entities.
+This will preserve the current record cardinality but may shadow input variable bindings as well as introduce new variable bindings.
 
 `YIELD NONE` may be used to yield no additional variable bindings.
+This will preserve the current record cardinality and all input variable bindings.
 
-`YIELD *` may be used to yield variable bindings for all cloned and newly created entities.
+
+==== Not yielding result variable bindings
+
+If a `CONSTRUCT` clause is not ending in a `YIELD` sub-clause, the current record cardinality and all input variable bindings are dropped.
+The next clause then proceeds in the newly constructed working graph on a single record with no fields.
 
 === Disjoint graph union
 
