@@ -262,15 +262,15 @@ Cloning ensures that exactly one (representative) cloned entity is created in th
 In particular, if the same input entity is cloned multiple times this will still only create one cloned entity in the new graph.
 Cloning a relationship implicitly clones its start node and its end node.
 
-The `ON < graph-name-list >` sub-clause may be used to clone all nodes and relationships from the given graphs in the catalog into the new graph.
-
 The `ON GRAPH` sub-clause may be used to clone all nodes and relationships from the working graph into the new graph.
 
-The `CLONE < return-items >` sub-clause may be used to clone entities and bind the cloned entities to new variable names.
+The `ON < graph-name-list >` sub-clause may be used to clone all nodes and relationships from the given graphs in the catalog into the new graph.
+
+The `CLONE < return-items >` sub-clause may be used to clone entities and bind the cloned entities to new variable names or shadow already bound variables.
 `CLONE` constructs cloned entities for each input record subject to the following rules:
 
- * Cloning a single, already bound variable rebinds the variable. In other words `CLONE a` is interpreted as `CLONE a AS a`
- * Cloning a path implicitly clones all nodes and relationships of the path
+ * Cloning a single, already bound variable rebinds the variable. In other words `CLONE a` is interpreted as `CLONE a AS a`.
+ * Cloning a nested value (like a path) implicitly clones all contained nodes and relationships
 
 ==== Yielding no result variable bindings
 
@@ -279,8 +279,11 @@ The next clause then proceeds in the newly constructed working graph on a single
 
 ==== Yielding result variable bindings
 
-The `YIELD <return-items>` sub-clause may be used to extend the driving table with additional variable bindings.
-The `YIELD` sub-clause in `CONSTRUCT` may also be used to shadow existing variable bindings in the driving table.
+The `YIELD *|<return-items>|NONE` sub-clause may be used to preserve all variable bindings and the current record cardinality and optionally introduce new variable bindings.
+The `YIELD` sub-clause in `CONSTRUCT` may also be used to shadow existing variable bindings of cloned entities.
+
+`YIELD NONE` may be used to yield no additional variable bindings.
+
 `YIELD *` may be used to yield variable bindings for all cloned and newly created entities.
 
 === Disjoint graph union
@@ -296,7 +299,7 @@ UNION ALL
 RETURN GRAPH
 ----
 
-The resulting union graph consists of copies of all entities from the two input graphs.
+The resulting union graph consists of clones of all entities from the two input graphs.
 
 == Creating and administrating graphs in the catalog
 
