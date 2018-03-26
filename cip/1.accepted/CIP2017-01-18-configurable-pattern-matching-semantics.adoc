@@ -389,7 +389,7 @@ Cyphermorphism is applied to `p~2~` and `p~3~` separately, which resolves the li
 
 Running Query 4.1.2 returns the following results:
 
-[queryresult]
+[source,queryresult]
 ----
 +------------------------------------------------------------+
 | grandparent1.name | grandparent2.name | grandchild.name    |
@@ -416,7 +416,7 @@ WHERE grandparent1 <> grandparent2
 RETURN grandparent1.name, grandparent2.name, grandchild.name
 ----
 
-[queryresult]
+[source,queryresult]
 ----
 +------------------------------------------------------------+
 | grandparent1.name | grandparent2.name | grandchild.name    |
