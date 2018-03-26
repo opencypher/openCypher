@@ -1,4 +1,4 @@
-= CIP2017-01-18 - Configurable Pattern Matching Semantics
+= CIP2017-01-18 Configurable Pattern Matching Semantics
 :numbered:
 :toc:
 :toc-placement: macro
