@@ -148,8 +148,9 @@ PatternLengthRestriction = 'SHORTEST'
                          | 'UNRESTRICTED'
                          ;
 
-PatternMorphism = 'DIFFERENT', ('NODES' | 'VERTICES'), [ VariableList ]
-                | 'DIFFERENT', ('RELATIONSHIPS' | 'EDGES'), [ VariableList ]
+PatternMorphism = 'DIFFERENT', ('NODES' | 'VERTICES')
+                | 'DIFFERENT', ('RELATIONSHIPS' | 'EDGES')
+                | 'DIFFERENT', [ VariableList ]
                 | 'LENIENT'
                 ;
 
@@ -307,6 +308,8 @@ A path is considered to be shorter than another path if it has a smaller length.
 This CIP proposes to introduce the `DIFFERENT NODES` pattern morphism that requests that the pattern group is to be matched using node isomorphism (i.e. all matched nodes must be different nodes).
 
 This CIP proposes to introduce the `DIFFERENT EDGES` pattern morphism that requests that the pattern group is to be matched using relationship isomorphism (i.e. all matched relationships must be different relationships).
+
+This CIP proposes to introduce the `DIFFERENT(variables)` pattern morphism that requests that the pattern group is to be matched such that all given variables are pairwise different.
 
 This CIP proposes to introduce the `LENIENT` pattern morphism that requests that the pattern group is to be matched using homomorphism (i.e. no restrictions are placed on matched entities).
 
