@@ -14,16 +14,20 @@ This proposal is a response to link:https://github.com/opencypher/openCypher/iss
 
 toc::[]
 
+
+
 == Motivation
 
 Currently Cypher uses pattern matching semantics that treats _all_ patterns that occur in a `MATCH` clause as a unit (called a *uniqueness scope*) and only considers pattern instances that bind different relationships to each fixed length relationship pattern variable and to each element of a variable length relationship pattern variable.
 This has come to be called *Cypermorphism* informally and is a form of edge isomorphism that is based on Cypher's notion of uniqueness scope.
 
-Cyphermorphism lies at the intersection of returning as many results as possible while still ruling out returning an infinite number of paths when matching graphs that contain cycles.
+Cyphermorphism lies at the intersection of returning as many results as possible while still ruling out returning an infinite number of paths when matching graphs that contain cycles with a variable length pattern.
 
-However, the notion of uniqueness scope has proven to be non-standard and is occasionally confusing for users and Cyphermorphic matching is not tractable in terms of computational complexity for some graphs.
+However, the notion of uniqueness scope has proven to be non-standard and is occasionally confusing for users and cyphermorphic matching is not tractable in terms of computational complexity for some graphs.
 
 The CIP aims to address these issues.
+
+
 
 == Background
 
@@ -80,9 +84,12 @@ However, as `B` is both the start node and end node, `S~3~` is still a valid pat
 
 A path corresponds to the standard definition of _(node-)isomorphic_ graph pattern matching.
 
+
+
 == Proposal
 
 This CIP has been submitted in the belief that *CIP2017-02-06 Path Pattern Queries* will be accepted and is aligned with it.
+
 
 [[syntax]]
 === Syntax
@@ -93,26 +100,68 @@ Note that path patterns are assumed from the *CIP2017-02-06 Path Pattern Queries
 .Overview of proposed grammar changes:
 [source,ebnf]
 ----
-Pattern = PatternPart, { ',', PatternPart } ;
-PatternPart = [ PatternVariableSpec ], NodePattern, { (EdgePattern | PathPattern), NodePattern } ;
+!! Clause-level argument
+Pattern = PatternGroup, { PatternGroupWithModifiers }
+        | { PatternGroupWithModifiers }-
+        ;
 
-PatternVariableSpec = [ PatternMatchMode ], [ PatternVariableClass ], [ Variable, '=' ] ;
+PatternGroup = PatternPart, { ',', PatternPart } ;
 
-PatternMatchMode     = 'ALL'
-                     | 'ALL SHORTEST'
-                     | 'SHORTEST'
+!! Expected to form a connected component
+PatternPart = NamedPatternPart
+            | AnonymousPatternPart
+            ;
+
+NamedPatternPart = PatternVariableSpec, AnonymousPatternPart ;
+
+AnonymousPatternPart = {
+                         NodePattern,
+                         { (EdgePattern | PathPattern), NodePattern }
+                       }-
                      ;
-PatternVariableClass = ([ PVClassModifier ], 'WALK', ['S'])
-                     | ([ PVClassModifier ], 'TRAIL', ['S'])
-                     | ([ PVClassModifier ], 'PATH', ['S'])
-                     ;
-PVClassModifier      = 'OPEN'
-                     | 'CLOSED'
-                     ;
+
+PathVariableSpec = [ [ PathClassModifier ], PathClass ], [ Variable, '=' ] ;
+
+PathClassModifier = ('OPEN' | 'CLOSED'), 'DIRECTED'
+                  | 'DIRECTED'
+                  ;
+
+PathClass = 'WALK'
+          | 'TRAIL'
+          | [ 'SIMPLE' ], 'PATH'
+          ;
+
+PatternGroupWithModifiers = PatternGroupModifiers, PatternGroup ;
+
+PatternGroupModifiers =
+    PatternQuantifier [ PatternLengthRestriction] [ PatternMorphism ]
+  | PatternLengthRestriction [ PatternMorphism ]
+  | PatternMorphism
+  ;
+
+PatternQuantifier = 'ANY'
+                  | 'EACH' [ 'OF' ] !! For readability
+                  ;
+
+PatternLengthRestriction = 'SHORTEST'
+                         | 'CHEAPEST'
+                         | 'UNRESTRICTED'
+                         ;
+
+PatternMorphism = 'DIFFERENT', ('NODES' | 'VERTICES'), [ VariableList ]
+                | 'DIFFERENT', ('RELATIONSHIPS' | 'EDGES'), [ VariableList ]
+                | 'LENIENT'
+                ;
+
+VariableList = '(', Variable, { ',', Variable }, ')' ;
+
+Expression = ...
+           | 'DIFFERENT', VariableList
+           | 'DISJOINT', VariableList
+           ;
 ----
 
-
-As we can see above, patterns in Cypher consist of a comma-separated list of _pattern parts_, where a pattern part is exemplified by `p = (e:Employee)-[:REPORTS_TO*1..3]->(m:Manager)`.
+Basic patterns in Cypher consist of a comma-separated list of *pattern parts*, where a pattern part is exemplified by `p = (e:Employee)-[:REPORTS_TO*1..3]->(m:Manager)`.
 Pattern parts may be bound to a variable, such as `p` in our example, and consist of a linear chain of connected node, relationship, and path patterns.
 
 While Cypher allows omitting path, node, and relationship variables in a pattern, this is just syntactic sugar; i.e. all parts of a pattern should be considered to be bound to a variable name from the viewpoint of pattern matching semantics (names are either provided in the query or automatically generated by a conforming implementation).
@@ -167,9 +216,22 @@ WHERE n1 = n4 AND n2 = n3 AND n4 = n5
 RETURN n1 AS a
 ----
 
+=== Flexible pattern part syntax
+
+This CIP proposes to allow breaking of pattern parts using whitespace in order to aid visual layout of longer patterns.
+
+.Query 3.4.1
+[source,cypher]
+----
+MATCH
+  p=(a)-->(n2)-->(n3)
+    (n3)<--(n4)<--(n5)-->(b)
+RETURN *
+----
+
 === Pattern variables and classes
 
-This CIP proposes to name the variable to which a pattern part may be assigned a _pattern variable_.
+This CIP proposes to name the variable to which a pattern part may be assigned a *pattern variable*.
 Note that pattern variables are always bound to a connected sequence of node, relationship, and path patterns (see <<syntax>>).
 
 .In the query, `p` and `q` are examples of pattern variables. A named path pattern `foo` is assumed:
@@ -183,16 +245,12 @@ Three classes of pattern variables are proposed:
 
 * `WALK`: Pattern variables of this class may only be bound to pattern instances that are walks, as defined in <<walks>>.
 * `TRAIL`: Pattern variables of this class may only be bound to pattern instances that are trails, as defined in <<trails>>.
-* `PATH`: Pattern variables of this class may only be bound to pattern instances that are paths, as defined in <<paths>>.
-
-NOTE: This CIP proposes to rename the Cypher type `PATH` to `WALK`.
-
-IMPORTANT: This CIP proposes that the default pattern variable class is `TRAIL` with the exception that any path pattern part is to be matched separately using the `WALK` pattern variable class.
+* `[SIMPLE] PATH`: Pattern variables of this class may only be bound to pattern instances that are paths, as defined in <<paths>>.
 
 .Example of using pattern variable classes for the pattern variables `p` and `q`:
 [source, cypher]
 ----
-MATCH TRAIL p = (:A)-->(:B)-[:KNOWS]->(), PATH q = (a)-/~foo/->(b)
+MATCH TRAIL p = (:A)-->(:B)-[:KNOWS]->(), SIMPLE PATH q = (a)-/~foo/->(b)
 RETURN p, q
 ----
 
@@ -200,59 +258,90 @@ The pattern variable class may be further qualified with one of the following pr
 
 * `OPEN`: This pattern variable should only be bound to walks (or trails, or paths respectively) which begin and end at _distinct_ nodes.
 * `CLOSED` This pattern variable should only be bound to walks (or trails, or paths respectively) which begin and end at _the same node_.
+* `DIRECTED` This pattern variable should only be bound to walks (or trails, or simple paths respectively) in which all relationships are traversed in the same direction
 
 Implementations are advised to signal a warning for uses of `OPEN` pattern variable classes where the two endpoints of the pattern both use the _same_ variable name.
 
 Implementations are advised to signal a warning for uses of `CLOSED` pattern variable classes where the two endpoints of the pattern both use a _different_ variable name.
 
-==== Plural forms
 
-This CIP proposes to allow for plural forms of all pattern variable classes, which will be synonymous with their respective singular forms.
-The plural forms are as follows: `WALKS`, `TRAILS`, and `PATHS`.
-The main motivation is to aid readability when used in conjunction with different pattern match modes (see <<modes>>).
+[[groups]]
+=== Pattern groups and group modifiers
 
-[[modes]]
-=== Pattern match modes
+A comma separated list of named on unnamed pattern parts is called a *pattern group*.
 
-This CIP proposes introducing the notion of a _pattern match mode_, that may be specified before a pattern variable in a read-only pattern (i.e. a pattern that is not used as an argument to an updating clause) and restricts the set of valid pattern matches for the subsequent pattern part.
+This CIP proposes to add control over the semantic of matching of pattern groups by allowing to prefix pattern groups with additional *pattern group modifiers*.
 
-Node patterns are unaffected by the pattern match mode, and will always match all described nodes from the graph.
+This CIP further proposes to redefine a *pattern* as a non-empty sequence of pattern groups that are separated by whitespace where all but the first pattern group is prefixed by at lease one pattern group modifier.
 
-==== ALL mode
+This CIP proposes the introduction of three kinds of pattern group modifiers:
 
-This CIP proposes the new `ALL` pattern match mode that matches every walk (or trail, or path respectively) as described by all node, relationship, and path patterns given in the subsequent pattern elements.
+* A *pattern quantifier* controls how many matches are to be returned
+* A *pattern length restriction* limits the length and nature of matched paths
+* A *pattern morphism* specifies with which morphism the pattern group is to be matched
 
-This CIP proposes that an error should be raised for any use of the `ALL` pattern match mode without an explicit pattern variable class in combination with an unbounded variable length relationship pattern or an unbounded path pattern.
 
-Implementations are advised to signal a warning for any use of `MATCH ALL (OPEN|CLOSED) WALKS` that may return an infinite result.
+==== Pattern quantifiers
 
-==== ALL SHORTEST mode
+This CIP proposes to introduce the `ANY` pattern quantifier that requests that at most one match is to be returned for the whole pattern group.
 
-This CIP proposes the new `ALL SHORTEST` pattern match mode that matches every _shortest_ walk (or trail, or path respectively) as described by all node, relationship, and path patterns in the subsequent pattern elements.
+This CIP proposes to introduce the `EACH` pattern quantifier that requests that all matches are to be returned for the whole pattern group.
 
-==== SHORTEST mode
+This CIP proposes to introduce the `ALL` pattern quantifier that requests that all matches are to be returned for the whole pattern group.
 
-This CIP proposes the new `SHORTEST` pattern match mode that matches _one shortest_ walk (or trail, or path respectively) as described by all node, relationship, and path patterns in the following pattern elements.
 
-==== Default pattern match mode
+==== Pattern length restrictions
 
-This CIP proposes a new default pattern match mode that assigns a different pattern match mode to each type of pattern part:
+This CIP proposes to introduce the `SHORTEST` pattern length restriction to request that only shortest paths inside the pattern group are to be considered by matching.
+A path is considered to be shorter than another path if it has a smaller length.
 
-* Simple relationship patterns (e.g. `()-[]\->()`) are to be matched using `ALL`.
-* Bounded variable length relationship patterns (e.g. `()-[*2..4]\->()`) are to be matched using `ALL`.
-* Unbounded variable length relationship patterns (e.g. `()-[*]\->()`) are to be matched using `ALL`.
-* Path patterns (e.g. `()-/../\->()`) are to be matched using `ALL SHORTEST`.
+This CIP proposes to introduce the `CHEAPEST` pattern length restriction to request that only shortest cheapest inside the pattern group are to be considered by matching.
+A path is considered to be cheaper than another path if it has a smaller cost in terms of the cost function specified through the use of a path pattern.
 
-This CIP proposes that an error should be raised for any use of the default pattern match mode without an explicit pattern variable class in combination with an unbounded variable length relationship pattern only.
+This CIP proposes to introduce the `UNRESTRICTED` pattern length restriction to request that all possible paths inside the pattern group are to be considered by matching.
+A path is considered to be shorter than another path if it has a smaller length.
 
-Implementations are advised to signal a warning for any use of the default pattern match mode that may return an infinite result.
 
-=== `disjoint` function
+==== Pattern morphisms
 
-This CIP finally proposes a function `disjoint()` defined as follows:
+This CIP proposes to introduce the `DIFFERENT NODES` pattern morphism that requests that the pattern group is to be matched using node isomorphism (i.e. all matched nodes must be different nodes).
 
-* `disjoint(list1, list2, ..., list_n)`: returns `true` if all argument lists are pairwise disjoint
-* If any argument is a walk, it is treated as a list of alternating nodes and relationships
+This CIP proposes to introduce the `DIFFERENT EDGES` pattern morphism that requests that the pattern group is to be matched using relationship isomorphism (i.e. all matched relationships must be different relationships).
+
+This CIP proposes to introduce the `LENIENT` pattern morphism that requests that the pattern group is to be matched using homomorphism (i.e. no restrictions are placed on matched entities).
+
+
+==== Recommended default pattern group modifiers
+
+If no pattern group modifiers are given, a pattern group is to be matched using `EACH OF UNRESTRICTED DIFFERENT EDGES`.
+
+If a pattern group is to be matched using either `SHORTEST` or `CHEAPEST` but no pattern morphism was specified, the pattern group is to be matched using `LENIENT`.
+
+If a pattern group is to be matched using either `SHORTEST` or `CHEAPEST` but no pattern quantifier was specified, the pattern group is to be matched using `ANY`.
+
+
+=== `DIFFERENT` operator
+
+This CIP finally proposes a new operator `DIFFERENT(var1, var2, var3, ...)` that returns `true` if all pairs of variables are mutually different, returns `NULL` if any variable is `NULL`, and returns `false` otherwise.
+
+
+=== `DISJOINT` operator
+
+This CIP finally proposes a new operator `DISJOINT(var1, var2, var3, ...)` that returns `true` if all pairs of variables pass the following test:
+
+* If both variables are nodes, they must be different
+* If both variables are relationships, they must be different
+* If one variable is a list and the other variable is an entity, the entity must not be contained in the list
+* If both variables are lists, all pairs of elements from both lists must pass the same test
+* If one variable is `NULL`, the whole operator returns `NULL`.
+* If any variable is a path, it is treated as a list of alternating nodes and relationships
+
+
+=== Cardinality warning
+
+Implementations are advised to signal a warning for pattern that may return an infinite result.
+
+
 
 == Examples
 
@@ -274,8 +363,9 @@ _Query 4.1.1 - Current semantics: single patterns_
 
 [source,cypher]
 ----
-MATCH (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild),
-      (grandparent2:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild)
+MATCH
+  (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild),
+  (grandparent2:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild)
 WHERE grandparent1 <> grandparent2
 RETURN grandparent1.name, grandparent2.name, grandchild.name
 ----
@@ -319,8 +409,9 @@ In contrast, Query 4.1.3 uses the new default semantics for simple relationship 
 
 [source,cypher]
 ----
-MATCH ALL WALKS (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild),
-      (grandparent2:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild)
+MATCH EACH LENIENT
+  (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild),
+  (grandparent2:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild)
 WHERE grandparent1 <> grandparent2
 RETURN grandparent1.name, grandparent2.name, grandchild.name
 ----
@@ -341,12 +432,13 @@ RETURN grandparent1.name, grandparent2.name, grandchild.name
 _Query 4.1.4 - New semantics: achieving Cyphermorphism_
 
 What happens in the scenarios where the current semantics -- i.e. Cyphermorphism -- are desirable?
-All that is required is to alter the pattern variable class in the `MATCH` clause from `WALKS` to `TRAILS` (which is, in fact, the default).
+All that is required is to alter the pattern morphism in the `MATCH` clause from `LENIENT` to `DIFFERENT RELATIONSHIPS` (which is, in fact, the default).
 
 [source,cypher]
 ----
-MATCH ALL TRAILS (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild),
-      (grandparent2:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild)
+MATCH EACH OF DIFFERENT RELATIONSHIPS
+  (grandparent1:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild),
+  (grandparent2:Person)-[:HAS_CHILD]->()-[:HAS_CHILD]->(grandchild)
 WHERE grandparent1 <> grandparent2
 RETURN grandparent1.name, grandparent2.name, grandchild.name
 ----
@@ -366,7 +458,7 @@ MATCH p = (a)-/:X*/->()
 RETURN * LIMIT 1
 
 // MATCH p=allShortestPaths((a)-[:X*]->()) today becomes:
-MATCH ALL SHORTEST p = (a)-[:X*]->()
+MATCH EACH SHORTEST p = (a)-[:X*]->()
 RETURN *
 
 // MATCH p=allShortestPaths((a)-[:X*]->()) may be expressed using path patterns, too:
@@ -376,7 +468,7 @@ RETURN *
 
 === Matching with existing semantics
 
-The function `disjoint()` may now be used to precisely express Cypher's current pattern matching semantics:
+The operator `DISJOINT()` may now be used to precisely express Cypher's current pattern matching semantics:
 
 .Query 4.2.1
 [source,cypher]
@@ -387,7 +479,7 @@ RETURN *
 
 // This CIP
 MATCH pat1 = ..., pat2 = ..., pat3 = ...
-WHERE disjoint(rels(pat1), rels(pat2), rels(pat3))
+WHERE DISJOINT(rels(pat1), rels(pat2), rels(pat3))
 RETURN *
 ----
 
@@ -402,7 +494,7 @@ A moderate increase in language complexity.
 A change from current pattern matching semantics.
 However, care has been taken to reduce the amount of broken queries and to retain access to current semantics.
 
-`MATCH ALL [OPEN|CLOSED] WALKS` allows for non-terminating queries.
+`MATCH EACH LENIENT` allows for non-terminating queries.
 
 == References
 
@@ -419,16 +511,13 @@ This section presents a few such functions:
 
 * `isOpen(p)`: returns `true` if the source and target nodes of `p` are distinct.
 * `isClosed(p)`: returns `true` if the source and target nodes of `p` are equal.
+* `isDirected(p)`: returns `true` if relationships in p are traversed in the same direction.
 * `toTrail(p)`: returns `p` if `p` contains no duplicate relationships, `null` otherwise.
-* `toPath(p)`: returns `toTrail(p)` if `p` contains no duplicate nodes at all or if the only two duplicate nodes are the source and target nodes of `p`, `null` otherwise.
+* `toSimplePath(p)`: returns `toTrail(p)` if `p` contains no duplicate nodes at all or if the only two duplicate nodes are the source and target nodes of `p`, `null` otherwise.
 
 [appendix]
 == Pre-parser options
 
-It is suggested that a conforming implementation should provide pre-parser options for defining the default pattern variable class as well as the default pattern match mode:
+It is suggested that a conforming implementation should provide pre-parser options for changing the default pattern group modifiers.
 
-* `match=one of(all|all-shortest|shortest)` for configuring a different default pattern match mode
-* `match=one of(walk[s]|trail[s]|path[s])` for configuring a different default pattern variable class
-* `match=one of(all|all-shortest|shortest)`, `-`, `one of(walk[s]|trail[s]|path[s])` for configuring both a different default pattern match mode and a different default pattern variable class
-
-An example of the latter would be `match=all-shortest-trails`.
+An example of the latter could be `match=any-shortest-lenient`.
