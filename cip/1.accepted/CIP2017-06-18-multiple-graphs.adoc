@@ -1046,26 +1046,52 @@ Truncating a graph deletes all its nodes and relationships but retains any addit
 // 3 rows
 // ----
 //
-== Interaction with existing features
+
+
+
+== Considerations
+
+
+=== Interaction with existing features
 
 This proposal is far reaching as it changes both the property graph model and the execution model of the language.
 
 However, the change has been carefully designed to not change the semantics of existing queries.
 
-== Alternatives
 
-The scope of this CIP could be reduced by not separating between the source and target graph.
+=== Alternatives
 
-== What others do
+Instead of considering entities to only belong to a single graph, we could explore a model where an entity can be part of multiple graphs.
+This has the drawback of not being able to easily address an entity in a single graph and as a consequence it becomes impossible to distinguish entities according to the graph from which they have been matched.
+Establishing a 1:1 relationship between entities and graphs also grants great implementation freedom, especially in terms of id space management.
+
+Instead of only returning either a table or a single graph, an earlier edition of this proposal explored to return table-graphs, i.e. both a single driving table and an associated set of multiple, named graphs.
+This felt overly complicated and made it difficult to distinguish between graphs in scope and variables in scope, created the need to occasionally create dummy values (like an empty graph or driving table), and led to a more complex execution result (with potentially difficult repercussions for the network protocol).
+
+Instead of only establishing a single working graph, an earlier edition of this proposal explored the idea of distinguishing between a graph for reading and a graph for writing.
+This led to a more complex execution result, made it necessary to manage those two graphs and complicated the users mental model, and was ultimately discarded based on a use-case analysis that indicated that in practice queries would typically first select graphs for reading and then switch to writing.
+
+Instead of introducing graphs as separate catalog objects, an earlier edition of this proposal considered graphs as values (called graphlets).
+While providing great flexibility, this approach becomes very difficult to plan and statically analyze.
+It also leads to intractable operations like joins between graphs.
+However it may still be worthwhile to explore this idea in the future for "tiny subgraphs".
+
+
+=== What others do
 
 SPARQL only provides basic facilities for returning graphs using `CONSTRUCT`.
+SPARQL avoid the need for `CLONE` by using global entity identities at the peril of having to use graph relationships to associate various attributes to them.
+
+SQL constructs derived tables using projection, aggregation, and filtering.
 
 Neither Gremlin nor PGQL have developed facilities for the direct construction and manipulation of graphs.
 
-== Benefits to this proposal
+
+=== Benefits to this proposal
 
 Cypher is evolved to become a query language that is properly closed under graphs.
 
-== Caveats to this proposal
+
+=== Caveats to this proposal
 
 This is a fundamental and large change to the language whose long-term consequences are difficult to assess.
