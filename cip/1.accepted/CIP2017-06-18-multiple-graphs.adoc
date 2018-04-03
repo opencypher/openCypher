@@ -15,12 +15,13 @@ This material is based on internal contributions of Alastair Green <alastair.gre
 * [X] Graph data model
 * [X] Id/stability
 * [X] Graph catalog
-* [X] Syntactic units / queries/ DDL chaining (stmt1; stm2)
-* [ ] Catalog operations
-* [/] Selecting and using the working graph
-* [/] Returning a graph
-* [/] Projecting graphs
-* [/] Disjoint graph union
+* [X] Catalog operations
+* [X] Selecting and using the working graph
+* [X] Returning a graph
+* [X] Projecting graphs
+* [X] Disjoint graph union
+* [ ] Revisit Examples
+* [ ] Syntactic units / queries/ DDL chaining (stmt1; stm2)
 * [ ] Scalar subqueries
 * [ ] Nested subqueries
 * [ ] Named queries in catalog and locally
@@ -124,15 +125,16 @@ A fully qualified graph name should use the syntax for dotted variable identifie
 Note:: In practice, a query processor might have a catalog shared by all users, or provide a different catalog for each user.
 This is not considered here based on the simplifying assumption that all client requests are made by the same user.
 
+
 === Statements
 
 _Definition_: A *statement* is a source program that is a syntatically valid term according to the root production rule of the grammar of the Cypher property graph query language.
 
 _Definition_: A *semantically valid statement* is a statement that is valid according to the semantic rules of the Cypher property graph query language.
 
-A statement may either be a *single statement* or a *statement chain*.
+// A statement may either be a *single statement* or a *statement chain*.
 
-_Definition_: A _single statement_ is one of
+_Definition_: A _statement_ is one of
 
  * *reading query* (a statement that reads and returns data)
  * *updating query* (a statement that reads, updates, and returns data)
@@ -140,17 +142,20 @@ _Definition_: A _single statement_ is one of
  * *schema command* (a statement that only updates the data schema)
  * *catalog command* (a statement that only updates the catalog)
 
-Single statements in turn consist of a chain of one ore more clauses which each may be further qualified by clause arguments, sub-clauses and sub-clause arguments.
+Statements in turn consist of a chain of one ore more clauses which each may be further qualified by clause arguments, sub-clauses and sub-clause arguments.
 
 _Term_: Clauses may be classified according to their side-effects as either _reading_, _updating_, _schema_, or _catalog clauses_.
 
-_Definition_: A _statement chain_ is a single statement followed by a semicolon followed by another statement.
+// _Definition_: A _statement chain_ is a single statement followed by a semicolon followed by another statement.
+
 
 === Execution of client requests
+
 
 ==== Client requests
 
 _Definition_: A source program together with all required parameters is called a *client request*.
+
 
 ==== Execution results
 
@@ -162,17 +167,19 @@ Tabular results may contain duplicate results and may optionally be ordered
 * a *graph result*, i.e. the contents of a graph as described by its set of nodes and relationships
 * an *execution error*, i.e. a message describing the reason that prevented the query processor from executing the statement correctly
 
+
 ==== Request execution
 
 Clients interact with the query processor by submitting a client request.
 The source program is then executed by the query processor and an execution result is returned to the client for consumption.
 An error is raised if the client request does not contain a semantically valid statement.
 
-==== Execution of statement chains
+// ==== Execution of statement chains
+//
+// Statement chains are executed by executing all contained single statements in the order given.
+// If execution of any contained single statement fails with an error, the execution of the whole statement fails with the same error.
+// Otherwise, the query processor discards all intermediary results produced by a statement chain and only returns the execution result for the last single statement.
 
-Statement chains are executed by executing all contained single statements in the order given.
-If execution of any contained single statement fails with an error, the execution of the whole statement fails with the same error.
-Otherwise, the query processor discards all intermediary results produced by a statement chain and only returns the execution result for the last single statement.
 
 ==== Identity validity
 
@@ -231,14 +238,15 @@ The working graph may be changed for all subsequent querying clauses using:
 
 [source, cypher]
 ----
-FROM [GRAPH] < graph-name >
+FROM < graph-name >
+FROM GRAPH
 ----
 
 `<graph-name>` is expected to be the name of a graph in the catalog.
-
 If `<graph-name>` is not the name of a graph in the catalog, an error is raised.
+It is an error to perform an updating operation on a working graph that was introduced using `FROM [GRAPH]`.
 
-If is an error to perform an updating operation on a working graph that was introduced using `FROM [GRAPH]`.
+Additionally, `FROM GRAPH` may be used to select the working graph for further read-only operations.
 
 
 === Selecting the working graph from the catalog for updating
@@ -247,14 +255,14 @@ The working graph may be changed for all subsequent querying and updating clause
 
 [source, cypher]
 ----
-UPDATE [GRAPH] < graph-name >
+UPDATE < graph-name >
 ----
 
 `<graph-name>` is expected to be the name of a graph in the catalog.
-
 If `<graph-name>` is not the name of a graph in the catalog, an error is raised.
+It is an error to not perform at least a single updating operation on a working graph that was introduced using `UPDATE [GRAPH]`.
 
-If is an error to not perform at least a single updating operation on a working graph that was introduced using `UPDATE GRAPH`.
+Additionally, `UPDATE GRAPH` may be used to select the working graph for further updating operations.
 
 
 === Returning a graph result
@@ -294,7 +302,7 @@ CONSTRUCT
   [ON < graph-name-list >]
   [CLONE < cloned-entities >]
   [NEW < patterns >]
-  [YIELD < return-items >]
+  [YIELD < return-items >|*]
 ----
 
 Graph construction supports sub-clauses for the *addition of new entities*, the *cloning of existing entities*, and the optional *yielding of result variable bindings*.
@@ -315,9 +323,10 @@ The `NEW <patterns>` sub-clause may be used to construct new nodes and relations
 
 In order to reconstruct subgraph structures from other graphs in the new graph, `CONSTRUCT` supports the addition of *cloned entities* in the new graph.
 
-*Cloning* ensures that exactly one (representative) cloned entity is created in the new graph for a given cloned entity.
-In particular, if the same input entity is cloned multiple times this will still only create one cloned entity in the new graph.
-Cloning a relationship implicitly clones its start node and its end node.
+*Cloning* ensures that exactly one new entity (called a *clone*) is created in the new graph for a given cloned entity (called its *original*) from a source graph.
+If the same original is cloned multiple times this will still only create one clone in the new graph.
+Every clone has exactly the same labels or relationship type as well as the same properties as the original (i.e. a clone can be seen as a "representative" of the original in the new graph).
+Cloning a relationship implicitly clones its start node and its end node and uses them as start node and end node of the relationship clone.
 
 The `ON GRAPH` sub-clause may be used to clone all nodes and relationships from the working graph into the new graph.
 
@@ -327,21 +336,19 @@ The `CLONE < return-items >` sub-clause may be used to clone entities and bind t
 `CLONE` constructs cloned entities for each input record subject to the following rules:
 
  * Cloning a single, already bound variable rebinds the variable. In other words `CLONE a` is interpreted as `CLONE a AS a`.
+ No other form of `CLONE` may rebind an already bound variable
  * Cloning a nested value (like a path) implicitly clones all contained nodes and relationships
 
 
 ==== Yielding result variable bindings
 
-The `YIELD *|<return-items>|NONE` sub-clause may be used to preserve the current record cardinality and optionally either preserve or shadow input variable bindings as well as introduce new variable bindings.
+The `YIELD *|<return-items>` sub-clause may be used to preserve the current record cardinality and optionally either preserve or shadow input variable bindings as well as introduce new variable bindings.
 
 `YIELD *` may be used to yield the variable bindings for all cloned and newly created entities.
 This will preserve the current record cardinality but may shadow input variable bindings as well as introduce new variable bindings.
 
 `YIELD <return-items>` may be used to yield variable bindings for explicitly selected cloned and newly created entities.
 This will preserve the current record cardinality but may shadow input variable bindings as well as introduce new variable bindings.
-
-`YIELD NONE` may be used to yield no additional variable bindings.
-This will preserve the current record cardinality and all input variable bindings.
 
 
 ==== Not yielding result variable bindings
@@ -369,265 +376,46 @@ The resulting union graph consists of clones of all entities from the two input 
 
 == Creating and administrating graphs in the catalog
 
-Creating a new graph in the catalog is done using the new DDL command `CREATE GRAPH`. `CREATE GRAPH` can be used without a subquery, which results in creating a new graph without any content.
-If CREATE GRAPH is followed by a subquery that returns a graph
 
-//
-//
-// === Graph Addressing
-//
-// Graphs do not expose an identity in the same way that nodes or relationships do.
-//
-// Graphs may be made addressable through other means by a conforming implementation, e.g. through exposing the graph via a _graph URL_ for referencing and loading it.
-// The details regarding the format and choice of graph URLs is beyond the scope of this proposal.
-//
-// A graph is considered to have been deleted if it is no longer registered under a graph URL and no other reference to it is retained, e.g. from a running query.
-//
-// == Background: Single Graph Execution Model
-//
-// Before detailing the foundational changes proposed by this CIP, we will define some basic terms and concepts for describing the state that is manipulated by Cypher's current single graph execution model.
-//
-// A Cypher query currently takes a set of parameters as input, queries a single, global, implicit property graph, potentially updates it, and finally returns tabular data derived from it.
-// Query parameters are conceptually thought to be inlined before the start of query execution.
-// Therefore the *session context* of a whole Cypher query is a single, global, implicit property graph.
-//
-// Each sequence of clauses (sometimes called a *pipeline*) optionally operates on this single implicit graph and takes a single table input in order to produce a new single table output.
-// Furthermore, Cypher supports query combinator clauses like `UNION` and `UNION ALL` for merging two pipelines into a single pipeline.
-// Therefore the *query context* that conceptually is passed between clauses in the single graph execution model is simply a single table.
-//
-// With this terminology in place, execution of a parameterized Cypher query in the single graph execution model can be described as executing within (and operating on) a given session context and an initial query context and finally returning the query context produced as output for the final `RETURN` clause.
-//
-// NOTE: This formulation is introduced to describe a high-level model for the execution of queries; a real world implementation is free to choose any other internal representation (e.g. based on an algebra) as long as it does not violate the specified semantics.
-//
-// == Proposal: Multiple Graphs Execution Model
-//
-// In the single graph execution model, tabular data serves as the basis of iteration while the single implicit global graph serves as the basis of graph matching and graph manipulation.
-//
-// This section introduces the *multiple graphs execution model* as an evolution of the single graph execution model that enables the addition of features to the language for working with multiple graphs, i.e. it changes the basis of graph matching and graph manipulation.
-//
-// This CIP proposes the adoption of the multiple graphs execution model by Cypher and to execute existing, single graph queries under this model as outlined below.
-//
-// === Model definition
-//
-// This CIP proposes redefining the *session context* to be
-//
-// * a set of graphs in the multiple graphs execution model
-// * a special graph drawn from this set that is called the *default graph*
-//
-// This CIP proposes redefining the *query context* to be
-//
-// * a set of named graphs from the *session context*
-// * *tabular data*, i.e. a potentially ordered bag of records, each having the same fixed set of fields
-// * a special graph drawn from the *session context* that is called the *source graph*
-// * a special graph drawn from the *session context* that is called the *target graph*
-//
-// These redefinitions comprise the multiple graphs execution model.
-// A parameterized Cypher query under this model can _also_ be described as executing within (and operating on) a given session context and starting from an initial query context and finally returning the query context produced as output for the final `RETURN` clause.
-//
-// As a consequence of adopting the new multiple graphs execution model, the semantics of each clause need to be (re-)defined as to how the execution of the clause transforms all given input query contexts into an output query context.
-// This CIP preserves all existing semantics by defining how to simulate the single graph execution model in the multiple graphs execution model as outlined below.
-//
-// === Query composition
-//
-// The multiple graphs execution model provides a natural way for the sequential composition of queries:
-//
-// A query `Q1` whose output signature is (in terms of provided bindings) an acceptable input signature for another query `Q2` may be composed sequentially with `Q2` into a new query `Q3` that first runs `Q1` on the initial query context, next runs `Q2` on the query context returned by `Q1`, and finally returns the query context returned by `Q2`.
-//
-// This homogenous query composition is enabled by using a uniform query context that is passed between clauses.
-//
-// === Query combinators
-//
-// Query combinators only need to handle tabular query contexts in the single graph execution model.
-//
-// For the multiple property graphs execution model, it is necessary to define how query combinators combine the query contexts of all child queries into a new result query context (c.f. query composition).
-//
-// This CIP proposes that the multi-arm query combinators `UNION` (and `UNION ALL` respectively) combine their contexts according to the following rules:
-//
-// * Tabular data is combined as today, i.e. the tabular result is either a concatenation (`UNION ALL` case) or a distinct union (`UNION` case) of the tabular data from both arms
-// *  All graphs from both arms are returned; if both arms return a graph with the same name, then the union of those graphs is returned under that shared name
-// * If both queries have specified a graph with the same name as their current source graph, then the union of those source graphs under that name again becomes the source graph for further processing.
-// Otherwise, the default graph becomes the source graph for further processing.
-// * If both queries have specified a graph with the same name as their current target graph, then the union of those target graphs under that name again becomes the target graph for further processing.
-// Otherwise, the default graph becomes the target graph for further processing.
-//
-// === Expression evaluation
-//
-// Expressions are generally evaluated using the source graph of the current query context.
-//
-// === Updating queries
-//
-// This CIP proposes the following update semantics for Cypher with support for multiple graphs:
-//
-// * All updating clauses read from the source graph and write to the target graph of their current query context.
-//   More concretely:
-//   ** Entities are always created in, updated in, and deleted from the currently provided target graph.
-//   ** Variables used in `CREATE` and `MERGE` that have been previously bound will cause the bound entity to be added to the target graph of the current query context.
-//   ** `MERGE` uses the source graph to find existing entities.
-//   ** Deleting an entity only affects the provided target graph of the current query context.
-// * Updating queries behave as if they would end in `RETURN - GRAPHS -` (this syntax is introduced below).
-// * Semantically, all effects of an updating clause must be made visible before proceeding with the execution of the next clause.
-// In other words, a conforming implementation must ensure that a later clause always sees the complete set of updates of a preceding updating clause.
-//
-// This CIP proposes allowing `MERGE` to be followed by a non-empty, comma-separated list of bound variables for explicitly adding entities to the target graph.
-//
-// === Simulating the single graph execution model
-//
-// Execution under the single graph execution model can be simulated in the multiple graphs execution model by executing the query in an session context that uses the single graph as the default graph, and by running it on an empty initial query context.
-//
-// == Proposal: Multiple Graphs Syntax
-//
-// This CIP first proposes new syntactical concepts before proceeding to add new and extend existing clauses.
-//
-// === Named graphs
-//
-// Here we introduce the notion of _named graphs_.
-// The name of a graph is used to reference the graph in the query context.
-// Graph names are denoted here with `<graph-name>`, and use the same syntax as normal variables.
-//
-// NOTE: Graph names live in the same namespace as variables, thus it is an error to define a graph with a name of a previously existing variable, and vice versa.
-//
-// ==== Graph references and aliases
-//
-// An explicit reference to a graph is simply the name of the graph.
-// A _graph alias_ is a graph reference optionally followed by `AS <graph-name>`, denoted here as `<graph-alias>`.
-// A _graph alias list_ is a comma-separated list of graph aliases, denoted here as `<graph-alias-list>`.
-//
-// ==== Resolving external graphs
-//
-// Graphs are loaded into the query context by resolving a given graph URL in _graph URL subclause_.
-// Graph URL subclauses are on the form `AT <graph-url>` or `TO <graph-url>`, where the exact shape and form of `<graph-url>` lies outside the scope of this CIP.
-// However, this CIP proposes that a graph URL should be given as either a string literal or a query parameter, in order to give a query planner static knowledge of loaded graphs, and allowing queries to be parametrised on its input and output graphs.
-//
-// ==== Graph definitions
-//
-// Let `<graph-def>` denote a _graph definition_, which is a construct used to introduce additional named graphs.
-//
-// There are three kinds of graph definitions:
-//
-// * _new_ graph definitions, denoted by `<new-graph-def>`,
-// * _collecting_ graph definitions, denoted by `<collect-graph-def>`,
-// * _aliasing_ graph definitions, denoted by `<alias-graph-def>`.
-//
-// Many graph definitions allow an optional graph url subclause, where optionality is denoted using `[]`.
-//
-// New graph definitions always introduce a new graph:
-//
-// * `NEW GRAPH <graph-name> [AT <graph-url]`: Defines an empty graph with name `<graph-name>`, optionally published at `<graph-url>`.
-// * `COPY GRAPH <graph-name> FROM <graph-ref> [TO <graph-url>]`: Defines a copy of the graph given by `<graph-ref>` with name `<graph-name>`, optionally published at `<graph-url>`.
-// A copied graph shares the same entities of its original.
-// * `CLONE GRAPH <graph-name> FROM <graph-ref> [TO <graph-url>]`: Same as `COPY`, except entities are also copied instead of shared.
-// * `GRAPH <graph-name> AT <graph-url>`: Defines a graph with name `<graph-name>` loaded from the given `<graph-url>`.
-//
-// Collecting graph definitions are on the form `GRAPH <graph-name> OF <match-pattern> [AT <graph-url>]` and defines a graph newly constructed from tabular input records by collecting all entities from bound variables and creating new entities for all unbound variables in the patterns given in `<match-pattern>`, optionally published at `<graph-url>`.
-//
-// Aliasing graph definitions `<alias-graph-def>` alias an existing graph under a new name:
-//
-// * `GRAPH <graph-alias> [AT <graph-url>]` (i.e. `GRAPH <graph-ref> AS <new-graph-name> [AT <graph-url>]`): A new alias for an existing graph, optionally published at `<graph-url>`.
-// * `SOURCE GRAPH AS <new-graph-name> [AT <graph-url>]`: An alias for the current _source graph_.
-// * `TARGET GRAPH AS <new-graph-name> [AT <graph-url>]`: An alias for the current _target graph_.
-// * `DEFAULT GRAPH AS <new-graph-name> [AT <graph-url>]`: An alias for the current _default graph_.
-//
-// This CIP defines the notion of an optional graph definition `<opt-graph-def>` that does not provide a `<new-graph-name>` and does not contain a subclause of the form `[AT|TO] <graph-url>` for aliasing graph definitions.
-//
-// `GRAPH <match-pattern>` is proposed to be a shorthand for the valid optional graph definition of the form `GRAPH OF <match-pattern>`
-//
-// ==== Graph specifiers
-//
-// This CIP defines the notion of a graph specifier `<graph-spec>` to be either a `<graph-def>` or an `<opt-graph-def>`.
-//
-// === Introducing multiple graphs
-//
-// As a first language addition, this CIP proposes syntax for introducing graphs into the current query context:
-//
-// [source, cypher]
-// ----
-// FROM < graph-spec >
-// INTO < graph-spec >
-// ----
-//
-// ==== FROM clause: Change the source and the target graph
-//
-// This CIP proposes a new `FROM` clause to change both the source and the target graph of the current query context as described.
-//
-// ==== INTO clause: Change the target graph only
-//
-// This CIP proposes a new `INTO` clause to change the target graph of the current query context as described.
-//
-// === THEN clause: Discarding available tabular data
-//
-// This CIP additionally proposes a new `THEN` clause that may be used for passing on all named graphs while discarding all tabular data such that the tabular input for the following clause (or query respectively) becomes a single record without any fields.
-//
-// NOTE: This syntax may be used to indicate when the gradual construction of a named graph is finished since neither fields nor the cardinality of tabular data is preserved after this point.
-//
-// === Returning, aliasing, and selecting graphs
-//
-// This CIP proposes to extend both the `WITH` and the `RETURN` clauses with new syntax for controlling the set of available named graphs that should be passed on by the clause (or returned from the query respectively) by explicitly specifying all `<graph-return-items>`.
-// The newly proposed syntax is:
-//
-// [source, cypher]
-// ----
-// WITH < return-items > < graph-return-items >
-// WITH < graph-return-items >
-// RETURN < return-items > < graph-return-items >
-// WITH < graph-return-items >
-// ----
-//
-// This CIP defines that `<graph-return-items>` is either just `GRAPHS -` for indicating that all named graphs currently in scope are to be discarded or a space-separated list of:
-//
-// *  `<graph-def>`: to indicate that the defined graph is to be passed on,
-// * `GRAPHS *`: to indicate that all named graphs currently in scope are to be passed on,
-// * `GRAPHS <graph-alias-list>`: to indicate that all explicitly listed named graphs are to be passed on.
-//
-// Both `WITH ... GRAPHS ...` and `RETURN ... GRAPHS ...` will pass on (or return respectively) exactly the set of graphs described by `<graph-return-items>`.
-//
-// `GRAPHS *, <graph-alias-list>` is proposed to be a shorthand for `GRAPHS * GRAPHS <graph-alias-list>`.
-// This forms indicates that all named graphs currently in scope together with any additionally introduced named graphs from `<graph-alias-list>` are to be passed on.
-// It is an error if this leads to shadowing of already bound named graphs by newly introduced named graphs.
-// Similarly, `GRAPHS <graph-alias-list>, *` is proposed to be a shorthand for `GRAPHS <graph-alias-list> GRAPHS *`.
-//
-// The order of named graphs inherently given by `<graph-return-items>` is otherwise semantically insignificant.
-// However it is recommended that conforming implementations preserve this order at least in programmatic output operations (e.g. a textual display of the list of returned graphs).
-// This in essence mirrors the semantics for tabular data returned by Cypher.
-//
-// Furthermore, this CIP proposes the following shorthands:
-//
-// * `WITH <return-items>` is to be a shorthand for `WITH <return-items> GRAPHS *`
-// * `WITH <graph-return-items>` is to be a shorthand for `THEN WITH - <graph-return-items>`
-// * `RETURN <return-items>` is to be a shorthand for `RETURN <return-items> GRAPHS -`
-// * `RETURN <graph-return-items>` is to be a shorthand for `THEN RETURN - <graph-return-items>`
-//
-// === Selecting context graphs from projections
-//
-// It is proposed that at most once either the `<new-graph-name>` of a named graph described by a `<graph-return-item>`  may be prefixed with the keyword `SOURCE` or the keyword `GRAPH` in a `<graph-def>` should be replaced with `SOURCE GRAPH` to indicate that the described graph should be set as new source and target graph of the next clause.
-//
-// It is proposed that a `<graph-return-item>` of the form `<opt-graph-def>` is a shorthand for setting the new source graph and target graph of the next clause.
-//
-// It is proposed that at most once either the `<new-graph-name>` of a named graph described by a `<graph-return-item>`  may be prefixed with the keyword `TARGET` or the keyword `GRAPH` in a `<graph-def>` should be replaced with `TARGET GRAPH` to indicate that the described graph should be set as new target graph of the next clause.
-//
-// It is propsed that specifying a target graph this way overrides any specification of a source graph given in the same projection clause.
-//
-// === Query signature declarations
-//
-// Finally this CIP proposed using the `WITH` clause as the initial clause in a query for declaring all query inputs.
-//
-// It is proposed that using `WITH` as the initial clause in a query is to be called a *query input declaration* while the use of `RETURN` as the last clause is to be called a *query output declaration*.
-//
-// Query input declarations are subject to the following limitations:
-//
-// * All expected tabular input arguments must be given as simple variables
-// * All expected graph input arguments should be given as graph return items for named graphs only
-// * If the input query context provides additional, undeclared variables or graphs, those inputs are to be silently discarded
-//
-// A query that does not start with a query input declaration is assumed to start with `WITH - GRAPHS -`.
-//
-// == Grammar
-//
-// Proposed syntax changes
-// [source, ebnf]
-// ----
-// // TODO
-// ----
-//
+=== Creating empty graphs
+
+Creating a new, empty graph in the catalog is done using the new catalog command `CREATE GRAPH <graph-name>`.
+If `<graph-name>` is the name of a graph that already exists in the catalog, an error is raised.
+
+
+=== Creating new graphs and populating them from a query
+
+`CREATE GRAPH <graph-name>` may be optionally followed by a subquery that returns a graph.
+In that case, a new graph `<graph-name>` is created in the catalog for the graph returned by the subquery.
+If `<graph-name>` is the name of a graph that already exists in the catalog, an error is raised.
+
+
+=== Delete graph
+
+The catalog command `DELETE GRAPH <graph-name>` deletes the graph with the name `<graph-name>` from the catalog.
+If `<graph-name>` is not the name of a graph that already exists in the catalog, an error is raised.
+
+
+=== Copy graph
+
+The catalog command `COPY <old-name> TO <new-name>` copies the content and the schema of the graph with the name `<old-name>` in the catalog to a new graph with the name `<new-name>` in the catalog.
+If `<old-name>` is not the name of a graph that already exists in the catalog, an error is raised.
+If `<new-name>` is the name of a graph that already exists in the catalog, an error is raised.
+
+
+=== Rename graph
+
+The catalog command  `RENAME <old-name> TO <new-name>` removes the graph with the name `<old-name>` from the catalog and adds it as a new graph with the name `<new-name>` in the catalog.
+If `<old-name>` is not the name of a graph that already exists in the catalog, an error is raised.
+If `<new-name>` is the name of a graph that already exists in the catalog, an error is raised.
+
+
+=== Truncating graphs
+
+The catalog command `TRUNCATE <graph-name>` truncates the graph with the name `<graph-name` in the catalog.
+
+Truncating a graph deletes all its nodes and relationships but retains any additional schema information like constraints.
+
 // == Examples
 //
 // The following examples are intended to show how multiple graphs may be used, and focus on syntax.
