@@ -401,6 +401,8 @@ The catalog command `TRUNCATE <graph-name>` truncates the graph with the name `<
 
 Truncating a graph deletes all its nodes and relationships but retains any additional schema information like constraints.
 
+
+
 == Examples
 
 The following examples are intended to show how multiple graphs may be used, and focus on syntax.
@@ -412,40 +414,41 @@ This query returns a graph containing all the people living in Berling in the `p
 
 [source, cypher]
 ----
-FROM GRAPH persons
+FROM persons
 MATCH (a:Person {city: "Berlin"})-[r:KNOWS]->(b:Person {city: "Berlin"})
-CONSTRUCT 
+CONSTRUCT
    CLONE a, b, r
 RETURN GRAPH
----
+----
 
-By specifying the same predicate "{city: "Berlin"}" on both nodes, we are saying we are only interested in the graph of people in Berlin. 
+By specifying the same predicate "{city: "Berlin"}" on both nodes, we are saying we are only interested in the graph of people in Berlin.
 
 Another query we might want to do is to see all the people that live in Berlin, and also include all their known nodes, no matter where they live.
 
 [source, cypher]
 ----
-FROM GRAPH persons
+FROM persons
 MATCH (a:Person {city: "Berlin"})-[r:KNOWS]-(b:Person)
-CONSTRUCT 
+CONSTRUCT
    CLONE a, b, r
 RETURN GRAPH
----
+----
 
 === Creating a new graph, switching contexts and returning a graph
 
 [source, cypher]
 ----
-FROM GRAPH social-network
+FROM social-network
 // .. and match some data
 MATCH (a:Person)-[:KNOWS]->(b:Person)-[:KNOWS]->(c:Person) WHERE NOT (a)--(c)
-CONSTRUCT 
+CONSTRUCT
 	CLONE a, c
 	NEW (a)-[:POSSIBLE_FRIEND]->(c)
+// All cardinality and bindings are removed here
 MATCH (a:Person)-[e:POSSIBLE_FRIEND]->(b:Person)
 // Return tabular and graph output
 RETURN a.name, b.name, count(e) AS cnt
-    ORDER BY cnt DESC
+  ORDER BY cnt DESC
 ----
 
 
@@ -501,9 +504,9 @@ The next step is to copy over persons and cities from `ActorsFilmsCities`.
 
 [source, cypher]
 ----
-[0] FROM GRAPH ActorsFilmsCities
+[0] FROM ActorsFilmsCities
 [1] MATCH (p1:Person)-[:BORN_IN]->(c1:City)
-[2] UPDATE GRAPH PersonCityEvents
+[2] UPDATE PersonCityEvents
 [3] MERGE (p2:Person {name: p1.name, YOB: p1.YOB})
 [4] MERGE (c2:City {name: c1.name})
 [5] MERGE (p2)-[:BORN_IN]->(c2)
@@ -523,7 +526,7 @@ Firstly, the source graph is set to *Events*, for which we need to provide the p
 
 [source, cypher]
 ----
-FROM GRAPH Events AT 'graph://events...'
+FROM Events AT 'graph://events...'
 ----
 
 At this point, the *Events* graph is in scope.
@@ -565,7 +568,7 @@ Putting all these statements together, we get:
 ._Query sequence for Step 2_:
 [source, cypher]
 ----
-FROM GRAPH Events AT 'graph://events...'
+FROM Events AT 'graph://events...'
 MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
       (e)-[:IS_A]->(et {value: 'Criminal Event'})
 
