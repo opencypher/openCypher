@@ -75,7 +75,7 @@ Feature: ListOperations
       | false |
     And no side effects
 
-  Scenario: Return collection size
+  Scenario: Return list size
     Given any graph
     When executing query:
       """
@@ -176,7 +176,7 @@ Feature: ListOperations
       | 1     |
     And no side effects
 
-  Scenario: Use collection lookup based on parameters when there is no type information
+  Scenario: Use list lookup based on parameters when there is no type information
     And parameters are:
       | expr | ['Apa'] |
       | idx  | 0       |
@@ -190,7 +190,7 @@ Feature: ListOperations
       | 'Apa' |
     And no side effects
 
-  Scenario: Use collection lookup based on parameters when there is lhs type information
+  Scenario: Use list lookup based on parameters when there is lhs type information
     And parameters are:
       | idx | 0 |
     When executing query:
@@ -203,7 +203,7 @@ Feature: ListOperations
       | 'Apa' |
     And no side effects
 
-  Scenario: Use collection lookup based on parameters when there is rhs type information
+  Scenario: Use list lookup based on parameters when there is rhs type information
     And parameters are:
       | expr | ['Apa'] |
       | idx  | 0       |
@@ -217,7 +217,7 @@ Feature: ListOperations
       | 'Apa' |
     And no side effects
 
-  Scenario: Fail at runtime when attempting to index with a String into a Collection
+  Scenario: Fail at runtime when attempting to index with a String into a List
     And parameters are:
       | expr | ['Apa'] |
       | idx  | 'name'  |

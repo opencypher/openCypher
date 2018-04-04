@@ -126,7 +126,7 @@ Feature: ExpressionAcceptance
       """
     Then a TypeError should be raised at runtime: MapElementAccessByNonString
 
-  Scenario: Fail at runtime when trying to index something which is not a map or collection
+  Scenario: Fail at runtime when trying to index something which is not a map or list
     And parameters are:
       | expr | 100 |
       | idx  | 0   |
