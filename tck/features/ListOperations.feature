@@ -76,7 +76,6 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Return list size
-    Given any graph
     When executing query:
       """
       RETURN size([1, 2, 3]) AS n
@@ -87,14 +86,13 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Setting and returning the size of a list property
-    Given an empty graph
     And having executed:
       """
-      CREATE ()
+      CREATE (:Label)
       """
     When executing query:
       """
-      MATCH (n)
+      MATCH (n:Label)
       SET n.x = [1, 2, 3]
       RETURN size(n.x)
       """
@@ -105,7 +103,6 @@ Feature: ListOperations
       | +properties | 1 |
 
   Scenario: Concatenating and returning the size of literal lists
-    Given any graph
     When executing query:
       """
       RETURN size([[], []] + [[]]) AS l
@@ -116,14 +113,13 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Returning nested expressions based on list property
-    Given an empty graph
     And having executed:
       """
-      CREATE ()
+      CREATE (:Label)
       """
     When executing query:
       """
-      MATCH (n)
+      MATCH (n:Label)
       SET n.array = [1, 2, 3, 4, 5]
       RETURN tail(tail(n.array))
       """
@@ -134,7 +130,6 @@ Feature: ListOperations
       | +properties | 1 |
 
   Scenario: Indexing into nested literal lists
-    Given any graph
     When executing query:
       """
       RETURN [[1]][0][0]
@@ -145,7 +140,6 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Concatenating lists of same type
-    Given any graph
     When executing query:
       """
       RETURN [1, 10, 100] + [4, 5] AS foo
@@ -156,7 +150,6 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Appending lists of same type
-    Given any graph
     When executing query:
       """
       RETURN [false, true] + false AS foo
@@ -174,6 +167,60 @@ Feature: ListOperations
     Then the result should be:
       | value |
       | 1     |
+    And no side effects
+
+  Scenario: Extract eagerly
+    And having executed:
+      """
+      CREATE (:Label1 {name: 'original'})
+      """
+    When executing query:
+      """
+      MATCH (a:Label1)
+      WITH collect(a) AS nodes
+      WITH nodes, extract(x IN nodes | x.name) AS oldNames
+      UNWIND nodes AS n
+      SET n.name = 'newName'
+      RETURN n.name, oldNames
+      """
+    Then the result should be:
+      | n.name    | oldNames   |
+      | 'newName' | ['original'] |
+    And the side effects should be:
+      | +properties | 1 |
+      | -properties | 1 |
+
+  Scenario: Filter eagerly
+    And having executed:
+      """
+      CREATE (:Label1 {name: 'original'})
+      """
+    When executing query:
+      """
+      MATCH (a:Label1)
+      WITH collect(a) AS nodes
+      WITH nodes, filter(x IN nodes WHERE x.name = 'original') AS noopFiltered
+      UNWIND nodes AS n
+      SET n.name = 'newName'
+      RETURN n.name, length(noopFiltered)
+      """
+    Then the result should be:
+      | n.name    | length(noopFiltered)   |
+      | 'newName' | 1                      |
+    And the side effects should be:
+      | +properties | 1 |
+      | -properties | 1 |
+
+  Scenario: Length on filter
+    When executing query:
+      """
+      MATCH (n)
+      OPTIONAL MATCH (n)-[r]->(m)
+      RETURN length(filter(x IN collect(r) WHERE x <> null)) AS cn
+      """
+    Then the result should be:
+      | cn |
+      | 0  |
     And no side effects
 
   Scenario: Use list lookup based on parameters when there is no type information
