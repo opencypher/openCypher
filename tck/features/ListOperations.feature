@@ -75,6 +75,97 @@ Feature: ListOperations
       | false |
     And no side effects
 
+  Scenario: Return collection size
+    Given any graph
+    When executing query:
+      """
+      RETURN size([1, 2, 3]) AS n
+      """
+    Then the result should be:
+      | n |
+      | 3 |
+    And no side effects
+
+  Scenario: Setting and returning the size of a list property
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()
+      """
+    When executing query:
+      """
+      MATCH (n)
+      SET n.x = [1, 2, 3]
+      RETURN size(n.x)
+      """
+    Then the result should be:
+      | size(n.x) |
+      | 3         |
+    And the side effects should be:
+      | +properties | 1 |
+
+  Scenario: Concatenating and returning the size of literal lists
+    Given any graph
+    When executing query:
+      """
+      RETURN size([[], []] + [[]]) AS l
+      """
+    Then the result should be:
+      | l |
+      | 3 |
+    And no side effects
+
+  Scenario: Returning nested expressions based on list property
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()
+      """
+    When executing query:
+      """
+      MATCH (n)
+      SET n.array = [1, 2, 3, 4, 5]
+      RETURN tail(tail(n.array))
+      """
+    Then the result should be:
+      | tail(tail(n.array)) |
+      | [3, 4, 5]           |
+    And the side effects should be:
+      | +properties | 1 |
+
+  Scenario: Indexing into nested literal lists
+    Given any graph
+    When executing query:
+      """
+      RETURN [[1]][0][0]
+      """
+    Then the result should be:
+      | [[1]][0][0] |
+      | 1           |
+    And no side effects
+
+  Scenario: Concatenating lists of same type
+    Given any graph
+    When executing query:
+      """
+      RETURN [1, 10, 100] + [4, 5] AS foo
+      """
+    Then the result should be:
+      | foo                |
+      | [1, 10, 100, 4, 5] |
+    And no side effects
+
+  Scenario: Appending lists of same type
+    Given any graph
+    When executing query:
+      """
+      RETURN [false, true] + false AS foo
+      """
+    Then the result should be:
+      | foo                  |
+      | [false, true, false] |
+    And no side effects
+
   Scenario: Execute n[0]
     When executing query:
       """

@@ -312,14 +312,3 @@ Feature: ReturnAcceptanceTest
       | abs(-1) |
       | 1       |
     And no side effects
-
-  Scenario: Return collection size
-    Given any graph
-    When executing query:
-      """
-      RETURN size([1, 2, 3]) AS n
-      """
-    Then the result should be:
-      | n |
-      | 3 |
-    And no side effects
