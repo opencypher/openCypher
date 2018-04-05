@@ -41,9 +41,16 @@ It extends the original https://github.com/opencypher/openCypher/blob/master/doc
 
 === Model instance
 
-_Definition_: A *multiple property graphs model instance* is a set of property graphs.
+_Definition_: A *multiple property graphs model instance* is a set of zero or more property graphs.
 
-=== Basic definitions
+=== Definitions
+
+_Definition_: The constituents of a multiple property graphs model instance are called its *model elements*.
+This includes property graphs, nodes, and relationships.
+
+_Definition_: An *identity* is a value that is used to identify individual model elements and to distinguish between multiple model elements from a set of model elements in a given scope.
+
+_Definition_: The constituents of a model element (including its identity) are called its *content*.
 
 _Definition_: A *label* is a symbolic string that is used for classifying nodes.
 
@@ -51,38 +58,47 @@ _Definition_: A *relationship type* is a symbolic string that is used for classi
 
 _Definition_: A *property* is a tuple consisting of a named *property key* and a *property value*.
 
-=== Model elements
-
-_Term_: The constituents of an instance of the multiple property graphs model are called its *model elements*.
-
-_Definition_: An *identity* is a value that is used to identify individual model elements and to distinguish between multiple model elements from the same context.
-Identities must not be `NULL` and must not be nested values that contain `NULL`.
-Identities must not be model elements and must not be nested values that contain model elements.
-
-_Term_: The constituents of a model element (including its identity) are called its *content*.
-
-_Definition_: A *(property) graph* has a *graph identity* that uniquely identifies the graph and at least allows to distinguish it from other graphs in the same instance of the multiple property graph  model.
+_Definition_: A *(property) graph* has a *graph identity* which is an identity that uniquely identifies the graph such that it is able to be distinguished from other graphs in the same multiple property graph model instance.
 A property graph further consists of a set of nodes and a set of relationships that connect the nodes of the property graph.
-Each property graph is contained in exactly one instance of the multiple property graphs data model.
+Each property graph is contained in exactly one multiple property graphs model instance.
 
-Graphs may be either immutable or updatable.
-This is not considered to be part of the content of the graph.
+Graphs may be either immutable or mutable.
+This information is not considered to be part of the content of the graph.
 
-_Definition_: A *node* has a *node identity* that uniquely identifies the node and at least allows to distinguish it from other nodes that are contained in the same property graph.
+_Definition_: A *node* has a *node identity* which is an identity that uniquely identifies the graph such that it is able to be distinguished from other nodes that are contained in the same property graph.
 A node further consists of a set of zero or more labels and zero or more properties with mutually different property keys.
 Each node is contained in exactly one property graph.
 
-_Definition_: A *relationship* has a *relationship identity* that uniquely identifies the relationship and at least allows to distinguish it from other relationships that are contained in the same property graph.
+_Definition_: A *relationship* has a *relationship identity* which is an identity that uniquely identifies the graph such that it is able to be distinguished from other relationships that are contained in the same property graph.
 A relationship further consists of a *start node*, an *end node*, and exactly one relationship type, and zero or more properties with mutually different property keys.
 Each relationship is contained in exactly one property graph and its start node and its end node are both contained in the same property graph as the relationship.
 
-_Term_: Both nodes and relationships are called *entities*.
+_Definition_: Both nodes and relationships are called *entities*.
 
-_Term_: Both node and relationship identities are called *entity identities*.
+_Definition_: Both node and relationship identities are called *entity identities*.
 
-=== Reflective functions
 
-The identities of model elements may be obtained using the following reflective functions:
+=== Valid model instance
+
+_Definition_: The set of *atoms* of an arbitrary value `v` (named `atoms(v)`) is defined as follows:
+
+ * If `v` is a scalar value, `atoms(v) = {v}`
+ * If `v` is a list value `[e~1~, e~2~, ..., e~n~]`, `atoms(v) = {v} UNION atoms(e~1~) UNION atoms(e~2~) UNION ... UNION atoms(e~n~)`
+ * If `v` is a map or a node or a relationship with `values(v)`, `atoms(v) = {v} UNION atoms(values(v))`
+ * Nothing else
+
+_Definition_: A *valid multiple property graphs model instance* adheres to the following restrictions:
+
+ * The set of atoms of an identity of any model element must not contain `NULL`.
+ * The set of atoms of an identity of any model element must not contain a model element.
+ * Property values must not be `NULL`.
+   (Note that this differs from an entity not having a property key)
+ * The set of atoms of any property value of any entity must not contain a model element.
+
+
+=== Functions for identity reflection
+
+The identities of model elements may be obtained using the following functions:
 
 The `graph(e)` function returns the *graph identity* of the graph that contains an entity `e`.
 
@@ -92,16 +108,47 @@ The `id(r)` function returns the *relationship identity* of a relationship `r`.
 
 
 
+== Statements
+
+_Definition_: A *source program* is a piece of text.
+
+It is intended to be both a syntactically valid term according to the root production rule of the grammar of the Cypher property graph query language and also a semantically valid term according to the semantic rules of the Cypher property graph query language.
+
+_Definition_: A *statement* is a source program that is a syntactically valid term according to the root production rule of the grammar of the Cypher property graph query language.
+
+_Definition_: A *valid statement* is a statement that is valid according to the semantic rules of the Cypher property graph query language.
+
+Statements in turn consist of a chain of one or more clauses which each may be further qualified by clause arguments, sub-clauses and sub-clause arguments.
+
+_Definition_: Clauses may be classified according to their side-effects as either
+
+ * *reading clauses* that read data
+ * *updating clauses* that read and update data
+ * *schema clauses* that only read from and update the schema
+
+// A statement may either be a *single statement* or a *statement chain*.
+
+_Definition_: A _statement_ may be categorized as:
+
+ * A *reading query* is a statement consisting of reading clauses that reads and returns data
+ * An *updating query* is a statement consisting of reading and updating clauses that reads, updates and returns data
+ * An *updating command* is a statement consisting of reading and updating clauses that reads and updates data but returns no data
+ * A *schema command* is a statement consisting of schema clauses that only updates the schema
+
+
+// TODO
+// _Definition_: A _statement chain_ is a single statement followed by a semicolon followed by another statement.
+
 == Query processing
 
-_Definition_: A *source program* is a piece of text that is intended to be both a syntatically valid term according to the root production rule of the grammar of the Cypher property graph query language and also a semantically valid term according to the semantic rules of the Cypher property graph query language.
+_Definition_: A *query processor* is a query processing service that executes a source program on behalf of a *client* and provides the client with the *execution result* that describes the outcome of executing the source program.
+A query processor maintains exactly one _multiple property graphs model instance_.
+A query processor maintains exactly one _catalog_.
 
-_Definition_: A *query processor* is a query processing service that executes a source program  on behalf of a *client*  and provides the client with the *execution result* that describes the outcome of executing the source program.
 
 === Catalog
 
-A query processor maintains exactly one *catalog*.
-
+// TODO: graph references
 _Definition_: A _catalog_ is a mapping from *fully qualified graph names* to graph references.
 Multiple entries in the catalog may refer to the same graph.
 
@@ -110,54 +157,33 @@ A fully qualified graph name should use the syntax for dotted variable identifie
 Note:: In practice, a query processor might have a catalog shared by all users, or provide a different catalog for each user.
 This is not considered here based on the simplifying assumption that all client requests are made by the same user.
 
-
-=== Statements
-
-_Definition_: A *statement* is a source program that is a syntatically valid term according to the root production rule of the grammar of the Cypher property graph query language.
-
-_Definition_: A *semantically valid statement* is a statement that is valid according to the semantic rules of the Cypher property graph query language.
-
-// A statement may either be a *single statement* or a *statement chain*.
-
-_Definition_: A _statement_ is one of
-
- * *reading query* (a statement that reads and returns data)
- * *updating query* (a statement that reads, updates, and returns data)
- * *updating command* (a statement that reads and updates data but returns no data)
- * *schema command* (a statement that only updates the data schema)
- * *catalog command* (a statement that only updates the catalog)
-
-Statements in turn consist of a chain of one ore more clauses which each may be further qualified by clause arguments, sub-clauses and sub-clause arguments.
-
-_Term_: Clauses may be classified according to their side-effects as either _reading_, _updating_, _schema_, or _catalog clauses_.
-
-// _Definition_: A _statement chain_ is a single statement followed by a semicolon followed by another statement.
-
-
 === Execution of client requests
 
 
-==== Client requests
+==== Definitions
 
 _Definition_: A source program together with all required parameters is called a *client request*.
-
-
-==== Execution results
 
 _Definition_: The result of executing a client request is called an *execution result*.
 An execution result is one of
 
-* a *tabular result*, i.e. a collection of records where each record has the exact same set of named fields.
+* a *tabular result*; i.e. a collection of records where each record has the exact same set of named fields.
 Tabular results may contain duplicate results and may optionally be ordered
-* a *graph result*, i.e. the contents of a graph as described by its set of nodes and relationships
-* an *execution error*, i.e. a message describing the reason that prevented the query processor from executing the statement correctly
+* a *graph result*; i.e. the contents of a graph as described by its set of nodes and relationships
+* an *execution error*; i.e. a message describing the reason that prevented the query processor from executing the client request correctly
+
+_Definition_: An *empty result* is a tabular result containing one record with no fields.
 
 
 ==== Request execution
 
 Clients interact with the query processor by submitting a client request.
 The source program is then executed by the query processor and an execution result is returned to the client for consumption.
-An error is raised if the client request does not contain a semantically valid statement.
+
+_Definition_: *Raising an error* refers to aborting the execution of a currently-executing client request and returning the error as the final execution result of the client request back to the client.
+
+An execution error is raised if the client request does not contain a semantically valid statement.
+
 
 // ==== Execution of statement chains
 //
@@ -166,39 +192,31 @@ An error is raised if the client request does not contain a semantically valid s
 // Otherwise, the query processor discards all intermediary results produced by a statement chain and only returns the execution result for the last single statement.
 
 
-==== Identity validity
+==== Identity validity during execution
 
-Identities are guaranteed to be valid for the duration of executing a statement and consuming its result.
+Identities are only guaranteed to be valid for the duration of executing a statement and consuming its result.
 
 Implementations may choose to guarantee the validity of identities across multiple client requests.
 
-Note:: The same identity value might reference different model elements in results from executing different statements.
-
-==== Property value validity
-
-Implementations may choose to support the use of any Cypher value as a valid property value except for values that either are or contain model elements.
-Additionally, property values must not be `NULL`.
-
-An error is raised the client request attempts to set a property to an invalid value.
-
-Setting the property of an entity to `NULL` is treated as if the property would have been removed.
+Note:: As a consequence, the same identity value may refer to different model elements in results returned by different client requests.
 
 
 ==== Returning graph model elements
 
-If an execution result that is returned _to the client_ contains a graph model element, this graph model element is returned together with its content at the time of terminating the query (i.e. the client always receives the current content of all graph model elements).
+If an execution result that is returned _to the client_ contains a model element, this model element is returned together with its content at the time of terminating the query (i.e. the client always receives the current content of all model elements).
 
-Note:: Additionally, a result may contain implementation specific metadata like a summary of performed update activity (e.g. the number of nodes created) or a detailed query plan.
+Note:: Additionally, a result may contain implementation specific metadata such as a summary of performed update activity (e.g. the number of nodes created) or a detailed query plan.
 
 
 === Working graph
 
+// TODO: unset
 Most Cypher clauses operate within the context of a *working graph*, by reading or updating it.
 
-_Definition_: The _working graph_ is a reference to a graph that is maintained during statement execution.
+_Definition_: The _working graph_ is a graph reference that is maintained during statement execution.
 The working graph is optional and may be unset at the start of executing a statement.
 
-The working graph may either reference a graph in the catalog or may reference a graph that was dynamically constructed during statement execution.
+The working graph may either reference a graph in the catalog or a graph that was dynamically constructed during statement execution.
 
 A query processor may choose to establish an *initial working graph* for each executed statement.
 The details of this are left to implementations.
@@ -219,12 +237,14 @@ The working graph may be operated on in the following ways:
 
 === Selecting the working graph from the catalog for querying
 
-The working graph may be changed for all subsequent querying clauses using:
+// TODO: Asciidoc circle references
+// TODO: Asciidoc line numbers
+The working graph may be changed for all subsequent querying clauses using two forms:
 
 [source, cypher]
 ----
-FROM < graph-name >
-FROM GRAPH
+[1] FROM < graph-name >
+[2] FROM GRAPH
 ----
 
 `<graph-name>` is expected to be the name of a graph in the catalog.
@@ -236,11 +256,12 @@ Additionally, `FROM GRAPH` may be used to select the working graph for further r
 
 === Selecting the working graph from the catalog for updating
 
-The working graph may be changed for all subsequent querying and updating clauses using:
+The working graph may be changed for all subsequent querying and updating clauses using two forms:
 
 [source, cypher]
 ----
-UPDATE < graph-name >
+[1] UPDATE < graph-name >
+[2] UPDATE GRAPH
 ----
 
 `<graph-name>` is expected to be the name of a graph in the catalog.
@@ -308,10 +329,10 @@ The `NEW <patterns>` sub-clause may be used to construct new nodes and relations
 
 In order to reconstruct subgraph structures from other graphs in the new graph, `CONSTRUCT` supports the addition of *cloned entities* in the new graph.
 
-*Cloning* ensures that exactly one new entity (called a *clone*) is created in the new graph for a given cloned entity (called its *original*) from a source graph.
+_Definition_: *Cloning* ensures that exactly one new entity (called a *clone*) is created in the new graph for a given cloned entity (called its *original*) from a source graph.
 If the same original is cloned multiple times this will still only create one clone in the new graph.
 Every clone has exactly the same labels or relationship type as well as the same properties as the original (i.e. a clone can be seen as a "representative" of the original in the new graph).
-Cloning a relationship implicitly clones its start node and its end node and uses them as start node and end node of the relationship clone.
+Cloning a relationship implicitly clones its start node and its end node and uses these clones as the start node and the end node of the relationship clone.
 
 The `ON GRAPH` sub-clause may be used to clone all nodes and relationships from the working graph into the new graph.
 
