@@ -177,6 +177,16 @@ Feature: ListOperations
       | true |
     And no side effects
 
+  Scenario: IN should return true when both LHS and RHS contain a nested list alongside a scalar element
+    When executing query:
+      """
+      RETURN [[1, 2], 3] IN [1, [[1, 2], 3]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | true |
+    And no side effects
+
   Scenario: IN with different length lists should return false despite nulls
     When executing query:
       """
@@ -217,6 +227,8 @@ Feature: ListOperations
       | true |
     And no side effects
 
+    #a
+
   Scenario: IN should return false if no match can be found, despite nulls
     When executing query:
       """
@@ -237,6 +249,8 @@ Feature: ListOperations
       | null  |
     And no side effects
 
+    #b
+
   Scenario: IN should return true with previous null match, list version
     When executing query:
       """
@@ -246,6 +260,8 @@ Feature: ListOperations
       | res   |
       | true  |
     And no side effects
+
+    #c
 
   Scenario: IN should return null if comparison with null is required, list version 2
     When executing query:
