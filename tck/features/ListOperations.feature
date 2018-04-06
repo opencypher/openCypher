@@ -124,7 +124,7 @@ Feature: ListOperations
   Scenario: IN should return false if no match can be found, despite nulls
     When executing query:
       """
-      WITH [1,2] AS l1, [[null, 'foo']] AS l2
+      WITH [1, 2] AS l1, [[null, 'foo']] AS l2
       RETURN l1 IN l2 AS res
       """
     Then the result should be:
@@ -135,7 +135,7 @@ Feature: ListOperations
   Scenario: IN should return null if comparison with null is required, list version
     When executing query:
       """
-      WITH [1,2] AS l1, [[null, 2]] AS l2
+      WITH [1, 2] AS l1, [[null, 2]] AS l2
       RETURN l1 IN l2 AS res
       """
     Then the result should be:
@@ -146,7 +146,7 @@ Feature: ListOperations
   Scenario: IN should return true with previous null match, list version
     When executing query:
       """
-      WITH [1,2] AS l1, [[null, 2], [1, 2]] AS l2
+      WITH [1, 2] AS l1, [[null, 2], [1, 2]] AS l2
       RETURN l1 IN l2 AS res
       """
     Then the result should be:
@@ -157,7 +157,7 @@ Feature: ListOperations
   Scenario: IN should return null if comparison with null is required, list version 2
     When executing query:
       """
-      WITH [1,2] AS l1, [[null, 2], [1, 3]] AS l2
+      WITH [1, 2] AS l1, [[null, 2], [1, 3]] AS l2
       RETURN l1 IN l2 AS res
       """
     Then the result should be:
