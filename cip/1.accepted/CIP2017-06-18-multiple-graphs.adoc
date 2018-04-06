@@ -534,7 +534,7 @@ The next step is to copy over persons and cities from `ActorsFilmsCities`.
 ----
 
 Here, we are first setting the working graph to the ActorsFilmsCities [0], and then we are matching on this graph [1].
-That is all the input data we need, so we can now switch over to the output graph [2] and create nodes and relationships in it [3-5].
+That is all the input data we need, so we can now switch over to the output graph [2] and create nodes and relationships in it [3-5]. TODO Maybe talk about that we could have used CONSTRUCT instead.
 
 At this stage, *PersonCityEvents* is given by:
 
@@ -543,172 +543,63 @@ image::opencypher-PersonCity-graph.jpg[Graph,600,400]
 ==== Step 3
 
 The next stage in the pipeline is to add the events information from *Events* to *PersonCityEvents*.
-Firstly, the source graph is set to *Events*, for which we need to provide the physical address:
 
 [source, cypher]
 ----
-FROM Events AT 'graph://events...'
+[ 0] FROM Events
+[ 1] MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
+[ 2]      (e)-[:IS_A]->(et)
+[ 3] WITH *, CASE et.value
+[ 4]	  WHEN 'Criminal Event' THEN 'criminal'
+[ 5]	  WHEN 'Public Event' THEN 'public'
+[ 6]	  WHEN 'War Event' THEN 'war'
+[ 7]	  WHEN 'Royal Event' THEN 'royal'
+[ 8]	END as eventType
+[ 9] UPDATE PersonCityEvents
+[10] MERGE (c:City {name: c.value})
+[11] MERGE (e:Event {title: e.value, year: y.value, type: eventType})
 ----
 
-At this point, the *Events* graph is in scope.
+First, we specify that we start reading from the Events graph [0].
+All the events information -- the event itself, its type, the year in which it occurred, and the city in which it took place -- is matched [1-2].
 
-All the events information -- the event itself, its type, the year in which it occurred, and the city in which it took place -- is matched:
+Next, we create a string value for the type of event, and store it in the variable `eventType`[3-8]
 
-[source, cypher]
-----
-MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
-      (e)-[:IS_A]->(et {value: 'Criminal Event'})
+The target graph is set to the *PersonCityEvents* graph [9].
 
-// Do matches for all other event types: Public Event, War Event....
-...
-----
+Using the results from the `MATCH` clause, we create a subgraph with more intelligible semantics through the transformation of the events information into a less verbose form through greater use of node-level properties.
 
-The target graph is set to the *PersonCityEvents* graph (created earlier):
-
-[source, cypher]
-----
-INTO GRAPH PersonCityEvents
-----
-
-Using the results from the `MATCH` clause, create a subgraph with more intelligible semantics through the transformation of the events information into a less verbose form through greater use of node-level properties.
- Write the subgraph to *PersonCityEvents*.
-
-[source, cypher]
-----
-MERGE (c:City {name: c.value})
-MERGE (e {title: e.value, year: y.value})
-MERGE (e)-[:HAPPENED_IN]->(c)
-SET e :WarEvent
-
-// Do for all remaining event types
-...
-----
-
-Putting all these statements together, we get:
-
-._Query sequence for Step 2_:
-[source, cypher]
-----
-FROM Events AT 'graph://events...'
-MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
-      (e)-[:IS_A]->(et {value: 'Criminal Event'})
-
-// Do matches for all other event types: Public Event, War Event....
-...
-INTO GRAPH PersonCityEvents
-MERGE (c:City {name: c.value})
-MERGE (e {title: e.value, year: y.value})
-MERGE (e)-[:HAPPENED_IN]->(c)
-SET e :WarEvent
-
-// Do for all remaining event types
-...
-
-// Discard all tabular data and cardinality
-WITH GRAPHS *
-----
 
 *PersonCityEvents* now contains the following data:
 
 image::opencypher-PersonCityEvents-graph.jpg[Graph,800,700]
 
-==== Step 3
+==== Step 4
 
-The last step in the data integration pipeline is the creation of a new, temporary graph, *Temp-PersonCityCrimes*, which is to be populated with the subgraph of all the criminal events and associated nodes from *PersonCityEvents*.
-
-Set *PersonCityEvents* to be in scope:
+The last step in the data integration pipeline is to return part of the newly created graph - only the criminal events and related information is returned from *PersonCityEvents*.
 
 [source, cypher]
 ----
-FROM GRAPH PersonCityEvents
+[0] FROM PersonCityEvents
+[1] MATCH 
+[2]  (ce:Event {type:'criminal'}),
+[3]  (ce)-[h:HAPPENED_IN]->(c:City)<-[b:BORN_IN]-(p:Person)
+[4] CONSTRUCT 
+[5]   CLONE p, c, ce, h, b
+[6] RETURN GRAPH
 ----
 
-Next, obtain the subgraph of all criminal events -- i.e. nodes labelled with `CriminalEvent` -- and their associated `City` nodes, and `Person` nodes associated with the `City` nodes:
+Again, we start from `PersonCityEvents` [0].
 
-[source, cypher]
-----
-MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
-----
-
-Create the new, temporary graph *Temp-PersonCityCrimes*, and set it as the target graph:
-
-[source, cypher]
-----
-INTO NEW GRAPH Temp-PersonCityCrimes
-----
-
-Write the subgraph acquired earlier to *Temp-PersonCityCrimes*.
-
-[source, cypher]
-----
-MERGE (p:Person {name: p.name, YOB: p.YOB})
-MERGE (c:City {name: c.name})
-MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
-MERGE (p)-[:BORN_IN]->(c)
-MERGE (ce)-[:HAPPENED_IN]->(c)
-----
-
-Putting all these statements together, we get:
-
-._Query sequence for Step 3_:
-[source, cypher]
-----
-FROM PersonCityEvents
-MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
-INTO NEW GRAPH Temp-PersonCityCrimes
-MERGE (p:Person {name: p.name, YOB: p.YOB})
-MERGE (c:City {name: c.name})
-MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
-MERGE (p)-[:BORN_IN]->(c)
-MERGE (ce)-[:HAPPENED_IN]->(c)
-
-----
+Next, obtain the subgraph of all criminal events -- i.e. nodes labelled with `Event` of type "criminal" [2] -- and their associated `City` nodes, and `Person` nodes associated with the `City` nodes [3].
 
 And, as the final step of the entire data integration pipeline, return *Temp-PersonCityCrimes*, which is comprised of the following data:
 
+This is the final step of the entire data integration pipeline, we return this graph [6]. 
+
 image::opencypher-PersonCityCriminalEvents-graph.jpg[Graph,700,550]
 
-._The full data integration query pipeline is given by_:
-[source, cypher]
-----
-FROM GRAPH ActorsFilmsCities AT 'graph://actors_films_cities...'
-MATCH (p:Person)-[:BORN_IN]->(c:City)
-INTO NEW GRAPH PersonCityEvents AT 'some-location'
-MERGE (p:Person {name: p.name, YOB: p.YOB})
-MERGE (c:City {name: c.name})
-MERGE (p)-[:BORN_IN]->(c)
-
-WITH GRAPHS *
-
-FROM GRAPH Events AT 'graph://events...'
-MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
-      (e)-[:IS_A]->(et {value: 'Criminal Event'})
-
-// Do matches for all other event types: Public Event, War Event....
-...
-INTO GRAPH PersonCityEvents
-MERGE (c:City {name: c.value})
-MERGE (e {title: e.value, year: y.value})
-MERGE (e)-[:HAPPENED_IN]->(c)
-SET e :WarEvent
-
-// Do for all remaining event types
-...
-
-WITH GRAPHS *
-
-FROM GRAPH PersonCityEvents
-MATCH (ce:CriminalEvent)-[:HAPPENED_IN]->(c:City)<-[:BORN_IN]-(p:Person)
-INTO NEW GRAPH Temp-PersonCityCrimes
-MERGE (p:Person {name: p.name, YOB: p.YOB})
-MERGE (c:City {name: c.name})
-MERGE (ce:CriminalEvent {title: ce.title, year: ce.year})
-MERGE (p)-[:BORN_IN]->(c)
-MERGE (ce)-[:HAPPENED_IN]->(c)
-
-RETURN GRAPHS Temp-PersonCityCrimes
-----
-
+// ._The full data integration query pipeline is given by_:
 
 
 //
