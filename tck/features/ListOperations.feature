@@ -187,6 +187,46 @@ Feature: ListOperations
       | true |
     And no side effects
 
+  Scenario: IN should return true when LHS and RHS contain a nested list - singleton version
+    When executing query:
+      """
+      RETURN [[1]] IN [2, [[1]]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | true |
+    And no side effects
+
+  Scenario: IN should return true when LHS and RHS contain a nested list
+    When executing query:
+      """
+      RETURN [[1, 3]] IN [2, [[1, 3]]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | true |
+    And no side effects
+
+  Scenario: IN should return false when LHS contains a nested list and type mismatch on RHS - singleton version
+    When executing query:
+      """
+      RETURN [[1]] IN [2, [1]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | false |
+    And no side effects
+
+  Scenario: IN should return false when LHS contains a nested list and type mismatch on RHS
+    When executing query:
+      """
+      RETURN [[1, 3]] IN [2, [1, 3]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | false |
+    And no side effects
+
   # IN operator - null
 
   Scenario: IN should return null if LHS and RHS null
