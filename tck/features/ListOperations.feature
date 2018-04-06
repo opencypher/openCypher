@@ -180,8 +180,7 @@ Feature: ListOperations
   Scenario: IN with different length lists should return false despite nulls
     When executing query:
       """
-      WITH [1] AS l1, [1, null] AS l2
-      RETURN l1 IN [l2] AS res
+      RETURN [1] IN [[1, null]] AS res
       """
     Then the result should be:
       | res   |
@@ -191,8 +190,7 @@ Feature: ListOperations
   Scenario: IN should return true if match despite nulls
     When executing query:
       """
-      WITH 3 AS l1, [1, null, 3] AS l2
-      RETURN l1 IN l2 AS res
+      RETURN 3 IN [1, null, 3] AS res
       """
     Then the result should be:
       | res   |
@@ -202,8 +200,7 @@ Feature: ListOperations
   Scenario: IN should return null if comparison with null is required
     When executing query:
       """
-      WITH 4 AS l1, [1, null, 3] AS l2
-      RETURN l1 IN l2 AS res
+      RETURN 4 IN [1, null, 3] AS res
       """
     Then the result should be:
       | res   |
@@ -213,8 +210,7 @@ Feature: ListOperations
   Scenario: IN should return true if correct list found despite other lists having nulls
     When executing query:
       """
-      WITH [1, 2] AS l1, [[null, 'foo'], [1, 2]] AS l2
-      RETURN l1 IN l2 AS res
+      RETURN [1, 2] IN [[null, 'foo'], [1, 2]] AS res
       """
     Then the result should be:
       | res   |
@@ -224,8 +220,7 @@ Feature: ListOperations
   Scenario: IN should return false if no match can be found, despite nulls
     When executing query:
       """
-      WITH [1, 2] AS l1, [[null, 'foo']] AS l2
-      RETURN l1 IN l2 AS res
+      RETURN [1, 2] IN [[null, 'foo']] AS res
       """
     Then the result should be:
       | res   |
@@ -235,8 +230,7 @@ Feature: ListOperations
   Scenario: IN should return null if comparison with null is required, list version
     When executing query:
       """
-      WITH [1, 2] AS l1, [[null, 2]] AS l2
-      RETURN l1 IN l2 AS res
+      RETURN [1, 2] IN [[null, 2]] AS res
       """
     Then the result should be:
       | res   |
@@ -246,8 +240,7 @@ Feature: ListOperations
   Scenario: IN should return true with previous null match, list version
     When executing query:
       """
-      WITH [1, 2] AS l1, [[null, 2], [1, 2]] AS l2
-      RETURN l1 IN l2 AS res
+      RETURN [1, 2] IN [[null, 2], [1, 2]] AS res
       """
     Then the result should be:
       | res   |
@@ -257,8 +250,7 @@ Feature: ListOperations
   Scenario: IN should return null if comparison with null is required, list version 2
     When executing query:
       """
-      WITH [1, 2] AS l1, [[null, 2], [1, 3]] AS l2
-      RETURN l1 IN l2 AS res
+      RETURN [1, 2] IN [[null, 2], [1, 3]] AS res
       """
     Then the result should be:
       | res   |
@@ -270,8 +262,7 @@ Feature: ListOperations
   Scenario: Equality between list and literal should return false
     When executing query:
       """
-      WITH [1, 2] AS l1, 'foo' AS l2
-      RETURN l1 = l2 AS res
+      RETURN [1, 2] = 'foo' AS res
       """
     Then the result should be:
       | res   |
@@ -281,8 +272,7 @@ Feature: ListOperations
   Scenario: Equality of lists of different length should return false despite nulls
     When executing query:
       """
-      WITH [1] AS l1, [1, null] AS l2
-      RETURN l1 = l2 AS res
+      RETURN [1] = [1, null] AS res
       """
     Then the result should be:
       | res   |
@@ -292,8 +282,7 @@ Feature: ListOperations
   Scenario: Equality between different lists with null should return false
     When executing query:
       """
-      WITH [1, 2] AS l1, [null, 'foo'] AS l2
-      RETURN l1 = l2 AS res
+      RETURN [1, 2] = [null, 'foo'] AS res
       """
     Then the result should be:
       | res   |
@@ -303,8 +292,7 @@ Feature: ListOperations
   Scenario: Equality between almost equal lists with null should return null
     When executing query:
       """
-      WITH [1, 2] AS l1, [null, 2] AS l2
-      RETURN l1 = l2 AS res
+      RETURN [1, 2] = [null, 2] AS res
       """
     Then the result should be:
       | res   |
@@ -314,8 +302,7 @@ Feature: ListOperations
   Scenario: Equality of nested lists of different length should return false despite nulls
     When executing query:
       """
-      WITH [[1]] AS l1, [[1], [null]] AS l2
-      RETURN l1 = l2 AS res
+      RETURN [[1]] = [[1], [null]] AS res
       """
     Then the result should be:
       | res    |
@@ -325,8 +312,7 @@ Feature: ListOperations
   Scenario: Equality between different nested lists with null should return false
     When executing query:
       """
-      WITH [[1, 2], [1, 3]] AS l1, [[1, 2], [null, 'foo']] AS l2
-      RETURN l1 = l2 AS res
+      RETURN [[1, 2], [1, 3]] = [[1, 2], [null, 'foo']] AS res
       """
     Then the result should be:
       | res    |
@@ -336,8 +322,7 @@ Feature: ListOperations
   Scenario: Equality between almost equal nested lists with null should return null
     When executing query:
       """
-      WITH [[1, 2], ['foo', 'bar']] AS l1, [[1, 2], [null, 'bar']] AS l2
-      RETURN l1 = l2 AS res
+      RETURN [[1, 2], ['foo', 'bar']] = [[1, 2], [null, 'bar']] AS res
       """
     Then the result should be:
       | res    |
