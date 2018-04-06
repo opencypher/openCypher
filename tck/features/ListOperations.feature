@@ -33,7 +33,7 @@ Feature: ListOperations
   Background:
     Given any graph
 
-  # IN operator
+  # IN operator - general
 
   Scenario: IN should work with nested list subscripting
     When executing query:
@@ -187,6 +187,8 @@ Feature: ListOperations
       | true |
     And no side effects
 
+  # IN operator - null
+
   Scenario: IN should return null if LHS and RHS null
     When executing query:
       """
@@ -337,6 +339,77 @@ Feature: ListOperations
       | null  |
     And no side effects
 
+  # IN operator - empty list
+
+  Scenario: IN should work with an empty list
+    When executing query:
+      """
+      RETURN [] IN [[]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | true  |
+    And no side effects
+
+  Scenario: IN should return false for the empty list if the LHS and RHS types differ
+    When executing query:
+      """
+      RETURN [] IN [] AS res
+      """
+    Then the result should be:
+      | res   |
+      | false  |
+    And no side effects
+
+  Scenario: IN should work with an empty list in the presence of other list elements: matching
+    When executing query:
+      """
+      RETURN [] IN [1, []] AS res
+      """
+    Then the result should be:
+      | res   |
+      | true  |
+    And no side effects
+
+  Scenario: IN should work with an empty list in the presence of other list elements: not matching
+    When executing query:
+      """
+      RETURN [] IN [1, 2] AS res
+      """
+    Then the result should be:
+      | res   |
+      | false  |
+    And no side effects
+
+  Scenario: IN should work with an empty list when comparing nested lists
+    When executing query:
+      """
+      RETURN [[]] IN [1, [[]]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | true  |
+    And no side effects
+
+  Scenario: IN should return null if comparison with null is required for empty list
+    When executing query:
+      """
+      RETURN [] IN [1, 2, null] AS res
+      """
+    Then the result should be:
+      | res   |
+      | null  |
+    And no side effects
+
+  Scenario: IN should return true when LHS and RHS contain nested list with multiple empty lists
+    When executing query:
+      """
+      RETURN [[], []] IN [1, [[], []]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | true  |
+    And no side effects
   # Equality
 
   Scenario: Equality between list and literal should return false
