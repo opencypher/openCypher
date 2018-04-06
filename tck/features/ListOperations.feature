@@ -187,6 +187,36 @@ Feature: ListOperations
       | true |
     And no side effects
 
+  Scenario: IN should return null if LHS and RHS null
+    When executing query:
+      """
+      RETURN null IN [null] AS res
+      """
+    Then the result should be:
+      | res   |
+      | null  |
+    And no side effects
+
+  Scenario: IN should return null if LHS and RHS null - list version
+    When executing query:
+      """
+      RETURN [null] IN [[null]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | null  |
+    And no side effects
+
+  Scenario: IN should return null when LHS and RHS both ultimately contain null, even if LHS and RHS are of different types (nested list and flat list)
+    When executing query:
+      """
+      RETURN [null] IN [null] AS res
+      """
+    Then the result should be:
+      | res   |
+      | null  |
+    And no side effects
+
   Scenario: IN with different length lists should return false despite nulls
     When executing query:
       """
@@ -227,7 +257,15 @@ Feature: ListOperations
       | true |
     And no side effects
 
-    #a
+  Scenario: IN should return true if correct list found despite null being another element within containing list
+    When executing query:
+      """
+      RETURN [1, 2] IN [1, [1, 2], null] AS res
+      """
+    Then the result should be:
+      | res   |
+      | true |
+    And no side effects
 
   Scenario: IN should return false if no match can be found, despite nulls
     When executing query:
@@ -249,7 +287,25 @@ Feature: ListOperations
       | null  |
     And no side effects
 
-    #b
+  Scenario: IN should return false if different length lists compared, even if the extra element is null
+    When executing query:
+      """
+      RETURN [1, 2] IN [1, [1, 2, null]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | false  |
+    And no side effects
+
+  Scenario: IN should return null when comparing two so-called identical lists where one element is null
+    When executing query:
+      """
+      RETURN [1, 2, null] IN [1, [1, 2, null]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | null  |
+    And no side effects
 
   Scenario: IN should return true with previous null match, list version
     When executing query:
@@ -261,7 +317,15 @@ Feature: ListOperations
       | true  |
     And no side effects
 
-    #c
+  Scenario: IN should return false if different length lists with nested elements compared, even if the extra element is null
+    When executing query:
+      """
+      RETURN [[1, 2], [3, 4]] IN [5, [[1, 2], [3, 4], null]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | false  |
+    And no side effects
 
   Scenario: IN should return null if comparison with null is required, list version 2
     When executing query:
