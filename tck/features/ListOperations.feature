@@ -77,6 +77,106 @@ Feature: ListOperations
       | false |
     And no side effects
 
+  Scenario: IN should return false when matching a number with a string
+    When executing query:
+      """
+      RETURN 1 IN ['1', 2] AS res
+      """
+    Then the result should be:
+      | res   |
+      | false |
+    And no side effects
+
+  Scenario: IN should return false when matching a number with a string - list version
+    When executing query:
+      """
+      RETURN [1, 2] IN [1, [1, '2']] AS res
+      """
+    Then the result should be:
+      | res   |
+      | false |
+    And no side effects
+
+  Scenario: IN should return false when types of LHS and RHS don't match - singleton list
+    When executing query:
+      """
+      RETURN [1] IN [1, 2] AS res
+      """
+    Then the result should be:
+      | res   |
+      | false |
+    And no side effects
+
+  Scenario: IN should return false when types of LHS and RHS don't match - list
+    When executing query:
+      """
+      RETURN [1, 2] IN [1, 2] AS res
+      """
+    Then the result should be:
+      | res   |
+      | false |
+    And no side effects
+
+  Scenario: IN should return true when types of LHS and RHS match - singleton list
+    When executing query:
+      """
+      RETURN [1] IN [1, 2, [1]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | true |
+    And no side effects
+
+  Scenario: IN should return true when types of LHS and RHS match - list
+    When executing query:
+      """
+      RETURN [1, 2] IN [1, [1, 2]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | true |
+    And no side effects
+
+  Scenario: IN should return false when order of elements in LHS list and RHS list don't match
+    When executing query:
+      """
+      RETURN [1, 2] IN [1, [2, 1]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | false |
+    And no side effects
+
+  Scenario: IN with different length lists should return false
+    When executing query:
+      """
+      RETURN [1, 2] IN [1, [1, 2, 3]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | false |
+    And no side effects
+
+  Scenario: IN should return false when matching a list with a nested list with same elements
+    When executing query:
+      """
+      RETURN [1, 2] IN [1, [[1, 2]]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | false |
+    And no side effects
+
+  Scenario: IN should return true when both LHS and RHS contain nested lists
+    When executing query:
+      """
+      RETURN [[1, 2], [3, 4]] IN [5, [[1, 2], [3, 4]]] AS res
+      """
+    Then the result should be:
+      | res   |
+      | true |
+    And no side effects
+
   Scenario: IN with different length lists should return false despite nulls
     When executing query:
       """
