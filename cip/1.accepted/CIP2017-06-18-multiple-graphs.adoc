@@ -233,6 +233,7 @@ The working graph may be operated on in the following ways:
 * The working graph may be returned as a query result
 * The working graph can be changed by constructing a new graph
 * The working graph can be changed by constructing a disjoint graph union
+* The working graph can be kept while the binding table is discarded
 
 
 === Selecting the working graph from the catalog for querying
@@ -254,6 +255,27 @@ It is an error to perform an updating operation on a working graph that was intr
 Additionally, `FROM GRAPH` may be used to select the working graph for further read-only operations.
 
 
+=== Patterns and multiple graphs
+
+// TODO: Should this be an error instead?
+If one of the bound variables in a pattern is an entity that is not contained in the working graph, the whole pattern does not match.
+
+A new type of pattern that is called a *copy pattern* may be used to copy all labels and properties of a node or the relationship type and all properties of a relationship.
+The syntax of clone patterns is:
+
+[source, cypher]
+----
+MATCH (a)-[r]->(b)
+FROM another_graph
+MATCH (x COPY OF b)-[COPY OF r]->()
+...
+----
+
+Copy patterns may be used in updating statements.
+
+A new type of pattern that is called a *clone pattern* may be used find the clone (if present) for a source entity as determined by provenance tracking.
+
+
 === Selecting the working graph from the catalog for updating
 
 The working graph may be changed for all subsequent querying and updating clauses using two forms:
@@ -269,6 +291,11 @@ If `<graph-name>` is not the name of a graph in the catalog, an error is raised.
 It is an error to not perform at least a single updating operation on a working graph that was introduced using `UPDATE [GRAPH]`.
 
 Additionally, `UPDATE GRAPH` may be used to select the working graph for further updating operations.
+
+
+=== Updating using multiple graphs
+
+An error is raised, if a statement attempts to update an entity that is not contained in the working graph.
 
 
 === Returning a graph result
@@ -293,52 +320,63 @@ This does not affect the rules on returning model elements together with their c
 
 === Constructing a graph
 
-*Graph construction* dynamically constructs a new working graph in order to query it, store it in the catalog, or return it to the client.
+*Graph construction* dynamically constructs a new working graph in order to query it, update it, store it in the catalog, or return it to the client.
 
 Graph construction is the dual operation to graph matching: While graph matching extracts pattern instances into variable bindings from the working graph, graph construction builds a new working graph from variable bindings.
 
 All nodes and relationships in the newly constructed graph have new entity identities and are different from any previously matched entities.
 
-The general form of graph construction is:
+The basic form of graph construction is:
 
-[source, cypher]
+[source, ebnf]
 ----
-CONSTRUCT
-  [ON GRAPH]
-  [ON < graph-name-list >]
-  [CLONE < cloned-entities >]
-  [NEW < patterns >]
-  [YIELD < return-items >|*]
+< graph-construction > :=
+  < construct-clause >
+  < update-command >*
+  [WITH ... | WITH GRAPH | RETURN ... | RETURN GRAPH ]
+  ;
+
+< construct-clause > :=
+  CONSTRUCT
+    [ON GRAPH]
+    [ON < graph-name-list > ]
+    [CLONE < clone-item-list > | '*']
+  ;
+
+< graph-name-list > := < graph-name > [ ',' < graph-name > ]* ;
+
+< clone-item-list := < clone-item > [ ',' < clone-item > ]*
+< clone-item > :=
+  ( < expr > [AS < alias >] | < variable > ) ;
 ----
 
-Graph construction supports sub-clauses for the *addition of new entities*, the *cloning of existing entities*, and the optional *yielding of result variable bindings*.
+Graph construction supports sub-clauses for the *cloning of existing graphs* and the *cloning of existing entities*.
 
-At least either the `ON` sub-clause, the `CLONE` sub-clause, or the `NEW` sub-clause must be present in `CONSTRUCT`.
-
-A single statement may not end in a `CONSTRUCT` clause (invalid syntax).
+A single statement may end in a `<graph-construction>`.
 
 
-==== Addition of new entities
+==== Cloning
 
-The `NEW <patterns>` sub-clause may be used to construct new nodes and relationships in the constructed graph in the same way as the `CREATE` clause allows to create new nodes and relationships in existing graphs.
-
-`NEW` creates exactly one pattern instance in the new graph for each input record.
-
-
-==== Cloned entities
-
+// TODO: FORK nodes
+// TODO: REMOVE n.prop on clokes
 In order to reconstruct subgraph structures from other graphs in the new graph, `CONSTRUCT` supports the addition of *cloned entities* in the new graph.
 
-_Definition_: *Cloning* ensures that exactly one new entity (called a *clone*) is created in the new graph for a given cloned entity (called its *original*) from a source graph.
-If the same original is cloned multiple times this will still only create one clone in the new graph.
-Every clone has exactly the same labels or relationship type as well as the same properties as the original (i.e. a clone can be seen as a "representative" of the original in the new graph).
+_Definition_: *Cloning* ensures that exactly one new entity (called a *clone*) is created in the new graph for a given cloned entity (called its *source*) from a source graph.
+If the same source is cloned multiple times this will still only create one clone in the new graph.
+Every clone has exactly the same labels or relationship type as well as the same properties as the source (i.e. a clone can be seen as a "representative" of the source in the new graph).
 Cloning a relationship implicitly clones its start node and its end node and uses these clones as the start node and the end node of the relationship clone.
+
+_Definition_: It is possible to clone an entity over multiple steps of graph construction.
+In that case, if multiple entities are cloned into the same graph that in turn are both clones of a shared source,
+only one entity is constructed for these entities.
+This is called *provenance tracking*.
 
 The `ON GRAPH` sub-clause may be used to clone all nodes and relationships from the working graph into the new graph.
 
 The `ON < graph-name-list >` sub-clause may be used to clone all nodes and relationships from the given graphs in the catalog into the new graph.
 
-The `CLONE < return-items >` sub-clause may be used to clone entities and bind the cloned entities to new variable names or shadow already bound variables.
+The `CLONE < clone-item-list >` sub-clause may be used to clone entities and bind the cloned entities to new variable names or shadow already bound variables.
+Additionally, the `CLONE *` sub-clause may be used to clone all variables that are visible in the current scope.
 `CLONE` constructs cloned entities for each input record subject to the following rules:
 
  * Cloning a single, already bound variable rebinds the variable. In other words `CLONE a` is interpreted as `CLONE a AS a`.
@@ -346,26 +384,69 @@ The `CLONE < return-items >` sub-clause may be used to clone entities and bind t
  * Cloning a nested value (like a path) implicitly clones all contained nodes and relationships
 
 
-==== Yielding result variable bindings
+==== Building constructed graphs
 
-The `YIELD *|<return-items>` sub-clause may be used to preserve the current record cardinality and optionally either preserve or shadow input variable bindings as well as introduce new variable bindings.
+Constructed graphs are built by explicitly populating them with entities using the following clauses:
 
-`YIELD *` may be used to yield the variable bindings for all cloned and newly created entities.
-This will preserve the current record cardinality but may shadow input variable bindings as well as introduce new variable bindings.
+ * `CREATE`
+ * `MERGE`
+ * `SET`
+ * `REMOVE`
+ * `[DETACH] DELETE`
 
-`YIELD <return-items>` may be used to yield variable bindings for explicitly selected cloned and newly created entities.
-This will preserve the current record cardinality but may shadow input variable bindings as well as introduce new variable bindings.
+An error is raised for any attempt to `SET` or `REMOVE` labels or properties of cloned entities during graph construction.
 
 
-==== Not yielding result variable bindings
+==== Updating constructed graphs
 
-If a `CONSTRUCT` clause is not ending in a `YIELD` sub-clause, the current record cardinality and all input variable bindings are dropped.
-The next clause then proceeds in the newly constructed working graph on a single record with no fields.
+// TODO: Advanced conformance
+Constructed graphs may be updated as well.
+
+Updating relies on information from provenance tracking of cloned nodes in order to propagate updates to base data.
+
+Constructed graphs may only be updated by
+
+ * setting and removing properties
+ * setting and removing labels
+// TODO: * deleting nodes and relationships
+
+An error is raised if an update to a constructed graph leads to a constraint violation in a source graph.
+
+
+=== Discarding the binding table
+
+The current binding table may be discarded while retaining the working graph using the following syntax:
+
+[source, cypher]
+----
+WITH GRAPH
+...
+----
+
+The remainder of the query after `WITH GRAPH` continues to operate on the same working graph but using an empty binding table (no fields, single record).
+
+
+=== Graph union
+
+The *common graph union* of two graphs may be computed using the following syntax:
+
+[source, cypher]
+----
+< query-1 >
+RETURN GRAPH
+UNION
+< query-2 >
+RETURN GRAPH
+----
+
+The resulting union graph consists of clones of all entities from the two input graphs.
+
+Note:: If a clone of the same source node is contained in both graphs, only one clone for that node is added to the result graph.
 
 
 === Disjoint graph union
 
-The disjoint graph union of two graphs may be computed using the following syntax:
+The *disjoint graph union* of two graphs may be computed using the following syntax:
 
 [source, cypher]
 ----
@@ -376,7 +457,9 @@ UNION ALL
 RETURN GRAPH
 ----
 
-The resulting union graph consists of clones of all entities from the two input graphs.
+The resulting union graph consists of copies of all entities from the two input graphs.
+
+Note:: If a clone of the same source node is contained in both graphs, still two copies of that node are added to the result graph.
 
 
 
@@ -393,6 +476,7 @@ If `<graph-name>` is the name of a graph that already exists in the catalog, an 
 
 `CREATE GRAPH <graph-name>` may be optionally followed by a subquery that returns a graph.
 In that case, a new graph `<graph-name>` is created in the catalog for the graph returned by the subquery.
+All entities in the new graph are considered to be copies of the entities in the returned graph (i.e. they are unrelated from the entities in the graph returned by the subquery in terms of provenance).
 If `<graph-name>` is the name of a graph that already exists in the catalog, an error is raised.
 
 
@@ -581,10 +665,10 @@ The last step in the data integration pipeline is to return part of the newly cr
 [source, cypher]
 ----
 [0] FROM PersonCityEvents
-[1] MATCH 
+[1] MATCH
 [2]  (ce:Event {type:'criminal'}),
 [3]  (ce)-[h:HAPPENED_IN]->(c:City)<-[b:BORN_IN]-(p:Person)
-[4] CONSTRUCT 
+[4] CONSTRUCT
 [5]   CLONE p, c, ce, h, b
 [6] RETURN GRAPH
 ----
@@ -595,7 +679,7 @@ Next, obtain the subgraph of all criminal events -- i.e. nodes labelled with `Ev
 
 And, as the final step of the entire data integration pipeline, return *Temp-PersonCityCrimes*, which is comprised of the following data:
 
-This is the final step of the entire data integration pipeline, we return this graph [6]. 
+This is the final step of the entire data integration pipeline, we return this graph [6].
 
 image::opencypher-PersonCityCriminalEvents-graph.jpg[Graph,700,550]
 
