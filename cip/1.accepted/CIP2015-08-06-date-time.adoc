@@ -397,12 +397,12 @@ Furthermore these components are available for specifying time:
 A common pattern in many programming languages and data sets is to represent time as a number representing the amount of time that has elapsed from the UNIX epoch footnote:[UNIX epoch: `1970-01-01T00:00:00` (UTC)].
 In order to work with such data, Cypher provides functions for converting such a numeric timestamp to a _DateTime_ value:
 
-* `datetime.fromepoch($seconds,$nanos)` - Creates a _DateTime_ value at the specified number of _seconds_ and _nanoseconds_ from the UNIX epoch in the UTC timezone.
-* `datetime.fromepochmillis($millis)` - Creates a _DateTime_ value at the specified number of _milliseconds_ from the UNIX epoch in the UTC timezone.
+* `datetime({epochSeconds: $seconds, nanosecond: $nanos})` - Creates a _DateTime_ value at the specified number of _seconds_ and _nanoseconds_ from the UNIX epoch in the UTC timezone.
+* `datetime({epochMillis: $millis})` - Creates a _DateTime_ value at the specified number of _milliseconds_ from the UNIX epoch in the UTC timezone.
 
 Conversions to other temporal types from UNIX epoch representation can be achieved by going via _DateTime_.
 
-Cypher also provides <<instant-components,accessors>> for converting _to_ UNIX epoch representation.
+Cypher also provides <<instant-components,accessors>> for converting DateTime values _to_ UNIX epoch representation.
 
 
 [[constructing-duration]]
@@ -818,28 +818,34 @@ Components of temporal values are accessed as properties.
 [[instant-components]]
 ==== Components of instant values
 
- * `instant.year` - the _year_ component as an integer representing the https://en.wikipedia.org/wiki/Astronomical_year_numbering[astronomical year number] of the instant, in accordance to the https://en.wikipedia.org/wiki/Gregorian_calendar[Gregorian calendar], i.e. years AD/CE start at year 1, and the year before that (year 1 BC/BCE) is 0, while year 2 BCE is -1, et.c.
- * `instant.quarter` - the _quarter-of-the-year_ component as an integer (1-4)
- * `instant.month` - the _month-of-the-year_ component as an integer (1-12)
- * `instant.week` - the _week-of-the-year_ component as an integer (1-53), with the https://en.wikipedia.org/wiki/ISO_week_date#First_week[first week of any year] being the week that contains the first Thursday of the year, and thus always containing January 4.
- * `instant.weekYear` - the _year_ that the _week-of-year_ component belongs to.
+ * `instant.year`^1^ - the _year_ component as an integer representing the https://en.wikipedia.org/wiki/Astronomical_year_numbering[astronomical year number] of the instant, in accordance to the https://en.wikipedia.org/wiki/Gregorian_calendar[Gregorian calendar], i.e. years AD/CE start at year 1, and the year before that (year 1 BC/BCE) is 0, while year 2 BCE is -1, et.c.
+ * `instant.quarter`^1^ - the _quarter-of-the-year_ component as an integer (1-4)
+ * `instant.month`^1^ - the _month-of-the-year_ component as an integer (1-12)
+ * `instant.week`^1^ - the _week-of-the-year_ component as an integer (1-53), with the https://en.wikipedia.org/wiki/ISO_week_date#First_week[first week of any year] being the week that contains the first Thursday of the year, and thus always containing January 4.
+ * `instant.weekYear`^1^ - the _year_ that the _week-of-year_ component belongs to.
    For dates from December 29, this could be the next year, and for dates until January 3 this could be the previous year, depending on how week 1 falls.
- * `instant.day` - the _day-of-the-month_ component as an integer (1-31)
- * `instant.ordinalDay` - the _day-of-the-year_ component as an integer (1-366)
- * `instant.weekDay` - the _day-of-the-week_ component as an integer (1-7), with the first day of the week being Monday.
- * `instant.hour` - the _hour_ component as an integer (0-23)
- * `instant.minute` - the _minute_ component as an integer (0-59)
- * `instant.second` - the _second_ component as an integer (0-60)
- * `instant.millisecond` - the _millisecond_ component as an integer (0-999)
- * `instant.microsecond` - the _microsecond_ component as an integer (0-999999)
- * `instant.nanosecond` - the _nanosecond_ component as an integer (0-999999999)
- * `instant.timezone` - the _timezone_ as a string, either as a timezone name or as an offset from UTC in the format `±HHMM`, depending on how the timezone was specified.
- * `instant.offset` - the _timezone_ offset as a string, in the format `±HHMM`
- * `instant.offsetMinutes` - the _timezone_ offset in minutes
- * `instant.offsetSeconds` - the _timezone_ offset in seconds
- * `instant.epochMillis` - the number of milliseconds between `1970-01-01T00:00:00+0000` and the instant, positive for instants after and negative for instants before.
- * `instant.epochSeconds` - the number of seconds between `1970-01-01T00:00:00+0000` and the instant, positive for instants after and negative for instants before.
+ * `instant.day`^1^ - the _day-of-the-month_ component as an integer (1-31)
+ * `instant.ordinalDay`^1^ - the _day-of-the-year_ component as an integer (1-366)
+ * `instant.weekDay`^1^ - the _day-of-the-week_ component as an integer (1-7), with the first day of the week being Monday.
+ * `instant.hour`^2^ - the _hour_ component as an integer (0-23)
+ * `instant.minute`^2^ - the _minute_ component as an integer (0-59)
+ * `instant.second`^2^ - the _second_ component as an integer (0-60)
+ * `instant.millisecond`^2^ - the _millisecond_ component as an integer (0-999)
+ * `instant.microsecond`^2^ - the _microsecond_ component as an integer (0-999999)
+ * `instant.nanosecond`^2^ - the _nanosecond_ component as an integer (0-999999999)
+ * `instant.timezone`^3^ - the _timezone_ as a string, either as a timezone name or as an offset from UTC in the format `±HHMM`, depending on how the timezone was specified.
+ * `instant.offset`^3^ - the _timezone_ offset as a string, in the format `±HHMM`
+ * `instant.offsetMinutes`^3^ - the _timezone_ offset in minutes
+ * `instant.offsetSeconds`^3^ - the _timezone_ offset in seconds
+ * `instant.epochMillis`^4^ - the number of milliseconds between `1970-01-01T00:00:00+0000` and the instant, positive for instants after and negative for instants before.
+ * `instant.epochSeconds`^4^ - the number of seconds between `1970-01-01T00:00:00+0000` and the instant, positive for instants after and negative for instants before.
    For the nanosecond part of the epoch offset, the regular `nanosecond` component (`instant.nanosecond`) can be used.
+
+[horizontal]
+^1^:: Available for instants with a date part: _DateTime_, _LocalDateTime_, and _Date_.
+^2^:: Available for instants with a time part: _DateTime_, _LocalDateTime_, _Time_, and _LocalTime_.
+^3^:: Available for instants with a timezone of offset: _DateTime_ and _Time_.
+^4^:: Available for _DateTime_ only.
 
 
 ==== Available components per instant type
@@ -970,13 +976,13 @@ The temporal types form a separate type system within the cypher type system, th
 
 ==== The timestamp function
 
-The previous timestamp function of Cypher still works, and returns the equivalent value of
+The previous `timestamp()` function of Cypher still works, and returns the equivalent value of
 
     datetime().epochMillis
 
 Perhaps more importantly a value produced by the old +timestamp+ function can be converted to a _DateTime_ by passing it as the `epoch` component to the `datetime` function:
 
-    datetime.fromEpochMillis(timestamp())
+    datetime({epochMillis: timestamp()})
 
 The epoch component is always treated as being in UTC, but a timezone component can still be specified to determine which timezone the resulting _DateTime_ should have. If no timezone is specified, UTC (`"+0000"`) is used, since that is the assumed timezone for epoch values.
 
