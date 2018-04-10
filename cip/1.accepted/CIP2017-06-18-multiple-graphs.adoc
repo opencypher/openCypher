@@ -581,8 +581,8 @@ FROM social-network
 // .. and match some data
 MATCH (a:Person)-[:KNOWS]->(b:Person)-[:KNOWS]->(c:Person) WHERE NOT (a)--(c)
 CONSTRUCT
-	CLONE a, c
-	NEW (a)-[:POSSIBLE_FRIEND]->(c)
+  CLONE a, c
+  NEW (a)-[:POSSIBLE_FRIEND]->(c)
 // All cardinality and bindings are removed here
 MATCH (a:Person)-[e:POSSIBLE_FRIEND]->(b:Person)
 // Return tabular and graph output
@@ -666,13 +666,13 @@ The next stage in the pipeline is to add the events information from *Events* to
 ----
 [ 0] FROM Events
 [ 1] MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
-[ 2]      (e)-[:IS_A]->(et)
+[ 2]       (e)-[:IS_A]->(et)
 [ 3] WITH *, CASE et.value
-[ 4]	  WHEN 'Criminal Event' THEN 'criminal'
-[ 5]	  WHEN 'Public Event' THEN 'public'
-[ 6]	  WHEN 'War Event' THEN 'war'
-[ 7]	  WHEN 'Royal Event' THEN 'royal'
-[ 8]	END as eventType
+[ 4]     WHEN 'Criminal Event' THEN 'criminal'
+[ 5]     WHEN 'Public Event' THEN 'public'
+[ 6]     WHEN 'War Event' THEN 'war'
+[ 7]     WHEN 'Royal Event' THEN 'royal'
+[ 8]   END as eventType
 [ 9] UPDATE PersonCityEvents
 [10] MERGE (c:City {name: c.value})
 [11] MERGE (e:Event {title: e.value, year: y.value, type: eventType})
