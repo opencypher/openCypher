@@ -785,6 +785,12 @@ Does lhs occur after rhs:
     WITH date(...) AS lhs, date(...) AS rhs // or another temporal instant type
     RETURN lhs > rhs
 
+Instant values that occur at the same point in time, but that have a different timezone are not considered equal, and must therefore be ordered in some predictable way.
+Cypher prescribes after the primary order of point in time, instant values be ordered by effective timezone offset, from west (negative offset from UTC) to east (positive offset from UTC).
+This has the effect that times that represent the same point in time will be ordered with the time with the earliest local time first.
+If two instant values represent the same point in time, and have the same timezone offset, but a different named timezone (this is possible for _DateTime_ only, since _Time_ only has an offset), these values are not considered equal, and ordered by the timezone identifier, alphabetically, as its third ordering component.
+If the type, point in time, offset, and timezone name are all equal, then the values are equal, and any difference in order is impossible to observe.
+
 _Duration_ values cannot be compared, since the length of a day, month or year is not known without knowing _which_ day, month or year it is.
 One could argue that two _Duration_ values using only the same precision should be comparable, but since this would make _Duration_ values comparable sometimes and not other times, such confusing behaviour was left out of Cypher.
 
