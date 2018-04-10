@@ -4,9 +4,9 @@
 :toc-placement: macro
 :source-highlighter: codemirror
 
-*Author:* Stefan Plantikow <stefan.plantikow@neotechnology.com>
+*Author:* Stefan Plantikow <stefan.plantikow@neo4j.com>, Andres Taylor <andres.taylor@neo4j.com>, Petra Selmer <petra.selmer@neo4j.com>
 
-This material is based on internal contributions of Alastair Green <alastair.green@neotechnology.com>, Mats Rydberg <mats.rydberg@neotechnology.com>, Martin Junghanns <martin.junghanns@neotechnology.com>, Tobias Lindaaker <tobias.lindaaker@neotechnology.com>, Petra Selmer <petra.selmer@neotechnology.com>
+This material is based on internal contributions of Alastair Green <alastair.green@neotechnology.com>, Mats Rydberg <mats.rydberg@neotechnology.com>, Martin Junghanns <martin.junghanns@neotechnology.com>, Tobias Lindaaker <tobias.lindaaker@neotechnology.com>
 
 [abstract]
 .Abstract
@@ -416,13 +416,13 @@ Constructed graphs are built by explicitly populating them with entities using t
  * `REMOVE`
  * `[DETACH] DELETE`
 
-An error is raised for any attempt to `SET` or `REMOVE` labels or properties of cloned entities during graph construction.
+An error is raised for any attempt to `SET` labels or properties of cloned entities during graph construction.
 
 
 ==== Updating constructed graphs
 
 // TODO: Advanced conformance
-Constructed graphs may be updated as well.
+Constructed graphs may be updated as well using `UPDATE GRAPH`.
 
 Updating relies on information from provenance tracking of cloned nodes in order to propagate updates to base data.
 
@@ -534,7 +534,7 @@ The catalog command `TRUNCATE <graph-name>` truncates the graph with the name `<
 Truncating a graph deletes all its nodes and relationships but retains any additional schema information like constraints.
 
 
-== Determining the name of a graph
+=== Determining the name of a graph
 
 The `catalog(g)` function returns the catalog name for the graph identity `g` or `NULL` if `g` is a dynamically constructed graph.
 
