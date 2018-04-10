@@ -34,14 +34,18 @@ Furthermore, adding support for working with multiple graphs has recently been i
 * It fits the paradigm of prominent analytical big-data processing systems (e.g. Apache Spark)
 * It mirrors mathematical graph theory where working with multiple graphs is common
 
+
+
 == Multiple property graphs model
 
 The data model used here is called the *multiple property graphs data model*.
 It extends the original https://github.com/opencypher/openCypher/blob/master/docs/property-graph-model.adoc[*property graph model*] with the notion of multiple graphs as outlined in the following subsections.
 
+
 === Model instance
 
 _Definition_: A *multiple property graphs model instance* is a set of zero or more property graphs.
+
 
 === Definitions
 
@@ -157,6 +161,7 @@ A fully qualified graph name should use the syntax for dotted variable identifie
 Note:: In practice, a query processor might have a catalog shared by all users, or provide a different catalog for each user.
 This is not considered here based on the simplifying assumption that all client requests are made by the same user.
 
+
 === Execution of client requests
 
 
@@ -229,11 +234,14 @@ If a query processor has not established an initial working graph (i.e. the work
 
 The working graph may be operated on in the following ways:
 
-* The working graph can be changed by selecting a graph that is known by the catalog.
+* The working graph can be changed by selecting a graph that is known by the catalog
+* The working graph is implicitly used during pattern matching and creational activity
 * The working graph may be returned as a query result
 * The working graph can be changed by constructing a new graph
+* The working graph can be changed by constructing a common graph union
 * The working graph can be changed by constructing a disjoint graph union
 * The working graph can be kept while the binding table is discarded
+* The graph identity of the working graph may be obtained using a reflective function
 
 
 === Selecting the working graph from the catalog for querying
@@ -255,27 +263,6 @@ It is an error to perform an updating operation on a working graph that was intr
 Additionally, `FROM GRAPH` may be used to select the working graph for further read-only operations.
 
 
-=== Patterns and multiple graphs
-
-// TODO: Should this be an error instead?
-If one of the bound variables in a pattern is an entity that is not contained in the working graph, the whole pattern does not match.
-
-A new type of pattern that is called a *copy pattern* may be used to copy all labels and properties of a node or the relationship type and all properties of a relationship.
-The syntax of clone patterns is:
-
-[source, cypher]
-----
-MATCH (a)-[r]->(b)
-FROM another_graph
-MATCH (x COPY OF b)-[COPY OF r]->()
-...
-----
-
-Copy patterns may be used in updating statements.
-
-A new type of pattern that is called a *clone pattern* may be used find the clone (if present) for a source entity as determined by provenance tracking.
-
-
 === Selecting the working graph from the catalog for updating
 
 The working graph may be changed for all subsequent querying and updating clauses using two forms:
@@ -293,9 +280,44 @@ It is an error to not perform at least a single updating operation on a working 
 Additionally, `UPDATE GRAPH` may be used to select the working graph for further updating operations.
 
 
-=== Updating using multiple graphs
+=== Using the working graph when interpreting a pattern
+
+All bound entities are matched against the working graph in both pattern matching and updating commands.
+// TODO: Should this be an error instead?
+If one of the bound variables in a pattern is an entity that is not contained in the working graph, the whole pattern does not match.
 
 An error is raised, if a statement attempts to update an entity that is not contained in the working graph.
+
+==== Copy patterns
+
+A new type of pattern that is called a *copy pattern* may be used to copy all labels and properties of a node or the relationship type and all properties of a relationship.
+The syntax of clone patterns is:
+
+[source, cypher]
+----
+MATCH (a)-[r]->(b)
+FROM another_graph
+MATCH (x COPY OF b)-[COPY OF r]->()
+...
+----
+
+Copying relationships ignores the start and the end node of the relationship.
+
+Copy patterns may be used in updating statements.
+
+==== Clone patterns
+
+A new type of pattern that is called a *clone pattern* may be used find the clone (if present) for a source entity as determined by provenance tracking.
+
+[source, cypher]
+----
+MATCH (a)-[r]->(b)
+FROM another_graph
+MATCH (x CLONE OF b)-[CLONE OF r]->()
+...
+----
+
+Clone patterns should not be used in updating statements.
 
 
 === Returning a graph result
@@ -413,19 +435,6 @@ Constructed graphs may only be updated by
 An error is raised if an update to a constructed graph leads to a constraint violation in a source graph.
 
 
-=== Discarding the binding table
-
-The current binding table may be discarded while retaining the working graph using the following syntax:
-
-[source, cypher]
-----
-WITH GRAPH
-...
-----
-
-The remainder of the query after `WITH GRAPH` continues to operate on the same working graph but using an empty binding table (no fields, single record).
-
-
 === Graph union
 
 The *common graph union* of two graphs may be computed using the following syntax:
@@ -462,11 +471,23 @@ The resulting union graph consists of copies of all entities from the two input 
 Note:: If a clone of the same source node is contained in both graphs, still two copies of that node are added to the result graph.
 
 
-=== Auxiliary functions
+=== Discarding the binding table
+
+The current binding table may be discarded while retaining the working graph using the following syntax:
+
+[source, cypher]
+----
+WITH GRAPH
+...
+----
+
+The remainder of the query after `WITH GRAPH` continues to operate on the same working graph but using an empty binding table (no fields, single record).
+
+
+=== Function for determining the working graph identity
 
 The `graph()` function returns the *graph identity* of the working graph.
 
-The `catalog(g)` function returns the catalog name for the graph identity `g` or `NULL` if `g` is a dynamically constructed graph.
 
 
 == Creating and administrating graphs in the catalog
@@ -513,6 +534,13 @@ The catalog command `TRUNCATE <graph-name>` truncates the graph with the name `<
 Truncating a graph deletes all its nodes and relationships but retains any additional schema information like constraints.
 
 
+== Determining the name of a graph
+
+The `catalog(g)` function returns the catalog name for the graph identity `g` or `NULL` if `g` is a dynamically constructed graph.
+
+The `catalog()` function returns the catalog name for the working graph or `NULL` if the working graph is a dynamically constructed graph.
+
+
 
 == Examples
 
@@ -528,7 +556,7 @@ This query returns a graph containing all the people living in Berling in the `p
 FROM persons
 MATCH (a:Person {city: "Berlin"})-[r:KNOWS]->(b:Person {city: "Berlin"})
 CONSTRUCT
-   CLONE a, b, r
+  CLONE a, b, r
 RETURN GRAPH
 ----
 
@@ -541,7 +569,7 @@ Another query we might want to do is to see all the people that live in Berlin, 
 FROM persons
 MATCH (a:Person {city: "Berlin"})-[r:KNOWS]-(b:Person)
 CONSTRUCT
-   CLONE a, b, r
+  CLONE a, b, r
 RETURN GRAPH
 ----
 
@@ -1013,7 +1041,8 @@ However, the change has been carefully designed to not change the semantics of e
 
 Instead of considering entities to only belong to a single graph, we could explore a model where an entity can be part of multiple graphs.
 This has the drawback of not being able to easily address an entity in a single graph and as a consequence it becomes impossible to distinguish entities according to the graph from which they have been matched.
-Establishing a 1:1 relationship between entities and graphs also grants great implementation freedom, especially in terms of id space management.
+Committing to a model of sharing of identical, self-same entities only limits the flexibility in terms of future extensions to provenance tracking such as clone variations (clones with different properties).
+Furthermore, establishing a 1:1 relationship between entities and graphs grants great implementation freedom, especially in terms of id space management.
 
 Instead of only returning either a table or a single graph, an earlier edition of this proposal explored to return table-graphs, i.e. both a single driving table and an associated set of multiple, named graphs.
 This felt overly complicated and made it difficult to distinguish between graphs in scope and variables in scope, created the need to occasionally create dummy values (like an empty graph or driving table), and led to a more complex execution result (with potentially difficult repercussions for the network protocol).
@@ -1039,7 +1068,7 @@ Neither Gremlin nor PGQL have developed facilities for the direct construction a
 
 === Benefits to this proposal
 
-Cypher is evolved to become a query language that is properly closed under graphs.
+Cypher is evolved to become a query language that is properly closed under graphs and tables.
 
 
 === Caveats to this proposal
