@@ -288,7 +288,7 @@ If one of the bound variables in a pattern is an entity that is not contained in
 
 An error is raised, if a statement attempts to update an entity that is not contained in the working graph.
 
-==== Copy patterns
+=== Copy patterns
 
 A new type of pattern that is called a *copy pattern* may be used to copy all labels and properties of a node or the relationship type and all properties of a relationship.
 The syntax of clone patterns is:
@@ -304,20 +304,6 @@ MATCH (x COPY OF b)-[COPY OF r]->()
 Copying relationships ignores the start and the end node of the relationship.
 
 Copy patterns may be used in updating statements.
-
-==== Clone patterns
-
-A new type of pattern that is called a *clone pattern* may be used find the clone (if present) for a source entity as determined by provenance tracking.
-
-[source, cypher]
-----
-MATCH (a)-[r]->(b)
-FROM another_graph
-MATCH (x CLONE OF b)-[CLONE OF r]->()
-...
-----
-
-Clone patterns should not be used in updating statements.
 
 
 === Returning a graph result
@@ -381,6 +367,7 @@ A single statement may end in a `<graph-construction>`.
 
 // TODO: FORK nodes
 // TODO: REMOVE n.prop on clokes
+// TODO: Define lineage tree
 In order to reconstruct subgraph structures from other graphs in the new graph, `CONSTRUCT` supports the addition of *cloned entities* in the new graph.
 
 _Definition_: *Cloning* ensures that exactly one new entity (called a *clone*) is created in the new graph for a given cloned entity (called its *source*) from a source graph.
@@ -416,7 +403,7 @@ Constructed graphs are built by explicitly populating them with entities using t
  * `REMOVE`
  * `[DETACH] DELETE`
 
-An error is raised for any attempt to `SET` labels or properties of cloned entities during graph construction.
+An error is raised for any attempt to `SET` or `REMOVE` labels or properties of cloned entities during graph construction.
 
 
 ==== Updating constructed graphs
@@ -433,6 +420,21 @@ Constructed graphs may only be updated by
 // TODO: * deleting nodes and relationships
 
 An error is raised if an update to a constructed graph leads to a constraint violation in a source graph.
+
+
+=== Clone patterns
+
+A new type of pattern that is called a *clone pattern* may be used find the clone (if present) for a source entity as determined by provenance tracking.
+
+[source, cypher]
+----
+MATCH (a)-[r]->(b)
+FROM another_graph
+MATCH (x CLONE OF b)-[CLONE OF r]->()
+...
+----
+
+Clone patterns should not be used in updating statements.
 
 
 === Graph union
@@ -540,6 +542,7 @@ The `catalog(g)` function returns the catalog name for the graph identity `g` or
 
 The `catalog()` function returns the catalog name for the working graph or `NULL` if the working graph is a dynamically constructed graph.
 
+// TODO: failIfNull(value, message)
 
 
 == Examples
