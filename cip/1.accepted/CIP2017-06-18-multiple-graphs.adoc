@@ -462,6 +462,12 @@ The resulting union graph consists of copies of all entities from the two input 
 Note:: If a clone of the same source node is contained in both graphs, still two copies of that node are added to the result graph.
 
 
+=== Auxiliary functions
+
+The `graph()` function returns the *graph identity* of the working graph.
+
+The `catalog(g)` function returns the catalog name for the graph identity `g` or `NULL` if `g` is a dynamically constructed graph.
+
 
 == Creating and administrating graphs in the catalog
 
