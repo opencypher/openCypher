@@ -30,10 +30,9 @@ package org.opencypher.tools.tck.api.events
 import java.util.UUID
 
 import org.opencypher.tools.tck.api.Graph.Result
-import org.opencypher.tools.tck.api.{Feature, Scenario, Step}
+import org.opencypher.tools.tck.api.{Scenario, Step}
 
 import scala.collection.mutable
-import scala.collection.mutable.Publisher
 
 /** Publishes TCK scenario execution events.
   *
@@ -55,12 +54,13 @@ object TCKEvents {
     val correlationId: String
   }
 
+  type StepResult = Either[Throwable, Result]
+
   case class StepStarted(step: Step) extends CorrelationId {
     override val correlationId: String = UUID.randomUUID().toString
   }
 
-  case class StepFinished(step: Step, result: Result, exception: Option[Throwable] = None, correlationId: String)
-      extends CorrelationId
+  case class StepFinished(step: Step, result: StepResult, correlationId: String) extends CorrelationId
 
   case class FeatureRead(name: String, uri: String, source: String)
 

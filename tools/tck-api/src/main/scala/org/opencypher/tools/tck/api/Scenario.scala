@@ -60,14 +60,13 @@ case class Scenario(featureName: String, name: String, tags: Set[String], steps:
     steps.foldLeft(ScenarioExecutionContext(empty)) { (context, step) =>
       {
         val eventId = setStepStarted(StepStarted(step))
-        var exception: Option[Throwable] = None
-        val result: ScenarioExecutionContext = (context, step) match {
+        val stepResult: Either[ScenarioFailedException, ScenarioExecutionContext] = (context, step) match {
 
           case (ctx, Execute(query, qt, _)) =>
-            ctx.execute(query, qt)
+            Right(ctx.execute(query, qt))
 
           case (ctx, Measure(_)) =>
-            ctx.measure
+            Right(ctx.measure)
 
           case (ctx, RegisterProcedure(signature, table, _)) =>
             ctx.graph match {
@@ -75,7 +74,7 @@ case class Scenario(featureName: String, name: String, tags: Set[String], steps:
                 support.registerProcedure(signature, table)
               case _ =>
             }
-            ctx
+            Right(ctx)
 
           case (ctx, ExpectResult(expected, _, sorted)) =>
             ctx.lastResult match {
@@ -88,53 +87,65 @@ case class Scenario(featureName: String, name: String, tags: Set[String], steps:
 
                 if (!correctResult) {
                   val detail = if (sorted) "ordered rows" else "in any order of rows"
-                  exception =
-                    Some(ScenarioFailedException(s"${EOL}Expected ($detail):$EOL$expected${EOL}Actual:$EOL$records"))
+                  Left(ScenarioFailedException(s"${EOL}Expected ($detail):$EOL$expected${EOL}Actual:$EOL$records"))
+                } else {
+                  Right(ctx)
                 }
               case Left(error) =>
-                exception =
-                  Some(ScenarioFailedException(s"Expected: $expected, got error $error", error.exception.orNull))
+                Left(ScenarioFailedException(s"Expected: $expected, got error $error", error.exception.orNull))
             }
-            ctx
 
           case (ctx, e @ ExpectError(errorType, phase, detail, _)) =>
             ctx.lastResult match {
               case Left(error) =>
                 if (error.errorType != errorType)
-                  exception =
-                    Some(ScenarioFailedException(s"Wrong error type: expected $errorType, got ${error.errorType}"))
+                  Left(
+                    ScenarioFailedException(
+                      s"Wrong error type: expected $errorType, got ${error.errorType}",
+                      error.exception.orNull))
                 if (error.phase != phase)
-                  exception = Some(ScenarioFailedException(s"Wrong error phase: expected $phase, got ${error.phase}"))
+                  Left(
+                    ScenarioFailedException(
+                      s"Wrong error phase: expected $phase, got ${error.phase}",
+                      error.exception.orNull))
                 if (error.detail != detail)
-                  exception =
-                    Some(ScenarioFailedException(s"Wrong error detail: expected $detail, got ${error.detail}"))
+                  Left(
+                    ScenarioFailedException(
+                      s"Wrong error detail: expected $detail, got ${error.detail}",
+                      error.exception.orNull))
+                else {
+                  Right(ctx)
+                }
 
               case Right(records) =>
-                exception = Some(ScenarioFailedException(s"Expected: $e, got records $records"))
+                Left(ScenarioFailedException(s"Expected: $e, got records $records"))
             }
-
-            ctx
 
           case (ctx, SideEffects(expected, _)) =>
             val before = ctx.state
             val after = ctx.measure.state
             val diff = before diff after
             if (diff != expected)
-              exception = Some(
+              Left(
                 ScenarioFailedException(
                   s"${EOL}Expected side effects:$EOL$expected${EOL}Actual side effects:$EOL$diff"))
-            ctx
+            else Right(ctx)
 
           case (ctx, Parameters(ps, _)) =>
-            ctx.copy(parameters = ps)
+            Right(ctx.copy(parameters = ps))
 
-          case (ctx, Dummy(_)) => ctx
+          case (ctx, _: Dummy) => Right(ctx)
           case (_, s) =>
             throw new UnsupportedOperationException(s"Unsupported step: $s")
         }
-        setStepFinished(StepFinished(step, result.lastResult, exception, eventId))
-        exception.foreach(throw _)
-        result
+        stepResult match {
+          case Right(ctx) =>
+            setStepFinished(StepFinished(step, Right(ctx.lastResult), eventId))
+            ctx
+          case Left(throwable) =>
+            setStepFinished(StepFinished(step, Left(throwable), eventId))
+            throw throwable
+        }
       }
     }
   }
@@ -163,7 +174,7 @@ case class Scenario(featureName: String, name: String, tags: Set[String], steps:
         case Success(measuredState) => copy(state = measuredState)
         case Failure(error) =>
           val msg = s"Side effect measurement failed with $error"
-          throw ScenarioFailedException(msg)
+          throw ScenarioFailedException(msg, error)
       }
     }
   }
