@@ -33,10 +33,12 @@ import java.nio.file.{FileSystems, Files, Paths}
 import java.util
 
 import gherkin.ast.GherkinDocument
-import gherkin.pickles.{Compiler, Pickle, PickleRow, PickleString, PickleTable}
+import gherkin.pickles.{Compiler, Pickle, PickleRow, PickleStep, PickleString, PickleTable}
 import gherkin.{AstBuilder, Parser, TokenMatcher}
 import org.opencypher.tools.tck.SideEffectOps.Diff
 import org.opencypher.tools.tck._
+import org.opencypher.tools.tck.api.events.TCKEvents
+import org.opencypher.tools.tck.api.events.TCKEvents.FeatureRead
 import org.opencypher.tools.tck.constants.TCKStepDefinitions._
 import org.opencypher.tools.tck.constants.{TCKErrorDetails, TCKErrorPhases, TCKErrorTypes}
 import org.opencypher.tools.tck.values.CypherValue
@@ -98,8 +100,7 @@ object CypherTCK {
     val gherkinDocument = Try(parser.parse(featureString, matcher)) match {
       case Success(doc) => doc
       case Failure(error) =>
-        throw InvalidFeatureFormatException(
-          s"Could not parse feature from $source: ${error.getMessage}")
+        throw InvalidFeatureFormatException(s"Could not parse feature from $source: ${error.getMessage}")
     }
     val compiler = new Compiler
     val pickles = compiler.compile(gherkinDocument).asScala
@@ -107,6 +108,7 @@ object CypherTCK {
     val included = pickles.filterNot(tagNames(_) contains "@ignore")
     val featureName = gherkinDocument.getFeature.getName
     val scenarios = included.map(toScenario(featureName, _))
+    TCKEvents.setFeature(FeatureRead(featureName, source, featureString))
     Feature(scenarios)
   }
 
@@ -159,26 +161,26 @@ object CypherTCK {
 
       val scenarioSteps: List[Step] = step.getText match {
         // Given
-        case emptyGraphR() => List.empty
-        case namedGraphR(name) => List(Execute(NamedGraphs.graphs(name), InitQuery))
-        case anyGraphR() => List(Execute(NamedGraphs.graphs.values.head, InitQuery))
+        case emptyGraphR()     => List(Dummy(step))
+        case namedGraphR(name) => List(Execute(NamedGraphs.graphs(name), InitQuery, step))
+        case anyGraphR()       => List(Execute(NamedGraphs.graphs.values.head, InitQuery, step))
 
         // And
-        case initQueryR() => List(Execute(queryFromStep, InitQuery))
-        case parametersR() => List(Parameters(parseParameters))
-        case installedProcedureR(signature) => List(RegisterProcedure(signature, parseTable()))
+        case initQueryR()                   => List(Execute(queryFromStep, InitQuery, step))
+        case parametersR()                  => List(Parameters(parseParameters, step))
+        case installedProcedureR(signature) => List(RegisterProcedure(signature, parseTable(), step))
 
         // When
-        case executingQueryR() => List(Measure, Execute(queryFromStep, ExecQuery))
-        case executingControlQueryR() => List(Execute(queryFromStep, ExecQuery))
+        case executingQueryR()        => List(Measure(step), Execute(queryFromStep, ExecQuery, step))
+        case executingControlQueryR() => List(Execute(queryFromStep, ExecQuery, step))
 
         // Then
-        case expectEmptyResultR() => List(ExpectResult(CypherValueRecords.empty))
-        case expectResultR() => List(ExpectResult(parseTable()))
-        case expectSortedResultR() => List(ExpectResult(parseTable(), sorted = true))
-        case expectResultUnorderedListsR() => List(ExpectResult(parseTable(orderedLists = false)))
+        case expectEmptyResultR()          => List(ExpectResult(CypherValueRecords.empty, step))
+        case expectResultR()               => List(ExpectResult(parseTable(), step))
+        case expectSortedResultR()         => List(ExpectResult(parseTable(), step, sorted = true))
+        case expectResultUnorderedListsR() => List(ExpectResult(parseTable(orderedLists = false), step))
         case expectErrorR(errorType, time, detail) =>
-          val expectedError = ExpectError(errorType, time, detail)
+          val expectedError = ExpectError(errorType, time, detail, step)
           if (shouldValidate) {
             expectedError.validate match {
               case None => // No problem
@@ -189,11 +191,11 @@ object CypherTCK {
                     If this is a custom error, then disable this validation with tag "@allowCustomErrors"""")
             }
           }
-          List(expectedError, SideEffects().fillInZeros)
+          List(expectedError, SideEffects(source = step).fillInZeros)
 
         // And
-        case noSideEffectsR() => List(SideEffects().fillInZeros)
-        case sideEffectsR() => List(SideEffects(parseSideEffectsTable).fillInZeros)
+        case noSideEffectsR() => List(SideEffects(source = step).fillInZeros)
+        case sideEffectsR()   => List(SideEffects(parseSideEffectsTable, step).fillInZeros)
 
         // Unsupported step
         case other =>
@@ -202,7 +204,7 @@ object CypherTCK {
       }
       scenarioSteps
     }.toList
-    Scenario(featureName, pickle.getName, tags, steps)
+    Scenario(featureName, pickle.getName, tags, steps, pickle)
   }
 
   private def tagNames(pickle: Pickle): Set[String] = pickle.getTags.asScala.map(_.getName).toSet
@@ -211,23 +213,27 @@ object CypherTCK {
 
 case class Feature(scenarios: Seq[Scenario])
 
-sealed trait Step
+sealed trait Step {
+  val source: PickleStep
+}
 
-case class SideEffects(expected: Diff = Diff()) extends Step {
+case class SideEffects(expected: Diff = Diff(), source: PickleStep) extends Step {
   def fillInZeros: SideEffects = copy(expected = expected.fillInZeros)
 }
 
-case object Measure extends Step
+case class Measure(source: PickleStep) extends Step
 
-case class RegisterProcedure(signature: String, values: CypherValueRecords) extends Step
+case class Dummy(source: PickleStep) extends Step
 
-case class Parameters(values: Map[String, CypherValue]) extends Step
+case class RegisterProcedure(signature: String, values: CypherValueRecords, source: PickleStep) extends Step
 
-case class Execute(query: String, qt: QueryType) extends Step
+case class Parameters(values: Map[String, CypherValue], source: PickleStep) extends Step
 
-case class ExpectResult(expectedResult: CypherValueRecords, sorted: Boolean = false) extends Step
+case class Execute(query: String, qt: QueryType, source: PickleStep) extends Step
 
-case class ExpectError(errorType: String, phase: String, detail: String) extends Step {
+case class ExpectResult(expectedResult: CypherValueRecords, source: PickleStep, sorted: Boolean = false) extends Step
+
+case class ExpectError(errorType: String, phase: String, detail: String, source: PickleStep) extends Step {
   // Returns None if valid and Some("error message") otherwise.
   def validate(): Option[String] = {
     if (!TCKErrorTypes.ALL.contains(errorType)) {
