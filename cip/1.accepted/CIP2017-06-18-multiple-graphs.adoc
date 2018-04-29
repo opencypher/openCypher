@@ -11,7 +11,13 @@ This material is based on internal contributions of Alastair Green <alastair.gre
 [abstract]
 .Abstract
 --
-// This CIP proposes extending Cypher to support the construction, transformation, and querying of multiple graphs by adopting (i) the proposed multiple property graphs model, (ii) the proposed multiple graphs execution model, and (iii) by introducing new syntax for working with multiple graphs.
+This CIP extends Cypher with support for working with multiple graphs.
+Different graphs may be queried in a single statement by selecting them by name from a global catalog.
+New graphs may be created in the catalog or constructed temporarily during the course of a query.
+Support for multiple graphs rests on a newly introduced multiple property graphs model and a formalization of Cypher's clause structure and query execution model.
+
+Working with multiple graphs requires relating entities from otherwise disconnected datasets.
+This is supported by the accompanying CIP2018-04-24 for content based comparison.
 --
 
 toc::[]
@@ -56,24 +62,21 @@ _Definition_: An *identity* is a value that is used to identify individual model
 
 _Definition_: The constituents of a model element (including its identity) are called its *content*.
 
-_Definition_: A *label* is a symbolic string that is used for classifying nodes.
+_Definition_: A *label* is a name that is used for classifying nodes.
 
-_Definition_: A *relationship type* is a symbolic string that is used for classifying relationships.
+_Definition_: A *relationship type* is a name that is used for classifying relationships.
 
-_Definition_: A *property* is a tuple consisting of a named *property key* and a *property value*.
+_Definition_: A *property* is a tuple consisting of a name (called the *property key*) and a value (called a *property value*).
 
-_Definition_: A *(property) graph* has a *graph identity* which is an identity that uniquely identifies the graph such that it is able to be distinguished from other graphs in the same multiple property graph model instance.
+_Definition_: A *(property) graph* has a *graph identity* which is an identity that uniquely identifies the graph such that it is able to be distinguished from other graphs in the same multiple property graphs model instance.
 A property graph further consists of a set of nodes and a set of relationships that connect the nodes of the property graph.
 Each property graph is contained in exactly one multiple property graphs model instance.
 
-Graphs may be either immutable or mutable.
-This information is not considered to be part of the content of the graph.
-
-_Definition_: A *node* has a *node identity* which is an identity that uniquely identifies the graph such that it is able to be distinguished from other nodes that are contained in the same property graph.
+_Definition_: A *node* has a *node identity* which is an identity that uniquely identifies the node such that it is able to be distinguished from other nodes that are contained in the same property graph.
 A node further consists of a set of zero or more labels and zero or more properties with mutually different property keys.
 Each node is contained in exactly one property graph.
 
-_Definition_: A *relationship* has a *relationship identity* which is an identity that uniquely identifies the graph such that it is able to be distinguished from other relationships that are contained in the same property graph.
+_Definition_: A *relationship* has a *relationship identity* which is an identity that uniquely identifies the relationship such that it is able to be distinguished from other relationships that are contained in the same property graph.
 A relationship further consists of a *start node*, an *end node*, and exactly one relationship type, and zero or more properties with mutually different property keys.
 Each relationship is contained in exactly one property graph and its start node and its end node are both contained in the same property graph as the relationship.
 
