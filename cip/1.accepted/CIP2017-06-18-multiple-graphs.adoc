@@ -22,7 +22,15 @@ This is supported by the accompanying CIP2018-04-24 for content based comparison
 
 toc::[]
 
-
+// TODO: Structure
+// TODO: Better explain cloning and equality relationship
+// TODO: FROM with multiple graphs?
+// TODO: FROM with subquery?
+// TODO: CONSTRUCT ON business
+// TODO: CONSTRUCT ON graph vs CONSTUCT NEW
+// TODO: Emulate construct on via union
+// TODO: CREATE VIEW
+// TODO:
 
 == Motivation
 
@@ -56,11 +64,15 @@ _Definition_: A *multiple property graphs model instance* is a set of zero or mo
 === Definitions
 
 _Definition_: The constituents of a multiple property graphs model instance are called its *model elements*.
-This includes property graphs, nodes, and relationships.
+Currently defined model elements are property graphs, nodes, and relationships.
+
+_Definition_: A  *value* is any ordinary value that is supported by the Cypher type system.
+
+_Definition_: A *reference* is a handle (i.e. an otherwise opaque value) that is used for addressing a model element of a multiple property graphs model instance (e.g. a node or a property graph).
 
 _Definition_: An *identity* is a value that is used to identify individual model elements and to distinguish between multiple model elements from a set of model elements in a given scope.
 
-_Definition_: The constituents of a model element (including its identity) are called its *content*.
+_Definition_: The constituents of a model element (including the identity of the model element) are called its *content*.
 
 _Definition_: A *label* is a name that is used for classifying nodes.
 
@@ -97,29 +109,15 @@ _Definition_: The set of *atoms* of an arbitrary value `v` (named `atoms(v)`) is
 _Definition_: A *valid multiple property graphs model instance* adheres to the following restrictions:
 
  * The set of atoms of an identity of any model element must not contain `NULL`.
- * The set of atoms of an identity of any model element must not contain a model element.
+ * The set of atoms of an identity of any model element must not contain a reference to a model element.
  * Property values must not be `NULL`.
    (Note that this differs from an entity not having a property key)
- * The set of atoms of any property value of any entity must not contain a model element.
-
-
-=== Functions for identity reflection
-
-The identities of model elements may be obtained using the following functions:
-
-The `graph(e)` function returns the *graph identity* of the graph that contains an entity `e`.
-
-The `id(n)` function returns the *node identity* of a node `n`.
-
-The `id(r)` function returns the *relationship identity* of a relationship `r`.
-
+ * The set of atoms of any property value of any entity must not contain a reference to a model element.
 
 
 == Statements
 
 _Definition_: A *source program* is a piece of text.
-
-It is intended to be both a syntactically valid term according to the root production rule of the grammar of the Cypher property graph query language and also a semantically valid term according to the semantic rules of the Cypher property graph query language.
 
 _Definition_: A *statement* is a source program that is a syntactically valid term according to the root production rule of the grammar of the Cypher property graph query language.
 
@@ -133,8 +131,6 @@ _Definition_: Clauses may be classified according to their side-effects as eithe
  * *updating clauses* that read and update data
  * *schema clauses* that only read from and update the schema
 
-// A statement may either be a *single statement* or a *statement chain*.
-
 _Definition_: A _statement_ may be categorized as:
 
  * A *reading query* is a statement consisting of reading clauses that reads and returns data
@@ -142,6 +138,7 @@ _Definition_: A _statement_ may be categorized as:
  * An *updating command* is a statement consisting of reading and updating clauses that reads and updates data but returns no data
  * A *schema command* is a statement consisting of schema clauses that only updates the schema
 
+// A statement may either be a *single statement* or a *statement chain*.
 
 // TODO
 // _Definition_: A _statement chain_ is a single statement followed by a semicolon followed by another statement.
@@ -152,10 +149,8 @@ _Definition_: A *query processor* is a query processing service that executes a 
 A query processor maintains exactly one _multiple property graphs model instance_.
 A query processor maintains exactly one _catalog_.
 
-
 === Catalog
 
-// TODO: graph references
 _Definition_: A _catalog_ is a mapping from *fully qualified graph names* to graph references.
 Multiple entries in the catalog may refer to the same graph.
 
@@ -170,7 +165,7 @@ This is not considered here based on the simplifying assumption that all client 
 
 ==== Definitions
 
-_Definition_: A source program together with all required parameters is called a *client request*.
+_Definition_: A source program together with all required named parameters is called a *client request*.
 
 _Definition_: The result of executing a client request is called an *execution result*.
 An execution result is one of
@@ -180,7 +175,7 @@ Tabular results may contain duplicate results and may optionally be ordered
 * a *graph result*; i.e. the contents of a graph as described by its set of nodes and relationships
 * an *execution error*; i.e. a message describing the reason that prevented the query processor from executing the client request correctly
 
-_Definition_: An *empty result* is a tabular result containing one record with no fields.
+_Definition_: An *empty result* is a specially marked tabular result that consists of one and only one record with zero fields.
 
 
 ==== Request execution
@@ -218,13 +213,14 @@ Note:: Additionally, a result may contain implementation specific metadata such 
 
 === Working graph
 
-// TODO: unset
 Most Cypher clauses operate within the context of a *working graph*, by reading or updating it.
 
-_Definition_: The _working graph_ is a graph reference that is maintained during statement execution.
-The working graph is optional and may be unset at the start of executing a statement.
+_Definition_: The _working graph stack_ is a stack of graph references that is maintained during statement execution.
 
-The working graph may either reference a graph in the catalog or a graph that was dynamically constructed during statement execution.
+_Definition_: The _working graph_ is the top most element of the current working graph stack.
+
+Note:: The working graph stack may be empty at the start of executing a statement.
+In this case, the working graph is considered to be unset.
 
 A query processor may choose to establish an *initial working graph* for each executed statement.
 The details of this are left to implementations.
@@ -237,14 +233,14 @@ If a query processor has not established an initial working graph (i.e. the work
 
 The working graph may be operated on in the following ways:
 
-* The working graph can be changed by selecting a graph that is known by the catalog
-* The working graph is implicitly used during pattern matching and creational activity
-* The working graph may be returned as a query result
-* The working graph can be changed by constructing a new graph
-* The working graph can be changed by constructing a common graph union
-* The working graph can be changed by constructing a disjoint graph union
-* The working graph can be kept while the binding table is discarded
-* The graph identity of the working graph may be obtained using a reflective function
+* The working graph can be changed by selecting a graph that is known by the catalog.
+* The working graph is implicitly used during pattern matching and creational activity.
+* The working graph may be returned as a query result.
+* The working graph can be changed by constructing a new graph.
+* The working graph can be changed by constructing a common graph union.
+* The working graph can be changed by constructing a disjoint graph union.
+* The working graph can be kept while the binding table is discarded.
+* The identity of model elements in the context of the working graph may be obtained using various reflective functions.
 
 
 === Selecting the working graph from the catalog for querying
@@ -286,7 +282,7 @@ Additionally, `UPDATE GRAPH` may be used to select the working graph for further
 === Using the working graph when interpreting a pattern
 
 All bound entities are matched against the working graph in both pattern matching and updating commands.
-// TODO: Should this be an error instead?
+
 If one of the bound variables in a pattern is an entity that is not contained in the working graph, the whole pattern does not match.
 
 An error is raised, if a statement attempts to update an entity that is not contained in the working graph.
@@ -294,7 +290,7 @@ An error is raised, if a statement attempts to update an entity that is not cont
 === Copy patterns
 
 A new type of pattern that is called a *copy pattern* may be used to copy all labels and properties of a node or the relationship type and all properties of a relationship.
-The syntax of clone patterns is:
+The syntax of copy patterns is:
 
 [source, cypher]
 ----
@@ -335,7 +331,7 @@ This does not affect the rules on returning model elements together with their c
 
 Graph construction is the dual operation to graph matching: While graph matching extracts pattern instances into variable bindings from the working graph, graph construction builds a new working graph from variable bindings.
 
-All nodes and relationships in the newly constructed graph have new entity identities and are different from any previously matched entities.
+All newly created nodes and relationships in the constructed graph have new entity identities and are different from any previously matched entities.
 
 The basic form of graph construction is:
 
@@ -343,7 +339,7 @@ The basic form of graph construction is:
 ----
 < graph-construction > :=
   < construct-clause >
-  < update-command >*
+  < update-command | clone-clause >*
   [WITH ... | WITH GRAPH | RETURN ... | RETURN GRAPH ]
   ;
 
@@ -351,27 +347,26 @@ The basic form of graph construction is:
   CONSTRUCT
     [ON GRAPH]
     [ON < graph-name-list > ]
-    [CLONE < clone-item-list > | '*']
   ;
 
 < graph-name-list > := < graph-name > [ ',' < graph-name > ]* ;
+
+< clone-clause > :=
+  CLONE < clone-item-list > | '*' ;
 
 < clone-item-list := < clone-item > [ ',' < clone-item > ]*
 < clone-item > :=
   ( < expr > [AS < alias >] | < variable > ) ;
 ----
 
-Graph construction supports sub-clauses for the *cloning of existing graphs* and the *cloning of existing entities*.
+Graph construction supports a sub-clause for the *cloning of existing graphs* and a clause for the *cloning of existing entities*.
 
 A single statement may end in a `<graph-construction>`.
 
 
 ==== Cloning
 
-// TODO: FORK nodes
-// TODO: REMOVE n.prop on clokes
-// TODO: Define lineage tree
-In order to reconstruct subgraph structures from other graphs in the new graph, `CONSTRUCT` supports the addition of *cloned entities* in the new graph.
+In order to reconstruct subgraph structures from other graphs in the new graph, `CONSTRUCT` supports the creation of *cloned entities* in the new graph.
 
 _Definition_: *Cloning* ensures that exactly one new entity (called a *clone*) is created in the new graph for a given cloned entity (called its *source*) from a source graph.
 If the same source is cloned multiple times this will still only create one clone in the new graph.
@@ -379,21 +374,17 @@ Every clone has exactly the same labels or relationship type as well as the same
 Cloning a relationship implicitly clones its start node and its end node and uses these clones as the start node and the end node of the relationship clone.
 
 _Definition_: It is possible to clone an entity over multiple steps of graph construction.
-In that case, if multiple entities are cloned into the same graph that in turn are both clones of a shared source,
-only one entity is constructed for these entities.
+In that case, if multiple entities are cloned into the same graph that in turn are both clones of a shared source, only one entity is created for these entities.
 This is called *provenance tracking*.
 
 The `ON GRAPH` sub-clause may be used to clone all nodes and relationships from the working graph into the new graph.
 
 The `ON < graph-name-list >` sub-clause may be used to clone all nodes and relationships from the given graphs in the catalog into the new graph.
 
-The `CLONE < clone-item-list >` sub-clause may be used to clone entities and bind the cloned entities to new variable names or shadow already bound variables.
+The `CLONE < clone-item-list >` clause may be used to clone entities that are contained in the atoms of a given value and optionally bind that value to new variable.
 Additionally, the `CLONE *` sub-clause may be used to clone all variables that are visible in the current scope.
-`CLONE` constructs cloned entities for each input record subject to the following rules:
 
- * Cloning a single, already bound variable rebinds the variable. In other words `CLONE a` is interpreted as `CLONE a AS a`.
- No other form of `CLONE` may rebind an already bound variable
- * Cloning a nested value (like a path) implicitly clones all contained nodes and relationships
+Note:: Cloning a nested value (like a path) implicitly clones all contained nodes and relationships.
 
 
 ==== Building constructed graphs
@@ -405,6 +396,12 @@ Constructed graphs are built by explicitly populating them with entities using t
  * `SET`
  * `REMOVE`
  * `[DETACH] DELETE`
+
+If an entity from another graph is referenced by a pattern in `CREATE`, it is cloned.
+
+If an entity from another graph is referenced by a pattern in `MERGE`, it is cloned.
+
+If an entity from another graph is passed as argument to `DELETE` or `DETACH DELETE`, any corresponding clones are removed from the constructed graph.
 
 An error is raised for any attempt to `SET` or `REMOVE` labels or properties of cloned entities during graph construction.
 
@@ -420,24 +417,9 @@ Constructed graphs may only be updated by
 
  * setting and removing properties
  * setting and removing labels
-// TODO: * deleting nodes and relationships
+ * deleting nodes and relationships
 
 An error is raised if an update to a constructed graph leads to a constraint violation in a source graph.
-
-
-=== Clone patterns
-
-A new type of pattern that is called a *clone pattern* may be used find the clone (if present) for a source entity as determined by provenance tracking.
-
-[source, cypher]
-----
-MATCH (a)-[r]->(b)
-FROM another_graph
-MATCH (x CLONE OF b)-[CLONE OF r]->()
-...
-----
-
-Clone patterns should not be used in updating statements.
 
 
 === Graph union
@@ -489,10 +471,19 @@ WITH GRAPH
 The remainder of the query after `WITH GRAPH` continues to operate on the same working graph but using an empty binding table (no fields, single record).
 
 
-=== Function for determining the working graph identity
+=== Functions for mode reflection
+
+The data model may be introspected using the following functions:
 
 The `graph()` function returns the *graph identity* of the working graph.
 
+The `graph(e)` function returns the *graph identity* of the base graph in which the root original of `e` was created.
+
+The `contains(e)` function is overloaded for entities `e` such that it returns true if either a clone of the given entity `e` or `e` itself is contained in the working graph and is also overloaded such that it returns false otherwise.
+
+The `id(n)` function returns the *node identity* of the representing clone in `graph(n)`
+
+The `id(r)` function returns the *relationship identity* of the representing clone in `graph(r)`
 
 
 == Creating and administrating graphs in the catalog
@@ -534,18 +525,18 @@ If `<new-name>` is the name of a graph that already exists in the catalog, an er
 
 === Truncating graphs
 
-The catalog command `TRUNCATE <graph-name>` truncates the graph with the name `<graph-name` in the catalog.
+The catalog command `TRUNCATE <graph-name>` truncates the graph with the name `<graph-name>` in the catalog.
 
 Truncating a graph deletes all its nodes and relationships but retains any additional schema information like constraints.
 
 
 === Determining the name of a graph
 
-The `catalog(g)` function returns the catalog name for the graph identity `g` or `NULL` if `g` is a dynamically constructed graph.
-
 The `catalog()` function returns the catalog name for the working graph or `NULL` if the working graph is a dynamically constructed graph.
 
-// TODO: failIfNull(value, message)
+ The `catalog(g)` function returns the catalog name for the graph identity `g` or `NULL` if `g` is a dynamically constructed graph.
+
+The `failIfNull(value, message)` function returns `value` if `value` is not `NULL` and raises an error with the given message `message` otherwise.
 
 
 == Examples
@@ -562,7 +553,7 @@ This query returns a graph containing all the people living in Berling in the `p
 FROM persons
 MATCH (a:Person {city: "Berlin"})-[r:KNOWS]->(b:Person {city: "Berlin"})
 CONSTRUCT
-  CLONE a, b, r
+CLONE a, b, r
 RETURN GRAPH
 ----
 
@@ -575,7 +566,7 @@ Another query we might want to do is to see all the people that live in Berlin, 
 FROM persons
 MATCH (a:Person {city: "Berlin"})-[r:KNOWS]-(b:Person)
 CONSTRUCT
-  CLONE a, b, r
+CLONE a, b, r
 RETURN GRAPH
 ----
 
@@ -587,13 +578,11 @@ FROM social-network
 // .. and match some data
 MATCH (a:Person)-[:KNOWS]->(b:Person)-[:KNOWS]->(c:Person) WHERE NOT (a)--(c)
 CONSTRUCT
-  CLONE a, c
-  NEW (a)-[:POSSIBLE_FRIEND]->(c)
+CREATE (a)-[:POSSIBLE_FRIEND]->(c)
 // All cardinality and bindings are removed here
 MATCH (a:Person)-[e:POSSIBLE_FRIEND]->(b:Person)
 // Return tabular and graph output
-RETURN a.name, b.name, count(e) AS cnt
-  ORDER BY cnt DESC
+RETURN a.name, b.name, count(e) AS cnt ORDER BY cnt DESC
 ----
 
 
@@ -658,7 +647,8 @@ The next step is to copy over persons and cities from `ActorsFilmsCities`.
 ----
 
 Here, we are first setting the working graph to the ActorsFilmsCities [0], and then we are matching on this graph [1].
-That is all the input data we need, so we can now switch over to the output graph [2] and create nodes and relationships in it [3-5]. TODO Maybe talk about that we could have used CONSTRUCT instead.
+That is all the input data we need, so we can now switch over to the output graph [2] and create nodes and relationships in it [3-5].
+// TODO Maybe talk about that we could have used CONSTRUCT instead.
 
 At this stage, *PersonCityEvents* is given by:
 
@@ -709,7 +699,7 @@ The last step in the data integration pipeline is to return part of the newly cr
 [2]  (ce:Event {type:'criminal'}),
 [3]  (ce)-[h:HAPPENED_IN]->(c:City)<-[b:BORN_IN]-(p:Person)
 [4] CONSTRUCT
-[5]   CLONE p, c, ce, h, b
+[5] CLONE p, c, ce, h, b
 [6] RETURN GRAPH
 ----
 
@@ -1038,17 +1028,18 @@ image::opencypher-PersonCityCriminalEvents-graph.jpg[Graph,700,550]
 
 === Interaction with existing features
 
-This proposal is far reaching as it changes both the property graph model and the execution model of the language.
+This proposal is far reaching as it updates both the property graph model and the execution model of the language.
 
 However, the change has been carefully designed to not change the semantics of existing queries.
 
 
 === Alternatives
 
-Instead of considering entities to only belong to a single graph, we could explore a model where an entity can be part of multiple graphs.
-This has the drawback of not being able to easily address an entity in a single graph and as a consequence it becomes impossible to distinguish entities according to the graph from which they have been matched.
-Committing to a model of sharing of identical, self-same entities only limits the flexibility in terms of future extensions to provenance tracking such as clone variations (clones with different properties).
-Furthermore, establishing a 1:1 relationship between entities and graphs grants great implementation freedom, especially in terms of id space management.
+A central design consideration has been wether entities should belong only to a single graph or should be shared arbitrarily between multiple graphs.
+This proposal advocates a middle ground: At the data model level, entities are contained in a single graph only.
+This establishes a 1:1 correspondence between entities and graphs grants great implementation freedom in terms of id space management.
+At the language semantics level, cloning tracks entities that are effectively shared across graphs and treats the root original and all of its clones as the same entity in terms of equality.
+This has been reflected in the re-definition of the `id` function that always returns the identity of a corresponding clone in the working graph, even for entities matched in another graph.
 
 Instead of only returning either a table or a single graph, an earlier edition of this proposal explored to return table-graphs, i.e. both a single driving table and an associated set of multiple, named graphs.
 This felt overly complicated and made it difficult to distinguish between graphs in scope and variables in scope, created the need to occasionally create dummy values (like an empty graph or driving table), and led to a more complex execution result (with potentially difficult repercussions for the network protocol).
@@ -1065,7 +1056,6 @@ However it may still be worthwhile to explore this idea in the future for "tiny 
 === What others do
 
 SPARQL only provides basic facilities for returning graphs using `CONSTRUCT`.
-SPARQL avoid the need for `CLONE` by using global entity identities at the peril of having to use graph relationships to associate various attributes to them.
 
 SQL constructs derived tables using projection, aggregation, and filtering.
 
