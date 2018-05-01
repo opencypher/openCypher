@@ -422,6 +422,24 @@ Constructed graphs may only be updated by
 An error is raised if an update to a constructed graph leads to a constraint violation in a source graph.
 
 
+=== Disjoint graph union
+
+The *disjoint graph union* of two graphs may be computed using the following syntax:
+
+[source, cypher]
+----
+< query-1 >
+RETURN GRAPH
+UNION ALL
+< query-2 >
+RETURN GRAPH
+----
+
+The resulting union graph consists of copies of all entities from the two input graphs.
+
+Note:: If a clone of the same source node is contained in both graphs, still two copies of that node are added to the result graph.
+
+
 === Graph union
 
 The *common graph union* of two graphs may be computed using the following syntax:
@@ -440,22 +458,36 @@ The resulting union graph consists of clones of all entities from the two input 
 Note:: If a clone of the same source node is contained in both graphs, only one clone for that node is added to the result graph.
 
 
-=== Disjoint graph union
+=== Graph intersection
 
-The *disjoint graph union* of two graphs may be computed using the following syntax:
+The *common graph intersection* of two graphs may be computed using the following syntax:
 
 [source, cypher]
 ----
 < query-1 >
 RETURN GRAPH
-UNION ALL
+INTERSECT
 < query-2 >
 RETURN GRAPH
 ----
 
-The resulting union graph consists of copies of all entities from the two input graphs.
+The resulting intersection graph consists of clones of all entities that are contained in both input graphs.
 
-Note:: If a clone of the same source node is contained in both graphs, still two copies of that node are added to the result graph.
+
+=== Graph difference
+
+The *common graph difference* of two graphs may be computed using the following syntax:
+
+[source, cypher]
+----
+< query-1 >
+RETURN GRAPH
+EXCEPT
+< query-2 >
+RETURN GRAPH
+----
+
+The resulting difference graph consists of clones for all entities from the left (first) graph that are not contained in the second (last) graph.
 
 
 === Discarding the binding table
@@ -479,7 +511,9 @@ The `graph()` function returns the *graph identity* of the working graph.
 
 The `graph(e)` function returns the *graph identity* of the base graph in which the root original of `e` was created.
 
-The `contains(e)` function is overloaded for entities `e` such that it returns true if either a clone of the given entity `e` or `e` itself is contained in the working graph and is also overloaded such that it returns false otherwise.
+The `exists(e)` function is overloaded for entities `e` such that it returns `true` if `e` has not been deleted in `graph(e)` and is also overloaded such that it returns `false` otherwise.
+
+The `contains(e)` function is defined for entities `e` such that it returns `true` if either a clone of the given entity `e` or `e` itself is contained in the working graph and is also defined such that it returns `false` otherwise.
 
 The `id(n)` function returns the *node identity* of the representing clone in `graph(n)`
 
@@ -538,6 +572,13 @@ The `catalog()` function returns the catalog name for the working graph or `NULL
 
 The `failIfNull(value, message)` function returns `value` if `value` is not `NULL` and raises an error with the given message `message` otherwise.
 
+== Syntax variations
+
+Below is a list of potential syntax variations under discussion:
+
+ * `DROP GRAPH` instead of `DELETE GRAPH`
+
+
 
 == Examples
 
@@ -546,7 +587,7 @@ We show two fully worked-through examples <<data-integration-example, here>> and
 
 === Creating and returning a new graph: a simple example
 
-This query returns a graph containing all the people living in Berling in the `persons` graph and their `KNOWS` relationships.
+This query returns a graph containing all the people living in Berlin in the `persons` graph and their `KNOWS` relationships.
 
 [source, cypher]
 ----
