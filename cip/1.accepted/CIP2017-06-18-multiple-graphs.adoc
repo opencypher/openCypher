@@ -117,13 +117,22 @@ _Definition_: A *valid multiple property graphs model instance* adheres to the f
 
 == Statements
 
-_Definition_: A *source program* is a piece of text.
-
-_Definition_: A *statement* is a source program that is a syntactically valid term according to the root production rule of the grammar of the Cypher property graph query language.
-
 _Definition_: A *valid statement* is a statement that is valid according to the semantic rules of the Cypher property graph query language.
 
-Statements in turn consist of a chain of one or more clauses which each may be further qualified by clause arguments, sub-clauses and sub-clause arguments.
+_Definition_: A *statement* is a source program that is a syntactically valid term according to the root production rule of the grammar of the Cypher property graph query language.
+A statement may either be a statement chain or a single statement.
+
+_Definition_: A *statement chain* is a single statement followed by a semicolon followed by another statement.
+
+_Definition_: A *single statement* is either an *operator clause chain* or a *simple clause chain*.
+
+_Definition_: An *operator clause chain* are two or more simple clause chains that are separated by the exact same operator clause.
+
+_Definition_: An *operator clause* is a clause that is used to connect multiple simple clause chains in an operator clause chain.
+
+Note:: As per this and all accompanying proposal, the list of currently supported operator clauses is `UNION`, `UNION ALL`, `INTERSECT`, `EXCEPT`.
+
+_Definition_: A *simple clause chain* is a sequence of one or more non-operator clauses which each may be further qualified by clause arguments, sub-clauses and sub-clause arguments.
 
 _Definition_: Clauses may be classified according to their side-effects as either
 
@@ -131,17 +140,15 @@ _Definition_: Clauses may be classified according to their side-effects as eithe
  * *updating clauses* that read and update data
  * *schema clauses* that only read from and update the schema
 
-_Definition_: A _statement_ may be categorized as:
+_Definition_: A (single) statement may be categorized as:
 
  * A *reading query* is a statement consisting of reading clauses that reads and returns data
  * An *updating query* is a statement consisting of reading and updating clauses that reads, updates and returns data
  * An *updating command* is a statement consisting of reading and updating clauses that reads and updates data but returns no data
  * A *schema command* is a statement consisting of schema clauses that only updates the schema
 
-// A statement may either be a *single statement* or a *statement chain*.
-
-// TODO
-// _Definition_: A _statement chain_ is a single statement followed by a semicolon followed by another statement.
+ Note:: An implementation may choose to limit the kinds of statements that can be combined in a statement chain (e.g. not allow to combine updating and schema commands in one chain).
+ 
 
 == Query processing
 
