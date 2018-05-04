@@ -153,6 +153,9 @@ _Definition_: Clauses may be classified according to their side-effects as eithe
  * *updating clauses* that read and update data
  * *schema clauses* that only read from and update the schema
 
+_Definition_: Clauses that are used for graph construction are called *constructing clauses*.
+Constructing clauses are considered to be a form of reading clauses.
+
 === Statement classification
 
 _Definition_: A (single) statement may be categorized as:
@@ -178,6 +181,8 @@ The high-level syntactic structure of Cypher adheres to the following principles
 4. Non-sequential operator clauses (like `UNION`) are only allowed at the top-level and may not be combined with other operator clauses (This can be achieved though via nested subqueries, cf. accompanying `CIP2018-05-03`).
 
 5. Updating clauses and following reading clauses must be separated by `WITH`.
+
+6. Cypher syntax is modal: Not all clauses are allowed in all contexts.
 
 
 
@@ -351,6 +356,19 @@ Copying relationships ignores the start and the end node of the relationship.
 Copy patterns may be used in updating statements.
 
 
+=== Discarding the binding table
+
+The current binding table may be discarded while retaining the working graph using the following syntax:
+
+[source, cypher]
+----
+WITH GRAPH
+...
+----
+
+The remainder of the query after `WITH GRAPH` continues to operate on the same working graph but using an empty binding table (no fields, single record).
+
+
 === Returning a graph result
 
 The working graph may be returned as an execution result using:
@@ -371,7 +389,7 @@ Graphs are always returned by reference during execution inside the query proces
 This does not affect the rules on returning model elements together with their content to the client which ensure that a graph result will be returned by value to the client.
 
 
-=== Functions for mode reflection
+=== Functions for data model introspection
 
 The data model may be introspected using the following functions:
 
@@ -563,18 +581,6 @@ RETURN GRAPH
 
 The resulting difference graph consists of clones for all entities from the left (first) graph that are not contained in the second (last) graph.
 
-
-=== Discarding the binding table
-
-The current binding table may be discarded while retaining the working graph using the following syntax:
-
-[source, cypher]
-----
-WITH GRAPH
-...
-----
-
-The remainder of the query after `WITH GRAPH` continues to operate on the same working graph but using an empty binding table (no fields, single record).
 
 
 == Creating and administrating graphs in the catalog
