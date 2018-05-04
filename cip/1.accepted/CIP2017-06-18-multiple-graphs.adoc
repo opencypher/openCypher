@@ -45,30 +45,35 @@ Furthermore, adding support for working with multiple graphs has recently been i
 * It fits the paradigm of prominent analytical big-data processing systems (e.g. Apache Spark)
 * It mirrors mathematical graph theory where working with multiple graphs is common
 
-=== Overview
-
-
-=== Related Work
+// === Overview
+=== Related work
 
 This CIP has been developed in tandem with
 
-* `CIP2018-05-03`: Nested subqueries
+ * `CIP2018-05-03`: Nested subqueries
+ * `CIP2018-05-04`: Equivalence operators
+
 
 
 == The data model
 
-
-The data model underpinning Cypher is the _property graph model_.
+The data model underpinning Cypher today is the _property graph model_.
 We give a brief overview of the current property graph model in XXLINK, in effect, the _single property graph data model_, and then describe extensions to the model that will allow for the support of multiple graphs in XXLINK.
+
 
 === The single property graph data model (current)
 
 The property graph model today is predicated upon the notion of a single, implicit property graph (hereafter termed as 'graph')[https://arxiv.org/pdf/1802.09984.pdf, adoc], which we show in IMAGE_FROM_SLIDES-SINGLE-PGMxxx.
 
-We define below terms which underpin the property graph data model:
+The concept of implicitness implies that:
 
-[NOTE]
-====
+ * the graph is an unnamed or anonymous entity,
+ * the data model contains nothing apart from this single graph, and
+ * the graph is not able to be referred to by virtue of a name or identity or address within any context.
+
+IMAGE_FROM_SLIDES-SINGLE-PGMXXX
+
+We define below terms which underpin the property graph data model:
 
 A _**property graph**_ consists of a set of nodes and a set of relationships that connect the nodes of the property graph.
 
@@ -78,9 +83,9 @@ A property graph is contained in exactly one property graph model instance.
 A _**model element**_ is a constituent of a property graph model instance.
 These comprise nodes and relationships.
 
-A _**label**_ is used to classify a node.
+A _**label**_ is a name used to classify a node.
 
-A _**relationship type**_ is a label that is used to classify a relationship.
+A _**relationship type**_ is a name used to classify a relationship.
 
 A _**value**_ is any value that is supported by the Cypher type system.
 
@@ -95,6 +100,14 @@ A _**relationship**_ has a _**relationship identity**_ which is an identity that
 A relationship contains a start node and an end node (both drawn from the same graph as the relationship), a single relationship type, and zero or more properties with mutually different property keys.
 We note that the start and end nodes may be the same node, hence denoting a ‘self-loop’ relationship
 
+XXTODO
+// Content = Everything but the identity
+// ???     = Content + Id
+// FOO ( ID, BAR ( ID + STUFF ), MAZ ( ID + THINGS ) )
+// content( FOO ) = BAR ( ID + STUFF ), MAZ ( ID + THINGS ) )
+
+// content( FOO ) = all ids gone
+//
 The constituents of a model element are called its _**content**_.
 For a node (respectively relationship) this comprises its labels, identity and properties (respectively, its relationship type, identity and properties).
 
@@ -102,28 +115,15 @@ Nodes and relationships are called _**entities**_.
 
 Node and relationship identities are called _**entity identities**_.
 
-A _**reference**_ is a handle (i.e. an otherwise opaque value) that is used to address a model element of a property graph model instance (i.e. a node or a relationship).
+A _**reference**_ is a handle (i.e. an otherwise opaque value) that is used to address model elements of a property graph model instance (i.e. a node or a relationship).
 
-====
-
-The concept of implicitness implies that:
-
- * the graph is an unnamed or anonymous entity,
- * the data model contains nothing apart from this single graph, and
- * the graph is not able to be referred to by virtue of a name or identity or address within any context.
-
-IMAGE_FROM_SLIDES-SINGLE-PGMXXX
 
 === The multiple property graph data model (proposed)
 
 We now describe the extensions required to the property graph data model to enable multiple graph support.
 Unless otherwise specified, all previous attributes for the extended terms hold.
 
-
 IMAGE_FROM_SLIDES-SINGLE-MPGM
-
-[NOTE]
-====
 
 A _**multiple property graph model instance**_ (extending the notion of a property graph model instance) is a set of zero or more property graphs.
 
@@ -140,13 +140,8 @@ A _**node**_ is contained in exactly one property graph.
 
 A _**relationship**_ is contained in exactly one property graph and its start node and end node are both contained in the same property graph as the relationship.
 
-====
-
 
 ==== Valid model instance
-
-[NOTE]
-====
 
 The set of *atoms* of an arbitrary value `v` (named `atoms(v)`) is defined as follows:
 
@@ -154,11 +149,6 @@ The set of *atoms* of an arbitrary value `v` (named `atoms(v)`) is defined as fo
  * If `v` is a list value `[e~1~, e~2~, ..., e~n~]`, `atoms(v) = {v} UNION atoms(e~1~) UNION atoms(e~2~) UNION ... UNION atoms(e~n~)`
  * If `v` is a map or a node or a relationship with `values(v)`, `atoms(v) = {v} UNION atoms(values(v))`
  * Nothing else
-
-====
-
-[NOTE]
-====
 
 A *valid* multiple property graph model instance adheres to the following restrictions:
 
@@ -168,7 +158,7 @@ A *valid* multiple property graph model instance adheres to the following restri
    (Note that this differs from an entity not having a property key)
  * The set of atoms of any property value of any entity must not contain a reference to a model element.
 
-====
+
 
 == Query structure
 
@@ -190,9 +180,10 @@ _Definition_: An *operator clause chain* are two or more simple clause chains th
 
 _Definition_: An *operator clause* is a clause that is used to connect multiple simple clause chains in an operator clause chain.
 
-Note:: As per this and all accompanying proposal, the list of currently supported operator clauses is `UNION`, `UNION ALL`, `INTERSECT`, `EXCEPT`.
+Note:: As per this and all accompanying proposals, the list of current and proposed operator clauses is `UNION`, `UNION ALL`, `INTERSECT`, `EXCEPT`.
 
 _Definition_: A *simple clause chain* is a sequence of one or more non-operator clauses which each may be further qualified by clause arguments, sub-clauses and sub-clause arguments.
+
 
 === Clause classification
 
@@ -204,6 +195,7 @@ _Definition_: Clauses may be classified according to their side-effects as eithe
 
 _Definition_: Clauses that are used for graph construction are called *constructing clauses*.
 Constructing clauses are considered to be a form of reading clauses.
+
 
 === Statement classification
 
@@ -219,7 +211,7 @@ _Definition_: A (single) statement may be categorized as:
 
 === Structural principles
 
-The high-level syntactic structure of Cypher adheres to the following principles.
+The high-level syntactic structure of Cypher adheres to the following principles:
 
 1. The majority of clauses is given in sequential order that is to be interpreted from top to bottom in order to construct a left leaning clause tree.
 
@@ -231,7 +223,7 @@ The high-level syntactic structure of Cypher adheres to the following principles
 
 5. Updating clauses and following reading clauses must be separated by `WITH`.
 
-6. Cypher syntax is modal: Not all clauses are allowed in all contexts.
+6. Not all clauses are allowed in all contexts.
 
 
 
