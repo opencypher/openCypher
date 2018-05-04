@@ -379,25 +379,8 @@ If one of the bound variables in a pattern is an entity that is not contained in
 
 An error is raised, if a statement attempts to update an entity that is not contained in the working graph.
 
-=== Copy patterns
 
-A new type of pattern that is called a *copy pattern* may be used to copy all labels and properties of a node or the relationship type and all properties of a relationship.
-The syntax of copy patterns is:
-
-[source, cypher]
-----
-MATCH (a)-[r]->(b)
-FROM another_graph
-MATCH (x COPY OF b)-[COPY OF r]->()
-...
-----
-
-Copying relationships ignores the start and the end node of the relationship.
-
-Copy patterns may be used in updating statements.
-
-
-=== Discarding the binding table
+=== Discarding the driving table
 
 The current binding table may be discarded while retaining the working graph using the following syntax:
 
@@ -430,95 +413,97 @@ Graphs are always returned by reference during execution inside the query proces
 This does not affect the rules on returning model elements together with their content to the client which ensure that a graph result will be returned by value to the client.
 
 
-=== Functions for data model introspection
+== Graph construction and composition
 
-The data model may be introspected using the following functions:
+*Graph construction and composition* dynamically create new graphs in order to query, update, store them in the catalog, or return them to the client.
 
-The `graph()` function returns the *graph identity* of the working graph.
-
-The `graph(e)` function returns the *graph identity* of the base graph in which the root original of `e` was created.
-
-The `exists(e)` function is overloaded for entities `e` such that it returns `true` if `e` has not been deleted in `graph(e)` and is also overloaded such that it returns `false` otherwise.
-
-The `contains(e)` function is defined for entities `e` such that it returns `true` if either a clone of the given entity `e` or `e` itself is contained in the working graph and is also defined such that it returns `false` otherwise.
-
-The `id(n)` function returns the *node identity* of the representing clone in `graph(n)`
-
-The `id(r)` function returns the *relationship identity* of the representing clone in `graph(r)`
-
-
-
-== Graph construction
-
-*Graph construction* dynamically constructs a new graph in order to query it, update it, store it in the catalog, or return it to the client.
-
-The following forms of graph construction are proposed in this section:
+The following forms of graph construction and composition are proposed in this section:
 
 * The working graph can be changed by constructing a new graph.
-* The working graph can be changed by constructing a disjoint graph union.
-* The working graph can be changed by constructing a common graph union.
-* The working graph can be changed by constructing a graph intersection.
-* The working graph can be changed by constructing a graph difference.
+* The working graph can be changed by composing a disjoint graph union.
+* The working graph can be changed by composing a common graph union.
+* The working graph can be changed by composing a graph intersection.
+* The working graph can be changed by composing a graph difference.
 
 
-=== Graph projection
+=== Provenance tracking
 
-Graph projection is the dual operation to graph matching: While graph matching extracts pattern instances into variable bindings from the working graph, graph projection builds a new working graph from variable bindings.
+Entities in dynamically constructed graphs may be replicas of existing entities in other graphs.
+The query processor tracks the provenance of such entities by maintaining a provenance graph.
 
-All newly created nodes and relationships in the projected graph have new entity identities and are different from any previously matched entities.
+
+==== Provenance graph
+
+_Definition_: The *provenance graph* is a directed acyclic graph whose vertices represent entities of a multiple property graphs model instance.
+Vertices are connected with an edge in the provenance graph if the target vertex represents a *replica* `e` of the entity that is represented by the source vertex.
+The entity represented by the source vertex is called the `original(e)`.
+Multiple vertices may represent the same entity.
+However, all vertices that represent the same entity `e` must have a single shared vertex as their ancestor.
+The entity represented by this ultimate ancestor is called the `root(e)`.
+
+Note:: The provenance graph is _not_ a graph in the sense of the data model.
+The provenance graph is conceptually maintained by the query processor in order to track which entities are replicas of each other.
+
+
+==== Update propagation
+
+A reference value (e.g. as obtained by pattern matching or expression evaluation) to an entity `e` always implicitly addresses all children of `root(e)` in the provenance graph.
+
+Updating a reference to an entity (setting and removing of properties and labels and deletion of the entity) updates all replicas in the same way.
+
+
+=== Graph construction
+
+Graph construction is the dual operation to graph matching: While graph matching extracts pattern instances into variable bindings from the working graph, graph projection builds a new working graph from variable bindings.
+
+All newly created nodes and relationships in the constructed graph have new entity identities and are different from any previously matched entities.
 
 The basic form of graph construction is:
 
 [source, ebnf]
 ----
-< graph-construction > :=
-  < construct-clause >
-  < update-command | clone-clause >*
-  [WITH ... | WITH GRAPH | RETURN ... | RETURN GRAPH ]
+<graph-construction> :=
+  <construct-clause>
+  <update-command>*
+  [ WITH ... | WITH GRAPH | RETURN ... | RETURN GRAPH ]
   ;
 
-< construct-clause > :=
-  CONSTRUCT
-    [ON GRAPH]
-    [ON < graph-name-list > ]
-  ;
+<construct-clause> := CONSTRUCT [ ON GRAPH ] [ ON < graph-name-list > ] ;
 
-< graph-name-list > := < graph-name > [ ',' < graph-name > ]* ;
+<graph-name-list> := < graph-name > [ ',' < graph-name > ]* ;
 
-< clone-clause > :=
-  CLONE < clone-item-list > | '*' ;
+<update-command> := ... | < replicate-clause > ;
 
-< clone-item-list := < clone-item > [ ',' < clone-item > ]*
-< clone-item > :=
-  ( < expr > [AS < alias >] | < variable > ) ;
+<replicate-clause> := MERGE ALL < expression-list > | '*' ;
 ----
 
-Graph construction supports a sub-clause for the *cloning of existing graphs* and a clause for the *cloning of existing entities*.
+Graph construction supports a sub-clause for the *replicating all entities of existing graphs* and a clause for the *replicating specific existing entities*.
 
 A single statement may end in a `<graph-construction>`.
 
 
-==== Cloning
+==== Replication
 
-In order to reconstruct subgraph structures from other graphs in the new graph, `CONSTRUCT` supports the creation of *cloned entities* in the new graph.
+In order to reconstruct subgraph structures from other graphs in the new graph, `CONSTRUCT` supports the creation of replicated entities (i.e. replicas) in the new graph.
 
-_Definition_: *Cloning* ensures that exactly one new entity (called a *clone*) is created in the new graph for a given cloned entity (called its *source*) from a source graph.
-If the same source is cloned multiple times this will still only create one clone in the new graph.
-Every clone has exactly the same labels or relationship type as well as the same properties as the source (i.e. a clone can be seen as a "representative" of the source in the new graph).
-Cloning a relationship implicitly clones its start node and its end node and uses these clones as the start node and the end node of the relationship clone.
+_Definition_: *Replication* ensures that exactly one new replica is created in a newly constructed graph for a given source entity from some other graph.
+If the same entity is replicated multiple times into the constructed graph this will still only create one replica in the constructed graph.
+If multiple entities with the same root in the provenance graph are replicated into the constructed graph this will still only create one replica per distinct root in the constructed graph.
+Every replica has exactly the same labels or relationship type as well as the same properties as the source entity by virtue of update propagation (i.e. a replica can be seen as a "representative" of the source in the constructed graph).
+Replicating a relationship implicitly replicates its start node and its end node and uses these replicatede nodes as the start node and the end node of the relationship replica.
 
-_Definition_: It is possible to clone an entity over multiple steps of graph construction.
-In that case, if multiple entities are cloned into the same graph that in turn are both clones of a shared source, only one entity is created for these entities.
-This is called *provenance tracking*.
+Note:: It is possible to replicate an entity over multiple steps of graph construction.
+However, there will never be multiple replicas in one graph that have the same root in the provenance graph.
 
-The `ON GRAPH` sub-clause may be used to clone all nodes and relationships from the working graph into the new graph.
+The `ON GRAPH` sub-clause may be used to replicate all nodes and relationships from the working graph into the constructed graph.
 
-The `ON < graph-name-list >` sub-clause may be used to clone all nodes and relationships from the given graphs in the catalog into the new graph.
+The `ON < graph-name-list >` sub-clause may be used to replicate all nodes and relationships from the given graphs in the catalog into the constructed graph.
 
-The `CLONE < clone-item-list >` clause may be used to clone entities that are contained in the atoms of a given value and optionally bind that value to new variable.
-Additionally, the `CLONE *` sub-clause may be used to clone all variables that are visible in the current scope.
+The `MERGE ALL < expression-list >` cmay be used to replicate entities that are contained in the atoms of the given values.
 
-Note:: Cloning a nested value (like a path) implicitly clones all contained nodes and relationships.
+Additionally, the `MERGE ALL *` sub-clause may be used to replicate all variables that are visible in the current scope.
+
+Note:: Replicating a nested value (like a path) implicitly replicates all contained nodes and relationships.
 
 
 ==== Building constructed graphs
@@ -531,20 +516,20 @@ Constructed graphs are built by explicitly populating them with entities using t
  * `REMOVE`
  * `[DETACH] DELETE`
 
-If an entity from another graph is referenced by a pattern in `CREATE`, it is cloned.
+If an entity from another graph is referenced by a pattern in `CREATE`, it is replicated.
 
-If an entity from another graph is referenced by a pattern in `MERGE`, it is cloned.
+If an entity from another graph is referenced by a pattern in `MERGE`, it is replicated.
 
-If an entity from another graph is passed as argument to `DELETE` or `DETACH DELETE`, any corresponding clones are removed from the constructed graph.
+If an entity from another graph is passed as argument to `DELETE` or `DETACH DELETE`, any corresponding replicated are removed from the constructed graph.
 
-An error is raised for any attempt to `SET` or `REMOVE` labels or properties of cloned entities during graph construction.
+An error is raised for any attempt to `SET` or `REMOVE` labels or properties of replicated entities during graph construction.
 
 
 ==== Updating constructed graphs
 
 Constructed graphs may be updated as well using `UPDATE GRAPH`.
 
-Updating relies on information from provenance tracking of cloned nodes in order to propagate updates to base data.
+Updating relies on information from provenance tracking of replicated nodes in order to propagate updates to base data.
 
 Constructed graphs may only be updated by
 
@@ -570,7 +555,7 @@ RETURN GRAPH
 
 The resulting union graph consists of copies of all entities from the two input graphs.
 
-Note:: If a clone of the same source node is contained in both graphs, still two copies of that node are added to the result graph.
+Note:: If a replica of the same source node is contained in both graphs, still two copies of that node are added to the result graph.
 
 
 === Graph union
@@ -586,9 +571,9 @@ UNION
 RETURN GRAPH
 ----
 
-The resulting union graph consists of clones of all entities from the two input graphs.
+The resulting union graph consists of replicas of all entities from the two input graphs.
 
-Note:: If a clone of the same source node is contained in both graphs, only one clone for that node is added to the result graph.
+Note:: If a replica of the same source node is contained in both graphs, only one replica for that node is added to the result graph.
 
 
 === Graph intersection
@@ -604,7 +589,7 @@ INTERSECT
 RETURN GRAPH
 ----
 
-The resulting intersection graph consists of clones of all entities that are contained in both input graphs.
+The resulting intersection graph consists of replicas of all entities that are contained in both input graphs.
 
 
 === Graph difference
@@ -620,8 +605,23 @@ EXCEPT
 RETURN GRAPH
 ----
 
-The resulting difference graph consists of clones for all entities from the left (first) graph that are not contained in the second (last) graph.
+The resulting difference graph consists of replicas for all entities from the left (first) graph that are not contained in the second (last) graph.
 
+=== Functions for data model introspection
+
+The data model may be introspected using the following functions:
+
+The `graph()` function returns the *graph identity* of the working graph.
+
+The `graph(e)` function returns the *graph identity* of the base graph in which the root original of `e` was created.
+
+The `exists(e)` function is overloaded for entities `e` such that it returns `true` if `e` has not been deleted in `graph(e)` and is also overloaded such that it returns `false` otherwise.
+
+The `contains(e)` function is defined for entities `e` such that it returns `true` if either a replica of the given entity `e` or `e` itself is contained in the working graph and is also defined such that it returns `false` otherwise.
+
+The `id(n)` function returns the *node identity* of the representing replica in `graph(n)`
+
+The `id(r)` function returns the *relationship identity* of the representing replica in `graph(r)`
 
 
 == Creating and administrating graphs in the catalog
