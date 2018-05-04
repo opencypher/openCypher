@@ -22,17 +22,14 @@ This is supported by the accompanying CIP2018-04-24 for content based comparison
 
 toc::[]
 
-// TODO: Structure
 // TODO: Better explain cloning and equality relationship
-// TODO: FROM with multiple graphs?
-// TODO: FROM with subquery?
+// TODO: Emulate construct on via union
 // TODO: CONSTRUCT ON business
 // TODO: CONSTRUCT ON graph vs CONSTUCT NEW
-// TODO: Emulate construct on via union
+// TODO: TRANSFORM
 // TODO: CREATE VIEW
-// TODO:
 
-== Motivation
+== Introduction
 
 Cypher today is a query language for property graphs that provides access to a single, global, implicit graph in order to extract, transform, and return tabular data that is derived from it.
 While such returned tabular data may include graph entities (such as nodes and relationships), in essence Cypher as a language is not closed under graphs and as a consequence, Cypher queries are not yet (graph) compositional.
@@ -48,20 +45,29 @@ Furthermore, adding support for working with multiple graphs has recently been i
 * It fits the paradigm of prominent analytical big-data processing systems (e.g. Apache Spark)
 * It mirrors mathematical graph theory where working with multiple graphs is common
 
+=== Overview
 
 
-== Multiple property graphs model
+=== Related Work
+
+This CIP has been developed in tandem with
+
+* `CIP2018-05-03`: Nested subqueries
+
+
+== Data model
 
 The data model used here is called the *multiple property graphs data model*.
 It extends the original https://github.com/opencypher/openCypher/blob/master/docs/property-graph-model.adoc[*property graph model*] with the notion of multiple graphs as outlined in the following subsections.
 
+=== Current property graph model
 
-=== Model instance
+=== Multiple property graphs model
 
 _Definition_: A *multiple property graphs model instance* is a set of zero or more property graphs.
 
 
-=== Definitions
+==== Definitions
 
 _Definition_: The constituents of a multiple property graphs model instance are called its *model elements*.
 Currently defined model elements are property graphs, nodes, and relationships.
@@ -97,7 +103,7 @@ _Definition_: Both nodes and relationships are called *entities*.
 _Definition_: Both node and relationship identities are called *entity identities*.
 
 
-=== Valid model instance
+==== Valid model instance
 
 _Definition_: The set of *atoms* of an arbitrary value `v` (named `atoms(v)`) is defined as follows:
 
@@ -115,7 +121,12 @@ _Definition_: A *valid multiple property graphs model instance* adheres to the f
  * The set of atoms of any property value of any entity must not contain a reference to a model element.
 
 
-== Statements
+== Query structure
+
+Cypher syntax describes a structure that is a tree of clauses.
+
+
+=== Statements and clauses
 
 _Definition_: A *valid statement* is a statement that is valid according to the semantic rules of the Cypher property graph query language.
 
@@ -134,11 +145,15 @@ Note:: As per this and all accompanying proposal, the list of currently supporte
 
 _Definition_: A *simple clause chain* is a sequence of one or more non-operator clauses which each may be further qualified by clause arguments, sub-clauses and sub-clause arguments.
 
+=== Clause classification
+
 _Definition_: Clauses may be classified according to their side-effects as either
 
  * *reading clauses* that read data
  * *updating clauses* that read and update data
  * *schema clauses* that only read from and update the schema
+
+=== Statement classification
 
 _Definition_: A (single) statement may be categorized as:
 
@@ -148,31 +163,41 @@ _Definition_: A (single) statement may be categorized as:
  * A *schema command* is a statement consisting of schema clauses that only updates the schema
 
  Note:: An implementation may choose to limit the kinds of statements that can be combined in a statement chain (e.g. not allow to combine updating and schema commands in one chain).
- 
 
-== Query processing
+
+=== Structural principles
+
+The high-level syntactic structure of Cypher adheres to the following principles.
+
+1. The majority of clauses is given in sequential order that is to be interpreted from top to bottom in order to construct a left leaning clause tree.
+
+2. The end of a syntactic unit or a subquery that returns data is always marked explicitly using `RETURN` or `RETURN GRAPH`.
+
+3. The end of a syntactic unit or a subquery that returns no data is marked explicitly by choosing an updating clause as the final clause and the absence of `RETURN` or `RETURN GRAPH` as a final clause
+
+4. Non-sequential operator clauses (like `UNION`) are only allowed at the top-level and may not be combined with other operator clauses (This can be achieved though via nested subqueries, cf. accompanying `CIP2018-05-03`).
+
+5. Updating clauses and following reading clauses must be separated by `WITH`.
+
+
+
+== Execution model
 
 _Definition_: A *query processor* is a query processing service that executes a source program on behalf of a *client* and provides the client with the *execution result* that describes the outcome of executing the source program.
 A query processor maintains exactly one _multiple property graphs model instance_.
 A query processor maintains exactly one _catalog_.
 
-=== Catalog
-
-_Definition_: A _catalog_ is a mapping from *fully qualified graph names* to graph references.
-Multiple entries in the catalog may refer to the same graph.
-
-A fully qualified graph name should use the syntax for dotted variable identifiers and consists of an optional *graph namespace*, and a mandatory *graph name*.
-
-Note:: In practice, a query processor might have a catalog shared by all users, or provide a different catalog for each user.
-This is not considered here based on the simplifying assumption that all client requests are made by the same user.
-
 
 === Execution of client requests
 
 
-==== Definitions
+==== Query inputs and outputs
 
-_Definition_: A source program together with all required named parameters is called a *client request*.
+_Definition_: A source program together with statement parameters is called a *client request*.
+
+_Definition_: A set of parameters with pairwise different names is called *statement parameters*.
+
+_Definition_: A *parameter* is tuple of name and a value.
 
 _Definition_: The result of executing a client request is called an *execution result*.
 An execution result is one of
@@ -183,6 +208,8 @@ Tabular results may contain duplicate results and may optionally be ordered
 * an *execution error*; i.e. a message describing the reason that prevented the query processor from executing the client request correctly
 
 _Definition_: An *empty result* is a specially marked tabular result that consists of one and only one record with zero fields.
+
+_Definition_: Any tabular result that is provided as the single input to a clause is called the *driving table* of that clause.
 
 
 ==== Request execution
@@ -195,11 +222,11 @@ _Definition_: *Raising an error* refers to aborting the execution of a currently
 An execution error is raised if the client request does not contain a semantically valid statement.
 
 
-// ==== Execution of statement chains
-//
-// Statement chains are executed by executing all contained single statements in the order given.
-// If execution of any contained single statement fails with an error, the execution of the whole statement fails with the same error.
-// Otherwise, the query processor discards all intermediary results produced by a statement chain and only returns the execution result for the last single statement.
+==== Execution of statement chains
+
+Statement chains are executed by executing all contained single statements in the order given.
+If execution of any contained single statement fails with an error, the execution of the whole statement fails with the same error.
+Otherwise, the query processor discards all intermediary results produced by a statement chain and only returns the execution result for the last single statement.
 
 
 ==== Identity validity during execution
@@ -216,6 +243,17 @@ Note:: As a consequence, the same identity value may refer to different model el
 If an execution result that is returned _to the client_ contains a model element, this model element is returned together with its content at the time of terminating the query (i.e. the client always receives the current content of all model elements).
 
 Note:: Additionally, a result may contain implementation specific metadata such as a summary of performed update activity (e.g. the number of nodes created) or a detailed query plan.
+
+
+=== Catalog
+
+_Definition_: A _catalog_ is a mapping from *fully qualified graph names* to graph references.
+Multiple entries in the catalog may refer to the same graph.
+
+A fully qualified graph name should use the syntax for dotted variable identifiers and consists of an optional *graph namespace*, and a mandatory *graph name*.
+
+Note:: In practice, a query processor might have a catalog shared by all users, or provide a different catalog for each user.
+This is not considered here based on the simplifying assumption that all client requests are made by the same user.
 
 
 === Working graph
@@ -236,16 +274,13 @@ If a query processor has not established an initial working graph (i.e. the work
 
 
 
-== Graph operations in queries
+== Basic graph operations
 
 The working graph may be operated on in the following ways:
 
 * The working graph can be changed by selecting a graph that is known by the catalog.
 * The working graph is implicitly used during pattern matching and creational activity.
 * The working graph may be returned as a query result.
-* The working graph can be changed by constructing a new graph.
-* The working graph can be changed by constructing a common graph union.
-* The working graph can be changed by constructing a disjoint graph union.
 * The working graph can be kept while the binding table is discarded.
 * The identity of model elements in the context of the working graph may be obtained using various reflective functions.
 
@@ -268,6 +303,8 @@ It is an error to perform an updating operation on a working graph that was intr
 
 Additionally, `FROM GRAPH` may be used to select the working graph for further read-only operations.
 
+Note:: A subquery form of `FROM` is proposed in the accompanying `CIP2018-05-03`.
+
 
 === Selecting the working graph from the catalog for updating
 
@@ -284,6 +321,8 @@ If `<graph-name>` is not the name of a graph in the catalog, an error is raised.
 It is an error to not perform at least a single updating operation on a working graph that was introduced using `UPDATE [GRAPH]`.
 
 Additionally, `UPDATE GRAPH` may be used to select the working graph for further updating operations.
+
+Note:: A subquery form of `UPDATE` is proposed in the accompanying `CIP2018-05-03`.
 
 
 === Using the working graph when interpreting a pattern
@@ -332,13 +371,42 @@ Graphs are always returned by reference during execution inside the query proces
 This does not affect the rules on returning model elements together with their content to the client which ensure that a graph result will be returned by value to the client.
 
 
-=== Constructing a graph
+=== Functions for mode reflection
 
-*Graph construction* dynamically constructs a new working graph in order to query it, update it, store it in the catalog, or return it to the client.
+The data model may be introspected using the following functions:
 
-Graph construction is the dual operation to graph matching: While graph matching extracts pattern instances into variable bindings from the working graph, graph construction builds a new working graph from variable bindings.
+The `graph()` function returns the *graph identity* of the working graph.
 
-All newly created nodes and relationships in the constructed graph have new entity identities and are different from any previously matched entities.
+The `graph(e)` function returns the *graph identity* of the base graph in which the root original of `e` was created.
+
+The `exists(e)` function is overloaded for entities `e` such that it returns `true` if `e` has not been deleted in `graph(e)` and is also overloaded such that it returns `false` otherwise.
+
+The `contains(e)` function is defined for entities `e` such that it returns `true` if either a clone of the given entity `e` or `e` itself is contained in the working graph and is also defined such that it returns `false` otherwise.
+
+The `id(n)` function returns the *node identity* of the representing clone in `graph(n)`
+
+The `id(r)` function returns the *relationship identity* of the representing clone in `graph(r)`
+
+
+
+== Graph construction
+
+*Graph construction* dynamically constructs a new graph in order to query it, update it, store it in the catalog, or return it to the client.
+
+The following forms of graph construction are proposed in this section:
+
+* The working graph can be changed by constructing a new graph.
+* The working graph can be changed by constructing a disjoint graph union.
+* The working graph can be changed by constructing a common graph union.
+* The working graph can be changed by constructing a graph intersection.
+* The working graph can be changed by constructing a graph difference.
+
+
+=== Graph projection
+
+Graph projection is the dual operation to graph matching: While graph matching extracts pattern instances into variable bindings from the working graph, graph projection builds a new working graph from variable bindings.
+
+All newly created nodes and relationships in the projected graph have new entity identities and are different from any previously matched entities.
 
 The basic form of graph construction is:
 
@@ -415,7 +483,6 @@ An error is raised for any attempt to `SET` or `REMOVE` labels or properties of 
 
 ==== Updating constructed graphs
 
-// TODO: Advanced conformance
 Constructed graphs may be updated as well using `UPDATE GRAPH`.
 
 Updating relies on information from provenance tracking of cloned nodes in order to propagate updates to base data.
@@ -510,23 +577,6 @@ WITH GRAPH
 The remainder of the query after `WITH GRAPH` continues to operate on the same working graph but using an empty binding table (no fields, single record).
 
 
-=== Functions for mode reflection
-
-The data model may be introspected using the following functions:
-
-The `graph()` function returns the *graph identity* of the working graph.
-
-The `graph(e)` function returns the *graph identity* of the base graph in which the root original of `e` was created.
-
-The `exists(e)` function is overloaded for entities `e` such that it returns `true` if `e` has not been deleted in `graph(e)` and is also overloaded such that it returns `false` otherwise.
-
-The `contains(e)` function is defined for entities `e` such that it returns `true` if either a clone of the given entity `e` or `e` itself is contained in the working graph and is also defined such that it returns `false` otherwise.
-
-The `id(n)` function returns the *node identity* of the representing clone in `graph(n)`
-
-The `id(r)` function returns the *relationship identity* of the representing clone in `graph(r)`
-
-
 == Creating and administrating graphs in the catalog
 
 
@@ -579,12 +629,7 @@ The `catalog()` function returns the catalog name for the working graph or `NULL
 
 The `failIfNull(value, message)` function returns `value` if `value` is not `NULL` and raises an error with the given message `message` otherwise.
 
-== Syntax variations
-
-Below is a list of potential syntax variations under discussion:
-
- * `DROP GRAPH` instead of `DELETE GRAPH`
-
+Note:: `toString(graph())` may be used to just generate a human readable name for the working graph.
 
 
 == Examples
@@ -1099,6 +1144,14 @@ Instead of introducing graphs as separate catalog objects, an earlier edition of
 While providing great flexibility, this approach becomes very difficult to plan and statically analyze.
 It also leads to intractable operations like joins between graphs.
 However it may still be worthwhile to explore this idea in the future for "tiny subgraphs".
+
+
+=== Syntax variations
+
+Below is a list of potential syntax variations under discussion:
+
+ * `DROP GRAPH` instead of `DELETE GRAPH`
+ * Listing multiple graphs as an argument to `FROM` and `UPDATE` etc. could be defined as a syntax shorthand for an implied graph union between these graphs
 
 
 === What others do
