@@ -14,7 +14,7 @@ This material is based on internal contributions of Alastair Green <alastair.gre
 This CIP extends Cypher with support for working with multiple graphs.
 Different graphs may be queried in a single statement by selecting them by name from a global catalog.
 New graphs may be created in the catalog or constructed temporarily during the course of a query.
-Support for multiple graphs rests on a newly introduced multiple property graphs model and a formalization of Cypher's clause structure and query execution model.
+Support for multiple graphs rests on a newly introduced multiple property graph model and a formalization of Cypher's clause structure and query execution model.
 
 Working with multiple graphs requires relating entities from otherwise disconnected datasets.
 This is supported by the accompanying CIP2018-04-24 for content based comparison.
@@ -55,64 +55,112 @@ This CIP has been developed in tandem with
 * `CIP2018-05-03`: Nested subqueries
 
 
-== Data model
-
-The data model used here is called the *multiple property graphs data model*.
-It extends the original https://github.com/opencypher/openCypher/blob/master/docs/property-graph-model.adoc[*property graph model*] with the notion of multiple graphs as outlined in the following subsections.
-
-=== Current property graph model
-
-=== Multiple property graphs model
-
-_Definition_: A *multiple property graphs model instance* is a set of zero or more property graphs.
+== The data model
 
 
-==== Definitions
+The data model underpinning Cypher is the _property graph model_.
+We give a brief overview of the current property graph model in XXLINK, in effect, the _single property graph data model_, and then describe extensions to the model that will allow for the support of multiple graphs in XXLINK.
 
-_Definition_: The constituents of a multiple property graphs model instance are called its *model elements*.
-Currently defined model elements are property graphs, nodes, and relationships.
+=== The single property graph data model (current)
 
-_Definition_: A  *value* is any ordinary value that is supported by the Cypher type system.
+The property graph model today is predicated upon the notion of a single, implicit property graph (hereafter termed as 'graph')[https://arxiv.org/pdf/1802.09984.pdf, adoc], which we show in IMAGE_FROM_SLIDES-SINGLE-PGMxxx.
 
-_Definition_: A *reference* is a handle (i.e. an otherwise opaque value) that is used for addressing a model element of a multiple property graphs model instance (e.g. a node or a property graph).
+We define below terms which underpin the property graph data model:
 
-_Definition_: An *identity* is a value that is used to identify individual model elements and to distinguish between multiple model elements from a set of model elements in a given scope.
+[NOTE]
+====
 
-_Definition_: The constituents of a model element (including the identity of the model element) are called its *content*.
+A _**property graph**_ consists of a set of nodes and a set of relationships that connect the nodes of the property graph.
 
-_Definition_: A *label* is a name that is used for classifying nodes.
+A _**property graph model instance**_ contains a single property graph.
+A property graph is contained in exactly one property graph model instance.
 
-_Definition_: A *relationship type* is a name that is used for classifying relationships.
+A _**model element**_ is a constituent of a property graph model instance.
+These comprise nodes and relationships.
 
-_Definition_: A *property* is a tuple consisting of a name (called the *property key*) and a value (called a *property value*).
+A _**label**_ is used to classify a node.
 
-_Definition_: A *(property) graph* has a *graph identity* which is an identity that uniquely identifies the graph such that it is able to be distinguished from other graphs in the same multiple property graphs model instance.
-A property graph further consists of a set of nodes and a set of relationships that connect the nodes of the property graph.
-Each property graph is contained in exactly one multiple property graphs model instance.
+A _**relationship type**_ is a label that is used to classify a relationship.
 
-_Definition_: A *node* has a *node identity* which is an identity that uniquely identifies the node such that it is able to be distinguished from other nodes that are contained in the same property graph.
-A node further consists of a set of zero or more labels and zero or more properties with mutually different property keys.
-Each node is contained in exactly one property graph.
+A _**value**_ is any value that is supported by the Cypher type system.
 
-_Definition_: A *relationship* has a *relationship identity* which is an identity that uniquely identifies the relationship such that it is able to be distinguished from other relationships that are contained in the same property graph.
-A relationship further consists of a *start node*, an *end node*, and exactly one relationship type, and zero or more properties with mutually different property keys.
-Each relationship is contained in exactly one property graph and its start node and its end node are both contained in the same property graph as the relationship.
+A _**property**_ is a tuple consisting of a name (called the _**property key**_) and a value (called a _**property value**_).
 
-_Definition_: Both nodes and relationships are called *entities*.
+An _**identity**_ is a value that is used to identify individual model elements and to distinguish between multiple model elements from a set of model elements in a given scope.
 
-_Definition_: Both node and relationship identities are called *entity identities*.
+A _**node**_ has a _**node identity**_ which is an identity that uniquely identifies the node within a property graph.
+A node contains a set of zero or more labels and zero or more properties with mutually different property keys.
+
+A _**relationship**_ has a _**relationship identity**_ which is an identity that uniquely identifies the relationship within a property graph.
+A relationship contains a start node and an end node (both drawn from the same graph as the relationship), a single relationship type, and zero or more properties with mutually different property keys.
+We note that the start and end nodes may be the same node, hence denoting a ‘self-loop’ relationship
+
+The constituents of a model element are called its _**content**_.
+For a node (respectively relationship) this comprises its labels, identity and properties (respectively, its relationship type, identity and properties).
+
+Nodes and relationships are called _**entities**_.
+
+Node and relationship identities are called _**entity identities**_.
+
+A _**reference**_ is a handle (i.e. an otherwise opaque value) that is used to address a model element of a property graph model instance (i.e. a node or a relationship).
+
+====
+
+The concept of implicitness implies that:
+
+ * the graph is an unnamed or anonymous entity,
+ * the data model contains nothing apart from this single graph, and
+ * the graph is not able to be referred to by virtue of a name or identity or address within any context.
+
+IMAGE_FROM_SLIDES-SINGLE-PGMXXX
+
+=== The multiple property graph data model (proposed)
+
+We now describe the extensions required to the property graph data model to enable multiple graph support.
+Unless otherwise specified, all previous attributes for the extended terms hold.
+
+
+IMAGE_FROM_SLIDES-SINGLE-MPGM
+
+[NOTE]
+====
+
+A _**multiple property graph model instance**_ (extending the notion of a property graph model instance) is a set of zero or more property graphs.
+
+A _**property graph**_ has a _**graph identity**_ which is an identity that uniquely identifies the graph such that it is able to be distinguished from other graphs in the same multiple property graph model instance.
+A property graph is contained in exactly one multiple property graph model instance.
+
+A _**model element**_ is a constituent of a multiple property graph model instance.
+These additionally comprise property graphs.
+
+The _**content**_ of a property graph comprises its graph identity.
+XXCHECK
+
+A _**node**_ is contained in exactly one property graph.
+
+A _**relationship**_ is contained in exactly one property graph and its start node and end node are both contained in the same property graph as the relationship.
+
+====
 
 
 ==== Valid model instance
 
-_Definition_: The set of *atoms* of an arbitrary value `v` (named `atoms(v)`) is defined as follows:
+[NOTE]
+====
+
+The set of *atoms* of an arbitrary value `v` (named `atoms(v)`) is defined as follows:
 
  * If `v` is a scalar value, `atoms(v) = {v}`
  * If `v` is a list value `[e~1~, e~2~, ..., e~n~]`, `atoms(v) = {v} UNION atoms(e~1~) UNION atoms(e~2~) UNION ... UNION atoms(e~n~)`
  * If `v` is a map or a node or a relationship with `values(v)`, `atoms(v) = {v} UNION atoms(values(v))`
  * Nothing else
 
-_Definition_: A *valid multiple property graphs model instance* adheres to the following restrictions:
+====
+
+[NOTE]
+====
+
+A *valid* multiple property graph model instance adheres to the following restrictions:
 
  * The set of atoms of an identity of any model element must not contain `NULL`.
  * The set of atoms of an identity of any model element must not contain a reference to a model element.
@@ -120,6 +168,7 @@ _Definition_: A *valid multiple property graphs model instance* adheres to the f
    (Note that this differs from an entity not having a property key)
  * The set of atoms of any property value of any entity must not contain a reference to a model element.
 
+====
 
 == Query structure
 
@@ -189,7 +238,7 @@ The high-level syntactic structure of Cypher adheres to the following principles
 == Execution model
 
 _Definition_: A *query processor* is a query processing service that executes a source program on behalf of a *client* and provides the client with the *execution result* that describes the outcome of executing the source program.
-A query processor maintains exactly one _multiple property graphs model instance_.
+A query processor maintains exactly one _multiple property graph model instance_.
 A query processor maintains exactly one _catalog_.
 
 
