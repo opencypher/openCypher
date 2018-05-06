@@ -167,11 +167,12 @@ A statement may either be a statement chain or a composite statement.
 
 _Definition_: A *statement chain* is a composite statement followed by a semicolon followed by another composite statement.
 
-_Definition_: A *composite statement* is either a single statement or an operator clause chain that is optionally followed by another composite statement (using vertical juxtaposition syntax).
+_Definition_: A *composite statement* is a simple statement that is optionally followed by a composite statement.
 
-Note:: Composite statements are discussed in more detail in the accompanying CIP2016-06-22 on nested subqueries.
+Note:: Syntax and semantics of composite statements are discussed in more detail in the accompanying `CIP2016-06-22` on nested subqueries.
+For the purpose of this CIP it is sufficient to only consider composite statements that are single simple statements.
 
- Definition_: A *single statement* is either a *operator clause chain* or a *simple clause chain*.
+ _Definition_: A *simple statement* is either a *operator clause chain* or a *simple clause chain*.
 
 _Definition_: An *operator clause chain* are two or more simple clause chains that are separated by the exact same operator clause.
 
@@ -267,9 +268,9 @@ An execution error is raised if the client request does not contain a semantical
 
 ==== Execution of statement chains
 
-Statement chains are executed by executing all contained single statements in the order given.
-If execution of any contained single statement fails with an error, the execution of the whole statement fails with the same error.
-Otherwise, the query processor discards all intermediary results produced by a statement chain and only returns the execution result for the last single statement.
+Statement chains are executed by executing all contained composite statements in the order given.
+If execution of any contained composite statement fails with an error, the execution of the whole statement fails with the same error.
+Otherwise, the query processor discards all intermediary results produced by a statement chain and only returns the execution result for the last composite statement.
 
 
 ==== Identity validity during execution
@@ -470,7 +471,7 @@ The basic form of graph construction is:
 
 Graph construction supports a sub-clause for the *replicating all entities of existing graphs* and a clause for the *replicating specific existing entities*.
 
-A single statement may end in a `<graph-construction>`.
+A simple clause chain may end in a `<graph-construction>`.
 
 
 ==== Replication
