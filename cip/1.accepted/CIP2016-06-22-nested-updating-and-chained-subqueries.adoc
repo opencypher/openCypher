@@ -9,13 +9,20 @@
 [abstract]
 .Abstract
 --
-This CIP proposes the incorporation of nested, updating, and chained subqueries into Cypher.
+Cypher currently has no support for nested subqueries.
+This is limiting as it prevents e.g. post-processing of union results or changing the working graph via a subquery.
+This CIP proposes to add support for nested subqueries and composite statements to Cypher.
+Nested subqueries may be uncorrelated (take no input records), correlated (take input records), produce tables, graphs, or have side-effects (i.e. perform updates).
 --
 
 toc::[]
 
 
-== Motivation
+
+== Introduction
+
+
+=== Motivation
 
 Subqueries - i.e. queries within queries - are a powerful and expressive feature allowing for:
 
@@ -25,9 +32,23 @@ Subqueries - i.e. queries within queries - are a powerful and expressive feature
   * Post-processing results from multiple queries as a single unit
   * Performing a sequence of multiple write commands for each record
 
-== Background
 
-This CIP may be viewed in light of CIPs for query combinators and set operations, `EXISTS`, scalar subqueries, and list subqueries.
+=== Background
+
+This CIP has been created in tandem with CIP2017-06-18 for adding support for working with multiple graphs to Cypher and relies on the terminology for describing the high-level structure of queries introduced in CIP2017-06-18.
+Therefore this proposal is based on the assumption that CIP2017-06-18 will be accepted.
+
+This CIP should also be viewed in light of CIPs for set operations, `EXISTS`, scalar subqueries, and list subqueries.
+
+=== Design goals
+
+This proposal follows the following design goals
+
+1. Ensure that subqueries have the exact same capabilities in terms of consumed inputs, produces outputs, and potential side-effects as regular standalone queries.
+
+2. Ensure that every subquery is a syntactically valid standalone query independent of which variables are provided by the calling context.
+
+
 
 == Proposal
 
@@ -35,31 +56,133 @@ Subqueries are self-contained Cypher queries that are usually run within the sco
 
 This proposal suggests the introduction of new subquery constructs to Cypher.
 
-* Read-only nested subqueries
-** Read-only nested regular subqueries of the form `MATCH { <reading-query> }`
-** Read-only nested optional subqueries of the form `OPTIONAL MATCH { <reading-query> }`
-** Read-only nested mandatory subqueries of the form `MANDATORY MATCH { <reading-query> }`
-* Read/Write updating subqueries
-** Read/Write simple updating subqueries of the form `DO { <updating-query> }` (the inner query not ending with `RETURN`)
-** Read/Write conditionally-updating subqueries of the form `DO [WHEN <predicate> THEN { <updating-query> }]+ [ELSE { <updating-query> }] END` (the inner queries not ending with `RETURN`)
-* Chained subqueries
-** Chained _data-dependent_ subqueries that extend the `WITH` projection clause with the form `<query> <with-clause> <query>`. Additionally, this CIP proposes new shorthand syntax for starting a query with `WITH` to compose a query with external inputs.
-** Chained _data-independent_ subqueries based on the newly-introduced `THEN` clause for discarding all variables in scope as well as the cardinality of all input records. Additionally, this CIP proposes new shorthand syntax for discarding all variables in scope without discarding the cardinality of input records using `WITH|RETURN|YIELD NOTHING`.
+* Nested tabular subqueries
+** Nested tabular subqueries of the form `CALL { <subquery> }`
+** Optional nested tabular subqueries of the form `OPTIONAL CALL { <subquery> }`
+** Mandatory nested tabular subqueries of the form `MANDATORY CALL { <subquery> }`
+** Grouped nested tabular subqueries
+* Nested graph subqueries
+** Create graph subqueries of the form `CREATE GRAPH <graph-name> { <subquery> }, <graph-name> { <subquery> }, ...`
+** Read graph subqueries of the form `FROM { <subquery> }`
+** Update graph subqueries of the form `UPDATE { <subquery> }`
+* Syntactic simplifications
+** Composite statements
+** Conditional nested subqueries
 
-We additionally propose removing the `FOREACH` clause from the current language (it is rendered obsolete by the introduction of `DO`).
+Both uncorrelated and correlated forms of nested subqueries are supported by this CIP.
 
-Subquery constructs are always introduced with a keyword(s) in conjunction with an inner query in curly braces.
+This proposal additional suggests removing the `FOREACH` clause from the current language (it is rendered obsolete by the introduction of nested tabular subqueries).
 
-Subqueries may be correlated - i.e. the inner query may use variables from the outer query - or uncorrelated.
 
-Subqueries can be contained within other subqueries at an arbitrary (but finite) depth.
+== Nested subqueries
 
-Read/Write subqueries cannot be contained within other read-only subqueries.
+Nested subqueries are always introduced with keywords that are followed by an inner query in curly braces.
+
+_Definition_: A *nested subquery* is a composite statement that syntactically occurs as an argument to another clause that is enclosed in curly braces.
+
+Usage of nested subqueries must adhere to the following rules:
+
+1. Nested subqueries can be contained within other nested subqueries at an arbitrary (but finite) depth.
+2. Nested subqueries that perform updates cannot be contained within nested subqueries in read-only contexts.
+3. Nested subqueries are not allowed to contain schema commands
+
+Note:: These restrictions capture current use of Cypher and may be reduced in the future.
+
+Nested subqueries may be correlated - i.e. the inner query may use variables from the outer query - or uncorrelated.
+
+_Definition_: A *correlated nested subquery* is a *nested subquery* that has at least one leading clause that is a `WITH` clause that references a variable from a preceding clauses.
+
+_Definition_: An *uncorrelated nested subquery* is a *nested subquery* that has no leading clause that is a `WITH` clause that references a variable from the preceding clauses.
+
+A composite statement that is used as a nested subquery may have multiple points of entry.
+The following definition captures this concept of entry points into a subquery by using the terminology introduced in CIP2017-06-18:
+
+_Definition_: The *leading clauses* of a composite statement are the leading clauses of the first single statement.
+The leading clauses of a single statement are the leading clauses of its constituents.
+The leading clause of a simple clause chain is the first clause in the sequence of clauses unless that clause is a call to a nested subquery in which case the leading clauses of the simple clause chain will be taken to be the leading clauses of that nested subquery.
+The leading clauses of an operator clause chain are the leading clauses of all simple clause chains that are connected directly by the operator clause of the operator clause chain.
+
+
+=== Nested table subqueries
+
+A nested table subquery is evaluated for each incoming input record and may produce an arbitrary number of output records.
+
+_Definition_: A *nested table subquery* is a composite statement that returns a table.
+
+We extend `CALL` with a new syntactic form that allows a nested table subquery argument and may be used either in a stand-alone call or inside a simple clause chain.
+
+[source, cypher]
+----
+-- preceding clauses
+...
+CALL {
+  -- nested table subquery
+  ...
+}
+-- remaining clauses
+...
+----
+
+
+[#uncorrelated-subqueries]
+==== Uncorrelated nested table subqueries
+
+Semantics:
+
+1. The nested table subquery is executed for each record produced by preceding clauses.
+This record is called the *input record* in this context.
+No variable bindings are made available to the nested subquery.
+This rule is relaxed for <<correlated-subqueries>>.
+
+2. If the nested table subquery returns nothing (i.e. ends in an updating command), then all input records are passed on to the remaining clauses.
+
+3. If the nested table subquery returns tabular data, each input record produced by preceding clauses is combined with each record returned by calling the nested subquery for that input record to produce result records.
+All such result records are passed on as input to the remaining query.
+
+4. An error is raised if the nested table subquery produces a tabular result that binds a variable that is already bound in the outer query.
+This rule is relaxed for <<correlated-subqueries>>.
+
+5. Any change to the working graph during the execution of the nested table subquery is not visible to the remaining clauses.
+In other words, the working graph is duplicated on the working graph stack when calling a nested table subquery and the working graph is removed from the working graph stack when consuming the result of calling a nested table subquery.
+
+
+[#correlated-subqueries]
+==== Correlated nested table subqueries
+
+Correlated nested table subqueries refer to variable bindings from preceding clauses.
+Syntactically, this is achieved by using the `WITH` clause as a leading clause of the nested table subquery that declares required inputs in terms of available variables from preceding clauses.
+
+Semantics:
+
+1. All rules for <<uncorrelated-subqueries>> apply for correlated nested table subqueries unless otherwise noted in this list.
+
+2. All variable bindings of the input record are made available to all leading clauses of the nested table subquery.
+
+3. The nested subquery may return variables already bound by preceding clauses if it can be shown via simple static analysis that these have just been passed through.
+It is not required that this analysis takes into account aliasing inside the nested subquery.
+
+
+=== Optional nested table subqueries and procedure calls
+
+A nested table subquery may be prefixed with the keyword `OPTIONAL`.
+
+If calling the nested table subquery returns an empty result, this empty result is replaced with a table that consists of a single record that maps all variables that have been newly introduced by the the nested table subquery to `NULL` and all variables that have been passed through by the nested table subquery to their value in the input record.
+
+An implementation may choose to support the same semantics for calling procedures using syntax like `OPTIONAL CALL myProc(...) YIELD ...`.
+
+
+=== Mandatory nested table subqueries and procedure calls
+
+A nested table subquery may be prefixed with the keyword `MANDATORY`.
+
+If calling the nested table subquery returns an empty result, an error is raised.
+
+The same semantics are supported for calling procedures using syntax like `MANDATORY CALL myProc(...) YIELD ...`.
+
+// UP TO HERE
 
 
 === Read-only nested subqueries
-
-A nested subquery is evaluated for each incoming input record and may produce an arbitrary number of output records.
 
 In all instances below, `<inner-query>` denotes any complete, read-only Cypher query.
 
