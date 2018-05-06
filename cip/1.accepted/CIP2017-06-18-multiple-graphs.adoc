@@ -167,7 +167,7 @@ A statement may either be a statement chain or a composite statement.
 
 _Definition_: A *statement chain* is a composite statement followed by a semicolon followed by another composite statement.
 
-_Definition_: A *composite statement* is either a single statement or an operator clause chain that is syntactically followed by a composite statement (using vertical juxtaposition).
+_Definition_: A *composite statement* is either a single statement or an operator clause chain that is optionally followed by another composite statement (using vertical juxtaposition syntax).
 
 Note:: Composite statements are discussed in more detail in the accompanying CIP2016-06-22 on nested subqueries.
 
