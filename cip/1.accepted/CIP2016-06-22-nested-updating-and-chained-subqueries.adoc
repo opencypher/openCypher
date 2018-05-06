@@ -56,25 +56,26 @@ Subqueries are self-contained Cypher queries that are usually run within the sco
 
 This proposal suggests the introduction of new subquery constructs to Cypher.
 
-* Nested tabular subqueries
-** Nested tabular subqueries of the form `CALL { <subquery> }`
-** Optional nested tabular subqueries of the form `OPTIONAL CALL { <subquery> }`
-** Mandatory nested tabular subqueries of the form `MANDATORY CALL { <subquery> }`
-** Grouped nested tabular subqueries
-* Nested graph subqueries
-** Create graph subqueries of the form `CREATE GRAPH <graph-name> { <subquery> }, <graph-name> { <subquery> }, ...`
-** Read graph subqueries of the form `FROM { <subquery> }`
-** Update graph subqueries of the form `UPDATE { <subquery> }`
-* Syntactic simplifications
-** Composite statements
+* Nested subqueries
+** Nested tabular subqueries
+*** Nested tabular subqueries of the form `CALL { <subquery> }`
+*** Optional nested tabular subqueries of the form `OPTIONAL CALL { <subquery> }`
+*** Mandatory nested tabular subqueries of the form `MANDATORY CALL { <subquery> }`
+** Nested graph subqueries
+*** Create graph subqueries of the form `CREATE GRAPH <graph-name> { <subquery> }, GRAPH <graph-name> { <subquery> }, ...`
+*** Read graph subqueries of the form `FROM { <subquery> }`
+*** Update graph subqueries of the form `UPDATE { <subquery> }`
+** Grouped nested subqueries
+* Syntax simplifications
 ** Conditional nested subqueries
+** Composite statements
 
 Both uncorrelated and correlated forms of nested subqueries are supported by this CIP.
 
 This proposal additional suggests removing the `FOREACH` clause from the current language (it is rendered obsolete by the introduction of nested tabular subqueries).
 
 
-== Nested subqueries
+=== Nested subqueries
 
 Nested subqueries are always introduced with keywords that are followed by an inner query in curly braces.
 
@@ -124,7 +125,7 @@ CALL {
 ----
 
 
-[#uncorrelated-subqueries]
+[#uncorrelated-table-subqueries]
 ==== Uncorrelated nested table subqueries
 
 Semantics:
@@ -132,7 +133,7 @@ Semantics:
 1. The nested table subquery is executed for each record produced by preceding clauses.
 This record is called the *input record* in this context.
 No variable bindings are made available to the nested subquery.
-This rule is relaxed for <<correlated-subqueries>>.
+This rule is relaxed for <<correlated-table-subqueries>>.
 
 2. If the nested table subquery returns nothing (i.e. ends in an updating command), then all input records are passed on to the remaining clauses.
 
@@ -140,13 +141,15 @@ This rule is relaxed for <<correlated-subqueries>>.
 All such result records are passed on as input to the remaining query.
 
 4. An error is raised if the nested table subquery produces a tabular result that binds a variable that is already bound in the outer query.
-This rule is relaxed for <<correlated-subqueries>>.
+This rule is relaxed for <<correlated-table-subqueries>>.
 
 5. Any change to the working graph during the execution of the nested table subquery is not visible to the remaining clauses.
 In other words, the working graph is duplicated on the working graph stack when calling a nested table subquery and the working graph is removed from the working graph stack when consuming the result of calling a nested table subquery.
 
+6. An error is raised if a non-standalone `CALL` is provided with a subquery that does not return a table.
 
-[#correlated-subqueries]
+
+[#correlated-table-subqueries]
 ==== Correlated nested table subqueries
 
 Correlated nested table subqueries refer to variable bindings from preceding clauses.
@@ -154,7 +157,7 @@ Syntactically, this is achieved by using the `WITH` clause as a leading clause o
 
 Semantics:
 
-1. All rules for <<uncorrelated-subqueries>> apply for correlated nested table subqueries unless otherwise noted in this list.
+1. All rules for <<uncorrelated-table-subqueries>> apply for correlated nested table subqueries unless otherwise noted in this list.
 
 2. All variable bindings of the input record are made available to all leading clauses of the nested table subquery.
 
@@ -162,7 +165,8 @@ Semantics:
 It is not required that this analysis takes into account aliasing inside the nested subquery.
 
 
-=== Optional nested table subqueries and procedure calls
+[#optional-table-subqueries]
+==== Optional nested table subqueries and procedure calls
 
 A nested table subquery may be prefixed with the keyword `OPTIONAL`.
 
@@ -171,7 +175,8 @@ If calling the nested table subquery returns an empty result, this empty result 
 An implementation may choose to support the same semantics for calling procedures using syntax like `OPTIONAL CALL myProc(...) YIELD ...`.
 
 
-=== Mandatory nested table subqueries and procedure calls
+[#mandatory-table-subqueries]
+==== Mandatory nested table subqueries and procedure calls
 
 A nested table subquery may be prefixed with the keyword `MANDATORY`.
 
@@ -179,147 +184,141 @@ If calling the nested table subquery returns an empty result, an error is raised
 
 The same semantics are supported for calling procedures using syntax like `MANDATORY CALL myProc(...) YIELD ...`.
 
-// UP TO HERE
+
+=== Nested graph subqueries and procedure calls
+
+_Definition_: A nested graph subquery is a nested subquery that returns a graph.
+
+Nested graph subqueries may be used in the following forms:
+
+ * `CREATE GRAPH name { <subquery } | <procedure-call> AS <name>, ...` will create one or more graphs in the catalog by making a copy of the graph returned by the subquery.
+ These graphs are logically created in parallel and thus cannot interact with each other.
+ * `[OPTIONAL|MANDATORY] FROM { <subquery> } | <procedure-call>` will change the working graph for further read operations without affecting the current variable bindings and the cardinality of records available to following clauses.
+ * `[OPTIONAL|MANDATORY] UPDATE { <subquery> } | <procedure-call>` will change the working graph for further updating operations without affecting the current variable bindings and the cardinality of records available to following clauses.
+
+Note:: The subquery form of `CALL` may not return a graph as there would be no indication regarding the allowed operations for further processing (reading, updating, ...).
+
+Note:: The stand-alone form of `CALL` may produce a graph result.
+
+Semantics:
+
+1. Nested graph subqueries are provided with tabular input in the same way as nested table subqueries.
+
+2. Correlated nested graph subqueries will change the working graph for every input record.
+
+3. A `MANDATORY` nested graph subquery raises an error if the provided graph argument is an empty graph.
+
+4. An `OPTIONAL` nested graph subquery does not change the working graph if the provided graph argument is an empty graph.
 
 
-=== Read-only nested subqueries
 
-In all instances below, `<inner-query>` denotes any complete, read-only Cypher query.
+=== Grouped nested subqueries
 
-==== Read-only nested regular subqueries
+Correlated nested subqueries are by default called for each input record.
+Grouped nested subqueries instead execute the nested subquery for all input records that share the same grouping key.
+Grouped subqueries optionally may compute additional variable bindings or query parameters in terms of the grouping key using the established syntax for return items (`<expr> AS <var>`, `<expr> AS $<parameter name>`).
+Syntactically, the grouping key may be specified by prefixing a nested subquery with a leading `PER` sub-clause that specifies the components of the grouping key and may optionally bind new parameters.
 
-We propose the addition of read-only nested regular subqueries as a new form of read-only Cypher query.
+Syntax:
 
-A nested read-only simple subquery is denoted using the following syntax: `MATCH { <inner-query> }`.
+[source, cypher]
+----
+CALL PER ... { ... }
+FROM PER ... { ... }
+UPDATE PER ... { ... }
+----
 
-==== Read-only nested optional subqueries
+Semantics:
 
-We propose extending the `OPTIONAL MATCH` clause to express read-only nested optional subqueries.
+1. The grouping key declaration binds new variables and parameters by evaluating arbitrary expressions over all variable bindings in scope.
 
-A read-only nested optional subquery is denoted by the following syntax: `OPTIONAL MATCH { <inner-query> }`.
+2. The grouping key declaration may shadow an already bound parameter or variable inside the nested subquery.
 
-==== Read-only nested mandatory subqueries
-
-We propose extending the `MANDATORY MATCH` clause to express read-only nested mandatory subqueries.
-
-A read-only nested mandatory subquery is denoted by the following syntax: `MANDATORY MATCH { <inner-query> }`.
-
-==== Semantics
-
-The nested subquery will be provided with all variables visible in the outer query as input.
-
-Each record returned by the final `RETURN` clause of the subquery augments the variable bindings of the initial input record from the outer query to form an output record of the subquery.
-This may shadow existing bindings of the initial input record.
-No other variable bindings are added to output records.
-
-Note:: It is recommended that implementations generate a warning if an incoming variable is both discarded within the inner query while the same inner query also returns a (potentially different) value for that variable to the outer query, i.e. is shadowing (replacing) it.
-
-Finally, the result records of the different forms of nested subqueries are formed as follows:
-
-* The result records of a read-only regular subquery are just the output records.
-* The result records of a read-only optional subquery are all the output records (if there is at least one output record), or a single record with the same fields as the output records where all newly-introduced variable bindings are set to `NULL`.
-* The result records of a read-only mandatory subquery are just the output records. However, if the set of output records is empty, an error is raised in the same way as regular `MANDATORY MATCH` raises an error when no matches are found.
-
-Nested subqueries interact with write clauses in the same way that `MATCH` does.
+3. Introduced parameters and variables are only visible inside the nested subquery.
 
 
-=== Read/Write updating subqueries
 
-Updating subqueries never change the cardinality; i.e. the inner update query is run for each incoming input record.
+=== Conditional nested subqueries
 
-==== Read/Write simple updating subqueries
+Correlated nested subqueries may start with a `WHERE ...` clause as a short hand for `WITH * WHERE ...`.
 
-We propose the addition of a new `DO` clause for expressing read/write simple updating subqueries that _do not return any data_ from the inner query to the outer query.
+This CIP proposes the introduction of the `OTHERWISE` operator clause:
 
-A read/write simple updating subquery is denoted by the following syntax: `DO { <inner-update-query> }`.
+1. `<Q1> OTHERWISE <Q2> OTHERWISE ... <QN>` either combines read-only simple clause chains or updating simple clause chains but raises an error when used to combine both read-only and updating simple clause chains.
 
-Any updating Cypher query from which the trailing final `RETURN` clause has been omitted may be used as an inner update query.
+2. `<Q1> OTHERWISE <Q2> OTHERWISE ... <QN>` raises an error if any two simple clause chains do not either both return a graph or a table with the same fields.
 
-A query may end with a `DO` subquery in the same way that a query can currently end with any update clause.
+3. If `<Q1> OTHERWISE <Q2> OTHERWISE ... <QN>` is used to combine read-only simple clause chains, it evaluates to the first `<Qi>` that either returns a non-empty table or a non-empty graph and to `<QN>` otherwise.
 
-==== Read/Write conditionally-updating subqueries
-
-We propose the addition of a new conditional `DO` clause for expressing read/write conditionally-updating subqueries that _do not return any data_ from the inner query to the outer query.
-
-A read/write conditionally-updating subquery is denoted by the following syntax:
-
-```
-DO
-  [WHEN <predicate> THEN <inner-update-query>]+
-  [ELSE <inner-update-query>]
-END
-```
-
-Evaluation proceeds as follows:
-
-* Semantically, the `WHEN` predicates are tested in the order given, and the inner updating query is executed only for the first predicate that evaluates to `true`.
-* If no given `WHEN` predicate evaluates to `true` and an `ELSE` branch is provided, the inner updating query of the `ELSE` branch is executed.
-* If no given `WHEN` predicates evaluates to `true` and no `ELSE` branch is provided, no updates will be executed.
-
-A query may end with a conditional `DO` subquery in the same way that a query can currently end with an update clause.
+4. If `<Q1> OTHERWISE <Q2> OTHERWISE ... <QN>` is used to combine updating simple clause chains, it evaluates to the first `<Qi>` that performs a side-effects and to `<QN>` otherwise.
 
 
-=== Chained subqueries
+=== Composite statements
 
-Chained subqueries are queries that compose a top-level result query using a sequence of _query combinator_ clauses each followed by a query component.
+Simple statements are either simple clause chains or operator clause chains (This is defined in `CIP2017-06-18`).
 
-A query component is a sequence of clauses that either describes an updating query or a read-only that ends in a `RETURN` clause but does not contain any top-level query combinator clauses.
-Query components may however contain nested subqueries whose inner queries contain query combinator clauses.
-
-Currently Cypher only supports the `UNION` and `UNION ALL` query combinators.
-This CIP proposes to extend this set of query combinators with new forms as outlined below.
+Composite statements allow sequencing simple statements using the `THEN` clause.
+The `THEN` clause may be omitted if the preceding clause is a `RETURN` or `RETURN GRAPH` clause.
+This is called composition using vertical juxtaposition.
 
 
-==== Chained data-dependent subqueries
-
-We propose the introduction of using the `WITH` projection clause as a new query combinator that can sequentially compose arbitrary queries to form a chained data-dependent subquery without having to resort to nesting and indentation (e.g. as a short-hand syntax for post-UNION processing).
-
-Chained data-dependent subqueries have the following general form `<Q1> WITH ... <Q2>`.
-
-Both `<Q1`> and `<Q2>` are arbitrary query components.
-
-Conceptually, the query `<Q2>` is evaluated for each incoming input record from the query `<Q1>` and may produce an arbitrary number of result records.
-In other words, the query `<Q2>` will be provided with all variables returned by the query `<Q1>` as input variable bindings.
-
-Furthermore, this CIP proposes allowing a leading `WITH` to project new variables from expressions that refer to unbound variables from the preceding scope (or query).
-This set of referenced, unbound variables of such a leading `WITH` is understood to implicitly declare the input variables required for the query to execute.
-
-Note:: This mechanism allows composing a Cypher query with inputs that have been constructed programmatically.
-
-==== Chained data-independent subqueries
-
-We propose introducing the `THEN` projection clause as a new query combinator that can sequentially compose two arbitrary subqueries to form a chained data-independent subquery without having to resort to nesting and indentation.
-
-Chained data-independent subqueries have the following general form `<Q1> THEN <Q2>`.
-
-Both `<Q1`> and `<Q2>` are query components.
-No variables and no input records are passed from `<Q1>` to `<Q2>`.
-Instead `<Q2>` is executed in a standalone fashion after the execution of `<Q1>` has finished.
-
-Furthermore, this CIP proposes allowing queries to start with a leading `THEN` for discarding all variables in scope as well as the cardinality of all input records provided by the surrounding execution environment.
-
-Note:: This mechanism allows guaranteed execution of an (usually updating) query `<Q2>` irrespective of the number of records produced by query `<Q1>`.
-
-Note:: In general, `<Q1>` is expected to be an updating query and it is recommended that implementations generate a warning if this is not the case (to inform the user that `<Q1>` is essentially superfluous).
-
-==== Query combinator precedence
-
-This CIP proposes that all Cypher query combinators are left-associative regarding their left-hand side and right-hand side input queries.
-
-Note:: In other words, `<Q1> UNION <Q2> WITH <Q3>` is always interpreted as  `(<Q1> UNION <Q2>) WITH <Q3>` but never as `<Q1> UNION (<Q2> WITH <Q3>)` (The same rule applies to `THEN`).
-
-==== Discarding variables in scope
+=== Discarding variables in scope
 
 Finally, this CIP proposes new shorthand syntax for discarding all variables in scope without discarding the cardinality of input records using `WITH|RETURN|YIELD NOTHING`.
 
-=== Examples
 
-==== Read-only nested regular subqueries
+== Grammar
+
+The following grammar shows the main syntax of all proposed changes:
+[source, cypher]
+
+----
+<composite statement> ::= < simple statement > [ { `THEN` < simple statement > } ;
+
+<call-subquery> ::= < query-mode > CALL < query-group > < subquery >
+                  | < query-mode > CALL < query-group > < invocation >
+                  ;
+
+<from-subquery> ::= < query-mode > FROM [ PER * | < keys > ] < subquery > ;
+
+<update-subquery> ::= < query-mode > UPDATE < query-group > < subquery > ;
+
+<create-graph> ::= CREATE GRAPH < graph > [ { `,` GRAPH < graph > } ... ] ;
+
+<graph> ::= < identifier > < subquery >
+          | < invocation > AS < identifier >
+          | < identifier >
+          ;
+
+<query-mode> ::= [ OPTIONAL | MANDATORY ] ;
+
+<query-group> ::= [ PER * | < keys > ] ;
+
+<subquery> ::= `{` < composite statement > `}`
+             | `{` WHERE < predicate > < composite statement > `}`
+             ;
+
+<invocation> ::= < identifier > `(` < args > `)` [ YIELD * | < bindings > ] ;
+
+<args> ::= < expr > [ { `,` < expr> } ... ] ;
+
+<keys> ::= < key > [ { `,` < key > } ... ] ;
+<key> ::= < expr > [ AS [ `$` ] < identifier > ] ;
+
+<bindings> ::= < item > [ { `,` < item > } ... ] ;
+<item> ::= < identifier > [ AS < identifier > ] ;
+----
+
+
+== Examples
+
+
+=== Read-only nested table subqueries
 
 Post-UNION processing:
 [source, cypher]
 ----
-MATCH {
+CALL {
   // authored tweets
   MATCH (me:User {name: 'Alice'})-[:FOLLOWS]->(user:User),
         (user)<-[:AUTHORED]-(tweet:Tweet)
@@ -336,11 +335,11 @@ ORDER BY time DESC
 LIMIT 10
 ----
 
-Uncorrelated nested subquery:
+Uncorrelated nested table subquery:
 [source, cypher]
 ----
 MATCH (f:Farm {id: $farmId})
-MATCH {
+CALL {
   MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(p:Lawnmower)
   RETURN b.name AS name, p.code AS code
@@ -353,11 +352,12 @@ MATCH {
 RETURN f, name, code
 ----
 
-Correlated nested subquery:
+Correlated nested table subquery:
 [source, cypher]
 ----
 MATCH (f:Farm {id: $farmId})-[:IS_IN]->(country:Country)
-MATCH {
+CALL {
+  WITH country
   MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(p:Lawnmower)
   RETURN b.name AS name, p.code AS code
@@ -376,11 +376,12 @@ Filtered and correlated nested subquery:
 ----
 MATCH (f:Farm)-[:IS_IN]->(country:Country)
 WHERE country.name IN $countryNames
-MATCH {
+CALL {
   MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(p:Lawnmower)
   RETURN b AS brand, p.code AS code
   UNION
+  WITH country
   MATCH (u:User {id: $userId})-[:LIKES]->(b:Brand),
         (b)-[:PRODUCES]->(v:Vehicle),
         (v)<-[:IS_A]-(:Category {name: 'Tractor'})
@@ -392,58 +393,64 @@ WHERE f.type = 'organic'
 RETURN f, brand.name AS name, code
 ----
 
-Doubly-nested subquery:
+Doubly-nested table subquery:
 [source, cypher]
 ----
 MATCH (f:Farm {id: $farmId})
-MATCH {
+CALL {
+  WITH f
   MATCH (c:Customer)-[:BUYS_FOOD_AT]->(f)
-  MATCH {
-     MATCH (c)-[:RETWEETS]->(t:Tweet)<-[:TWEETED_BY]-(f)
-     RETURN c, count(*) AS count
-     UNION
-     MATCH (c)-[:LIKES]->(p:Posting)<-[:POSTED_BY]-(f)
-     RETURN c, count(*) AS count
+  CALL {
+    WITH c, f
+    MATCH (c)-[:RETWEETS]->(t:Tweet)<-[:TWEETED_BY]-(f)
+    RETURN c, count(*) AS count
+    UNION
+    MATCH (c)-[:LIKES]->(p:Posting)<-[:POSTED_BY]-(f)
+    RETURN c, count(*) AS count
   }
-  RETURN c, 'customer' AS type, sum(count) AS endorsement
+  RETURN 'customer' AS type, sum(count) AS endorsement
   UNION
+  WITH f
   MATCH (s:Shop)-[:BUYS_FOOD_AT]->(f)
   MATCH (s)-[:PLACES]->(a:Advertisement)-[:ABOUT]->(f)
-  RETURN s, 'shop' AS type, count(a) * 100 AS endorsement
+  RETURN 'shop' AS type, count(a) * 100 AS endorsement
 }
 RETURN f.name AS name, type, sum(endorsement) AS endorsement
 ----
 
-===== Read-only nested optional and mandatory subqueries
 
-This proposal also provides nested subquery forms of `OPTIONAL MATCH` and `MANDATORY MATCH`:
+=== Read-only nested optional and mandatory table subqueries
+
+This proposal also provides nested table subquery forms of `OPTIONAL MATCH` and `MANDATORY MATCH`:
 
 [source, cypher]
 ----
 MANDATORY MATCH (p:Person {name: 'Petra'})
 MANDATORY MATCH (conf:Conference {name: $conf})
-MANDATORY MATCH {
-    WITH * WHERE conf.impact > 5
-    MATCH (p)-[:ATTENDS]->(conf)
-    RETURN conf
-    UNION
-    MATCH (p)-[:LIVES_IN]->(:City)<-[:IN]-(conf)
-    RETURN conf
+MANDATORY CALL {
+  WHERE conf.impact > 5
+  MATCH (p)-[:ATTENDS]->(conf)
+  RETURN conf
+  UNION
+  MATCH (p)-[:LIVES_IN]->(:City)<-[:IN]-(conf)
+  RETURN conf
 }
-OPTIONAL MATCH {
-    MATCH (p)-[:KNOWS]->(a:Attendee)-[:PUBLISHED_AT]->(conf)
-    RETURN a.name AS name
-    UNION
-    MATCH (p)-[:KNOWS]->(a:Attendee)-[:PRESENTED_AT]->(conf)
-    RETURN a.name AS name
+OPTIONAL CALL {
+  WITH *
+  MATCH (p)-[:KNOWS]->(a:Attendee)-[:PUBLISHED_AT]->(conf)
+  RETURN a.name AS name
+  UNION
+  WITH *
+  MATCH (p)-[:KNOWS]->(a:Attendee)-[:PRESENTED_AT]->(conf)
+  RETURN a.name AS name
 }
 RETURN name
 ----
 
 
-==== Read/Write simple updating and conditionally-updating subqueries
+=== Updating nested table subqueries
 
-We illustrate these by means of an 'old' version of the query, in which `FOREACH` is used, followed by the 'new' version, using `DO`.
+We illustrate these by means of an 'old' version of the query, in which `FOREACH` is used, followed by the 'new' version, using `CALL`.
 
 Using a single subquery - old version using `FOREACH`:
 [source, cypher]
@@ -455,12 +462,13 @@ FOREACH(x IN range(1, 10) |
 )
 ----
 
-Using a single subquery - new version using `DO`:
+Using a single subquery - new version using `CALL`:
 [source, cypher]
 ----
 MATCH (r:Root)
 UNWIND range(1, 10) AS x
-DO {
+CALL {
+  WITH *
   MERGE (c:Child {id: x})
   MERGE (r)-[:PARENT]->(c)
 }
@@ -468,12 +476,12 @@ DO {
 
 Note how `FOREACH` is addressing two semantic concerns simultaneously; namely looping, and performing updates without affecting the cardinality of the outer query.
 In the new version of the query shown above, these orthogonal concerns have been separated.
-Looping is already handled by `UNWIND`, while `DO` suppresses the increased cardinality from the inner query.
+Looping is already handled by `UNWIND`, while `CALL` just activates the inner query to perform the updates without increasing the cardinality.
+Note that no new variable bindings are introduced by the inner query since it ends in an updating clause.
 
-`DO` also hides all new variable bindings introduced by the inner query from the outer query.
-If `DO` is omitted from the new version of the query shown above, the variable `c` would become visible to the remainder of the query.
+Let's look at a double-nested variation.
+First let's consider an old version using `FOREACH`:
 
-Doubly-nested subquery - old version using `FOREACH`:
 [source, cypher]
 ----
 MATCH (r:Root)
@@ -487,41 +495,47 @@ FOREACH (x IN range(1, 10) |
 )
 ----
 
-Doubly-nested subquery - new version using `DO`:
+Now consider the new version using `CALL`:
+
 [source, cypher]
 ----
 MATCH (r:Root)
 UNWIND range(1, 10) AS x AS x
-DO {
+CALL {
+  WITH *
   CREATE (r)-[:PARENT]->(c:Child {id: x})
   MERGE (r)-[:PUBLISHES]->(t:Topic {id: r.id + x})
   UNWIND range(1, 10) AS y
-  DO {
+  CALL {
+    WITH *
     CREATE (c)-[p:PARENT]->(:Child {id: c.id * 10 + y})
     SET p.id = c.id * 5 + y
   }
 }
 ----
 
-Conditional `DO`
+Finally, below is an example of conditional `CALL`:
+
 [source, cypher]
 ----
 MATCH (r:Root)
 UNWIND range(1, 10) AS x
-DO WHEN x % 2 = 1 THEN {
-      MERGE (c:Odd:Child {id: x})
-      MERGE (r)-[:PARENT]->(c)
-  }
-  ELSE {
-      MERGE (c:Even:Child {id: x})
-      MERGE (r)-[:PARENT]->(c)
-  }
-END
+CALL {
+  WHERE x % 2 = 1
+  MERGE (c:Odd:Child {id: x})
+  MERGE (r)-[:PARENT]->(c)
+  OTHERWISE
+  WITH *
+  MERGE (c:Even:Child {id: x})
+  MERGE (r)-[:PARENT]->(c)
+}
 ----
 
-==== Chained subqueries
 
-Combining nested and chained subqueries
+==== Composite statements
+
+Combining nested subqueries and composite statements:
+
 [source, cypher]
 ----
 MATCH (x)-[:IN]->(:Category {name: "A"})
@@ -539,11 +553,17 @@ WITH x.name AS name ORDER BY x.age
 RETURN x LIMIT 10
 ----
 
+
+
+== Considerations
+
+
 === Interaction with existing features
 
 Apart from the suggested deprecation of the `FOREACH` clause, nested read-only, write-only and read-write subqueries do not interact directly with any existing features.
 
-== Alternatives
+
+=== Alternatives
 
 Alternative syntax has been considered during the production of this document:
 
@@ -553,9 +573,11 @@ Alternative syntax has been considered during the production of this document:
     ** `SUBQUERY`
     ** `QUERY`
 
-== What others do
 
-=== SQL
+=== What others do
+
+
+==== SQL
 
 The following types of subqueries are supported in SQL:
 
@@ -598,7 +620,8 @@ FROM
 
 Scalar and list subqueries are addressed in the Scalar Subqueries and List Subqueries CIP.
 
-=== SPARQL
+
+==== SPARQL
 
 https://www.w3.org/TR/2013/REC-sparql11-query-20130321/#subqueries[SPARQL] supports uncorrelated subqueries in the standard, exemplified by:
 
@@ -620,13 +643,14 @@ Owing to the bottom-up nature of SPARQL query evaluation, the supported forms of
 Variables projected out of the subquery will be visible, or in scope, to the outer query.
 
 
-== Benefits to this proposal
+=== Benefits to this proposal
 
 * Increasing the expressivity of the language.
 * Allowing unified post-processing on results from multiple (sub)queries; this is exemplified by the https://github.com/neo4j/neo4j/issues/2725[request for post-UNION processing].
 * Facilitating query readability, construction and maintainability.
 * Providing a feature familiar to users of SQL.
 
-== Caveats to this proposal
+
+=== Caveats to this proposal
 
 At the current time, we are not aware of any caveats.
