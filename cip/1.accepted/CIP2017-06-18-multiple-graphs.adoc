@@ -22,8 +22,6 @@ This is supported by the accompanying CIP2018-04-24 for content based comparison
 
 toc::[]
 
-// TODO: Better explain cloning and equality relationship
-// TODO: Emulate construct on via union
 // TODO: CONSTRUCT ON business
 // TODO: CONSTRUCT ON graph vs CONSTUCT NEW
 // TODO: TRANSFORM
@@ -50,8 +48,8 @@ Furthermore, adding support for working with multiple graphs has recently been i
 
 This CIP has been developed in tandem with
 
- * `CIP2018-05-03`: Nested subqueries
- * `CIP2018-05-04`: Equivalence operators
+ * `CIP2016-06-22`: Nested subqueries
+ * `CIP2018-05-04`: Equivalence operators, copy pattern, and related auxiliary functions
 
 
 
@@ -143,12 +141,7 @@ A _**relationship**_ is contained in exactly one property graph and its start no
 
 ==== Valid model instance
 
-The set of *atoms* of an arbitrary value `v` (named `atoms(v)`) is defined as follows:
-
- * If `v` is a scalar value, `atoms(v) = {v}`
- * If `v` is a list value `[e~1~, e~2~, ..., e~n~]`, `atoms(v) = {v} UNION atoms(e~1~) UNION atoms(e~2~) UNION ... UNION atoms(e~n~)`
- * If `v` is a map or a node or a relationship with `values(v)`, `atoms(v) = {v} UNION atoms(values(v))`
- * Nothing else
+The set of *atoms* of an arbitrary value `v` is a list of all scalar values contained in `v` (cf. `CIP2018-05-04` for a full definition).
 
 A *valid* multiple property graph model instance adheres to the following restrictions:
 
@@ -170,11 +163,15 @@ Cypher syntax describes a structure that is a tree of clauses.
 _Definition_: A *valid statement* is a statement that is valid according to the semantic rules of the Cypher property graph query language.
 
 _Definition_: A *statement* is a source program that is a syntactically valid term according to the root production rule of the grammar of the Cypher property graph query language.
-A statement may either be a statement chain or a single statement.
+A statement may either be a statement chain or a composite statement.
 
-_Definition_: A *statement chain* is a single statement followed by a semicolon followed by another statement.
+_Definition_: A *statement chain* is a composite statement followed by a semicolon followed by another composite statement.
 
-_Definition_: A *single statement* is either an *operator clause chain* or a *simple clause chain*.
+_Definition_: A *composite statement* is either a single statement or an operator clause chain that is syntactically followed by a composite statement (using vertical juxtaposition).
+
+Note:: Composite statements are discussed in more detail in the accompanying CIP2016-06-22 on nested subqueries.
+
+ Definition_: A *single statement* is either a *operator clause chain* or a *simple clause chain*.
 
 _Definition_: An *operator clause chain* are two or more simple clause chains that are separated by the exact same operator clause.
 
@@ -436,23 +433,16 @@ The query processor tracks the provenance of such entities by maintaining a prov
 
 _Definition_: The *provenance graph* is a directed acyclic graph whose vertices represent entities of a multiple property graphs model instance.
 Vertices are connected with an edge in the provenance graph if the target vertex represents a *replica* `e` of the entity that is represented by the source vertex.
-The entity represented by the source vertex is called the `original(e)`.
+The entity represented by the source vertex is called the *original* of `e`.
 Multiple vertices may represent the same entity.
 However, all vertices that represent the same entity `e` must have a single shared vertex as their ancestor.
-The entity represented by this ultimate ancestor is called the `root(e)`.
+The entity represented by this ultimate ancestor is called the *root* of `e`.
 
 Note:: The provenance graph is _not_ a graph in the sense of the data model.
 The provenance graph is conceptually maintained by the query processor in order to track which entities are replicas of each other.
 
 
-==== Update propagation
-
-A reference value (e.g. as obtained by pattern matching or expression evaluation) to an entity `e` always implicitly addresses all children of `root(e)` in the provenance graph.
-
-Updating a reference to an entity (setting and removing of properties and labels and deletion of the entity) updates all replicas in the same way.
-
-
-=== Graph construction
+== Graph construction
 
 Graph construction is the dual operation to graph matching: While graph matching extracts pattern instances into variable bindings from the working graph, graph projection builds a new working graph from variable bindings.
 
@@ -472,9 +462,10 @@ The basic form of graph construction is:
 
 <graph-name-list> := < graph-name > [ ',' < graph-name > ]* ;
 
-<update-command> := ... | < replicate-clause > ;
+<update-command> := ... | < replicate-clause > | < de-replicate-clause > ;
 
-<replicate-clause> := MERGE ALL < expression-list > | '*' ;
+<replicate-clause>    := MERGE ALL < expression-list > | '*' ;
+<de-replicate-clause> := [DETACH] DELETE ALL < expression-list > | '*' ;
 ----
 
 Graph construction supports a sub-clause for the *replicating all entities of existing graphs* and a clause for the *replicating specific existing entities*.
@@ -490,7 +481,7 @@ _Definition_: *Replication* ensures that exactly one new replica is created in a
 If the same entity is replicated multiple times into the constructed graph this will still only create one replica in the constructed graph.
 If multiple entities with the same root in the provenance graph are replicated into the constructed graph this will still only create one replica per distinct root in the constructed graph.
 Every replica has exactly the same labels or relationship type as well as the same properties as the source entity by virtue of update propagation (i.e. a replica can be seen as a "representative" of the source in the constructed graph).
-Replicating a relationship implicitly replicates its start node and its end node and uses these replicatede nodes as the start node and the end node of the relationship replica.
+Replicating a relationship implicitly replicates its start node and its end node and uses these replicated nodes as the start node and the end node of the relationship replica.
 
 Note:: It is possible to replicate an entity over multiple steps of graph construction.
 However, there will never be multiple replicas in one graph that have the same root in the provenance graph.
@@ -498,12 +489,6 @@ However, there will never be multiple replicas in one graph that have the same r
 The `ON GRAPH` sub-clause may be used to replicate all nodes and relationships from the working graph into the constructed graph.
 
 The `ON < graph-name-list >` sub-clause may be used to replicate all nodes and relationships from the given graphs in the catalog into the constructed graph.
-
-The `MERGE ALL < expression-list >` cmay be used to replicate entities that are contained in the atoms of the given values.
-
-Additionally, the `MERGE ALL *` sub-clause may be used to replicate all variables that are visible in the current scope.
-
-Note:: Replicating a nested value (like a path) implicitly replicates all contained nodes and relationships.
 
 
 ==== Building constructed graphs
@@ -516,20 +501,34 @@ Constructed graphs are built by explicitly populating them with entities using t
  * `REMOVE`
  * `[DETACH] DELETE`
 
-If an entity from another graph is referenced by a pattern in `CREATE`, it is replicated.
+If an entity from another graph is referenced by a pattern in `CREATE`, an error is raised.
 
 If an entity from another graph is referenced by a pattern in `MERGE`, it is replicated.
 
-If an entity from another graph is passed as argument to `DELETE` or `DETACH DELETE`, any corresponding replicated are removed from the constructed graph.
+The `MERGE ALL < expression-list >` clause may be used to replicate entities that are contained in the atoms of the given values.
 
-An error is raised for any attempt to `SET` or `REMOVE` labels or properties of replicated entities during graph construction.
+Additionally, the `MERGE ALL *` clause may be used to replicate the atoms of all variables that are visible in the current scope.
+
+Note:: Replicating a nested value (like a path) using `MERGE ALL` implicitly replicates all contained nodes and relationships.
+
+If an entity from another graph is passed as argument to `DELETE` or `DETACH DELETE`, any corresponding replicates are removed from the constructed graph.
+
+The `[DETACH] DELETE ALL < expression-list >` clause may be used to remove replicas that are contained in the atoms of the given values from the constructed graph.
+
+Additionally, the `[DETACH] DELETE ALL *` clause may be used to remove replicas that are contained in the atoms of all variables that are visible in the current scope from the constructed graph.
+
+An error is raised for any attempt to `SET` or `REMOVE` labels or properties of replicas during graph construction.
 
 
 ==== Updating constructed graphs
 
 Constructed graphs may be updated as well using `UPDATE GRAPH`.
+Updating relies on information from provenance tracking of replicas in order to propagate updates to base data.
 
-Updating relies on information from provenance tracking of replicated nodes in order to propagate updates to base data.
+A reference value (e.g. as obtained by pattern matching or expression evaluation) to an entity `e` always implicitly addresses all children of the root of `e` in the provenance graph.
+
+Updating a reference to an entity (setting and removing of properties and labels and deletion of the entity) updates all replicas in the same way.
+This is called *update propagation*.
 
 Constructed graphs may only be updated by
 
@@ -607,21 +606,22 @@ RETURN GRAPH
 
 The resulting difference graph consists of replicas for all entities from the left (first) graph that are not contained in the second (last) graph.
 
+
 === Functions for data model introspection
 
 The data model may be introspected using the following functions:
 
 The `graph()` function returns the *graph identity* of the working graph.
 
-The `graph(e)` function returns the *graph identity* of the base graph in which the root original of `e` was created.
+The `graph(e)` function returns the *graph identity* of the base graph in which the root of `e` was created.
 
 The `exists(e)` function is overloaded for entities `e` such that it returns `true` if `e` has not been deleted in `graph(e)` and is also overloaded such that it returns `false` otherwise.
 
-The `contains(e)` function is defined for entities `e` such that it returns `true` if either a replica of the given entity `e` or `e` itself is contained in the working graph and is also defined such that it returns `false` otherwise.
+The `replicated(e)` function is defined for entities `e` such that it returns `true` if either a replica of the given entity `e` or `e` itself is contained in the working graph and is also defined such that it returns `false` otherwise.
 
-The `id(n)` function returns the *node identity* of the representing replica in `graph(n)`
+The `id(n)` function returns the *node identity* of the root of `n` in `graph(n)`
 
-The `id(r)` function returns the *relationship identity* of the representing replica in `graph(r)`
+The `id(r)` function returns the *relationship identity* of root of `r` in `graph(r)`
 
 
 == Creating and administrating graphs in the catalog
@@ -673,8 +673,6 @@ Truncating a graph deletes all its nodes and relationships but retains any addit
 The `catalog()` function returns the catalog name for the working graph or `NULL` if the working graph is a dynamically constructed graph.
 
  The `catalog(g)` function returns the catalog name for the graph identity `g` or `NULL` if `g` is a dynamically constructed graph.
-
-The `failIfNull(value, message)` function returns `value` if `value` is not `NULL` and raises an error with the given message `message` otherwise.
 
 Note:: `toString(graph())` may be used to just generate a human readable name for the working graph.
 
@@ -823,7 +821,6 @@ The target graph is set to the *PersonCityEvents* graph [9].
 
 Using the results from the `MATCH` clause, we create a subgraph with more intelligible semantics through the transformation of the events information into a less verbose form through greater use of node-level properties.
 
-
 *PersonCityEvents* now contains the following data:
 
 image::opencypher-PersonCityEvents-graph.jpg[Graph,800,700]
@@ -853,314 +850,6 @@ This is the final step of the entire data integration pipeline, we return this g
 
 image::opencypher-PersonCityCriminalEvents-graph.jpg[Graph,700,550]
 
-// ._The full data integration query pipeline is given by_:
-
-
-//
-// === Using a pipeline of temporary graphs to process and return a subgraph
-//
-// [source, cypher]
-// ----
-// // Set scope to the whole social network ...
-// FROM GRAPH AT 'graph://social-network'
-// // .. and match some data.
-// MATCH (a:Person)-[:IS_LOCATED_IN]->(c:City),
-//       (c)->[:IS_LOCATED_IN]->(co:Country),
-//       (a)-[e:KNOWS]-(b)
-//
-// // Create a new temporary named graph,
-// INTO NEW GRAPH sn_updated
-// // add previous matches to new graph,
-// CREATE (a)-[e]-(b)
-// // update existing nodes.
-// SET a.country = cn.name
-// // ... and finally discard all tabular data and cardinality
-// WITH GRAPHS *
-//
-// FROM GRAPH sn_updated
-// MATCH (a:Person)-[e:KNOWS]->(b:Person)
-// WITH a.country AS a_country, b.country AS b_country, count(a) AS a_cnt, count(b) AS b_cnt, count(e) AS e_cnt
-// INTO NEW GRAPH rollup
-// MERGE (:Persons {country: a_country, cnt: a_cnt})-[:KNOW {cnt: e_cnt}]->(:Persons {country: b_country, cnt: b_cnt})
-//
-// // Return final graph output
-// RETURN GRAPH rollup
-// ----
-//
-// === A more complex pipeline: using and persisting multiple graphs
-//
-// [source, cypher]
-// ----
-// // Set scope to the whole social network ...
-// FROM GRAPH AT 'graph://social-network'
-// // .. and match some data.
-// MATCH (a:Person)-[e]->(b:Person),
-//       (a)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c:Country {name: ‘Sweden’}),
-//       (b)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c)
-// // Create a persistent graph at 'graph://social-network/swe'
-// INTO NEW GRAPH sweden_people AT './swe'
-// // connecting persons that live in the same city in Sweden.
-// CREATE (a)-[e]->(b)
-//
-// // Finally discard all tabular data and cardinality
-// WITH GRAPHS *
-//
-// MATCH (a:Person)-[e]->(b:Person),
-//       (a)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c:Country {name: ‘Germany’}),
-//       (b)-[:LIVES_IN]->()->[:IS_LOCATED_IN]-(c)
-// // Create a persistent graph at 'graph://social-network/ger'
-// INTO NEW GRAPH german_people AT './ger'
-// // connecting persons that live in the same city in Germany.
-// CREATE (a)-[e]->(b)
-//
-// // Finally discard all tabular data and cardinality
-// WITH GRAPHS *
-//
-// // Start query on the 'sweden_people' graph
-// FROM GRAPH sweden_people
-// MATCH p=(a)--(b)--(c)--(a) WHERE NOT (a)--(c)
-// // Create a temporary graph 'swedish_triangles'
-// INTO NEW GRAPH swedish_triangles
-// MERGE p
-//
-// // and return it together with a count of its content
-// RETURN count(p) AS num_triangles GRAPHS swedish_triangles, sweden_people, german_people
-// ----
-//
-
-//
-// [[data-aggregation-example]]
-// === Using a pipeline to perform aggregations and return tabular data and graphs
-//
-// This example shows how to aggregate detailed sales data within a graph -- in effect, performing a 'roll-up' -- in order to obtain a high-level summarized view of the data, stored and returned in another graph, as well as returning an even higher-level view as an executive report.
-// The summarized graph may be used to draw further high-level reports, but may also be used to undertake 'drill-down' actions by probing into the graph to extract more detailed information.
-//
-// Assume we have the graph *SalesDetail*, representing the sale of products in stores across various regions:
-//
-// image::opencypher-SalesDetail-graph.jpg[Graph,800,700]
-//
-// This models the following entities:
-//
-// * Regions may have many stores.
-// * Stores:
-// ** A store is identified by a unique `code`.
-// ** A store is contained in exactly one region.
-// ** A store may have multiple orders.
-// * Products:
-// ** A product is identified by a unique `code`.
-// ** A product has a `RRP` property (Recommended Retail Price).
-// ** A product may appear in one or more orders as a product _item_.
-// * Sales orders:
-// ** An order is identified by a unique order number, given by `num`.
-// ** The `YYYYMM` property represents the year and month portion of the date of the order.
-// ** An order is associated with exactly one store and contains one or more product items, representing the fact that the product item was sold in the store and is a part of the order.
-// ** The relationship of between an order and a product contains the following properties:
-// *** `soldPrice`: the price at which the product item was actually sold (usually lower than the product's RRP).
-// *** `numItemsSold`: the number of the actual product items sold in the order.
-//
-// The following pipeline will create a summarized view of this data, and store it in a new summary graph called *SalesSummary*.
-//
-// We begin by referencing the *SalesDetail* graph, and matching on all products in all orders for all stores in all regions.
-//
-// [source, cypher]
-// ----
-// FROM GRAPH SalesDetail AT ‘graph://...’
-// MATCH (p:Product)-[r:IN]->(o:Order)<-[HAS]-(s:Store)-[:IN]->(reg:Region)
-// ----
-//
-// We aggregate the (tabular) data across all orders in order to obtain the total sales amount grouped by the product, store and region, and alias this value as `storeProductTotal`.
-// As this tabular data is required to populate the summary graph later on, we pass it further down the pipeline:
-//
-// [source, cypher]
-// ----
-// WITH reg.name AS regionName,
-//      s.code AS storeCode,
-//      p.code AS productCode,
-//      sum(r.soldPrice * r.numItemsSold) AS storeProductTotal
-// ----
-//
-// The tabular data consists of the following:
-//
-// [source, cypher]
-// ----
-// +------------+-----------+-------------+-------------------+
-// | regionName | storeCode | productCode | storeProductTotal |
-// +------------+-----------+-------------+-------------------+
-// | APAC       | AC-888    | PEN-1       | 20.00             |
-// | APAC       | AC-888    | TOY-1       | 45.00             |
-// | EMEA       | LK-709    | BOOK-2      | 10.00             |
-// | EMEA       | LK-709    | TOY-1       | 40.00             |
-// | EMEA       | LK-709    | BOOK-5      | 15.00             |
-// | EMEA       | WW-531    | BOOK-5      | 18.00             |
-// | EMEA       | WW-531    | BULB-2      | 190.00            |
-// | EMEA       | WW-531    | PC-1        | 440.00            |
-// +------------+-----------+-------------+-------------------+
-// 8 rows
-// ----
-//
-// Next, we read from the *SalesDetail* graph to get the store, product and region information:
-//
-// [source, cypher]
-// ----
-// MATCH (p:Product)-[:IN]->(o:Order)<-[:HAS]-(s:Store)-[:IN]->(r:Region)
-// ----
-//
-// We now create a new graph, *SalesSummary*, containing the summarized view of the sales information across regions, products and stores:
-//
-// [source, cypher]
-// ----
-// INTO NEW GRAPH SalesSummary
-// MERGE (s:Store {storeCode: s.code})
-// MERGE (r:Region {name: r.name})
-// MERGE (p:Product {productCode: p.code, RRP: p.RRP})
-// MERGE (s)-[:IN]->(r)
-// MERGE (p)-[:SOLD_IN]->(s)
-//
-// // Get the total amount sold for a store
-// WITH storeCode, sum(storeProductTotal) AS totalSales
-// // Get the total amount sold for a product
-// WITH productCode, sum(storeProductTotal) AS soldTotal
-//
-// // Update all store nodes with the new totalSales property
-// MATCH (s:Store)
-// SET s.totalSales = totalSales
-// WHERE s.code = storeCode
-//
-// // Update all product nodes with the new soldTotal property
-// MATCH (p:Product)
-// SET p.soldTotal = soldTotal
-// WHERE p.code = productCode
-//
-// // Update all (:Product)-[SOLD_IN]->(:Store) relationships with the new sold property
-// MATCH (p:Product)-[r:SOLD_IN]->(s:Store)
-// SET r.sold = storeProductTotal
-// WHERE p.code = productCode
-// AND s.code = storeCode
-// ----
-//
-// As a final step, the *SalesSummary* graph is returned, along with a high-level summarized tabular view of store sales data.
-//
-// [source, cypher]
-// ----
-// RETURN regionName,
-//        storeCode,
-//        sum(storeProductTotal) AS totalStoreSales
-// GRAPH SalesSummary
-// ----
-//
-// The *SalesSummary* graph is comprised of the following:
-//
-// image::opencypher-SalesSummary-graph.jpg[Graph,800,700]
-//
-// The high-level summarized tabular data consists of the following:
-//
-// [source, cypher]
-// ----
-// +------------+-----------+-----------------+
-// | regionName | storeCode | totalStoreSales |
-// +------------+-----------+-----------------+
-// | APAC       | AC-888    | 65.00           |
-// | EMEA       | LK-709    | 65.00           |
-// | EMEA       | WW-531    | 648.00          |
-// +------------+-----------+-----------------+
-// 3 rows
-// ----
-//
-// We note that the *SalesSummary* graph can be used to generate further high-level sales summaries, such as the total sales of a particular product (shown <<data-aggregation-external-example, here>>), as well as more detailed views.
-//
-// ._The full aggregation query pipeline is given by_:
-// [source, cypher]
-// ----
-// FROM GRAPH SalesDetail AT ‘graph://...’
-// MATCH (p:Product)-[r:IN]->(o:Order)<-[HAS]-(s:Store)-[:IN]->(reg:Region)
-//
-// WITH reg.name AS regionName,
-//      s.code AS storeCode,
-//      p.code AS productCode,
-//      sum(r.soldPrice * r.numItemsSold) AS storeProductTotal
-//
-// MATCH (p:Product)-[:IN]->(o:Order)<-[:HAS]-(s:Store)-[:IN]->(r:Region)
-//
-// INTO NEW GRAPH SalesSummary
-// MERGE (s:Store {code: s.code})
-// MERGE (r:Region {name: r.name})
-// MERGE (p:Product {code: p.code, RRP: p.RRP})
-// MERGE (s)-[:IN]->(r)
-// MERGE (p)-[:SOLD_IN]->(s)
-//
-// // Get the total amount sold for a store
-// WITH storeCode, sum(storeProductTotal) AS totalSales
-// //Get the total amount sold for a product
-// WITH productCode, sum(storeProductTotal) AS soldTotal
-//
-// // Update all store nodes with the new totalSales property
-// MATCH (s:Store)
-// SET s.totalSales = totalSales
-// WHERE s.code = storeCode
-//
-// // Update all product nodes with the new soldTotal property
-// MATCH (p:Product)
-// SET p.soldTotal = soldTotal
-// WHERE p.code = productCode
-//
-// // Update all (:Product)-[SOLD_IN]->(:Store) relationships with the new sold property
-// MATCH (p:Product)-[r:SOLD_IN]->(s:Store)
-// SET r.sold = storeProductTotal
-// WHERE p.code = productCode
-// AND s.code = storeCode
-//
-// RETURN regionName,
-//        storeCode,
-//        sum(storeProductTotal) AS totalStoreSales
-// GRAPH SalesSummary
-// ----
-//
-// [[data-aggregation-external-example]]
-// === Using a pipeline in an external execution context
-//
-// We show how a pipeline may be used in an external execution context; i.e. where processes external to the pipeline -- for example, an SQL query engine invoking a Cypher query as a graph function, or an automated business workflow system -- can be used to orchestrate externally query composition within the pipeline.
-//
-// Assume that the pipeline defined <<data-aggregation-example, above>> has executed and produced the *SalesSummary* graph, and that there is in scope a table, populated by some external process, containing the following list of codes (given by 'product_code') of the products of interest:
-//
-// [source, cypher]
-// ----
-// TOY -1
-// BOOK-5
-// BULB-2
-// ----
-//
-// We obtain the graph and the table:
-//
-// [source, cypher]
-// ----
-// WITH product_code AS productCode GRAPH SalesSummary
-// FROM GRAPH SalesSummary
-// ----
-//
-// We then match the products in the *SalesSummary* graph with the ones from the input table, and produce a high-level report on the sales by product for only those products:
-//
-// [source, cypher]
-// ----
-// MATCH (p:Product)
-// WHERE p.code = productCode
-// RETURN p.code AS productCode, p.soldTotal AS totalProductSales
-// ----
-//
-// The resulting 'sales by product' report contains:
-//
-// [source, cypher]
-// ----
-// +-------------+-------------------+
-// | productCode | totalProductSales |
-// +-------------+-------------------+
-// | TOY-1       | 85.00             |
-// | BOOK-5      | 33.00             |
-// | BULB-2      | 190.00            |
-// +-------------+-------------------+
-// 3 rows
-// ----
-//
-
 
 
 == Considerations
@@ -1177,15 +866,18 @@ However, the change has been carefully designed to not change the semantics of e
 
 A central design consideration has been wether entities should belong only to a single graph or should be shared arbitrarily between multiple graphs.
 This proposal advocates a middle ground: At the data model level, entities are contained in a single graph only.
-This establishes a 1:1 correspondence between entities and graphs grants great implementation freedom in terms of id space management.
-At the language semantics level, cloning tracks entities that are effectively shared across graphs and treats the root original and all of its clones as the same entity in terms of equality.
-This has been reflected in the re-definition of the `id` function that always returns the identity of a corresponding clone in the working graph, even for entities matched in another graph.
+This establishes a 1:1 correspondence between entities and graphs and grants great implementation freedom in terms of id space management.
+At the language semantics level, replication tracks entities that are effectively shared across graphs and treats the root and all of its replicas as the same entity in terms of equality.
+This has been reflected in the re-definition of the `id` function that always returns the identity of the corresponding root in the base graph for any given entity.
 
 Instead of only returning either a table or a single graph, an earlier edition of this proposal explored to return table-graphs, i.e. both a single driving table and an associated set of multiple, named graphs.
 This felt overly complicated and made it difficult to distinguish between graphs in scope and variables in scope, created the need to occasionally create dummy values (like an empty graph or driving table), and led to a more complex execution result (with potentially difficult repercussions for the network protocol).
 
 Instead of only establishing a single working graph, an earlier edition of this proposal explored the idea of distinguishing between a graph for reading and a graph for writing.
 This led to a more complex execution result, made it necessary to manage those two graphs and complicated the users mental model, and was ultimately discarded based on a use-case analysis that indicated that in practice queries would typically first select graphs for reading and then switch to writing.
+
+Instead of referring to graphs by name, an earlier edition of this proposal introduced graph urls for addressing graphs.
+This seemed to unnecessarily tie the language to an addressing and locating scheme instead of delegating such a choice to implementations.
 
 Instead of introducing graphs as separate catalog objects, an earlier edition of this proposal considered graphs as values (called graphlets).
 While providing great flexibility, this approach becomes very difficult to plan and statically analyze.
