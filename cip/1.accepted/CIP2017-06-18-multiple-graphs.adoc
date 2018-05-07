@@ -480,7 +480,7 @@ Note:: The provenance graph is _not_ a graph in the sense of the data model.
 The provenance graph is conceptually maintained by the query processor in order to track which entities are replicas of each other.
 
 
-== Graph construction
+=== Graph construction
 
 Graph construction is the dual operation to graph matching: While graph matching extracts pattern instances into variable bindings from the working graph, graph projection builds a new working graph from variable bindings.
 
@@ -662,58 +662,6 @@ The `id(n)` function returns the *node identity* of the root of `n` in `graph(n)
 The `id(r)` function returns the *relationship identity* of root of `r` in `graph(r)`
 
 
-== Creating and administrating graphs in the catalog
-
-
-=== Creating empty graphs
-
-Creating a new, empty graph in the catalog is done using the new catalog command `CREATE GRAPH <graph-name>`.
-If `<graph-name>` is the name of a graph that already exists in the catalog, an error is raised.
-
-
-=== Creating new graphs and populating them from a query
-
-`CREATE GRAPH <graph-name>` may be optionally followed by a subquery that returns a graph.
-In that case, a new graph `<graph-name>` is created in the catalog for the graph returned by the subquery.
-All entities in the new graph are considered to be copies of the entities in the returned graph (i.e. they are unrelated from the entities in the graph returned by the subquery in terms of provenance).
-If `<graph-name>` is the name of a graph that already exists in the catalog, an error is raised.
-
-
-=== Delete graph
-
-The catalog command `DELETE GRAPH <graph-name>` deletes the graph with the name `<graph-name>` from the catalog.
-If `<graph-name>` is not the name of a graph that already exists in the catalog, an error is raised.
-
-
-=== Copy graph
-
-The catalog command `COPY <old-name> TO <new-name>` copies the content and the schema of the graph with the name `<old-name>` in the catalog to a new graph with the name `<new-name>` in the catalog.
-If `<old-name>` is not the name of a graph that already exists in the catalog, an error is raised.
-If `<new-name>` is the name of a graph that already exists in the catalog, an error is raised.
-
-
-=== Rename graph
-
-The catalog command  `RENAME <old-name> TO <new-name>` removes the graph with the name `<old-name>` from the catalog and adds it as a new graph with the name `<new-name>` in the catalog.
-If `<old-name>` is not the name of a graph that already exists in the catalog, an error is raised.
-If `<new-name>` is the name of a graph that already exists in the catalog, an error is raised.
-
-
-=== Truncating graphs
-
-The catalog command `TRUNCATE <graph-name>` truncates the graph with the name `<graph-name>` in the catalog.
-
-Truncating a graph deletes all its nodes and relationships but retains any additional schema information like constraints.
-
-
-=== Determining the name of a graph
-
-The `catalog()` function returns the catalog name for the working graph or `NULL` if the working graph is a dynamically constructed graph.
-
- The `catalog(g)` function returns the catalog name for the graph identity `g` or `NULL` if `g` is a dynamically constructed graph.
-
-Note:: `toString(graph())` may be used to just generate a human readable name for the working graph.
-
 
 == Examples
 
@@ -746,7 +694,7 @@ CLONE a, b, r
 RETURN GRAPH
 ----
 
-=== Creating a new graph, switching contexts and returning a graph
+=== Constructing a new graph, switching contexts and returning a graph
 
 [source, cypher]
 ----
