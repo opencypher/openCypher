@@ -146,14 +146,14 @@ The syntax for local graph declarations is
 
 [source, cypher]
 ----
-QUERY < local view name > { < nested subquery > }
+QUERY < local name > { < composite statement > }
 ----
 
-To avoid conflicts, it is suggested that `<local view name>` and `<graph view name>` are identifiers that start with a `_`.
+`<local name>` are identifiers that start with a `_`.
 
 Semantics:
 
-1. `<nested subquery>` must not be a correlated subqueries.
+1. `<composite statement>` must not be a correlated subqueries.
 
 2. An error is raised, if a local declaration would shadow an already exisint local declaration.
 
@@ -207,6 +207,39 @@ CALL PER since _myView(5 WITH x AS a, y AS b) YIELD ...
 ...
 ----
 
+== Grammar
+
+[source, ebnf]
+----
+<catalog command> ::= CREATE < catalog item list >
+                    | COPY <catalog name> TO <catalog name>
+                    | RENAME <catalog name > TO <catalog name>
+                    | TRUNCATE <catalog name>
+                    | DELETE GRAPH <catalog name>
+                    ;
+
+<catalog item list> ::= < local declaration > [ { `,` < local declaration > } ;
+
+<local declaration ::= QUERY < local name > { < composite statement > }
+                     | GRAPH < local name > [ { < composite statement > } ]
+                     | GRAPH < invocation > AS < local name >
+                     ;
+
+<activation> ::= < view name > [ `(` < view arguments > `)` ] ;
+
+<view arguments> ::= < expr > [ { `,` < expr > } ... < table arguments > ] ;
+
+<table arguments> ::= [ WITH < item > [ { `,` < item > } ] ;
+
+<item> ::= < expr > AS < identifier > ;
+
+<view name> ::= < catalog name > | < local name > ;
+
+-- no leading _ allowed
+<catalog name> ::= identifier [ { `.` identifier } ... ] ;
+
+<local name> ::= `_` identifier ;
+----
 
 == Considerations
 
