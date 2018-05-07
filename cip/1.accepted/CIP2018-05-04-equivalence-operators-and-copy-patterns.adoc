@@ -1,0 +1,252 @@
+= CIP2018-05-04 Equivalence operators, copy patterns, and related auxiliary functions
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Stefan Plantikow <stefan.plantikow@neo4j.com>, Andres Taylor <andres.taylor@neo4j.com>, Petra Selmer <petra.selmer@neo4j.com>
+
+This material is based on internal contributions of Alastair Green <alastair.green@neotechnology.com>, Mats Rydberg <mats.rydberg@neotechnology.com>, Martin Junghanns <martin.junghanns@neotechnology.com>, Tobias Lindaaker <tobias.lindaaker@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+This CIP extends Cypher with support for new equivalence operators, introduces a new feature called copy patterns, cleans up existing equality operator syntax, as well as adds some auxiliary functions for working with nested values that may contain `NULL`.
+
+This closes a loop when dealing with nested property values that contain `NULL` and helps relating entities from otherwise disconnected datasets in the context of support for working with multiple graphs (cf. `CIP2017-06-18`).
+--
+
+toc::[]
+
+
+
+== Proposal
+
+
+=== Equivalence operator
+
+This CIP proposes to introduce `~` as a new operator for comparing two values under equivalence as defined in `CIP2016-06-14`.
+
+This CIP proposes to introduce `!~` as a new operator for comparing two values under non-equivalence (using the definition of equivalence from `CIP2016-06-14`).
+
+Note:: Equivalence treats `NULL` as being equivalent to `NULL`.
+Therefore `~` and `!~` are well suited for comparing nested property values that contain `NULL` values.
+
+
+=== Additional inequality operator
+
+This CIP proposes to introduce `!=` as alternative syntax for `<>` in order to cater for users with experience in programming languages that prefer this syntax.
+
+
+=== Copy patterns
+
+A new type of pattern that is called a *copy pattern* may be used to refer to all labels and properties of a node or the relationship type and all properties of a relationship when matching entities.
+The syntax of copy patterns is:
+
+[source, cypher]
+----
+MATCH (a)-[r]->(b)
+FROM another_graph
+MATCH (x COPY OF b)-[COPY OF r]->()
+...
+----
+
+Copying relationships ignores the start and the end node of the relationship.
+
+Copy patterns may also be used in updating statements to describe the content of entities that are to be created or merged.
+
+
+
+=== Auxiliary functions
+
+The following functions offer additional tooling for working with nested values that may contain `NULL`.
+
+
+==== `atoms` function
+
+This CIP proposes the introduction of a new function called `atoms` for finding all scalar sub-values of a given value.
+This is e.g. useful for testing if a nested value contains any `NULL` values.
+
+The `atoms` function is defined as follows for given argument value `v` as follows:
+
+1. If `v` is a scalar value, then `atoms(v)` is `[v]`.
+
+2. If `v` is a list value `[e~1~, e~2~, ..., e~n~]`, then `atoms(v)` returns a list that contains exactly all values from `atoms(e~1~)`, `atoms(e~2~)`, ..., `atoms(e~n~)` in an unspecified order.
+
+3. If `v` is a map value `{k~1~: e~1~, k~2~: e~2~, ..., k~n~: e~n~]`, then `atoms(v)` returns a list that contains exactly all values from `atoms(e~1~)`, `atoms(e~2~)`, ..., `atoms(e~n~)` in an unspecified order.
+
+4. If `v` is an entity, then `atoms(v)` returns `atoms(properties(v))` in an unspecified order.
+
+Note:: `atoms(NULL) = [ NULL ]` (Implied by rule 1)
+
+
+==== `content` function
+
+This CIP proposes the introduction of a new function, `content` for generating a map value that represents the content of an entity.
+This function makes it possible to compare entities by content only irrespective of the graph from which they originated.
+
+The `content` function takes an optional second boolean argument that controls the processing of relationships and by default is considered to be `FALSE`.
+
+The `content` function is defined for any given argument value `v` and optional flag `flag` as follows:
+
+1. Given any node `n`, `content(n, flag)` returns a map such that `n.labels` is a _sorted_ list of all `labels(n)` and `n.properties` is `properties(n)`.
+
+2. Given any relationship `r`, `content(r, flag)` returns a map such that `r.labels` is `[type(r)]` and `r.properties` is `properties(r)`.
+If `flag` is `TRUE`, the returned map is extended such that `r.start` is `content(startNode(r), flag)` and `r.end` is `content(endNode(r), flag)`.
+
+3. Given any map `m`, `content(m, flag)` returns a copy of `m` in which all map values `v` have been replaced with `content(v, flag)`.
+
+4. Given any list `l`, `content(m, flag)` returns a copy of `l` in which all list values `v` have been replaced with `content(l, flag)`.
+
+
+==== `align` function
+
+This CIP proposes the introduction of a new function, `align` for aligning values that contain `NULL`.
+This is useful for testing if two values could be considered as equal if `NULL` is interpreted as a wildcard value.
+
+The `align` function is defined as follows:
+
+1. Given two values `a` and `b`, if `a` is `NULL` then `align(a, b)` returns `b`.
+
+2. Given two values `a` and `b`, if `b` is `NULL` then `align(a, b)` returns `a`.
+
+3. Given two values `a` and `b`, if `a = b` then `align(a, b)` returns either `a` or `b`.
+
+4. Given two map values `a` and `b`, `align(a, b)` returns a map `m` whose keyset is the superset of all keys from `a` and `b` such that `m.key = align(a.key, b.key)` for each key in `m`.
+
+5. Given two list values `a` and `b`, `align(a, b)` returns the largest list `l` such that `l[i]=align(a[i], b[i])` at each position `i`.
+
+6. In all other cases the recursive evaluation short-circuits and the top-level call to align returns `NULL`.
+
+Note:: Non-symmetric align tests (i.e. does `a` align to become `b`) can be expressed using `align(a, b) = b`.
+An example of when such a test would fail is `align({x: NULL, y: 2}, {x: 1, y: NULL})` which is evaluated to `{x: 1, y: 2}` but not equal to `{x: 1, y: NULL}`
+
+
+==== coalesce and fail
+
+This CIP proposes to change `coalesce` to be an operator that evaluates its arguments by need (as opposed to strict evaluation used by functions) and to introduce a new `fail` function for explicitly raising an error.
+
+The `fail` function is defined to take a single string argument and upon being called will raise an user error that contains the provided argument as error message.
+
+Note:: The adoption of these two changes allows to use `coalesce(value, fail(message))` to fail with an error if a given value is `NULL`.
+
+
+== Examples
+
+
+=== Equivalence operator
+
+[source, cypher]
+----
+NULL ~ NULL                             => TRUE
+NULL !~ NULL                            => FALSE
+
+[1, NULL]  ~ [1, NULL]                  => TRUE
+[1, NULL] !~ [1, NULL]                  => FALSE
+
+{a: 1, b: NULL}  ~ {a: 1, b: NULL}      => TRUE
+{a: 1, b: NULL}  !~ {a: 1, b: NULL}     => TRUE
+
+CREATE (n1:Person {name: "Susi"})
+CREATE (n2:Person {name: "Susi"})
+CREATE (n3:Animal {name: "Susi"})
+CREATE (n4:Person {name: "John"})
+
+n1 ~ n1  => TRUE
+n1 ~ n2  => FALSE
+n1 ~ n3  => FALSE
+n1 ~ n4  => FALSE
+----
+
+
+=== atoms function
+
+[source, cypher]
+----
+atoms(NULL)                                 => [NULL]
+atoms(1)                                    => [1]
+atoms([2,NULL,3])                           => [2, NULL, 3]
+atoms([])                                   => []
+atoms([[NULL]])                             => [NULL]
+atoms({})                                   => {}
+atoms([2,{a: 3, b: {c: NULL, d: 4}},5]})    => [2, 3, NULL, 4, 5]
+atoms([2,{a: NULL, b: {c: NULL, d: 4}},4]}) => [2, NULL, NULL, 4, 4]
+----
+Note again that the order of returned scalar values is unspecified.
+
+
+=== content function
+
+[source, cypher]
+----
+CREATE (n1:Person {name: "Susi"})
+CREATE (n2:Person {name: "Susi"})
+CREATE (n3:Animal {name: "Susi"})
+CREATE (n4:Person {name: "John"})
+
+content(n1) ~ content(n1) => TRUE
+content(n1) ~ content(n2) => TRUE
+content(n1) ~ content(n3) => FALSE
+content(n1) ~ content(n2) => FALSE
+content(n1) ~ content(n4) => FALSE
+----
+
+
+=== align function
+[source, cypher]
+----
+align(NULL, NULL)               => NULL
+align(1, NULL)                  => 1
+align(NULL, 1)                  => 1
+
+align([1, NULL], [1, NULL])     => [1, NULL]
+align([1, NULL], [NULL, 2])     => [1, 2]
+align([1], [NULL, 2])           => [1, 2]
+
+align({a: 5}, {b: 6})           => {a: 5, b: 6}
+align({a: 5, b: NULL}, {b: 6})  => {a: 5, b: 6}
+align({a: NULL}, {b: 6})        => {a: NULL, b: 6}
+----
+
+
+
+== Considerations
+
+
+=== Interaction with existing features
+
+This proposal introduces only new syntax and new functions and therefore is not expected to break existing features.
+
+
+=== Alternatives
+
+Cypher has inherited some aspects of `NULL` semantics from SQL.
+As a consequence, different ways to compare values are needed.
+This problem becomes more pronounced when needing to compare entities from otherwise disjoint graphs (e.g. graphs originating from different datasets that share the same schema).
+A natural alternative would be to remove `NULL` from the language or to otherwise reform `NULL` (e.g. by introducing different `NULL` values).
+However, this would create major backwards incompatibility with existing queries and would it make it more difficult to interact with existing systems.
+
+The following section discusses the proposed functions:
+
+* `atoms` could be defined to return a set instead of a multi-set of values.
+This may be achieved with a scalar subquery that combines `UNWIND` and `DISTINCT`.
+
+* `content` could be defined to include information about the graph.
+This would defeat the purpose of `content` which is to make ti easy to compare the content of entities from different graphs.
+
+* `align` could be avoided if Cypher had two different `NULL` values: `UNKNOWN` (wildcard semantics) and `UNDEFINED` (incomparable to everything semantics).
+As pointed out above, this was ruled out due to the implied breaking of existing queries.
+
+* `fail` could be avoided if Cypher had a more elaborate error handling system.
+This is out of scope of this CIP and its introduction left to the future.
+
+
+=== Benefits to this proposal
+
+Cypher is improved to better support handling values that involve `NULL`.
+This is envisioned to be particularly useful to compare entities and property value from different graphs.
+
+
+=== Caveats to this proposal
+
+None known besides increasing the size of the language by allowing two syntactic forms for expressing inequality and the complexity of the introduced functions.
