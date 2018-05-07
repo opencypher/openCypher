@@ -1,4 +1,4 @@
-= CIP2017-06-18 Multiple Graphs
+= CIP2017-06-18 Querying and constructing multiple graphs
 :numbered:
 :toc:
 :toc-placement: macro
@@ -405,8 +405,7 @@ The working graph may be operated on in the following ways:
 * The working graph is implicitly used during pattern matching and during the course of graph creation.
 * The working graph may be returned as a query result.
 * The working graph can be retained while the binding table is discarded.
-* The identity of model elements in the context of the working graph may be obtained using various functions.
-//TODO elaborate on where these functions may be found
+* The identity of model elements in the context of the working graph may be obtained using <<functions-data-model-introspection, introspective functions>>.
 
 
 === Selecting the working graph from the catalog: querying
@@ -504,21 +503,24 @@ This does not affect the rules on returning model elements together with their c
 
 == Graph construction and composition
 
-*Graph construction and composition* dynamically create new graphs in order to query, update, store them in the catalog, or return them to the client.
+*Graph construction and composition* dynamically create new graphs in order to query, update, store in the catalog, or return to the client.
+
+We begin this section by describing <<provenance-tracking, provenance tracking>> -- a means by which to replicate entities from other graphs -- and then proceed to detail the various forms of graph construction and composition (enumerated in the list below), and conclude with <<functions-data-model-introspection, functions>> used to introspect the various elements of the data model.
 
 The following forms of graph construction and composition are proposed in this section:
 
-* The working graph can be changed by constructing a new graph.
-* The working graph can be changed by composing a disjoint graph union.
-* The working graph can be changed by composing a common graph union.
-* The working graph can be changed by composing a graph intersection.
-* The working graph can be changed by composing a graph difference.
+* The working graph can be changed by <<graph-construction, constructing a new graph>>.
+* The working graph can be changed by composing a <<disjoint-graph-union, disjoint graph union>>.
+* The working graph can be changed by composing a <<common-graph-union, common graph union>>.
+* The working graph can be changed by composing a <<graph-intersection, graph intersection>>.
+* The working graph can be changed by composing a <<graph-difference, graph difference>>.
 
 
+[[provenance-tracking]]
 === Provenance tracking
 
 Entities in dynamically constructed graphs may be replicas of existing entities in other graphs.
-The query processor tracks the provenance of such entities by maintaining a provenance graph.
+The query processor tracks the provenance of these entities by maintaining a _provenance graph_.
 
 
 ==== Provenance graph
@@ -534,6 +536,7 @@ Note:: The provenance graph is _not_ a graph in the sense of the data model.
 The provenance graph is conceptually maintained by the query processor in order to track which entities are replicas of each other.
 
 
+[[graph-construction]]
 === Graph construction
 
 Graph construction is the dual operation to graph matching: While graph matching extracts pattern instances into variable bindings from the working graph, graph projection builds a new working graph from variable bindings.
@@ -631,6 +634,7 @@ Constructed graphs may only be updated by
 An error is raised if an update to a constructed graph leads to a constraint violation in a source graph.
 
 
+[[disjoint-graph-union]]
 === Disjoint graph union
 
 The *disjoint graph union* of two graphs may be computed using the following syntax:
@@ -649,7 +653,8 @@ The resulting union graph consists of copies of all entities from the two input 
 Note:: If a replica of the same source node is contained in both graphs, still two copies of that node are added to the result graph.
 
 
-=== Graph union
+[[common-graph-union]]
+=== Common graph union
 
 The *common graph union* of two graphs may be computed using the following syntax:
 
@@ -667,6 +672,7 @@ The resulting union graph consists of replicas of all entities from the two inpu
 Note:: If a replica of the same source node is contained in both graphs, only one replica for that node is added to the result graph.
 
 
+[[graph-intersection]]
 === Graph intersection
 
 The *common graph intersection* of two graphs may be computed using the following syntax:
@@ -683,6 +689,7 @@ RETURN GRAPH
 The resulting intersection graph consists of replicas of all entities that are contained in both input graphs.
 
 
+[[graph-difference]]
 === Graph difference
 
 The *common graph difference* of two graphs may be computed using the following syntax:
@@ -699,6 +706,7 @@ RETURN GRAPH
 The resulting difference graph consists of replicas for all entities from the left (first) graph that are not contained in the second (last) graph.
 
 
+[[functions-data-model-introspection]]
 === Functions for data model introspection
 
 The data model may be introspected using the following functions:
