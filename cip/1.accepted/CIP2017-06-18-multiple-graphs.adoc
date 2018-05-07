@@ -6,18 +6,18 @@
 
 *Author:* Stefan Plantikow <stefan.plantikow@neo4j.com>, Andres Taylor <andres.taylor@neo4j.com>, Petra Selmer <petra.selmer@neo4j.com>
 
-This material is based on internal contributions of Alastair Green <alastair.green@neotechnology.com>, Mats Rydberg <mats.rydberg@neotechnology.com>, Martin Junghanns <martin.junghanns@neotechnology.com>, Tobias Lindaaker <tobias.lindaaker@neotechnology.com>
+This material is based on internal contributions from Alastair Green <alastair.green@neo4j.com>, Mats Rydberg <mats.rydberg@neo4j.com>, Martin Junghanns <martin.junghanns@neo4j.com>, Tobias Lindaaker <tobias.lindaaker@neo4j.com>
 
 [abstract]
 .Abstract
 --
 This CIP extends Cypher with support for working with multiple graphs.
-Different graphs may be queried in a single statement by selecting them by name from a global catalog.
-New graphs may be created in the catalog or constructed temporarily during the course of a query.
+New graphs may be created in a global catalog or temporarily constructed during the course of a query.
+Different graphs may be queried in a single statement by selecting them by name from the catalog.
 Support for multiple graphs rests on a newly introduced multiple property graph model and a formalization of Cypher's clause structure and query execution model.
 
 Working with multiple graphs requires relating entities from otherwise disconnected datasets.
-This is supported by the accompanying CIP2018-04-24 for content based comparison.
+This is supported by the accompanying CIP2018-04-24 for content based comparison. XXTODO-where is this?
 --
 
 toc::[]
@@ -30,11 +30,12 @@ toc::[]
 == Introduction
 
 Cypher today is a query language for property graphs that provides access to a single, global, implicit graph in order to extract, transform, and return tabular data that is derived from it.
-While such returned tabular data may include graph entities (such as nodes and relationships), in essence Cypher as a language is not closed under graphs and as a consequence, Cypher queries are not yet (graph) compositional.
+While such returned tabular data may include graph entities (such as nodes and relationships), in essence Cypher as a language is not closed under graphs and as a consequence, Cypher queries are not (graph) compositional.
 
-However it seems desirable that a language for property graphs should not only enable querying and updating a selected graph but should also support the construction and transformation of multiple graphs, ideally by utilizing a mechanism for incremental query composition.
+An important feature for a property graph query language -- alongside the ability to query and update a selected graph -- is the ability to construct and transform  multiple graphs.
+Ideally, this would be through the utilization of a mechanism for incremental query composition.
 
-Furthermore, adding support for working with multiple graphs has recently been identified as a frequently requested feature:
+Furthermore, adding multiple graph support has recently been identified as a frequently requested feature:
 
 * It enables the dynamic construction of graph views (e.g. for access control)
 * It allows reasoning over multiple versions of the same graph (e.g. comparing daily snapshots)
@@ -46,22 +47,24 @@ Furthermore, adding support for working with multiple graphs has recently been i
 // === Overview
 === Related work
 
-This CIP has been developed in tandem with
+This CIP has been developed in tandem with the following CIPs; as such, it is recommended to read all four CIPs in conjunction with each other.
 
  * `CIP2016-06-22`: Nested subqueries
  * `CIP2018-05-04`: Equivalence operators, copy pattern, and related auxiliary functions
-
+ * `CIP XXXTODO` by Stefan: “Creating and administering graphs and views
 
 
 == The data model
 
 The data model underpinning Cypher today is the _property graph model_.
-We give a brief overview of the current property graph model in XXLINK, in effect, the _single property graph data model_, and then describe extensions to the model that will allow for the support of multiple graphs in XXLINK.
+We give a brief <<single-pgm, overview>> of the current property graph model, in effect, the _single property graph data model_, and then describe <<multiple-pgm, extensions>> to the model that will allow for the support of multiple graphs.
 
 
+[[single-pgm]]
 === The single property graph data model (current)
 
-The property graph model today is predicated upon the notion of a single, implicit property graph (hereafter termed as 'graph')[https://arxiv.org/pdf/1802.09984.pdf, adoc], which we show in IMAGE_FROM_SLIDES-SINGLE-PGMxxx.
+The property graph model today is predicated upon the notion of a single, implicit property graph (synonymously termed as 'graph'), which we show in <<img-single-pgm, Figure 1>>.
+We refer the reader to https://arxiv.org/pdf/1802.09984.pdf[this paper] for a more formal treatment of the property graph model.
 
 The concept of implicitness implies that:
 
@@ -69,36 +72,51 @@ The concept of implicitness implies that:
  * the data model contains nothing apart from this single graph, and
  * the graph is not able to be referred to by virtue of a name or identity or address within any context.
 
-IMAGE_FROM_SLIDES-SINGLE-PGMXXX
+
+[[img-single-pgm]]
+.Cypher today: the single property graph model
+image::single-property-graph-data-model.jpg[Graph,400,400]
+
+
 
 We define below terms which underpin the property graph data model:
 
+.Definition 1
 A _**property graph**_ consists of a set of nodes and a set of relationships that connect the nodes of the property graph.
 
+[[definition-2]]
+.Definition 2
 A _**property graph model instance**_ contains a single property graph.
 A property graph is contained in exactly one property graph model instance.
 
+.Definition 3
 A _**model element**_ is a constituent of a property graph model instance.
 These comprise nodes and relationships.
 
+.Definition 4
 A _**label**_ is a name used to classify a node.
 
+.Definition 5
 A _**relationship type**_ is a name used to classify a relationship.
 
+.Definition 6
 A _**value**_ is any value that is supported by the Cypher type system.
 
-A _**property**_ is a tuple consisting of a name (called the _**property key**_) and a value (called a _**property value**_).
+.Definition 7
+A _**property**_ is a tuple consisting of a name (called the _**property key**_) and a value (called the _**property value**_).
 
+.Definition 8
 An _**identity**_ is a value that is used to identify individual model elements and to distinguish between multiple model elements from a set of model elements in a given scope.
 
+.Definition 9
 A _**node**_ has a _**node identity**_ which is an identity that uniquely identifies the node within a property graph.
 A node contains a set of zero or more labels and zero or more properties with mutually different property keys.
 
+.Definition 10
 A _**relationship**_ has a _**relationship identity**_ which is an identity that uniquely identifies the relationship within a property graph.
 A relationship contains a start node and an end node (both drawn from the same graph as the relationship), a single relationship type, and zero or more properties with mutually different property keys.
-We note that the start and end nodes may be the same node, hence denoting a ‘self-loop’ relationship
+We note that the start and end nodes may be the same node, hence denoting a https://en.wikipedia.org/wiki/Loop_(graph_theory)[self-loop] relationship.
 
-XXTODO
 // Content = Everything but the identity
 // ???     = Content + Id
 // FOO ( ID, BAR ( ID + STUFF ), MAZ ( ID + THINGS ) )
@@ -106,42 +124,61 @@ XXTODO
 
 // content( FOO ) = all ids gone
 //
-The constituents of a model element are called its _**content**_.
+.Definition 11
+The constituents of a model element are called its _**contents**_.TODOXXwhat-about-the-contents
 For a node (respectively relationship) this comprises its labels, identity and properties (respectively, its relationship type, identity and properties).
 
+.Definition 12
 Nodes and relationships are called _**entities**_.
 
+.Definition 13
 Node and relationship identities are called _**entity identities**_.
 
-A _**reference**_ is a handle (i.e. an otherwise opaque value) that is used to address model elements of a property graph model instance (i.e. a node or a relationship).
+.Definition 14
+A _**reference**_ is a handle -- an otherwise opaque value -- that is used to address model elements of a property graph model instance (i.e. a node or a relationship).
 
 
+[[multiple-pgm]]
 === The multiple property graph data model (proposed)
 
-We now describe the extensions required to the property graph data model to enable multiple graph support.
+We now describe the extensions required to the property graph data model to enable multiple graph support; the multiple property graph model is illustrated in <<img-multiple-pgm, Figure 2>>.
 Unless otherwise specified, all previous attributes for the extended terms hold.
 
-IMAGE_FROM_SLIDES-SINGLE-MPGM
+[[img-multiple-pgm]]
+.The multiple property graph model
+image::multiple-property-graph-model.jpg[Graph,400,400]
 
-A _**multiple property graph model instance**_ (extending the notion of a property graph model instance) is a set of zero or more property graphs.
 
+.Definition 15
+A _**multiple property graph model instance**_ is a set of zero or more property graphs.
+This extends the notion of a _property graph model instance_ in <<definition-2, _Definition 2_>>.
+
+.Definition 16
 A _**property graph**_ has a _**graph identity**_ which is an identity that uniquely identifies the graph such that it is able to be distinguished from other graphs in the same multiple property graph model instance.
 A property graph is contained in exactly one multiple property graph model instance.
+This extends the notion of a _property graph_ in <<definition-1, _Definition 1_>>.
 
+.Definition 17
 A _**model element**_ is a constituent of a multiple property graph model instance.
 These additionally comprise property graphs.
+XXXDO-we-want-this?
 
+.Definition XX
 The _**content**_ of a property graph comprises its graph identity.
 XXCHECK
 
+.Definition 18
 A _**node**_ is contained in exactly one property graph.
+This extends the notion of a _node_ in <<definition-9, _Definition 9_>>.
 
+.Definition 19
 A _**relationship**_ is contained in exactly one property graph and its start node and end node are both contained in the same property graph as the relationship.
+This extends the notion of a _relationship_ in <<definition-10, _Definition 10_>>.
 
 
 ==== Valid model instance
 
-The set of *atoms* of an arbitrary value `v` is a list of all scalar values contained in `v` (cf. `CIP2018-05-04` for a full definition).
+The set of *atoms* of an arbitrary value `v` is a list of all scalar values contained in `v` (cf. `CIP2018-05-04: Equivalence operators, copy pattern, and related auxiliary functions` for a full definition).
 
 A *valid* multiple property graph model instance adheres to the following restrictions:
 
@@ -151,7 +188,7 @@ A *valid* multiple property graph model instance adheres to the following restri
    (Note that this differs from an entity not having a property key)
  * The set of atoms of any property value of any entity must not contain a reference to a model element.
 
-
+XXXTODO-not-readable.Also-whatis-identity-here?
 
 == Query structure
 
