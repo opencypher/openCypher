@@ -293,17 +293,16 @@ The following grammar shows the main syntax of all proposed changes:
 [source, cypher]
 
 ----
-<composite statement> ::= < simple statement > [ { `THEN` < simple statement > } ;
+<composite statement> ::=
+  < simple statement > [ { `THEN` < simple statement > } ... ] ;
 
 <call-subquery> ::= < query-mode > CALL < query-group > < subquery >
                   | < query-mode > CALL < query-group > < invocation >
                   ;
 
-<from-subquery> ::= < query-mode > FROM [ PER * | < keys > ] < subquery > ;
+<from-subquery> ::= < query-mode > FROM < query-group > < subquery > ;
 
 <update-subquery> ::= < query-mode > UPDATE < query-group > < subquery > ;
-
-<create-graph> ::= CREATE GRAPH < graph > [ { `,` GRAPH < graph > } ... ] ;
 
 <graph> ::= < identifier > < subquery >
           | < invocation > AS < identifier >
@@ -318,7 +317,8 @@ The following grammar shows the main syntax of all proposed changes:
              | `{` WHERE < predicate > < composite statement > `}`
              ;
 
-<invocation> ::= < identifier > `(` < args > `)` [ YIELD * | < bindings > | NONE ] ;
+<invocation> ::=
+  < identifier > `(` < args > `)` [ YIELD * | < bindings > | NONE ] ;
 
 <args> ::= < expr > [ { `,` < expr> } ... ] ;
 
