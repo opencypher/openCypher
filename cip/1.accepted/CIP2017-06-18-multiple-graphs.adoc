@@ -392,17 +392,18 @@ An error is raised if a query processor has not established an initial working g
 The working graph may be operated on in the following ways:
 
 * The working graph can be changed by selecting a graph that is known by the catalog.
-* The working graph is implicitly used during pattern matching and creational activity.
+* The working graph is implicitly used during pattern matching and during the course of graph creation.
 * The working graph may be returned as a query result.
-* The working graph can be kept while the binding table is discarded.
-* The identity of model elements in the context of the working graph may be obtained using various reflective functions.
+* The working graph can be retained while the binding table is discarded.
+* The identity of model elements in the context of the working graph may be obtained using various functions.
+//TODO elaborate on where these functions may be found
 
 
-=== Selecting the working graph from the catalog for querying
+=== Selecting the working graph from the catalog: querying
 
 // TODO: Asciidoc circle references
 // TODO: Asciidoc line numbers
-The working graph may be changed for all subsequent querying clauses using two forms:
+The working graph may be changed for all subsequent querying clauses using one of the following two forms:
 
 [source, cypher]
 ----
@@ -410,18 +411,22 @@ The working graph may be changed for all subsequent querying clauses using two f
 [2] FROM GRAPH
 ----
 
-`<graph-name>` is expected to be the name of a graph in the catalog.
-If `<graph-name>` is not the name of a graph in the catalog, an error is raised.
-It is an error to perform an updating operation on a working graph that was introduced using `FROM [GRAPH]`.
+`< graph-name >` is expected to be the name of a graph in the catalog.
 
-Additionally, `FROM GRAPH` may be used to select the working graph for further read-only operations.
+`FROM GRAPH` can be used to select the working graph for further read-only operations.
 
-Note:: A subquery form of `FROM` is proposed in the accompanying `CIP2018-05-03`.
+An error is raised in these scenarios:
+
+* `< graph-name >` is not the name of a graph in the catalog.
+* Attempting to perform an updating operation on a working graph introduced using `FROM [GRAPH]`.
 
 
-=== Selecting the working graph from the catalog for updating
+Note:: A subquery form of `FROM` is proposed in the accompanying `CIP2018-05-03 Nested subqueries`.
 
-The working graph may be changed for all subsequent querying and updating clauses using two forms:
+
+=== Selecting the working graph from the catalog: updating
+
+The working graph may be changed for all subsequent querying and updating clauses using one of the following two forms:
 
 [source, cypher]
 ----
@@ -429,27 +434,33 @@ The working graph may be changed for all subsequent querying and updating clause
 [2] UPDATE GRAPH
 ----
 
-`<graph-name>` is expected to be the name of a graph in the catalog.
-If `<graph-name>` is not the name of a graph in the catalog, an error is raised.
-It is an error to not perform at least a single updating operation on a working graph that was introduced using `UPDATE [GRAPH]`.
+`< graph-name >` is expected to be the name of a graph in the catalog.
 
-Additionally, `UPDATE GRAPH` may be used to select the working graph for further updating operations.
+`UPDATE GRAPH` may be used to select the working graph for further updating operations.
 
-Note:: A subquery form of `UPDATE` is proposed in the accompanying `CIP2018-05-03`.
+An error is raised in these scenarios:
+
+* `< graph-name >` is not the name of a graph in the catalog.
+* If no updating operations are performed on a working graph that was introduced using `UPDATE [GRAPH]`.
+
+
+Note:: A subquery form of `UPDATE` is proposed in the accompanying `CIP2018-05-03 Nested subqueries`.
 
 
 === Using the working graph when interpreting a pattern
 
 All bound entities are matched against the working graph in both pattern matching and updating commands.
 
-If one of the bound variables in a pattern is an entity that is not contained in the working graph, the whole pattern does not match.
+If one of the bound variables in a pattern is an entity that is not contained in the working graph, the entire pattern will not match.
 
-An error is raised, if a statement attempts to update an entity that is not contained in the working graph.
+XXXMORE-DETAIL-NEEDED-EXAMPLE
+
+An error is raised if a statement attempts to update an entity that is not contained in the working graph.
 
 
 === Discarding the driving table
 
-The current binding table may be discarded while retaining the working graph using the following syntax:
+The following syntax discards the current binding table whilst retaining the working graph:
 
 [source, cypher]
 ----
@@ -457,10 +468,10 @@ WITH GRAPH
 ...
 ----
 
-The remainder of the query after `WITH GRAPH` continues to operate on the same working graph but using an empty binding table (no fields, single record).
+The remainder of the query after `WITH GRAPH` continues to operate on the same working graph and uses an empty binding table (no fields, single record).
 
 
-=== Returning a graph result
+=== Returning a graph
 
 The working graph may be returned as an execution result using:
 
@@ -469,15 +480,16 @@ The working graph may be returned as an execution result using:
 RETURN GRAPH
 ----
 
-Additionally, the following syntactic form is supported for selecting the working graph from the catalog and returning it at the same time:
+Additionally, the following syntactic form is supported for both selecting the working graph from the catalog and returning it:
 
 [source, cypher]
 ----
 RETURN GRAPH < graph-name >
 ----
 
-Graphs are always returned by reference during execution inside the query processor.
-This does not affect the rules on returning model elements together with their content to the client which ensure that a graph result will be returned by value to the client.
+Graphs are always returned by reference during execution within the query processor.
+This does not affect the rules on returning model elements together with their content to the client; i.e. a graph result will be returned by value to the client.
+
 
 
 == Graph construction and composition
@@ -540,7 +552,7 @@ The basic form of graph construction is:
 
 Graph construction supports a subclause for the *replicating all entities of existing graphs* and a clause for the *replicating specific existing entities*.
 
-A simple clause chain may end in a `<graph-construction>`.
+A simple clause chain may end in a `< graph-construction >`.
 
 
 ==== Replication
