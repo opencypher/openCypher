@@ -194,7 +194,7 @@ QUERY _myView(args) {
 
 This alternative form of argument passing is needed for grouped nested subqueries in order to distinguish between arguments that are evaluated over parameters and the grouping key and variable bindings available in all records for the same grouping key.
 
-Activation of a view with binding expectations may rename those bindings:
+Activation of a view with binding expectations may provide those bindings via renaming.
 
 [source, cypher]
 ----
@@ -206,6 +206,9 @@ MATCH (x)-[r:KNOWS]->(y)
 CALL PER since _myView(5 WITH x AS a, y AS b) YIELD ...
 ...
 ----
+
+If binding expectations as just passed through by the inner query, they are _not_ added as additional bindings in the result records.
+
 
 == Grammar
 
