@@ -46,42 +46,42 @@ Creating new graphs in the catalog is done via the new schema command `CREATE GR
 
 There are four forms of `CREATE GRAPH`:
 
-1. `CREATE GRAPH <graph-name>` creates an empty graph in the catalog with the name `<graph-name>`.
+1. `CREATE GRAPH <graph name>` creates an empty graph in the catalog with the name `<graph name>`.
 
-2. `CREATE GRAPH <graph-name> { <nested-subquery> }` creates a new graph in the catalog that is a copy of the graph that was returned by `<nested subquery>`.
-An error is raised if `<nested-subquery>` does not return a graph.
+2. `CREATE GRAPH <graph name> { <nested subquery> }` creates a new graph in the catalog that is a copy of the graph that was returned by `<nested subquery>`.
+An error is raised if `<nested subquery>` does not return a graph.
 
-3. `CREATE GRAPH myProc(...) AS <graph-name>` creates a new graph in the catalog that is a copy of the graph that was returned by the call to `myProc`.
+3. `CREATE GRAPH myProc(...) AS <graph name>` creates a new graph in the catalog that is a copy of the graph that was returned by the call to `myProc`.
 An error is raised if `myProc` does not return a graph.
 
 4. Multiple graphs may be created with one graph statement by separating multiple `GRAPH` subclauses of the forms 1, 2, or 3 with `,` (e.g. `CREATE GRAPH foo, GRAPH bar { ... }`)
 
-5. An error is raised when a graph is created with the name `<graph-name>` and there already is a graph with that name in the catalog.
+5. An error is raised when a graph is created with the name `<graph name>` and there already is a graph with that name in the catalog.
 
 
 === Delete graph
 
-The catalog command `DELETE GRAPH <graph-name>` deletes the graph with the name `<graph-name>` from the catalog.
-If `<graph-name>` is not the name of a graph that already exists in the catalog, an error is raised.
+The catalog command `DELETE GRAPH <graph name>` deletes the graph with the name `<graph name>` from the catalog.
+If `<graph name>` is not the name of a graph that already exists in the catalog, an error is raised.
 
 
 === Copy graph
 
-The catalog command `COPY <old-name> TO <new-name>` copies the content and the schema of the graph with the name `<old-name>` in the catalog to a new graph with the name `<new-name>` in the catalog.
+The catalog command `COPY <old name> TO <new name>` copies the content and the schema of the graph with the name `<old name>` in the catalog to a new graph with the name `<new name>` in the catalog.
 If `<old-name>` is not the name of a graph that already exists in the catalog, an error is raised.
 If `<new-name>` is the name of a graph that already exists in the catalog, an error is raised.
 
 
 === Rename graph
 
-The catalog command  `RENAME <old-name> TO <new-name>` removes the graph with the name `<old-name>` from the catalog and adds it as a new graph with the name `<new-name>` in the catalog.
-If `<old-name>` is not the name of a graph that already exists in the catalog, an error is raised.
-If `<new-name>` is the name of a graph that already exists in the catalog, an error is raised.
+The catalog command  `RENAME <old name> TO <new name>` removes the graph with the name `<old name>` from the catalog and adds it as a new graph with the name `<new name>` in the catalog.
+If `<old name>` is not the name of a graph that already exists in the catalog, an error is raised.
+If `<new name>` is the name of a graph that already exists in the catalog, an error is raised.
 
 
 === Truncating graphs
 
-The catalog command `TRUNCATE <graph-name>` truncates the graph with the name `<graph-name>` in the catalog.
+The catalog command `TRUNCATE <graph name>` truncates the graph with the name `<graph name>` in the catalog.
 
 Truncating a graph deletes all its nodes and relationships but retains any additional schema information like constraints.
 
@@ -90,13 +90,130 @@ Truncating a graph deletes all its nodes and relationships but retains any addit
 
 The `catalog()` function returns the catalog name for the working graph or `NULL` if the working graph is a dynamically constructed graph.
 
- The `catalog(g)` function returns the catalog name for the graph identity `g` or `NULL` if `g` is a dynamically constructed graph.
+The `catalog(g)` function returns the catalog name for the graph identity `g` or `NULL` if `g` is a dynamically constructed graph.
 
 Note:: `toString(graph())` may be used to just generate a human readable name for the working graph.
 
 
+== Views
+
+A view is a query that is stored in the catalog (in the same way as graphs) but is re-evaluated whenever it is referenced.
+This is called an activation.
+
+
+=== Creating views in the catalog
+
+Views are created in the catalog using syntax `CREATE QUERY <view name> { <nested subquery> }`.
+
+Multiple views and graphs may be created by one `CREATE GRAPH/QUERY` schema command.
+
+
+=== Managing views in the catalog
+
+Views in the catalog can be managed with `COPY`, `RENAME`, `DELETE QUERY` in the same way as graphs.
+
+An error is raised when attempting to delete a graph using `DELETE QUERY` or a view using `DELETE GRAPH`.
+
+
+== View activation
+
+_Definition_: A view is activated whenever it is referenced from within a reading or updating statement.
+
+View activation executes the query that was associated with the view and returns the graph as the query result for actual use.
+
+The following forms of view activation currently exist in Cypher:
+
+1. `FROM <view name>`
+2. `UPDATE <view name>`
+3. `RETURN CALL <view name>`
+4. `RETURN GRAPH <view name>`
+
+
+== Local declarations
+
+Boths graphs and views may be declared at the start of a composite statement.
+
+The syntax for local graph declarations is
+
+[source, cypher]
+----
+GRAPH < local graph name > { <nested subquery }
+GRAPH < graph or view name > AS < local graph name >
+GRAPH myProc(...) AS < local graph name >
+----
+
+The syntax for local graph declarations is
+
+[source, cypher]
+----
+QUERY < local view name > { < nested subquery > }
+----
+
+To avoid conflicts, it is suggested that `<local view name>` and `<graph view name>` are identifiers that start with a `_`.
+
+Semantics:
+
+1. `<nested subquery>` must not be a correlated subqueries.
+
+2. An error is raised, if a local declaration would shadow an already exisint local declaration.
+
+Note:: Restriction 1 is likely going to be lifted in the future.
+
+
+== Parameterized views
+
+Both views stored in the catalog and locally declared views may be parameterized with view arguments
+
+[source, cypher]
+----
+QUERY _myView(<view argument>, ...) {
+  <composite statement>
+}
+----
+
+Activation of a parameterized view requires providing view arguments to the activation.
+
+1. View arguments use the same namespace as parameters.
+
+2. View arguments may be evaluated from any valid constant expression, i.e. an expression that only references literals or parameters in scope.
+However grouped nested subqueries may be used to make additional parameters available inside a subquery.
+
+3. An error is raised if a local view declares a view argument that is already bound (either passed as a parameter or via a grouped nested subquery).
+
+It is recommended that a warning is raised if a catalog view references a parameter that is not an explicitly bound view argument.
+
+Furthermore, views may express expectations on the passed bindings:
+
+[source, cypher]
+----
+QUERY _myView(args) {
+  WITH a, b
+  <composite statement>
+}
+----
+
+This alternative form of argument passing is needed for grouped nested subqueries in order to distinguish between arguments that are evaluated over parameters and the grouping key and variable bindings available in all records for the same grouping key.
+
+Activation of a view with binding expectations may rename those bindings:
+
+[source, cypher]
+----
+QUERY _myView($constant) {
+  WITH a, b
+  <composite statement>
+}
+MATCH (x)-[r:KNOWS]->(y)
+CALL PER since _myView(5 WITH x AS a, y AS b) YIELD ...
+...
+----
+
 
 == Considerations
+
+This CIP aims to bring together different concepts and syntactic ideas introduced in the design of Cypher for multiple graphs and the CIP for nested subqueries.
+
+It therefore tries to respect the guiding principles already expressed in those CIPs and other related proposals.
+
 
 === Interaction with existing features
 
@@ -116,7 +233,7 @@ However, catalog management was felt central enough to warrant proper inclusion 
 
 === What others do
 
-SQL has followed a similar approach.
+SQL has followed a similar approach in that it allows to register both views and tables in a global catalog.
 
 
 === Benefits to this proposal
