@@ -558,7 +558,7 @@ This idea is illustrated in <<img-duality, Figure 3>>.
 
 [[img-duality]]
 .Duality within Cypher: `MATCH` and `CONSTRUCT`
-image::duality.jpg[Graph,500,100]
+image::duality.png[Graph,2792,835]
 
 All newly-created nodes and relationships in the constructed graph have new entity identities and differ from any previously-matched entities.
 
