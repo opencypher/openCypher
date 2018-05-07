@@ -1,0 +1,131 @@
+= CIP2018-05-03 Creating and administrating graphs and views
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Stefan Plantikow <stefan.plantikow@neo4j.com>, Andres Taylor <andres.taylor@neo4j.com>, Petra Selmer <petra.selmer@neo4j.com>
+
+This material is based on internal contributions from Alastair Green <alastair.green@neo4j.com>, Mats Rydberg <mats.rydberg@neo4j.com>, Martin Junghanns <martin.junghanns@neo4j.com>, Tobias Lindaaker <tobias.lindaaker@neo4j.com>
+
+[abstract]
+.Abstract
+--
+This CIP extends Cypher with support for creating and administrating graphs and views in the catalog.
+
+This CIP has been created in tandem with `CIP2017-06-18` for adding support for working with multiple graphs to Cypher and `CIP2016-06-22` for nested subqueries and relies on the material introduced in these proposals.
+Therefore this CIP is based on the assumption that `CIP2017-06-18` and `CIP2016-06-22` will be accepted.
+--
+
+toc::[]
+
+
+
+== Introduction
+
+`CIP2017-06-18` introduces the notion of a catalog and adds support to Cypher for working with multiple graphs that may be either obtained from the catalog by name or constructed dynamically by a query.
+
+This proposal adds three additional capabilities: Managing the graphs in the catalog, managing views in the catalog and using them in a query, and finally query local declarations.
+
+
+=== Related work
+
+This CIP has been developed in tandem with the following CIPs; as such, it is recommended to read all four CIPs in conjunction with each other.
+
+ * `CIP2016-06-22`: Nested subqueries
+ * `CIP2018-05-04`: Equivalence operators, copy pattern, and related auxiliary functions
+ * `CIP2017-06-18`: Multiple graphs
+
+
+== Managing graphs in the catalog
+
+
+=== Creating graphs
+
+Creating new graphs in the catalog is done via the new schema command `CREATE GRAPH`.
+
+There are four forms of `CREATE GRAPH`:
+
+1. `CREATE GRAPH <graph-name>` creates an empty graph in the catalog with the name `<graph-name>`.
+
+2. `CREATE GRAPH <graph-name> { <nested-subquery> }` creates a new graph in the catalog that is a copy of the graph that was returned by `<nested subquery>`.
+An error is raised if `<nested-subquery>` does not return a graph.
+
+3. `CREATE GRAPH myProc(...) AS <graph-name>` creates a new graph in the catalog that is a copy of the graph that was returned by the call to `myProc`.
+An error is raised if `myProc` does not return a graph.
+
+4. Multiple graphs may be created with one graph statement by separating multiple `GRAPH` subclauses of the forms 1, 2, or 3 with `,` (e.g. `CREATE GRAPH foo, GRAPH bar { ... }`)
+
+5. An error is raised when a graph is created with the name `<graph-name>` and there already is a graph with that name in the catalog.
+
+
+=== Delete graph
+
+The catalog command `DELETE GRAPH <graph-name>` deletes the graph with the name `<graph-name>` from the catalog.
+If `<graph-name>` is not the name of a graph that already exists in the catalog, an error is raised.
+
+
+=== Copy graph
+
+The catalog command `COPY <old-name> TO <new-name>` copies the content and the schema of the graph with the name `<old-name>` in the catalog to a new graph with the name `<new-name>` in the catalog.
+If `<old-name>` is not the name of a graph that already exists in the catalog, an error is raised.
+If `<new-name>` is the name of a graph that already exists in the catalog, an error is raised.
+
+
+=== Rename graph
+
+The catalog command  `RENAME <old-name> TO <new-name>` removes the graph with the name `<old-name>` from the catalog and adds it as a new graph with the name `<new-name>` in the catalog.
+If `<old-name>` is not the name of a graph that already exists in the catalog, an error is raised.
+If `<new-name>` is the name of a graph that already exists in the catalog, an error is raised.
+
+
+=== Truncating graphs
+
+The catalog command `TRUNCATE <graph-name>` truncates the graph with the name `<graph-name>` in the catalog.
+
+Truncating a graph deletes all its nodes and relationships but retains any additional schema information like constraints.
+
+
+=== Determining the name of a graph
+
+The `catalog()` function returns the catalog name for the working graph or `NULL` if the working graph is a dynamically constructed graph.
+
+ The `catalog(g)` function returns the catalog name for the graph identity `g` or `NULL` if `g` is a dynamically constructed graph.
+
+Note:: `toString(graph())` may be used to just generate a human readable name for the working graph.
+
+
+
+== Considerations
+
+=== Interaction with existing features
+
+None known.
+
+
+=== Alternatives
+
+Instead of adding additional clauses the major part of the proposed functionality could be expressed using procedures.
+However, catalog management was felt central enough to warrant proper inclusion into the language.
+
+
+=== Syntax variations
+
+* `DROP GRAPH` instead of `DELETE GRAPH`
+
+
+=== What others do
+
+SQL has followed a similar approach.
+
+
+=== Benefits to this proposal
+
+Catalog management can be expressed using the Cypher language (instead of having to rely on implementation specific means).
+
+
+=== Caveats to this proposal
+
+The size of the language is increased.
+This makes it harder to learn Cypher.
+However the chosen syntax is quite intuitive which is expected to at leat reduce the impact of this change on readability.
