@@ -84,7 +84,6 @@ We define below terms which underpin the property graph data model:
 .Definition 1
 A _**property graph**_ consists of a set of nodes and a set of relationships that connect the nodes of the property graph.
 
-[[definition-2]]
 .Definition 2
 A _**property graph model instance**_ contains a single property graph.
 A property graph is contained in exactly one property graph model instance.
@@ -151,12 +150,12 @@ image::multiple-property-graph-model.jpg[Graph,400,400]
 
 .Definition 15
 A _**multiple property graph model instance**_ is a set of zero or more property graphs.
-This extends the notion of a _property graph model instance_ in <<definition-2, _Definition 2_>>.
+This extends the notion of a _property graph model instance_ in _Definition 2_.
 
 .Definition 16
 A _**property graph**_ has a _**graph identity**_ which is an identity that uniquely identifies the graph such that it is able to be distinguished from other graphs in the same multiple property graph model instance.
 A property graph is contained in exactly one multiple property graph model instance.
-This extends the notion of a _property graph_ in <<definition-1, _Definition 1_>>.
+This extends the notion of a _property graph_ in _Definition 1_.
 
 .Definition 17
 A _**model element**_ is a constituent of a multiple property graph model instance.
@@ -169,11 +168,11 @@ XXCHECK
 
 .Definition 18
 A _**node**_ is contained in exactly one property graph.
-This extends the notion of a _node_ in <<definition-9, _Definition 9_>>.
+This extends the notion of a _node_ in _Definition 9_.
 
 .Definition 19
 A _**relationship**_ is contained in exactly one property graph and its start node and end node are both contained in the same property graph as the relationship.
-This extends the notion of a _relationship_ in <<definition-10, _Definition 10_>>.
+This extends the notion of a _relationship_ in _Definition 10_.
 
 
 ==== Valid model instance
@@ -192,69 +191,84 @@ XXXTODO-not-readable.Also-whatis-identity-here?
 
 == Query structure
 
-Cypher syntax describes a structure that is a tree of clauses.
+We begin this section by defining the constituents of statements and clauses, and then proceed onto describing a classification scheme for both.
 
 
 === Statements and clauses
 
-_Definition_: A *valid statement* is a statement that is valid according to the semantic rules of the Cypher property graph query language.
+.Definition 20
+An _**operator clause**_ is a clause that is used to connect multiple _simple clause chains_ (_Definition 21_) in an _operator clause chain_ (_Definition 22_).
 
-_Definition_: A *statement* is a source program that is a syntactically valid term according to the root production rule of the grammar of the Cypher property graph query language.
-A statement may either be a statement chain or a composite statement.
+Note:: As per this and all accompanying proposals, the list of current and proposed operator clauses is `UNION`, `UNION ALL`, `INTERSECT` and `EXCEPT`.
 
-_Definition_: A *statement chain* is a composite statement followed by a semicolon followed by another composite statement.
+.Definition 21
+A _**simple clause chain**_ is a sequence of one or more non-operator clauses which may each be further qualified by clause arguments, sub-clauses and sub-clause arguments.
 
-_Definition_: A *composite statement* is a simple statement that is optionally followed by a composite statement.
+.Definition 22
+An _**operator clause chain**_ comprises two or more simple clause chains that are separated by the same operator clause.
+
+.Definition 23
+A _**simple statement**_ is either an operator clause chain or a simple clause chain.
+
+.Definition 24
+A _**composite statement**_ is a simple statement that is optionally followed by a composite statement.
 
 Note:: Syntax and semantics of composite statements are discussed in more detail in the accompanying `CIP2016-06-22` on nested subqueries.
-For the purpose of this CIP it is sufficient to only consider composite statements that are single simple statements.
+For the purposes of this CIP it is sufficient to only consider composite statements that are single simple statements.
 
- _Definition_: A *simple statement* is either a *operator clause chain* or a *simple clause chain*.
+.Definition 25
+A _**statement chain**_ is a composite statement (suffixed with a semicolon) followed by another composite statement.
 
-_Definition_: An *operator clause chain* are two or more simple clause chains that are separated by the exact same operator clause.
+.Definition 26
+A _**statement**_ is a source program that is a syntactically valid term according to the root production rule of the grammar of the Cypher property graph query language.
+A statement may either be a statement chain or a composite statement.
 
-_Definition_: An *operator clause* is a clause that is used to connect multiple simple clause chains in an operator clause chain.
+.Definition 27
+A _**valid statement**_ is a statement that is valid according to the semantic rules of the Cypher property graph query language.
 
-Note:: As per this and all accompanying proposals, the list of current and proposed operator clauses is `UNION`, `UNION ALL`, `INTERSECT`, `EXCEPT`.
-
-_Definition_: A *simple clause chain* is a sequence of one or more non-operator clauses which each may be further qualified by clause arguments, sub-clauses and sub-clause arguments.
+.Definition 28
+A _**syntactic unit**_ is a string containing clauses.
 
 
 === Clause classification
 
-_Definition_: Clauses may be classified according to their side-effects as either
+.Definition 29
+A clause is classified according to its side-effects as either
 
- * *reading clauses* that read data
- * *updating clauses* that read and update data
- * *schema clauses* that only read from and update the schema
+ * a _**reading clause**_ that reads data, or
+ * an _**updating clause**_ that reads and updates data, or
+ * a _**schema clause**_ that only reads from and updates the schema.
 
-_Definition_: Clauses that are used for graph construction are called *constructing clauses*.
-Constructing clauses are considered to be a form of reading clauses.
+.Definition 30
+A clauses that is used for graph construction is called an _**constructing clause**_.
+A constructing clauses is considered to be a form of reading clause.
 
 
 === Statement classification
 
-_Definition_: A (single) statement may be categorized as:
+.Definition 31
+A (single) statement may be categorized as either:
 
- * A *reading query* is a statement consisting of reading clauses that reads and returns data
- * An *updating query* is a statement consisting of reading and updating clauses that reads, updates and returns data
- * An *updating command* is a statement consisting of reading and updating clauses that reads and updates data but returns no data
- * A *schema command* is a statement consisting of schema clauses that only updates the schema
+ * a _**reading query**_, which is a statement consisting of reading clauses that read and return data, or
+ * an _**updating query**_, which is a statement consisting of reading and updating clauses that read, update and return data, or
+ * an _**updating command**_, which is a statement consisting of reading and updating clauses that read and update data and do not return data, or
+ * a _**schema command**_, which is a statement consisting of schema clauses that only update the schema.
 
- Note:: An implementation may choose to limit the kinds of statements that can be combined in a statement chain (e.g. not allow to combine updating and schema commands in one chain).
+ Note:: An implementation may choose to limit the kinds of statements that can be combined in a statement chain; for example, to not allow updating and schema commands to be combined within a single chain.
 
 
 === Structural principles
 
 The high-level syntactic structure of Cypher adheres to the following principles:
 
-1. The majority of clauses is given in sequential order that is to be interpreted from top to bottom in order to construct a left leaning clause tree.
+1. The majority of clauses is given in a sequential order which is to be interpreted from top to bottom, thereby constructing a left-leaning clause tree.
 
 2. The end of a syntactic unit or a subquery that returns data is always marked explicitly using `RETURN` or `RETURN GRAPH`.
 
 3. The end of a syntactic unit or a subquery that returns no data is marked explicitly by choosing an updating clause as the final clause and the absence of `RETURN` or `RETURN GRAPH` as a final clause
 
-4. Non-sequential operator clauses (like `UNION`) are only allowed at the top-level and may not be combined with other operator clauses (This can be achieved though via nested subqueries, cf. accompanying `CIP2018-05-03`).
+4. Non-sequential operator clauses (such as `UNION`) are only allowed at the top level and may not be combined with other operator clauses.
+ We note that this can be achieved through the use of nested subqueries, cf. accompanying `CIP2018-05-03`.
 
 5. Updating clauses and following reading clauses must be separated by `WITH`.
 
@@ -264,9 +278,9 @@ The high-level syntactic structure of Cypher adheres to the following principles
 
 == Execution model
 
-_Definition_: A *query processor* is a query processing service that executes a source program on behalf of a *client* and provides the client with the *execution result* that describes the outcome of executing the source program.
-A query processor maintains exactly one _multiple property graph model instance_.
-A query processor maintains exactly one _catalog_.
+.Definition 32
+A _**query processor**_ is a query processing service that executes a source program on behalf of a *client* and provides the client with the *execution result* that describes the outcome of executing the source program.
+A query processor maintains exactly one multiple property graph model instance, and exactly one catalog (_Definition 41_).
 
 
 === Execution of client requests
@@ -274,23 +288,35 @@ A query processor maintains exactly one _catalog_.
 
 ==== Query inputs and outputs
 
-_Definition_: A source program together with statement parameters is called a *client request*.
 
-_Definition_: A set of parameters with pairwise different names is called *statement parameters*.
+.Definition 33
+A _**parameter**_ is a tuple which is comprised of a *name* and a *value*.
 
-_Definition_: A *parameter* is tuple of name and a value.
+.Definition 34
+_**Statement parameters**_ is a set of parameters containing pairwise different names.
 
-_Definition_: The result of executing a client request is called an *execution result*.
-An execution result is one of
+.Definition 35
+A source program together with statement parameters is called a _**client request**_.
 
-* a *tabular result*; i.e. a collection of records where each record has the exact same set of named fields.
-Tabular results may contain duplicate results and may optionally be ordered
-* a *graph result*; i.e. the contents of a graph as described by its set of nodes and relationships
-* an *execution error*; i.e. a message describing the reason that prevented the query processor from executing the client request correctly
+.Definition 36
+The result of executing a client request is called an _**execution result**_.
+An execution result is one of the following:
 
-_Definition_: An *empty result* is a specially marked tabular result that consists of one and only one record with zero fields.
+* A _**tabular result**_: a collection of records where each record has exactly the same set of named fields.
+Tabular results may contain duplicate results and be optionally ordered.
+* A _**graph result**_: the contents of a graph as described by its set of nodes and relationships.
+* An _**execution error**_: a message describing the reason that prevented the query processor from executing the client request successfully.
 
-_Definition_: Any tabular result that is provided as the single input to a clause is called the *driving table* of that clause.
+.Definition 37
+A _**void result**_ is a specially marked tabular result that consists of one and only one record with zero fields.
+
+.Definition 38
+An _**empty result**_ is either a tabular result or graph result which contains no data (for instance, when no matches have been found).
+An empty _tabular_ result consists of all the fields defined for the result, and zero records.
+An empty _graph_ result consists of a graph with zero nodes and zero relationships.
+
+.Definition 39
+Any tabular result that is provided as the single input to a clause is called the _**driving table**_ of that clause.
 
 
 ==== Request execution
@@ -298,7 +324,8 @@ _Definition_: Any tabular result that is provided as the single input to a claus
 Clients interact with the query processor by submitting a client request.
 The source program is then executed by the query processor and an execution result is returned to the client for consumption.
 
-_Definition_: *Raising an error* refers to aborting the execution of a currently-executing client request and returning the error as the final execution result of the client request back to the client.
+.Definition 40
+_**Raising an error**_ refers to aborting the execution of a currently-executing client request and returning the error as the final execution result of the client request back to the client.
 
 An execution error is raised if the client request does not contain a semantically valid statement.
 
@@ -306,13 +333,13 @@ An execution error is raised if the client request does not contain a semantical
 ==== Execution of statement chains
 
 Statement chains are executed by executing all contained composite statements in the order given.
-If execution of any contained composite statement fails with an error, the execution of the whole statement fails with the same error.
-Otherwise, the query processor discards all intermediary results produced by a statement chain and only returns the execution result for the last composite statement.
+If the execution of any contained composite statement fails with an error, the execution of the whole statement fails with the same error.
+Otherwise, the query processor discards all intermediate results produced by a statement chain and only returns the execution result for the last composite statement.
 
 
 ==== Identity validity during execution
 
-Identities are only guaranteed to be valid for the duration of executing a statement and consuming its result.
+Identities are only guaranteed to be valid for the duration of the execution of a statement and the consumption of its result.
 
 Implementations may choose to guarantee the validity of identities across multiple client requests.
 
@@ -321,37 +348,41 @@ Note:: As a consequence, the same identity value may refer to different model el
 
 ==== Returning graph model elements
 
-If an execution result that is returned _to the client_ contains a model element, this model element is returned together with its content at the time of terminating the query (i.e. the client always receives the current content of all model elements).
+If an execution result that is returned _to the client_ contains a model element, this model element is returned together with its content once the query terminates (i.e. the client always receives the current content of all model elements).
 
-Note:: Additionally, a result may contain implementation specific metadata such as a summary of performed update activity (e.g. the number of nodes created) or a detailed query plan.
+Note:: Additionally, a result may contain implementation-specific metadata such as a summary of performed update activity (e.g. the number of nodes created) or a detailed query plan.
 
 
-=== Catalog
+=== The catalog
 
-_Definition_: A _catalog_ is a mapping from *fully qualified graph names* to graph references.
+.Definition 41
+A _**catalog**_ is a mapping from _**fully qualified graph names**_ to graph references.
 Multiple entries in the catalog may refer to the same graph.
 
-A fully qualified graph name should use the syntax for dotted variable identifiers and consists of an optional *graph namespace*, and a mandatory *graph name*.
+A fully qualified graph name should use the syntax for dotted variable identifiers.
+It consists of an optional *graph namespace*, and a mandatory *graph name*.
 
-Note:: In practice, a query processor might have a catalog shared by all users, or provide a different catalog for each user.
+Note:: In practice, a query processor may have a catalog shared by all users, or provide a different catalog for each user.
 This is not considered here based on the simplifying assumption that all client requests are made by the same user.
 
 
-=== Working graph
+=== The working graph
 
-Most Cypher clauses operate within the context of a *working graph*, by reading or updating it.
+Most Cypher clauses operate within the context of a _working graph_ (_Definition 43_) by reading or updating it.
 
-_Definition_: The _working graph stack_ is a stack of graph references that is maintained during statement execution.
+.Definition 42
+The _**working graph stack**_ is a stack of graph references that is maintained during statement execution.
 
-_Definition_: The _working graph_ is the top most element of the current working graph stack.
+.Definition 43
+The _**working graph**_ is the topmost element of the current working graph stack.
 
-Note:: The working graph stack may be empty at the start of executing a statement.
+Note:: The working graph stack may be empty when a statement begins to execute.
 In this case, the working graph is considered to be unset.
 
-A query processor may choose to establish an *initial working graph* for each executed statement.
-The details of this are left to implementations.
+A query processor may choose to establish an *initial working graph* for each statement to be executed.
+The details are left to implementations.
 
-If a query processor has not established an initial working graph (i.e. the working graph is unset) and the statement fails to set a working graph explicitly before attempting to operate on the working graph, an error is raised.
+An error is raised if a query processor has not established an initial working graph -- i.e. the working graph is unset -- and the statement fails to set a working graph explicitly before attempting to operate on the working graph.
 
 
 
@@ -506,7 +537,7 @@ The basic form of graph construction is:
 <de-replicate-clause> := [DETACH] DELETE ALL < expression-list > | '*' ;
 ----
 
-Graph construction supports a sub-clause for the *replicating all entities of existing graphs* and a clause for the *replicating specific existing entities*.
+Graph construction supports a subclause for the *replicating all entities of existing graphs* and a clause for the *replicating specific existing entities*.
 
 A simple clause chain may end in a `<graph-construction>`.
 
@@ -524,9 +555,9 @@ Replicating a relationship implicitly replicates its start node and its end node
 Note:: It is possible to replicate an entity over multiple steps of graph construction.
 However, there will never be multiple replicas in one graph that have the same root in the provenance graph.
 
-The `ON GRAPH` sub-clause may be used to replicate all nodes and relationships from the working graph into the constructed graph.
+The `ON GRAPH` subclause may be used to replicate all nodes and relationships from the working graph into the constructed graph.
 
-The `ON < graph-name-list >` sub-clause may be used to replicate all nodes and relationships from the given graphs in the catalog into the constructed graph.
+The `ON < graph-name-list >` subclause may be used to replicate all nodes and relationships from the given graphs in the catalog into the constructed graph.
 
 
 ==== Building constructed graphs
@@ -875,7 +906,6 @@ However it may still be worthwhile to explore this idea in the future for "tiny 
 
 Below is a list of potential syntax variations under discussion:
 
- * `DROP GRAPH` instead of `DELETE GRAPH`
  * Listing multiple graphs as an argument to `FROM` and `UPDATE` etc. could be defined as a syntax shorthand for an implied graph union between these graphs
 
 
