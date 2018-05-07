@@ -519,18 +519,19 @@ The following forms of graph construction and composition are proposed in this s
 [[provenance-tracking]]
 === Provenance tracking
 
-Entities in dynamically constructed graphs may be replicas of existing entities in other graphs.
-The query processor tracks the provenance of these entities by maintaining a _provenance graph_.
+Entities in dynamically constructed graphs may be _replicas_ (_Definition 46_) of existing entities in other graphs.
+The query processor tracks the provenance of these entities by maintaining a _provenance graph_ (_Definition 46_).
 
 
 ==== Provenance graph
 
-_Definition_: The *provenance graph* is a directed acyclic graph whose vertices represent entities of a multiple property graphs model instance.
-Vertices are connected with an edge in the provenance graph if the target vertex represents a *replica* `e` of the entity that is represented by the source vertex.
-The entity represented by the source vertex is called the *original* of `e`.
+.Definition 46
+A _**provenance graph**_ is a directed acyclic graph whose vertices represent entities of a multiple property graph model instance.
+Vertices are connected with an edge in the provenance graph if the target vertex represents a _**replica**_ `e` of the entity that is represented by the source vertex.
+The entity represented by the source vertex is called the *original* of `e`. XXXINCORRECT
 Multiple vertices may represent the same entity.
 However, all vertices that represent the same entity `e` must have a single shared vertex as their ancestor.
-The entity represented by this ultimate ancestor is called the *root* of `e`.
+The entity represented by this ultimate ancestor is called the _**root**_ of `e`.
 
 Note:: The provenance graph is _not_ a graph in the sense of the data model.
 The provenance graph is conceptually maintained by the query processor in order to track which entities are replicas of each other.
@@ -539,9 +540,9 @@ The provenance graph is conceptually maintained by the query processor in order 
 [[graph-construction]]
 === Graph construction
 
-Graph construction is the dual operation to graph matching: While graph matching extracts pattern instances into variable bindings from the working graph, graph projection builds a new working graph from variable bindings.
+Graph construction is the dual -- or inverse -- operation to graph matching: while graph matching extracts pattern instances into variable bindings from the working graph, graph construction builds a new working graph from variable bindings.
 
-All newly created nodes and relationships in the constructed graph have new entity identities and are different from any previously matched entities.
+All newly-created nodes and relationships in the constructed graph have new entity identities and differ from any previously-matched entities.
 
 The basic form of graph construction is:
 
@@ -563,30 +564,37 @@ The basic form of graph construction is:
 <de-replicate-clause> := [DETACH] DELETE ALL < expression-list > | '*' ;
 ----
 
-Graph construction supports a subclause for the *replicating all entities of existing graphs* and a clause for the *replicating specific existing entities*.
+Graph construction supports a subclause for the *replication of all entities of existing graphs* and a clause for the *replication of specific existing entities*.
+XXWHERE-and-WHAT??
 
-A simple clause chain may end in a `< graph-construction >`.
+A simple clause chain may end with a `< graph-construction >`.
 
 
 ==== Replication
 
-In order to reconstruct subgraph structures from other graphs in the new graph, `CONSTRUCT` supports the creation of replicated entities (i.e. replicas) in the new graph.
+We now describe the construct clauses: (i) `CONSTRUCT`, (ii) `ON GRAPH` and (iii) `ON <graph name list>`.
 
-_Definition_: *Replication* ensures that exactly one new replica is created in a newly constructed graph for a given source entity from some other graph.
-If the same entity is replicated multiple times into the constructed graph this will still only create one replica in the constructed graph.
-If multiple entities with the same root in the provenance graph are replicated into the constructed graph this will still only create one replica per distinct root in the constructed graph.
-Every replica has exactly the same labels or relationship type as well as the same properties as the source entity by virtue of update propagation (i.e. a replica can be seen as a "representative" of the source in the constructed graph).
+(i) The `CONSTRUCT` clause supports the creation of replicated entities (i.e. replicas) in the new graph in order to reconstruct (in the new graph) subgraph structures from other graphs.
+
+.Definition 47
+_**Replication**_ ensures that exactly one new replica is created in a newly-constructed graph for a given source entity from some other graph.
+If the same entity is replicated multiple times in the constructed graph, this will still only create one replica in the constructed graph.
+If multiple entities with the same root in the provenance graph are replicated in the constructed graph, this will still only create one replica per distinct root in the constructed graph.
+Every replica has exactly the same labels/relationship type as well as the same properties as the source entity by virtue of update propagation (i.e. a replica can be seen as a "representative" of the source in the constructed graph).
+Updating a replica will propote-to-rootXXXX
 Replicating a relationship implicitly replicates its start node and its end node and uses these replicated nodes as the start node and the end node of the relationship replica.
 
-Note:: It is possible to replicate an entity over multiple steps of graph construction.
+Note:: It is possible to replicate an entity over multiple interations of graph construction.
 However, there will never be multiple replicas in one graph that have the same root in the provenance graph.
 
-The `ON GRAPH` subclause may be used to replicate all nodes and relationships from the working graph into the constructed graph.
+(ii) The `ON GRAPH` subclause may be used to replicate all nodes and relationships from the working graph into the constructed graph.
 
-The `ON < graph-name-list >` subclause may be used to replicate all nodes and relationships from the given graphs in the catalog into the constructed graph.
+(iii) The `ON < graph-name-list >` subclause may be used to replicate all nodes and relationships from the given graphs in the catalog into the constructed graph.
 
 
 ==== Building constructed graphs
+
+//TODO PS up to here
 
 Constructed graphs are built by explicitly populating them with entities using the following clauses:
 
