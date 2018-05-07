@@ -29,6 +29,8 @@ toc::[]
 
 == Introduction
 
+=== Overview and motivation
+
 Cypher today is a query language for property graphs that provides access to a single, global, implicit graph in order to extract, transform, and return tabular data that is derived from it.
 While such returned tabular data may include graph entities (such as nodes and relationships), in essence Cypher as a language is not closed under graphs and as a consequence, Cypher queries are not (graph) compositional.
 
@@ -44,7 +46,6 @@ Furthermore, adding multiple graph support has recently been identified as a fre
 * It fits the paradigm of prominent analytical big-data processing systems (e.g. Apache Spark)
 * It mirrors mathematical graph theory where working with multiple graphs is common
 
-// === Overview
 === Related work
 
 This CIP has been developed in tandem with the following CIPs; as such, it is recommended to read all four CIPs in conjunction with each other.
