@@ -17,7 +17,7 @@ Different graphs may be queried in a single statement by selecting them by name 
 Support for multiple graphs rests on a newly introduced multiple property graph model and a formalization of Cypher's clause structure and query execution model.
 
 Working with multiple graphs requires relating entities from otherwise disconnected datasets.
-This is supported by the accompanying CIP2018-04-24 for content based comparison. XXTODO-where is this?
+This is supported by `CIP2018-05-04 Equivalence` for content based comparison.
 --
 
 toc::[]
@@ -189,7 +189,7 @@ A *valid* multiple property graph model instance adheres to the following restri
    (Note that this differs from an entity not having a property key)
  * The set of atoms of any property value of any entity must not contain a reference to a model element.
 
-XXXTODO-not-readable.Also-whatis-identity-here?
+XXXTODO-not-readable.Also-whatis-identity-here?Stefan-node ids can for example be a list of values.
 
 == Query structure
 
@@ -218,8 +218,8 @@ A _**local declaration**_ is a clause that assigns a local name to a graph or a 
 Note:: Syntax and semantics of local declarations are discussed in greater detail in `CIP2018-05-03`.
 
 .Definition 25
-A _**simple statement chain**_ is either a simple statement that is optionally followed by the keyword `THEN` and another composite statement.
-The `THEN` keyword may be omitted if the simple statement ends in a `RETURN`, `RETURN GRAPH`, or `RETURN CALL` clause.
+A _**simple statement chain**_ is either a simple statement that is optionally followed by the keyword `THEN` and another simple statement chain.
+The `THEN` keyword may be omitted if the simple statement ends with a `RETURN`, `RETURN GRAPH`, or `RETURN CALL` clause.
 
 .Definition 26
 A _**composite statement**_ is a possibly empty sequence of local declarations that are followed by a simple statement chain.
@@ -528,7 +528,7 @@ The query processor tracks the provenance of these entities by maintaining a _pr
 .Definition 46
 A _**provenance graph**_ is a directed acyclic graph whose vertices represent entities of a multiple property graph model instance.
 Vertices are connected with an edge in the provenance graph if the target vertex represents a _**replica**_ `e` of the entity that is represented by the source vertex.
-The entity represented by the source vertex is called the *original* of `e`. XXXINCORRECT
+The entity represented by the source vertex is called the _**parent**_ of `e`.
 Multiple vertices may represent the same entity.
 However, all vertices that represent the same entity `e` must have a single shared vertex as their ancestor.
 The entity represented by this ultimate ancestor is called the _**root**_ of `e`.
@@ -541,6 +541,12 @@ The provenance graph is conceptually maintained by the query processor in order 
 === Graph construction
 
 Graph construction is the dual -- or inverse -- operation to graph matching: while graph matching extracts pattern instances into variable bindings from the working graph, graph construction builds a new working graph from variable bindings.
+This idea is illustrated in <<img-duality, Figure 3>>.
+
+
+[[img-duality]]
+.Duality within Cypher: `MATCH` and `CONSTRUCT`
+image::duality.jpg[Graph,500,100]
 
 All newly-created nodes and relationships in the constructed graph have new entity identities and differ from any previously-matched entities.
 
@@ -564,10 +570,9 @@ The basic form of graph construction is:
 <de-replicate-clause> := [DETACH] DELETE ALL < expression-list > | '*' ;
 ----
 
-Graph construction supports a subclause for the *replication of all entities of existing graphs* and a clause for the *replication of specific existing entities*.
-XXWHERE-and-WHAT??
+Graph construction supports a subclause for the *replication of all entities of existing graphs* (using `CONSTRUCT ON`) and a clause for the *replication of specific existing entities* (using `MERGE ALL`).
 
-A simple clause chain may end with a `< graph-construction >`.
+A simple clause chain may end with a `< graph-construction >` that ends with `RETURN GRAPH`.
 
 
 ==== Replication
@@ -580,8 +585,7 @@ We now describe the construct clauses: (i) `CONSTRUCT`, (ii) `ON GRAPH` and (iii
 _**Replication**_ ensures that exactly one new replica is created in a newly-constructed graph for a given source entity from some other graph.
 If the same entity is replicated multiple times in the constructed graph, this will still only create one replica in the constructed graph.
 If multiple entities with the same root in the provenance graph are replicated in the constructed graph, this will still only create one replica per distinct root in the constructed graph.
-Every replica has exactly the same labels/relationship type as well as the same properties as the source entity by virtue of update propagation (i.e. a replica can be seen as a "representative" of the source in the constructed graph).
-Updating a replica will propote-to-rootXXXX
+Every replica has exactly the same labels/relationship type as well as the same properties as the source entity by virtue of update propagation (i.e. a replica can be seen as a "representative" of the source in the constructed graph); more information is detailed <<updating-constructed-graphs, here>>.
 Replicating a relationship implicitly replicates its start node and its end node and uses these replicated nodes as the start node and the end node of the relationship replica.
 
 Note:: It is possible to replicate an entity over multiple interations of graph construction.
@@ -593,8 +597,6 @@ However, there will never be multiple replicas in one graph that have the same r
 
 
 ==== Building constructed graphs
-
-//TODO PS up to here
 
 Constructed graphs are built by explicitly populating them with entities using the following clauses:
 
@@ -612,9 +614,9 @@ The `MERGE ALL < expression-list >` clause may be used to replicate entities tha
 
 Additionally, the `MERGE ALL *` clause may be used to replicate the atoms of all variables that are visible in the current scope.
 
-Note:: Replicating a nested value (like a path) using `MERGE ALL` implicitly replicates all contained nodes and relationships.
+Note:: Replicating a nested value (such as a path) using `MERGE ALL` implicitly replicates _all_ contained nodes and relationships.
 
-If an entity from another graph is passed as argument to `DELETE` or `DETACH DELETE`, any corresponding replicates are removed from the constructed graph.
+If an entity from another graph is passed as an argument to `DELETE` or `DETACH DELETE`, any corresponding replicas are removed from the constructed graph.
 
 The `[DETACH] DELETE ALL < expression-list >` clause may be used to remove replicas that are contained in the atoms of the given values from the constructed graph.
 
@@ -623,14 +625,15 @@ Additionally, the `[DETACH] DELETE ALL *` clause may be used to remove replicas 
 An error is raised for any attempt to `SET` or `REMOVE` labels or properties of replicas during graph construction.
 
 
+[[updating-constructed-graphs]]
 ==== Updating constructed graphs
 
-Constructed graphs may be updated as well using `UPDATE GRAPH`.
+Constructed graphs may be updated using `UPDATE GRAPH`.
 Updating relies on information from provenance tracking of replicas in order to propagate updates to base data.
 
 A reference value (e.g. as obtained by pattern matching or expression evaluation) to an entity `e` always implicitly addresses all children of the root of `e` in the provenance graph.
 
-Updating a reference to an entity (setting and removing of properties and labels and deletion of the entity) updates all replicas in the same way.
+Updating a reference to an entity (setting and removing of properties and labels and deletion of the entity) updates all replicas and the base data in the same way.
 This is called *update propagation*.
 
 Constructed graphs may only be updated by
@@ -658,7 +661,7 @@ RETURN GRAPH
 
 The resulting union graph consists of copies of all entities from the two input graphs.
 
-Note:: If a replica of the same source node is contained in both graphs, still two copies of that node are added to the result graph.
+Note:: If a replica of the same source node is contained in both graphs, two copies of that node are added to the result graph.
 
 
 [[common-graph-union]]
