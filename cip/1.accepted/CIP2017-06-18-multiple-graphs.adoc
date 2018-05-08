@@ -50,7 +50,7 @@ This CIP has been developed in tandem with the following CIPs; as such, it is re
 
  * `CIP2016-06-22`: Nested subqueries
  * `CIP2018-05-04`: Equivalence operators, copy pattern, and related auxiliary functions
- * `CIP2018-05-03`: Creating and administrating graphs and views
+ * `CIP2018-05-03`: Creating and administering graphs and views
 
 
 == The data model
@@ -99,8 +99,8 @@ A _**relationship type**_ is a name used to classify a relationship.
 
 .Definition 6
 A _**value**_ is any value that is supported by the Cypher type system.
-A _**scalar value**_ is any opaque value that cannot be further divided into multiple constituting values.
-A _**nested value**_ is any value that is composed of multiple constituting values.
+A _**scalar value**_ is any opaque value that cannot be sub-divided into multiple constituent values.
+A _**nested value**_ is any value that is composed of multiple values.
 
 .Definition 7
 A _**property**_ is a tuple consisting of a name (called the _**property key**_) and a value (called the _**property value**_).
@@ -121,10 +121,10 @@ A relationship contains a start node and an end node (both drawn from the same g
 We note that the start and end nodes may be the same node, hence denoting a https://en.wikipedia.org/wiki/Loop_(graph_theory)[self-loop] relationship.
 
 .Definition 11
-The _**contents**_ of a model element are its constituents but not its identity.
-For a node (respectively relationship) this comprises its labels, and properties (respectively, its relationship type, properties, as well as its start node and its end node).
-The _**plain contents**_ of a mode element is the same as the contents of the model element but excludes the identity of the start node and the end node of relationships.
-The _**shallow contenst**_ of a mode element is the same as the contents of the model element but excludes the start node and the end node of relationships.
+The _**contents**_ of a model element include its constituents but not its identity.
+For a node (respectively relationship) this comprises its labels, and properties (respectively, its relationship type, properties, as well as its start node and its end node, the latter defined recursively).
+The _**plain contents**_ of a model element is the same as the contents of the model element but excludes the identity of the start node and the end node of relationships. XXTODOXXX
+The _**shallow contenst**_ of a model element is the same as the contents of the model element but excludes the start node and the end node of relationships.
 
 
 .Definition 12
@@ -179,13 +179,13 @@ The set of *atoms* of an arbitrary value `v` is a list of all scalar values cont
 
 A *valid* multiple property graph model instance adheres to the following restrictions:
 
- * The atoms of an identity value of any model element must not contain `NULL`.
+ * The atoms of an identity value of any model element must not contain `NULL`. XXWHERE-is-identity-value-defined???
  * The atoms of an identity value of any model element must not contain a reference to a model element.
  * Property values must not be `NULL`
-   (Note that this differs from an entity not having a property key).
+   (Note that this differs from an entity not having some property key `key`).
  * The atoms of any property value of any entity must not contain a reference to a model element.
 
-Note:: Without these restrictions, nodes could be used to as part of graph identities and relationships could be used as property values.
+Note:: Without these restrictions, nodes could be used to form part of graph identities, and relationships could be used as property values.
 
 
 == Query structure
@@ -202,7 +202,7 @@ Note:: As per this and all accompanying proposals, the list of current and propo
 `THEN` is not considered to be an operator clause.
 
 .Definition 22
-A _**simple clause chain**_ is a sequence of one or more non-operator clauses which each may be further qualified by clause arguments, sub-clauses and sub-clause arguments.
+A _**simple clause chain**_ is a sequence of one or more non-operator clauses which may each be further qualified by clause arguments, sub-clauses and sub-clause arguments.
 
 .Definition 23
 An _**operator clause chain**_ comprises two or more simple clause chains that are separated by the same operator clause.
@@ -359,7 +359,7 @@ Note:: As a consequence, the same identity value may refer to different model el
 
 The client always receives the current contents of all returned model elements:
 
-1. If an execution result that is returned _to the client_ is a graph result, the contents of this graph is returned.
+1. If an execution result that is returned _to the client_ is a graph result, the contents of this graph is returned.XXXSLOPPY
 
 2. If an execution result that is returned _to the client_ is a tabular, the contents and identity of all contained entities is returned.
 
@@ -431,7 +431,7 @@ An error is raised in these scenarios:
 * `< graph-name >` is not the name of a graph in the catalog.
 * Attempting to perform an updating operation on a working graph introduced using `FROM [GRAPH]`.
 
-Note:: A subquery form of `FROM` is proposed in the accompanying `CIP2018-05-03`.
+Note:: A subquery form of `FROM` is proposed in the accompanying CIP `CIP2018-05-03: Nested subqueries`.
 
 
 === Selecting the working graph from the catalog: updating
@@ -453,7 +453,7 @@ An error is raised in these scenarios:
 * `< graph-name >` is not the name of a graph in the catalog.
 * If no updating operations are performed on a working graph that was introduced using `UPDATE [GRAPH]`.
 
-Note:: A subquery form of `UPDATE` is proposed in the accompanying `CIP2018-05-03`.
+Note:: A subquery form of `UPDATE` is proposed in the accompanying CIP `CIP2018-05-03: Nested subqueries`.
 
 
 === Using the working graph when interpreting a pattern
@@ -466,7 +466,7 @@ Consider the following example:
 
 [source, cypher]
 ----
-UDPATE graph1
+UPDATE graph1
 CREATE (a)
 WITH *
 FROM graph2
@@ -475,6 +475,7 @@ RETURN count(*) AS count
 ----
 
 This will always return a count of zero since the `MATCH` clause cannot possibly find any node in `graph2` that is identical to `(a)` even though `graph2` may very well contain nodes `(b)`.
+XXMORE-needs-to-be-said.What about WITH *xxxx
 
 An error is raised if a statement attempts to update an entity that is not contained in the working graph.
 
