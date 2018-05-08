@@ -1,4 +1,4 @@
-= CIP2018-05-03 Creating and administrating graphs and views
+= CIP2018-05-03 Creating and managing graphs and views
 :numbered:
 :toc:
 :toc-placement: macro
