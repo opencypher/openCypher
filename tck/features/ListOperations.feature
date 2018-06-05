@@ -123,7 +123,7 @@ Feature: ListOperations
       RETURN [1] IN [1, 2, [1]] AS res
       """
     Then the result should be:
-      | res   |
+      | res  |
       | true |
     And no side effects
 
@@ -133,7 +133,7 @@ Feature: ListOperations
       RETURN [1, 2] IN [1, [1, 2]] AS res
       """
     Then the result should be:
-      | res   |
+      | res  |
       | true |
     And no side effects
 
@@ -173,7 +173,7 @@ Feature: ListOperations
       RETURN [[1, 2], [3, 4]] IN [5, [[1, 2], [3, 4]]] AS res
       """
     Then the result should be:
-      | res   |
+      | res  |
       | true |
     And no side effects
 
@@ -183,7 +183,7 @@ Feature: ListOperations
       RETURN [[1, 2], 3] IN [1, [[1, 2], 3]] AS res
       """
     Then the result should be:
-      | res   |
+      | res  |
       | true |
     And no side effects
 
@@ -193,7 +193,7 @@ Feature: ListOperations
       RETURN [[1]] IN [2, [[1]]] AS res
       """
     Then the result should be:
-      | res   |
+      | res  |
       | true |
     And no side effects
 
@@ -203,7 +203,7 @@ Feature: ListOperations
       RETURN [[1, 3]] IN [2, [[1, 3]]] AS res
       """
     Then the result should be:
-      | res   |
+      | res  |
       | true |
     And no side effects
 
@@ -229,24 +229,24 @@ Feature: ListOperations
 
   # IN operator - null
 
-  Scenario: IN should return null if LHS and RHS null
+  Scenario: IN should return null if LHS and RHS are null
     When executing query:
       """
       RETURN null IN [null] AS res
       """
     Then the result should be:
-      | res   |
-      | null  |
+      | res  |
+      | null |
     And no side effects
 
-  Scenario: IN should return null if LHS and RHS null - list version
+  Scenario: IN should return null if LHS and RHS are null - list version
     When executing query:
       """
       RETURN [null] IN [[null]] AS res
       """
     Then the result should be:
-      | res   |
-      | null  |
+      | res  |
+      | null |
     And no side effects
 
   Scenario: IN should return null when LHS and RHS both ultimately contain null, even if LHS and RHS are of different types (nested list and flat list)
@@ -255,8 +255,8 @@ Feature: ListOperations
       RETURN [null] IN [null] AS res
       """
     Then the result should be:
-      | res   |
-      | null  |
+      | res  |
+      | null |
     And no side effects
 
   Scenario: IN with different length lists should return false despite nulls
@@ -275,7 +275,7 @@ Feature: ListOperations
       RETURN 3 IN [1, null, 3] AS res
       """
     Then the result should be:
-      | res   |
+      | res  |
       | true |
     And no side effects
 
@@ -285,7 +285,7 @@ Feature: ListOperations
       RETURN 4 IN [1, null, 3] AS res
       """
     Then the result should be:
-      | res   |
+      | res  |
       | null |
     And no side effects
 
@@ -295,7 +295,7 @@ Feature: ListOperations
       RETURN [1, 2] IN [[null, 'foo'], [1, 2]] AS res
       """
     Then the result should be:
-      | res   |
+      | res  |
       | true |
     And no side effects
 
@@ -305,7 +305,7 @@ Feature: ListOperations
       RETURN [1, 2] IN [1, [1, 2], null] AS res
       """
     Then the result should be:
-      | res   |
+      | res  |
       | true |
     And no side effects
 
@@ -325,8 +325,8 @@ Feature: ListOperations
       RETURN [1, 2] IN [[null, 2]] AS res
       """
     Then the result should be:
-      | res   |
-      | null  |
+      | res  |
+      | null |
     And no side effects
 
   Scenario: IN should return false if different length lists compared, even if the extra element is null
@@ -336,7 +336,7 @@ Feature: ListOperations
       """
     Then the result should be:
       | res   |
-      | false  |
+      | false |
     And no side effects
 
   Scenario: IN should return null when comparing two so-called identical lists where one element is null
@@ -345,8 +345,8 @@ Feature: ListOperations
       RETURN [1, 2, null] IN [1, [1, 2, null]] AS res
       """
     Then the result should be:
-      | res   |
-      | null  |
+      | res  |
+      | null |
     And no side effects
 
   Scenario: IN should return true with previous null match, list version
@@ -355,8 +355,8 @@ Feature: ListOperations
       RETURN [1, 2] IN [[null, 2], [1, 2]] AS res
       """
     Then the result should be:
-      | res   |
-      | true  |
+      | res  |
+      | true |
     And no side effects
 
   Scenario: IN should return false if different length lists with nested elements compared, even if the extra element is null
@@ -366,7 +366,7 @@ Feature: ListOperations
       """
     Then the result should be:
       | res   |
-      | false  |
+      | false |
     And no side effects
 
   Scenario: IN should return null if comparison with null is required, list version 2
@@ -375,8 +375,8 @@ Feature: ListOperations
       RETURN [1, 2] IN [[null, 2], [1, 3]] AS res
       """
     Then the result should be:
-      | res   |
-      | null  |
+      | res  |
+      | null |
     And no side effects
 
   # IN operator - empty list
@@ -387,8 +387,8 @@ Feature: ListOperations
       RETURN [] IN [[]] AS res
       """
     Then the result should be:
-      | res   |
-      | true  |
+      | res  |
+      | true |
     And no side effects
 
   Scenario: IN should return false for the empty list if the LHS and RHS types differ
@@ -398,7 +398,7 @@ Feature: ListOperations
       """
     Then the result should be:
       | res   |
-      | false  |
+      | false |
     And no side effects
 
   Scenario: IN should work with an empty list in the presence of other list elements: matching
@@ -407,8 +407,8 @@ Feature: ListOperations
       RETURN [] IN [1, []] AS res
       """
     Then the result should be:
-      | res   |
-      | true  |
+      | res  |
+      | true |
     And no side effects
 
   Scenario: IN should work with an empty list in the presence of other list elements: not matching
@@ -418,7 +418,7 @@ Feature: ListOperations
       """
     Then the result should be:
       | res   |
-      | false  |
+      | false |
     And no side effects
 
   Scenario: IN should work with an empty list when comparing nested lists
@@ -427,8 +427,8 @@ Feature: ListOperations
       RETURN [[]] IN [1, [[]]] AS res
       """
     Then the result should be:
-      | res   |
-      | true  |
+      | res  |
+      | true |
     And no side effects
 
   Scenario: IN should return null if comparison with null is required for empty list
@@ -437,8 +437,8 @@ Feature: ListOperations
       RETURN [] IN [1, 2, null] AS res
       """
     Then the result should be:
-      | res   |
-      | null  |
+      | res  |
+      | null |
     And no side effects
 
   Scenario: IN should return true when LHS and RHS contain nested list with multiple empty lists
@@ -447,9 +447,10 @@ Feature: ListOperations
       RETURN [[], []] IN [1, [[], []]] AS res
       """
     Then the result should be:
-      | res   |
-      | true  |
+      | res  |
+      | true |
     And no side effects
+
   # Equality
 
   Scenario: Equality between list and literal should return false
@@ -459,7 +460,7 @@ Feature: ListOperations
       """
     Then the result should be:
       | res   |
-      | false  |
+      | false |
     And no side effects
 
   Scenario: Equality of lists of different length should return false despite nulls
@@ -469,7 +470,7 @@ Feature: ListOperations
       """
     Then the result should be:
       | res   |
-      | false  |
+      | false |
     And no side effects
 
   Scenario: Equality between different lists with null should return false
@@ -479,7 +480,7 @@ Feature: ListOperations
       """
     Then the result should be:
       | res   |
-      | false  |
+      | false |
     And no side effects
 
   Scenario: Equality between almost equal lists with null should return null
@@ -488,8 +489,8 @@ Feature: ListOperations
       RETURN [1, 2] = [null, 2] AS res
       """
     Then the result should be:
-      | res   |
-      | null  |
+      | res  |
+      | null |
     And no side effects
 
   Scenario: Equality of nested lists of different length should return false despite nulls
@@ -498,8 +499,8 @@ Feature: ListOperations
       RETURN [[1]] = [[1], [null]] AS res
       """
     Then the result should be:
-      | res    |
-      | false  |
+      | res   |
+      | false |
     And no side effects
 
   Scenario: Equality between different nested lists with null should return false
@@ -508,8 +509,8 @@ Feature: ListOperations
       RETURN [[1, 2], [1, 3]] = [[1, 2], [null, 'foo']] AS res
       """
     Then the result should be:
-      | res    |
-      | false  |
+      | res   |
+      | false |
     And no side effects
 
   Scenario: Equality between almost equal nested lists with null should return null
@@ -518,8 +519,8 @@ Feature: ListOperations
       RETURN [[1, 2], ['foo', 'bar']] = [[1, 2], [null, 'bar']] AS res
       """
     Then the result should be:
-      | res    |
-      | null  |
+      | res  |
+      | null |
     And no side effects
 
   # General
@@ -535,6 +536,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Setting and returning the size of a list property
+    Given an empty graph
     And having executed:
       """
       CREATE (:Label)
@@ -562,6 +564,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Returning nested expressions based on list property
+    Given an empty graph
     And having executed:
       """
       CREATE (:Label)
@@ -577,6 +580,16 @@ Feature: ListOperations
       | [3, 4, 5]           |
     And the side effects should be:
       | +properties | 1 |
+
+  Scenario: Indexing into literal list
+    When executing query:
+      """
+      RETURN [1, 2, 3][0] AS value
+      """
+    Then the result should be:
+      | value |
+      | 1     |
+    And no side effects
 
   Scenario: Indexing into nested literal lists
     When executing query:
@@ -598,7 +611,7 @@ Feature: ListOperations
       | [1, 10, 100, 4, 5] |
     And no side effects
 
-  Scenario: Appending lists of same type
+  Scenario: Concatenating lists of same type
     When executing query:
       """
       RETURN [false, true] + false AS foo
@@ -608,17 +621,8 @@ Feature: ListOperations
       | [false, true, false] |
     And no side effects
 
-  Scenario: Execute n[0]
-    When executing query:
-      """
-      RETURN [1, 2, 3][0] AS value
-      """
-    Then the result should be:
-      | value |
-      | 1     |
-    And no side effects
-
-  Scenario: Extract eagerly
+  Scenario: Collect and extract using a list comprehension
+    Given an empty graph
     And having executed:
       """
       CREATE (:Label1 {name: 'original'})
@@ -627,19 +631,20 @@ Feature: ListOperations
       """
       MATCH (a:Label1)
       WITH collect(a) AS nodes
-      WITH nodes, extract(x IN nodes | x.name) AS oldNames
+      WITH nodes, [x IN nodes | x.name] AS oldNames
       UNWIND nodes AS n
       SET n.name = 'newName'
       RETURN n.name, oldNames
       """
     Then the result should be:
-      | n.name    | oldNames   |
+      | n.name    | oldNames     |
       | 'newName' | ['original'] |
     And the side effects should be:
       | +properties | 1 |
       | -properties | 1 |
 
-  Scenario: Filter eagerly
+  Scenario: Collect and filter using a list comprehension
+    Given an empty graph
     And having executed:
       """
       CREATE (:Label1 {name: 'original'})
@@ -648,24 +653,25 @@ Feature: ListOperations
       """
       MATCH (a:Label1)
       WITH collect(a) AS nodes
-      WITH nodes, filter(x IN nodes WHERE x.name = 'original') AS noopFiltered
+      WITH nodes, [x IN nodes WHERE x.name = 'original'] AS noopFiltered
       UNWIND nodes AS n
       SET n.name = 'newName'
       RETURN n.name, length(noopFiltered)
       """
     Then the result should be:
-      | n.name    | length(noopFiltered)   |
-      | 'newName' | 1                      |
+      | n.name    | length(noopFiltered) |
+      | 'newName' | 1                    |
     And the side effects should be:
       | +properties | 1 |
       | -properties | 1 |
 
-  Scenario: Length on filter
+  Scenario: Size of list comprehension
+    Given an empty graph
     When executing query:
       """
       MATCH (n)
       OPTIONAL MATCH (n)-[r]->(m)
-      RETURN length(filter(x IN collect(r) WHERE x <> null)) AS cn
+      RETURN size([x IN collect(r) WHERE x <> null]) AS cn
       """
     Then the result should be:
       | cn |
