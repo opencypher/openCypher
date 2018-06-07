@@ -86,7 +86,7 @@ class TCKEventsTest {
 
   @TestFactory
   def testSingleScenario(): util.Collection[DynamicTest] = {
-    val scenarios = CypherTCK.allTckScenarios.filter(s => s.name == "Return collection size")
+    val scenarios = CypherTCK.allTckScenariosFromFilesystem.filter(s => s.name == "Return collection size")
 
     def createTestGraph(): Graph = FakeGraph
 
