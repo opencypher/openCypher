@@ -31,17 +31,8 @@ import java.util
 
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.{AfterAll, BeforeAll, DynamicTest, TestFactory}
-import org.opencypher.tools.tck.api.{
-  CypherTCK,
-  CypherValueRecords,
-  ExecQuery,
-  Graph,
-  InitQuery,
-  ProcedureSupport,
-  QueryType,
-  SideEffectQuery,
-  StringRecords
-}
+import org.opencypher.tools.tck.IdeDetection
+import org.opencypher.tools.tck.api._
 import org.opencypher.tools.tck.values.CypherValue
 
 import scala.collection.JavaConverters._
@@ -86,7 +77,7 @@ class TCKEventsTest {
 
   @TestFactory
   def testSingleScenario(): util.Collection[DynamicTest] = {
-    val scenarios = CypherTCK.allTckScenariosFromFilesystem.filter(s => s.name == "Return collection size")
+    val scenarios = IdeDetection.allTckScenarios.filter(s => s.name == "Return collection size")
 
     def createTestGraph(): Graph = FakeGraph
 
