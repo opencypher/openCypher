@@ -78,6 +78,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.opencypher</groupId>
+            <artifactId>tck</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <version>${antlr.runtime.version}</version>
@@ -121,12 +127,6 @@
             <artifactId>scalacheck_2.11</artifactId>
             <version>1.13.0</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.opencypher</groupId>
-            <artifactId>tck</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
