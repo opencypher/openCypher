@@ -30,12 +30,10 @@
 
 Feature: ListOperations
 
-  Background:
-    Given any graph
-
   # IN operator - general
 
   Scenario: IN should work with nested list subscripting
+    Given any graph
     When executing query:
       """
       WITH [[1, 2, 3]] AS list
@@ -47,6 +45,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should work with nested literal list subscripting
+    Given any graph
     When executing query:
       """
       RETURN 3 IN [[1, 2, 3]][0] AS r
@@ -57,6 +56,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should work with list slices
+    Given any graph
     When executing query:
       """
       WITH [1, 2, 3] AS list
@@ -68,6 +68,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should work with literal list slices
+    Given any graph
     When executing query:
       """
       RETURN 3 IN [1, 2, 3][0..1] AS r
@@ -78,6 +79,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return false when matching a number with a string
+    Given any graph
     When executing query:
       """
       RETURN 1 IN ['1', 2] AS res
@@ -88,6 +90,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return false when matching a number with a string - list version
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] IN [1, [1, '2']] AS res
@@ -98,6 +101,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return false when types of LHS and RHS don't match - singleton list
+    Given any graph
     When executing query:
       """
       RETURN [1] IN [1, 2] AS res
@@ -108,6 +112,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return false when types of LHS and RHS don't match - list
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] IN [1, 2] AS res
@@ -118,6 +123,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return true when types of LHS and RHS match - singleton list
+    Given any graph
     When executing query:
       """
       RETURN [1] IN [1, 2, [1]] AS res
@@ -128,6 +134,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return true when types of LHS and RHS match - list
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] IN [1, [1, 2]] AS res
@@ -138,6 +145,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return false when order of elements in LHS list and RHS list don't match
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] IN [1, [2, 1]] AS res
@@ -148,6 +156,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN with different length lists should return false
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] IN [1, [1, 2, 3]] AS res
@@ -158,6 +167,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return false when matching a list with a nested list with same elements
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] IN [1, [[1, 2]]] AS res
@@ -168,6 +178,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return true when both LHS and RHS contain nested lists
+    Given any graph
     When executing query:
       """
       RETURN [[1, 2], [3, 4]] IN [5, [[1, 2], [3, 4]]] AS res
@@ -178,6 +189,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return true when both LHS and RHS contain a nested list alongside a scalar element
+    Given any graph
     When executing query:
       """
       RETURN [[1, 2], 3] IN [1, [[1, 2], 3]] AS res
@@ -188,6 +200,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return true when LHS and RHS contain a nested list - singleton version
+    Given any graph
     When executing query:
       """
       RETURN [[1]] IN [2, [[1]]] AS res
@@ -198,6 +211,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return true when LHS and RHS contain a nested list
+    Given any graph
     When executing query:
       """
       RETURN [[1, 3]] IN [2, [[1, 3]]] AS res
@@ -208,6 +222,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return false when LHS contains a nested list and type mismatch on RHS - singleton version
+    Given any graph
     When executing query:
       """
       RETURN [[1]] IN [2, [1]] AS res
@@ -218,6 +233,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return false when LHS contains a nested list and type mismatch on RHS
+    Given any graph
     When executing query:
       """
       RETURN [[1, 3]] IN [2, [1, 3]] AS res
@@ -230,6 +246,7 @@ Feature: ListOperations
   # IN operator - null
 
   Scenario: IN should return null if LHS and RHS are null
+    Given any graph
     When executing query:
       """
       RETURN null IN [null] AS res
@@ -240,6 +257,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return null if LHS and RHS are null - list version
+    Given any graph
     When executing query:
       """
       RETURN [null] IN [[null]] AS res
@@ -250,6 +268,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return null when LHS and RHS both ultimately contain null, even if LHS and RHS are of different types (nested list and flat list)
+    Given any graph
     When executing query:
       """
       RETURN [null] IN [null] AS res
@@ -260,6 +279,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN with different length lists should return false despite nulls
+    Given any graph
     When executing query:
       """
       RETURN [1] IN [[1, null]] AS res
@@ -270,6 +290,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return true if match despite nulls
+    Given any graph
     When executing query:
       """
       RETURN 3 IN [1, null, 3] AS res
@@ -280,6 +301,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return null if comparison with null is required
+    Given any graph
     When executing query:
       """
       RETURN 4 IN [1, null, 3] AS res
@@ -290,6 +312,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return true if correct list found despite other lists having nulls
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] IN [[null, 'foo'], [1, 2]] AS res
@@ -300,6 +323,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return true if correct list found despite null being another element within containing list
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] IN [1, [1, 2], null] AS res
@@ -310,6 +334,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return false if no match can be found, despite nulls
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] IN [[null, 'foo']] AS res
@@ -320,6 +345,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return null if comparison with null is required, list version
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] IN [[null, 2]] AS res
@@ -330,6 +356,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return false if different length lists compared, even if the extra element is null
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] IN [1, [1, 2, null]] AS res
@@ -340,6 +367,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return null when comparing two so-called identical lists where one element is null
+    Given any graph
     When executing query:
       """
       RETURN [1, 2, null] IN [1, [1, 2, null]] AS res
@@ -350,6 +378,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return true with previous null match, list version
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] IN [[null, 2], [1, 2]] AS res
@@ -360,6 +389,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return false if different length lists with nested elements compared, even if the extra element is null
+    Given any graph
     When executing query:
       """
       RETURN [[1, 2], [3, 4]] IN [5, [[1, 2], [3, 4], null]] AS res
@@ -370,6 +400,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return null if comparison with null is required, list version 2
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] IN [[null, 2], [1, 3]] AS res
@@ -382,6 +413,7 @@ Feature: ListOperations
   # IN operator - empty list
 
   Scenario: IN should work with an empty list
+    Given any graph
     When executing query:
       """
       RETURN [] IN [[]] AS res
@@ -392,6 +424,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return false for the empty list if the LHS and RHS types differ
+    Given any graph
     When executing query:
       """
       RETURN [] IN [] AS res
@@ -402,6 +435,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should work with an empty list in the presence of other list elements: matching
+    Given any graph
     When executing query:
       """
       RETURN [] IN [1, []] AS res
@@ -412,6 +446,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should work with an empty list in the presence of other list elements: not matching
+    Given any graph
     When executing query:
       """
       RETURN [] IN [1, 2] AS res
@@ -422,6 +457,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should work with an empty list when comparing nested lists
+    Given any graph
     When executing query:
       """
       RETURN [[]] IN [1, [[]]] AS res
@@ -432,6 +468,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return null if comparison with null is required for empty list
+    Given any graph
     When executing query:
       """
       RETURN [] IN [1, 2, null] AS res
@@ -442,6 +479,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: IN should return true when LHS and RHS contain nested list with multiple empty lists
+    Given any graph
     When executing query:
       """
       RETURN [[], []] IN [1, [[], []]] AS res
@@ -454,6 +492,7 @@ Feature: ListOperations
   # Equality
 
   Scenario: Equality between list and literal should return false
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] = 'foo' AS res
@@ -464,6 +503,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Equality of lists of different length should return false despite nulls
+    Given any graph
     When executing query:
       """
       RETURN [1] = [1, null] AS res
@@ -474,6 +514,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Equality between different lists with null should return false
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] = [null, 'foo'] AS res
@@ -484,6 +525,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Equality between almost equal lists with null should return null
+    Given any graph
     When executing query:
       """
       RETURN [1, 2] = [null, 2] AS res
@@ -494,6 +536,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Equality of nested lists of different length should return false despite nulls
+    Given any graph
     When executing query:
       """
       RETURN [[1]] = [[1], [null]] AS res
@@ -504,6 +547,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Equality between different nested lists with null should return false
+    Given any graph
     When executing query:
       """
       RETURN [[1, 2], [1, 3]] = [[1, 2], [null, 'foo']] AS res
@@ -514,6 +558,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Equality between almost equal nested lists with null should return null
+    Given any graph
     When executing query:
       """
       RETURN [[1, 2], ['foo', 'bar']] = [[1, 2], [null, 'bar']] AS res
@@ -526,6 +571,7 @@ Feature: ListOperations
   # General
 
   Scenario: Return list size
+    Given any graph
     When executing query:
       """
       RETURN size([1, 2, 3]) AS n
@@ -554,6 +600,7 @@ Feature: ListOperations
       | +properties | 1 |
 
   Scenario: Concatenating and returning the size of literal lists
+    Given any graph
     When executing query:
       """
       RETURN size([[], []] + [[]]) AS l
@@ -582,6 +629,7 @@ Feature: ListOperations
       | +properties | 1 |
 
   Scenario: Indexing into literal list
+    Given any graph
     When executing query:
       """
       RETURN [1, 2, 3][0] AS value
@@ -592,6 +640,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Indexing into nested literal lists
+    Given any graph
     When executing query:
       """
       RETURN [[1]][0][0]
@@ -602,6 +651,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Concatenating lists of same type
+    Given any graph
     When executing query:
       """
       RETURN [1, 10, 100] + [4, 5] AS foo
@@ -612,6 +662,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Concatenating lists of same type
+    Given any graph
     When executing query:
       """
       RETURN [false, true] + false AS foo
@@ -681,6 +732,7 @@ Feature: ListOperations
   # List lookup based on parameters
 
   Scenario: Use list lookup based on parameters when there is no type information
+    Given any graph
     And parameters are:
       | expr | ['Apa'] |
       | idx  | 0       |
@@ -695,6 +747,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Use list lookup based on parameters when there is lhs type information
+    Given any graph
     And parameters are:
       | idx | 0 |
     When executing query:
@@ -708,6 +761,7 @@ Feature: ListOperations
     And no side effects
 
   Scenario: Use list lookup based on parameters when there is rhs type information
+    Given any graph
     And parameters are:
       | expr | ['Apa'] |
       | idx  | 0       |
@@ -724,6 +778,7 @@ Feature: ListOperations
   # Failures at runtime
 
   Scenario: Fail at runtime when attempting to index with a String into a List
+    Given any graph
     And parameters are:
       | expr | ['Apa'] |
       | idx  | 'name'  |
@@ -735,6 +790,7 @@ Feature: ListOperations
     Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
 
   Scenario: Fail at runtime when trying to index into a list with a list
+    Given any graph
     And parameters are:
       | expr | ['Apa'] |
       | idx  | ['Apa'] |
@@ -746,6 +802,7 @@ Feature: ListOperations
     Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
 
   Scenario: Fail at compile time when attempting to index with a non-integer into a list
+    Given any graph
     When executing query:
       """
       WITH [1, 2, 3, 4, 5] AS list, 3.14 AS idx
