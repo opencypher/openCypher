@@ -29,7 +29,7 @@ package org.opencypher.tools.tck.api.events
 
 import java.util
 
-import org.junit.jupiter.api.Assertions.assertIterableEquals
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.{AfterAll, BeforeAll, DynamicTest, TestFactory}
 import org.opencypher.tools.tck.IdeDetection
 import org.opencypher.tools.tck.api._
@@ -45,7 +45,7 @@ object TCKEventsTest {
   @BeforeAll
   def subscribe(): Unit = {
     TCKEvents.feature.subscribe(
-      f => { if (f.name == "ReturnAcceptanceTest") { events += s"Feature '${f.name}' read" } })
+      f => { if (f.name == "ListOperations") { events += s"Feature '${f.name}' read" } })
     TCKEvents.scenario.subscribe(s => events += s"Scenario '${s.name}' started")
     TCKEvents.stepStarted.subscribe(s =>
       events += s"Step '${s.step.getClass.getSimpleName} -> ${s.step.source.getText}' started")
@@ -56,8 +56,8 @@ object TCKEventsTest {
   @AfterAll
   def assertEvents(): Unit = {
     val expected = List[String](
-      "Feature 'ReturnAcceptanceTest' read",
-      "Scenario 'Return collection size' started",
+      "Feature 'ListOperations' read",
+      "Scenario 'Return list size' started",
       "Step 'Execute -> any graph' started",
       "Step 'Execute' finished. Result: <empty result>",
       "Step 'Measure -> executing query:' started",
@@ -69,7 +69,7 @@ object TCKEventsTest {
       "Step 'SideEffects -> no side effects' started",
       "Step 'SideEffects' finished. Result: | n |\n| 3 |"
     )
-    assertIterableEquals(expected.asJava, events.asJava)
+    assertEquals(expected.asJava, events.toList.asJava, s"${expected.asJava} did not equal ${events.toList.asJava}")
   }
 }
 
@@ -77,7 +77,7 @@ class TCKEventsTest {
 
   @TestFactory
   def testSingleScenario(): util.Collection[DynamicTest] = {
-    val scenarios = IdeDetection.allTckScenarios.filter(s => s.name == "Return collection size")
+    val scenarios = IdeDetection.allTckScenarios.filter(s => s.name == "Return list size")
 
     def createTestGraph(): Graph = FakeGraph
 
