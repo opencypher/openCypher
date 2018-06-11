@@ -381,7 +381,6 @@ Feature: TemporalCreateAcceptance
       | '1984-01-01T00:00+01:00[Europe/Stockholm]'              |
       | '1970-01-05T19:46:19.999999999Z'                        |
       | '1977-07-15T13:34:33.987Z'                              |
-
     And no side effects
 
   Scenario: Should construct duration
@@ -429,7 +428,6 @@ Feature: TemporalCreateAcceptance
       | '12:34:56+02:05:59'            |
       | '12:34:56-02:05:07'            |
       | '1984-10-11T12:34:56+02:05:59' |
-
     And no side effects
 
   Scenario: Should store date
@@ -441,11 +439,8 @@ Feature: TemporalCreateAcceptance
               [date({year:1984, month:10, day:13}), date({year:1984, month:10, day:14}), date({year:1984, month:10, day:15})]
               ] AS d
       CREATE ({p:d})
-      RETURN count(*) AS count
       """
-    Then the result should be, in order:
-      | count |
-      | 3     |
+    Then the result should be empty
     And the side effects should be:
       | +nodes      | 3 |
       | +properties | 3 |

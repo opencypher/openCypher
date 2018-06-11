@@ -42,7 +42,7 @@ Feature: TemporalComparisonAcceptance
               localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
               datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
               duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] AS d
-      RETURN x>d, x<d, x>=d, x<=d, x=d
+      RETURN x > d, x < d, x >= d, x <= d, x = d
       """
     Then the result should be, in order:
       | x>d   | x<d   | x>=d  | x<=d  | x=d    |
@@ -72,7 +72,7 @@ Feature: TemporalComparisonAcceptance
               localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
               datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
               duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] AS d
-      RETURN x>d, x<d, x>=d, x<=d, x=d
+      RETURN x > d, x < d, x >= d, x <= d, x = d
       """
     Then the result should be, in order:
       | x>d   | x<d   | x>=d  | x<=d  | x=d   |
@@ -102,7 +102,7 @@ Feature: TemporalComparisonAcceptance
               localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
               datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
               duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] AS d
-      RETURN x>d, x<d, x>=d, x<=d, x=d
+      RETURN x > d, x < d, x >= d, x <= d, x = d
       """
     Then the result should be, in order:
       | x>d   | x<d   | x>=d  | x<=d  | x=d   |
@@ -132,7 +132,7 @@ Feature: TemporalComparisonAcceptance
               localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
               datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
               duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] AS d
-      RETURN x>d, x<d, x>=d, x<=d, x=d
+      RETURN x > d, x < d, x >= d, x <= d, x = d
       """
     Then the result should be, in order:
       | x>d   | x<d   | x>=d  | x<=d  | x=d    |
@@ -162,7 +162,7 @@ Feature: TemporalComparisonAcceptance
               localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
               datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, timezone: '+05:00'}),
               duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] AS d
-      RETURN x>d, x<d, x>=d, x<=d, x=d
+      RETURN x > d, x < d, x >= d, x <= d, x = d
       """
     Then the result should be, in order:
       | x>d   | x<d   | x>=d  | x<=d  | x=d  |
@@ -193,7 +193,7 @@ Feature: TemporalComparisonAcceptance
               duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70}),
               duration({years: 12, months:5, days: 14, hours:16, minutes: 13, seconds: 10}),
               duration({years: 12, months:5, days: 13, hours:40, minutes: 13, seconds: 10})] AS d
-      RETURN x=d
+      RETURN x = d
       """
     Then the result should be, in order:
       | x=d    |
