@@ -34,35 +34,35 @@ Feature: DurationBetweenAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [duration.between(date("1984-10-11"), date("2015-06-24")),
-              duration.between(date("1984-10-11"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.between(date("1984-10-11"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.between(date("1984-10-11"), localtime("16:30")),
-              duration.between(date("1984-10-11"), time("16:30+0100")),
+      UNWIND [duration.between(date('1984-10-11'), date('2015-06-24')),
+              duration.between(date('1984-10-11'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.between(date('1984-10-11'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.between(date('1984-10-11'), localtime('16:30')),
+              duration.between(date('1984-10-11'), time('16:30+0100')),
 
-              duration.between(localtime("14:30"), date("2015-06-24")),
-              duration.between(localtime("14:30"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.between(localtime("14:30"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.between(localtime("14:30"), localtime("16:30")),
-              duration.between(localtime("14:30"), time("16:30+0100")),
+              duration.between(localtime('14:30'), date('2015-06-24')),
+              duration.between(localtime('14:30'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.between(localtime('14:30'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.between(localtime('14:30'), localtime('16:30')),
+              duration.between(localtime('14:30'), time('16:30+0100')),
 
-              duration.between(time("14:30"), date("2015-06-24")),
-              duration.between(time("14:30"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.between(time("14:30"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.between(time("14:30"), localtime("16:30")),
-              duration.between(time("14:30"), time("16:30+0100")),
+              duration.between(time('14:30'), date('2015-06-24')),
+              duration.between(time('14:30'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.between(time('14:30'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.between(time('14:30'), localtime('16:30')),
+              duration.between(time('14:30'), time('16:30+0100')),
 
-              duration.between(localdatetime("2015-07-21T21:40:32.142"), date("2015-06-24")),
-              duration.between(localdatetime("2015-07-21T21:40:32.142"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.between(localdatetime("2015-07-21T21:40:32.142"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.between(localdatetime("2015-07-21T21:40:32.142"), localtime("16:30")),
-              duration.between(localdatetime("2015-07-21T21:40:32.142"), time("16:30+0100")),
+              duration.between(localdatetime('2015-07-21T21:40:32.142'), date('2015-06-24')),
+              duration.between(localdatetime('2015-07-21T21:40:32.142'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.between(localdatetime('2015-07-21T21:40:32.142'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.between(localdatetime('2015-07-21T21:40:32.142'), localtime('16:30')),
+              duration.between(localdatetime('2015-07-21T21:40:32.142'), time('16:30+0100')),
 
-              duration.between(datetime("2014-07-21T21:40:36.143+0200"), date("2015-06-24")),
-              duration.between(datetime("2014-07-21T21:40:36.143+0200"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.between(datetime("2014-07-21T21:40:36.143+0200"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.between(datetime("2014-07-21T21:40:36.143+0200"), localtime("16:30")),
-              duration.between(datetime("2014-07-21T21:40:36.143+0200"), time("16:30+0100"))
+              duration.between(datetime('2014-07-21T21:40:36.143+0200'), date('2015-06-24')),
+              duration.between(datetime('2014-07-21T21:40:36.143+0200'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.between(datetime('2014-07-21T21:40:36.143+0200'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.between(datetime('2014-07-21T21:40:36.143+0200'), localtime('16:30')),
+              duration.between(datetime('2014-07-21T21:40:36.143+0200'), time('16:30+0100'))
               ] AS d
       RETURN d
       """
@@ -99,31 +99,31 @@ Feature: DurationBetweenAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [duration.inMonths(date("1984-10-11"), date("2015-06-24")),
-              duration.inMonths(date("1984-10-11"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inMonths(date("1984-10-11"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.inMonths(date("1984-10-11"), localtime("16:30")),
-              duration.inMonths(date("1984-10-11"), time("16:30+0100")),
+      UNWIND [duration.inMonths(date('1984-10-11'), date('2015-06-24')),
+              duration.inMonths(date('1984-10-11'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inMonths(date('1984-10-11'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.inMonths(date('1984-10-11'), localtime('16:30')),
+              duration.inMonths(date('1984-10-11'), time('16:30+0100')),
 
-              duration.inMonths(localtime("14:30"), date("2015-06-24")),
-              duration.inMonths(localtime("14:30"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inMonths(localtime("14:30"), datetime("2015-07-21T21:40:32.142+0100")),
+              duration.inMonths(localtime('14:30'), date('2015-06-24')),
+              duration.inMonths(localtime('14:30'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inMonths(localtime('14:30'), datetime('2015-07-21T21:40:32.142+0100')),
 
-              duration.inMonths(time("14:30"), date("2015-06-24")),
-              duration.inMonths(time("14:30"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inMonths(time("14:30"), datetime("2015-07-21T21:40:32.142+0100")),
+              duration.inMonths(time('14:30'), date('2015-06-24')),
+              duration.inMonths(time('14:30'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inMonths(time('14:30'), datetime('2015-07-21T21:40:32.142+0100')),
 
-              duration.inMonths(localdatetime("2015-07-21T21:40:32.142"), date("2015-06-24")),
-              duration.inMonths(localdatetime("2015-07-21T21:40:32.142"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inMonths(localdatetime("2015-07-21T21:40:32.142"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.inMonths(localdatetime("2015-07-21T21:40:32.142"), localtime("16:30")),
-              duration.inMonths(localdatetime("2015-07-21T21:40:32.142"), time("16:30+0100")),
+              duration.inMonths(localdatetime('2015-07-21T21:40:32.142'), date('2015-06-24')),
+              duration.inMonths(localdatetime('2015-07-21T21:40:32.142'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inMonths(localdatetime('2015-07-21T21:40:32.142'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.inMonths(localdatetime('2015-07-21T21:40:32.142'), localtime('16:30')),
+              duration.inMonths(localdatetime('2015-07-21T21:40:32.142'), time('16:30+0100')),
 
-              duration.inMonths(datetime("2014-07-21T21:40:36.143+0200"), date("2015-06-24")),
-              duration.inMonths(datetime("2014-07-21T21:40:36.143+0200"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inMonths(datetime("2014-07-21T21:40:36.143+0200"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.inMonths(datetime("2014-07-21T21:40:36.143+0200"), localtime("16:30")),
-              duration.inMonths(datetime("2014-07-21T21:40:36.143+0200"), time("16:30+0100"))
+              duration.inMonths(datetime('2014-07-21T21:40:36.143+0200'), date('2015-06-24')),
+              duration.inMonths(datetime('2014-07-21T21:40:36.143+0200'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inMonths(datetime('2014-07-21T21:40:36.143+0200'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.inMonths(datetime('2014-07-21T21:40:36.143+0200'), localtime('16:30')),
+              duration.inMonths(datetime('2014-07-21T21:40:36.143+0200'), time('16:30+0100'))
               ] AS d
       RETURN d
       """
@@ -157,31 +157,31 @@ Feature: DurationBetweenAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [duration.inDays(date("1984-10-11"), date("2015-06-24")),
-              duration.inDays(date("1984-10-11"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inDays(date("1984-10-11"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.inDays(date("1984-10-11"), localtime("16:30")),
-              duration.inDays(date("1984-10-11"), time("16:30+0100")),
+      UNWIND [duration.inDays(date('1984-10-11'), date('2015-06-24')),
+              duration.inDays(date('1984-10-11'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inDays(date('1984-10-11'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.inDays(date('1984-10-11'), localtime('16:30')),
+              duration.inDays(date('1984-10-11'), time('16:30+0100')),
 
-              duration.inDays(localtime("14:30"), date("2015-06-24")),
-              duration.inDays(localtime("14:30"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inDays(localtime("14:30"), datetime("2015-07-21T21:40:32.142+0100")),
+              duration.inDays(localtime('14:30'), date('2015-06-24')),
+              duration.inDays(localtime('14:30'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inDays(localtime('14:30'), datetime('2015-07-21T21:40:32.142+0100')),
 
-              duration.inDays(time("14:30"), date("2015-06-24")),
-              duration.inDays(time("14:30"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inDays(time("14:30"), datetime("2015-07-21T21:40:32.142+0100")),
+              duration.inDays(time('14:30'), date('2015-06-24')),
+              duration.inDays(time('14:30'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inDays(time('14:30'), datetime('2015-07-21T21:40:32.142+0100')),
 
-              duration.inDays(localdatetime("2015-07-21T21:40:32.142"), date("2015-06-24")),
-              duration.inDays(localdatetime("2015-07-21T21:40:32.142"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inDays(localdatetime("2015-07-21T21:40:32.142"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.inDays(localdatetime("2015-07-21T21:40:32.142"), localtime("16:30")),
-              duration.inDays(localdatetime("2015-07-21T21:40:32.142"), time("16:30+0100")),
+              duration.inDays(localdatetime('2015-07-21T21:40:32.142'), date('2015-06-24')),
+              duration.inDays(localdatetime('2015-07-21T21:40:32.142'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inDays(localdatetime('2015-07-21T21:40:32.142'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.inDays(localdatetime('2015-07-21T21:40:32.142'), localtime('16:30')),
+              duration.inDays(localdatetime('2015-07-21T21:40:32.142'), time('16:30+0100')),
 
-              duration.inDays(datetime("2014-07-21T21:40:36.143+0200"), date("2015-06-24")),
-              duration.inDays(datetime("2014-07-21T21:40:36.143+0200"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inDays(datetime("2014-07-21T21:40:36.143+0200"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.inDays(datetime("2014-07-21T21:40:36.143+0200"), localtime("16:30")),
-              duration.inDays(datetime("2014-07-21T21:40:36.143+0200"), time("16:30+0100"))
+              duration.inDays(datetime('2014-07-21T21:40:36.143+0200'), date('2015-06-24')),
+              duration.inDays(datetime('2014-07-21T21:40:36.143+0200'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inDays(datetime('2014-07-21T21:40:36.143+0200'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.inDays(datetime('2014-07-21T21:40:36.143+0200'), localtime('16:30')),
+              duration.inDays(datetime('2014-07-21T21:40:36.143+0200'), time('16:30+0100'))
               ] AS d
       RETURN d
       """
@@ -214,35 +214,35 @@ Feature: DurationBetweenAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [duration.inSeconds(date("1984-10-11"), date("2015-06-24")),
-              duration.inSeconds(date("1984-10-11"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inSeconds(date("1984-10-11"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.inSeconds(date("1984-10-11"), localtime("16:30")),
-              duration.inSeconds(date("1984-10-11"), time("16:30+0100")),
+      UNWIND [duration.inSeconds(date('1984-10-11'), date('2015-06-24')),
+              duration.inSeconds(date('1984-10-11'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inSeconds(date('1984-10-11'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.inSeconds(date('1984-10-11'), localtime('16:30')),
+              duration.inSeconds(date('1984-10-11'), time('16:30+0100')),
 
-              duration.inSeconds(localtime("14:30"), date("2015-06-24")),
-              duration.inSeconds(localtime("14:30"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inSeconds(localtime("14:30"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.inSeconds(localtime("14:30"), localtime("16:30")),
-              duration.inSeconds(localtime("14:30"), time("16:30+0100")),
+              duration.inSeconds(localtime('14:30'), date('2015-06-24')),
+              duration.inSeconds(localtime('14:30'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inSeconds(localtime('14:30'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.inSeconds(localtime('14:30'), localtime('16:30')),
+              duration.inSeconds(localtime('14:30'), time('16:30+0100')),
 
-              duration.inSeconds(time("14:30"), date("2015-06-24")),
-              duration.inSeconds(time("14:30"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inSeconds(time("14:30"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.inSeconds(time("14:30"), localtime("16:30")),
-              duration.inSeconds(time("14:30"), time("16:30+0100")),
+              duration.inSeconds(time('14:30'), date('2015-06-24')),
+              duration.inSeconds(time('14:30'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inSeconds(time('14:30'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.inSeconds(time('14:30'), localtime('16:30')),
+              duration.inSeconds(time('14:30'), time('16:30+0100')),
 
-              duration.inSeconds(localdatetime("2015-07-21T21:40:32.142"), date("2015-06-24")),
-              duration.inSeconds(localdatetime("2015-07-21T21:40:32.142"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inSeconds(localdatetime("2015-07-21T21:40:32.142"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.inSeconds(localdatetime("2015-07-21T21:40:32.142"), localtime("16:30")),
-              duration.inSeconds(localdatetime("2015-07-21T21:40:32.142"), time("16:30+0100")),
+              duration.inSeconds(localdatetime('2015-07-21T21:40:32.142'), date('2015-06-24')),
+              duration.inSeconds(localdatetime('2015-07-21T21:40:32.142'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inSeconds(localdatetime('2015-07-21T21:40:32.142'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.inSeconds(localdatetime('2015-07-21T21:40:32.142'), localtime('16:30')),
+              duration.inSeconds(localdatetime('2015-07-21T21:40:32.142'), time('16:30+0100')),
 
-              duration.inSeconds(datetime("2014-07-21T21:40:36.143+0200"), date("2015-06-24")),
-              duration.inSeconds(datetime("2014-07-21T21:40:36.143+0200"), localdatetime("2016-07-21T21:45:22.142")),
-              duration.inSeconds(datetime("2014-07-21T21:40:36.143+0200"), datetime("2015-07-21T21:40:32.142+0100")),
-              duration.inSeconds(datetime("2014-07-21T21:40:36.143+0200"), localtime("16:30")),
-              duration.inSeconds(datetime("2014-07-21T21:40:36.143+0200"), time("16:30+0100"))
+              duration.inSeconds(datetime('2014-07-21T21:40:36.143+0200'), date('2015-06-24')),
+              duration.inSeconds(datetime('2014-07-21T21:40:36.143+0200'), localdatetime('2016-07-21T21:45:22.142')),
+              duration.inSeconds(datetime('2014-07-21T21:40:36.143+0200'), datetime('2015-07-21T21:40:32.142+0100')),
+              duration.inSeconds(datetime('2014-07-21T21:40:36.143+0200'), localtime('16:30')),
+              duration.inSeconds(datetime('2014-07-21T21:40:36.143+0200'), time('16:30+0100'))
               ] AS d
       RETURN d
       """
@@ -279,7 +279,7 @@ Feature: DurationBetweenAcceptance
     Given any graph
     When executing query:
       """
-      RETURN duration.inSeconds(localdatetime("2014-07-21T21:40:36.143"), localdatetime("2014-07-21T21:40:36.142")) AS d
+      RETURN duration.inSeconds(localdatetime('2014-07-21T21:40:36.143'), localdatetime('2014-07-21T21:40:36.142')) AS d
       """
     Then the result should be, in order:
       | d |
@@ -290,11 +290,11 @@ Feature: DurationBetweenAcceptance
     Given any graph
     When executing query:
       """
-      WITH [[date("2018-03-11"), date("2016-06-24")],
-              [date("2018-07-21"), datetime("2016-07-21T21:40:32.142+0100")],
-              [localdatetime("2018-07-21T21:40:32.142"), date("2016-07-21")],
-              [datetime("2018-07-21T21:40:36.143+0200"), localdatetime("2016-07-21T21:40:36.143")],
-              [datetime("2018-07-21T21:40:36.143+0500"), datetime("1984-07-21T22:40:36.143+0200")]] AS temporalCombos
+      WITH [[date('2018-03-11'), date('2016-06-24')],
+              [date('2018-07-21'), datetime('2016-07-21T21:40:32.142+0100')],
+              [localdatetime('2018-07-21T21:40:32.142'), date('2016-07-21')],
+              [datetime('2018-07-21T21:40:36.143+0200'), localdatetime('2016-07-21T21:40:36.143')],
+              [datetime('2018-07-21T21:40:36.143+0500'), datetime('1984-07-21T22:40:36.143+0200')]] AS temporalCombos
       UNWIND temporalCombos AS pair
       WITH pair[0] AS first, pair[1] AS second
       RETURN duration.inMonths(first, second) AS months
@@ -346,8 +346,8 @@ Feature: DurationBetweenAcceptance
     Given any graph
     When executing query:
     """
-    UNWIND[ duration.between(date("-999999999-01-01"), date("+999999999-12-31")),
-            duration.inSeconds(localdatetime("-999999999-01-01"), localdatetime("+999999999-12-31T23:59:59"))
+    UNWIND[ duration.between(date('-999999999-01-01'), date('+999999999-12-31')),
+            duration.inSeconds(localdatetime('-999999999-01-01'), localdatetime('+999999999-12-31T23:59:59'))
             ] AS d
     RETURN d
     """
@@ -361,19 +361,19 @@ Feature: DurationBetweenAcceptance
     Given any graph
     When executing query:
     """
-    UNWIND[ duration.inSeconds(localtime("12:34:54.7"), localtime("12:34:54.3")),
-            duration.inSeconds(localtime("12:34:54.3"), localtime("12:34:54.7")),
+    UNWIND[ duration.inSeconds(localtime('12:34:54.7'), localtime('12:34:54.3')),
+            duration.inSeconds(localtime('12:34:54.3'), localtime('12:34:54.7')),
 
-            duration.inSeconds(localtime("12:34:54.7"), localtime("12:34:55.3")),
-            duration.inSeconds(localtime("12:34:54.7"), localtime("12:44:55.3")),
-            duration.inSeconds(localtime("12:44:54.7"), localtime("12:34:55.3")),
+            duration.inSeconds(localtime('12:34:54.7'), localtime('12:34:55.3')),
+            duration.inSeconds(localtime('12:34:54.7'), localtime('12:44:55.3')),
+            duration.inSeconds(localtime('12:44:54.7'), localtime('12:34:55.3')),
 
-            duration.inSeconds(localtime("12:34:56"), localtime("12:34:55.7")),
-            duration.inSeconds(localtime("12:34:56"), localtime("12:44:55.7")),
-            duration.inSeconds(localtime("12:44:56"), localtime("12:34:55.7")),
+            duration.inSeconds(localtime('12:34:56'), localtime('12:34:55.7')),
+            duration.inSeconds(localtime('12:34:56'), localtime('12:44:55.7')),
+            duration.inSeconds(localtime('12:44:56'), localtime('12:34:55.7')),
 
-            duration.inSeconds(localtime("12:34:56.3"), localtime("12:34:54.7")),
-            duration.inSeconds(localtime("12:34:54.7"), localtime("12:34:56.3"))
+            duration.inSeconds(localtime('12:34:56.3'), localtime('12:34:54.7')),
+            duration.inSeconds(localtime('12:34:54.7'), localtime('12:34:56.3'))
           ] AS d
     RETURN d
     """

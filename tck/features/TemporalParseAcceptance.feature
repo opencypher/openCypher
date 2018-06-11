@@ -187,13 +187,13 @@ Feature: TemporalParseAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [duration("P14DT16H12M"),
-              duration("P5M1.5D"),
-              duration("P0.75M"),
-              duration("PT0.75M"),
-              duration("P2.5W"),
-              duration("P12Y5M14DT16H12M70S"),
-              duration("P2012-02-02T14:37:21.545")] AS d
+      UNWIND [duration('P14DT16H12M'),
+              duration('P5M1.5D'),
+              duration('P0.75M'),
+              duration('PT0.75M'),
+              duration('P2.5W'),
+              duration('P12Y5M14DT16H12M70S'),
+              duration('P2012-02-02T14:37:21.545')] AS d
       RETURN d
       """
     Then the result should be, in order:
