@@ -30,8 +30,10 @@
 
 Feature: TemporalAccessorAcceptance
 
-  Scenario: Should provide accessors for date
+  Background:
     Given an empty graph
+
+  Scenario: Should provide accessors for date
     And having executed:
       """
       CREATE (:Val {prop: date({year: 1984, month: 10, day: 11})})
@@ -48,7 +50,6 @@ Feature: TemporalAccessorAcceptance
     And no side effects
 
   Scenario: Should provide accessors for date in lASt weekYear
-    Given an empty graph
     And having executed:
       """
       CREATE (:Val {prop: date({year: 1984, month: 01, day: 01})})
@@ -65,7 +66,6 @@ Feature: TemporalAccessorAcceptance
     And no side effects
 
   Scenario: Should provide accessors for local time
-    Given an empty graph
     And having executed:
       """
       CREATE (:Val {prop: localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})})
@@ -82,7 +82,6 @@ Feature: TemporalAccessorAcceptance
     And no side effects
 
   Scenario: Should provide accessors for time
-    Given an empty graph
     And having executed:
       """
       CREATE (:Val {prop: time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})})
@@ -99,7 +98,6 @@ Feature: TemporalAccessorAcceptance
     And no side effects
 
   Scenario: Should provide accessors for local date time
-    Given an empty graph
     And having executed:
       """
       CREATE (:Val {prop: localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})})
@@ -117,7 +115,6 @@ Feature: TemporalAccessorAcceptance
     And no side effects
 
   Scenario: Should provide accessors for date time
-    Given an empty graph
     And having executed:
       """
       CREATE (:Val {prop: datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: 'Europe/Stockholm'})})
@@ -136,7 +133,6 @@ Feature: TemporalAccessorAcceptance
     And no side effects
 
   Scenario: Should provide accessors for duration
-    Given an empty graph
     And having executed:
       """
       CREATE (:Val {prop: duration({years: 1, months: 4, days: 10, hours: 1, minutes: 1, seconds: 1, nanoseconds: 111111111})})
