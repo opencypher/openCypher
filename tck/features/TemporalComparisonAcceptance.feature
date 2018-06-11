@@ -30,179 +30,107 @@
 
 Feature: TemporalComparisonAcceptance
 
-  Scenario: Should compare dates
+  Background:
     Given any graph
+
+  Scenario Outline: Should compare dates
     When executing query:
-      """
-      UNWIND [date({year: 1980, month: 12, day: 24}),
-              date({year: 1984, month: 10, day: 11})] AS x
-      UNWIND [date({year: 1984, month: 10, day: 11}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70})] AS d
-      RETURN x > d, x < d, x >= d, x <= d, x = d
-      """
-    Then the result should be, in order:
-      | x>d   | x<d   | x>=d  | x<=d  | x=d    |
-      | false | true  | false | true  | false  |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
-      | false | false | true  | true  | true   |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
+    """
+    WITH date(<map>) as x, date(<map2>) as d
+    RETURN x > d, x < d, x >= d, x <= d, x = d
+    """
+    Then the result should be:
+      | x > d | x < d | x >= d | x <= d | x = d |
+      | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
     And no side effects
 
-  Scenario: Should compare local times
-    Given any graph
+    Examples:
+      | map                              | map2                             | gt    | lt    | ge    | le   | e     |
+      | {year: 1980, month: 12, day: 24} | {year: 1984, month: 10, day: 11} | false | true  | false | true | false |
+      | {year: 1984, month: 10, day: 11} | {year: 1984, month: 10, day: 11} | false | false | true  | true | true  |
+
+  Scenario Outline: Should compare local times
     When executing query:
-      """
-      UNWIND [localtime({hour: 10, minute: 35}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS x
-      UNWIND [date({year: 1984, month: 10, day: 11}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70})] AS d
-      RETURN x > d, x < d, x >= d, x <= d, x = d
-      """
-    Then the result should be, in order:
-      | x>d   | x<d   | x>=d  | x<=d  | x=d   |
-      | null  | null  | null  | null  | false |
-      | false | true  | false | true  | false |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
-      | false | false | true  | true  | true  |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
+    """
+    WITH localtime(<map>) as x, localtime(<map2>) as d
+    RETURN x > d, x < d, x >= d, x <= d, x = d
+    """
+    Then the result should be:
+      | x > d | x < d | x >= d | x <= d | x = d |
+      | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
     And no side effects
 
-  Scenario: Should compare times
-    Given any graph
+    Examples:
+      | map                                                       | map2                                                      | gt    | lt    | ge    | le   | e     |
+      | {hour: 10, minute: 35}                                    | {hour: 12, minute: 31, second: 14, nanosecond: 645876123} | false | true  | false | true | false |
+      | {hour: 12, minute: 31, second: 14, nanosecond: 645876123} | {hour: 12, minute: 31, second: 14, nanosecond: 645876123} | false | false | true  | true | true  |
+
+  Scenario Outline: Should compare times
     When executing query:
-      """
-      UNWIND [time({hour: 10, minute: 0, timezone: '+01:00'}),
-              time({hour: 9, minute: 35, second: 14, nanosecond: 645876123, timezone: '+00:00'})] AS x
-      UNWIND [date({year: 1984, month: 10, day: 11}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 9, minute: 35, second: 14, nanosecond: 645876123, timezone: '+00:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70})] AS d
-      RETURN x > d, x < d, x >= d, x <= d, x = d
-      """
-    Then the result should be, in order:
-      | x>d   | x<d   | x>=d  | x<=d  | x=d   |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
-      | false | true  | false | true  | false |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
-      | false | false | true  | true  | true  |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
-      | null  | null  | null  | null  | false |
+    """
+    WITH time(<map>) as x, time(<map2>) as d
+    RETURN x > d, x < d, x >= d, x <= d, x = d
+    """
+    Then the result should be:
+      | x > d | x < d | x >= d | x <= d | x = d |
+      | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
     And no side effects
 
-  Scenario: Should compare local date times
-    Given any graph
+    Examples:
+      | map                                                                          | map2                                                                         | gt    | lt    | ge    | le   | e     |
+      | {hour: 10, minute: 0, timezone: '+01:00'}                                    | {hour: 9, minute: 35, second: 14, nanosecond: 645876123, timezone: '+00:00'} | false | true  | false | true | false |
+      | {hour: 9, minute: 35, second: 14, nanosecond: 645876123, timezone: '+00:00'} | {hour: 9, minute: 35, second: 14, nanosecond: 645876123, timezone: '+00:00'} | false | false | true  | true | true  |
+
+  Scenario Outline: Should compare local date times
     When executing query:
-      """
-      UNWIND [localdatetime({year: 1980, month: 12, day: 11, hour: 12, minute: 31, second: 14}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS x
-      UNWIND [date({year: 1984, month: 10, day: 11}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 9, minute: 35, second: 14, nanosecond: 645876123, timezone: '+00:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70})] AS d
-      RETURN x > d, x < d, x >= d, x <= d, x = d
-      """
-    Then the result should be, in order:
-      | x>d   | x<d   | x>=d  | x<=d  | x=d    |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
-      | false | true  | false | true  | false  |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
-      | false | false | true  | true  | true   |
-      | null  | null  | null  | null  | false  |
-      | null  | null  | null  | null  | false  |
+    """
+    WITH localdatetime(<map>) as x, localdatetime(<map2>) as d
+    RETURN x > d, x < d, x >= d, x <= d, x = d
+    """
+    Then the result should be:
+      | x > d | x < d | x >= d | x <= d | x = d |
+      | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
     And no side effects
 
-  Scenario: Should compare date times
-    Given any graph
+    Examples:
+      | map                                                                                       | map2                                                                                      | gt    | lt    | ge    | le   | e     |
+      | {year: 1980, month: 12, day: 11, hour: 12, minute: 31, second: 14}                        | {year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123} | false | true  | false | true | false |
+      | {year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123} | {year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123} | false | false | true  | true | true  |
+
+  Scenario Outline: Should compare date times
     When executing query:
-      """
-      UNWIND [datetime({year: 1980, month: 12, day: 11, hour: 12, minute: 31, second: 14, timezone: '+00:00'}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, timezone: '+05:00'})] AS x
-      UNWIND [date({year: 1984, month: 10, day: 11}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 9, minute: 35, second: 14, nanosecond: 645876123, timezone: '+00:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, timezone: '+05:00'}),
-              duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70})] AS d
-      RETURN x > d, x < d, x >= d, x <= d, x = d
-      """
-    Then the result should be, in order:
-      | x>d   | x<d   | x>=d  | x<=d  | x=d  |
-      | null  | null  | null  | null  | false|
-      | null  | null  | null  | null  | false|
-      | null  | null  | null  | null  | false|
-      | null  | null  | null  | null  | false|
-      | false | true  | false | true  | false|
-      | null  | null  | null  | null  | false|
-      | null  | null  | null  | null  | false|
-      | null  | null  | null  | null  | false|
-      | null  | null  | null  | null  | false|
-      | null  | null  | null  | null  | false|
-      | false | false | true  | true  | true |
-      | null  | null  | null  | null  | false|
+    """
+    WITH datetime(<map>) as x, datetime(<map2>) as d
+    RETURN x > d, x < d, x >= d, x <= d, x = d
+    """
+    Then the result should be:
+      | x > d | x < d | x >= d | x <= d | x = d |
+      | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
     And no side effects
 
-  Scenario: Should compare durations for equality
-    Given any graph
+    Examples:
+      | map                                                                                    | map2                                                                                   | gt    | lt    | ge    | le   | e     |
+      | {year: 1980, month: 12, day: 11, hour: 12, minute: 31, second: 14, timezone: '+00:00'} | {year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, timezone: '+05:00'} | false | true  | false | true | false |
+      | {year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, timezone: '+05:00'} | {year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, timezone: '+05:00'} | false | false | true  | true | true  |
+
+  Scenario Outline: Should compare durations for equality
     When executing query:
-      """
-      WITH duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70}) AS x
-      UNWIND [date({year: 1984, month: 10, day: 11}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 9, minute: 35, second: 14, nanosecond: 645876123, timezone: '+00:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, timezone: '+05:00'}),
-              duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70}),
-              duration({years: 12, months: 5, days: 14, hours: 16, minutes: 13, seconds: 10}),
-              duration({years: 12, months: 5, days: 13, hours: 40, minutes: 13, seconds: 10})] AS d
-      RETURN x = d
-      """
-    Then the result should be, in order:
-      | x=d    |
-      | false  |
-      | false  |
-      | false  |
-      | false  |
-      | false  |
-      | true   |
-      | true   |
-      | false  |
+    """
+    WITH duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70}) AS x, <other> AS d
+    RETURN x = d
+    """
+    Then the result should be:
+      | x = d |
+      | <e>   |
     And no side effects
+
+    Examples:
+      | other                                                                                                    | e     |
+      | date({year: 1984, month: 10, day: 11})                                                                   | false |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                     | false |
+      | time({hour: 9, minute: 35, second: 14, nanosecond: 645876123, timezone: '+00:00'})                       | false |
+      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}) | false |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, timezone: '+05:00'})         | false |
+      | duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70})                          | true  |
+      | duration({years: 12, months: 5, days: 14, hours: 16, minutes: 13, seconds: 10})                          | true  |
+      | duration({years: 12, months: 5, days: 13, hours: 40, minutes: 13, seconds: 10})                          | false |
