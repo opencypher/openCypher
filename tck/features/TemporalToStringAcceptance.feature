@@ -34,7 +34,7 @@ Feature: TemporalToStringAcceptance
     Given any graph
     When executing query:
       """
-      WITH date({year:1984, month:10, day:11}) AS d
+      WITH date({year: 1984, month: 10, day: 11}) AS d
       RETURN toString(d) AS ts, date(toString(d)) = d AS b
       """
     Then the result should be, in order:
@@ -46,7 +46,7 @@ Feature: TemporalToStringAcceptance
     Given any graph
     When executing query:
       """
-      WITH localtime({hour:12, minute:31, second:14, nanosecond: 645876123}) AS d
+      WITH localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}) AS d
       RETURN toString(d) AS ts, localtime(toString(d)) = d AS b
       """
     Then the result should be, in order:
@@ -58,7 +58,7 @@ Feature: TemporalToStringAcceptance
     Given any graph
     When executing query:
       """
-      WITH time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}) AS d
+      WITH time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) AS d
       RETURN toString(d) AS ts, time(toString(d)) = d AS b
       """
     Then the result should be, in order:
@@ -70,7 +70,7 @@ Feature: TemporalToStringAcceptance
     Given any graph
     When executing query:
       """
-      WITH localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}) AS d
+      WITH localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}) AS d
       RETURN toString(d) AS ts, localdatetime(toString(d)) = d AS b
       """
     Then the result should be, in order:
@@ -82,7 +82,7 @@ Feature: TemporalToStringAcceptance
     Given any graph
     When executing query:
       """
-      WITH datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}) AS d
+      WITH datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) AS d
       RETURN toString(d) AS ts, datetime(toString(d)) = d AS b
       """
     Then the result should be, in order:
@@ -94,8 +94,8 @@ Feature: TemporalToStringAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70, nanoseconds: 1}),
-              duration({years: 12, months:5, days: -14, hours:16}),
+      UNWIND [duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 1}),
+              duration({years: 12, months: 5, days: -14, hours: 16}),
               duration({minutes: 12, seconds: -60}),
               duration({seconds: 2, milliseconds: -1}),
               duration({seconds: -2, milliseconds: 1}),
@@ -127,7 +127,7 @@ Feature: TemporalToStringAcceptance
     Given any graph
     When executing query:
       """
-      WITH datetime({year: 2017, month: 8, day: 8, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: 'Europe/Stockholm'}) AS d
+      WITH datetime({year: 2017, month: 8, day: 8, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: 'Europe/Stockholm'}) AS d
       RETURN toString(d) AS ts
       """
     Then the result should be, in order:

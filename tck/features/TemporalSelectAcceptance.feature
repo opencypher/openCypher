@@ -33,9 +33,9 @@ Feature: TemporalSelectAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [date({year:1984, month:11, day:11}),
-              localdatetime({year:1984, month:11, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              datetime({year:1984, month:11, day:11, hour:12, timezone: '+01:00'})] AS dd
+      UNWIND [date({year: 1984, month: 11, day: 11}),
+              localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              datetime({year: 1984, month: 11, day: 11, hour: 12, timezone: '+01:00'})] AS dd
       RETURN date(dd) AS d1,
              date({date: dd}) AS d2,
              date({date: dd, year: 28}) AS d3,
@@ -55,13 +55,13 @@ Feature: TemporalSelectAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, microsecond: 645876, timezone: '+01:00'}),
-              localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
-              datetime({year:1984, month:10, day:11, hour:12, timezone: '+01:00'})] AS dd
+      UNWIND [localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'}),
+              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
+              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS dd
       RETURN localtime(dd) AS d1,
-             localtime({time:dd}) AS d2,
-             localtime({time:dd, second: 42}) AS d3
+             localtime({time: dd}) AS d2,
+             localtime({time: dd, second: 42}) AS d3
       """
     Then the result should be, in order:
       | d1                   | d2                   | d3                   |
@@ -75,15 +75,15 @@ Feature: TemporalSelectAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, microsecond: 645876, timezone: '+01:00'}),
-              localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
-              datetime({year:1984, month:10, day:11, hour:12, timezone: 'Europe/Stockholm'})] AS dd
+      UNWIND [localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'}),
+              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
+              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})] AS dd
       RETURN time(dd) AS d1,
-             time({time:dd}) AS d2,
-             time({time:dd, timezone:'+05:00'}) AS d3,
-             time({time:dd, second: 42}) AS d4,
-             time({time:dd, second: 42, timezone:'+05:00'}) AS d5
+             time({time: dd}) AS d2,
+             time({time: dd, timezone: '+05:00'}) AS d3,
+             time({time: dd, second: 42}) AS d4,
+             time({time: dd, second: 42, timezone: '+05:00'}) AS d5
       """
     Then the result should be, in order:
       | d1                      | d2                      | d3                           | d4                      | d5                           |
@@ -97,11 +97,11 @@ Feature: TemporalSelectAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [date({year:1984, month:10, day:11}),
-              localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
-              datetime({year:1984, month:10, day:11, hour:12, timezone: '+01:00'})] AS dd
-      RETURN localdatetime({date:dd, hour: 10, minute: 10, second: 10}) AS d1,
-             localdatetime({date:dd, day: 28, hour: 10, minute: 10, second: 10}) AS d2
+      UNWIND [date({year: 1984, month: 10, day: 11}),
+              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
+              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS dd
+      RETURN localdatetime({date: dd, hour: 10, minute: 10, second: 10}) AS d1,
+             localdatetime({date: dd, day: 28, hour: 10, minute: 10, second: 10}) AS d2
       """
     Then the result should be, in order:
       | d1                    | d2                    |
@@ -114,12 +114,12 @@ Feature: TemporalSelectAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, microsecond: 645876, timezone: '+01:00'}),
-              localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
-              datetime({year:1984, month:10, day:11, hour:12, timezone: '+01:00'})] AS tt
-      RETURN localdatetime({year:1984, month:10, day:11, time:tt}) AS d1,
-             localdatetime({year:1984, month:10, day:11, time:tt, second: 42}) AS d2
+      UNWIND [localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'}),
+              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
+              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS tt
+      RETURN localdatetime({year: 1984, month: 10, day: 11, time: tt}) AS d1,
+             localdatetime({year: 1984, month: 10, day: 11, time: tt, second: 42}) AS d2
       """
     Then the result should be, in order:
       | d1                              | d2 |
@@ -133,15 +133,15 @@ Feature: TemporalSelectAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [date({year:1984, month:10, day:11}),
-              localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
-              datetime({year:1984, month:10, day:11, hour:12, timezone: '+01:00'})] AS dd
-      UNWIND [localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, microsecond: 645876, timezone: '+01:00'}),
-              localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
-              datetime({year:1984, month:10, day:11, hour:12, timezone: '+01:00'})] AS tt
-      RETURN localdatetime({date:dd, time:tt}) AS d1,
-             localdatetime({date:dd, time:tt, day: 28, second: 42}) AS d2
+      UNWIND [date({year: 1984, month: 10, day: 11}),
+              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
+              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS dd
+      UNWIND [localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'}),
+              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
+              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS tt
+      RETURN localdatetime({date: dd, time: tt}) AS d1,
+             localdatetime({date: dd, time: tt, day: 28, second: 42}) AS d2
       """
     Then the result should be, in order:
       | d1                              | d2 |
@@ -163,11 +163,11 @@ Feature: TemporalSelectAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
-              datetime({year:1984, month:10, day:11, hour:12, timezone: '+01:00'})] AS dd
+      UNWIND [localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
+              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS dd
       RETURN localdatetime(dd) AS d1,
-             localdatetime({datetime:dd}) AS d2,
-             localdatetime({datetime:dd, day: 28, second: 42}) AS d3
+             localdatetime({datetime: dd}) AS d2,
+             localdatetime({datetime: dd, day: 28, second: 42}) AS d3
       """
     Then the result should be, in order:
       | d1                        | d2                        | d3 |
@@ -179,13 +179,13 @@ Feature: TemporalSelectAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [date({year:1984, month:10, day:11}),
-              localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
-              datetime({year:1984, month:10, day:11, hour:12, timezone: '+01:00'})] AS dd
-      RETURN datetime({date:dd, hour: 10, minute: 10, second: 10}) AS d1,
-             datetime({date:dd, hour: 10, minute: 10, second: 10, timezone:'+05:00'}) AS d2,
-             datetime({date:dd, day: 28, hour: 10, minute: 10, second: 10}) AS d3,
-             datetime({date:dd, day: 28, hour: 10, minute: 10, second: 10, timezone:'Pacific/Honolulu'}) AS d4
+      UNWIND [date({year: 1984, month: 10, day: 11}),
+              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
+              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS dd
+      RETURN datetime({date: dd, hour: 10, minute: 10, second: 10}) AS d1,
+             datetime({date: dd, hour: 10, minute: 10, second: 10, timezone: '+05:00'}) AS d2,
+             datetime({date: dd, day: 28, hour: 10, minute: 10, second: 10}) AS d3,
+             datetime({date: dd, day: 28, hour: 10, minute: 10, second: 10, timezone: 'Pacific/Honolulu'}) AS d4
       """
     Then the result should be, in order:
       | d1                     | d2                          | d3                     | d4                          |
@@ -198,14 +198,14 @@ Feature: TemporalSelectAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, microsecond: 645876, timezone: '+01:00'}),
-              localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
-              datetime({year:1984, month:10, day:11, hour:12, timezone: 'Europe/Stockholm'})] AS tt
-      RETURN datetime({year:1984, month:10, day:11, time:tt}) AS d1,
-             datetime({year:1984, month:10, day:11, time:tt, timezone:'+05:00'}) AS d2,
-             datetime({year:1984, month:10, day:11, time:tt, second: 42}) AS d3,
-             datetime({year:1984, month:10, day:11, time:tt, second: 42, timezone:'Pacific/Honolulu'}) AS d4
+      UNWIND [localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'}),
+              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
+              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})] AS tt
+      RETURN datetime({year: 1984, month: 10, day: 11, time: tt}) AS d1,
+             datetime({year: 1984, month: 10, day: 11, time: tt, timezone: '+05:00'}) AS d2,
+             datetime({year: 1984, month: 10, day: 11, time: tt, second: 42}) AS d3,
+             datetime({year: 1984, month: 10, day: 11, time: tt, second: 42, timezone: 'Pacific/Honolulu'}) AS d4
       """
     Then the result should be, in order:
       | d1                                                  | d2                                    | d3                                                  | d4 |
@@ -219,17 +219,17 @@ Feature: TemporalSelectAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [date({year:1984, month:10, day:11}),
-              localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
-              datetime({year:1984, month:10, day:11, hour:12, timezone: '+01:00'})] AS dd
-      UNWIND [localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, microsecond: 645876, timezone: '+01:00'}),
-              localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
-              datetime({year:1984, month:10, day:11, hour:12, timezone: 'Europe/Stockholm'})] AS tt
-      RETURN datetime({date:dd, time:tt}) AS d1,
-             datetime({date:dd, time:tt, timezone:'+05:00'}) AS d2,
-             datetime({date:dd, time:tt, day: 28, second: 42}) AS d3,
-             datetime({date:dd, time:tt, day: 28, second: 42, timezone:'Pacific/Honolulu'}) AS d4
+      UNWIND [date({year: 1984, month: 10, day: 11}),
+              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
+              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS dd
+      UNWIND [localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'}),
+              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
+              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})] AS tt
+      RETURN datetime({date: dd, time: tt}) AS d1,
+             datetime({date: dd, time: tt, timezone: '+05:00'}) AS d2,
+             datetime({date: dd, time: tt, day: 28, second: 42}) AS d3,
+             datetime({date: dd, time: tt, day: 28, second: 42, timezone: 'Pacific/Honolulu'}) AS d4
       """
     Then the result should be, in order:
       | d1                                         | d2                                    | d3                                            | d4 |
@@ -251,13 +251,13 @@ Feature: TemporalSelectAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
-              datetime({year:1984, month:10, day:11, hour:12, timezone: 'Europe/Stockholm'})] AS dd
+      UNWIND [localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
+              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})] AS dd
       RETURN datetime(dd) AS d1,
-             datetime({datetime:dd}) AS d2,
-             datetime({datetime:dd, timezone:'+05:00'}) AS d3,
-             datetime({datetime:dd, day: 28, second: 42}) AS d4,
-             datetime({datetime:dd, day: 28, second: 42, timezone:'Pacific/Honolulu'}) AS d5
+             datetime({datetime: dd}) AS d2,
+             datetime({datetime: dd, timezone: '+05:00'}) AS d3,
+             datetime({datetime: dd, day: 28, second: 42}) AS d4,
+             datetime({datetime: dd, day: 28, second: 42, timezone: 'Pacific/Honolulu'}) AS d5
 
       """
     Then the result should be, in order:

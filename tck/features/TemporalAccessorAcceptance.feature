@@ -34,7 +34,7 @@ Feature: TemporalAccessorAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Val {prop: date({year:1984, month:10, day:11}) })
+      CREATE (:Val {prop: date({year: 1984, month: 10, day: 11})})
       """
     When executing query:
       """
@@ -51,7 +51,7 @@ Feature: TemporalAccessorAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Val {prop: date({year:1984, month:01, day:01}) })
+      CREATE (:Val {prop: date({year: 1984, month: 01, day: 01})})
       """
     When executing query:
       """
@@ -68,7 +68,7 @@ Feature: TemporalAccessorAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Val {prop: localtime({hour:12, minute:31, second:14, nanosecond: 645876123}) })
+      CREATE (:Val {prop: localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})})
       """
     When executing query:
       """
@@ -85,7 +85,7 @@ Feature: TemporalAccessorAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Val {prop: time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone:'+01:00'}) })
+      CREATE (:Val {prop: time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})})
       """
     When executing query:
       """
@@ -102,7 +102,7 @@ Feature: TemporalAccessorAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Val {prop: localdatetime({year:1984, month:11, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}) })
+      CREATE (:Val {prop: localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})})
       """
     When executing query:
       """
@@ -120,7 +120,7 @@ Feature: TemporalAccessorAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Val {prop: datetime({year:1984, month:11, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone:'Europe/Stockholm'}) })
+      CREATE (:Val {prop: datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: 'Europe/Stockholm'})})
       """
     When executing query:
       """
@@ -139,7 +139,7 @@ Feature: TemporalAccessorAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Val {prop: duration({years: 1, months:4, days: 10, hours:1, minutes: 1, seconds: 1, nanoseconds: 111111111}) })
+      CREATE (:Val {prop: duration({years: 1, months: 4, days: 10, hours: 1, minutes: 1, seconds: 1, nanoseconds: 111111111})})
       """
     When executing query:
       """

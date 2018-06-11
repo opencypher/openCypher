@@ -34,15 +34,15 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:2017, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:2017, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:2017, month:10, day:11})] AS d
+      UNWIND [datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 2017, month: 10, day: 11})] AS d
       RETURN datetime.truncate('millennium', d) AS d1,
-             datetime.truncate('millennium', d, {day:2}) AS d2,
+             datetime.truncate('millennium', d, {day: 2}) AS d2,
              localdatetime.truncate('millennium', d) AS d3,
-             localdatetime.truncate('millennium', d, {day:2}) AS d4,
+             localdatetime.truncate('millennium', d, {day: 2}) AS d4,
              date.truncate('millennium', d) AS d5,
-             date.truncate('millennium', d, {day:2}) AS d6
+             date.truncate('millennium', d, {day: 2}) AS d6
       """
     Then the result should be, in order:
       | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
@@ -56,10 +56,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:2017, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year:2017, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:2017, month:10, day:11})] AS d
-      RETURN datetime.truncate('millennium', d, {timezone:'Europe/Stockholm'}) AS d1
+      UNWIND [datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
+              localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 2017, month: 10, day: 11})] AS d
+      RETURN datetime.truncate('millennium', d, {timezone: 'Europe/Stockholm'}) AS d1
       """
     Then the result should be, in order:
       | d1                                         |
@@ -72,15 +72,15 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:10, day:11})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 10, day: 11})] AS d
       RETURN datetime.truncate('century', d) AS d1,
-             datetime.truncate('century', d, {day:2}) AS d2,
+             datetime.truncate('century', d, {day: 2}) AS d2,
              localdatetime.truncate('century', d) AS d3,
-             localdatetime.truncate('century', d, {day:2}) AS d4,
+             localdatetime.truncate('century', d, {day: 2}) AS d4,
              date.truncate('century', d) AS d5,
-             date.truncate('century', d, {day:2}) AS d6
+             date.truncate('century', d, {day: 2}) AS d6
       """
     Then the result should be, in order:
       | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
@@ -93,10 +93,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:2017, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year:2017, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:2017, month:10, day:11})] AS d
-      RETURN datetime.truncate('century', d, {timezone:'Europe/Stockholm'}) AS d1
+      UNWIND [datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
+              localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 2017, month: 10, day: 11})] AS d
+      RETURN datetime.truncate('century', d, {timezone: 'Europe/Stockholm'}) AS d1
       """
     Then the result should be, in order:
       | d1                                         |
@@ -109,15 +109,15 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:10, day:11})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 10, day: 11})] AS d
       RETURN datetime.truncate('decade', d) AS d1,
-             datetime.truncate('decade', d, {day:2}) AS d2,
+             datetime.truncate('decade', d, {day: 2}) AS d2,
              localdatetime.truncate('decade', d) AS d3,
-             localdatetime.truncate('decade', d, {day:2}) AS d4,
+             localdatetime.truncate('decade', d, {day: 2}) AS d4,
              date.truncate('decade', d) AS d5,
-             date.truncate('decade', d, {day:2}) AS d6
+             date.truncate('decade', d, {day: 2}) AS d6
       """
     Then the result should be, in order:
       | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
@@ -130,10 +130,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:10, day:11})] AS d
-      RETURN datetime.truncate('decade', d, {timezone:'Europe/Stockholm'}) AS d1
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 10, day: 11})] AS d
+      RETURN datetime.truncate('decade', d, {timezone: 'Europe/Stockholm'}) AS d1
       """
     Then the result should be, in order:
       | d1                                         |
@@ -146,15 +146,15 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:10, day:11})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 10, day: 11})] AS d
       RETURN datetime.truncate('year', d) AS d1,
-             datetime.truncate('year', d, {day:2}) AS d2,
+             datetime.truncate('year', d, {day: 2}) AS d2,
              localdatetime.truncate('year', d) AS d3,
-             localdatetime.truncate('year', d, {day:2}) AS d4,
+             localdatetime.truncate('year', d, {day: 2}) AS d4,
              date.truncate('year', d) AS d5,
-             date.truncate('year', d, {day:2}) AS d6
+             date.truncate('year', d, {day: 2}) AS d6
       """
     Then the result should be, in order:
       | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
@@ -167,10 +167,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:10, day:11})] AS d
-      RETURN datetime.truncate('year', d, {timezone:'Europe/Stockholm'}) AS d1
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 10, day: 11})] AS d
+      RETURN datetime.truncate('year', d, {timezone: 'Europe/Stockholm'}) AS d1
       """
     Then the result should be, in order:
       | d1                                         |
@@ -183,15 +183,15 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:1, day:1, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:1, day:1, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:2, day:1})] AS d
+      UNWIND [datetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 2, day: 1})] AS d
       RETURN datetime.truncate('weekYear', d) AS d1,
-             datetime.truncate('weekYear', d, {day:5}) AS d2,
+             datetime.truncate('weekYear', d, {day: 5}) AS d2,
              localdatetime.truncate('weekYear', d) AS d3,
-             localdatetime.truncate('weekYear', d, {day:5}) AS d4,
+             localdatetime.truncate('weekYear', d, {day: 5}) AS d4,
              date.truncate('weekYear', d) AS d5,
-             date.truncate('weekYear', d, {day:5}) AS d6
+             date.truncate('weekYear', d, {day: 5}) AS d6
       """
     Then the result should be, in order:
       | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
@@ -204,10 +204,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:1, day:1, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year:1984, month:1, day:1, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:2, day:1})] AS d
-      RETURN datetime.truncate('weekYear', d, {timezone:'Europe/Stockholm'}) AS d1
+      UNWIND [datetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
+              localdatetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 2, day: 1})] AS d
+      RETURN datetime.truncate('weekYear', d, {timezone: 'Europe/Stockholm'}) AS d1
       """
     Then the result should be, in order:
       | d1                                         |
@@ -220,15 +220,15 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:11, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:11, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:11, day:11})] AS d
+      UNWIND [datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 11, day: 11})] AS d
       RETURN datetime.truncate('quarter', d) AS d1,
-             datetime.truncate('quarter', d, {day:2}) AS d2,
+             datetime.truncate('quarter', d, {day: 2}) AS d2,
              localdatetime.truncate('quarter', d) AS d3,
-             localdatetime.truncate('quarter', d, {day:2}) AS d4,
+             localdatetime.truncate('quarter', d, {day: 2}) AS d4,
              date.truncate('quarter', d) AS d5,
-             date.truncate('quarter', d, {day:2}) AS d6
+             date.truncate('quarter', d, {day: 2}) AS d6
       """
     Then the result should be, in order:
       | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
@@ -241,10 +241,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:11, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year:1984, month:11, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:11, day:11})] AS d
-      RETURN datetime.truncate('quarter', d, {timezone:'Europe/Stockholm'}) AS d1
+      UNWIND [datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
+              localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 11, day: 11})] AS d
+      RETURN datetime.truncate('quarter', d, {timezone: 'Europe/Stockholm'}) AS d1
       """
     Then the result should be, in order:
       | d1                                         |
@@ -257,15 +257,15 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:10, day:11})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 10, day: 11})] AS d
       RETURN datetime.truncate('month', d) AS d1,
-             datetime.truncate('month', d, {day:2}) AS d2,
+             datetime.truncate('month', d, {day: 2}) AS d2,
              localdatetime.truncate('month', d) AS d3,
-             localdatetime.truncate('month', d, {day:2}) AS d4,
+             localdatetime.truncate('month', d, {day: 2}) AS d4,
              date.truncate('month', d) AS d5,
-             date.truncate('month', d, {day:2}) AS d6
+             date.truncate('month', d, {day: 2}) AS d6
       """
     Then the result should be, in order:
       | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
@@ -278,10 +278,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:10, day:11})] AS d
-      RETURN datetime.truncate('month', d, {timezone:'Europe/Stockholm'}) AS d1
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 10, day: 11})] AS d
+      RETURN datetime.truncate('month', d, {timezone: 'Europe/Stockholm'}) AS d1
       """
     Then the result should be, in order:
       | d1                                         |
@@ -294,15 +294,15 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:10, day:11})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 10, day: 11})] AS d
       RETURN datetime.truncate('week', d) AS d1,
-             datetime.truncate('week', d, {dayOfWeek:2}) AS d2,
+             datetime.truncate('week', d, {dayOfWeek: 2}) AS d2,
              localdatetime.truncate('week', d) AS d3,
-             localdatetime.truncate('week', d, {dayOfWeek:2}) AS d4,
+             localdatetime.truncate('week', d, {dayOfWeek: 2}) AS d4,
              date.truncate('week', d) AS d5,
-             date.truncate('week', d, {dayOfWeek:2}) AS d6
+             date.truncate('week', d, {dayOfWeek: 2}) AS d6
       """
     Then the result should be, in order:
       | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
@@ -315,10 +315,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:10, day:11})] AS d
-      RETURN datetime.truncate('week', d, {timezone:'Europe/Stockholm'}) AS d1
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 10, day: 11})] AS d
+      RETURN datetime.truncate('week', d, {timezone: 'Europe/Stockholm'}) AS d1
       """
     Then the result should be, in order:
       | d1                                         |
@@ -331,13 +331,13 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:10, day:11})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 10, day: 11})] AS d
       RETURN datetime.truncate('day', d) AS d1,
-             datetime.truncate('day', d, {nanosecond:2}) AS d2,
+             datetime.truncate('day', d, {nanosecond: 2}) AS d2,
              localdatetime.truncate('day', d) AS d3,
-             localdatetime.truncate('day', d, {nanosecond:2}) AS d4,
+             localdatetime.truncate('day', d, {nanosecond: 2}) AS d4,
              date.truncate('day', d) AS d5
       """
     Then the result should be, in order:
@@ -351,12 +351,12 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN time.truncate('day', d) AS d1,
-             time.truncate('day', d, {nanosecond:2}) AS d2,
+             time.truncate('day', d, {nanosecond: 2}) AS d2,
              localtime.truncate('day', d) AS d3,
-             localtime.truncate('day', d, {nanosecond:2}) AS d4
+             localtime.truncate('day', d, {nanosecond: 2}) AS d4
       """
     Then the result should be, in order:
       | d1            | d2                         | d3      | d4                   |
@@ -368,10 +368,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              date({year:1984, month:10, day:11})] AS d
-      RETURN datetime.truncate('day', d, {timezone:'Europe/Stockholm'}) AS d1
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              date({year: 1984, month: 10, day: 11})] AS d
+      RETURN datetime.truncate('day', d, {timezone: 'Europe/Stockholm'}) AS d1
       """
     Then the result should be, in order:
       | d1                                         |
@@ -384,10 +384,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN datetime.truncate('hour', d) AS d1,
-             datetime.truncate('hour', d, {nanosecond:2}) AS d2,
+             datetime.truncate('hour', d, {nanosecond: 2}) AS d2,
              datetime.truncate('hour', d, {timezone: 'Europe/Stockholm'}) AS d3
       """
     Then the result should be, in order:
@@ -400,10 +400,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN localdatetime.truncate('hour', d) AS d1,
-             localdatetime.truncate('hour', d, {nanosecond:2}) AS d2
+             localdatetime.truncate('hour', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1                      | d2                              |
@@ -415,12 +415,12 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
-              localtime({hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN time.truncate('hour', d) AS d1,
-             time.truncate('hour', d, {nanosecond:2}) AS d2,
+             time.truncate('hour', d, {nanosecond: 2}) AS d2,
              time.truncate('hour', d, {timezone: '+01:00'}) AS d3
       """
     Then the result should be, in order:
@@ -435,12 +435,12 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN localtime.truncate('hour', d) AS d1,
-             localtime.truncate('hour', d, {nanosecond:2}) AS d2
+             localtime.truncate('hour', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1      | d2                   |
@@ -454,10 +454,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN datetime.truncate('minute', d) AS d1,
-             datetime.truncate('minute', d, {nanosecond:2}) AS d2,
+             datetime.truncate('minute', d, {nanosecond: 2}) AS d2,
              datetime.truncate('minute', d, {timezone: 'Europe/Stockholm'}) AS d3
       """
     Then the result should be, in order:
@@ -470,10 +470,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN localdatetime.truncate('minute', d) AS d1,
-             localdatetime.truncate('minute', d, {nanosecond:2}) AS d2
+             localdatetime.truncate('minute', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1                 | d2                              |
@@ -485,12 +485,12 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN time.truncate('minute', d) AS d1,
-             time.truncate('minute', d, {nanosecond:2}) AS d2
+             time.truncate('minute', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1            | d2                         |
@@ -504,12 +504,12 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN localtime.truncate('minute', d) AS d1,
-             localtime.truncate('minute', d, {nanosecond:2}) AS d2
+             localtime.truncate('minute', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1      | d2                   |
@@ -523,10 +523,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN datetime.truncate('second', d) AS d1,
-             datetime.truncate('second', d, {nanosecond:2}) AS d2
+             datetime.truncate('second', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1                          | d2                                    |
@@ -538,10 +538,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN localdatetime.truncate('second', d) AS d1,
-             localdatetime.truncate('second', d, {nanosecond:2}) AS d2
+             localdatetime.truncate('second', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1                    | d2                              |
@@ -553,12 +553,12 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN time.truncate('second', d) AS d1,
-             time.truncate('second', d, {nanosecond:2}) AS d2
+             time.truncate('second', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1               | d2                         |
@@ -572,12 +572,12 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN localtime.truncate('second', d) AS d1,
-             localtime.truncate('second', d, {nanosecond:2}) AS d2
+             localtime.truncate('second', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1         | d2                   |
@@ -591,10 +591,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN datetime.truncate('millisecond', d) AS d1,
-             datetime.truncate('millisecond', d, {nanosecond:2}) AS d2
+             datetime.truncate('millisecond', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1                              | d2                                    |
@@ -606,10 +606,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN localdatetime.truncate('millisecond', d) AS d1,
-             localdatetime.truncate('millisecond', d, {nanosecond:2}) AS d2
+             localdatetime.truncate('millisecond', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1                        | d2                              |
@@ -621,12 +621,12 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN time.truncate('millisecond', d) AS d1,
-             time.truncate('millisecond', d, {nanosecond:2}) AS d2
+             time.truncate('millisecond', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1                   | d2                         |
@@ -640,12 +640,12 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN localtime.truncate('millisecond', d) AS d1,
-             localtime.truncate('millisecond', d, {nanosecond:2}) AS d2
+             localtime.truncate('millisecond', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1             | d2                   |
@@ -659,10 +659,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN datetime.truncate('microsecond', d) AS d1,
-             datetime.truncate('microsecond', d, {nanosecond:2}) AS d2
+             datetime.truncate('microsecond', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1                                 | d2                                    |
@@ -674,10 +674,10 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN localdatetime.truncate('microsecond', d) AS d1,
-             localdatetime.truncate('microsecond', d, {nanosecond:2}) AS d2
+             localdatetime.truncate('microsecond', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1                           | d2                              |
@@ -689,12 +689,12 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN time.truncate('microsecond', d) AS d1,
-             time.truncate('microsecond', d, {nanosecond:2}) AS d2
+             time.truncate('microsecond', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1                      | d2                         |
@@ -708,12 +708,12 @@ Feature: TemporalTruncateAcceptance
     Given any graph
     When executing query:
       """
-      UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
-              time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour:12, minute:31, second:14, nanosecond: 645876123})] AS d
+      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
       RETURN localtime.truncate('microsecond', d) AS d1,
-             localtime.truncate('microsecond', d, {nanosecond:2}) AS d2
+             localtime.truncate('microsecond', d, {nanosecond: 2}) AS d2
       """
     Then the result should be, in order:
       | d1                | d2                   |

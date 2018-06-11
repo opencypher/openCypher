@@ -34,10 +34,10 @@ Feature: TemporalArithmeticAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Val {prop: date({year:1984, month:10, day:11})}),
+      CREATE (:Val {prop: date({year: 1984, month: 10, day: 11})}),
              (:Durations {prop: [duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 2}),
-              duration({months:1, days: -14, hours: 16, minutes: -12, seconds: 70}),
-              duration({years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3})] })
+              duration({months: 1, days: -14, hours: 16, minutes: -12, seconds: 70}),
+              duration({years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3})]})
       """
     When executing query:
       """
@@ -57,10 +57,10 @@ Feature: TemporalArithmeticAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Val {prop: localtime({hour:12, minute:31, second:14, nanosecond: 1})}),
+      CREATE (:Val {prop: localtime({hour: 12, minute: 31, second: 14, nanosecond: 1})}),
              (:Durations {prop: [duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 2}),
-              duration({months:1, days: -14, hours: 16, minutes: -12, seconds: 70}),
-              duration({years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3})] })
+              duration({months: 1, days: -14, hours: 16, minutes: -12, seconds: 70}),
+              duration({years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3})]})
       """
     When executing query:
       """
@@ -80,10 +80,10 @@ Feature: TemporalArithmeticAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Val {prop: time({hour:12, minute:31, second:14, nanosecond: 1, timezone: '+01:00'})}),
+      CREATE (:Val {prop: time({hour: 12, minute: 31, second: 14, nanosecond: 1, timezone: '+01:00'})}),
              (:Durations {prop: [duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 2}),
-              duration({months:1, days: -14, hours: 16, minutes: -12, seconds: 70}),
-              duration({years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3})] })
+              duration({months: 1, days: -14, hours: 16, minutes: -12, seconds: 70}),
+              duration({years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3})]})
       """
     When executing query:
       """
@@ -103,10 +103,10 @@ Feature: TemporalArithmeticAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Val {prop: localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 1})}),
+      CREATE (:Val {prop: localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 1})}),
              (:Durations {prop:  [duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 2}),
-              duration({months:1, days: -14, hours: 16, minutes: -12, seconds: 70}),
-              duration({years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3})] })
+              duration({months: 1, days: -14, hours: 16, minutes: -12, seconds: 70}),
+              duration({years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3})]})
       """
     When executing query:
       """
@@ -126,10 +126,10 @@ Feature: TemporalArithmeticAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Val {prop: datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 1, timezone: '+01:00'})}),
+      CREATE (:Val {prop: datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 1, timezone: '+01:00'})}),
              (:Durations {prop: [duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 2}),
-              duration({months:1, days: -14, hours: 16, minutes: -12, seconds: 70}),
-              duration({years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3})] })
+              duration({months: 1, days: -14, hours: 16, minutes: -12, seconds: 70}),
+              duration({years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3})]})
       """
     When executing query:
       """
@@ -150,8 +150,8 @@ Feature: TemporalArithmeticAcceptance
     And having executed:
       """
       CREATE (:Durations {prop: [duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 1}),
-            duration({months:1, days: -14, hours: 16, minutes: -12, seconds: 70}),
-            duration({years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3})] })
+            duration({months: 1, days: -14, hours: 16, minutes: -12, seconds: 70}),
+            duration({years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3})]})
       """
     When executing query:
       """
@@ -177,7 +177,7 @@ Feature: TemporalArithmeticAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Durations {prop: duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 1}) })
+      CREATE (:Durations {prop: duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 1})})
       """
     When executing query:
       """
