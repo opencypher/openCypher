@@ -31,7 +31,7 @@
 Feature: TemporalParseAcceptance
 
   Scenario: Should parse date from string
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [date('2015-07-21'),
@@ -63,7 +63,7 @@ Feature: TemporalParseAcceptance
     And no side effects
 
   Scenario: Should parse local time from string
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [localtime('21:40:32.142'),
@@ -87,7 +87,7 @@ Feature: TemporalParseAcceptance
     And no side effects
 
   Scenario: Should parse time from string
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [time('21:40:32.142+0100'),
@@ -113,7 +113,7 @@ Feature: TemporalParseAcceptance
     And no side effects
 
   Scenario: Should parse local date time from string
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [localdatetime('2015-07-21T21:40:32.142'),
@@ -137,7 +137,7 @@ Feature: TemporalParseAcceptance
     And no side effects
 
   Scenario: Should parse date time from string
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime('2015-07-21T21:40:32.142+0100'),
@@ -163,7 +163,7 @@ Feature: TemporalParseAcceptance
     And no side effects
 
   Scenario: Should parse date time with named time zone from string
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime('2015-07-21T21:40:32.142+02:00[Europe/Stockholm]'),
@@ -184,7 +184,7 @@ Feature: TemporalParseAcceptance
     And no side effects
 
   Scenario: Should parse duration from string
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [duration("P14DT16H12M"),

@@ -31,7 +31,7 @@
 Feature: TemporalComparisonAcceptance
 
   Scenario: Should compare dates
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [date({year:1980, month:12, day:24}),
@@ -61,7 +61,7 @@ Feature: TemporalComparisonAcceptance
     And no side effects
 
   Scenario: Should compare local times
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [localtime({hour:10, minute:35}),
@@ -91,7 +91,7 @@ Feature: TemporalComparisonAcceptance
     And no side effects
 
   Scenario: Should compare times
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [time({hour:10, minute:0, timezone: '+01:00'}),
@@ -121,7 +121,7 @@ Feature: TemporalComparisonAcceptance
     And no side effects
 
   Scenario: Should compare local date times
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [localdatetime({year:1980, month:12, day:11, hour:12, minute:31, second:14}),
@@ -151,7 +151,7 @@ Feature: TemporalComparisonAcceptance
     And no side effects
 
   Scenario: Should compare date times
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1980, month:12, day:11, hour:12, minute:31, second:14, timezone: '+00:00'}),
@@ -181,7 +181,7 @@ Feature: TemporalComparisonAcceptance
     And no side effects
 
   Scenario: Should compare durations for equality
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       WITH duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70}) AS x

@@ -31,7 +31,7 @@
 Feature: TemporalTruncateAcceptance
 
   Scenario: Should truncate to millennium
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:2017, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -53,7 +53,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to millennium with time zone
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:2017, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
@@ -69,7 +69,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to century
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -90,7 +90,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to century with time zone
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:2017, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
@@ -106,7 +106,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to decade
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -127,7 +127,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to decade with time zone
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
@@ -143,7 +143,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to year
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -164,7 +164,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to year with time zone
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
@@ -180,7 +180,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to weekYear
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:1, day:1, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -201,7 +201,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to weekYear with time zone
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:1, day:1, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
@@ -217,7 +217,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to quarter
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:11, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -238,7 +238,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to quarter with time zone
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:11, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
@@ -254,7 +254,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to month
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -275,7 +275,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to month with time zone
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
@@ -291,7 +291,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate to week
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -312,7 +312,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate to week with time zone
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
@@ -328,7 +328,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate to day
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -348,7 +348,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
   Scenario: Should truncate time to day
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -365,7 +365,7 @@ Feature: TemporalTruncateAcceptance
 
     And no side effects
   Scenario: Should truncate to day with time zone
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
@@ -381,7 +381,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate datetime to hour
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
@@ -397,7 +397,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate localdatetime to hour
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -412,7 +412,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate time to hour
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
@@ -432,7 +432,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate localtime to hour
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -451,7 +451,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate datetime to minute
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '-01:00'}),
@@ -467,7 +467,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate localdatetime to minute
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -482,7 +482,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate time to minute
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -501,7 +501,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate localtime to minute
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -520,7 +520,7 @@ Feature: TemporalTruncateAcceptance
    And no side effects
 
  Scenario: Should truncate datetime to second
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -535,7 +535,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate localdatetime to second
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -550,7 +550,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate time to second
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -569,7 +569,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate localtime to second
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -588,7 +588,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate datetime to millisecond
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -603,7 +603,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate localdatetime to millisecond
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -618,7 +618,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate time to millisecond
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -637,7 +637,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate localtime to millisecond
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -656,7 +656,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate datetime to microsecond
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -671,7 +671,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate localdatetime to microsecond
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -686,7 +686,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate time to microsecond
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
@@ -705,7 +705,7 @@ Feature: TemporalTruncateAcceptance
     And no side effects
 
  Scenario: Should truncate localtime to microsecond
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),

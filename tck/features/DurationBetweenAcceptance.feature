@@ -31,7 +31,7 @@
 Feature: DurationBetweenAcceptance
 
   Scenario: Should compute duration between two temporals
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [duration.between(date("1984-10-11"), date("2015-06-24")),
@@ -96,7 +96,7 @@ Feature: DurationBetweenAcceptance
     And no side effects
 
   Scenario: Should compute duration between two temporals in months
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [duration.inMonths(date("1984-10-11"), date("2015-06-24")),
@@ -154,7 +154,7 @@ Feature: DurationBetweenAcceptance
     And no side effects
 
   Scenario: Should compute duration between two temporals in days
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [duration.inDays(date("1984-10-11"), date("2015-06-24")),
@@ -211,7 +211,7 @@ Feature: DurationBetweenAcceptance
     And no side effects
 
   Scenario: Should compute duration between two temporals in seconds
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [duration.inSeconds(date("1984-10-11"), date("2015-06-24")),
@@ -276,7 +276,7 @@ Feature: DurationBetweenAcceptance
     And no side effects
 
   Scenario: Should compute duration between if they differ only by a fraction of a second and the first comes after the second.
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       RETURN duration.inSeconds(localdatetime("2014-07-21T21:40:36.143"), localdatetime("2014-07-21T21:40:36.142")) AS d
@@ -287,7 +287,7 @@ Feature: DurationBetweenAcceptance
     And no side effects
 
   Scenario: Should compute negative duration between in big units
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       WITH [[date("2018-03-11"), date("2016-06-24")],
@@ -310,7 +310,7 @@ Feature: DurationBetweenAcceptance
     And no side effects
 
   Scenario: Should handle durations at daylight saving time day
-    Given an empty graph
+    Given any graph
     When executing query:
     """
     UNWIND[ duration.inSeconds(datetime({year: 2017, month: 10, day: 29, hour: 0, timezone: 'Europe/Stockholm'}), localdatetime({year: 2017, month: 10, day: 29, hour: 4})),
@@ -343,7 +343,7 @@ Feature: DurationBetweenAcceptance
     And no side effects
 
   Scenario: Should handle large durations
-    Given an empty graph
+    Given any graph
     When executing query:
     """
     UNWIND[ duration.between(date("-999999999-01-01"), date("+999999999-12-31")),
@@ -358,7 +358,7 @@ Feature: DurationBetweenAcceptance
     And no side effects
 
   Scenario: Should handle when seconds and subseconds have different signs
-    Given an empty graph
+    Given any graph
     When executing query:
     """
     UNWIND[ duration.inSeconds(localtime("12:34:54.7"), localtime("12:34:54.3")),
@@ -392,7 +392,7 @@ Feature: DurationBetweenAcceptance
     And no side effects
 
   Scenario: Should compute durations with no difference
-    Given an empty graph
+    Given any graph
     When executing query:
     """
     UNWIND[ duration.inSeconds(localtime(), localtime()),

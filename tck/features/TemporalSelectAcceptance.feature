@@ -30,7 +30,7 @@
 Feature: TemporalSelectAcceptance
 
   Scenario: Should select date
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [date({year:1984, month:11, day:11}),
@@ -52,7 +52,7 @@ Feature: TemporalSelectAcceptance
     And no side effects
 
   Scenario: Should select local time
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
@@ -72,7 +72,7 @@ Feature: TemporalSelectAcceptance
     And no side effects
 
   Scenario: Should select time
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
@@ -94,7 +94,7 @@ Feature: TemporalSelectAcceptance
     And no side effects
 
   Scenario: Should select date into local date time
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [date({year:1984, month:10, day:11}),
@@ -111,7 +111,7 @@ Feature: TemporalSelectAcceptance
     And no side effects
 
   Scenario: Should select time into local date time
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
@@ -130,7 +130,7 @@ Feature: TemporalSelectAcceptance
     And no side effects
 
   Scenario: Should select date and time into local date time
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [date({year:1984, month:10, day:11}),
@@ -160,7 +160,7 @@ Feature: TemporalSelectAcceptance
     And no side effects
 
   Scenario: Should select datetime into local date time
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
@@ -176,7 +176,7 @@ Feature: TemporalSelectAcceptance
     And no side effects
 
   Scenario: Should select date into date time
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [date({year:1984, month:10, day:11}),
@@ -195,7 +195,7 @@ Feature: TemporalSelectAcceptance
     And no side effects
 
   Scenario: Should select time into date time
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
@@ -216,7 +216,7 @@ Feature: TemporalSelectAcceptance
     And no side effects
 
   Scenario: Should select date and time into date time
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [date({year:1984, month:10, day:11}),
@@ -248,7 +248,7 @@ Feature: TemporalSelectAcceptance
     And no side effects
 
   Scenario: Should select datetime into date time
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       UNWIND [localdatetime({year:1984, week:10, dayOfWeek:3, hour:12, minute:31, second:14, millisecond: 645}),
