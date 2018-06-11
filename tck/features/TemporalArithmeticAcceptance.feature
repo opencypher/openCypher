@@ -44,10 +44,10 @@ Feature: TemporalArithmeticAcceptance
       MATCH (v:Val), (d:Durations)
       WITH v.prop AS x, d
       UNWIND d.prop AS dur
-      RETURN x+dur, x-dur
+      RETURN x + dur, x - dur
       """
     Then the result should be, in order:
-      | x+dur        | x-dur |
+      | x + dur      | x - dur      |
       | '1997-03-25' | '1972-04-27' |
       | '1984-10-28' | '1984-09-25' |
       | '1997-10-11' | '1971-10-12' |
@@ -67,10 +67,10 @@ Feature: TemporalArithmeticAcceptance
       MATCH (v:Val), (d:Durations)
       WITH v.prop AS x, d
       UNWIND d.prop AS dur
-      RETURN x+dur, x-dur
+      RETURN x + dur, x - dur
       """
     Then the result should be, in order:
-      | x+dur                | x-dur |
+      | x + dur              | x - dur              |
       | '04:44:24.000000003' | '20:18:03.999999999' |
       | '04:20:24.000000001' | '20:42:04.000000001' |
       | '22:29:27.500000004' | '02:33:00.499999998' |
@@ -90,10 +90,10 @@ Feature: TemporalArithmeticAcceptance
       MATCH (v:Val), (d:Durations)
       WITH v.prop AS x, d
       UNWIND d.prop AS dur
-      RETURN x+dur, x-dur
+      RETURN x + dur, x - dur
       """
     Then the result should be, in order:
-      | x+dur                      | x-dur |
+      | x + dur                    | x - dur                    |
       | '04:44:24.000000003+01:00' | '20:18:03.999999999+01:00' |
       | '04:20:24.000000001+01:00' | '20:42:04.000000001+01:00' |
       | '22:29:27.500000004+01:00' | '02:33:00.499999998+01:00' |
@@ -113,10 +113,10 @@ Feature: TemporalArithmeticAcceptance
       MATCH (v:Val), (d:Durations)
       WITH v.prop AS x, d
       UNWIND d.prop AS dur
-      RETURN x+dur, x-dur
+      RETURN x + dur, x - dur
       """
     Then the result should be, in order:
-      | x+dur                           | x-dur |
+      | x + dur                         | x - dur                         |
       | '1997-03-26T04:44:24.000000003' | '1972-04-26T20:18:03.999999999' |
       | '1984-10-29T04:20:24.000000001' | '1984-09-24T20:42:04.000000001' |
       | '1997-10-11T22:29:27.500000004' | '1971-10-12T02:33:00.499999998' |
@@ -136,10 +136,10 @@ Feature: TemporalArithmeticAcceptance
       MATCH (v:Val), (d:Durations)
       WITH v.prop AS x, d
       UNWIND d.prop AS dur
-      RETURN x+dur, x-dur
+      RETURN x + dur, x - dur
       """
     Then the result should be, in order:
-      | x+dur                                 | x-dur |
+      | x + dur                               | x - dur                               |
       | '1997-03-26T04:44:24.000000003+01:00' | '1972-04-26T20:18:03.999999999+01:00' |
       | '1984-10-29T04:20:24.000000001+01:00' | '1984-09-24T20:42:04.000000001+01:00' |
       | '1997-10-11T22:29:27.500000004+01:00' | '1971-10-12T02:33:00.499999998+01:00' |
@@ -158,10 +158,10 @@ Feature: TemporalArithmeticAcceptance
       MATCH (d:Durations)
       UNWIND d.prop AS dur
       UNWIND d.prop AS dur2
-      RETURN dur+dur2, dur-dur2
+      RETURN dur + dur2, dur - dur2
       """
     Then the result should be, in order:
-      | dur+dur2                         | dur-dur2                             |
+      | dur + dur2                       | dur - dur2                           |
       | 'P24Y10M28DT32H26M20.000000002S' | 'PT0S'                               |
       | 'P12Y6MT32H2M20.000000001S'      | 'P12Y4M28DT24M0.000000001S'          |
       | 'P25Y4M43DT50H11M23.500000004S'  | 'P-6M-15DT-17H-45M-3.500000002S'     |
@@ -183,7 +183,7 @@ Feature: TemporalArithmeticAcceptance
       """
       MATCH (d:Durations)
       UNWIND [1, 2, 0.5] AS num
-      RETURN d.prop*num, d.prop/num
+      RETURN d.prop * num, d.prop / num
       """
     Then the result should be, in order:
       | d.prop*num                       | d.prop/num                       |
