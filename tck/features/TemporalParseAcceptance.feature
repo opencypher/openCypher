@@ -44,7 +44,7 @@ Feature: TemporalParseAcceptance
               date('2015W30'),
               date('2015-202'),
               date('2015202'),
-              date('2015')] as d
+              date('2015')] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -72,7 +72,7 @@ Feature: TemporalParseAcceptance
               localtime('214032'),
               localtime('21:40'),
               localtime('2140'),
-              localtime('21')] as d
+              localtime('21')] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -97,7 +97,7 @@ Feature: TemporalParseAcceptance
               time('21:40-01:30'),
               time('2140-00:00'),
               time('2140-02'),
-              time('22+18:00')] as d
+              time('22+18:00')] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -122,7 +122,7 @@ Feature: TemporalParseAcceptance
               localdatetime('2015T214032'),
               localdatetime('20150721T21:40'),
               localdatetime('2015-W30T2140'),
-              localdatetime('2015202T21')] as d
+              localdatetime('2015202T21')] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -147,7 +147,7 @@ Feature: TemporalParseAcceptance
               datetime('20150721T21:40-01:30'),
               datetime('2015-W30T2140-00:00'),
               datetime('2015-W30T2140-02'),
-              datetime('2015202T21+18:00')] as d
+              datetime('2015202T21+18:00')] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -171,7 +171,7 @@ Feature: TemporalParseAcceptance
               datetime('2015-07-21T21:40:32.142-04[America/New_York]'),
               datetime('2015-07-21T21:40:32.142[Europe/London]'),
               datetime('1818-07-21T21:40:32.142[Europe/Stockholm]')
-             ] as d
+             ] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -193,7 +193,7 @@ Feature: TemporalParseAcceptance
               duration("PT0.75M"),
               duration("P2.5W"),
               duration("P12Y5M14DT16H12M70S"),
-              duration("P2012-02-02T14:37:21.545")] as d
+              duration("P2012-02-02T14:37:21.545")] AS d
       RETURN d
       """
     Then the result should be, in order:

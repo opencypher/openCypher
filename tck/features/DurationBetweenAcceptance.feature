@@ -63,7 +63,7 @@ Feature: DurationBetweenAcceptance
               duration.between(datetime("2014-07-21T21:40:36.143+0200"), datetime("2015-07-21T21:40:32.142+0100")),
               duration.between(datetime("2014-07-21T21:40:36.143+0200"), localtime("16:30")),
               duration.between(datetime("2014-07-21T21:40:36.143+0200"), time("16:30+0100"))
-              ] as d
+              ] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -124,7 +124,7 @@ Feature: DurationBetweenAcceptance
               duration.inMonths(datetime("2014-07-21T21:40:36.143+0200"), datetime("2015-07-21T21:40:32.142+0100")),
               duration.inMonths(datetime("2014-07-21T21:40:36.143+0200"), localtime("16:30")),
               duration.inMonths(datetime("2014-07-21T21:40:36.143+0200"), time("16:30+0100"))
-              ] as d
+              ] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -182,7 +182,7 @@ Feature: DurationBetweenAcceptance
               duration.inDays(datetime("2014-07-21T21:40:36.143+0200"), datetime("2015-07-21T21:40:32.142+0100")),
               duration.inDays(datetime("2014-07-21T21:40:36.143+0200"), localtime("16:30")),
               duration.inDays(datetime("2014-07-21T21:40:36.143+0200"), time("16:30+0100"))
-              ] as d
+              ] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -243,7 +243,7 @@ Feature: DurationBetweenAcceptance
               duration.inSeconds(datetime("2014-07-21T21:40:36.143+0200"), datetime("2015-07-21T21:40:32.142+0100")),
               duration.inSeconds(datetime("2014-07-21T21:40:36.143+0200"), localtime("16:30")),
               duration.inSeconds(datetime("2014-07-21T21:40:36.143+0200"), time("16:30+0100"))
-              ] as d
+              ] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -279,7 +279,7 @@ Feature: DurationBetweenAcceptance
     Given an empty graph
     When executing query:
       """
-      RETURN duration.inSeconds(localdatetime("2014-07-21T21:40:36.143"), localdatetime("2014-07-21T21:40:36.142")) as d
+      RETURN duration.inSeconds(localdatetime("2014-07-21T21:40:36.143"), localdatetime("2014-07-21T21:40:36.142")) AS d
       """
     Then the result should be, in order:
       | d |
@@ -294,10 +294,10 @@ Feature: DurationBetweenAcceptance
               [date("2018-07-21"), datetime("2016-07-21T21:40:32.142+0100")],
               [localdatetime("2018-07-21T21:40:32.142"), date("2016-07-21")],
               [datetime("2018-07-21T21:40:36.143+0200"), localdatetime("2016-07-21T21:40:36.143")],
-              [datetime("2018-07-21T21:40:36.143+0500"), datetime("1984-07-21T22:40:36.143+0200")]] as temporalCombos
-      UNWIND temporalCombos as pair
-      WITH pair[0] as first, pair[1] as second
-      RETURN duration.inMonths(first, second) as months
+              [datetime("2018-07-21T21:40:36.143+0500"), datetime("1984-07-21T22:40:36.143+0200")]] AS temporalCombos
+      UNWIND temporalCombos AS pair
+      WITH pair[0] AS first, pair[1] AS second
+      RETURN duration.inMonths(first, second) AS months
       """
     Then the result should be, in order:
       | months      |
@@ -324,7 +324,7 @@ Feature: DurationBetweenAcceptance
             duration.inSeconds(date({year: 2017, month: 10, day: 29}), datetime({year: 2017, month: 10, day: 29, hour: 4, timezone: 'Europe/Stockholm'})),
             duration.between(date({year: 2017, month: 10, day: 29}), datetime({year: 2017, month: 10, day: 29, hour: 4, timezone: 'Europe/Stockholm'})),
             duration.inSeconds(datetime({year: 2017, month: 10, day: 29, hour: 0, timezone: 'Europe/Stockholm'}), date({year: 2017, month: 10, day: 30}))
-          ] as d
+          ] AS d
     RETURN d
     """
     Then the result should be, in order:
@@ -348,7 +348,7 @@ Feature: DurationBetweenAcceptance
     """
     UNWIND[ duration.between(date("-999999999-01-01"), date("+999999999-12-31")),
             duration.inSeconds(localdatetime("-999999999-01-01"), localdatetime("+999999999-12-31T23:59:59"))
-            ] as d
+            ] AS d
     RETURN d
     """
     Then the result should be, in order:
@@ -374,7 +374,7 @@ Feature: DurationBetweenAcceptance
 
             duration.inSeconds(localtime("12:34:56.3"), localtime("12:34:54.7")),
             duration.inSeconds(localtime("12:34:54.7"), localtime("12:34:56.3"))
-          ] as d
+          ] AS d
     RETURN d
     """
     Then the result should be, in order:
@@ -400,7 +400,7 @@ Feature: DurationBetweenAcceptance
             duration.inSeconds(date(), date()),
             duration.inSeconds(localdatetime(), localdatetime()),
             duration.inSeconds(datetime(), datetime())
-          ] as d
+          ] AS d
     RETURN d
     """
     Then the result should be, in order:

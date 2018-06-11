@@ -41,7 +41,7 @@ Feature: TemporalCreateAcceptance
               date({year:1984}),
               date({year:1984, ordinalDay:202}),
               date({year:1984, quarter:3, dayOfQuarter: 45}),
-              date({year:1984, quarter:3})] as d
+              date({year:1984, quarter:3})] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -66,7 +66,7 @@ Feature: TemporalCreateAcceptance
               localtime({hour:12, minute:31, second:14, millisecond: 645}),
               localtime({hour:12, minute:31, second:14}),
               localtime({hour:12, minute:31}),
-              localtime({hour:12})] as d
+              localtime({hour:12})] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -97,7 +97,7 @@ Feature: TemporalCreateAcceptance
               time({hour:12, minute:31, second:14, millisecond: 645, timezone: '+01:00'}),
               time({hour:12, minute:31, second:14, timezone: '+01:00'}),
               time({hour:12, minute:31, timezone: '+01:00'}),
-              time({hour:12, timezone: '+01:00'})] as d
+              time({hour:12, timezone: '+01:00'})] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -152,7 +152,7 @@ Feature: TemporalCreateAcceptance
               localdatetime({year:1984, quarter:3, dayOfQuarter: 45, hour:12, minute:31}),
               localdatetime({year:1984, quarter:3, dayOfQuarter: 45, hour:12}),
               localdatetime({year:1984, quarter:3, dayOfQuarter: 45}),
-              localdatetime({year:1984})] as d
+              localdatetime({year:1984})] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -286,7 +286,7 @@ Feature: TemporalCreateAcceptance
               datetime({year:1984, timezone: 'Europe/Stockholm'}),
 
               datetime.fromepoch(416779,999999999),
-              datetime.fromepochmillis(237821673987)] as d
+              datetime.fromepochmillis(237821673987)] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -396,7 +396,7 @@ Feature: TemporalCreateAcceptance
               duration({days: 14, seconds: 70, milliseconds: 1}),
               duration({days: 14, seconds: 70, microseconds: 1}),
               duration({days: 14, seconds: 70, nanoseconds: 1}),
-              duration({minutes: 1.5, seconds: 1})] as d
+              duration({minutes: 1.5, seconds: 1})] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -420,7 +420,7 @@ Feature: TemporalCreateAcceptance
                time({hour: 12, minute: 34, second: 56, timezone:'+02:05:59'}),
                time({hour: 12, minute: 34, second: 56, timezone:'-02:05:07'}),
                datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 34, second: 56, timezone:'+02:05:59'})
-             ] as d
+             ] AS d
       RETURN d
       """
     Then the result should be, in order:
@@ -439,7 +439,7 @@ Feature: TemporalCreateAcceptance
       UNWIND [date({year:1984, month:10, day:11}),
               [date({year:1984, month:10, day:12})],
               [date({year:1984, month:10, day:13}), date({year:1984, month:10, day:14}), date({year:1984, month:10, day:15})]
-              ] as d
+              ] AS d
       CREATE ({p:d})
       RETURN count(*) AS count
       """
@@ -457,7 +457,7 @@ Feature: TemporalCreateAcceptance
       UNWIND [localtime({hour:12}),
               [localtime({hour:13})],
               [localtime({hour:14}), localtime({hour:15}), localtime({hour:16})]
-              ] as t
+              ] AS t
       CREATE ({p:t})
       RETURN count(*) AS count
       """
@@ -475,7 +475,7 @@ Feature: TemporalCreateAcceptance
       UNWIND [time({hour:12}),
               [time({hour:13})],
               [time({hour:14}), time({hour:15}), time({hour:16})]
-              ] as t
+              ] AS t
       CREATE ({p:t})
       RETURN count(*) AS count
       """
@@ -493,7 +493,7 @@ Feature: TemporalCreateAcceptance
       UNWIND [localdatetime({year:1912}),
               [localdatetime({year:1913})],
               [localdatetime({year:1914}), localdatetime({year:1915}), localdatetime({year:1916})]
-              ] as dt
+              ] AS dt
       CREATE ({p:dt})
       RETURN count(*) AS count
       """
@@ -511,7 +511,7 @@ Feature: TemporalCreateAcceptance
       UNWIND [datetime({year:1912}),
               [datetime({year:1913})],
               [datetime({year:1914}), datetime({year:1915}), datetime({year:1916})]
-              ] as dt
+              ] AS dt
       CREATE ({p:dt})
       RETURN count(*) AS count
       """
@@ -529,7 +529,7 @@ Feature: TemporalCreateAcceptance
       UNWIND [duration({seconds:12}),
               [duration({seconds:13})],
               [duration({seconds:14}), duration({seconds:15}), duration({seconds:16})]
-              ] as duration
+              ] AS duration
       CREATE ({p:duration})
       RETURN count(*) AS count
       """

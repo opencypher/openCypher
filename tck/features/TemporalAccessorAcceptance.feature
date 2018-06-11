@@ -39,7 +39,7 @@ Feature: TemporalAccessorAcceptance
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop as d
+      WITH v.prop AS d
       RETURN d.year, d.quarter, d.month, d.week, d.weekYear, d.day, d.ordinalDay, d.weekDay, d.dayOfQuarter
       """
     Then the result should be, in order:
@@ -47,7 +47,7 @@ Feature: TemporalAccessorAcceptance
       | 1984   | 4         | 10      | 41     | 1984       | 11    | 285          | 4         | 11             |
     And no side effects
 
-  Scenario: Should provide accessors for date in last weekYear
+  Scenario: Should provide accessors for date in lASt weekYear
     Given an empty graph
     And having executed:
       """
@@ -56,7 +56,7 @@ Feature: TemporalAccessorAcceptance
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop as d
+      WITH v.prop AS d
       RETURN d.year, d.weekYear, d.week, d.weekDay
       """
     Then the result should be, in order:
@@ -73,7 +73,7 @@ Feature: TemporalAccessorAcceptance
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop as d
+      WITH v.prop AS d
       RETURN d.hour, d.minute, d.second, d.millisecond, d.microsecond, d.nanosecond
       """
     Then the result should be, in order:
@@ -90,7 +90,7 @@ Feature: TemporalAccessorAcceptance
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop as d
+      WITH v.prop AS d
       RETURN d.hour, d.minute, d.second, d.millisecond, d.microsecond, d.nanosecond, d.timezone, d.offset, d.offsetMinutes, d.offsetSeconds
       """
     Then the result should be, in order:
@@ -107,7 +107,7 @@ Feature: TemporalAccessorAcceptance
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop as d
+      WITH v.prop AS d
       RETURN d.year, d.quarter, d.month, d.week, d.weekYear, d.day, d.ordinalDay, d.weekDay, d.dayOfQuarter,
              d.hour, d.minute, d.second, d.millisecond, d.microsecond, d.nanosecond
       """
@@ -125,7 +125,7 @@ Feature: TemporalAccessorAcceptance
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop as d
+      WITH v.prop AS d
       RETURN d.year, d.quarter, d.month, d.week, d.weekYear, d.day, d.ordinalDay, d.weekDay, d.dayOfQuarter,
              d.hour, d.minute, d.second, d.millisecond, d.microsecond, d.nanosecond,
              d.timezone, d.offset, d.offsetMinutes, d.offsetSeconds, d.epochSeconds, d.epochMillis
@@ -144,7 +144,7 @@ Feature: TemporalAccessorAcceptance
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop as d
+      WITH v.prop AS d
       RETURN d.years, d.quarters, d.months, d.weeks, d.days,
              d.hours, d.minutes, d.seconds, d.milliseconds, d.microseconds, d.nanoseconds,
              d.quartersOfYear, d.monthsOfQuarter, d.monthsOfYear, d.daysOfWeek, d.minutesOfHour, d.secondsOfMinute, d.millisecondsOfSecond, d.microsecondsOfSecond, d.nanosecondsOfSecond

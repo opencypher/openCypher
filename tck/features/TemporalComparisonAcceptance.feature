@@ -35,13 +35,13 @@ Feature: TemporalComparisonAcceptance
     When executing query:
       """
       UNWIND [date({year:1980, month:12, day:24}),
-              date({year:1984, month:10, day:11})] as x
+              date({year:1984, month:10, day:11})] AS x
       UNWIND [date({year:1984, month:10, day:11}),
               localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
               time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
               localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
               datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] as d
+              duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] AS d
       RETURN x>d, x<d, x>=d, x<=d, x=d
       """
     Then the result should be, in order:
@@ -65,13 +65,13 @@ Feature: TemporalComparisonAcceptance
     When executing query:
       """
       UNWIND [localtime({hour:10, minute:35}),
-              localtime({hour:12, minute:31, second:14, nanosecond: 645876123})] as x
+              localtime({hour:12, minute:31, second:14, nanosecond: 645876123})] AS x
       UNWIND [date({year:1984, month:10, day:11}),
               localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
               time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
               localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
               datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] as d
+              duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] AS d
       RETURN x>d, x<d, x>=d, x<=d, x=d
       """
     Then the result should be, in order:
@@ -95,13 +95,13 @@ Feature: TemporalComparisonAcceptance
     When executing query:
       """
       UNWIND [time({hour:10, minute:0, timezone: '+01:00'}),
-              time({hour:9, minute:35, second:14, nanosecond: 645876123, timezone: '+00:00'})] as x
+              time({hour:9, minute:35, second:14, nanosecond: 645876123, timezone: '+00:00'})] AS x
       UNWIND [date({year:1984, month:10, day:11}),
               localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
               time({hour:9, minute:35, second:14, nanosecond: 645876123, timezone: '+00:00'}),
               localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
               datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] as d
+              duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] AS d
       RETURN x>d, x<d, x>=d, x<=d, x=d
       """
     Then the result should be, in order:
@@ -125,13 +125,13 @@ Feature: TemporalComparisonAcceptance
     When executing query:
       """
       UNWIND [localdatetime({year:1980, month:12, day:11, hour:12, minute:31, second:14}),
-              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123})] as x
+              localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123})] AS x
       UNWIND [date({year:1984, month:10, day:11}),
               localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
               time({hour:9, minute:35, second:14, nanosecond: 645876123, timezone: '+00:00'}),
               localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
               datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}),
-              duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] as d
+              duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] AS d
       RETURN x>d, x<d, x>=d, x<=d, x=d
       """
     Then the result should be, in order:
@@ -155,13 +155,13 @@ Feature: TemporalComparisonAcceptance
     When executing query:
       """
       UNWIND [datetime({year:1980, month:12, day:11, hour:12, minute:31, second:14, timezone: '+00:00'}),
-              datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, timezone: '+05:00'})] as x
+              datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, timezone: '+05:00'})] AS x
       UNWIND [date({year:1984, month:10, day:11}),
               localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
               time({hour:9, minute:35, second:14, nanosecond: 645876123, timezone: '+00:00'}),
               localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}),
               datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, timezone: '+05:00'}),
-              duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] as d
+              duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70})] AS d
       RETURN x>d, x<d, x>=d, x<=d, x=d
       """
     Then the result should be, in order:
@@ -184,7 +184,7 @@ Feature: TemporalComparisonAcceptance
     Given an empty graph
     When executing query:
       """
-      WITH duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70}) as x
+      WITH duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70}) AS x
       UNWIND [date({year:1984, month:10, day:11}),
               localtime({hour:12, minute:31, second:14, nanosecond: 645876123}),
               time({hour:9, minute:35, second:14, nanosecond: 645876123, timezone: '+00:00'}),
@@ -192,7 +192,7 @@ Feature: TemporalComparisonAcceptance
               datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, timezone: '+05:00'}),
               duration({years: 12, months:5, days: 14, hours:16, minutes: 12, seconds: 70}),
               duration({years: 12, months:5, days: 14, hours:16, minutes: 13, seconds: 10}),
-              duration({years: 12, months:5, days: 13, hours:40, minutes: 13, seconds: 10})] as d
+              duration({years: 12, months:5, days: 13, hours:40, minutes: 13, seconds: 10})] AS d
       RETURN x=d
       """
     Then the result should be, in order:

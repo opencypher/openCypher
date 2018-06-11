@@ -42,8 +42,8 @@ Feature: TemporalArithmeticAcceptance
     When executing query:
       """
       MATCH (v:Val), (d:Durations)
-      WITH v.prop as x, d
-      UNWIND d.prop as dur
+      WITH v.prop AS x, d
+      UNWIND d.prop AS dur
       RETURN x+dur, x-dur
       """
     Then the result should be, in order:
@@ -65,8 +65,8 @@ Feature: TemporalArithmeticAcceptance
     When executing query:
       """
       MATCH (v:Val), (d:Durations)
-      WITH v.prop as x, d
-      UNWIND d.prop as dur
+      WITH v.prop AS x, d
+      UNWIND d.prop AS dur
       RETURN x+dur, x-dur
       """
     Then the result should be, in order:
@@ -88,8 +88,8 @@ Feature: TemporalArithmeticAcceptance
     When executing query:
       """
       MATCH (v:Val), (d:Durations)
-      WITH v.prop as x, d
-      UNWIND d.prop as dur
+      WITH v.prop AS x, d
+      UNWIND d.prop AS dur
       RETURN x+dur, x-dur
       """
     Then the result should be, in order:
@@ -111,8 +111,8 @@ Feature: TemporalArithmeticAcceptance
     When executing query:
       """
       MATCH (v:Val), (d:Durations)
-      WITH v.prop as x, d
-      UNWIND d.prop as dur
+      WITH v.prop AS x, d
+      UNWIND d.prop AS dur
       RETURN x+dur, x-dur
       """
     Then the result should be, in order:
@@ -134,8 +134,8 @@ Feature: TemporalArithmeticAcceptance
     When executing query:
       """
       MATCH (v:Val), (d:Durations)
-      WITH v.prop as x, d
-      UNWIND d.prop as dur
+      WITH v.prop AS x, d
+      UNWIND d.prop AS dur
       RETURN x+dur, x-dur
       """
     Then the result should be, in order:
@@ -156,8 +156,8 @@ Feature: TemporalArithmeticAcceptance
     When executing query:
       """
       MATCH (d:Durations)
-      UNWIND d.prop as dur
-      UNWIND d.prop as dur2
+      UNWIND d.prop AS dur
+      UNWIND d.prop AS dur2
       RETURN dur+dur2, dur-dur2
       """
     Then the result should be, in order:
@@ -182,7 +182,7 @@ Feature: TemporalArithmeticAcceptance
     When executing query:
       """
       MATCH (d:Durations)
-      UNWIND [1, 2, 0.5] as num
+      UNWIND [1, 2, 0.5] AS num
       RETURN d.prop*num, d.prop/num
       """
     Then the result should be, in order:

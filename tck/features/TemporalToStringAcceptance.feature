@@ -34,8 +34,8 @@ Feature: TemporalToStringAcceptance
     Given an empty graph
     When executing query:
       """
-      WITH date({year:1984, month:10, day:11}) as d
-      RETURN toString(d) as ts, date(toString(d)) = d as b
+      WITH date({year:1984, month:10, day:11}) AS d
+      RETURN toString(d) AS ts, date(toString(d)) = d AS b
       """
     Then the result should be, in order:
       | ts            | b    |
@@ -46,8 +46,8 @@ Feature: TemporalToStringAcceptance
     Given an empty graph
     When executing query:
       """
-      WITH localtime({hour:12, minute:31, second:14, nanosecond: 645876123}) as d
-      RETURN toString(d) as ts, localtime(toString(d)) = d as b
+      WITH localtime({hour:12, minute:31, second:14, nanosecond: 645876123}) AS d
+      RETURN toString(d) AS ts, localtime(toString(d)) = d AS b
       """
     Then the result should be, in order:
       | ts                   | b    |
@@ -58,8 +58,8 @@ Feature: TemporalToStringAcceptance
     Given an empty graph
     When executing query:
       """
-      WITH time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}) as d
-      RETURN toString(d) as ts, time(toString(d)) = d as b
+      WITH time({hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}) AS d
+      RETURN toString(d) AS ts, time(toString(d)) = d AS b
       """
     Then the result should be, in order:
       | ts                         | b    |
@@ -70,8 +70,8 @@ Feature: TemporalToStringAcceptance
     Given an empty graph
     When executing query:
       """
-      WITH localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}) as d
-      RETURN toString(d) as ts, localdatetime(toString(d)) = d as b
+      WITH localdatetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123}) AS d
+      RETURN toString(d) AS ts, localdatetime(toString(d)) = d AS b
       """
     Then the result should be, in order:
       | ts                              | b    |
@@ -82,8 +82,8 @@ Feature: TemporalToStringAcceptance
     Given an empty graph
     When executing query:
       """
-      WITH datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}) as d
-      RETURN toString(d) as ts, datetime(toString(d)) = d as b
+      WITH datetime({year:1984, month:10, day:11, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: '+01:00'}) AS d
+      RETURN toString(d) AS ts, datetime(toString(d)) = d AS b
       """
     Then the result should be, in order:
       | ts                                    | b    |
@@ -105,8 +105,8 @@ Feature: TemporalToStringAcceptance
               duration({seconds: 60, milliseconds: -1}),
               duration({seconds: -60, milliseconds: 1}),
               duration({seconds: -60, milliseconds: -1})
-              ] as d
-      RETURN toString(d) as ts, duration(toString(d)) = d as b
+              ] AS d
+      RETURN toString(d) AS ts, duration(toString(d)) = d AS b
       """
     Then the result should be, in order:
       | ts                              | b    |
@@ -127,8 +127,8 @@ Feature: TemporalToStringAcceptance
     Given an empty graph
     When executing query:
       """
-      WITH datetime({year: 2017, month: 8, day: 8, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: 'Europe/Stockholm'}) as d
-      RETURN toString(d) as ts
+      WITH datetime({year: 2017, month: 8, day: 8, hour:12, minute:31, second:14, nanosecond: 645876123, timezone: 'Europe/Stockholm'}) AS d
+      RETURN toString(d) AS ts
       """
     Then the result should be, in order:
       | ts                                                      |
