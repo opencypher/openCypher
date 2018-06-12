@@ -29,239 +29,342 @@
 #encoding: utf-8
 Feature: TemporalSelectAcceptance
 
-  Scenario: Should select date
+  Background:
     Given any graph
+
+  Scenario Outline: Should select date
     When executing query:
-      """
-      UNWIND [date({year: 1984, month: 11, day: 11}),
-              localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              datetime({year: 1984, month: 11, day: 11, hour: 12, timezone: '+01:00'})] AS dd
-      RETURN date(dd) AS d1,
-             date({date: dd}) AS d2,
-             date({date: dd, year: 28}) AS d3,
-             date({date: dd, day: 28}) AS d4,
-             date({date: dd, week: 1}) AS d5,
-             date({date: dd, ordinalDay: 28}) AS d6,
-             date({date: dd, quarter: 3}) AS d7
-      """
-    Then the result should be, in order:
-      | d1           | d2           | d3           | d4           | d5           | d6           | d7           |
-      | '1984-11-11' | '1984-11-11' | '0028-11-11' | '1984-11-28' | '1984-01-08' | '1984-01-28' | '1984-08-11' |
-      | '1984-11-11' | '1984-11-11' | '0028-11-11' | '1984-11-28' | '1984-01-08' | '1984-01-28' | '1984-08-11' |
-      | '1984-11-11' | '1984-11-11' | '0028-11-11' | '1984-11-28' | '1984-01-08' | '1984-01-28' | '1984-08-11' |
+    """
+    WITH <other> AS other
+    RETURN date(<expression>) AS result
+    """
+    Then the result should be:
+      | result   |
+      | <result> |
     And no side effects
 
-  Scenario: Should select local time
-    Given any graph
+    Examples:
+      | other                                                                                                    | expression                    | result       |
+      | date({year: 1984, month: 11, day: 11})                                                                   | other                         | '1984-11-11' |
+      | date({year: 1984, month: 11, day: 11})                                                                   | {date: other}                 | '1984-11-11' |
+      | date({year: 1984, month: 11, day: 11})                                                                   | {date: other, year: 28}       | '0028-11-11' |
+      | date({year: 1984, month: 11, day: 11})                                                                   | {date: other, day: 28}        | '1984-11-28' |
+      | date({year: 1984, month: 11, day: 11})                                                                   | {date: other, week: 1}        | '1984-01-08' |
+      | date({year: 1984, month: 11, day: 11})                                                                   | {date: other, ordinalDay: 28} | '1984-01-28' |
+      | date({year: 1984, month: 11, day: 11})                                                                   | {date: other, quarter: 3}     | '1984-08-11' |
+      | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}) | other                         | '1984-11-11' |
+      | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}) | {date: other}                 | '1984-11-11' |
+      | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}) | {date: other, year: 28}       | '0028-11-11' |
+      | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}) | {date: other, day: 28}        | '1984-11-28' |
+      | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}) | {date: other, week: 1}        | '1984-01-08' |
+      | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}) | {date: other, ordinalDay: 28} | '1984-01-28' |
+      | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}) | {date: other, quarter: 3}     | '1984-08-11' |
+      | datetime({year: 1984, month: 11, day: 11, hour: 12, timezone: '+01:00'})                                 | other                         | '1984-11-11' |
+      | datetime({year: 1984, month: 11, day: 11, hour: 12, timezone: '+01:00'})                                 | {date: other}                 | '1984-11-11' |
+      | datetime({year: 1984, month: 11, day: 11, hour: 12, timezone: '+01:00'})                                 | {date: other, year: 28}       | '0028-11-11' |
+      | datetime({year: 1984, month: 11, day: 11, hour: 12, timezone: '+01:00'})                                 | {date: other, day: 28}        | '1984-11-28' |
+      | datetime({year: 1984, month: 11, day: 11, hour: 12, timezone: '+01:00'})                                 | {date: other, week: 1}        | '1984-01-08' |
+      | datetime({year: 1984, month: 11, day: 11, hour: 12, timezone: '+01:00'})                                 | {date: other, ordinalDay: 28} | '1984-01-28' |
+      | datetime({year: 1984, month: 11, day: 11, hour: 12, timezone: '+01:00'})                                 | {date: other, quarter: 3}     | '1984-08-11' |
+
+  Scenario Outline: Should select local time
     When executing query:
-      """
-      UNWIND [localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'}),
-              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS dd
-      RETURN localtime(dd) AS d1,
-             localtime({time: dd}) AS d2,
-             localtime({time: dd, second: 42}) AS d3
-      """
-    Then the result should be, in order:
-      | d1                   | d2                   | d3                   |
-      | '12:31:14.645876123' | '12:31:14.645876123' | '12:31:42.645876123' |
-      | '12:31:14.645876'    | '12:31:14.645876'    | '12:31:42.645876'    |
-      | '12:31:14.645'       | '12:31:14.645'       | '12:31:42.645'       |
-      | '12:00'              | '12:00'              | '12:00:42'           |
+    """
+    WITH <other> AS other
+    RETURN localtime(<expression>) AS result
+    """
+    Then the result should be:
+      | result   |
+      | <result> |
     And no side effects
 
-  Scenario: Should select time
-    Given any graph
+    Examples:
+      | other                                                                                                   | expression                | result               |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | other                     | '12:31:14.645876123' |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {time: other}             | '12:31:14.645876123' |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {time: other, second: 42} | '12:31:42.645876123' |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | other                     | '12:31:14.645876'    |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {time: other}             | '12:31:14.645876'    |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {time: other, second: 42} | '12:31:42.645876'    |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | other                     | '12:31:14.645'       |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {time: other}             | '12:31:14.645'       |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {time: other, second: 42} | '12:31:42.645'       |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | other                     | '12:00'              |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {time: other}             | '12:00'              |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {time: other, second: 42} | '12:00:42'           |
+
+  Scenario Outline: Should select time
     When executing query:
-      """
-      UNWIND [localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'}),
-              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})] AS dd
-      RETURN time(dd) AS d1,
-             time({time: dd}) AS d2,
-             time({time: dd, timezone: '+05:00'}) AS d3,
-             time({time: dd, second: 42}) AS d4,
-             time({time: dd, second: 42, timezone: '+05:00'}) AS d5
-      """
-    Then the result should be, in order:
-      | d1                      | d2                      | d3                           | d4                      | d5                           |
-      | '12:31:14.645876123Z'   | '12:31:14.645876123Z'   | '12:31:14.645876123+05:00'   | '12:31:42.645876123Z'   | '12:31:42.645876123+05:00'   |
-      | '12:31:14.645876+01:00' | '12:31:14.645876+01:00' | '16:31:14.645876+05:00'      | '12:31:42.645876+01:00' | '16:31:42.645876+05:00'      |
-      | '12:31:14.645Z'         | '12:31:14.645Z'         | '12:31:14.645+05:00'         | '12:31:42.645Z'         | '12:31:42.645+05:00'         |
-      | '12:00+01:00'           | '12:00+01:00'           | '16:00+05:00'                | '12:00:42+01:00'        | '16:00:42+05:00'             |
+    """
+    WITH <other> AS other
+    RETURN time(<expression>) AS result
+    """
+    Then the result should be:
+      | result   |
+      | <result> |
     And no side effects
 
-  Scenario: Should select date into local date time
-    Given any graph
+    Examples:
+      | other                                                                                                   | expression                                    | result                     |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | other                                         | '12:31:14.645876123Z'      |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {time: other}                                 | '12:31:14.645876123Z'      |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {time: other, timezone: '+05:00'}             | '12:31:14.645876123+05:00' |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {time: other, second: 42}                     | '12:31:42.645876123Z'      |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {time: other, second: 42, timezone: '+05:00'} | '12:31:42.645876123+05:00' |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | other                                         | '12:31:14.645876+01:00'    |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {time: other}                                 | '12:31:14.645876+01:00'    |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {time: other, timezone: '+05:00'}             | '16:31:14.645876+05:00'    |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {time: other, second: 42}                     | '12:31:42.645876+01:00'    |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {time: other, second: 42, timezone: '+05:00'} | '16:31:42.645876+05:00'    |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | other                                         | '12:31:14.645Z'            |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {time: other}                                 | '12:31:14.645Z'            |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {time: other, timezone: '+05:00'}             | '12:31:14.645+05:00'       |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {time: other, second: 42}                     | '12:31:42.645Z'            |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {time: other, second: 42, timezone: '+05:00'} | '12:31:42.645+05:00'       |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | other                                         | '12:00+01:00'              |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {time: other}                                 | '12:00+01:00'              |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {time: other, timezone: '+05:00'}             | '16:00+05:00'              |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {time: other, second: 42}                     | '12:00:42+01:00'           |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {time: other, second: 42, timezone: '+05:00'} | '16:00:42+05:00'           |
+
+  Scenario Outline: Should select date into local date time
     When executing query:
-      """
-      UNWIND [date({year: 1984, month: 10, day: 11}),
-              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS dd
-      RETURN localdatetime({date: dd, hour: 10, minute: 10, second: 10}) AS d1,
-             localdatetime({date: dd, day: 28, hour: 10, minute: 10, second: 10}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                    | d2                    |
-      | '1984-10-11T10:10:10' | '1984-10-28T10:10:10' |
-      | '1984-03-07T10:10:10' | '1984-03-28T10:10:10' |
-      | '1984-10-11T10:10:10' | '1984-10-28T10:10:10' |
+    """
+    WITH <other> AS other
+    RETURN localdatetime(<expression>) AS result
+    """
+    Then the result should be:
+      | result   |
+      | <result> |
     And no side effects
 
-  Scenario: Should select time into local date time
-    Given any graph
+    Examples:
+      | other                                                                                                   | expression                                               | result                |
+      | date({year: 1984, month: 10, day: 11})                                                                  | {date: other, hour: 10, minute: 10, second: 10}          | '1984-10-11T10:10:10' |
+      | date({year: 1984, month: 10, day: 11})                                                                  | {date: other, day: 28, hour: 10, minute: 10, second: 10} | '1984-10-28T10:10:10' |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: other, hour: 10, minute: 10, second: 10}          | '1984-03-07T10:10:10' |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: other, day: 28, hour: 10, minute: 10, second: 10} | '1984-03-28T10:10:10' |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: other, hour: 10, minute: 10, second: 10}          | '1984-10-11T10:10:10' |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: other, day: 28, hour: 10, minute: 10, second: 10} | '1984-10-28T10:10:10' |
+
+  Scenario Outline: Should select time into local date time
     When executing query:
-      """
-      UNWIND [localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'}),
-              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS tt
-      RETURN localdatetime({year: 1984, month: 10, day: 11, time: tt}) AS d1,
-             localdatetime({year: 1984, month: 10, day: 11, time: tt, second: 42}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                              | d2 |
-      | '1984-10-11T12:31:14.645876123' | '1984-10-11T12:31:42.645876123' |
-      | '1984-10-11T12:31:14.645876'    | '1984-10-11T12:31:42.645876' |
-      | '1984-10-11T12:31:14.645'       | '1984-10-11T12:31:42.645' |
-      | '1984-10-11T12:00'              | '1984-10-11T12:00:42' |
+    """
+    WITH <other> AS other
+    RETURN localdatetime(<expression>) AS result
+    """
+    Then the result should be:
+      | result   |
+      | <result> |
     And no side effects
 
-  Scenario: Should select date and time into local date time
-    Given any graph
+    Examples:
+      | other                                                                                                   | expression                                                | result                          |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {year: 1984, month: 10, day: 11, time: other}             | '1984-10-11T12:31:14.645876123' |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {year: 1984, month: 10, day: 11, time: other, second: 42} | '1984-10-11T12:31:42.645876123' |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {year: 1984, month: 10, day: 11, time: other}             | '1984-10-11T12:31:14.645876'    |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {year: 1984, month: 10, day: 11, time: other, second: 42} | '1984-10-11T12:31:42.645876'    |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {year: 1984, month: 10, day: 11, time: other}             | '1984-10-11T12:31:14.645'       |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {year: 1984, month: 10, day: 11, time: other, second: 42} | '1984-10-11T12:31:42.645'       |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {year: 1984, month: 10, day: 11, time: other}             | '1984-10-11T12:00'              |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {year: 1984, month: 10, day: 11, time: other, second: 42} | '1984-10-11T12:00:42'           |
+
+  Scenario Outline: Should select date and time into local date time
     When executing query:
-      """
-      UNWIND [date({year: 1984, month: 10, day: 11}),
-              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS dd
-      UNWIND [localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'}),
-              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS tt
-      RETURN localdatetime({date: dd, time: tt}) AS d1,
-             localdatetime({date: dd, time: tt, day: 28, second: 42}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                              | d2 |
-      | '1984-10-11T12:31:14.645876123' | '1984-10-28T12:31:42.645876123' |
-      | '1984-10-11T12:31:14.645876'    | '1984-10-28T12:31:42.645876' |
-      | '1984-10-11T12:31:14.645'       | '1984-10-28T12:31:42.645' |
-      | '1984-10-11T12:00'              | '1984-10-28T12:00:42' |
-      | '1984-03-07T12:31:14.645876123' | '1984-03-28T12:31:42.645876123' |
-      | '1984-03-07T12:31:14.645876'    | '1984-03-28T12:31:42.645876' |
-      | '1984-03-07T12:31:14.645'       | '1984-03-28T12:31:42.645' |
-      | '1984-03-07T12:00'              | '1984-03-28T12:00:42' |
-      | '1984-10-11T12:31:14.645876123' | '1984-10-28T12:31:42.645876123' |
-      | '1984-10-11T12:31:14.645876'    | '1984-10-28T12:31:42.645876' |
-      | '1984-10-11T12:31:14.645'       | '1984-10-28T12:31:42.645' |
-      | '1984-10-11T12:00'              | '1984-10-28T12:00:42' |
+    """
+    WITH <otherDate> AS otherDate, <otherTime> AS otherTime
+    RETURN localdatetime(<expression>) AS result
+    """
+    Then the result should be:
+      | result   |
+      | <result> |
     And no side effects
 
-  Scenario: Should select datetime into local date time
-    Given any graph
+    Examples:
+      | otherDate                                                                                               | otherTime                                                                                               | expression                                              | result                          |
+      | date({year: 1984, month: 10, day: 11})                                                                  | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime}                      | '1984-10-11T12:31:14.645876123' |
+      | date({year: 1984, month: 10, day: 11})                                                                  | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime, day: 28, second: 42} | '1984-10-28T12:31:42.645876123' |
+      | date({year: 1984, month: 10, day: 11})                                                                  | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime}                      | '1984-10-11T12:31:14.645876'    |
+      | date({year: 1984, month: 10, day: 11})                                                                  | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime, day: 28, second: 42} | '1984-10-28T12:31:42.645876'    |
+      | date({year: 1984, month: 10, day: 11})                                                                  | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime}                      | '1984-10-11T12:31:14.645'       |
+      | date({year: 1984, month: 10, day: 11})                                                                  | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime, day: 28, second: 42} | '1984-10-28T12:31:42.645'       |
+      | date({year: 1984, month: 10, day: 11})                                                                  | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: otherDate, time: otherTime}                      | '1984-10-11T12:00'              |
+      | date({year: 1984, month: 10, day: 11})                                                                  | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: otherDate, time: otherTime, day: 28, second: 42} | '1984-10-28T12:00:42'           |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime}                      | '1984-03-07T12:31:14.645876123' |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime, day: 28, second: 42} | '1984-03-28T12:31:42.645876123' |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime}                      | '1984-03-07T12:31:14.645876'    |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime, day: 28, second: 42} | '1984-03-28T12:31:42.645876'    |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime}                      | '1984-03-07T12:31:14.645'       |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime, day: 28, second: 42} | '1984-03-28T12:31:42.645'       |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: otherDate, time: otherTime}                      | '1984-03-07T12:00'              |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: otherDate, time: otherTime, day: 28, second: 42} | '1984-03-28T12:00:42'           |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime}                      | '1984-10-11T12:31:14.645876123' |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime, day: 28, second: 42} | '1984-10-28T12:31:42.645876123' |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime}                      | '1984-10-11T12:31:14.645876'    |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime, day: 28, second: 42} | '1984-10-28T12:31:42.645876'    |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime}                      | '1984-10-11T12:31:14.645'       |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime, day: 28, second: 42} | '1984-10-28T12:31:42.645'       |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: otherDate, time: otherTime}                      | '1984-10-11T12:00'              |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: otherDate, time: otherTime, day: 28, second: 42} | '1984-10-28T12:00:42'           |
+
+  Scenario Outline: Should select datetime into local date time
     When executing query:
-      """
-      UNWIND [localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS dd
-      RETURN localdatetime(dd) AS d1,
-             localdatetime({datetime: dd}) AS d2,
-             localdatetime({datetime: dd, day: 28, second: 42}) AS d3
-      """
-    Then the result should be, in order:
-      | d1                        | d2                        | d3 |
-      | '1984-03-07T12:31:14.645' | '1984-03-07T12:31:14.645' | '1984-03-28T12:31:42.645' |
-      | '1984-10-11T12:00'        | '1984-10-11T12:00'        | '1984-10-28T12:00:42' |
+    """
+    WITH <other> AS other
+    RETURN localdatetime(<expression>) AS result
+    """
+    Then the result should be:
+      | result   |
+      | <result> |
     And no side effects
 
-  Scenario: Should select date into date time
-    Given any graph
+    Examples:
+      | other                                                                                                   | expression                             | result                    |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | other                                  | '1984-03-07T12:31:14.645' |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {datetime: other}                      | '1984-03-07T12:31:14.645' |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {datetime: other, day: 28, second: 42} | '1984-03-28T12:31:42.645' |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | other                                  | '1984-10-11T12:00'        |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {datetime: other}                      | '1984-10-11T12:00'        |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {datetime: other, day: 28, second: 42} | '1984-10-28T12:00:42'     |
+
+  Scenario Outline: Should select date into date time
     When executing query:
-      """
-      UNWIND [date({year: 1984, month: 10, day: 11}),
-              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS dd
-      RETURN datetime({date: dd, hour: 10, minute: 10, second: 10}) AS d1,
-             datetime({date: dd, hour: 10, minute: 10, second: 10, timezone: '+05:00'}) AS d2,
-             datetime({date: dd, day: 28, hour: 10, minute: 10, second: 10}) AS d3,
-             datetime({date: dd, day: 28, hour: 10, minute: 10, second: 10, timezone: 'Pacific/Honolulu'}) AS d4
-      """
-    Then the result should be, in order:
-      | d1                     | d2                          | d3                     | d4                          |
-      | '1984-10-11T10:10:10Z' | '1984-10-11T10:10:10+05:00' | '1984-10-28T10:10:10Z' | '1984-10-28T10:10:10-10:00[Pacific/Honolulu]' |
-      | '1984-03-07T10:10:10Z' | '1984-03-07T10:10:10+05:00' | '1984-03-28T10:10:10Z' | '1984-03-28T10:10:10-10:00[Pacific/Honolulu]' |
-      | '1984-10-11T10:10:10Z' | '1984-10-11T10:10:10+05:00' | '1984-10-28T10:10:10Z' | '1984-10-28T10:10:10-10:00[Pacific/Honolulu]' |
+    """
+    WITH <other> AS other
+    RETURN datetime(<expression>) AS result
+    """
+    Then the result should be:
+      | result   |
+      | <result> |
     And no side effects
 
-  Scenario: Should select time into date time
-    Given any graph
+    Examples:
+      | other                                                                                                   | expression                                                                             | result                                        |
+      | date({year: 1984, month: 10, day: 11})                                                                  | {date: other, hour: 10, minute: 10, second: 10}                                        | '1984-10-11T10:10:10Z'                        |
+      | date({year: 1984, month: 10, day: 11})                                                                  | {date: other, hour: 10, minute: 10, second: 10, timezone: '+05:00'}                    | '1984-10-11T10:10:10+05:00'                   |
+      | date({year: 1984, month: 10, day: 11})                                                                  | {date: other, day: 28, hour: 10, minute: 10, second: 10}                               | '1984-10-28T10:10:10Z'                        |
+      | date({year: 1984, month: 10, day: 11})                                                                  | {date: other, day: 28, hour: 10, minute: 10, second: 10, timezone: 'Pacific/Honolulu'} | '1984-10-28T10:10:10-10:00[Pacific/Honolulu]' |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: other, hour: 10, minute: 10, second: 10}                                        | '1984-03-07T10:10:10Z'                        |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: other, hour: 10, minute: 10, second: 10, timezone: '+05:00'}                    | '1984-03-07T10:10:10+05:00'                   |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: other, day: 28, hour: 10, minute: 10, second: 10}                               | '1984-03-28T10:10:10Z'                        |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: other, day: 28, hour: 10, minute: 10, second: 10, timezone: 'Pacific/Honolulu'} | '1984-03-28T10:10:10-10:00[Pacific/Honolulu]' |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: other, hour: 10, minute: 10, second: 10}                                        | '1984-10-11T10:10:10Z'                        |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: other, hour: 10, minute: 10, second: 10, timezone: '+05:00'}                    | '1984-10-11T10:10:10+05:00'                   |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: other, day: 28, hour: 10, minute: 10, second: 10}                               | '1984-10-28T10:10:10Z'                        |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: other, day: 28, hour: 10, minute: 10, second: 10, timezone: 'Pacific/Honolulu'} | '1984-10-28T10:10:10-10:00[Pacific/Honolulu]' |
+
+  Scenario Outline: Should select time into date time
     When executing query:
-      """
-      UNWIND [localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'}),
-              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})] AS tt
-      RETURN datetime({year: 1984, month: 10, day: 11, time: tt}) AS d1,
-             datetime({year: 1984, month: 10, day: 11, time: tt, timezone: '+05:00'}) AS d2,
-             datetime({year: 1984, month: 10, day: 11, time: tt, second: 42}) AS d3,
-             datetime({year: 1984, month: 10, day: 11, time: tt, second: 42, timezone: 'Pacific/Honolulu'}) AS d4
-      """
-    Then the result should be, in order:
-      | d1                                                  | d2                                    | d3                                                  | d4 |
-      | '1984-10-11T12:31:14.645876123Z'                    | '1984-10-11T12:31:14.645876123+05:00' | '1984-10-11T12:31:42.645876123Z'                    | '1984-10-11T12:31:42.645876123-10:00[Pacific/Honolulu]' |
-      | '1984-10-11T12:31:14.645876+01:00'                  | '1984-10-11T16:31:14.645876+05:00'    | '1984-10-11T12:31:42.645876+01:00'                  | '1984-10-11T01:31:42.645876-10:00[Pacific/Honolulu]' |
-      | '1984-10-11T12:31:14.645Z'                          | '1984-10-11T12:31:14.645+05:00'       | '1984-10-11T12:31:42.645Z'                          | '1984-10-11T12:31:42.645-10:00[Pacific/Honolulu]' |
-      | '1984-10-11T12:00+01:00[Europe/Stockholm]'          | '1984-10-11T16:00+05:00'              | '1984-10-11T12:00:42+01:00[Europe/Stockholm]'       | '1984-10-11T01:00:42-10:00[Pacific/Honolulu]' |
+    """
+    WITH <other> AS other
+    RETURN datetime(<expression>) AS result
+    """
+    Then the result should be:
+      | result   |
+      | <result> |
     And no side effects
 
-  Scenario: Should select date and time into date time
-    Given any graph
+    Examples:
+      | other                                                                                                   | expression                                                                              | result                                                  |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {year: 1984, month: 10, day: 11, time: other}                                           | '1984-10-11T12:31:14.645876123Z'                        |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {year: 1984, month: 10, day: 11, time: other, timezone: '+05:00'}                       | '1984-10-11T12:31:14.645876123+05:00'                   |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {year: 1984, month: 10, day: 11, time: other, second: 42}                               | '1984-10-11T12:31:42.645876123Z'                        |
+      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {year: 1984, month: 10, day: 11, time: other, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-11T12:31:42.645876123-10:00[Pacific/Honolulu]' |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {year: 1984, month: 10, day: 11, time: other}                                           | '1984-10-11T12:31:14.645876+01:00'                      |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {year: 1984, month: 10, day: 11, time: other, timezone: '+05:00'}                       | '1984-10-11T16:31:14.645876+05:00'                      |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {year: 1984, month: 10, day: 11, time: other, second: 42}                               | '1984-10-11T12:31:42.645876+01:00'                      |
+      | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {year: 1984, month: 10, day: 11, time: other, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-11T01:31:42.645876-10:00[Pacific/Honolulu]'    |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {year: 1984, month: 10, day: 11, time: other}                                           | '1984-10-11T12:31:14.645Z'                              |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {year: 1984, month: 10, day: 11, time: other, timezone: '+05:00'}                       | '1984-10-11T12:31:14.645+05:00'                         |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {year: 1984, month: 10, day: 11, time: other, second: 42}                               | '1984-10-11T12:31:42.645Z'                              |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {year: 1984, month: 10, day: 11, time: other, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-11T12:31:42.645-10:00[Pacific/Honolulu]'       |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {year: 1984, month: 10, day: 11, time: other}                                           | '1984-10-11T12:00+01:00[Europe/Stockholm]'              |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {year: 1984, month: 10, day: 11, time: other, timezone: '+05:00'}                       | '1984-10-11T16:00+05:00'                                |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {year: 1984, month: 10, day: 11, time: other, second: 42}                               | '1984-10-11T12:00:42+01:00[Europe/Stockholm]'           |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {year: 1984, month: 10, day: 11, time: other, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-11T01:00:42-10:00[Pacific/Honolulu]'           |
+
+  Scenario Outline: Should select date and time into date time
     When executing query:
-      """
-      UNWIND [date({year: 1984, month: 10, day: 11}),
-              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})] AS dd
-      UNWIND [localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'}),
-              localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})] AS tt
-      RETURN datetime({date: dd, time: tt}) AS d1,
-             datetime({date: dd, time: tt, timezone: '+05:00'}) AS d2,
-             datetime({date: dd, time: tt, day: 28, second: 42}) AS d3,
-             datetime({date: dd, time: tt, day: 28, second: 42, timezone: 'Pacific/Honolulu'}) AS d4
-      """
-    Then the result should be, in order:
-      | d1                                         | d2                                    | d3                                            | d4 |
-      | '1984-10-11T12:31:14.645876123Z'           | '1984-10-11T12:31:14.645876123+05:00' | '1984-10-28T12:31:42.645876123Z'              | '1984-10-28T12:31:42.645876123-10:00[Pacific/Honolulu]' |
-      | '1984-10-11T12:31:14.645876+01:00'         | '1984-10-11T16:31:14.645876+05:00'    | '1984-10-28T12:31:42.645876+01:00'            | '1984-10-28T01:31:42.645876-10:00[Pacific/Honolulu]' |
-      | '1984-10-11T12:31:14.645Z'                 | '1984-10-11T12:31:14.645+05:00'       | '1984-10-28T12:31:42.645Z'                    | '1984-10-28T12:31:42.645-10:00[Pacific/Honolulu]' |
-      | '1984-10-11T12:00+01:00[Europe/Stockholm]' | '1984-10-11T16:00+05:00'              | '1984-10-28T12:00:42+01:00[Europe/Stockholm]' | '1984-10-28T01:00:42-10:00[Pacific/Honolulu]' |
-      | '1984-03-07T12:31:14.645876123Z'           | '1984-03-07T12:31:14.645876123+05:00' | '1984-03-28T12:31:42.645876123Z'              | '1984-03-28T12:31:42.645876123-10:00[Pacific/Honolulu]' |
-      | '1984-03-07T12:31:14.645876+01:00'         | '1984-03-07T16:31:14.645876+05:00'    | '1984-03-28T12:31:42.645876+01:00'            | '1984-03-28T01:31:42.645876-10:00[Pacific/Honolulu]' |
-      | '1984-03-07T12:31:14.645Z'                 | '1984-03-07T12:31:14.645+05:00'       | '1984-03-28T12:31:42.645Z'                    | '1984-03-28T12:31:42.645-10:00[Pacific/Honolulu]' |
-      | '1984-03-07T12:00+01:00[Europe/Stockholm]' | '1984-03-07T16:00+05:00'              | '1984-03-28T12:00:42+02:00[Europe/Stockholm]' | '1984-03-28T00:00:42-10:00[Pacific/Honolulu]' |
-      | '1984-10-11T12:31:14.645876123Z'           | '1984-10-11T12:31:14.645876123+05:00' | '1984-10-28T12:31:42.645876123Z'              | '1984-10-28T12:31:42.645876123-10:00[Pacific/Honolulu]' |
-      | '1984-10-11T12:31:14.645876+01:00'         | '1984-10-11T16:31:14.645876+05:00'    | '1984-10-28T12:31:42.645876+01:00'            | '1984-10-28T01:31:42.645876-10:00[Pacific/Honolulu]' |
-      | '1984-10-11T12:31:14.645Z'                 | '1984-10-11T12:31:14.645+05:00'       | '1984-10-28T12:31:42.645Z'                    | '1984-10-28T12:31:42.645-10:00[Pacific/Honolulu]' |
-      | '1984-10-11T12:00+01:00[Europe/Stockholm]' | '1984-10-11T16:00+05:00'              | '1984-10-28T12:00:42+01:00[Europe/Stockholm]' | '1984-10-28T01:00:42-10:00[Pacific/Honolulu]' |
+    """
+    WITH <otherDate> AS otherDate, <otherTime> AS otherTime
+    RETURN datetime(<expression>) AS result
+    """
+    Then the result should be:
+      | result   |
+      | <result> |
     And no side effects
 
-  Scenario: Should select datetime into date time
-    Given any graph
-    When executing query:
-      """
-      UNWIND [localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}),
-              datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})] AS dd
-      RETURN datetime(dd) AS d1,
-             datetime({datetime: dd}) AS d2,
-             datetime({datetime: dd, timezone: '+05:00'}) AS d3,
-             datetime({datetime: dd, day: 28, second: 42}) AS d4,
-             datetime({datetime: dd, day: 28, second: 42, timezone: 'Pacific/Honolulu'}) AS d5
+    Examples:
+      | otherDate                                                                                               | otherTime                                                                                               | expression                                                                            | result                                                  |
+      | date({year: 1984, month: 10, day: 11})                                                                  | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime}                                                    | '1984-10-11T12:31:14.645876123Z'                        |
+      | date({year: 1984, month: 10, day: 11})                                                                  | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime, timezone: '+05:00'}                                | '1984-10-11T12:31:14.645876123+05:00'                   |
+      | date({year: 1984, month: 10, day: 11})                                                                  | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime, day: 28, second: 42}                               | '1984-10-28T12:31:42.645876123Z'                        |
+      | date({year: 1984, month: 10, day: 11})                                                                  | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-28T12:31:42.645876123-10:00[Pacific/Honolulu]' |
+      | date({year: 1984, month: 10, day: 11})                                                                  | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime}                                                    | '1984-10-11T12:31:14.645876+01:00'                      |
+      | date({year: 1984, month: 10, day: 11})                                                                  | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime, timezone: '+05:00'}                                | '1984-10-11T16:31:14.645876+05:00'                      |
+      | date({year: 1984, month: 10, day: 11})                                                                  | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime, day: 28, second: 42}                               | '1984-10-28T12:31:42.645876+01:00'                      |
+      | date({year: 1984, month: 10, day: 11})                                                                  | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-28T01:31:42.645876-10:00[Pacific/Honolulu]'    |
+      | date({year: 1984, month: 10, day: 11})                                                                  | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime}                                                    | '1984-10-11T12:31:14.645Z'                              |
+      | date({year: 1984, month: 10, day: 11})                                                                  | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime, timezone: '+05:00'}                                | '1984-10-11T12:31:14.645+05:00'                         |
+      | date({year: 1984, month: 10, day: 11})                                                                  | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime, day: 28, second: 42}                               | '1984-10-28T12:31:42.645Z'                              |
+      | date({year: 1984, month: 10, day: 11})                                                                  | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-28T12:31:42.645-10:00[Pacific/Honolulu]'       |
+      | date({year: 1984, month: 10, day: 11})                                                                  | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime}                                                    | '1984-10-11T12:00+01:00[Europe/Stockholm]'              |
+      | date({year: 1984, month: 10, day: 11})                                                                  | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime, timezone: '+05:00'}                                | '1984-10-11T16:00+05:00'                                |
+      | date({year: 1984, month: 10, day: 11})                                                                  | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime, day: 28, second: 42}                               | '1984-10-28T12:00:42+01:00[Europe/Stockholm]'           |
+      | date({year: 1984, month: 10, day: 11})                                                                  | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-28T01:00:42-10:00[Pacific/Honolulu]'           |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime}                                                    | '1984-03-07T12:31:14.645876123Z'                        |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime, timezone: '+05:00'}                                | '1984-03-07T12:31:14.645876123+05:00'                   |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime, day: 28, second: 42}                               | '1984-03-28T12:31:42.645876123Z'                        |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-03-28T12:31:42.645876123-10:00[Pacific/Honolulu]' |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime}                                                    | '1984-03-07T12:31:14.645876+01:00'                      |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime, timezone: '+05:00'}                                | '1984-03-07T16:31:14.645876+05:00'                      |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime, day: 28, second: 42}                               | '1984-03-28T12:31:42.645876+01:00'                      |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-03-28T01:31:42.645876-10:00[Pacific/Honolulu]'    |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime}                                                    | '1984-03-07T12:31:14.645Z'                              |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime, timezone: '+05:00'}                                | '1984-03-07T12:31:14.645+05:00'                         |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime, day: 28, second: 42}                               | '1984-03-28T12:31:42.645Z'                              |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-03-28T12:31:42.645-10:00[Pacific/Honolulu]'       |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime}                                                    | '1984-03-07T12:00+01:00[Europe/Stockholm]'              |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime, timezone: '+05:00'}                                | '1984-03-07T16:00+05:00'                                |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime, day: 28, second: 42}                               | '1984-03-28T12:00:42+02:00[Europe/Stockholm]'           |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-03-28T00:00:42-10:00[Pacific/Honolulu]'           |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime}                                                    | '1984-10-11T12:31:14.645876123Z'                        |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime, timezone: '+05:00'}                                | '1984-10-11T12:31:14.645876123+05:00'                   |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime, day: 28, second: 42}                               | '1984-10-28T12:31:42.645876123Z'                        |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                    | {date: otherDate, time: otherTime, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-28T12:31:42.645876123-10:00[Pacific/Honolulu]' |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime}                                                    | '1984-10-11T12:31:14.645876+01:00'                      |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime, timezone: '+05:00'}                                | '1984-10-11T16:31:14.645876+05:00'                      |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime, day: 28, second: 42}                               | '1984-10-28T12:31:42.645876+01:00'                      |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | time({hour: 12, minute: 31, second: 14, microsecond: 645876, timezone: '+01:00'})                       | {date: otherDate, time: otherTime, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-28T01:31:42.645876-10:00[Pacific/Honolulu]'    |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime}                                                    | '1984-10-11T12:31:14.645Z'                              |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime, timezone: '+05:00'}                                | '1984-10-11T12:31:14.645+05:00'                         |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime, day: 28, second: 42}                               | '1984-10-28T12:31:42.645Z'                              |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {date: otherDate, time: otherTime, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-28T12:31:42.645-10:00[Pacific/Honolulu]'       |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime}                                                    | '1984-10-11T12:00+01:00[Europe/Stockholm]'              |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime, timezone: '+05:00'}                                | '1984-10-11T16:00+05:00'                                |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime, day: 28, second: 42}                               | '1984-10-28T12:00:42+01:00[Europe/Stockholm]'           |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-28T01:00:42-10:00[Pacific/Honolulu]'           |
 
-      """
-    Then the result should be, in order:
-      | d1                                         | d2                                         | d3                               | d4                                            | d5 |
-      | '1984-03-07T12:31:14.645Z'                 | '1984-03-07T12:31:14.645Z'                 | '1984-03-07T12:31:14.645+05:00'  | '1984-03-28T12:31:42.645Z'                    | '1984-03-28T12:31:42.645-10:00[Pacific/Honolulu]' |
-      | '1984-10-11T12:00+01:00[Europe/Stockholm]' | '1984-10-11T12:00+01:00[Europe/Stockholm]' | '1984-10-11T16:00+05:00'         | '1984-10-28T12:00:42+01:00[Europe/Stockholm]' | '1984-10-28T01:00:42-10:00[Pacific/Honolulu]' |
+  Scenario Outline: Should datetime into date time
+    When executing query:
+    """
+    WITH <other> AS other
+    RETURN datetime(<expression>) AS result
+    """
+    Then the result should be:
+      | result   |
+      | <result> |
     And no side effects
+
+    Examples:
+      | other                                                                                                   | expression                                                           | result                                            |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | other                                                                | '1984-03-07T12:31:14.645Z'                        |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {datetime: other}                                                    | '1984-03-07T12:31:14.645Z'                        |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {datetime: other, timezone: '+05:00'}                                | '1984-03-07T12:31:14.645+05:00'                   |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {datetime: other, day: 28, second: 42}                               | '1984-03-28T12:31:42.645Z'                        |
+      | localdatetime({year: 1984, week: 10, dayOfWeek: 3, hour: 12, minute: 31, second: 14, millisecond: 645}) | {datetime: other, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-03-28T12:31:42.645-10:00[Pacific/Honolulu]' |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | other                                                                | '1984-10-11T12:00+01:00[Europe/Stockholm]'        |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {datetime: other}                                                    | '1984-10-11T12:00+01:00[Europe/Stockholm]'        |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {datetime: other, timezone: '+05:00'}                                | '1984-10-11T16:00+05:00'                          |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {datetime: other, day: 28, second: 42}                               | '1984-10-28T12:00:42+01:00[Europe/Stockholm]'     |
+      | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {datetime: other, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-28T01:00:42-10:00[Pacific/Honolulu]'     |
