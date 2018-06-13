@@ -30,695 +30,340 @@
 
 Feature: TemporalTruncateAcceptance
 
-  Scenario: Should truncate to millennium
+  Background:
     Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 2017, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('millennium', d) AS d1,
-             datetime.truncate('millennium', d, {day: 2}) AS d2,
-             localdatetime.truncate('millennium', d) AS d3,
-             localdatetime.truncate('millennium', d, {day: 2}) AS d4,
-             date.truncate('millennium', d) AS d5,
-             date.truncate('millennium', d, {day: 2}) AS d6
-      """
-    Then the result should be, in order:
-      | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
-      | '2000-01-01T00:00+01:00' | '2000-01-02T00:00+01:00' | '2000-01-01T00:00' | '2000-01-02T00:00' |'2000-01-01' | '2000-01-02' |
-      | '2000-01-01T00:00Z'      | '2000-01-02T00:00Z'      | '2000-01-01T00:00' | '2000-01-02T00:00' |'2000-01-01' | '2000-01-02' |
-      | '2000-01-01T00:00Z'      | '2000-01-02T00:00Z'      | '2000-01-01T00:00' | '2000-01-02T00:00' |'2000-01-01' | '2000-01-02' |
 
+  Scenario Outline: Should truncate
+    When executing query:
+    """
+    RETURN <type>.truncate(<unit>, <other>, <map>) AS result
+    """
+    Then the result should be:
+      | result   |
+      | <result> |
     And no side effects
 
-  Scenario: Should truncate to millennium with time zone
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 2017, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('millennium', d, {timezone: 'Europe/Stockholm'}) AS d1
-      """
-    Then the result should be, in order:
-      | d1                                         |
-      | '2000-01-01T00:00+01:00[Europe/Stockholm]' |
-      | '2000-01-01T00:00+01:00[Europe/Stockholm]' |
-      | '2000-01-01T00:00+01:00[Europe/Stockholm]' |
-    And no side effects
-
-  Scenario: Should truncate to century
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('century', d) AS d1,
-             datetime.truncate('century', d, {day: 2}) AS d2,
-             localdatetime.truncate('century', d) AS d3,
-             localdatetime.truncate('century', d, {day: 2}) AS d4,
-             date.truncate('century', d) AS d5,
-             date.truncate('century', d, {day: 2}) AS d6
-      """
-    Then the result should be, in order:
-      | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
-      | '1900-01-01T00:00+01:00' | '1900-01-02T00:00+01:00' | '1900-01-01T00:00' | '1900-01-02T00:00' |'1900-01-01' | '1900-01-02' |
-      | '1900-01-01T00:00Z'      | '1900-01-02T00:00Z'      | '1900-01-01T00:00' | '1900-01-02T00:00' |'1900-01-01' | '1900-01-02' |
-      | '1900-01-01T00:00Z'      | '1900-01-02T00:00Z'      | '1900-01-01T00:00' | '1900-01-02T00:00' |'1900-01-01' | '1900-01-02' |
-    And no side effects
-
-  Scenario: Should truncate to century with time zone
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 2017, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('century', d, {timezone: 'Europe/Stockholm'}) AS d1
-      """
-    Then the result should be, in order:
-      | d1                                         |
-      | '2000-01-01T00:00+01:00[Europe/Stockholm]' |
-      | '2000-01-01T00:00+01:00[Europe/Stockholm]' |
-      | '2000-01-01T00:00+01:00[Europe/Stockholm]' |
-    And no side effects
-
-  Scenario: Should truncate to decade
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('decade', d) AS d1,
-             datetime.truncate('decade', d, {day: 2}) AS d2,
-             localdatetime.truncate('decade', d) AS d3,
-             localdatetime.truncate('decade', d, {day: 2}) AS d4,
-             date.truncate('decade', d) AS d5,
-             date.truncate('decade', d, {day: 2}) AS d6
-      """
-    Then the result should be, in order:
-      | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
-      | '1980-01-01T00:00+01:00' | '1980-01-02T00:00+01:00' | '1980-01-01T00:00' | '1980-01-02T00:00' |'1980-01-01' | '1980-01-02' |
-      | '1980-01-01T00:00Z'      | '1980-01-02T00:00Z'      | '1980-01-01T00:00' | '1980-01-02T00:00' |'1980-01-01' | '1980-01-02' |
-      | '1980-01-01T00:00Z'      | '1980-01-02T00:00Z'      | '1980-01-01T00:00' | '1980-01-02T00:00' |'1980-01-01' | '1980-01-02' |
-    And no side effects
-
-  Scenario: Should truncate to decade with time zone
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('decade', d, {timezone: 'Europe/Stockholm'}) AS d1
-      """
-    Then the result should be, in order:
-      | d1                                         |
-      | '1980-01-01T00:00+01:00[Europe/Stockholm]' |
-      | '1980-01-01T00:00+01:00[Europe/Stockholm]' |
-      | '1980-01-01T00:00+01:00[Europe/Stockholm]' |
-    And no side effects
-
-  Scenario: Should truncate to year
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('year', d) AS d1,
-             datetime.truncate('year', d, {day: 2}) AS d2,
-             localdatetime.truncate('year', d) AS d3,
-             localdatetime.truncate('year', d, {day: 2}) AS d4,
-             date.truncate('year', d) AS d5,
-             date.truncate('year', d, {day: 2}) AS d6
-      """
-    Then the result should be, in order:
-      | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
-      | '1984-01-01T00:00+01:00' | '1984-01-02T00:00+01:00' | '1984-01-01T00:00' | '1984-01-02T00:00' |'1984-01-01' | '1984-01-02' |
-      | '1984-01-01T00:00Z'      | '1984-01-02T00:00Z'      | '1984-01-01T00:00' | '1984-01-02T00:00' |'1984-01-01' | '1984-01-02' |
-      | '1984-01-01T00:00Z'      | '1984-01-02T00:00Z'      | '1984-01-01T00:00' | '1984-01-02T00:00' |'1984-01-01' | '1984-01-02' |
-    And no side effects
-
-  Scenario: Should truncate to year with time zone
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('year', d, {timezone: 'Europe/Stockholm'}) AS d1
-      """
-    Then the result should be, in order:
-      | d1                                         |
-      | '1984-01-01T00:00+01:00[Europe/Stockholm]' |
-      | '1984-01-01T00:00+01:00[Europe/Stockholm]' |
-      | '1984-01-01T00:00+01:00[Europe/Stockholm]' |
-    And no side effects
-
-  Scenario: Should truncate to weekYear
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 2, day: 1})] AS d
-      RETURN datetime.truncate('weekYear', d) AS d1,
-             datetime.truncate('weekYear', d, {day: 5}) AS d2,
-             localdatetime.truncate('weekYear', d) AS d3,
-             localdatetime.truncate('weekYear', d, {day: 5}) AS d4,
-             date.truncate('weekYear', d) AS d5,
-             date.truncate('weekYear', d, {day: 5}) AS d6
-      """
-    Then the result should be, in order:
-      | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
-      | '1983-01-03T00:00+01:00' | '1983-01-05T00:00+01:00' | '1983-01-03T00:00' | '1983-01-05T00:00' |'1983-01-03' | '1983-01-05' |
-      | '1983-01-03T00:00Z'      | '1983-01-05T00:00Z'      | '1983-01-03T00:00' | '1983-01-05T00:00' |'1983-01-03' | '1983-01-05' |
-      | '1984-01-02T00:00Z'      | '1984-01-05T00:00Z'      | '1984-01-02T00:00' | '1984-01-05T00:00' |'1984-01-02' | '1984-01-05' |
-    And no side effects
-
-  Scenario: Should truncate to weekYear with time zone
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 2, day: 1})] AS d
-      RETURN datetime.truncate('weekYear', d, {timezone: 'Europe/Stockholm'}) AS d1
-      """
-    Then the result should be, in order:
-      | d1                                         |
-      | '1983-01-03T00:00+01:00[Europe/Stockholm]' |
-      | '1983-01-03T00:00+01:00[Europe/Stockholm]' |
-      | '1984-01-02T00:00+01:00[Europe/Stockholm]' |
-    And no side effects
-
-  Scenario: Should truncate to quarter
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 11, day: 11})] AS d
-      RETURN datetime.truncate('quarter', d) AS d1,
-             datetime.truncate('quarter', d, {day: 2}) AS d2,
-             localdatetime.truncate('quarter', d) AS d3,
-             localdatetime.truncate('quarter', d, {day: 2}) AS d4,
-             date.truncate('quarter', d) AS d5,
-             date.truncate('quarter', d, {day: 2}) AS d6
-      """
-    Then the result should be, in order:
-      | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
-      | '1984-10-01T00:00+01:00' | '1984-10-02T00:00+01:00' | '1984-10-01T00:00' | '1984-10-02T00:00' |'1984-10-01' | '1984-10-02' |
-      | '1984-10-01T00:00Z'      | '1984-10-02T00:00Z'      | '1984-10-01T00:00' | '1984-10-02T00:00' |'1984-10-01' | '1984-10-02' |
-      | '1984-10-01T00:00Z'      | '1984-10-02T00:00Z'      | '1984-10-01T00:00' | '1984-10-02T00:00' |'1984-10-01' | '1984-10-02' |
-    And no side effects
-
-  Scenario: Should truncate to quarter with time zone
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 11, day: 11})] AS d
-      RETURN datetime.truncate('quarter', d, {timezone: 'Europe/Stockholm'}) AS d1
-      """
-    Then the result should be, in order:
-      | d1                                         |
-      | '1984-10-01T00:00+01:00[Europe/Stockholm]' |
-      | '1984-10-01T00:00+01:00[Europe/Stockholm]' |
-      | '1984-10-01T00:00+01:00[Europe/Stockholm]' |
-    And no side effects
-
-  Scenario: Should truncate to month
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('month', d) AS d1,
-             datetime.truncate('month', d, {day: 2}) AS d2,
-             localdatetime.truncate('month', d) AS d3,
-             localdatetime.truncate('month', d, {day: 2}) AS d4,
-             date.truncate('month', d) AS d5,
-             date.truncate('month', d, {day: 2}) AS d6
-      """
-    Then the result should be, in order:
-      | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
-      | '1984-10-01T00:00+01:00' | '1984-10-02T00:00+01:00' | '1984-10-01T00:00' | '1984-10-02T00:00' |'1984-10-01' | '1984-10-02' |
-      | '1984-10-01T00:00Z'      | '1984-10-02T00:00Z'      | '1984-10-01T00:00' | '1984-10-02T00:00' |'1984-10-01' | '1984-10-02' |
-      | '1984-10-01T00:00Z'      | '1984-10-02T00:00Z'      | '1984-10-01T00:00' | '1984-10-02T00:00' |'1984-10-01' | '1984-10-02' |
-    And no side effects
-
-  Scenario: Should truncate to month with time zone
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('month', d, {timezone: 'Europe/Stockholm'}) AS d1
-      """
-    Then the result should be, in order:
-      | d1                                         |
-      | '1984-10-01T00:00+01:00[Europe/Stockholm]' |
-      | '1984-10-01T00:00+01:00[Europe/Stockholm]' |
-      | '1984-10-01T00:00+01:00[Europe/Stockholm]' |
-    And no side effects
-
- Scenario: Should truncate to week
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('week', d) AS d1,
-             datetime.truncate('week', d, {dayOfWeek: 2}) AS d2,
-             localdatetime.truncate('week', d) AS d3,
-             localdatetime.truncate('week', d, {dayOfWeek: 2}) AS d4,
-             date.truncate('week', d) AS d5,
-             date.truncate('week', d, {dayOfWeek: 2}) AS d6
-      """
-    Then the result should be, in order:
-      | d1                       | d2                       | d3                 | d4                 | d5          | d6           |
-      | '1984-10-08T00:00+01:00' | '1984-10-09T00:00+01:00' | '1984-10-08T00:00' | '1984-10-09T00:00' |'1984-10-08' | '1984-10-09' |
-      | '1984-10-08T00:00Z'      | '1984-10-09T00:00Z'      | '1984-10-08T00:00' | '1984-10-09T00:00' |'1984-10-08' | '1984-10-09' |
-      | '1984-10-08T00:00Z'      | '1984-10-09T00:00Z'      | '1984-10-08T00:00' | '1984-10-09T00:00' |'1984-10-08' | '1984-10-09' |
-    And no side effects
-
-  Scenario: Should truncate to week with time zone
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('week', d, {timezone: 'Europe/Stockholm'}) AS d1
-      """
-    Then the result should be, in order:
-      | d1                                         |
-      | '1984-10-08T00:00+01:00[Europe/Stockholm]' |
-      | '1984-10-08T00:00+01:00[Europe/Stockholm]' |
-      | '1984-10-08T00:00+01:00[Europe/Stockholm]' |
-    And no side effects
-
- Scenario: Should truncate to day
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('day', d) AS d1,
-             datetime.truncate('day', d, {nanosecond: 2}) AS d2,
-             localdatetime.truncate('day', d) AS d3,
-             localdatetime.truncate('day', d, {nanosecond: 2}) AS d4,
-             date.truncate('day', d) AS d5
-      """
-    Then the result should be, in order:
-      | d1                       | d2                                    | d3                 | d4                              | d5          |
-      | '1984-10-11T00:00+01:00' | '1984-10-11T00:00:00.000000002+01:00' | '1984-10-11T00:00' | '1984-10-11T00:00:00.000000002' |'1984-10-11' |
-      | '1984-10-11T00:00Z'      | '1984-10-11T00:00:00.000000002Z'      | '1984-10-11T00:00' | '1984-10-11T00:00:00.000000002' |'1984-10-11' |
-      | '1984-10-11T00:00Z'      | '1984-10-11T00:00:00.000000002Z'      | '1984-10-11T00:00' | '1984-10-11T00:00:00.000000002' |'1984-10-11' |
-    And no side effects
-
-  Scenario: Should truncate time to day
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN time.truncate('day', d) AS d1,
-             time.truncate('day', d, {nanosecond: 2}) AS d2,
-             localtime.truncate('day', d) AS d3,
-             localtime.truncate('day', d, {nanosecond: 2}) AS d4
-      """
-    Then the result should be, in order:
-      | d1            | d2                         | d3      | d4                   |
-      | '00:00+01:00' | '00:00:00.000000002+01:00' | '00:00' | '00:00:00.000000002' |
-      | '00:00Z'      | '00:00:00.000000002Z'      | '00:00' | '00:00:00.000000002' |
-
-    And no side effects
-  Scenario: Should truncate to day with time zone
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              date({year: 1984, month: 10, day: 11})] AS d
-      RETURN datetime.truncate('day', d, {timezone: 'Europe/Stockholm'}) AS d1
-      """
-    Then the result should be, in order:
-      | d1                                         |
-      | '1984-10-11T00:00+01:00[Europe/Stockholm]' |
-      | '1984-10-11T00:00+01:00[Europe/Stockholm]' |
-      | '1984-10-11T00:00+01:00[Europe/Stockholm]' |
-    And no side effects
-
- Scenario: Should truncate datetime to hour
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN datetime.truncate('hour', d) AS d1,
-             datetime.truncate('hour', d, {nanosecond: 2}) AS d2,
-             datetime.truncate('hour', d, {timezone: 'Europe/Stockholm'}) AS d3
-      """
-    Then the result should be, in order:
-      | d1                       | d2                                    | d3                                          |
-      | '1984-10-11T12:00-01:00' | '1984-10-11T12:00:00.000000002-01:00' |  '1984-10-11T12:00+01:00[Europe/Stockholm]' |
-      | '1984-10-11T12:00Z'      | '1984-10-11T12:00:00.000000002Z'      |  '1984-10-11T12:00+01:00[Europe/Stockholm]' |
-    And no side effects
-
- Scenario: Should truncate localdatetime to hour
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN localdatetime.truncate('hour', d) AS d1,
-             localdatetime.truncate('hour', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                      | d2                              |
-      | '1984-10-11T12:00'      | '1984-10-11T12:00:00.000000002' |
-      | '1984-10-11T12:00'      | '1984-10-11T12:00:00.000000002' |
-    And no side effects
-
- Scenario: Should truncate time to hour
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN time.truncate('hour', d) AS d1,
-             time.truncate('hour', d, {nanosecond: 2}) AS d2,
-             time.truncate('hour', d, {timezone: '+01:00'}) AS d3
-      """
-    Then the result should be, in order:
-      | d1            | d2                         | d3            |
-      | '12:00-01:00' | '12:00:00.000000002-01:00' | '12:00+01:00' |
-      | '12:00Z'      | '12:00:00.000000002Z'      | '12:00+01:00' |
-      | '12:00-01:00' | '12:00:00.000000002-01:00' | '12:00+01:00' |
-      | '12:00Z'      | '12:00:00.000000002Z'      | '12:00+01:00' |
-    And no side effects
-
- Scenario: Should truncate localtime to hour
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN localtime.truncate('hour', d) AS d1,
-             localtime.truncate('hour', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1      | d2                   |
-      | '12:00' | '12:00:00.000000002' |
-      | '12:00' | '12:00:00.000000002' |
-      | '12:00' | '12:00:00.000000002' |
-      | '12:00' | '12:00:00.000000002' |
-    And no side effects
-
- Scenario: Should truncate datetime to minute
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN datetime.truncate('minute', d) AS d1,
-             datetime.truncate('minute', d, {nanosecond: 2}) AS d2,
-             datetime.truncate('minute', d, {timezone: 'Europe/Stockholm'}) AS d3
-      """
-    Then the result should be, in order:
-      | d1                       | d2                                    | d3                                         |
-      | '1984-10-11T12:31-01:00' | '1984-10-11T12:31:00.000000002-01:00' | '1984-10-11T12:31+01:00[Europe/Stockholm]' |
-      | '1984-10-11T12:31Z'      | '1984-10-11T12:31:00.000000002Z'      | '1984-10-11T12:31+01:00[Europe/Stockholm]' |
-    And no side effects
-
- Scenario: Should truncate localdatetime to minute
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN localdatetime.truncate('minute', d) AS d1,
-             localdatetime.truncate('minute', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                 | d2                              |
-      | '1984-10-11T12:31' | '1984-10-11T12:31:00.000000002' |
-      | '1984-10-11T12:31' | '1984-10-11T12:31:00.000000002' |
-    And no side effects
-
- Scenario: Should truncate time to minute
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN time.truncate('minute', d) AS d1,
-             time.truncate('minute', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1            | d2                         |
-      | '12:31+01:00' | '12:31:00.000000002+01:00' |
-      | '12:31Z'      | '12:31:00.000000002Z'      |
-      | '12:31+01:00' | '12:31:00.000000002+01:00' |
-      | '12:31Z'      | '12:31:00.000000002Z'      |
-    And no side effects
-
- Scenario: Should truncate localtime to minute
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN localtime.truncate('minute', d) AS d1,
-             localtime.truncate('minute', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1      | d2                   |
-      | '12:31' | '12:31:00.000000002' |
-      | '12:31' | '12:31:00.000000002' |
-      | '12:31' | '12:31:00.000000002' |
-      | '12:31' | '12:31:00.000000002' |
-   And no side effects
-
- Scenario: Should truncate datetime to second
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN datetime.truncate('second', d) AS d1,
-             datetime.truncate('second', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                          | d2                                    |
-      | '1984-10-11T12:31:14+01:00' | '1984-10-11T12:31:14.000000002+01:00' |
-      | '1984-10-11T12:31:14Z'      | '1984-10-11T12:31:14.000000002Z'      |
-    And no side effects
-
- Scenario: Should truncate localdatetime to second
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN localdatetime.truncate('second', d) AS d1,
-             localdatetime.truncate('second', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                    | d2                              |
-      | '1984-10-11T12:31:14' | '1984-10-11T12:31:14.000000002' |
-      | '1984-10-11T12:31:14' | '1984-10-11T12:31:14.000000002' |
-    And no side effects
-
- Scenario: Should truncate time to second
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN time.truncate('second', d) AS d1,
-             time.truncate('second', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1               | d2                         |
-      | '12:31:14+01:00' | '12:31:14.000000002+01:00' |
-      | '12:31:14Z'      | '12:31:14.000000002Z'      |
-      | '12:31:14+01:00' | '12:31:14.000000002+01:00' |
-      | '12:31:14Z'      | '12:31:14.000000002Z'      |
-    And no side effects
-
- Scenario: Should truncate localtime to second
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN localtime.truncate('second', d) AS d1,
-             localtime.truncate('second', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1         | d2                   |
-      | '12:31:14' | '12:31:14.000000002' |
-      | '12:31:14' | '12:31:14.000000002' |
-      | '12:31:14' | '12:31:14.000000002' |
-      | '12:31:14' | '12:31:14.000000002' |
-    And no side effects
-
- Scenario: Should truncate datetime to millisecond
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN datetime.truncate('millisecond', d) AS d1,
-             datetime.truncate('millisecond', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                              | d2                                    |
-      | '1984-10-11T12:31:14.645+01:00' | '1984-10-11T12:31:14.645000002+01:00' |
-      | '1984-10-11T12:31:14.645Z'      | '1984-10-11T12:31:14.645000002Z'      |
-    And no side effects
-
- Scenario: Should truncate localdatetime to millisecond
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN localdatetime.truncate('millisecond', d) AS d1,
-             localdatetime.truncate('millisecond', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                        | d2                              |
-      | '1984-10-11T12:31:14.645' | '1984-10-11T12:31:14.645000002' |
-      | '1984-10-11T12:31:14.645' | '1984-10-11T12:31:14.645000002' |
-    And no side effects
-
- Scenario: Should truncate time to millisecond
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN time.truncate('millisecond', d) AS d1,
-             time.truncate('millisecond', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                   | d2                         |
-      | '12:31:14.645+01:00' | '12:31:14.645000002+01:00' |
-      | '12:31:14.645Z'      | '12:31:14.645000002Z'      |
-      | '12:31:14.645+01:00' | '12:31:14.645000002+01:00' |
-      | '12:31:14.645Z'      | '12:31:14.645000002Z'      |
-    And no side effects
-
- Scenario: Should truncate localtime to millisecond
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN localtime.truncate('millisecond', d) AS d1,
-             localtime.truncate('millisecond', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1             | d2                   |
-      | '12:31:14.645' | '12:31:14.645000002' |
-      | '12:31:14.645' | '12:31:14.645000002' |
-      | '12:31:14.645' | '12:31:14.645000002' |
-      | '12:31:14.645' | '12:31:14.645000002' |
-    And no side effects
-
- Scenario: Should truncate datetime to microsecond
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN datetime.truncate('microsecond', d) AS d1,
-             datetime.truncate('microsecond', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                                 | d2                                    |
-      | '1984-10-11T12:31:14.645876+01:00' | '1984-10-11T12:31:14.645876002+01:00' |
-      | '1984-10-11T12:31:14.645876Z'      | '1984-10-11T12:31:14.645876002Z'      |
-    And no side effects
-
- Scenario: Should truncate localdatetime to microsecond
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN localdatetime.truncate('microsecond', d) AS d1,
-             localdatetime.truncate('microsecond', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                           | d2                              |
-      | '1984-10-11T12:31:14.645876' | '1984-10-11T12:31:14.645876002' |
-      | '1984-10-11T12:31:14.645876' | '1984-10-11T12:31:14.645876002' |
-    And no side effects
-
- Scenario: Should truncate time to microsecond
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN time.truncate('microsecond', d) AS d1,
-             time.truncate('microsecond', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                      | d2                         |
-      | '12:31:14.645876+01:00' | '12:31:14.645876002+01:00' |
-      | '12:31:14.645876Z'      | '12:31:14.645876002Z'      |
-      | '12:31:14.645876+01:00' | '12:31:14.645876002+01:00' |
-      | '12:31:14.645876Z'      | '12:31:14.645876002Z'      |
-    And no side effects
-
- Scenario: Should truncate localtime to microsecond
-    Given any graph
-    When executing query:
-      """
-      UNWIND [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
-              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
-              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})] AS d
-      RETURN localtime.truncate('microsecond', d) AS d1,
-             localtime.truncate('microsecond', d, {nanosecond: 2}) AS d2
-      """
-    Then the result should be, in order:
-      | d1                | d2                   |
-      | '12:31:14.645876' | '12:31:14.645876002' |
-      | '12:31:14.645876' | '12:31:14.645876002' |
-      | '12:31:14.645876' | '12:31:14.645876002' |
-      | '12:31:14.645876' | '12:31:14.645876002' |
-    And no side effects
+    Examples:
+      | type          | unit          | other                                                                                                                   | map                            | result                                     |
+      | date          | 'millennium'  | date({year: 2017, month: 10, day: 11})                                                                                  | {day: 2}                       | '2000-01-02'                               |
+      | date          | 'millennium'  | date({year: 2017, month: 10, day: 11})                                                                                  | {}                             | '2000-01-01'                               |
+      | date          | 'millennium'  | datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '2000-01-02'                               |
+      | date          | 'millennium'  | datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '2000-01-01'                               |
+      | date          | 'millennium'  | localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '2000-01-02'                               |
+      | date          | 'millennium'  | localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '2000-01-01'                               |
+      | date          | 'century'     | date({year: 1984, month: 10, day: 11})                                                                                  | {day: 2}                       | '1900-01-02'                               |
+      | date          | 'century'     | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1900-01-01'                               |
+      | date          | 'century'     | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1900-01-02'                               |
+      | date          | 'century'     | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1900-01-01'                               |
+      | date          | 'century'     | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1900-01-02'                               |
+      | date          | 'century'     | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1900-01-01'                               |
+      | date          | 'decade'      | date({year: 1984, month: 10, day: 11})                                                                                  | {day: 2}                       | '1980-01-02'                               |
+      | date          | 'decade'      | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1980-01-01'                               |
+      | date          | 'decade'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1980-01-02'                               |
+      | date          | 'decade'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1980-01-01'                               |
+      | date          | 'decade'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1980-01-02'                               |
+      | date          | 'decade'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1980-01-01'                               |
+      | date          | 'year'        | date({year: 1984, month: 10, day: 11})                                                                                  | {day: 2}                       | '1984-01-02'                               |
+      | date          | 'year'        | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1984-01-01'                               |
+      | date          | 'year'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1984-01-02'                               |
+      | date          | 'year'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-01-01'                               |
+      | date          | 'year'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1984-01-02'                               |
+      | date          | 'year'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-01-01'                               |
+      | date          | 'weekYear'    | date({year: 1984, month: 2, day: 1})                                                                                    | {day: 5}                       | '1984-01-05'                               |
+      | date          | 'weekYear'    | date({year: 1984, month: 2, day: 1})                                                                                    | {}                             | '1984-01-02'                               |
+      | date          | 'weekYear'    | datetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})   | {day: 5}                       | '1983-01-05'                               |
+      | date          | 'weekYear'    | datetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})   | {}                             | '1983-01-03'                               |
+      | date          | 'weekYear'    | localdatetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                  | {day: 5}                       | '1983-01-05'                               |
+      | date          | 'weekYear'    | localdatetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                  | {}                             | '1983-01-03'                               |
+      | date          | 'quarter'     | date({year: 1984, month: 11, day: 11})                                                                                  | {day: 2}                       | '1984-10-02'                               |
+      | date          | 'quarter'     | date({year: 1984, month: 11, day: 11})                                                                                  | {}                             | '1984-10-01'                               |
+      | date          | 'quarter'     | datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1984-10-02'                               |
+      | date          | 'quarter'     | datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-01'                               |
+      | date          | 'quarter'     | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1984-10-02'                               |
+      | date          | 'quarter'     | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-01'                               |
+      | date          | 'month'       | date({year: 1984, month: 10, day: 11})                                                                                  | {day: 2}                       | '1984-10-02'                               |
+      | date          | 'month'       | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1984-10-01'                               |
+      | date          | 'month'       | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1984-10-02'                               |
+      | date          | 'month'       | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-01'                               |
+      | date          | 'month'       | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1984-10-02'                               |
+      | date          | 'month'       | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-01'                               |
+      | date          | 'week'        | date({year: 1984, month: 10, day: 11})                                                                                  | {dayOfWeek: 2}                 | '1984-10-09'                               |
+      | date          | 'week'        | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1984-10-08'                               |
+      | date          | 'week'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {dayOfWeek: 2}                 | '1984-10-09'                               |
+      | date          | 'week'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-08'                               |
+      | date          | 'week'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {dayOfWeek: 2}                 | '1984-10-09'                               |
+      | date          | 'week'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-08'                               |
+      | date          | 'day'         | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1984-10-11'                               |
+      | date          | 'day'         | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-11'                               |
+      | date          | 'day'         | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-11'                               |
+      | datetime      | 'millennium'  | date({year: 2017, month: 10, day: 11})                                                                                  | {day: 2}                       | '2000-01-02T00:00Z'                        |
+      | datetime      | 'millennium'  | date({year: 2017, month: 10, day: 11})                                                                                  | {timezone: 'Europe/Stockholm'} | '2000-01-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'millennium'  | date({year: 2017, month: 10, day: 11})                                                                                  | {}                             | '2000-01-01T00:00Z'                        |
+      | datetime      | 'millennium'  | datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '2000-01-02T00:00+01:00'                   |
+      | datetime      | 'millennium'  | datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '2000-01-01T00:00+01:00'                   |
+      | datetime      | 'millennium'  | datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {timezone: 'Europe/Stockholm'} | '2000-01-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'millennium'  | localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '2000-01-02T00:00Z'                        |
+      | datetime      | 'millennium'  | localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {timezone: 'Europe/Stockholm'} | '2000-01-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'millennium'  | localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '2000-01-01T00:00Z'                        |
+      | datetime      | 'century'     | date({year: 1984, month: 10, day: 11})                                                                                  | {day: 2}                       | '1900-01-02T00:00Z'                        |
+      | datetime      | 'century'     | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1900-01-01T00:00Z'                        |
+      | datetime      | 'century'     | date({year: 2017, month: 10, day: 11})                                                                                  | {timezone: 'Europe/Stockholm'} | '2000-01-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'century'     | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1900-01-02T00:00+01:00'                   |
+      | datetime      | 'century'     | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1900-01-01T00:00+01:00'                   |
+      | datetime      | 'century'     | datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {timezone: 'Europe/Stockholm'} | '2000-01-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'century'     | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1900-01-02T00:00Z'                        |
+      | datetime      | 'century'     | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1900-01-01T00:00Z'                        |
+      | datetime      | 'century'     | localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {timezone: 'Europe/Stockholm'} | '2000-01-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'decade'      | date({year: 1984, month: 10, day: 11})                                                                                  | {day: 2}                       | '1980-01-02T00:00Z'                        |
+      | datetime      | 'decade'      | date({year: 1984, month: 10, day: 11})                                                                                  | {timezone: 'Europe/Stockholm'} | '1980-01-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'decade'      | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1980-01-01T00:00Z'                        |
+      | datetime      | 'decade'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1980-01-02T00:00+01:00'                   |
+      | datetime      | 'decade'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1980-01-01T00:00+01:00'                   |
+      | datetime      | 'decade'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {timezone: 'Europe/Stockholm'} | '1980-01-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'decade'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1980-01-02T00:00Z'                        |
+      | datetime      | 'decade'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {timezone: 'Europe/Stockholm'} | '1980-01-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'decade'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1980-01-01T00:00Z'                        |
+      | datetime      | 'year'        | date({year: 1984, month: 10, day: 11})                                                                                  | {day: 2}                       | '1984-01-02T00:00Z'                        |
+      | datetime      | 'year'        | date({year: 1984, month: 10, day: 11})                                                                                  | {timezone: 'Europe/Stockholm'} | '1984-01-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'year'        | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1984-01-01T00:00Z'                        |
+      | datetime      | 'year'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1984-01-02T00:00+01:00'                   |
+      | datetime      | 'year'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-01-01T00:00+01:00'                   |
+      | datetime      | 'year'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {timezone: 'Europe/Stockholm'} | '1984-01-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'year'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1984-01-02T00:00Z'                        |
+      | datetime      | 'year'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {timezone: 'Europe/Stockholm'} | '1984-01-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'year'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-01-01T00:00Z'                        |
+      | datetime      | 'weekYear'    | date({year: 1984, month: 2, day: 1})                                                                                    | {day: 5}                       | '1984-01-05T00:00Z'                        |
+      | datetime      | 'weekYear'    | date({year: 1984, month: 2, day: 1})                                                                                    | {timezone: 'Europe/Stockholm'} | '1984-01-02T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'weekYear'    | date({year: 1984, month: 2, day: 1})                                                                                    | {}                             | '1984-01-02T00:00Z'                        |
+      | datetime      | 'weekYear'    | datetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})   | {day: 5}                       | '1983-01-05T00:00+01:00'                   |
+      | datetime      | 'weekYear'    | datetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})   | {}                             | '1983-01-03T00:00+01:00'                   |
+      | datetime      | 'weekYear'    | datetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'})   | {timezone: 'Europe/Stockholm'} | '1983-01-03T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'weekYear'    | localdatetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                  | {day: 5}                       | '1983-01-05T00:00Z'                        |
+      | datetime      | 'weekYear'    | localdatetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                  | {timezone: 'Europe/Stockholm'} | '1983-01-03T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'weekYear'    | localdatetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                  | {}                             | '1983-01-03T00:00Z'                        |
+      | datetime      | 'quarter'     | date({year: 1984, month: 11, day: 11})                                                                                  | {day: 2}                       | '1984-10-02T00:00Z'                        |
+      | datetime      | 'quarter'     | date({year: 1984, month: 11, day: 11})                                                                                  | {timezone: 'Europe/Stockholm'} | '1984-10-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'quarter'     | date({year: 1984, month: 11, day: 11})                                                                                  | {}                             | '1984-10-01T00:00Z'                        |
+      | datetime      | 'quarter'     | datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1984-10-02T00:00+01:00'                   |
+      | datetime      | 'quarter'     | datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-01T00:00+01:00'                   |
+      | datetime      | 'quarter'     | datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {timezone: 'Europe/Stockholm'} | '1984-10-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'quarter'     | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1984-10-02T00:00Z'                        |
+      | datetime      | 'quarter'     | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {timezone: 'Europe/Stockholm'} | '1984-10-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'quarter'     | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-01T00:00Z'                        |
+      | datetime      | 'month'       | date({year: 1984, month: 10, day: 11})                                                                                  | {day: 2}                       | '1984-10-02T00:00Z'                        |
+      | datetime      | 'month'       | date({year: 1984, month: 10, day: 11})                                                                                  | {timezone: 'Europe/Stockholm'} | '1984-10-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'month'       | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1984-10-01T00:00Z'                        |
+      | datetime      | 'month'       | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1984-10-02T00:00+01:00'                   |
+      | datetime      | 'month'       | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-01T00:00+01:00'                   |
+      | datetime      | 'month'       | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {timezone: 'Europe/Stockholm'} | '1984-10-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'month'       | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1984-10-02T00:00Z'                        |
+      | datetime      | 'month'       | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {timezone: 'Europe/Stockholm'} | '1984-10-01T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'month'       | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-01T00:00Z'                        |
+      | datetime      | 'week'        | date({year: 1984, month: 10, day: 11})                                                                                  | {dayOfWeek: 2}                 | '1984-10-09T00:00Z'                        |
+      | datetime      | 'week'        | date({year: 1984, month: 10, day: 11})                                                                                  | {timezone: 'Europe/Stockholm'} | '1984-10-08T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'week'        | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1984-10-08T00:00Z'                        |
+      | datetime      | 'week'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {dayOfWeek: 2}                 | '1984-10-09T00:00+01:00'                   |
+      | datetime      | 'week'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-08T00:00+01:00'                   |
+      | datetime      | 'week'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {timezone: 'Europe/Stockholm'} | '1984-10-08T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'week'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {dayOfWeek: 2}                 | '1984-10-09T00:00Z'                        |
+      | datetime      | 'week'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {timezone: 'Europe/Stockholm'} | '1984-10-08T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'week'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-08T00:00Z'                        |
+      | datetime      | 'day'         | date({year: 1984, month: 10, day: 11})                                                                                  | {nanosecond: 2}                | '1984-10-11T00:00:00.000000002Z'           |
+      | datetime      | 'day'         | date({year: 1984, month: 10, day: 11})                                                                                  | {timezone: 'Europe/Stockholm'} | '1984-10-11T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'day'         | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1984-10-11T00:00Z'                        |
+      | datetime      | 'day'         | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '1984-10-11T00:00:00.000000002+01:00'      |
+      | datetime      | 'day'         | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-11T00:00+01:00'                   |
+      | datetime      | 'day'         | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {timezone: 'Europe/Stockholm'} | '1984-10-11T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'day'         | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '1984-10-11T00:00:00.000000002Z'           |
+      | datetime      | 'day'         | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {timezone: 'Europe/Stockholm'} | '1984-10-11T00:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'day'         | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-11T00:00Z'                        |
+      | datetime      | 'hour'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {nanosecond: 2}                | '1984-10-11T12:00:00.000000002-01:00'      |
+      | datetime      | 'hour'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {timezone: 'Europe/Stockholm'} | '1984-10-11T12:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'hour'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {}                             | '1984-10-11T12:00-01:00'                   |
+      | datetime      | 'hour'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '1984-10-11T12:00:00.000000002Z'           |
+      | datetime      | 'hour'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {timezone: 'Europe/Stockholm'} | '1984-10-11T12:00+01:00[Europe/Stockholm]' |
+      | datetime      | 'hour'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-11T12:00Z'                        |
+      | datetime      | 'minute'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {nanosecond: 2}                | '1984-10-11T12:31:00.000000002-01:00'      |
+      | datetime      | 'minute'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {timezone: 'Europe/Stockholm'} | '1984-10-11T12:31+01:00[Europe/Stockholm]' |
+      | datetime      | 'minute'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {}                             | '1984-10-11T12:31-01:00'                   |
+      | datetime      | 'minute'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '1984-10-11T12:31:00.000000002Z'           |
+      | datetime      | 'minute'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {timezone: 'Europe/Stockholm'} | '1984-10-11T12:31+01:00[Europe/Stockholm]' |
+      | datetime      | 'minute'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-11T12:31Z'                        |
+      | datetime      | 'second'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '1984-10-11T12:31:14.000000002+01:00'      |
+      | datetime      | 'second'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-11T12:31:14+01:00'                |
+      | datetime      | 'second'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '1984-10-11T12:31:14.000000002Z'           |
+      | datetime      | 'second'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-11T12:31:14Z'                     |
+      | datetime      | 'millisecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '1984-10-11T12:31:14.645000002+01:00'      |
+      | datetime      | 'millisecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-11T12:31:14.645+01:00'            |
+      | datetime      | 'millisecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '1984-10-11T12:31:14.645000002Z'           |
+      | datetime      | 'millisecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-11T12:31:14.645Z'                 |
+      | datetime      | 'microsecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '1984-10-11T12:31:14.645876002+01:00'      |
+      | datetime      | 'microsecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-11T12:31:14.645876+01:00'         |
+      | datetime      | 'microsecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '1984-10-11T12:31:14.645876002Z'           |
+      | datetime      | 'microsecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-11T12:31:14.645876Z'              |
+      | localdatetime | 'millennium'  | date({year: 2017, month: 10, day: 11})                                                                                  | {day: 2}                       | '2000-01-02T00:00'                         |
+      | localdatetime | 'millennium'  | date({year: 2017, month: 10, day: 11})                                                                                  | {}                             | '2000-01-01T00:00'                         |
+      | localdatetime | 'millennium'  | datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '2000-01-02T00:00'                         |
+      | localdatetime | 'millennium'  | datetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '2000-01-01T00:00'                         |
+      | localdatetime | 'millennium'  | localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '2000-01-02T00:00'                         |
+      | localdatetime | 'millennium'  | localdatetime({year: 2017, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '2000-01-01T00:00'                         |
+      | localdatetime | 'century'     | date({year: 1984, month: 10, day: 11})                                                                                  | {day: 2}                       | '1900-01-02T00:00'                         |
+      | localdatetime | 'century'     | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1900-01-01T00:00'                         |
+      | localdatetime | 'century'     | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1900-01-02T00:00'                         |
+      | localdatetime | 'century'     | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1900-01-01T00:00'                         |
+      | localdatetime | 'century'     | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1900-01-02T00:00'                         |
+      | localdatetime | 'century'     | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1900-01-01T00:00'                         |
+      | localdatetime | 'decade'      | date({year: 1984, month: 10, day: 11})                                                                                  | {day: 2}                       | '1980-01-02T00:00'                         |
+      | localdatetime | 'decade'      | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1980-01-01T00:00'                         |
+      | localdatetime | 'decade'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1980-01-02T00:00'                         |
+      | localdatetime | 'decade'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1980-01-01T00:00'                         |
+      | localdatetime | 'decade'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1980-01-02T00:00'                         |
+      | localdatetime | 'decade'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1980-01-01T00:00'                         |
+      | localdatetime | 'year'        | date({year: 1984, month: 10, day: 11})                                                                                  | {day: 2}                       | '1984-01-02T00:00'                         |
+      | localdatetime | 'year'        | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1984-01-01T00:00'                         |
+      | localdatetime | 'year'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1984-01-02T00:00'                         |
+      | localdatetime | 'year'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-01-01T00:00'                         |
+      | localdatetime | 'year'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1984-01-02T00:00'                         |
+      | localdatetime | 'year'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-01-01T00:00'                         |
+      | localdatetime | 'weekYear'    | date({year: 1984, month: 2, day: 1})                                                                                    | {day: 5}                       | '1984-01-05T00:00'                         |
+      | localdatetime | 'weekYear'    | date({year: 1984, month: 2, day: 1})                                                                                    | {}                             | '1984-01-02T00:00'                         |
+      | localdatetime | 'weekYear'    | datetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})   | {day: 5}                       | '1983-01-05T00:00'                         |
+      | localdatetime | 'weekYear'    | datetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})   | {}                             | '1983-01-03T00:00'                         |
+      | localdatetime | 'weekYear'    | localdatetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                  | {day: 5}                       | '1983-01-05T00:00'                         |
+      | localdatetime | 'weekYear'    | localdatetime({year: 1984, month: 1, day: 1, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                  | {}                             | '1983-01-03T00:00'                         |
+      | localdatetime | 'quarter'     | date({year: 1984, month: 11, day: 11})                                                                                  | {day: 2}                       | '1984-10-02T00:00'                         |
+      | localdatetime | 'quarter'     | date({year: 1984, month: 11, day: 11})                                                                                  | {}                             | '1984-10-01T00:00'                         |
+      | localdatetime | 'quarter'     | datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1984-10-02T00:00'                         |
+      | localdatetime | 'quarter'     | datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-01T00:00'                         |
+      | localdatetime | 'quarter'     | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1984-10-02T00:00'                         |
+      | localdatetime | 'quarter'     | localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-01T00:00'                         |
+      | localdatetime | 'month'       | date({year: 1984, month: 10, day: 11})                                                                                  | {day: 2}                       | '1984-10-02T00:00'                         |
+      | localdatetime | 'month'       | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1984-10-01T00:00'                         |
+      | localdatetime | 'month'       | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {day: 2}                       | '1984-10-02T00:00'                         |
+      | localdatetime | 'month'       | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-01T00:00'                         |
+      | localdatetime | 'month'       | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {day: 2}                       | '1984-10-02T00:00'                         |
+      | localdatetime | 'month'       | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-01T00:00'                         |
+      | localdatetime | 'week'        | date({year: 1984, month: 10, day: 11})                                                                                  | {dayOfWeek: 2}                 | '1984-10-09T00:00'                         |
+      | localdatetime | 'week'        | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1984-10-08T00:00'                         |
+      | localdatetime | 'week'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {dayOfWeek: 2}                 | '1984-10-09T00:00'                         |
+      | localdatetime | 'week'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-08T00:00'                         |
+      | localdatetime | 'week'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {dayOfWeek: 2}                 | '1984-10-09T00:00'                         |
+      | localdatetime | 'week'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-08T00:00'                         |
+      | localdatetime | 'day'         | date({year: 1984, month: 10, day: 11})                                                                                  | {nanosecond: 2}                | '1984-10-11T00:00:00.000000002'            |
+      | localdatetime | 'day'         | date({year: 1984, month: 10, day: 11})                                                                                  | {}                             | '1984-10-11T00:00'                         |
+      | localdatetime | 'day'         | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '1984-10-11T00:00:00.000000002'            |
+      | localdatetime | 'day'         | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-11T00:00'                         |
+      | localdatetime | 'day'         | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '1984-10-11T00:00:00.000000002'            |
+      | localdatetime | 'day'         | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-11T00:00'                         |
+      | localdatetime | 'hour'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '1984-10-11T12:00:00.000000002'            |
+      | localdatetime | 'hour'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-11T12:00'                         |
+      | localdatetime | 'hour'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '1984-10-11T12:00:00.000000002'            |
+      | localdatetime | 'hour'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-11T12:00'                         |
+      | localdatetime | 'minute'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '1984-10-11T12:31:00.000000002'            |
+      | localdatetime | 'minute'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-11T12:31'                         |
+      | localdatetime | 'minute'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '1984-10-11T12:31:00.000000002'            |
+      | localdatetime | 'minute'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-11T12:31'                         |
+      | localdatetime | 'second'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '1984-10-11T12:31:14.000000002'            |
+      | localdatetime | 'second'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-11T12:31:14'                      |
+      | localdatetime | 'second'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '1984-10-11T12:31:14.000000002'            |
+      | localdatetime | 'second'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-11T12:31:14'                      |
+      | localdatetime | 'millisecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '1984-10-11T12:31:14.645000002'            |
+      | localdatetime | 'millisecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-11T12:31:14.645'                  |
+      | localdatetime | 'millisecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '1984-10-11T12:31:14.645000002'            |
+      | localdatetime | 'millisecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-11T12:31:14.645'                  |
+      | localdatetime | 'microsecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '1984-10-11T12:31:14.645876002'            |
+      | localdatetime | 'microsecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '1984-10-11T12:31:14.645876'               |
+      | localdatetime | 'microsecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '1984-10-11T12:31:14.645876002'            |
+      | localdatetime | 'microsecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '1984-10-11T12:31:14.645876'               |
+      | localtime     | 'day'         | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '00:00:00.000000002'                       |
+      | localtime     | 'day'         | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '00:00'                                    |
+      | localtime     | 'day'         | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '00:00:00.000000002'                       |
+      | localtime     | 'day'         | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '00:00'                                    |
+      | localtime     | 'hour'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '12:00:00.000000002'                       |
+      | localtime     | 'hour'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '12:00'                                    |
+      | localtime     | 'hour'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '12:00:00.000000002'                       |
+      | localtime     | 'hour'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '12:00'                                    |
+      | localtime     | 'hour'        | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {nanosecond: 2}                | '12:00:00.000000002'                       |
+      | localtime     | 'hour'        | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {}                             | '12:00'                                    |
+      | localtime     | 'hour'        | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {nanosecond: 2}                | '12:00:00.000000002'                       |
+      | localtime     | 'hour'        | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {}                             | '12:00'                                    |
+      | localtime     | 'minute'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '12:31:00.000000002'                       |
+      | localtime     | 'minute'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '12:31'                                    |
+      | localtime     | 'minute'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '12:31:00.000000002'                       |
+      | localtime     | 'minute'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '12:31'                                    |
+      | localtime     | 'minute'      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {nanosecond: 2}                | '12:31:00.000000002'                       |
+      | localtime     | 'minute'      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {}                             | '12:31'                                    |
+      | localtime     | 'minute'      | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {nanosecond: 2}                | '12:31:00.000000002'                       |
+      | localtime     | 'minute'      | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {}                             | '12:31'                                    |
+      | localtime     | 'second'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '12:31:14.000000002'                       |
+      | localtime     | 'second'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '12:31:14'                                 |
+      | localtime     | 'second'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '12:31:14.000000002'                       |
+      | localtime     | 'second'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '12:31:14'                                 |
+      | localtime     | 'second'      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {nanosecond: 2}                | '12:31:14.000000002'                       |
+      | localtime     | 'second'      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {}                             | '12:31:14'                                 |
+      | localtime     | 'second'      | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {nanosecond: 2}                | '12:31:14.000000002'                       |
+      | localtime     | 'second'      | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {}                             | '12:31:14'                                 |
+      | localtime     | 'millisecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '12:31:14.645000002'                       |
+      | localtime     | 'millisecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '12:31:14.645'                             |
+      | localtime     | 'millisecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '12:31:14.645000002'                       |
+      | localtime     | 'millisecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '12:31:14.645'                             |
+      | localtime     | 'millisecond' | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {nanosecond: 2}                | '12:31:14.645000002'                       |
+      | localtime     | 'millisecond' | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {}                             | '12:31:14.645'                             |
+      | localtime     | 'millisecond' | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {nanosecond: 2}                | '12:31:14.645000002'                       |
+      | localtime     | 'millisecond' | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {}                             | '12:31:14.645'                             |
+      | localtime     | 'microsecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '12:31:14.645876002'                       |
+      | localtime     | 'microsecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '12:31:14.645876'                          |
+      | localtime     | 'microsecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '12:31:14.645876002'                       |
+      | localtime     | 'microsecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '12:31:14.645876'                          |
+      | localtime     | 'microsecond' | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {nanosecond: 2}                | '12:31:14.645876002'                       |
+      | localtime     | 'microsecond' | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {}                             | '12:31:14.645876'                          |
+      | localtime     | 'microsecond' | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {nanosecond: 2}                | '12:31:14.645876002'                       |
+      | localtime     | 'microsecond' | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {}                             | '12:31:14.645876'                          |
+      | time          | 'day'         | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '00:00:00.000000002+01:00'                 |
+      | time          | 'day'         | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '00:00+01:00'                              |
+      | time          | 'day'         | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '00:00:00.000000002Z'                      |
+      | time          | 'day'         | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '00:00Z'                                   |
+      | time          | 'hour'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {nanosecond: 2}                | '12:00:00.000000002-01:00'                 |
+      | time          | 'hour'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {timezone: '+01:00'}           | '12:00+01:00'                              |
+      | time          | 'hour'        | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {}                             | '12:00-01:00'                              |
+      | time          | 'hour'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '12:00:00.000000002Z'                      |
+      | time          | 'hour'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {timezone: '+01:00'}           | '12:00+01:00'                              |
+      | time          | 'hour'        | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '12:00Z'                                   |
+      | time          | 'hour'        | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {nanosecond: 2}                | '12:00:00.000000002Z'                      |
+      | time          | 'hour'        | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {timezone: '+01:00'}           | '12:00+01:00'                              |
+      | time          | 'hour'        | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {}                             | '12:00Z'                                   |
+      | time          | 'hour'        | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'})                                     | {nanosecond: 2}                | '12:00:00.000000002-01:00'                 |
+      | time          | 'hour'        | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'})                                     | {timezone: '+01:00'}           | '12:00+01:00'                              |
+      | time          | 'hour'        | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'})                                     | {}                             | '12:00-01:00'                              |
+      | time          | 'minute'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {nanosecond: 2}                | '12:31:00.000000002-01:00'                 |
+      | time          | 'minute'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'}) | {}                             | '12:31-01:00'                              |
+      | time          | 'minute'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '12:31:00.000000002Z'                      |
+      | time          | 'minute'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '12:31Z'                                   |
+      | time          | 'minute'      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {nanosecond: 2}                | '12:31:00.000000002Z'                      |
+      | time          | 'minute'      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {}                             | '12:31Z'                                   |
+      | time          | 'minute'      | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'})                                     | {nanosecond: 2}                | '12:31:00.000000002-01:00'                 |
+      | time          | 'minute'      | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '-01:00'})                                     | {}                             | '12:31-01:00'                              |
+      | time          | 'second'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '12:31:14.000000002+01:00'                 |
+      | time          | 'second'      | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '12:31:14+01:00'                           |
+      | time          | 'second'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '12:31:14.000000002Z'                      |
+      | time          | 'second'      | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '12:31:14Z'                                |
+      | time          | 'second'      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {nanosecond: 2}                | '12:31:14.000000002Z'                      |
+      | time          | 'second'      | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {}                             | '12:31:14Z'                                |
+      | time          | 'second'      | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {nanosecond: 2}                | '12:31:14.000000002+01:00'                 |
+      | time          | 'second'      | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {}                             | '12:31:14+01:00'                           |
+      | time          | 'millisecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '12:31:14.645000002+01:00'                 |
+      | time          | 'millisecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '12:31:14.645+01:00'                       |
+      | time          | 'millisecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '12:31:14.645000002Z'                      |
+      | time          | 'millisecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '12:31:14.645Z'                            |
+      | time          | 'millisecond' | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {nanosecond: 2}                | '12:31:14.645000002Z'                      |
+      | time          | 'millisecond' | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {}                             | '12:31:14.645Z'                            |
+      | time          | 'millisecond' | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {nanosecond: 2}                | '12:31:14.645000002+01:00'                 |
+      | time          | 'millisecond' | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {}                             | '12:31:14.645+01:00'                       |
+      | time          | 'microsecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {nanosecond: 2}                | '12:31:14.645876002+01:00'                 |
+      | time          | 'microsecond' | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) | {}                             | '12:31:14.645876+01:00'                    |
+      | time          | 'microsecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {nanosecond: 2}                | '12:31:14.645876002Z'                      |
+      | time          | 'microsecond' | localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})                | {}                             | '12:31:14.645876Z'                         |
+      | time          | 'microsecond' | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {nanosecond: 2}                | '12:31:14.645876002Z'                      |
+      | time          | 'microsecond' | localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})                                                    | {}                             | '12:31:14.645876Z'                         |
+      | time          | 'microsecond' | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {nanosecond: 2}                | '12:31:14.645876002+01:00'                 |
+      | time          | 'microsecond' | time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})                                     | {}                             | '12:31:14.645876+01:00'                    |
