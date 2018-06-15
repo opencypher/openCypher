@@ -25,7 +25,8 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.parsing.generated;// Generated from /Users/stutz/Documents/GitHub/openCypher/tools/tck/src/main/resources/FeatureResults.g4 by ANTLR 4.7
+// Generated from FeatureResults.g4 by ANTLR 4.7
+package org.opencypher.tools.tck.parsing.generated;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
