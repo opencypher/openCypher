@@ -33,6 +33,24 @@ Feature: DurationBetweenAcceptance
   Background:
     Given any graph
 
+  Scenario Outline: Should split between boundaries correctly
+    When executing query:
+    """
+    WITH duration.between(<d1>, <d2>) AS dur
+    RETURN dur, dur.days, dur.seconds, dur.nanosecondsOfSecond
+    """
+    Then the result should be:
+      | dur   | dur.days | dur.seconds | dur.nanosecondsOfSecond |
+      | <dur> | <days>   | <seconds>   | <nanos>                 |
+    Examples:
+      | d1                                                   | d2                                                   | dur                | days | seconds | nanos     |
+      | localdatetime('2018-01-01T12:00')                    | localdatetime('2018-01-02T10:00')                    | 'PT22H'            | 0    | 79200   | 0         |
+      | localdatetime('2018-01-02T10:00')                    | localdatetime('2018-01-01T12:00')                    | 'PT-22H'           | 0    | -79200  | 0         |
+      | localdatetime('2018-01-01T10:00:00.2')               | localdatetime('2018-01-02T10:00:00.1')               | 'PT23H59M59.9S'    | 0    | 86399   | 900000000 |
+      | localdatetime('2018-01-02T10:00:00.1')               | localdatetime('2018-01-01T10:00:00.2')               | 'PT-23H-59M-59.9S' | 0    | -86400  | 100000000 |
+      | datetime('2017-10-28T23:00+02:00[Europe/Stockholm]') | datetime('2017-10-29T04:00+01:00[Europe/Stockholm]') | 'PT6H'             | 0    | 21600   | 0         |
+      | datetime('2017-10-29T04:00+01:00[Europe/Stockholm]') | datetime('2017-10-28T23:00+02:00[Europe/Stockholm]') | 'PT-6H'            | 0    | -21600  | 0         |
+
   Scenario Outline: Should compute duration between two temporals
     When executing query:
     """
@@ -65,7 +83,7 @@ Feature: DurationBetweenAcceptance
       | localdatetime('2015-07-21T21:40:32.142') | datetime('2015-07-21T21:40:32.142+0100') | 'PT0S'                    |
       | localdatetime('2015-07-21T21:40:32.142') | localtime('16:30')                       | 'PT-5H-10M-32.142S'       |
       | localdatetime('2015-07-21T21:40:32.142') | time('16:30+0100')                       | 'PT-5H-10M-32.142S'       |
-      | datetime('2014-07-21T21:40:36.143+0200') | date('2015-06-24')                       | 'P11M3DT-21H-40M-36.143S' |
+      | datetime('2014-07-21T21:40:36.143+0200') | date('2015-06-24')                       | 'P11M2DT2H19M23.857S'     |
       | datetime('2014-07-21T21:40:36.143+0200') | localdatetime('2016-07-21T21:45:22.142') | 'P2YT4M45.999S'           |
       | datetime('2014-07-21T21:40:36.143+0200') | datetime('2015-07-21T21:40:32.142+0100') | 'P1YT59M55.999S'          |
       | datetime('2014-07-21T21:40:36.143+0200') | localtime('16:30')                       | 'PT-5H-10M-36.143S'       |
