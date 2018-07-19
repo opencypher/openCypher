@@ -204,8 +204,8 @@ Feature: SemanticErrorAcceptance
   Scenario: Failing when using MERGE on a node that is already bound
     When executing query:
       """
+      MATCH (a)
       MERGE (a)
-      CREATE (a)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
