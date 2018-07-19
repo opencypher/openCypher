@@ -205,7 +205,7 @@ Feature: SemanticErrorAcceptance
     When executing query:
       """
       MATCH (a)
-      CREATE (a)
+      MERGE (a)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
