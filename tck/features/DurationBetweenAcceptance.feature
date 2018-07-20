@@ -302,3 +302,19 @@ Feature: DurationBetweenAcceptance
       | date()          | date()          |
       | localdatetime() | localdatetime() |
       | datetime()      | datetime()      |
+
+  Scenario Outline: Should propagate null
+    Given any graph
+    When executing query:
+    """
+    RETURN <func>(null, null) AS t
+    """
+    Then the result should be:
+      | t    |
+      | null |
+    Examples:
+      | func               |
+      | duration.between   |
+      | duration.inMonths  |
+      | duration.inDays    |
+      | duration.inSeconds |

@@ -559,3 +559,36 @@ Feature: TemporalCreateAcceptance
       | duration({seconds: 12})                                                     | 'PT12S'                     |
       | [duration({seconds: 13})]                                                   | ['PT13S']                   |
       | [duration({seconds: 14}), duration({seconds: 15}), duration({seconds: 16})] | ['PT14S', 'PT15S', 'PT16S'] |
+
+  Scenario Outline: Should propagate null
+    Given any graph
+    When executing query:
+    """
+    RETURN <func>(null) AS t
+    """
+    Then the result should be:
+      | t    |
+      | null |
+    Examples:
+      | func                      |
+      | date                      |
+      | date.transaction          |
+      | date.statement            |
+      | date.realtime             |
+      | localtime                 |
+      | localtime.transaction     |
+      | localtime.statement       |
+      | localtime.realtime        |
+      | time                      |
+      | time.transaction          |
+      | time.statement            |
+      | time.realtime             |
+      | localdatetime             |
+      | localdatetime.transaction |
+      | localdatetime.statement   |
+      | localdatetime.realtime    |
+      | datetime                  |
+      | datetime.transaction      |
+      | datetime.statement        |
+      | datetime.realtime         |
+      | duration                  |
