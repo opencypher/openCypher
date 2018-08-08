@@ -50,7 +50,8 @@ object validateCodeStyle extends (String => Option[String]) {
       onlySingleQuotes // it's difficult to find out whether the comma is in a string or not... just avoid this case
     } else onlySingleQuotes.replaceAll(",([^ \\n])", ", $1")
 
-    val spaceAfterColon = spaceAfterComma.replaceAll(":([^A-Z ])", ": $1")
+    // Do negative lookbehind and lookahead to not requires changes for times like 12:00
+    val spaceAfterColon = spaceAfterComma.replaceAll("(?<!\\d\\d):(?!\\d\\d)([^A-Z ])", ": $1")
 
     val noIllegals = if (spaceAfterColon.contains("'")) spaceAfterColon // literal strings
     else illegal.foldLeft(spaceAfterColon) {
