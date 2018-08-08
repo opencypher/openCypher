@@ -39,7 +39,7 @@ Feature: TemporalToStringAcceptance
       WITH date({year: 1984, month: 10, day: 11}) AS d
       RETURN toString(d) AS ts, date(toString(d)) = d AS b
       """
-    Then the result should be, in order:
+    Then the result should be:
       | ts           | b    |
       | '1984-10-11' | true |
     And no side effects
@@ -50,7 +50,7 @@ Feature: TemporalToStringAcceptance
       WITH localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}) AS d
       RETURN toString(d) AS ts, localtime(toString(d)) = d AS b
       """
-    Then the result should be, in order:
+    Then the result should be:
       | ts                   | b    |
       | '12:31:14.645876123' | true |
     And no side effects
@@ -61,7 +61,7 @@ Feature: TemporalToStringAcceptance
       WITH time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) AS d
       RETURN toString(d) AS ts, time(toString(d)) = d AS b
       """
-    Then the result should be, in order:
+    Then the result should be:
       | ts                         | b    |
       | '12:31:14.645876123+01:00' | true |
     And no side effects
@@ -72,7 +72,7 @@ Feature: TemporalToStringAcceptance
       WITH localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}) AS d
       RETURN toString(d) AS ts, localdatetime(toString(d)) = d AS b
       """
-    Then the result should be, in order:
+    Then the result should be:
       | ts                              | b    |
       | '1984-10-11T12:31:14.645876123' | true |
     And no side effects
@@ -83,17 +83,17 @@ Feature: TemporalToStringAcceptance
       WITH datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) AS d
       RETURN toString(d) AS ts, datetime(toString(d)) = d AS b
       """
-    Then the result should be, in order:
+    Then the result should be:
       | ts                                    | b    |
       | '1984-10-11T12:31:14.645876123+01:00' | true |
     And no side effects
 
   Scenario Outline: Should serialize duration
     When executing query:
-    """
-    WITH duration(<map>) AS d
-    RETURN toString(d) AS ts, duration(toString(d)) = d AS b
-    """
+      """
+      WITH duration(<map>) AS d
+      RETURN toString(d) AS ts, duration(toString(d)) = d AS b
+      """
     Then the result should be:
       | ts         | b         |
       | <toString> | <isEqual> |
@@ -119,7 +119,7 @@ Feature: TemporalToStringAcceptance
       WITH datetime({year: 2017, month: 8, day: 8, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: 'Europe/Stockholm'}) AS d
       RETURN toString(d) AS ts
       """
-    Then the result should be, in order:
+    Then the result should be:
       | ts                                                      |
       | '2017-08-08T12:31:14.645876123+02:00[Europe/Stockholm]' |
     And no side effects

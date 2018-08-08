@@ -35,9 +35,9 @@ Feature: TemporalParseAcceptance
 
   Scenario Outline: Should parse date from string
     When executing query:
-    """
-    RETURN date(<str>) AS result
-    """
+      """
+      RETURN date(<str>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -59,9 +59,9 @@ Feature: TemporalParseAcceptance
 
   Scenario Outline: Should parse local time from string
     When executing query:
-    """
-    RETURN localtime(<str>) AS result
-    """
+      """
+      RETURN localtime(<str>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -79,9 +79,9 @@ Feature: TemporalParseAcceptance
 
   Scenario Outline: Should parse time from string
     When executing query:
-    """
-    RETURN time(<str>) AS result
-    """
+      """
+      RETURN time(<str>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -100,9 +100,9 @@ Feature: TemporalParseAcceptance
 
   Scenario Outline: Should parse local date time from string
     When executing query:
-    """
-    RETURN localdatetime(<str>) AS result
-    """
+      """
+      RETURN localdatetime(<str>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -120,9 +120,9 @@ Feature: TemporalParseAcceptance
 
   Scenario Outline: Should parse date time from string
     When executing query:
-    """
-    RETURN datetime(<str>) AS result
-    """
+      """
+      RETURN datetime(<str>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -141,9 +141,9 @@ Feature: TemporalParseAcceptance
 
   Scenario Outline: Should parse date time with named time zone from string
     When executing query:
-    """
-    RETURN datetime(<str>) AS result
-    """
+      """
+      RETURN datetime(<str>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -159,9 +159,9 @@ Feature: TemporalParseAcceptance
 
   Scenario Outline: Should parse duration from string
     When executing query:
-    """
-    RETURN duration(<str>) AS result
-    """
+      """
+      RETURN duration(<str>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |

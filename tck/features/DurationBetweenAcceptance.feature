@@ -35,13 +35,15 @@ Feature: DurationBetweenAcceptance
 
   Scenario Outline: Should split between boundaries correctly
     When executing query:
-    """
-    WITH duration.between(<d1>, <d2>) AS dur
-    RETURN dur, dur.days, dur.seconds, dur.nanosecondsOfSecond
-    """
+      """
+      WITH duration.between(<d1>, <d2>) AS dur
+      RETURN dur, dur.days, dur.seconds, dur.nanosecondsOfSecond
+      """
     Then the result should be:
       | dur   | dur.days | dur.seconds | dur.nanosecondsOfSecond |
       | <dur> | <days>   | <seconds>   | <nanos>                 |
+    And no side effects
+
     Examples:
       | d1                                                   | d2                                                   | dur                | days | seconds | nanos     |
       | localdatetime('2018-01-01T12:00')                    | localdatetime('2018-01-02T10:00')                    | 'PT22H'            | 0    | 79200   | 0         |
@@ -53,9 +55,9 @@ Feature: DurationBetweenAcceptance
 
   Scenario Outline: Should compute duration between two temporals
     When executing query:
-    """
-    RETURN duration.between(<lhs>, <rhs>) AS duration
-    """
+      """
+      RETURN duration.between(<lhs>, <rhs>) AS duration
+      """
     Then the result should be:
       | duration |
       | <result> |
@@ -91,9 +93,9 @@ Feature: DurationBetweenAcceptance
 
   Scenario Outline: Should compute duration between two temporals in months
     When executing query:
-    """
-    RETURN duration.inMonths(<lhs>, <rhs>) AS duration
-    """
+      """
+      RETURN duration.inMonths(<lhs>, <rhs>) AS duration
+      """
     Then the result should be:
       | duration |
       | <result> |
@@ -125,9 +127,9 @@ Feature: DurationBetweenAcceptance
 
   Scenario Outline: Should compute duration between two temporals in days
     When executing query:
-    """
-    RETURN duration.inDays(<lhs>, <rhs>) AS duration
-    """
+      """
+      RETURN duration.inDays(<lhs>, <rhs>) AS duration
+      """
     Then the result should be:
       | duration |
       | <result> |
@@ -159,9 +161,9 @@ Feature: DurationBetweenAcceptance
 
   Scenario Outline: Should compute duration between two temporals in seconds
     When executing query:
-    """
-    RETURN duration.inSeconds(<lhs>, <rhs>) AS duration
-    """
+      """
+      RETURN duration.inSeconds(<lhs>, <rhs>) AS duration
+      """
     Then the result should be:
       | duration |
       | <result> |
@@ -200,16 +202,16 @@ Feature: DurationBetweenAcceptance
       """
       RETURN duration.inSeconds(localdatetime('2014-07-21T21:40:36.143'), localdatetime('2014-07-21T21:40:36.142')) AS d
       """
-    Then the result should be, in order:
+    Then the result should be:
       | d           |
       | 'PT-0.001S' |
     And no side effects
 
   Scenario Outline: Should compute negative duration between in big units
     When executing query:
-    """
-    RETURN duration.inMonths(<lhs>, <rhs>) AS duration
-    """
+      """
+      RETURN duration.inMonths(<lhs>, <rhs>) AS duration
+      """
     Then the result should be:
       | duration |
       | <result> |
@@ -225,9 +227,9 @@ Feature: DurationBetweenAcceptance
 
   Scenario Outline: Should handle durations at daylight saving time day
     When executing query:
-    """
-    RETURN duration.inSeconds(<lhs>, <rhs>) AS duration
-    """
+      """
+      RETURN duration.inSeconds(<lhs>, <rhs>) AS duration
+      """
     Then the result should be:
       | duration |
       | <result> |
@@ -244,29 +246,29 @@ Feature: DurationBetweenAcceptance
 
   Scenario: Should handle large durations
     When executing query:
-    """
-    RETURN duration.between(date('-999999999-01-01'), date('+999999999-12-31')) as duration
-    """
-    Then the result should be, in order:
+      """
+      RETURN duration.between(date('-999999999-01-01'), date('+999999999-12-31')) AS duration
+      """
+    Then the result should be:
       | duration             |
       | 'P1999999998Y11M30D' |
     And no side effects
 
   Scenario: Should handle large durations in seconds
     When executing query:
-    """
-    RETURN duration.inSeconds(localdatetime('-999999999-01-01'), localdatetime('+999999999-12-31T23:59:59')) as duration
-    """
-    Then the result should be, in order:
+      """
+      RETURN duration.inSeconds(localdatetime('-999999999-01-01'), localdatetime('+999999999-12-31T23:59:59')) AS duration
+      """
+    Then the result should be:
       | duration                  |
       | 'PT17531639991215H59M59S' |
     And no side effects
 
   Scenario Outline: Should handle when seconds and subseconds have different signs
     When executing query:
-    """
-    RETURN duration.inSeconds(localtime(<lhs>), localtime(<rhs>)) AS duration
-    """
+      """
+      RETURN duration.inSeconds(localtime(<lhs>), localtime(<rhs>)) AS duration
+      """
     Then the result should be:
       | duration |
       | <result> |
@@ -287,31 +289,32 @@ Feature: DurationBetweenAcceptance
 
   Scenario Outline: Should compute durations with no difference
     When executing query:
-    """
-    RETURN duration.inSeconds(<lhs>, <rhs>) AS duration
-    """
+      """
+      RETURN duration.inSeconds(<value>, <value>) AS duration
+      """
     Then the result should be:
       | duration |
       | 'PT0S'   |
     And no side effects
 
     Examples:
-      | lhs             | rhs             |
-      | localtime()     | localtime()     |
-      | time()          | time()          |
-      | date()          | date()          |
-      | localdatetime() | localdatetime() |
-      | datetime()      | datetime()      |
+      | value           |
+      | localtime()     |
+      | time()          |
+      | date()          |
+      | localdatetime() |
+      | datetime()      |
 
   Scenario Outline: Should propagate null
-    Given any graph
     When executing query:
-    """
-    RETURN <func>(null, null) AS t
-    """
+      """
+      RETURN <func>(null, null) AS t
+      """
     Then the result should be:
       | t    |
       | null |
+    And no side effects
+
     Examples:
       | func               |
       | duration.between   |

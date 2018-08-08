@@ -35,9 +35,9 @@ Feature: TemporalTruncateAcceptance
 
   Scenario Outline: Should truncate
     When executing query:
-    """
-    RETURN <type>.truncate(<unit>, <other>, <map>) AS result
-    """
+      """
+      RETURN <type>.truncate(<unit>, <other>, <map>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |

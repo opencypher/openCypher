@@ -35,10 +35,10 @@ Feature: TemporalComparisonAcceptance
 
   Scenario Outline: Should compare dates
     When executing query:
-    """
-    WITH date(<map>) as x, date(<map2>) as d
-    RETURN x > d, x < d, x >= d, x <= d, x = d
-    """
+      """
+      WITH date(<map>) AS x, date(<map2>) AS d
+      RETURN x > d, x < d, x >= d, x <= d, x = d
+      """
     Then the result should be:
       | x > d | x < d | x >= d | x <= d | x = d |
       | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
@@ -51,10 +51,10 @@ Feature: TemporalComparisonAcceptance
 
   Scenario Outline: Should compare local times
     When executing query:
-    """
-    WITH localtime(<map>) as x, localtime(<map2>) as d
-    RETURN x > d, x < d, x >= d, x <= d, x = d
-    """
+      """
+      WITH localtime(<map>) AS x, localtime(<map2>) AS d
+      RETURN x > d, x < d, x >= d, x <= d, x = d
+      """
     Then the result should be:
       | x > d | x < d | x >= d | x <= d | x = d |
       | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
@@ -67,10 +67,10 @@ Feature: TemporalComparisonAcceptance
 
   Scenario Outline: Should compare times
     When executing query:
-    """
-    WITH time(<map>) as x, time(<map2>) as d
-    RETURN x > d, x < d, x >= d, x <= d, x = d
-    """
+      """
+      WITH time(<map>) AS x, time(<map2>) AS d
+      RETURN x > d, x < d, x >= d, x <= d, x = d
+      """
     Then the result should be:
       | x > d | x < d | x >= d | x <= d | x = d |
       | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
@@ -83,10 +83,10 @@ Feature: TemporalComparisonAcceptance
 
   Scenario Outline: Should compare local date times
     When executing query:
-    """
-    WITH localdatetime(<map>) as x, localdatetime(<map2>) as d
-    RETURN x > d, x < d, x >= d, x <= d, x = d
-    """
+      """
+      WITH localdatetime(<map>) AS x, localdatetime(<map2>) AS d
+      RETURN x > d, x < d, x >= d, x <= d, x = d
+      """
     Then the result should be:
       | x > d | x < d | x >= d | x <= d | x = d |
       | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
@@ -99,10 +99,10 @@ Feature: TemporalComparisonAcceptance
 
   Scenario Outline: Should compare date times
     When executing query:
-    """
-    WITH datetime(<map>) as x, datetime(<map2>) as d
-    RETURN x > d, x < d, x >= d, x <= d, x = d
-    """
+      """
+      WITH datetime(<map>) AS x, datetime(<map2>) AS d
+      RETURN x > d, x < d, x >= d, x <= d, x = d
+      """
     Then the result should be:
       | x > d | x < d | x >= d | x <= d | x = d |
       | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
@@ -115,10 +115,10 @@ Feature: TemporalComparisonAcceptance
 
   Scenario Outline: Should compare durations for equality
     When executing query:
-    """
-    WITH duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70}) AS x, <other> AS d
-    RETURN x = d
-    """
+      """
+      WITH duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70}) AS x, <other> AS d
+      RETURN x = d
+      """
     Then the result should be:
       | x = d |
       | <e>   |

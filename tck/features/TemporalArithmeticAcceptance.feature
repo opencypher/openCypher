@@ -35,15 +35,15 @@ Feature: TemporalArithmeticAcceptance
 
   Scenario Outline: Should add or subtract duration to or from date
     And having executed:
-    """
-    CREATE (:Duration {dur: duration(<map>)})
-    """
+      """
+      CREATE (:Duration {dur: duration(<map>)})
+      """
     When executing query:
-    """
-    WITH date({year: 1984, month: 10, day: 11}) AS x
-    MATCH (d:Duration)
-    RETURN x + d.dur AS sum, x - d.dur AS diff
-    """
+      """
+      WITH date({year: 1984, month: 10, day: 11}) AS x
+      MATCH (d:Duration)
+      RETURN x + d.dur AS sum, x - d.dur AS diff
+      """
     Then the result should be:
       | sum   | diff   |
       | <sum> | <diff> |
@@ -57,15 +57,15 @@ Feature: TemporalArithmeticAcceptance
 
   Scenario Outline: Should add or subtract duration to or from local time
     And having executed:
-    """
-    CREATE (:Duration {dur: duration(<map>)})
-    """
+      """
+      CREATE (:Duration {dur: duration(<map>)})
+      """
     When executing query:
-    """
-    WITH localtime({hour: 12, minute: 31, second: 14, nanosecond: 1}) AS x
-    MATCH (d:Duration)
-    RETURN x + d.dur AS sum, x - d.dur AS diff
-    """
+      """
+      WITH localtime({hour: 12, minute: 31, second: 14, nanosecond: 1}) AS x
+      MATCH (d:Duration)
+      RETURN x + d.dur AS sum, x - d.dur AS diff
+      """
     Then the result should be:
       | sum   | diff   |
       | <sum> | <diff> |
@@ -79,15 +79,15 @@ Feature: TemporalArithmeticAcceptance
 
   Scenario Outline: Should add or subtract duration to or from time
     And having executed:
-    """
-    CREATE (:Duration {dur: duration(<map>)})
-    """
+      """
+      CREATE (:Duration {dur: duration(<map>)})
+      """
     When executing query:
-    """
-    WITH time({hour: 12, minute: 31, second: 14, nanosecond: 1, timezone: '+01:00'}) AS x
-    MATCH (d:Duration)
-    RETURN x + d.dur AS sum, x - d.dur AS diff
-    """
+      """
+      WITH time({hour: 12, minute: 31, second: 14, nanosecond: 1, timezone: '+01:00'}) AS x
+      MATCH (d:Duration)
+      RETURN x + d.dur AS sum, x - d.dur AS diff
+      """
     Then the result should be:
       | sum   | diff   |
       | <sum> | <diff> |
@@ -101,15 +101,15 @@ Feature: TemporalArithmeticAcceptance
 
   Scenario Outline: Should add or subtract duration to or from local date time
     And having executed:
-    """
-    CREATE (:Duration {dur: duration(<map>)})
-    """
+      """
+      CREATE (:Duration {dur: duration(<map>)})
+      """
     When executing query:
-    """
-    WITH localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 1}) AS x
-    MATCH (d:Duration)
-    RETURN x + d.dur AS sum, x - d.dur AS diff
-    """
+      """
+      WITH localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 1}) AS x
+      MATCH (d:Duration)
+      RETURN x + d.dur AS sum, x - d.dur AS diff
+      """
     Then the result should be:
       | sum   | diff   |
       | <sum> | <diff> |
@@ -123,15 +123,15 @@ Feature: TemporalArithmeticAcceptance
 
   Scenario Outline: Should add or subtract duration to or from date time
     And having executed:
-    """
-    CREATE (:Duration {dur: duration(<map>)})
-    """
+      """
+      CREATE (:Duration {dur: duration(<map>)})
+      """
     When executing query:
-    """
-    WITH datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 1, timezone: '+01:00'}) AS x
-    MATCH (d:Duration)
-    RETURN x + d.dur AS sum, x - d.dur AS diff
-    """
+      """
+      WITH datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 1, timezone: '+01:00'}) AS x
+      MATCH (d:Duration)
+      RETURN x + d.dur AS sum, x - d.dur AS diff
+      """
     Then the result should be:
       | sum   | diff   |
       | <sum> | <diff> |
@@ -145,15 +145,15 @@ Feature: TemporalArithmeticAcceptance
 
   Scenario Outline: Should add or subtract durations
     And having executed:
-    """
-    CREATE (:Duration1 {prop: duration(<map1>)})
-    CREATE (:Duration2 {prop: duration(<map2>)})
-    """
+      """
+      CREATE (:Duration1 {prop: duration(<map1>)})
+      CREATE (:Duration2 {prop: duration(<map2>)})
+      """
     When executing query:
-    """
-    MATCH (dur:Duration1), (dur2: Duration2)
-    RETURN dur.prop + dur2.prop AS sum, dur.prop - dur2.prop AS diff
-    """
+      """
+      MATCH (dur:Duration1), (dur2: Duration2)
+      RETURN dur.prop + dur2.prop AS sum, dur.prop - dur2.prop AS diff
+      """
     Then the result should be:
       | sum   | diff   |
       | <sum> | <diff> |
@@ -173,14 +173,14 @@ Feature: TemporalArithmeticAcceptance
 
   Scenario Outline: Should multiply or divide durations by numbers
     And having executed:
-    """
-    CREATE (:Duration {prop: duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 1})})
-    """
+      """
+      CREATE (:Duration {prop: duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 1})})
+      """
     When executing query:
-    """
-    MATCH (d:Duration)
-    RETURN d.prop * <num1> as prod, d.prop / <num2> as div
-    """
+      """
+      MATCH (d:Duration)
+      RETURN d.prop * <num1> AS prod, d.prop / <num2> AS div
+      """
     Then the result should be:
       | prod   | div   |
       | <prod> | <div> |

@@ -34,10 +34,10 @@ Feature: TemporalSelectAcceptance
 
   Scenario Outline: Should select date
     When executing query:
-    """
-    WITH <other> AS other
-    RETURN date(<expression>) AS result
-    """
+      """
+      WITH <other> AS other
+      RETURN date(<expression>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -69,10 +69,10 @@ Feature: TemporalSelectAcceptance
 
   Scenario Outline: Should select local time
     When executing query:
-    """
-    WITH <other> AS other
-    RETURN localtime(<expression>) AS result
-    """
+      """
+      WITH <other> AS other
+      RETURN localtime(<expression>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -95,10 +95,10 @@ Feature: TemporalSelectAcceptance
 
   Scenario Outline: Should select time
     When executing query:
-    """
-    WITH <other> AS other
-    RETURN time(<expression>) AS result
-    """
+      """
+      WITH <other> AS other
+      RETURN time(<expression>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -129,10 +129,10 @@ Feature: TemporalSelectAcceptance
 
   Scenario Outline: Should select date into local date time
     When executing query:
-    """
-    WITH <other> AS other
-    RETURN localdatetime(<expression>) AS result
-    """
+      """
+      WITH <other> AS other
+      RETURN localdatetime(<expression>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -149,10 +149,10 @@ Feature: TemporalSelectAcceptance
 
   Scenario Outline: Should select time into local date time
     When executing query:
-    """
-    WITH <other> AS other
-    RETURN localdatetime(<expression>) AS result
-    """
+      """
+      WITH <other> AS other
+      RETURN localdatetime(<expression>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -171,10 +171,10 @@ Feature: TemporalSelectAcceptance
 
   Scenario Outline: Should select date and time into local date time
     When executing query:
-    """
-    WITH <otherDate> AS otherDate, <otherTime> AS otherTime
-    RETURN localdatetime(<expression>) AS result
-    """
+      """
+      WITH <otherDate> AS otherDate, <otherTime> AS otherTime
+      RETURN localdatetime(<expression>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -209,10 +209,10 @@ Feature: TemporalSelectAcceptance
 
   Scenario Outline: Should select datetime into local date time
     When executing query:
-    """
-    WITH <other> AS other
-    RETURN localdatetime(<expression>) AS result
-    """
+      """
+      WITH <other> AS other
+      RETURN localdatetime(<expression>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -229,10 +229,10 @@ Feature: TemporalSelectAcceptance
 
   Scenario Outline: Should select date into date time
     When executing query:
-    """
-    WITH <other> AS other
-    RETURN datetime(<expression>) AS result
-    """
+      """
+      WITH <other> AS other
+      RETURN datetime(<expression>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -255,10 +255,10 @@ Feature: TemporalSelectAcceptance
 
   Scenario Outline: Should select time into date time
     When executing query:
-    """
-    WITH <other> AS other
-    RETURN datetime(<expression>) AS result
-    """
+      """
+      WITH <other> AS other
+      RETURN datetime(<expression>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -285,10 +285,10 @@ Feature: TemporalSelectAcceptance
 
   Scenario Outline: Should select date and time into date time
     When executing query:
-    """
-    WITH <otherDate> AS otherDate, <otherTime> AS otherTime
-    RETURN datetime(<expression>) AS result
-    """
+      """
+      WITH <otherDate> AS otherDate, <otherTime> AS otherTime
+      RETURN datetime(<expression>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
@@ -347,10 +347,10 @@ Feature: TemporalSelectAcceptance
 
   Scenario Outline: Should datetime into date time
     When executing query:
-    """
-    WITH <other> AS other
-    RETURN datetime(<expression>) AS result
-    """
+      """
+      WITH <other> AS other
+      RETURN datetime(<expression>) AS result
+      """
     Then the result should be:
       | result   |
       | <result> |
