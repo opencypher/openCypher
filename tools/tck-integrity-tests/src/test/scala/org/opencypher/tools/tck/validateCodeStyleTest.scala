@@ -53,6 +53,10 @@ class validateCodeStyleTest extends TckTestSupport {
     assertCorrect("MATCH ()-[:T]-()")
   }
 
+  test("should not request space after colon if it's a time") {
+    assertCorrect("MATCH ({t: '12:00'})-[:T]-()")
+  }
+
   test("should request space after comma") {
     assertIncorrect("WITH [1,2,3] AS list RETURN list,list", "WITH [1, 2, 3] AS list RETURN list, list")
   }
