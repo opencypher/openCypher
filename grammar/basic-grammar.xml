@@ -244,22 +244,38 @@
   <production name="StringListNullOperatorExpression" rr:inline="true">
     <non-terminal ref="PropertyOrLabelsExpression"/>
     <repeat><alt>
+      <non-terminal ref="StringOperatorExpression"/>
+      <non-terminal ref="ListOperatorExpression"/>
+      <non-terminal ref="NullOperatorExpression"/>
+    </alt></repeat>
+  </production>
+
+  <production name="ListOperatorExpression" rr:inline="true">
+    <alt>
       <seq> &WS; [ &expr; ] </seq>
       <seq> &WS; [ <opt>&expr;</opt> .. <opt>&expr;</opt> ] </seq>
-      <seq>
-        <alt>
-          <non-terminal ref="RegularExpression"/>
-          <seq>&SP; IN</seq>
-          <seq>&SP; STARTS &SP; WITH</seq>
-          <seq>&SP; ENDS &SP; WITH</seq>
-          <seq>&SP; CONTAINS</seq>
-        </alt>
-        &WS;
-        <non-terminal ref="PropertyOrLabelsExpression"/>
-      </seq>
+    </alt>
+  </production>
+
+  <production name="StringOperatorExpression" rr:inline="true">
+    <seq>
+      <alt>
+        <non-terminal ref="RegularExpression"/>
+        <seq>&SP; IN</seq>
+        <seq>&SP; STARTS &SP; WITH</seq>
+        <seq>&SP; ENDS &SP; WITH</seq>
+        <seq>&SP; CONTAINS</seq>
+      </alt>
+      &WS;
+      <non-terminal ref="PropertyOrLabelsExpression"/>
+    </seq>
+  </production>
+
+  <production name="NullOperatorExpression" rr:inline="true">
+    <alt>
       <seq> &SP; IS &SP; NULL </seq>
       <seq> &SP; IS &SP; NOT &SP; NULL </seq>
-    </alt></repeat>
+    </alt>
   </production>
 
   <production name="RegularExpression" oc:legacy="true">
