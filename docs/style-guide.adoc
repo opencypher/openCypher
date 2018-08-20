@@ -357,7 +357,7 @@ RETURN count(vehicle)
 [source, cypher]
 ----
 MATCH ()-->(vehicle:Car)-->(manufacturer:Company)
-WHERE manufacturer.founded_year < 2000
+WHERE manufacturer.foundedYear < 2000
 RETURN vehicle.mileage
 ----
 +
@@ -365,7 +365,7 @@ RETURN vehicle.mileage
 [source, cypher]
 ----
 MATCH (manufacturer:Company)<--(vehicle:Car)<--()
-WHERE manufacturer.founded_year < 2000
+WHERE manufacturer.foundedYear < 2000
 RETURN vehicle.mileage
 ----
 
@@ -375,7 +375,7 @@ RETURN vehicle.mileage
 [source, cypher]
 ----
 MATCH (:Person)-->(vehicle:Car)-->(manufacturer:Company)
-WHERE manufacturer.founded_year < 2000
+WHERE manufacturer.foundedYear < 2000
 RETURN vehicle.mileage
 ----
 +
@@ -383,7 +383,7 @@ RETURN vehicle.mileage
 [source, cypher]
 ----
 MATCH (manufacturer:Company)<--(vehicle:Car)<--(:Person)
-WHERE manufacturer.founded_year < 2000
+WHERE manufacturer.foundedYear < 2000
 RETURN vehicle.mileage
 ----
 
