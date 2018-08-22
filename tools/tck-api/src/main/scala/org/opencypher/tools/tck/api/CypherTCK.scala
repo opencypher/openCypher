@@ -44,7 +44,7 @@ import org.opencypher.tools.tck.constants.{TCKErrorDetails, TCKErrorPhases, TCKE
 import org.opencypher.tools.tck.values.CypherValue
 
 import scala.collection.JavaConverters._
-import scala.io.Source
+import scala.io.{Codec, Source}
 import scala.util.{Failure, Success, Try}
 
 object CypherTCK {
@@ -89,11 +89,11 @@ object CypherTCK {
   }
 
   def parseFilesystemFeature(file: File): Feature = {
-    parseFeature(file.getAbsolutePath, Source.fromFile(file).mkString)
+    parseFeature(file.getAbsolutePath, Source.fromFile(file)(Codec.UTF8).mkString)
   }
 
   def parseClasspathFeature(pathUrl: URL): Feature = {
-    parseFeature(pathUrl.toString, Source.fromURL(pathUrl).mkString)
+    parseFeature(pathUrl.toString, Source.fromURL(pathUrl)(Codec.UTF8).mkString)
   }
 
   def parseFeature(source: String, featureString: String): Feature = {
