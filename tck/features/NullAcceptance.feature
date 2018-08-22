@@ -31,6 +31,7 @@
 Feature: NullAcceptance
 
   Scenario: Property null check on non-null node
+    Given an empty graph
     And having executed:
       """
       CREATE ({exists:42})
@@ -47,6 +48,7 @@ Feature: NullAcceptance
     And no side effects
 
   Scenario: Property not null check on non-null node
+    Given an empty graph
     And having executed:
       """
       CREATE ({exists:42})
@@ -63,6 +65,7 @@ Feature: NullAcceptance
     And no side effects
 
   Scenario: Property existence check on non-null node
+    Given an empty graph
     And having executed:
       """
       CREATE ({exists:42})
@@ -79,6 +82,7 @@ Feature: NullAcceptance
     And no side effects
 
   Scenario: Property null check on optional non-null node
+    Given an empty graph
     And having executed:
       """
       CREATE ({exists:42})
@@ -95,6 +99,7 @@ Feature: NullAcceptance
     And no side effects
 
   Scenario: Property not null check on optional non-null node
+    Given an empty graph
     And having executed:
       """
       CREATE ({exists:42})
@@ -111,6 +116,7 @@ Feature: NullAcceptance
     And no side effects
 
   Scenario: Property existence check on optional non-null node
+    Given an empty graph
     And having executed:
       """
       CREATE ({exists:42})
