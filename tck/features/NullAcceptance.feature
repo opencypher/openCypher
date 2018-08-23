@@ -30,40 +30,6 @@
 
 Feature: NullAcceptance
 
-  Scenario: Property null check on non-null node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({exists: 42})
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n.missing IS NULL,
-             n.exists IS NULL
-      """
-    Then the result should be:
-      | n.missing IS NULL | n.exists IS NULL |
-      | true              | false            |
-    And no side effects
-
-  Scenario: Property not null check on non-null node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({exists: 42})
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n.missing IS NOT NULL,
-             n.exists IS NOT NULL
-      """
-    Then the result should be:
-      | n.missing IS NOT NULL | n.exists IS NOT NULL |
-      | false                 | true                 |
-    And no side effects
-
   Scenario: Property existence check on non-null node
     Given an empty graph
     And having executed:
@@ -81,40 +47,6 @@ Feature: NullAcceptance
       | false             | true             |
     And no side effects
 
-  Scenario: Property null check on optional non-null node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({exists: 42})
-      """
-    When executing query:
-      """
-      OPTIONAL MATCH (n)
-      RETURN n.missing IS NULL,
-             n.exists IS NULL
-      """
-    Then the result should be:
-      | n.missing IS NULL | n.exists IS NULL |
-      | true              | false            |
-    And no side effects
-
-  Scenario: Property not null check on optional non-null node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({exists: 42})
-      """
-    When executing query:
-      """
-      OPTIONAL MATCH (n)
-      RETURN n.missing IS NOT NULL,
-             n.exists IS NOT NULL
-      """
-    Then the result should be:
-      | n.missing IS NOT NULL | n.exists IS NOT NULL |
-      | false                 | true                 |
-    And no side effects
-
   Scenario: Property existence check on optional non-null node
     Given an empty graph
     And having executed:
@@ -130,30 +62,6 @@ Feature: NullAcceptance
     Then the result should be:
       | exists(n.missing) | exists(n.exists) |
       | false             | true             |
-    And no side effects
-
-  Scenario: Property null check on null node
-    Given an empty graph
-    When executing query:
-      """
-      OPTIONAL MATCH (n)
-      RETURN n.missing IS NULL
-      """
-    Then the result should be:
-      | n.missing IS NULL |
-      | true              |
-    And no side effects
-
-  Scenario: Property not null check on null node
-    Given an empty graph
-    When executing query:
-      """
-      OPTIONAL MATCH (n)
-      RETURN n.missing IS NOT NULL
-      """
-    Then the result should be:
-      | n.missing IS NOT NULL |
-      | false                 |
     And no side effects
 
   Scenario: Property existence check on null node
