@@ -34,7 +34,7 @@ Feature: NullAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({exists:42})
+      CREATE ({exists: 42})
       """
     When executing query:
       """
@@ -51,7 +51,7 @@ Feature: NullAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({exists:42})
+      CREATE ({exists: 42})
       """
     When executing query:
       """
@@ -68,7 +68,7 @@ Feature: NullAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({exists:42})
+      CREATE ({exists: 42})
       """
     When executing query:
       """
@@ -85,7 +85,7 @@ Feature: NullAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({exists:42})
+      CREATE ({exists: 42})
       """
     When executing query:
       """
@@ -102,7 +102,7 @@ Feature: NullAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({exists:42})
+      CREATE ({exists: 42})
       """
     When executing query:
       """
@@ -119,7 +119,7 @@ Feature: NullAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({exists:42})
+      CREATE ({exists: 42})
       """
     When executing query:
       """
@@ -140,8 +140,8 @@ Feature: NullAcceptance
       RETURN n.missing IS NULL
       """
     Then the result should be:
-      | a    |
-      | true |
+      | n.missing IS NULL |
+      | true              |
     And no side effects
 
   Scenario: Property not null check on null node
@@ -152,8 +152,8 @@ Feature: NullAcceptance
       RETURN n.missing IS NOT NULL
       """
     Then the result should be:
-      | a    |
-      | false |
+      | n.missing IS NOT NULL |
+      | false                 |
     And no side effects
 
   Scenario: Property existence check on null node
@@ -164,8 +164,8 @@ Feature: NullAcceptance
       RETURN exists(n.missing)
       """
     Then the result should be:
-      | a    |
-      | null |
+      | exists(n.missing) |
+      | null              |
     And no side effects
 
   Scenario: Ignore null when setting property
