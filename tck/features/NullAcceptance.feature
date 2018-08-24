@@ -30,6 +30,52 @@
 
 Feature: NullAcceptance
 
+  Scenario: Property existence check on non-null node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({exists: 42})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      RETURN exists(n.missing),
+             exists(n.exists)
+      """
+    Then the result should be:
+      | exists(n.missing) | exists(n.exists) |
+      | false             | true             |
+    And no side effects
+
+  Scenario: Property existence check on optional non-null node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({exists: 42})
+      """
+    When executing query:
+      """
+      OPTIONAL MATCH (n)
+      RETURN exists(n.missing),
+             exists(n.exists)
+      """
+    Then the result should be:
+      | exists(n.missing) | exists(n.exists) |
+      | false             | true             |
+    And no side effects
+
+  Scenario: Property existence check on null node
+    Given an empty graph
+    When executing query:
+      """
+      OPTIONAL MATCH (n)
+      RETURN exists(n.missing)
+      """
+    Then the result should be:
+      | exists(n.missing) |
+      | null              |
+    And no side effects
+
   Scenario: Ignore null when setting property
     Given an empty graph
     When executing query:
