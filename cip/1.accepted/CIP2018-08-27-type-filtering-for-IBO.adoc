@@ -73,12 +73,12 @@ Hence, this CIP proposes to extended Cypher with dedicated type-filtering predic
 Following the link:https://neo4j.com/docs/developer-manual/3.4/cypher/syntax/values/#property-types[property type categorization] of Cypher, we define a _property type category_ as being one of the categories listed in the following table.
 
 |===
-| *Category* | *Types*
-| Number     | Integer, Float
-| String     | String
-| Boolean    | Boolean
-| Spatial    | Point
-| Temporal   | Date, Time, LocalTime, DateTime, LocalDateTime, Duration
+| *Category*      | *Types*
+| Number          | Integer, Float
+| String          | String
+| Boolean         | Boolean
+| Spatial         | Point
+| Temporal        | Date, Time, LocalTime, DateTime, LocalDateTime, Duration
 | ListOfNumbers   | List[Number]
 | ListOfStrings   | List[String]
 | ListOfBooleans  | List[Boolean]
@@ -87,15 +87,65 @@ Following the link:https://neo4j.com/docs/developer-manual/3.4/cypher/syntax/val
 |===
 
 For instance, property type category _Number_ includes all numeric type, precisely _Integer_ and _Float_.
-Property type category _ListOfNumbers_ includes all property types that are a list where all list elements have a property in the property type category _Number_.
+Property type category _ListOfNumbers_ includes all property types that are a link:https://neo4j.com/docs/developer-manual/3.4/cypher/syntax/lists/[list] where all list elements have a property in the property type category _Number_.
 
 .Type Filter Predicate
-A _type filter predicate_ (tfp) is an expression of the abstract form _tfp(exp, ptc): Option[Boolean]_, where _exp_ is an arbitrary expression, _ptc_ is a property type category, and _Option[Boolean]_ is a nullable _Boolean_, i.e. one of the three values _{`true`,`false`,`NULL`}_.
+A _type filter predicate_ (tfp) is an expression of the abstract form _tfp_(_exp_, _ptc_): _Option_[_Boolean_], where _exp_ is an arbitrary expression, _ptc_ is a property type category, and _Option_[_Boolean_] is a nullable _Boolean_, i.e. one of the three values _{`true`,`false`,`NULL`}_.
+
+.Type Filter Function
+A _type filter function_ is a predicate function that provides the behavior of a type filter predicate.
 
 === Proposal
 
+NOTE: We use ⟦_x_⟧ to denote the result of evaluating an expression _x_. For instance, ⟦`3+4`⟧ = `7`.
+
+.Semantics of Type Filter Predicates
+A type filter predicate _tfp_(_exp_, _ptc_) returns, i.e. ⟦_tfp_(_exp_, _ptc_)⟧ equals
+[horizontal]
+`true`::
+  if ⟦_exp_⟧ is not `NULL` and ⟦_exp_⟧ is of property type _t_ such that _t_ ∈ _ptc_
+`false`::
+  if ⟦_exp_⟧ is not `NULL` and ⟦_exp_⟧ is of property type _t_ such that _t_ ∉ _ptc_
+`NULL`::
+  if ⟦_exp_⟧ is `NULL`
+
+.Syntax of Type Filter Functions
+We propose to introduce a dedicated type filter function for each of the property type categories.
+Each type filter function is named starting with `is` followed by the of the property type category the function filters for.
+Each type filter function takes an expression (`<exp>`) as its single parameter.
+Precisely, we propose the following type filter function
+
+|===
+| *Category*      | *Type Filter Function*
+| Number          | `isNumber(<exp>)`
+| String          | `isString(<exp>)`
+| Boolean         | `isBoolean(<exp>)`
+| Spatial         | `isSpatial(<exp>)`
+| Temporal        | `isTemporal(<exp>)`
+| ListOfNumbers   | `isListOfNumbers(<exp>)`
+| ListOfStrings   | `isListOfStrings(<exp>)`
+| ListOfBooleans  | `isListOfBooleans(<exp>)`
+| ListOfSpatials  | `isListOfSpatials(<exp>)`
+| ListOfTemporals | `isListOfTemporals(<exp>)`
+|===
+
+.Syntax of Type Filter Functions
+
 TODO
 
+|===
+| *Type Filter Function*     | *Semantics*
+| `isNumber(<exp>)`          | ⟦`isNumber(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, Number)⟧
+| `isString(<exp>)`          | ⟦`isString(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, String)⟧
+| `isBoolean(<exp>)`         | ⟦`isBoolean(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, Boolean)⟧
+| `isSpatial(<exp>)`         | ⟦`isSpatial(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, Spatial)⟧
+| `isTemporal(<exp>)`        | ⟦`isTemporal(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, Temporal)⟧
+| `isListOfNumbers(<exp>)`   | ⟦`isListOfNumbers(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, ListOfNumbers)⟧
+| `isListOfStrings(<exp>)`   | ⟦`isListOfStrings(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, ListOfStrings)⟧
+| `isListOfBooleans(<exp>)`  | ⟦`ListOfBooleans(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, ListOfBooleans)⟧
+| `isListOfSpatials(<exp>)`  | ⟦`isListOfSpatials(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, ListOfSpatials)⟧
+| `isListOfTemporals(<exp>)` | ⟦`isListOfTemporals(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, ListOfTemporals)⟧
+|===
 
 ==== Examples
 
