@@ -1,0 +1,116 @@
+= CIP2018-08-27 Type Filtering for Index-Backed Order-By (IBO)
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+:Date:      27.08.2018
+:Revision:  0.1
+
+*Authors:* Stefan Plantikow <stefan.plantikow@neo4j.com>,
+Johan Teleman <johan.teleman@neo4j.com>,
+Hannes Voigt <hannes.voigt@neo4j.com>
+
+[abstract]
+.Abstract
+--
+This CIP proposes to add functions that allow filtering the driving table by the data type category of an expression.
+The type filtering is the explicit assurance to the query planner, that an order-by can be performed with the help of an index, since all the data type of the values that need to be order fall in the same category.
+--
+
+toc::[]
+
+=== Background
+
+Consider a Cypher query, such as
+
+[source,cypher]
+----
+MATCH (n:Person)
+RETURN n
+ORDER BY n.yob
+----
+
+Here, the property `n.yob` determines the order of the result set.
+Sorting the result set by `n.yob` is an expensive and blocking operations.
+If the user has created an link:https://neo4j.com/docs/developer-manual/3.4/cypher/schema/index/#schema-index-create-a-single-property-index[index] on `:Person(yob)` it is desirable to utilize the index, which stores `yob` values in order already, to produce a ordered result set.
+This query execution feature is called _index-backed order-by_ (IBO).
+IBO is a feature planned to be included into the Neo4j 3.5 release.
+
+As prerequisite for IBO is that all values `n.yob` have to have the same link:https://neo4j.com/docs/developer-manual/3.4/cypher/syntax/values/#property-types[property type].
+As there is no link:https://neo4j.com/docs/developer-manual/3.4/cypher/schema/[schema information] ensuring a property to have a fix property type, the planner relies on the query to provide this assurance.
+In the above example, there is no possibility for the query planner to reason about the data type of `n.yob` values.
+In consequence, the planner is not able to plan IBO for such a query.
+
+A workaround for the user is to filter the result set for the a specific property of `n.yob`.
+For instance, the user could rephrase the query to
+
+[source,cypher]
+----
+MATCH (n:Person)
+WHERE n.yob <= $min
+RETURN n
+ORDER BY n.yob
+----
+
+and set parameter `$min` to `Integer.MIN_VALUE`.
+Although this lets the planner reason about the property type of `n.yob`, this solution is a very allusively way to express what is desired.
+Neither is this workaround very intuitive nor obvious.
+
+Type filter predicates are a directed way of expressing the desired effect of selecting only `n.yob` values of a certain type.
+Type filter predicates are useful beyond IBO, e.g. in data integration scenarios and generally when the user has to deal with mixed-typed values.
+For instance, type filter predicates could be used in conditions of a `CASE` expression to cast and format mixed-typed values to a uniform appearance in the result set of a query.
+Thus, an embedding of type filter predicates into the query language as first-class language constructs is generally desirable.
+
+With the development of SQL/PG in progress and the development GQL at the horizon, type filter predicates as first-class language constructs have broader implication beyond Cypher and Neo4j.
+Given the timelines of SQL/PG and GQL development, it is infeasible to master this implications and provide a future-proof design in the timeframe of the Neo4j 3.5 release.
+
+Hence, this CIP proposes to extended Cypher with dedicated type-filtering predicates as second-class language constructs in form of functions.
+
+===== Definition
+
+.Property Type Categories
+Following the link:https://neo4j.com/docs/developer-manual/3.4/cypher/syntax/values/#property-types[property type categorization] of Cypher, we define a _property type category_ as being one of the categories listed in the following table.
+
+|===
+| *Category* | *Types*
+| Number     | Integer, Float
+| String     | String
+| Boolean    | Boolean
+| Spatial    | Point
+| Temporal   | Date, Time, LocalTime, DateTime, LocalDateTime, Duration
+| ListOfNumbers   | List[Number]
+| ListOfStrings   | List[String]
+| ListOfBooleans  | List[Boolean]
+| ListOfSpatials  | List[Spatial]
+| ListOfTemporals | List[Temporal]
+|===
+
+For instance, property type category _Number_ includes all numeric type, precisely _Integer_ and _Float_.
+Property type category _ListOfNumbers_ includes all property types that are a list where all list elements have a property in the property type category _Number_.
+
+.Type Filter Predicate
+A _type filter predicate_ (tfp) is an expression of the abstract form _tfp(exp, ptc): Option[Boolean]_, where _exp_ is an arbitrary expression, _ptc_ is a property type category, and _Option[Boolean]_ is a nullable _Boolean_, i.e. one of the three values _{`true`,`false`,`NULL`}_.
+
+=== Proposal
+
+TODO
+
+
+==== Examples
+
+TODO
+
+.Example query 1:
+
+
+.Example query 2:
+
+
+=== Benefits to this proposal
+
+TODO
+
+=== Caveats to this proposal
+
+None known at the moment.
