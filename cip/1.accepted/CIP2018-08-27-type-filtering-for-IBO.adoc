@@ -142,7 +142,7 @@ TODO
 | `isTemporal(<exp>)`        | ⟦`isTemporal(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, Temporal)⟧
 | `isListOfNumbers(<exp>)`   | ⟦`isListOfNumbers(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, ListOfNumbers)⟧
 | `isListOfStrings(<exp>)`   | ⟦`isListOfStrings(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, ListOfStrings)⟧
-| `isListOfBooleans(<exp>)`  | ⟦`ListOfBooleans(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, ListOfBooleans)⟧
+| `isListOfBooleans(<exp>)`  | ⟦`isListOfBooleans(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, ListOfBooleans)⟧
 | `isListOfSpatials(<exp>)`  | ⟦`isListOfSpatials(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, ListOfSpatials)⟧
 | `isListOfTemporals(<exp>)` | ⟦`isListOfTemporals(` _exp_ `)`⟧ = ⟦_tfp_(_exp_, ListOfTemporals)⟧
 |===
