@@ -22,12 +22,13 @@ toc::[]
 
 === Background
 
-Consider a Cypher query, such as
+Consider a Cypher queries such as the one shown in Example 1.
 
+.Example 1
 [source,cypher]
 ----
 MATCH (n:Person)
-RETURN n
+RETURN n.yob
 ORDER BY n.yob
 ----
 
@@ -35,37 +36,38 @@ Here, the property `n.yob` determines the order of the result set.
 Sorting the result set by `n.yob` is an expensive and blocking operations.
 If the user has created an link:https://neo4j.com/docs/developer-manual/3.4/cypher/schema/index/#schema-index-create-a-single-property-index[index] on `:Person(yob)` it is desirable to utilize the index, which stores `yob` values in order already, to produce a ordered result set.
 This query execution feature is called _index-backed order-by_ (IBO).
-IBO is a feature planned to be included into the Neo4j 3.5 release.
 
 As prerequisite for IBO is that all values `n.yob` have to have the same link:https://neo4j.com/docs/developer-manual/3.4/cypher/syntax/values/#property-types[property type].
 As there is no link:https://neo4j.com/docs/developer-manual/3.4/cypher/schema/[schema information] ensuring a property to have a fix property type, the planner relies on the query to provide this assurance.
-In the above example, there is no possibility for the query planner to reason about the data type of `n.yob` values.
+In Example 1, there is no possibility for the query planner to reason about the data type of `n.yob` values.
 In consequence, the planner is not able to plan IBO for such a query.
 
 A workaround for the user is to filter the result set for the a specific property of `n.yob`.
-For instance, the user could rephrase the query to
+For instance, the user could rephrase the query to include `WHERE n.yob <= $min` with parameter `$min` set to `Integer.MIN_VALUE`, as shown in Example 2.
 
+.Example 2
 [source,cypher]
 ----
 MATCH (n:Person)
 WHERE n.yob <= $min
-RETURN n
+RETURN n.yob
 ORDER BY n.yob
 ----
 
-and set parameter `$min` to `Integer.MIN_VALUE`.
 Although this lets the planner reason about the property type of `n.yob`, this solution is a very allusively way to express what is desired.
 Neither is this workaround very intuitive nor obvious.
 
-Type filter predicates are a directed way of expressing the desired effect of selecting only `n.yob` values of a certain type.
+Type filter predicates are an explicit way of expressing the desired effect of selecting only `n.yob` values of a certain type.
 Type filter predicates are useful beyond IBO, e.g. in data integration scenarios and generally when the user has to deal with mixed-typed values.
 For instance, type filter predicates could be used in conditions of a `CASE` expression to cast and format mixed-typed values to a uniform appearance in the result set of a query.
 Thus, an embedding of type filter predicates into the query language as first-class language constructs is generally desirable.
 
 With the development of SQL/PG in progress and the development GQL at the horizon, type filter predicates as first-class language constructs have broader implication beyond Cypher and Neo4j.
-Given the timelines of SQL/PG and GQL development, it is infeasible to master this implications and provide a future-proof design in the timeframe of the Neo4j 3.5 release.
+Particularly, the GQL development will likely see some revision of the type system, naming of types, etc. whose results cannot be exactly foreseen, now.
+Given the timelines of SQL/PG and GQL development, it is infeasible to master this implications and provide a future-proof design in a short timeframe.
 
 Hence, this CIP proposes to extended Cypher with dedicated type-filtering predicates as second-class language constructs in form of functions.
+This will allow to incorporate type-filtering predicates as first-class language constructs at a later point in time in a non-conflicting way.
 
 === Definition
 
@@ -82,8 +84,8 @@ Following the link:https://neo4j.com/docs/developer-manual/3.4/cypher/syntax/val
 | ListOfNumbers   | List[Number]
 | ListOfStrings   | List[String]
 | ListOfBooleans  | List[Boolean]
-| ListOfSpatials  | List[Spatial]
-| ListOfTemporals | List[Temporal]
+| ListOfSpatials  | List[Point]
+| ListOfTemporals | List[Date], List[Time], List[LocalTime], List[DateTime], List[LocalDateTime], List[Duration]
 |===
 
 For instance, property type category _Number_ includes all numeric type, precisely _Integer_ and _Float_.
@@ -131,7 +133,7 @@ Precisely, we propose the following type filter function
 
 ==== Syntax of Type Filter Functions
 
-We define the semantics of all type filter functions based on the general semantics of type filter predicates as defined above.
+We define the semantics of all type filter functions based on the general semantics of type filter predicates as defined in <<Semantics of Type Filter Predicates>>.
 The semantics of the proposed type filter functions are as given in following table:
 
 |===
@@ -148,20 +150,17 @@ The semantics of the proposed type filter functions are as given in following ta
 | `isListOfTemporals(`⁠_exp_⁠`)` | ⟦`isListOfTemporals(`⁠_exp_⁠`)`⟧ = ⟦_tfp_(_exp_, ListOfTemporals)⟧
 |===
 
-==== Examples
+==== Example
 
-TODO
+Assuming `yob` in Example 2 is (usually) a number, Example 2 could be expressed with the proposed type filter functions as shown in Example 3.
 
-.Example query 1:
+.Example 3
+[source,cypher]
+----
+MATCH (n:Person)
+WHERE isNumber(n.yob)
+RETURN n.yob
+ORDER BY n.yob
+----
 
-
-.Example query 2:
-
-
-=== Benefits to this proposal
-
-TODO
-
-=== Caveats to this proposal
-
-None known at the moment.
+This will ensure that for every result tuple `n.yob` is a number and an index on `n.yob` can be used to determine the order.
