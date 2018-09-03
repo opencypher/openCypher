@@ -111,6 +111,8 @@ A type filter predicate _tfp_(_exp_, _ptc_) returns, i.e. ⟦_tfp_(_exp_, _ptc_)
 `NULL`::
   if ⟦_exp_⟧ is `NULL`
 
+NOTE: `WHERE ⁠_exp_` selects all tuples _t_, where ⟦_exp_⟧ on _t_ is `true`, i.e. a query `WITH 1 AS x WHERE NULL RETURN *` returns an empty result set.
+
 ==== Syntax of Type Filter Functions
 We propose to introduce a dedicated type filter function for each of the property type categories.
 Each type filter function is named starting with `is` followed by the of the property type category the function filters for.
