@@ -873,19 +873,27 @@ Feature: ListOperations
       | [1, 2, 3] |
     And no side effects
 
-  Scenario: List slice with null range
+  Scenario Outline: List slice with null range
     Given any graph
     When executing query:
-      """
-      WITH [1, 2, 3] AS list
-      RETURN list[1..null] AS r
-      """
+        """
+        WITH [1, 2, 3] AS list
+        RETURN list[<lower>..<upper>] AS r
+        """
     Then the result should be:
       | r    |
       | null |
     And no side effects
 
-  Scenario: List slice with parametrized range
+    Examples:
+      | lower | upper |
+      | null  | null  |
+      | 1     | null  |
+      | null  | 3     |
+      |       | null  |
+      | null  |       |
+
+  Scenario: List slice with parameterised range
     Given any graph
     And parameters are:
       | from | 1 |
@@ -900,7 +908,7 @@ Feature: ListOperations
       | [2, 3] |
     And no side effects
 
-  Scenario: List slice with parametrized invalid range
+  Scenario: List slice with parameterised invalid range
     Given any graph
     And parameters are:
       | from | 3 |
