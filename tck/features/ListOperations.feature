@@ -876,10 +876,10 @@ Feature: ListOperations
   Scenario Outline: List slice with null range
     Given any graph
     When executing query:
-        """
-        WITH [1, 2, 3] AS list
-        RETURN list[<lower>..<upper>] AS r
-        """
+      """
+      WITH [1, 2, 3] AS list
+      RETURN list[<lower>..<upper>] AS r
+      """
     Then the result should be:
       | r    |
       | null |
