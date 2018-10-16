@@ -775,6 +775,154 @@ Feature: ListOperations
       | 'Apa' |
     And no side effects
 
+  # List slice
+
+  Scenario: List slice
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3, 4, 5] AS list
+      RETURN list[1..3] AS r
+      """
+    Then the result should be:
+      | r      |
+      | [2, 3] |
+    And no side effects
+
+  Scenario: List slice with implicit end
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3] AS list
+      RETURN list[1..] AS r
+      """
+    Then the result should be:
+      | r      |
+      | [2, 3] |
+    And no side effects
+
+  Scenario: List slice with implicit start
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3] AS list
+      RETURN list[..2] AS r
+      """
+    Then the result should be:
+      | r      |
+      | [1, 2] |
+    And no side effects
+
+  Scenario: List slice with singleton range
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3] AS list
+      RETURN list[0..1] AS r
+      """
+    Then the result should be:
+      | r   |
+      | [1] |
+    And no side effects
+
+  Scenario: List slice with empty range
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3] AS list
+      RETURN list[0..0] AS r
+      """
+    Then the result should be:
+      | r  |
+      | [] |
+    And no side effects
+
+  Scenario: List slice with negative range
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3] AS list
+      RETURN list[-3..-1] AS r
+      """
+    Then the result should be:
+      | r      |
+      | [1, 2] |
+    And no side effects
+
+  Scenario: List slice with invalid range
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3] AS list
+      RETURN list[3..1] AS r
+      """
+    Then the result should be:
+      | r  |
+      | [] |
+    And no side effects
+
+  Scenario: List slice with exceeding range
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3] AS list
+      RETURN list[-5..5] AS r
+      """
+    Then the result should be:
+      | r         |
+      | [1, 2, 3] |
+    And no side effects
+
+  Scenario Outline: List slice with null range
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3] AS list
+      RETURN list[<lower>..<upper>] AS r
+      """
+    Then the result should be:
+      | r    |
+      | null |
+    And no side effects
+
+    Examples:
+      | lower | upper |
+      | null  | null  |
+      | 1     | null  |
+      | null  | 3     |
+      |       | null  |
+      | null  |       |
+
+  Scenario: List slice with parameterised range
+    Given any graph
+    And parameters are:
+      | from | 1 |
+      | to   | 3 |
+    When executing query:
+      """
+      WITH [1, 2, 3] AS list
+      RETURN list[$from..$to] AS r
+      """
+    Then the result should be:
+      | r      |
+      | [2, 3] |
+    And no side effects
+
+  Scenario: List slice with parameterised invalid range
+    Given any graph
+    And parameters are:
+      | from | 3 |
+      | to   | 1 |
+    When executing query:
+      """
+      WITH [1, 2, 3] AS list
+      RETURN list[$from..$to] AS r
+      """
+    Then the result should be:
+      | r  |
+      | [] |
+    And no side effects
+
   # Failures at runtime
 
   Scenario: Fail at runtime when attempting to index with a String into a List
