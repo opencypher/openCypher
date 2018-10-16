@@ -1,0 +1,52 @@
+:numbered:
+:toc:
+:toc-placement: macro
+
+= CIP20130911A - cypher language versioning
+
+*Author:* Chris Leishman <chris.leishman@neotechnology.com>
+
+_(PS comment: Option 2 implemented)_
+
+== Background
+
+The Neo4j implementation of Cypher provides the user a mechanism for specifying a previous version when interpreting a query, as a means to continue supporting queries that were developed against an older release whilst evolving the language in newer releases. This versioning mechanism is enabled by prefixing any Cypher statement with the keyword “++CYPHER++” followed by a version number, eg.:
+
+    CYPHER 1.9 START n=node(*) return n
+
+Ostensibly, this mechanism works well and importantly provides our engineering team the opportunity to make substantive changes to the language between versions, without having to be concerned about depreciation schedules and backward compatibility.
+
+However, we have thus far been unclear regarding the degree that of backward compatibility that this provides, and this may cause confusion with users. Specifically, users may expect a different degree of compatibility than provided.
+
+Additionally, being clear on the degree of compatibility provided by this mechanism will be beneficial to our engineering team, who can structure code and use naming that is aligned with the stated intent.
+
+Thus it is proposed that we resolve what degree of compatibility this mechanism is intended to provide. There are numerous options for this, but only two are practical for consideration. These will be discussed.
+
+== Option 1: Compatibility of Grammar and Semantics
+
+Compatibility at this level extends only to the language grammar and the semantic correctness of statements. This includes the parsing phase, type checking phase, and any other forms of semantic checking (eg. correct ordering of clauses, etc).
+
+Practically, this means that an abstract form of the statement (one guaranteed to be semantically correct) is the common form between versions.
+
+This is the current behaviour in the Neo4j implementation. Some concerns with this approach:
+
+* Risk of breaking backward compatibility, as any change to the planning and evaluation of cypher statements for the purposes of newer features and behaviour will also affect queries specifying an older compatibility version.
+* To mitigate the risk of breaking backward compatibility, newer releases much either make no breaking changes to statement evaluation, or https://github.com/neo4j/neo4j/blob/e7ca3324d725ef85ad6c35bc7596d7d6cca9d541/community/cypher/src/main/scala/org/neo4j/cypher/internal/commands/expressions/Property.scala#L38-L41[ensure mechanisms are in place to determine which version is being evaluated and preserve original behaviour accordingly].
+
+A ramification of this last point is that the implementation becomes more complicated (as it must, at times, have multiple behaviours depending on version), and a constraint is placed on the ability to change, simplify or otherwise refactor an implementation when developing a new version.
+
+== Option 2: Compatibility between execution plans
+
+Another option is to specify that compatibility also extends to the evaluation of the statement. Specifically to the plan for evaluation, which is the “compiled” form of a query (analogous to bytecode in a JVM).
+
+Thus the compatibility would cover the parsing phase, semantic checking, and the building and optimisation of the execution plan (including the steps for execution).
+
+Advantages to this approach:
+
+* Substantially reduced risk of breaking backward compatibility. Only changes to the underlying DB itself, or https://github.com/neo4j/neo4j/blob/e7ca3324d725ef85ad6c35bc7596d7d6cca9d541/community/cypher/src/main/scala/org/neo4j/cypher/internal/spi/QueryContext.scala#L38-L87[the internal API to it], would affect results. Those changes occur with much less frequency than changes to the planning and the execution steps [small]#(in Neo4j, since Jan 26, there have been https://github.com/neo4j/neo4j/commits/e7ca3324d725ef85ad6c35bc7596d7d6cca9d541/community/cypher/src/main/scala/org/neo4j/cypher[364 commits affecting the cypher implementation]. Only https://github.com/neo4j/neo4j/commits/e7ca3324d725ef85ad6c35bc7596d7d6cca9d541/community/cypher/src/main/scala/org/neo4j/cypher/internal/spi[82 of those] affected to the internal API, and were mostly additions of new methods to support labels)#.
+* The shared form is substantially smaller (reduced from an https://github.com/neo4j/neo4j/blob/e7ca3324d725ef85ad6c35bc7596d7d6cca9d541/community/cypher/src/main/scala/org/neo4j/cypher/internal/commands/Query.scala#L53-L64[abstract statement form], containing entities for all semantic elements in a statement, to a single https://github.com/neo4j/neo4j/blob/e7ca3324d725ef85ad6c35bc7596d7d6cca9d541/community/cypher/src/main/scala/org/neo4j/cypher/ExecutionPlan.scala#L24-L27[execution plan], containing the specific implementation for evaluation).
+
+Concerns with this approach:
+
+* Cypher statements specifying a previous version for compatibility will not be able to take advantage of any performance improvements related to plan optimisation.
+* Any implementation will require larger amounts of code from previous versions be kept “live” - either as source code, or as a shared library. This could complicate several development tasks, such as forward porting bugfixes.

@@ -16,3 +16,8 @@ It is then the task of the CLG to discuss, give feedback, and eventually (potent
 === Testable
 
 A CIP enters this phase when it has received a sufficient set of TCK scenarios that outline the use of its suggested features.
+
+=== Archived
+
+As CIPs are consumed by standard version specifications, they enter the archive.
+Archived CIPs are historical records and do not have any bearing on current Cypher syntax or semantics.
