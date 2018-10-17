@@ -157,7 +157,7 @@ Feature: KeysAcceptance
       """
       RETURN keys({name: 'Alice', age: 38, address: {city: 'London', residential: true}}) AS k
       """
-    Then the result should be:
+    Then the result should be (ignoring element order for lists):
       | k                          |
       | ['name', 'age', 'address'] |
     And no side effects
