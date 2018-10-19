@@ -20,21 +20,27 @@ The result of a List Subquery is the list formed by collecting all of the values
 
 [source, ebnf]
 ----
+Atom = ... | ListSubquery | ScalarSubquery ;
+
 ListSubquery = '[', SingleValueSubquery, ']' ;
 
 ScalarSubquery = 'SCALAR', '(', SingleValueSubquery, ')' ;
 
 SingleValueSubquery = SingleValuePatternQuery
                     | SingleValueUnwindQuery
+                    | SingleValueCallQuery
                     | SingleValueQuery
                     ;
 
-SingleValuePatternQuery = PatternPart, Filter, SingleValueReturn ;
-SingleValueUnwindQuery = 'UNWIND', Expression, ['AS', Variable, Filter] ;
-SingleValueQuery = {{Match | Unwind | Call}-, {With}}-, SingleValueReturn ;
+SingleValuePatternQuery = PatternPart, [Where], SingleValueReturn ;
+SingleValueUnwindQuery  = 'UNWIND', Expression,
+                          ['AS', Variable, [Where], Filter] ;
+SingleValueCallQuery    = 'CALL', ExplicitProcedureInvocation,
+                          'YIELD', YieldItem, [Where], Filter ;
+SingleValueQuery  = {{Match | Unwind | Call}-, {With}}-, SingleValueReturn ;
 SingleValueReturn = 'RETURN', (Expression | ProjectedMap | Aggregation), Filter ;
 
-Filter = [Where], [Order], [Skip], [Limit] ;
+Filter = [Order], [Skip], [Limit] ;
 ----
 
 === Scalar Subqueries
@@ -55,6 +61,17 @@ RETURN [
 ----
 
 [source, cypher]
+.Sort an existing list
+----
+...
+RETURN [
+    UNWIND existing_list_of_items AS item
+    RETURN item
+    ORDER BY item.price
+] AS small_items
+----
+
+[source, cypher]
 .Collect separate lists of friends and enemies
 ----
 MATCH (me:Person {name: $my_name})
@@ -65,4 +82,68 @@ RETURN me.name, [
     MATCH (me)-[:ENEMY]-(enemy)
     RETURN enemy.name
 ] AS enemies
+----
+
+[source, cypher]
+.Unpack the value of a singleton list (or fail if the list is not a singleton)
+----
+...
+RETURN SCALAR (UNWIND list_with_single_item) AS the_item
+----
+
+[source, cypher]
+.Unpack the single element matching a predicate from a list
+----
+...
+RETURN SCALAR (
+    UNWIND existing_list_of_items AS item
+    WHERE item.name = "Cabbage"
+    // RETURN is not needed from an UNWIND subquery
+) AS the_item
+----
+
+[source, cypher]
+.Unpack the _first_ element matching a predicate from a list
+----
+...
+RETURN SCALAR (
+    UNWIND existing_list_of_items AS item
+    WHERE item.name CONTAINS "Sweet"
+    // RETURN is not needed from an UNWIND subquery
+    LIMIT 1
+) AS first_item
+----
+
+[source, cypher]
+.Compute an aggregation of all items in a list
+----
+...
+RETURN SCALAR (
+    UNWIND existing_list_of_items AS item
+    RETURN avg(item.price)
+) AS avg_item_price
+----
+
+[source, cypher]
+.Compute an aggregation over a sub-pattern
+----
+MATCH (who:Employee)
+RETURN who.name, SCALAR (
+    MATCH (who)-[filing:FILED]->(receipt)
+    WHERE date.truncate('month', date() - duration('P1M'))
+          <= filing.date <
+          date.truncate('month', date() - duration('P1M'))
+    RETURN sum(receipt.amount)
+) AS total_expenses
+----
+
+
+[source, cypher]
+.Something
+----
+RETURN [
+    CALL my.cool.Procedure() YIELD theValue
+    WHERE theValue.temperatureC < 4.0
+    // Return is not needed for CALL subquery with only a single YIELD field
+] AS all_cool_values
 ----
