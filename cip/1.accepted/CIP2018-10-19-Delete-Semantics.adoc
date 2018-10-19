@@ -48,6 +48,18 @@ DELETE n
 RETURN same1, n = m AS same2
 ----
 
+=== Deleted elements in paths
+
+If an element is deleted that is part of a path value, such a path can no longer exist, therefore the path value is to be treated as _effectively_ `NULL` (in the same way that the deleted element that is part of it would).
+
+[source, cypher]
+.This query returns `a: *null*; b: *null*; c: *null*` for all rows
+----
+MATCH p=()-[r]->()
+DELETE r
+RETURN p AS a, nodes(p) AS b, relationships(p) AS c
+----
+
 === Effects of DELETE on types
 
 In the part of a query following a `DELETE` statement that deletes elements of type node, all elements of type node may now be nullable.
