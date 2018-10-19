@@ -47,3 +47,11 @@ WITH n, m, n = m AS same1
 DELETE n
 RETURN same1, n = m AS same2
 ----
+
+=== Effects of DELETE on types
+
+In the part of a query following a `DELETE` statement that deletes elements of type node, all elements of type node may now be nullable.
+In the part of a query following a `DELETE` statement that deletes elements of type relationship, all elements of type relationship may now be nullable.
+In the part of a query following a `DETACH DELETE` statement, all elements of type node and of type relationship may now be nullable.
+
+An implementation that tracks the types of nodes and relationships more closely, such as by which labels they have, it is allowed to not treat elements as nullable in the part of the query following `DELETE` iff it can be proven that those entities are unaffected by the `DELETE`.
