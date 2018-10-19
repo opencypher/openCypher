@@ -60,10 +60,11 @@ DELETE r
 RETURN p AS a, nodes(p) AS b, relationships(p) AS c
 ----
 
-=== Effects of DELETE on types
+=== Effects of DELETE on the nullability of types
 
 In the part of a query following a `DELETE` statement that deletes elements of type node, all elements of type node may now be nullable.
 In the part of a query following a `DELETE` statement that deletes elements of type relationship, all elements of type relationship may now be nullable.
 In the part of a query following a `DETACH DELETE` statement, all elements of type node and of type relationship may now be nullable.
+In the part of a query following a `DELETE` statement, all elements of type path may now be nullable.
 
-An implementation that tracks the types of nodes and relationships more closely, such as by which labels they have, it is allowed to not treat elements as nullable in the part of the query following `DELETE` iff it can be proven that those entities are unaffected by the `DELETE`.
+An implementation that tracks the types of nodes and relationships more closely, such as by which labels they have, it is allowed to not treat elements as nullable in the part of the query following `DELETE` iff it can be proven that those elements are unaffected by the `DELETE`.
