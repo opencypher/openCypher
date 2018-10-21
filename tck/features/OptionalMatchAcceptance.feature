@@ -336,3 +336,70 @@ Feature: OptionalMatchAcceptance
       | a  | b            |
       | [] | [42, 43, 44] |
     And no side effects
+
+  Scenario: OPTIONAL MATCH and WHERE
+    And having executed:
+      """
+      CREATE
+        (:X {val: 1})-[:E1]->(:Y {val: 2})-[:E2]->(:Z {val: 3}),
+        (:X {val: 4})-[:E1]->(:Y {val: 5}),
+        (:X {val: 6})
+      """
+    When executing query:
+      """
+      MATCH (x:X)
+      OPTIONAL MATCH (x)-[:E1]->(y:Y)
+      WHERE x.val < y.val
+      RETURN x, y
+      """
+    Then the result should be:
+      | x             | y             |
+      | (:X {val: 1}) | (:Y {val: 2}) |
+      | (:X {val: 4}) | (:Y {val: 5}) |
+      | (:X {val: 6}) | null          |
+    And no side effects
+
+  Scenario: OPTIONAL MATCH on two relationships and WHERE
+    And having executed:
+      """
+      CREATE
+        (:X {val: 1})-[:E1]->(:Y {val: 2})-[:E2]->(:Z {val: 3}),
+        (:X {val: 4})-[:E1]->(:Y {val: 5}),
+        (:X {val: 6})
+      """
+    When executing query:
+      """
+      MATCH (x:X)
+      OPTIONAL MATCH (x)-[:E1]->(y:Y)-[:E2]->(z:Z)
+      WHERE x.val < z.val
+      RETURN x, y, z
+      """
+    Then the result should be:
+      | x             | y             | z             |
+      | (:X {val: 1}) | (:Y {val: 2}) | (:Z {val: 3}) |
+      | (:X {val: 4}) | null          | null          |
+      | (:X {val: 6}) | null          | null          |
+    And no side effects
+
+  Scenario: Two OPTIONAL MATCH clauses and WHERE
+    And having executed:
+      """
+      CREATE
+        (:X {val: 1})-[:E1]->(:Y {val: 2})-[:E2]->(:Z {val: 3}),
+        (:X {val: 4})-[:E1]->(:Y {val: 5}),
+        (:X {val: 6})
+      """
+    When executing query:
+      """
+      MATCH (x:X)
+      OPTIONAL MATCH (x)-[:E1]->(y:Y)
+      OPTIONAL MATCH (y)-[:E2]->(z:Z)
+      WHERE x.val < z.val
+      RETURN x, y, z
+      """
+    Then the result should be:
+      | x             | y             | z             |
+      | (:X {val: 1}) | (:Y {val: 2}) | (:Z {val: 3}) |
+      | (:X {val: 4}) | (:Y {val: 5}) | null          |
+      | (:X {val: 6}) | null          | null          |
+    And no side effects
