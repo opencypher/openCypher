@@ -379,7 +379,10 @@
 
   <production name="FunctionName" rr:inline="true">
     <alt>
-      <non-terminal ref="SymbolicName" rr:title="function name"/>
+      <seq>
+        <non-terminal ref="Namespace" rr:title="function namespace"/>
+        <non-terminal ref="SymbolicName" rr:title="function name"/>
+      </seq>
       EXISTS
     </alt>
   </production>
