@@ -129,7 +129,7 @@ Feature: ReturnAcceptance2
       RETURN DISTINCT a.name
         ORDER BY a.age
       """
-    Then a SyntaxError should be raised at compile time: UndefinedVariable
+    Then a SyntaxError should be raised at compile time: In a WITH/RETURN with DISTINCT or an aggregation, it is not possible to access variables declared before the WITH/RETURN
 
   Scenario: Ordering with aggregation
     Given an empty graph
