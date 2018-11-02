@@ -11,6 +11,7 @@
 --
 This CIP limits the scope of `EXISTS` to existential subqueries and removes the syntax for property existence check.
 This check is enabled by `IS NOT NULL`.
+It changes the syntax of existence constraints to be aligned with that removal.
 --
 
 toc::[]
@@ -44,13 +45,26 @@ However, users could expect this to return `NULL` instead, given that one argume
 To clear out this confusion, this CIP proposes to remove the syntax of `EXISTS` for property existence checks and use only `IS NOT NULL` for this purpose.
 `IS NOT NULL` does not look like a function call and therefore it is unlikely that someone would expect it to behave like one.
 
+In addition, this CIP proposes to change the syntax for creating and dropping node and relationship property existence constraints.
+To be aligned with using `IS NOT NULL` for existence checks, creating a node property existence constraint, for example, will look like this:
+[source, cypher]
+----
+CREATE CONSTRAINT ON (p:Person)
+       ASSERT p.name IS NOT NULL
+----
+
 == Proposal
 
-This CIP proposes to redefine the syntax for `EXISTS`, previously defined in <<CIP2015-05-13-EXISTS.adoc,CIP2015-05-13>>.
+Firstly, this CIP proposes to redefine the syntax for `EXISTS`, previously defined in <<CIP2015-05-13-EXISTS.adoc,CIP2015-05-13>>.
 It removes  the syntax of `EXISTS` for property existence checks.
+
+Secondly, this CIP proposes to redefine the syntax for node and relationship property existence constraints.
+The current syntax is not specified in any CIP, but mentioned in the <<../../docs/,standardisation scope>>.
+It is also encoded in the <<../../grammar/commands.xml,grammar for commands>>.
 
 === Syntax
 
+Syntax for `EXISTS`:
 [source, ebnf]
 ----
 expression = <current definition of expression>
@@ -69,6 +83,27 @@ read only clause = match
                  | with
                  ;
 ----
+
+Syntax for property existence constraints:
+[source, ebnf]
+----
+CreateNodePropertyExistenceConstraint = "CREATE", NodePropertyExistenceConstraint ;
+
+CreateRelPropertyExistenceConstraint = "CREATE", RelPropertyExistenceConstraint ;
+
+DropNodePropertyExistenceConstraint = "DROP", NodePropertyExistenceConstraint ;
+
+DropRelPropertyExistenceConstraint = "DROP", RelPropertyExistenceConstraint ;
+
+NodePropertyExistenceConstraint = "CONSTRAINT ON", "(", Variable, NodeLabel, ")",
+                                  "ASSERT", PropertyExpression, "IS NOT NULL" ;
+
+RelPropertyExistenceConstraint = "CONSTRAINT ON", "(", RelationshipPatternSyntax, ")",
+                                 "ASSERT", PropertyExpression, "IS NOT NULL" ;
+----
+
+The production rules for `Variable`, `NodeLabel`, `PropertyExpression`, and `RelationshipPatternSyntax` are unchanged.
+The definitions can be found in the <<../../grammar/commands.xml,grammar for commands>> and the <<../../grammar/basic-grammar.xml,basic grammar>>
 
 === Semantics
 
@@ -104,3 +139,4 @@ That means, just as in Cypher, it can never return `NULL` values.
 == Caveats to this proposal
 
 * The idiomatic syntax for property existence checks is removed.
+* The syntax for creating and dropping node and relationship property existence constraints needs to be changed as well, to be aligned with the other syntax changes.
