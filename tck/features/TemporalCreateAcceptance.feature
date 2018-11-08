@@ -416,6 +416,8 @@ Feature: TemporalCreateAcceptance
       | time({hour: 12, minute: 34, second: 56, timezone: '-02:05:07'})                                     | '12:34:56-02:05:07'            |
       | datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 34, second: 56, timezone: '+02:05:59'}) | '1984-10-11T12:34:56+02:05:59' |
 
+  # Storage tests, cannot be merged into fewer tests due to compatibility reasons
+
   Scenario Outline: Should store date
     Given an empty graph
     When executing query:
@@ -438,6 +440,28 @@ Feature: TemporalCreateAcceptance
     Examples:
       | temporal                                                                                                                 | result                                     |
       | date({year: 1984, month: 10, day: 11})                                                                                   | '1984-10-11'                               |
+
+  Scenario Outline: Should store date array
+    Given an empty graph
+    When executing query:
+      """
+      CREATE ({p: <temporal>})
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
+    When executing control query:
+      """
+      MATCH (n)
+      RETURN n.p
+      """
+    Then the result should be:
+      | n.p      |
+      | <result> |
+
+    Examples:
+      | temporal                                                                                                                 | result                                     |
       | [date({year: 1984, month: 10, day: 12})]                                                                                 | ['1984-10-12']                             |
       | [date({year: 1984, month: 10, day: 13}), date({year: 1984, month: 10, day: 14}), date({year: 1984, month: 10, day: 15})] | ['1984-10-13', '1984-10-14', '1984-10-15'] |
 
@@ -463,6 +487,28 @@ Feature: TemporalCreateAcceptance
     Examples:
       | temporal                                                              | result                      |
       | localtime({hour: 12})                                                 | '12:00'                     |
+
+  Scenario Outline: Should store local time array
+    Given an empty graph
+    When executing query:
+      """
+      CREATE ({p: <temporal>})
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
+    When executing control query:
+      """
+      MATCH (n)
+      RETURN n.p
+      """
+    Then the result should be:
+      | n.p      |
+      | <result> |
+
+    Examples:
+      | temporal                                                              | result                      |
       | [localtime({hour: 13})]                                               | ['13:00']                   |
       | [localtime({hour: 14}), localtime({hour: 15}), localtime({hour: 16})] | ['14:00', '15:00', '16:00'] |
 
@@ -488,6 +534,28 @@ Feature: TemporalCreateAcceptance
     Examples:
       | temporal                                               | result                         |
       | time({hour: 12})                                       | '12:00Z'                       |
+
+  Scenario Outline: Should store time array
+    Given an empty graph
+    When executing query:
+      """
+      CREATE ({p: <temporal>})
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
+    When executing control query:
+      """
+      MATCH (n)
+      RETURN n.p
+      """
+    Then the result should be:
+      | n.p      |
+      | <result> |
+
+    Examples:
+      | temporal                                               | result                         |
       | [time({hour: 13})]                                     | ['13:00Z']                     |
       | [time({hour: 14}), time({hour: 15}), time({hour: 16})] | ['14:00Z', '15:00Z', '16:00Z'] |
 
@@ -513,6 +581,28 @@ Feature: TemporalCreateAcceptance
     Examples:
       | temporal                                                                                | result                                                       |
       | localdatetime({year: 1912})                                                             | '1912-01-01T00:00'                                           |
+
+  Scenario Outline: Should store local date time array
+    Given an empty graph
+    When executing query:
+      """
+      CREATE ({p: <temporal>})
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
+    When executing control query:
+      """
+      MATCH (n)
+      RETURN n.p
+      """
+    Then the result should be:
+      | n.p      |
+      | <result> |
+
+    Examples:
+      | temporal                                                                                | result                                                       |
       | [localdatetime({year: 1913})]                                                           | ['1913-01-01T00:00']                                         |
       | [localdatetime({year: 1914}), localdatetime({year: 1915}), localdatetime({year: 1916})] | ['1914-01-01T00:00', '1915-01-01T00:00', '1916-01-01T00:00'] |
 
@@ -538,6 +628,28 @@ Feature: TemporalCreateAcceptance
     Examples:
       | temporal                                                                 | result                                                          |
       | datetime({year: 1912})                                                   | '1912-01-01T00:00Z'                                             |
+
+  Scenario Outline: Should store date time array
+    Given an empty graph
+    When executing query:
+      """
+      CREATE ({p: <temporal>})
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
+    When executing control query:
+      """
+      MATCH (n)
+      RETURN n.p
+      """
+    Then the result should be:
+      | n.p      |
+      | <result> |
+
+    Examples:
+      | temporal                                                                 | result                                                          |
       | [datetime({year: 1913})]                                                 | ['1913-01-01T00:00Z']                                           |
       | [datetime({year: 1914}), datetime({year: 1915}), datetime({year: 1916})] | ['1914-01-01T00:00Z', '1915-01-01T00:00Z', '1916-01-01T00:00Z'] |
 
@@ -563,6 +675,28 @@ Feature: TemporalCreateAcceptance
     Examples:
       | temporal                                                                    | result                      |
       | duration({seconds: 12})                                                     | 'PT12S'                     |
+
+  Scenario Outline: Should store duration array
+    Given an empty graph
+    When executing query:
+      """
+      CREATE ({p: <temporal>})
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
+    When executing control query:
+      """
+      MATCH (n)
+      RETURN n.p
+      """
+    Then the result should be:
+      | n.p      |
+      | <result> |
+
+    Examples:
+      | temporal                                                                    | result                      |
       | [duration({seconds: 13})]                                                   | ['PT13S']                   |
       | [duration({seconds: 14}), duration({seconds: 15}), duration({seconds: 16})] | ['PT14S', 'PT15S', 'PT16S'] |
 
