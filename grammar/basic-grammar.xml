@@ -253,8 +253,8 @@
   <production name="ListOperatorExpression" rr:inline="true">
     <alt>
       <seq>&SP; IN &WS; <non-terminal ref="PropertyOrLabelsExpression"/> </seq>
-      <seq> &WS; [ &expr; ] </seq>
-      <seq> &WS; [ <opt>&expr;</opt> .. <opt>&expr;</opt> ] </seq>
+      <seq>&WS; [ &expr; ] </seq>
+      <seq>&WS; [ <opt>&expr;</opt> .. <opt>&expr;</opt> ] </seq>
     </alt>
   </production>
 
