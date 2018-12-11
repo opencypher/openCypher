@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2019 "Neo Technology,"
+# Copyright (c) 2015-2018 "Neo Technology,"
 # Network Engine for Objects in Lund AB [http://neotechnology.com]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,57 +28,12 @@
 
 #encoding: utf-8
 
-Feature: Create
+Feature: Create3 - Negative tests
 
-  Scenario: Creating a node
+  Scenario: Creating a relationship without a type
     Given any graph
     When executing query:
       """
-      CREATE ()
+      CREATE ()-->()
       """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes | 1 |
-
-  Scenario: Creating two nodes
-    Given any graph
-    When executing query:
-      """
-      CREATE (), ()
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes | 2 |
-
-  Scenario: Creating two nodes and a relationship
-    Given any graph
-    When executing query:
-      """
-      CREATE ()-[:TYPE]->()
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 1 |
-
-  Scenario: Creating a node with a label
-    Given an empty graph
-    When executing query:
-      """
-      CREATE (:Label)
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes  | 1 |
-      | +labels | 1 |
-
-  Scenario: Creating a node with a property
-    Given any graph
-    When executing query:
-      """
-      CREATE ({created: true})
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes      | 1 |
-      | +properties | 1 |
+    Then a SyntaxError should be raised at compile time: MissingRelationshipType

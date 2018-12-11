@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Literals
+Feature: Literals1 - Literals
 
   Background:
     Given any graph

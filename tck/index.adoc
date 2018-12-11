@@ -1,0 +1,46 @@
+= TCK Index
+
+The TCK is split into categories based on language constructs.
+The two main groups are clauses and expressions.
+Each group enumerates its members.
+Within each member, there is additional categories.
+
+There is also `wip` directory containing uncategorised features`
+
+== Clauses
+
+Each clause has its own directory of Gherkin `.feature` files, or _feature_ for short.
+Each feature follows a naming convention of `<clause-name><group-id>.feature`.
+
+
+=== CREATE
+
+* `Create1`: Creating nodes
+** This group is about the creation of nodes.
+* `Create2`: Creating relationships
+** This group is about the creation of relationships.
+* `Create3`: Negative tests
+** This group is about failure cases for the `CREATE` clause; invalid queries.
+
+
+=== MATCH
+
+=== UNWIND
+
+
+== Expressions
+
+The expressions are grouped into categories based on their domain.
+Each category consists of a number of features.
+
+=== Aggregation
+
+* `Aggregation1`: ...
+
+=== Function
+
+* `Function1`: Type conversion functions
+* `Function2`: Negative tests for functions (invalid arguments etc)
+
+
+=== Literal

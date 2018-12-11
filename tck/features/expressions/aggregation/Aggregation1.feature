@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Aggregation
+Feature: Aggregation1 - some group of aggregations
 
   Scenario: `max()` over strings
     Given any graph
