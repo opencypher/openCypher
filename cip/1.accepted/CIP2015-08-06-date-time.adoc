@@ -1,0 +1,1282 @@
+= CIP2015-08-06 - Date and Time
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
+
+*Author:* Tobias{nbsp}Lindaaker{nbsp}<tobias@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+We propose to introduce new types for dealing with temporal data.
+The main part of this document, the <<proposal,Proposal section>>, is written in present tense, as if Cypher already supported the proposed features.
+If this document appears too lengthy to you, dear reader, please refer to the <<impl-notes,implementation notes section>> for a motivation of why this proposal despite all its length and detail would not be troublesome to implement.
+--
+
+toc::[]
+
+
+== Background
+
+Dealing with dates and times is a long standing feature request for Cypher.
+With Cypher having become the main means of interacting with a graph database, it becomes crucial to have built in support for handling date and time in order to support queries with such needs.
+
+Most other database management systems and query languages, relational database in particular, support dealing with temporal data.
+The addition of this support to Cypher would bridge that feature gap.
+
+Since Cypher is the main way of interacting with the database, this document takes a Cypher-centric approach to dates and time.
+These additions do however have implications to other parts of Neo4j as well.
+Where appropriate we will make references to other documents describing those concerns.
+
+[[proposal]]
+== Temporal values
+
+Cypher has built in support for handling temporal values, and the underlying database supports storing these temporal values as properties on nodes and relationships.
+
+
+=== Temporal types
+
+Cypher supports 6 different temporal value types, in two different categories.
+The first category contains the _temporal instant_ types: _DateTime_, _LocalDateTime_, _Date_, _Time_, and _LocalTime_.
+The second category contains a single type, _Duration_.
+The _temporal instant_ values all express a point in time, an instant, with varying degrees of precision, and a _Duration_ represents an amount of time.
+
+
+==== DateTime
+
+An instant capturing the date, the time, and the timezone.
+
+
+==== LocalDateTime
+
+An instant capturing the date and the time, but not the timezone.
+
+
+==== Date
+
+An instant capturing the date, but not the time, nor the timezone.
+
+
+==== Time
+
+An instant capturing the time of day, and the timezone offset, but not the date.
+
+
+==== LocalTime
+
+An instant capturing the time of day, but not the date, nor the timezone.
+
+
+==== Duration
+
+A temporal amount.
+This captures the difference in time between two instants.
+It only captures the amount of time between two instants, it does not capture a start time and end time.
+A value capturing the start time and end time would be a _Time Interval_ and is out of scope for this proposal. +
+A _Duration_ can be negative.
+
+A _Duration_ captures time difference in a few different logical units.
+These units divide into three groups where conversion of units is possible within a group but not between groups (other than through applying the _Duration_ to a point in time) as follows:
+
+Month-based units :: `months`, `quarters`, `years`
+Day-based units :: `days`, `weeks`
+Time-based units :: `hours`, `minutes`, `seconds`, and _sub-seconds_ (`milliseconds`, `microseconds`, `nanoseconds`)
+
+
+=== Temporal functions
+
+For producing values of each temporal type, Cypher has a function corresponding to each of the types.
+These functions bear the same name as the type.
+These functions construct the type they correspond to in one of four ways, either through composition of the components of the type, or through parsing of a string representation of the temporal value, or through selection and composition of components from another temporal value, or by returning the current time.
+
+In order to act in these different ways there are three different types of parameters that can be passed to the temporal functions:
+
+ * By passing no parameters, the current time is returned.
+   Where _“current time”_ is defined to be the same throughout all invocations within the same query.
+ * When passing a single string parameter, the function <<parsing,parses a temporal value>> from the string.
+ * Finally _named parameters_ can be passed to the functions by passing a single map parameter.
+   Named parameters are used for:
+   .. <<converting-composing,Selecting components>> from a temporal value.
+   .. <<constructing,Specifying values>> for the components of the temporal value.
+
+The temporal functions also have _sub-functions_ for performing additional functionality:
+
+ * <<current-time,Specifying another clock>> for getting the current time.
+ * <<truncate,Truncation>> of temporal instants.
+ * <<duration-between,Computing a duration>> between two instants.
+
+
+[[time-zones]]
+=== Time Zones
+
+Time zones are represented in one of two ways, either as an offset from UTC, or as a logical identifier of a named timezone.
+In either case the time is stored as UTC internally, and the time zone offset is only applied when the time is presented.
+
+Since time is always stored in UTC, temporal instants can be trivially ordered without taking time zone into account.
+
+The standard way of specifying a time zone according to ISO 8601 is by specifying the offset from UTC in hours and minutes.
+In addition to this format, Cypher also supports specifying a named time zone, or specifying both the offset and the time zone name (in this case requiring that they match).
+
+Cypher's support for named time zones is based on the https://www.iana.org/time-zones[IANA timezone database].
+When entering a time using a named time zone, the offset from UTC is computed from the rules in the timezone database in order to create a time instant in UTC and in order to verify that the named timezone represents an actual existing timezone.
+The named timezone is then simply stored with the instant and only used when the time is presented.
+This means that if the rules for the timezone change in the timezone database in between when the time was created and when the time is presented, for example if the daylight savings time rules for that area changes, the presented time could differ from the originally entered time in the local timezone, although the absolute time in UTC will remain the same.
+
+For dealing with daylight savings time (DST) the _named time zone_ form uses the time zone rules of the time zone database.
+The _offset from UTC_ form handles daylight savings time simply by the fact that DST represents a different offset from UTC.
+
+Conversion from a named timezone to an offset is possible, but requires a time to perform the conversion at. Such as:
+
+    RETURN datetime({timezone:"America/Los Angeles"}).offset AS LA_offset
+
+_yields (during Standard Time, i.e. when Daylight Savings Time is not in effect)_
+
+    "-08:00"
+
+
+==== The default timezone
+
+For operations that require a timezone (creation of _Time_ or _DateTime_), where no timezone is given a default timezone is used.
+The default timezone is provided by the query execution environment.
+If the query execution environment had the notion of a session, there could be a session variable specifying the timezone.
+Another option could be for the default timezone to be part of the configuration of the query execution environment, or to use the local timezone of the query execution environment.
+The exact means through which the default timezone is provided is up to the specific implementation of the query execution environment.
+
+
+=== Creating temporal values
+
+There are multiple ways to construct temporal values: capturing the current time, parsing a string representation, or constructing a temporal value from its components are the most basic ways.
+It is also possible to construct a temporal value from other temporal values, either by combining temporal values (such as combining a _Date_ with a _Time_ to create a _DateTime_), or by selecting parts from a temporal value (such as selecting the _Date_ from a _DateTime_).
+
+
+[[parsing]]
+==== Parsing temporal values from a string
+
+Dates and times can be parsed from a string if the string is formatted according to the https://en.wikipedia.org/wiki/ISO_8601[ISO 8601] standard.
+Parsing a temporal value is done by passing a single string argument to the function corresponding to the type of temporal value to be parsed.
+
+
+===== ISO 8601 format for temporal instants
+
+ISO 8601 supports three main forms of specifying a date: either by expressing the day of the month of the year, or by expressing the day of the week of the year, or by expressing the day of the year.
+In addition to that, Cypher also supports specifying dates by expressing the day of the quarter of the year.
+Time is always specified starting from hour, then minutes and seconds followed by fractional seconds, where the less significant parts can be left out.
+So it is possible to specify the hour and the minute without the seconds and fractional seconds, but not possible to specify the hour and the seconds without specifying the minute.
+Separating characters are optional, but the date and time must be separated from one another.
+
+There are thus three main parts of specifying a temporal instant according to ISO 8601: the date, the time, and the timezone.
+We will list the format for each part using _italic monospaced font_ to represent parts of the pattern and *bold monospaced font* to represent literal characters.
+
+These tree parts are then combined to form the full format for a complete _DateTime_: “`_<date>_**T**_<time><zone>_`”.
+For _LocalDateTime_ the format omits the zone: “`_<date>_**T**_<time>_`”, for _Time_ the date is omitted: “`[**T**]_<time><zone>_`” (the “`T`” is optional), for _LocalTime_ only the time part is included: “``[**T**]_<time>_`” (the “`T`” is optional), and for _Date_ only the date part is included: “`_<date>_`”.
+When the date and time parts are combined, the date part must be complete, i.e. fully identify a particular day.
+
+
+====== Dates
+
+Years are always specified with at least four digits.
+For years before `0000` or after `9999` a sign (“`-`” or “`+`”, respectively) must prefix the year, and the year must be separated from the next component (with a “`-`” if the next component is month or day of the year, or with a “`-`” or “`W`” if the next component is week of the year, or “`Q`” if the next component is quarter of the year).
+If the year is prefixed with a sign (and separated from the next component) the year component is allowed to contain any number of digits, but if the year component is not prefixed with a sign it must have exactly four digits and the year component is interpreted as a year of the _Common Era (CE)_ footnote:[The number of digits in the year component when a sign is used is an area where the ISO 8601 specification allows implementations a degree of freedom. Although it does specify that the interpretation must be agreed upon. Thus for Cypher this is the interpretation we decide.].
+Month is always specified using a two digit number from `01` to `12`.
+Week is always prefixed with “`W`” and specified using a two digit number from `01` to `53`.
+Quarter is always prefixed with “`Q`” and specified using a single digit number from `1` to `4`.
+Day of the month is always specified using a two digit number from `01` to `31`.
+Day of the week is always specified using a single digit number from `1` to `7`.
+Day of the quarter is always specified using a two digit number from `01` to `92`.
+Ordinal day of the year is always specified using a three digit number from `001` to `366`.
+A date is thus specified using either the `_Year-Month-Day_` form for _calendar dates_, the `_Year-Week-Day_` form for _week dates_, the `_Year-Quarter-Day_` form for _quarter dates_ footnote:[ISO 8601 does not specify quarter dates, this is an addition made in Cypher to align date input with truncation], or the `_Year-Day_` form for _ordinal dates_.
+In each of these forms the ISO 8601 specification allows the least significant parts to be omitted.
+Cypher will assume omitted parts to have their lowest possible value, so for example Cypher will interpret “2013-06” as the same date as “2013-06-01”.
+
+Thus the following formats are supported for specifying dates:
+
+ * `_YYYY_**-**_MM_**-**_DD_` (Calendar date, `_Year-Month-Day_`), _Example:_ `2015-07-21`
+ * `_YYYYMMDD_` (Calendar date, `_Year-Month-Day_`), _Example:_ `20150721` (interpreted as `2015-07-21`)
+ * `_YYYY_**-**_MM_` (Calendar date, `_Year-Month_`), _Example:_ `2015-07` (interpreted as `2015-07-01`)
+ * `_YYYYMM_` (Calendar date, `_Year-Month_`), _Example:_ `201507` (interpreted as `2015-07-01`)
+ * `_YYYY_**-W**_ww_**-**__D__` (Week date, `_Year-Week-Day_`), _Example:_ `2015-W30-2` (`2015-07-21`)
+ * `_YYYY_**W**_wwD_` (Week date, `_Year-Week-Day_`), _Example:_ `2015W302` (`2015-07-21`)
+ * `_YYYY_**-W**_ww_` (Week date, `_Year-Week_`), _Example:_ `2015-W30` (`2015-07-20`)
+ * `_YYYY_**W**_ww_` (Week date, `_Year-Week_`), _Example:_ `2015W30` (`2015-07-20`)
+ * `_YYYY_**-Q**_q_**-**__DD__` (Quarter date, `_Year-Quarter-Day_`), _Example:_ `2015-Q2-60` (`2015-05-30`)
+ * `_YYYY_**Q**_qDD_` (Quarter date, `_Year-Quarter-Day_`), _Example:_ `2015Q260` (`2015-05-30`)
+ * `_YYYY_**-Q**_q_` (Quarter date, `_Year-Quarter_`), _Example:_ `2015-Q2` (`2015-04-01`)
+ * `_YYYY_**Q**_q_` (Quarter date, `_Year-Quarter_`), _Example:_ `2015Q2` (`2015-04-01`)
+ * `_YYYY_**-**_DDD_` (Ordinal date, `_Year-Day_`), _Example:_ `2015-202` (`2015-07-21`)
+ * `_YYYYDDD_` (Ordinal date, `_Year-Day_`), _Example:_ `2015202` (`2015-07-21`)
+ * `_YYYY_` (Year), _Example:_ `2015` (interpreted as `2015-01-01`)
+
+
+====== Time
+
+When specifying time components together with date components, the time must be prefixed by a “`T`”, this is an optional prefix when specifying time on its own.
+Time is always specified as `_Hour:Minute:Second_`, with the `_Second_` component being allowed to have a decimal fraction to represent a sub-second component.
+The decimal fraction of the Second can be separated using either a comma (“`,`”) or a full stop (“`.`”).
+All three of these components (hour, minute, and second), are required to be specified as a two digit number, with the decimal fraction of the seconds being in addition to the two digits of the second.
+The hour must be in the range `00` to `23`, the minute within `00` to `59` and the second within `00` to `59`.
+Cypher does not support leap seconds, instead https://www.cl.cam.ac.uk/~mgk25/time/utc-sls/[UTC-SLS] (_UTC with Smoothed Leap Seconds_) is used to handle the difference in time between UTC and TAI footnote:[TAI: International Atomic Time].
+
+Thus the following formats are supported for specifying time:
+
+ * `_HH_**:**_MM_**:**_SS_**.**_sss_` (`_Hour:Minute:Second.fraction_`), _Example:_ `21:40:32.142`
+ * `_HHMMSS_**.**_sss_` (`_Hour:Minute:Second.fraction_`), _Example:_ `214032.142`
+ * `_HH_**:**_MM_**:**_SS_` (`_Hour:Minute:Second_`), _Example:_ `21:40:32` (interpreted as `21:40:32.000`)
+ * `_HHMMSS_` (`_Hour:Minute:Second_`), _Example:_ `214032` (interpreted as `21:40:32.000`)
+ * `_HH_**:**_MM_` (`_Hour:Minute_`), _Example:_ `21:40` (interpreted as `21:40:00.000`)
+ * `_HHMM_` (`_Hour:Minute_`), _Example:_ `2140` (interpreted as `21:40:00.000`)
+ * `_HH_` (`_Hour_`), _Example:_ `21` (interpreted as `21:00:00.000`)
+
+[[iso-time-zone]]
+====== Timezone
+The timezone is specified as an offset from UTC, or using the “`Z`” shorthand for the UTC (`±00:00`) time zone.
+The timezone always (except for when using the “`Z`” shorthand) start with either a plus (“`+`”) or minus (“`-`”) sign, followed by a two digit hour offset and optionally a two digit minute offset, the hour and minute offset optionally separated by a colon (“`:`”).
+Positive offsets are used for timezones east of UTC, and negative offsets for timezones west of UTC.
+The time zone of the international date line is either `+12:00` or `-12:00`, depending on country.
+
+For _DateTime_ Cypher extends the syntax beyond what is specified in ISO 8601 by adding support for parsing timezone by common name.
+The input string may contain either the offset, or the named timezone, or both.
+If it contains both, the offset must match the timezone, otherwise it is treated as a parsing error.
+The named timezone comes last, is enclosed in square brackets, and uses the timezone names of the IANA timezone database.
+
+For other temporal instant types, parsing named timezone is not supported.
+However, you can still create instants based on a named timezone if you use explicit named parameters as described in the <<constructing,section about constructing temporal instant values>>.
+
+The following formats are thus supported for specifying timezone:
+
+ * `**Z**`^†‡^ (UTC), _Example:_ `Z` (UTC)
+ * `**±**_HH_**:**_MM_`^†‡^ (`_Hour:Minute_`), _Example:_ `+09:30` (ACST)
+ * `**±**_HH_**:**_MM_**[**_ZoneName_**]**`^‡^ (`_Hour:Minute[ZoneName]_`), _Example:_ `+08:45[Australia/Eucla]` (CWST)
+ * `**±**_HHMM_`^†‡^ (`_Hour:Minute_`), _Example:_ `+0100` (CET)
+ * `**±**_HHMM_**[**_ZoneName_**]**`^‡^ (`_Hour:Minute[ZoneName]_`), _Example:_ `+0200[Africa/Johannesburg]` (SAST)
+ * `**±**_HH_`^†‡^ (`_Hour_`), _Example:_ `-08` (PST)
+ * `**±**_HH_**[**_ZoneName_**]**`^‡^ (`_Hour[ZoneName]_`), _Example:_ `+08[Asia/Singapore]` (SST)
+ * `**[**_ZoneName_**]**`^‡^ (`_[ZoneName]_`), _Example:_ `[America/Regina]` (CST)
+
+[horizontal]
+‡:: Supported for _DateTime_.
+†:: Supported for _Time_.
+
+
+[[iso8601-duration]]
+===== ISO 8601 format for durations
+
+The ISO 8601 standard supports three ways of specifying a duration.
+The first form uses amounts of the standard date components, the second form is similar to the first form but uses weeks instead of the standard date component, and the final form uses the same format as a _LocalDateTime_.
+Cypher merges the first two forms of the ISO 8601 standard into one form by allowing users to mix weeks with the other components.
+This makes the Cypher format a superset of the ISO 8601 format, since all values that are valid in ISO 8601 are valid in Cypher.
+Cypher thus has two supported forms of specifying a duration as a string: a unit based format and a date-and-time based format.
+Other than the syntactical difference, the unit based and the date-and-time based form also differs in that the date-and-time based form requires each component to be within the bounds of a valid _LocalDateTime_, whereas the unit based form can have arbitrary values for each component.
+In order to support telling the components apart in the unit based format where values can be arbitrarily large, each value is suffixed with an identifier signalling which unit it is.
+This also means that components with a zero value can be omitted.
+The value of the last (and least significant) component of a _Duration_ specified in the unit based form may contain a decimal fraction.
+Each of the formats mandates a prefix “`**P**`” (which is short for “period”, the name for durations in the original standard that ISO 8601 replaced).
+
+The formats supported are thus:
+
+. Unit based form: `**P**[n**Y**][n**M**][n**W**][n**D**][**T**[n**H**][n**M**][n**S**]]`
+ ** `**Y**` is for _years_
+ ** `**M**` (before the `**T**`) is for _months_
+ ** `**W**` is for _weeks_
+ ** `**D**` is for _days_
+ ** `**H**` is for _hours_
+ ** `**M**` (after the `**T**`) is for _minutes_
+ ** `**S**` is for _seconds_
+. Date-and-Time based form: `P<date>T<time>`
+
+Since the unit based form uses “`M`” as a suffix for both months and minutes, the “`T`” is always required to precede the time part, even if no components of the date part are used.
+
+
+===== Examples
+
+Parsing a _DateTime_ using the _calendar date_ format:
+
+    datetime("2015-06-24T12:50:35.556+0100")
+
+Parsing a _LocalDateTime_ using the _ordinal date_ format:
+
+    localdatetime("2015185T19:32:24")
+
+Parsing a _Date_ using the _week date_ format:
+
+    date("+2015-W13-4")
+
+Parsing a _Time_:
+
+    time("125035.556+0100")
+
+Parsing a _LocalTime_:
+
+    localtime("12:50:35.556")
+
+Parsing a _Duration_:
+
+* `duration("P14DT16H12M")` - _14 days, 16 hours, and 12 minutes_
+* `duration("P5M1.5D")` - _5 months, 1 day, and 12 hours_
+* `duration("PT0.75M")` - _45 seconds_
+* `duration("P2.5W")` - _2 weeks, 3 days, and 12 hours_
+
+
+[[current-time]]
+==== Getting the current temporal instant value
+
+Invoking one of the functions for producing a temporal instant value with no parameter produces a value of the corresponding temporal type representing the current point in time.
+
+For example getting the current _DateTime_ in the current timezone would be:
+
+    datetime()
+
+When retrieving the current time, it is possible to specify the timezone to use as an option to the function.
+So this invocation would for example produce the current time of the day in California:
+
+    time({timezone:"America/Los Angeles"})
+
+==== Specifying which clock to use
+
+When using the temporal instant functions to <<current-time,retrieve the current instant>>, the default clock of the Cypher implementation is used.
+There are three different explicit clocks available, and which one of them is default is up to each specific Cypher implementation.
+It is possible to specify which clock to use explicitly, by using a _"sub-function"_ of the temporal instant function.
+These _"sub-functions"_ can only be used to retrieve the current instant, and accepts a single optional argument specifying the timezone.
+
+The three explicit clocks are:
+
+ * `_transaction_` - which produces the same instant whenever it is invoked within the same transaction - but may produce a different time for different transactions.
+ * `_statement_` - which produces the same instant whenever it is invoked within the same statement - but may produce a different time for different statements in the same transaction.
+ * `_realtime_` - which will produce the instant of the live clock of the system.
+
+The _"sub-functions"_ used for selecting the clock has the same name as the clock to use, leading to the following _"sub-functions"_ for the different temporal instant types:
+
+|===
+| *Type* 4+| *Clock*
+|| _default_ | `_transaction_` | `_statement_` | `_realtime_`
+
+| _DateTime_ | `datetime()` | `datetime.transaction()` | `datetime.statement()` | `datetime.realtime()`
+| _LocalDateTime_ | `localdatetime()` | `localdatetime.transaction()` | `localdatetime.statement()` | `localdatetime.realtime()`
+| _Date_ | `date()` | `date.transaction()` | `date.statement()` | `date.realtime()`
+| _Time_ | `time()` | `time.transaction()` | `time.statement()` | `time.realtime()`
+| _LocalTime_ | `localtime()` | `localtime.transaction()` | `localtime.statement()` | `localtime.realtime()`
+|===
+
+Even the types that do not contain timezone information support supplying a timezone to the functions that retrieve the current time, in order to retrieve the current time in that timezone.
+For example:
+
+    RETURN date.realtime('America/Los_Angeles') AS today_in_LA
+
+[[constructing]]
+==== Constructing temporal instant values
+
+It is possible to construct temporal instant values by providing the values of the components of the temporal instant.
+Such as in this example:
+
+    datetime({year:1984, month:10, day:11,
+              hour:21, minute:30,
+              timezone:"Europe/Stockholm"})
+
+Similar rules apply when specifying these components as when parsing the corresponding temporal type.
+Omitted components are assumed to have their minimal possible value.
+It is however not permitted to omit a value of higher significance than one that has been specified.
+For the date part of these components it is possible to specify one of three sets of components:
+
+ * `year`, `month`, `day` - for a _calendar date_
+ * `year`, `week`, `dayOfWeek` - for a _week date_
+ * `year`, `ordinalDay` - for an _ordinal date_
+
+Furthermore these components are available for specifying time:
+
+ * `hour`   (+0+ - +23+)
+ * `minute` (+0+ - +59+)
+ * `second` (+0+ - +60+)
+ * `millisecond` (+0+ - +999+), `microsecond` (+0+ - +999’999+), or `nanosecond` (+0+ - +999’999’999+) +
+   If these are given in combination, either as part of the same set of parameters in construction, or as part of <<truncate,truncating>> to a larger unit and specifying a smaller unit as a supplement, the value must be in the range +0+ - +999+.
+ * `timezone` (a string identifying the timezone, either as a <<time-zones,logical timezone name>>, or as <<iso-time-zone,an offset from UTC>>)
+
+
+==== Creating temporal instant values from timestamps
+
+A common pattern in many programming languages and data sets is to represent time as a number representing the amount of time that has elapsed from the UNIX epoch footnote:[UNIX epoch: `1970-01-01T00:00:00` (UTC)].
+In order to work with such data, Cypher provides functions for converting such a numeric timestamp to a _DateTime_ value:
+
+* `datetime({epochSeconds: $seconds, nanosecond: $nanos})` - Creates a _DateTime_ value at the specified number of _seconds_ and _nanoseconds_ from the UNIX epoch in the UTC timezone.
+* `datetime({epochMillis: $millis})` - Creates a _DateTime_ value at the specified number of _milliseconds_ from the UNIX epoch in the UTC timezone.
+
+Conversions to other temporal types from UNIX epoch representation can be achieved by going via _DateTime_.
+
+Cypher also provides <<instant-components,accessors>> for converting DateTime values _to_ UNIX epoch representation.
+
+
+[[constructing-duration]]
+==== Constructing Duration values
+
+Similarly to how a temporal instant value can be constructed from a map of its components, a _Duration_ can also be specified from its components.
+The components that can be specified are the same as the ones that can be <<iso8601-duration,specified through the ISO 8601 syntax>>:
+
+ * `years`
+ * `quarters`
+ * `months`
+ * `weeks`
+ * `days`
+ * `hours`
+ * `minutes`
+ * `seconds`
+ * `milliseconds`
+ * `microseconds`
+ * `nanoseconds`
+
+This would for example create a _Duration_ representing a day and a half:
+
+    duration({days:1, hours:12})
+
+It is possible to have a duration where the amount of a smaller unit exceeds the threshold to a bigger unit, such as:
+
+    duration({days:62, seconds:180000})
+
+Components may only be converted within the same group of units, where such conversion can be performed exactly.
+Conversion may thus take place between `years`, `quarters`, and `months`, and between `weeks` and `days`, and between `hours`, `minutes`, `seconds`, and _subseconds_.
+No conversion may be done between these groups, such as between `days` and `months` or between `hours` and days, since such conversions cannot be performed exactly.
+If the duration is added to a temporal instant such recomputation will occur, since this is the first chance we have of knowing how long a month or day is.
+
+
+[[duration-between]]
+===== Computing the Duration between two temporal instants
+
+In some cases it might be desirable to compute the _logical difference_ (in days, months, years, etc) between two temporal instant values, this is done through the use of the `duration.between` _"sub-function"_ of `duration`:
+
+    duration.between(date("1984-10-11"), date("2015-06-24"))
+
+_yields_
+
+    duration({years:30, months:8, days:13})
+
+In order to compute the difference between two temporal instants in one specific unit, Cypher supports specifying the _unit group_ as a _"sub-function"_ of the `duration` function as well.
+These sub-functions take the name of the smallest unit in the unit group (where seconds is considered the smallest unit in its group, since the smaller units are _fractional seconds_).
+In combination with the <<duration-components,unit accessors>> this allows computing the numeric difference in specific units, such as in this example:
+
+    duration.inDays(date("2014-10-11"), date("2015-08-06")).weeks
+
+_yields_
+
+    42
+
+The supported _duration sub-functions_ are:
+
+ * `duration.between(a, b)` - to compute the difference in multiple components between instant `a` and instant `b`.
+ * `duration.inMonths(a, b)` - to compute the difference in whole months (or quarters or years) between instant `a` and instant `b`.
+ * `duration.inDays(a, b)` - to compute the difference in whole days (or weeks) between instant `a` and instant `b`.
+ * `duration.inSeconds(a, b)` - to compute the difference in seconds (and fractions of seconds, or minutes or hours) between instant `a` and instant `b`.
+
+
+[[converting-composing]]
+==== Converting and composing temporal instant values
+
+The temporal functions in Cypher provide the ability to convert between different types by selecting components from other instants and by specifying “missing” components.
+
+A crude example of selecting components manually from a DateTime to construct a Date, would look like this:
+
+    WITH datetime(...) AS instant // ‘instant’ is given somehow
+    RETURN date({year:instant.year, month:instant.month, day:instant.day})
+
+This is a bit lengthy, and the temporal functions allow selecting logical groups of components in order to make this simpler.
+This is done by specifying the logical component group as the parameter name, and giving it the instant to select the component group from as the parameter value.
+Transforming the example above to using such logical component group selection it would look like:
+
+    WITH datetime(...) AS instant // ‘instant’ is given somehow
+    RETURN date({date:instant}) // selects the ‘date’ group from ‘instant’
+
+The logical groups that can be selected are:
+
+ * `date` - contains all components for a _Date_ (conceptually year, month, and day)
+ * `time` - contains all components for a _Time_ (hour, minute, second, and sub-seconds) +
+   _If the type being created, and the type time is being selected from both contains timezone (and a timezone is not explicitly specified) the timezone is also selected._
+ * `datetime` - selects all components. This is useful for overriding specific components. +
+   _This selects timezone in the same way as the `time` selector does._
+
+You might notice how this for example makes it possible to combine a _Date_ and a _Time_ into a datetime:
+
+    WITH date(...) AS aDate, time(...) as aTime // given somehow
+    RETURN datetime({date:aDate, time:aTime})
+
+Similarly, these selectors can be used to “upgrade” an instant by adding missing components:
+
+    WITH localdatetime(...) AS instant // ‘instant’ is given somehow
+    RETURN datetime({datetime:instant, timezone:"Europe/Stockholm"})
+
+The example above would use the specified time zone (`"Europe/Stockholm"`).
+If no timezone component is specified, the local timezone of the session (as specified by the client) is used.
+If the session does not have a time zone associated with it, the local timezone of the database instance will be used.
+That same conversion from a _LocalDateTime_ to a _DateTime_ without providing timezone information can be shortened to:
+
+    datetime(instant)
+
+It is also possible to override particular components.
+For example you might want to create the same _DateTime_ as a given one, but at +18:30+:
+
+    WITH datetime(...) AS instant // ‘instant’ is given somehow
+    RETURN datetime({datetime:instant, hour:18, minute:30})
+
+Or you might want to create a _DateTime_ representing 14:30 CET today:
+
+    datetime({date:date({timezone:"CET"}),
+              hour:14, minute:30, timezone:"CET"})
+
+Converting a _Time_ (similar for _DateTime_) to a different timezone is as simple as:
+
+    WITH time("09:30:14+0100") as theTime
+    RETURN toString( time({time:theTime, timezone:"-0500"}) )
+
+_yields_
+
+    "03:30:14-0500"
+
+(For details on the string representation of temporal values, see the <<string-repr,toString section>>)
+
+If instead you wanted to get the same time (`09:30:14`) but in the other timezone you would need to take the detour via _LocalTime_ (or _LocalDateTime_ for _DateTime_):
+
+    WITH time("09:30:14+0100") as theTime
+    RETURN toString( time({time:localtime(theTime), timezone:"-0500"}) )
+
+_yields_
+
+    "09:30:14-0500"
+
+
+[[truncate]]
+===== Truncating temporal values
+
+The selectors of the temporal functions can also be used for truncating temporal values.
+Truncating a temporal value implies creating a temporal value from another instant at the nearest preceding point in time at the specified component boundary.
+For example creating a _Date_ representing the first day of the _current week_, regardless of what weekday _today_ might be.
+
+    WITH datetime() AS now
+    RETURN date({year:now.weekYear, week:now.week})
+
+In order to facilitate this use case, Cypher provides a `.truncate` _"sub-function"_ for each temporal instant type (i.e. `datetime.truncate(...)`, `localdatetime.truncate(...)`, `date.truncate(...)`, `time.truncate(...)`, and `localtime.truncate(...)`).
+
+The signature of these truncation functions is two mandatory arguments.
+The first argument is a string describing the unit to truncate to.
+The second argument is the value to truncate.
+The output type is always determined by which truncation function is used, but the input value can be of any type that supports the fields required for truncating to the specified unit.
+
+The following table shows the supported truncation units, the functions that support them, and the supported input value types:
+
+|===
+| *Unit* | *Truncate functions* | *Supported input types*
+
+.3+| `millennium` +
+Select the temporal instant corresponding to the millenium of the given instant.
+| `datetime.truncate('*millennium*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*millennium*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*millennium*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+3+| *Example:* `date.truncate('millennium', datetime("2017-09-26T11:26:42+01"))` _yields_ `date("2000-01-01")`
+
+.3+| `century` +
+Select the temporal instant corresponding to the century of the given instant.
+| `datetime.truncate('*century*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*century*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*century*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+3+| *Example:* `date.truncate('century', localdatetime("1986-02-28T23:21"))` _yields_ `date("1900-01-01")`
+
+.3+| `decade` +
+Select the temporal instant corresponding to the decade of the given instant.
+| `datetime.truncate('*decade*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*decade*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*decade*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+3+| *Example:* `date.truncate('decade', date("1986-04-26"))` _yields_ `date("1980-01-01")`
+
+.3+| `year` +
+Select the temporal instant corresponding to the year of the given instant.
+| `datetime.truncate('*year*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*year*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*year*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+3+| *Example:* `date.truncate('year', date("2015-08-21"))` _yields_ `date("2015-01-01")`
+
+.3+| `weekYear` +
+Select the temporal instant corresponding to the first day of the first week of the week-year of the given instant.
+| `datetime.truncate('*weekYear*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*weekYear*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*weekYear*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+3+| *Example:* `date.truncate('weekYear', date("2015-08-21"))` _yields_ `date("2014-12-29")`
+
+.3+| `quarter` +
+Select the temporal instant corresponding to the quarter of the year of the given instant.
+| `datetime.truncate('*quarter*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*quarter*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*quarter*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+3+| *Example:* `date.truncate('quarter', date("2018-06-28"))` _yields_ `date("2018-04-01")`
+
+.3+| `month` +
+Select the temporal instant corresponding to the month of the given instant.
+| `datetime.truncate('*month*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*month*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*month*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+3+| *Example:* `localdatetime.truncate('month', date("2011-11-21"))` _yields_ `localdatetime("2011-11-01T00:00:00")`
+
+.3+| `week` +
+Select the temporal instant corresponding to the week of the given instant.
+| `datetime.truncate('*week*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*week*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*week*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+3+| *Example:* `datetime.truncate('week', date("2014-12-30"))` _yields_ `datetime("2014-12-29T00:00:00+0200[Africa/Johannesburg]")` (if the default timezone is South African Standard Time)
+
+.5+| `day` +
+Select the temporal instant corresponding to the month of the given instant.
+| `datetime.truncate('*day*', _input_)` | _DateTime_, _LocalDateTime_^†^, _Date_^†^
+| `localdatetime.truncate('*day*', _input_)`, | _DateTime_, _LocalDateTime_, _Date_
+| `date.truncate('*day*', _input_)` | _DateTime_, _LocalDateTime_, _Date_
+| `time.truncate('*day*', _input_)`^‡^ | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+| `localtime.truncate('*day*', _input_)`^‡^ | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+3+| *Example:* `datetime.truncate('day', datetime("2016-01-27T07:39:52[Europe/Stockholm]"))` _yields_ `datetime("2016-01-27T00:00:00+0100[Europe/Stockholm]")`
+3+| *Example:* `localtime.truncate('day', datetime())` _yields_ `localtime("00:00:00")`
+
+.4+| `hour` +
+Select the temporal instant corresponding to the hour of the given instant.
+| `datetime.truncate('*hour*', _input_)` | _DateTime_, _LocalDateTime_^†^
+| `localdatetime.truncate('*hour*', _input_)`, | _DateTime_, _LocalDateTime_
+| `time.truncate('*hour*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+| `localtime.truncate('*hour*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+3+| *Example:* `time.truncate('hour', datetime("1978-05-23T16:32:00-06"))` _yields_ `time("16:00:00-0600")`
+
+.4+| `minute` +
+Select the temporal instant corresponding to the minute of the given instant.
+| `datetime.truncate('*minute*', _input_)` | _DateTime_, _LocalDateTime_^†^
+| `localdatetime.truncate('*minute*', _input_)`, | _DateTime_, _LocalDateTime_
+| `time.truncate('*minute*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+| `localtime.truncate('*minute*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+3+| *Example:* `datetime.truncate('minute', localdatetime("2004-08-28T18:32:25"), {timezone: "Europe/Stockholm"})` _yields_ `datetime("2004-08-28T18:32:00+0200[Europe/Stockholm]")`
+
+.4+| `second` +
+Select the temporal instant corresponding to the second of the given instant.
+| `datetime.truncate('*second*', _input_)` | _DateTime_, _LocalDateTime_^†^
+| `localdatetime.truncate('*second*', _input_)`, | _DateTime_, _LocalDateTime_
+| `time.truncate('*second*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+| `localtime.truncate('*second*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+3+| *Example:* `localtime.truncate('second', localtime("11:35:52.317932116"))` _yields_ `localtime("11:35:52")`
+
+.4+| `millisecond` +
+Select the temporal instant corresponding to the millisecond of the given instant.
+| `datetime.truncate('*millisecond*', _input_)` | _DateTime_, _LocalDateTime_^†^
+| `localdatetime.truncate('*millisecond*', _input_)`, | _DateTime_, _LocalDateTime_
+| `time.truncate('*millisecond*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+| `localtime.truncate('*millisecond*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+3+| *Example:* `localtime.truncate('millisecond', localtime("11:35:52.317932116"))` _yields_ `localtime("11:35:52.317")`
+
+.4+| `microsecond` +
+Select the temporal instant corresponding to the microsecond of the given instant.
+| `datetime.truncate('*microsecond*', _input_)` | _DateTime_, _LocalDateTime_^†^
+| `localdatetime.truncate('*microsecond*', _input_)`, | _DateTime_, _LocalDateTime_
+| `time.truncate('*microsecond*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+| `localtime.truncate('*microsecond*', _input_)` | _DateTime_, _LocalDateTime_, _Time_, _LocalTime_
+3+| *Example:* `localtime.truncate('microsecond', localtime("11:35:52.317932116"))` _yields_ `localtime("11:35:52.317932")`
+|===
+
+[horizontal]
+†:: It is possible to truncate a date-based value without timezone to a _DateTime_ value.
+    Just like it is always possible to truncate a _LocalDateTime_ to a _DateTime_.
+    When doing so the resulting _DateTime_ will have the default timezone, unless a timezone has been specified explicitly through the optional third argument.
+‡:: Truncating time to day is supported, and yields midnight at the start of the day (`00:00`), regardless of input.
+    It retains the timezone of the input though, so it is not a useless operation.
+
+The truncation functions accept an optional third argument.
+The third argument, if present, is a map containing fields of smaller units than the truncation unit that are used to supplement the truncated value.
+For `datetime.truncate(...)` and `time.truncate(...)`, the third argument may also be used to specify a timezone (such as `time.truncate('minute', _input_, {timezone:'+0200'})`) in order to override the timezone of the input.
+The third argument of `.truncate` makes for a convenient way to truncate and adjust a temporal instant.
+Such as in the following example which computes the date of Thursday in the current week:
+
+    RETURN date.truncate('week', date(), {dayOfWeek: 4})
+
+When no third argument is specified, or for the fields not present in the third argument, the smaller fields than the truncation unit has a value of those fields set to their minimal value.
+
+Example illustrating querying for sales during the current quarter:
+
+    WITH date.truncate('quarter',date()) AS start, start + duration("P3M") AS end
+    MATCH (sale:Sale) WHERE start < sale.salesDate < end
+    RETURN ...
+
+Example illustrating querying for events in the current week:
+
+    WITH datetime.truncate('week', date()) AS start, start + duration({weeks:1}) AS end
+    MATCH (event:Event) WHERE start < event.startTime < end
+
+Get the current time of Tuesday of the current week:
+
+    RETURN datetime.truncate('week', date(), {dayOfWeek:2, time:time()})
+
+Get the last day of the next month:
+
+    RETURN date.truncate('month', date() + duration("P2M")) - duration("P1D")
+
+
+[[arithmetic]]
+=== Arithmetic on temporal values
+
+Cypher supports adding or subtracting a _Duration_ to a temporal instant.
+The result is a temporal instant of the same type. Components of the _Duration_ that does not apply are ignored, so that when adding a _Duration_ to a _Time_, the days, months, and years of the _Duration_ are ignored (as is hours beyond 24, in other words the _Time_ “rolls over”), and when adding a _Duration_ to a _Date_, the hours, minutes, seconds, and milliseconds are ignored.
+
+Example:
+
+    time("13:42:19") + duration({days:1, hours:12})
+
+_yields_
+
+    time({hour:1, minute:42, second:19})
+
+Cypher also supports adding two _Duration_ values together, or subtracting one _Duration_ from another, as well as multiplying or dividing a _Duration_ by a number.
+These operations are interpreted simply as component wise operations with overflow to smaller units based on an average length of units in the case of division (and multiplication with fractions): +
+
+    duration({days:2, hours:7}) + duration({months:1, hours:18})
+
+_yields_
+
+    duration({months:1, days:2, hours:25})
+
+and
+
+    duration({hours:5, minutes:21}) * 14
+
+_yields_
+
+    duration({hours:70, minutes:294})
+
+and
+
+    duration({hours:3, minutes:16}) / 2
+
+_yields_
+
+    duration({hours:1, minutes:38})
+
+It is important to note that adding two durations to a temporal instant is not an associative operation.
+This is because non-existing dates are truncated to the nearest existing date.
+For example:
+
+    (date("2011-01-31") + duration("P1M")) + duration("P12M")
+
+_yields_
+
+    date({year:2012, month:2, day:28})
+
+while
+
+    date("2011-01-31") + (duration("P1M") + duration("P12M"))
+
+_yields_
+
+    date({year:2012, month:2, day:29})
+
+Notably not supported is the ability to subtract one temporal instant from another in order to get a _Duration_ representing the difference between those two instants.
+This is because the resulting _Duration_ would not be comparable to other _Durations_ anyhow, and thus there would be little value in producing it.
+Instead the <<constructing-duration,+duration+ functions>> are preferred for creating a _Duration_ from one instant to another.
+Since it is quite intuitive to express a comparison of the difference between two temporal instants as `date1 - date2 < duration0` the subtraction of temporal instants produce an error that describe <<comparing,the supported way of comparing temporal instants>>.
+
+
+[[comparing]]
+=== Comparing temporal values
+
+Temporal instant values are comparable within the same type.
+An instant is considered less than another instant if it occurs before that instant in time, and it is considered greater than if it occurs after.
+
+Does lhs occur before rhs:
+
+    WITH datetime(...) AS lhs, datetime(...) AS rhs // or another temporal instant type
+    RETURN lhs < rhs
+
+Does lhs occur after rhs:
+
+    WITH date(...) AS lhs, date(...) AS rhs // or another temporal instant type
+    RETURN lhs > rhs
+
+Instant values that occur at the same point in time, but that have a different timezone are not considered equal, and must therefore be ordered in some predictable way.
+Cypher prescribes after the primary order of point in time, instant values be ordered by effective timezone offset, from west (negative offset from UTC) to east (positive offset from UTC).
+This has the effect that times that represent the same point in time will be ordered with the time with the earliest local time first.
+If two instant values represent the same point in time, and have the same timezone offset, but a different named timezone (this is possible for _DateTime_ only, since _Time_ only has an offset), these values are not considered equal, and ordered by the timezone identifier, alphabetically, as its third ordering component.
+If the type, point in time, offset, and timezone name are all equal, then the values are equal, and any difference in order is impossible to observe.
+
+_Duration_ values cannot be compared, since the length of a day, month or year is not known without knowing _which_ day, month or year it is.
+One could argue that two _Duration_ values using only the same precision should be comparable, but since this would make _Duration_ values comparable sometimes and not other times, such confusing behaviour was left out of Cypher.
+
+The typical use case for wanting to compare durations is for determining whether two temporal instants are closer to one another than a certain _Duration_, or further apart.
+This can instead be achieved by adding the duration to the first of the instants, and comparing the result to the second instant.
+
+For example, retrieving all events that are _at least 2 hours long_, but _shorter than one month_ in duration would look like this:
+
+    MATCH (e:Event)
+    WHERE e.start + duration("PT2H") <= e.end
+    AND   e.start + duration("P1M")  >  e.end
+
+Another more complex example would be to examine if two instants are less than one day apart.
+This is more involved since we don’t know which instant comes before the other:
+
+    WITH datetime(...) AS date1, datetime(...) AS date2 // given somehow
+    WHERE CASE WHEN date1 < date2 THEN
+               date1 + duration("P1D") > date2
+          ELSE
+               date2 + duration("P1D") > date1
+          END
+
+Since _Duration_ values are not comparable, the result of applying a comparison operator between two _Duration_ values is `null`.
+
+
+=== Accessing components of temporal values
+
+Components of temporal values are accessed as properties.
+
+
+[[instant-components]]
+==== Components of instant values
+
+ * `instant.year`^1^ - the _year_ component as an integer representing the https://en.wikipedia.org/wiki/Astronomical_year_numbering[astronomical year number] of the instant, in accordance to the https://en.wikipedia.org/wiki/Gregorian_calendar[Gregorian calendar], i.e. years AD/CE start at year 1, and the year before that (year 1 BC/BCE) is 0, while year 2 BCE is -1, et.c.
+ * `instant.quarter`^1^ - the _quarter-of-the-year_ component as an integer (1-4)
+ * `instant.month`^1^ - the _month-of-the-year_ component as an integer (1-12)
+ * `instant.week`^1^ - the _week-of-the-year_ component as an integer (1-53), with the https://en.wikipedia.org/wiki/ISO_week_date#First_week[first week of any year] being the week that contains the first Thursday of the year, and thus always containing January 4.
+ * `instant.weekYear`^1^ - the _year_ that the _week-of-year_ component belongs to.
+   For dates from December 29, this could be the next year, and for dates until January 3 this could be the previous year, depending on how week 1 falls.
+ * `instant.day`^1^ - the _day-of-the-month_ component as an integer (1-31)
+ * `instant.ordinalDay`^1^ - the _day-of-the-year_ component as an integer (1-366)
+ * `instant.weekDay`^1^ - the _day-of-the-week_ component as an integer (1-7), with the first day of the week being Monday.
+ * `instant.hour`^2^ - the _hour_ component as an integer (0-23)
+ * `instant.minute`^2^ - the _minute_ component as an integer (0-59)
+ * `instant.second`^2^ - the _second_ component as an integer (0-60)
+ * `instant.millisecond`^2^ - the _millisecond_ component as an integer (0-999)
+ * `instant.microsecond`^2^ - the _microsecond_ component as an integer (0-999999)
+ * `instant.nanosecond`^2^ - the _nanosecond_ component as an integer (0-999999999)
+ * `instant.timezone`^3^ - the _timezone_ as a string, either as a timezone name or as an offset from UTC in the format `±HHMM`, depending on how the timezone was specified.
+ * `instant.offset`^3^ - the _timezone_ offset as a string, in the format `±HHMM`
+ * `instant.offsetMinutes`^3^ - the _timezone_ offset in minutes
+ * `instant.offsetSeconds`^3^ - the _timezone_ offset in seconds
+ * `instant.epochMillis`^4^ - the number of milliseconds between `1970-01-01T00:00:00+0000` and the instant, positive for instants after and negative for instants before.
+ * `instant.epochSeconds`^4^ - the number of seconds between `1970-01-01T00:00:00+0000` and the instant, positive for instants after and negative for instants before.
+   For the nanosecond part of the epoch offset, the regular `nanosecond` component (`instant.nanosecond`) can be used.
+
+[horizontal]
+^1^:: Available for instants with a date part: _DateTime_, _LocalDateTime_, and _Date_.
+^2^:: Available for instants with a time part: _DateTime_, _LocalDateTime_, _Time_, and _LocalTime_.
+^3^:: Available for instants with a timezone of offset: _DateTime_ and _Time_.
+^4^:: Available for _DateTime_ only.
+
+
+==== Available components per instant type
+
+|===
+| *Component*  |*DateTime*|*LocalDateTime*|*Date*|*Time*|*LocalTime*
+
+|`year`          | yes | yes | yes | no  | no
+|`quarter`       | yes | yes | yes | no  | no
+|`month`         | yes | yes | yes | no  | no
+|`week`          | yes | yes | yes | no  | no
+|`weekYear`      | yes | yes | yes | no  | no
+|`day`           | yes | yes | yes | no  | no
+|`ordinalDay`    | yes | yes | yes | no  | no
+|`weekDay`       | yes | yes | yes | no  | no
+|`hour`          | yes | yes | no  | yes | yes
+|`minute`        | yes | yes | no  | yes | yes
+|`second`        | yes | yes | no  | yes | yes
+|`millisecond`   | yes | yes | no  | yes | yes
+|`microsecond`   | yes | yes | no  | yes | yes
+|`nanosecond`    | yes | yes | no  | yes | yes
+|`timezone`      | yes | no  | no  | yes | no
+|`offset`        | yes | no  | no  | yes | no
+|`offsetMinutes` | yes | no  | no  | yes | no
+|`offsetSeconds` | yes | no  | no  | yes | no
+|`epochMillis`   | yes | no  | no  | no  | no
+|`epochSeconds`  | yes | no  | no  | no  | no
+|===
+
+[[duration-components]]
+==== Components of _Duration_ values
+
+As described in <<duration-between,the section on computing durations>>, the components of a _Duration_ is split into three groups, named after the smallest unit in the group:
+
+[horizontal]
+Months:: _Years_, _Quarters_, and _Months_
+Days:: _Weeks_ and _Days_
+Seconds:: Time: _Hours_, _Minutes_, _Seconds_ and _sub-seconds_.
+
+Within each group the units can be converted without any loss:
+
+ * There are always 4 _quarters_ in one _year_.
+ * There are always 12 _months_ in one _year_.
+ * There are always 3 _months_ in one _quarters_.
+ * There are always 7 _days_ in one _week_.
+ * There are always 60 _minutes_ in one _hour_.
+ * There are always 60 _seconds_ in one _minute_.
+   This is true because Cypher uses https://www.cl.cam.ac.uk/~mgk25/time/utc-sls/[UTC-SLS], otherwise some minutes would have been 61 seconds long.
+ * There are always 1000 _milliseconds_ in one _second_.
+ * There are always 1000 _microseconds_ in one _millisecond_.
+ * There are always 1000 _nanoseconds_ in one _microsecond_.
+ * There are *not* always 24 _hours_ in one _day_.
+   When switching to/from daylight savings time, a day can have 23 or 25 hours.
+ * There are *not* always the same number of _days_ in a _month_.
+   Some months have 30 days, and some months have 31 days, some months even have 28 or 29 days.
+ * There are *not* always the same number of _days_ in a _year_.
+   Leap years have 366 days, and other years have 365 days.
+
+Implementations are allowed to convert freely between units within component groups.
+For example for normalising when pretty printing a _Duration_.
+
+The main accessors for each unit will truncate the total value in the component group of the specified unit to the specific unit:
+
+ * `duration.years` - The total number of _years_ in the *Months* component group as an integer
+   (each set of 4 quarters is counted as one year, each set of 12 months is counted as one year).
+ * `duration.quarters` - The total number of _quarters_ in the *Months* component group as an integer
+   (each year is counted as 4 quarters, each set of 3 months is counted as a quarter).
+ * `duration.months` - The total number of _months_ in the *Months* component group as an integer
+   (each year is counted as 12 months, each quarter is counted as 3 months).
+ * `duration.weeks` - The total number of _weeks_ in the *Days* component group as an integer
+   (each set of 7 days is counted as a week).
+ * `duration.days` - The total number of _days_ in the *Days* component group as an integer
+   (each week is counted as 7 days).
+ * `duration.hours` - The total number of _hours_ in the *Seconds* component group as an integer
+   (each set of 60 minutes is counted as one hour, each set of 3600 seconds is counted as one hour).
+ * `duration.minutes` - The total number of _minutes_ in the *Seconds* component group as an integer
+   (each hour is counted as 60 minutes, each set of 60 seconds is counted as one minutes).
+ * `duration.seconds` - The total number of _seconds_ in the *Seconds* component group as an integer
+   (each hour is counted as 3600 seconds, each minute is counted as 60 seconds).
+ * `duration.milliseconds` - The total number of _milliseconds_ in the *Seconds* component group as an integer.
+ * `duration.microseconds` - The total number of _microseconds_ in the *Seconds* component group as an integer.
+ * `duration.nanoseconds` - The total number of _nanoseconds_ in the *Seconds* component group as an integer.
+
+It is also possible to access the smaller units of a group limited by the boundary to the larger unit:
+
+ * `duration.quartersOfYear` - The number of _quarters_ in the *Months* component group that do not make a whole year as an integer.
+ * `duration.monthsOfYear` - The number of _months_ in the *Months* component group that do not make a whole year as an integer.
+ * `duration.monthsOfQuarter` - The number of _months_ in the *Months* component group that do not make a whole quarter as an integer.
+ * `duration.daysOfWeek` - The total number of _days_ in the *Days* component group that do not make a whole week as an integer.
+ * `duration.minutesOfHour` - The total number of _minutes_ in the *Seconds* component group that do not make a whole hour as an integer.
+ * `duration.secondsOfMinute` - The total number of _seconds_ in the *Seconds* component group that do not make a whole minute as an integer.
+ * `duration.millisecondsOfSecond` - The total number of _milliseconds_ in the *Seconds* component group that do not make a whole second as an integer.
+ * `duration.microsecondsOfSecond` - The total number of _microseconds_ in the *Seconds* component group that do not make a whole second as an integer.
+ * `duration.nanosecondsOfSecond` - The total number of _nanoseconds_ in the *Seconds* component group that do not make a whole second as an integer.
+
+The use of these accessors can be illustrated by considering:
+
+```
+WITH duration({years: 1, months:4, days: 111, hours: 1, minutes: 1, seconds: 1, nanoseconds: 111111111}) AS d
+```
+
+Then:
+
+ * `d.years`                returns `1`.
+ * `d.quartersOfYear`       returns `1`.
+ * `d.quarters`             returns `5`.
+ * `d.months`               returns `16`.
+ * `d.monthsOfYear`         returns `4`.
+ * `d.weeks`                returns `15`.
+ * `d.days`                 returns `111`.
+ * `d.daysOfWeek`           returns `6`.
+ * `d.hours`                returns `1`.
+ * `d.minutes`              returns `61`.
+ * `d.minutesOfHour`        returns `1`.
+ * `d.seconds`              returns `3661`.
+ * `d.minutesOfMinute`      returns `1`.
+ * `d.milliseconds`         returns `3661111`.
+ * `d.millisecondsOfSecond` returns     `111`.
+ * `d.microseconds`         returns `3661111111`.
+ * `d.microsecondsOfSecond` returns     `111111`.
+ * `d.nanoseconds`          returns `3661111111111`.
+ * `d.nanosecondsOfSecond`  returns     `111111111`.
+
+=== Interactions with other features
+
+The temporal types form a separate type system within the cypher type system, the interaction points are few, but there are still a few points that need to be mentioned.
+
+
+==== The timestamp function
+
+The previous `timestamp()` function of Cypher still works, and returns the equivalent value of
+
+    datetime().epochMillis
+
+Perhaps more importantly a value produced by the old +timestamp+ function can be converted to a _DateTime_ by passing it as the `epoch` component to the `datetime` function:
+
+    datetime({epochMillis: timestamp()})
+
+The epoch component is always treated as being in UTC, but a timezone component can still be specified to determine which timezone the resulting _DateTime_ should have. If no timezone is specified, UTC (`"+0000"`) is used, since that is the assumed timezone for epoch values.
+
+
+==== ORDER BY
+
+ORDER BY requires all values to be orderable.
+Comparable values should be ordered in the same order as implied by their comparison order.
+This means that ordering values where all values are of the same temporal instant type is trivial.
+However, ORDER BY in Cypher also needs to support ordering values of different types together.
+For temporal values, this is solved in the same way as for most types in Cypher, by first ordering by type, and then by comparison order within the type.
+
+Since no complete comparison order can be defined for _Duration_ values, we define an order for ORDER BY specifically for _Duration_.
+_Duration_ values are ordered by normalising all components as if all years were +365.2425+ days long (`PT8765H49M12S`), all months were +30.436875+ (1/12 year) days long (`PT730H29M06S`), and all days were +24+ hours long.
+The +365.2425+ days per year comes from the frequency of leap years.
+A leap year occurs on a year with an ordinal number divisible by 4, that is not divisible by 100, unless it divisible by 400.
+This means that over 400 years there are `((365 * 4 + 1) * 25 - 1) * 4 + 1 = 146097` days, which means an average of +365.2425+ days per year.
+
+[[string-repr]]
+==== String representation of temporal values
+
+The Cypher string conversion function `toString` when applied to temporal values returns a string representation suitable for parsing by the corresponding temporal function.
+I.e. a string formatted according to the https://en.wikipedia.org/wiki/ISO_8601[ISO 8601] format (the `[±Y]YYYY-MM-DD` version, not the week or ordinal date form).
+A simple example would be:
+
+    RETURN toString( datetime({year:2015, month:7, day:20, hour:15, minute:11, second:42, timezone:"Europe/Stockholm"}) )
+
+Which yields:
+
+    "2015-07-20T15:11:42+0200[Europe/Stockholm]"
+
+
+=== Notably unsupported
+
+
+==== Month and weekday names
+
+Since months and weekdays have different names in different languages, supporting parsing and emitting these would require deeper support for internationalization.
+This is deemed out of scope for this proposal.
+It is however still possible to convert the the weekday and month numbers to names by using offsets into lists containing the names.
+
+Example of returning the abbreviated name of the current month:
+
+    RETURN ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][date().month-1] AS month
+
+Example of returning the name of the current weekday in Swedish:
+
+    RETURN ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Lördag", "Söndag"][date().weekday-1] AS veckodag
+
+The inverse, creating a date given the name of a weekday or month is a bit trickier but still possible:
+
+    WITH ["mon","tue","wed","thu","fri","sat","sun"] AS weekdays
+    WITH [w in range(1,size(weekdays))
+          WHERE weekdays[w-1] = lower({weekday}[..3])][0] AS weekday
+    RETURN date({year:{year}, week:{week}, dayOfWeek:weekday}) AS theDate
+
+
+[[impl-notes]]
+== Implementation notes
+
+It is envisioned that for Java-based implementations, this feature is implemented using the date and time APIs introduced in Java 8 through JSR-310.
+Since <<jsr310,JSR-310 supports all the features>> presented in this proposal (and more), the burden of implementing this proposal is expected to be very light, even though the proposal is fairly long in order to capture all the semantics Cypher would acquire through such an implementation.
+
+
+== What others do
+
+
+=== PostgreSQL
+
+http://www.postgresql.org/docs/9.1/static/datatype-datetime.html[PostgreSQL] implements the same temporal types as proposed in this document, but for what we call _DateTime_ they have chosen the name _timestamp_, and instead of our _Duration_ they call their counterpart _interval_.
+
+For parsing and formatting temporal values PostgreSQL mainly follows ISO 8601, but also supports older SQL date output styles.
+
+PostgreSQL uses the IANA timezone database for converting named timezones to timezone offsets.
+For dates in the future, it assumes that the most recent timezone information from the IANA database will last forever.
+In addition to that PostgreSQL keeps a table mapping timezone abbreviations to offsets, such as PST or CET, when these are used the absolute offset this abbreviation maps to is used, but when the full timezone name from IANA is used the correct offset is computed based on the date.
+Furthermore PostgreSQL supports POSIX-style timezone specifications which are specified as an abbreviated name, followed by the offset in hours *_west_* of UTC footnote:[Normally offset is specified east of UTC.] it represents, optionally followed by an abbreviated name for the corresponding daylight savings time zone (the daylight savings time is assumed to follow the posixrules entry from the IANA database).
+Since the POSIX-style timezone names are not tied to any timezone database, it is possible to specify arbitrary timezone names this way.
+
+PostgreSQL supports a large number of http://www.postgresql.org/docs/9.1/static/functions-datetime.html[operators on date/time values]
+Similar to this proposal, the difference between time values are _interval_ values, and _interval_ values can be added to time values, but the difference between _date_ values is an integer expressing the number of days they differ by, and adding an integer to a _date_ produces a _date_ that many days later.
+Adding an _interval_ to a _date_ produces a _timestamp_.
+
+Explicit selectors are used for extracting the _time_ or _date_ parts of a _timestamp_ through the use of the SQL extract function.
+Cypher does the same thing through selection when creating _Date_ and _Time_ from components.
+
+PostgreSQL also has multiple ways of doing the same thing in trying to be compatible with both the SQL standard, as well as inheriting functionality from Ingres.
+This means that there is a date_part function that does the same things as the extract function, but with a different syntax.
+
+PostgreSQL has two different notions of the current time.
+The main one, the one used for `CURRENT_TIME`, `CURRENT_DATE`, `CURRENT_TIMESTAMP`, and `LOCALTIMESTAMP` (all part of the SQL standard) uses the start time of the current transaction in order to provide consistent timestamps for modifications made in the same transaction.
+In addition to that PostgreSQL provides the following non-standard extensions:
+
+ * `transaction_timestamp()` - equivalent to `CURRENT_TIMESTAMP`, but named to clearly reflect what it returns.
+ * `statement_timestamp()` - the start time of the current statement, for the first statement in a transaction this is the same as transaction_timestamp().
+ * `clock_timestamp()` - the actual current time, at the time the function was invoked.
+
+PostgreSQL supports https://www.periscope.io/blog/extrapolating-data-with-day-of-week-effects.html[truncating a _timestamp_] or _interval_ to a particular resolution through the use of the `date_trunc('_field_', _source_)` function.
+This produces a new timestamp or interval that retains the fields that are more significant than the specified field (including the specified field), and has the fields less significant than the specified field set to zero (or one, for day and month).
+Truncation can be performed these fields:
+
+ * `microseconds`
+ * `milliseconds`
+ * `second`
+ * `minute`
+ * `hour`
+ * `day`
+ * `week`
+ * `month`
+ * `quarter`
+ * `year`
+ * `decade`
+ * `century`
+ * `millennium`
+
+ For ordering (and comparing) intervals, PostgreSQL implements the https://en.wikipedia.org/wiki/360-day_calendar[360-day calendar].
+
+
+=== DB2
+
+DB2 supports the same features as PostgreSQL where these features are part of the SQL standard.
+In addition to that DB2 has an interesting feature of four different duration types:
+
+ * _Labelled duration_ - represents a specific unit of time as expressed by a number. +
+   For example `10 MINUTES`, or `11 DAYS`
+ * _Date duration_ - represents an amount of time in _years_, _months_, and _days_.
+ * _Time duration_ - represents an amount of time in _hours_, _minutes_, and _seconds_.
+ * _Timestamp duration_ - represents an amount of time in _years_, _months_, _days_, _hours_, _minutes_, and _seconds_.
+
+
+=== MongoDB
+
+http://docs.mongodb.org/manual/core/shell-types/[MongoDB] only supports _DateTime_ values with timezone, and calls the type of these http://docs.mongodb.org/manual/reference/bson-types/#date[_Date_].
+It also has a type called http://docs.mongodb.org/manual/reference/bson-types/#timestamps[_Timestamp_] that represents the number of seconds since Unix epoch and an _ordinal_ integer value.
+This type is used for ordering operations.
+
+In terms of operations on _Date_, the MongoDB documentation is very sparse.
+
+
+=== OrientDB
+
+http://orientdb.com/docs/last/Managing-Dates.html[OrientDB] takes an approach very similar to that of MongoDB, and supports +java.util.Date+ as its sole temporal type.
+This means the internal representation is seconds since Unix epoch, and they are very transparent about this.
+The database has a global `datetimeformat` setting (that can be altered) that is used for parsing _Date_ values.
+For output a +format+ method is used that requires a date format string, this is also how components (i.e. the year, month parts et.c.) of a _Date_ are selected.
+
+
+=== AllegroGraph
+
+http://franz.com/agraph/support/documentation/v4/datatypes.html[AllegroGraph] uses the http://www.w3.org/TR/xmlschema-2/#isoformats[XSD Date and Time datatypes].
+This means that they have the same temporal datatypes as in this proposal.
+
+AllegroGraph does not allow comparing a _Date_ to a _Time_, a _Date_ to a _DateTime_, or a _Time_ to a _DateTime_, it does however allow conversions between the types so that the user can explicitly convert in order to perform a sensible comparison.
+AllegroGraph does however allow comparing a _Date_/_Time_/_DateTime_ with TimeZone to a value of the same type without TimeZone, but there are caveats to such comparisons in that the two values can never be equal, only less than greater than or _neither less than or greater than_, in the case of the instants being equivalent apart from the TimeZone.
+
+http://franz.com/agraph/support/documentation/current/temporal-tutorial.html[AllegroGraph] also has a _Point_ datatype, representing a logical point in time, that does not have a fixed absolute time associated with it.
+_Points_ are only anchored by their relative relationships to one another (i.e. a relationship specifying that one point is before another).
+_Points_ relate to the absolute temporal values by treating the absolute values as points and allowing the database to say that a particular _Point_ is before or after a particular _DateTime_.
+
+On top of _Points_ AllegroGraph also defines intervals (from one start point to one end point) and implements https://en.wikipedia.org/wiki/Allen%27s_interval_algebra[Allen’s Interval Algebra] on top of these intervals for both storing temporal information and querying the database based on temporal logic.
+
+
+=== SPARQL
+
+SPARQL temporal types are defined by the http://www.w3.org/TR/xmlschema-2[XML Schema definition], and thus has the following temporal types:
+
+ * _dateTime_, with and without timezone
+ * _time_, with and without timezone
+ * _date_, with and without timezone
+ * _duration_
+
+SPARQL defines the ability to add a _duration_ to a temporal instant, but does not define a capability of subtracting _dateTime_, _date_, or _time_ instances to produce a _duration_.
+Furthermore SPARQL defines a partial order on _duration_, where some instances are not comparable to others (for example P365D and P366D are not comparable to P1Y).
+
+
+[[jsr310]]
+=== Java in JSR-310
+In Java 8 a new API for date and time was introduced (http://docs.oracle.com/javase/8/docs/api/java/time/package-summary.html[+java.time+]).
+This was governed by the https://jcp.org/en/jsr/detail?id=310[JSR-310] specification which was based on lessons learned from http://www.joda.org/joda-time/[JodaTime], championed by the creator of JodaTime.
+See http://www.threeten.org/[threeten.org] for detailed information about this API.
+
+JSR-310 distinguishes between all the different types of temporal units that Cypher would based on this proposal.
+It would be appropriate for Java based Cypher implementations to make use of JSR-310 for its implementation of this proposal.
+
+JSR-310 has some support for operations involving temporal values of different types, which it bases on its excellent support for converting between types. Performing such operations on different types still becomes quite confusing since it isn’t commutative, the left operand dictates the fidelity, and the right operand is required to support all the temporal fields that the left operand contains, but is allowed to have additional fields. This non-commutativity of types was a strong contributing factor in deciding not to support operations between different types of temporal values in Cypher.
+
+In terms of temporal types, JSR-310 supports some different precisions that this proposal does not mention: _Year_ - representing a particular year (example: 2003), _YearMonth_ - representing a particular month in a particular year (example: October 2007), and _MonthDay_ - representing a particular day of a particular month in any year (example: December 25th). _Year_ and _YearMonth_ fall naturally into being types that are less precise than _Date_, and _MonthDay_ falls in between the precision of _Date_ and _Time_.
+The concept of a particular day in any month seems like a type that might be missing, but it is easy enough to just use an integer to represent this. These types would be particularly interesting if less precise temporal instants were <<precision-dimension,considered ranges>> from the point of view of instant with higher precision.
+
+JSR-310 supports quite a few features that are not planned for inclusion in Cypher, at least not yet.
+Most notably it supports calendars other than the Gregorian calendar.
+
+JSR-310 has two different temporal delta types, _Duration_ and _Period_.
+_Duration_ is based on absolute time (in seconds) and _Period_ is based on the logical time delta.
+This makes a difference when for example adding a day to a _DateTime_ representing +18:00+ the day before a daylights savings gap, with a _Period_ representing one day the resulting _DateTime_ would represent +18:00+ the next day, with a _Duration_ representing one day +24+ hours would be added resulting in a _DateTime_ representing +19:00+ the next day.
+A similar difference occurs with months, where a _Period_ could represent the concept of a month and be used to produce the same day-of-the month in the next month for any given month, but a _Duration_ would only be able to represent a set number of days (seconds actually), so adding it to a date in February would produce a different day-of-month from adding it to a date in July.
+We propose that this difference between types can be handled transparently to the user by allowing the components of Cyphers _Duration_ to be larger than the corresponding component in DateTime, and always use a logical interpretation (like _Period_ in JSR-310 does), see the section on <<arithmetic,Arithmetic on temporal values>> for details.
+
+
+== Alternatives
+
+
+=== Only provide DateTime, and let the user model the other types
+
+This is what MongoDB, Cassandra, and some others do.
+Although most implementations that only take this route don’t implement any operations on _DateTime_, and if we settled for that there would be very little value added over what Cypher can do today with the built in +timestamp+ function.
+This approach would thus only be valuable if we also implemented the functionality outlined in this proposal.
+At that point not implementing the other temporal types would not mean much savings in terms of implementation effort.
+
+
+=== Offer both a logical and physical temporal amounts
+
+JSR-310 does this, and we would probably adopt the same names for these types as JSR-310:
+
+ * _Duration_ would be a physical temporal amount, always represented in seconds. +
+   This is the type of value you would get when computing the difference between two _DateTime_ values, two _LocalDateTime_ values, two _Time_ values, or two _LocalDateTime_ values.
+ * _Period_ would be a logical temporal amount, where each component is represented individually. +
+   When computing the difference between two _Date_ values, a _Period_ of days would be the result.
+
+_Duration_ would be comparable, but _Period_ would not be comparable.
+
+You would be able to add either a Period or a Duration to a temporal instant value.
+
+
+[[precision-dimension]]
+=== Model precision as its own dimension separate from the type dimension
+
+With this model we would have only one (possibly two) different temporal instant types, but instead they would encode their precision.
+Their precision would be allowed to vary from two directions, from the most significant end or from the least significant end.
+
+Varying the precision from the most significant end you would be able to represent (in order of increasing precision):
+
+ * A particular year +
+   _(possibly we could allow even lower precision in order to identify a decade or century __etc. as well)_
+ * A particular month of _a particular_ year
+ * A particular week of _a particular_ year
+ * A particular day of _a particular_ year +
+  _(it doesn’t matter if it is specified as an ordinal day, day of month, or day of week)_
+ * A particular hour of _a particular_ day
+ * A particular minute of _a particular_ hour
+ * A particular second of _a particular_ hour
+ * A particular millisecond, microsecond, or nanosecond of _a particular_ second +
+
+All of these different levels of precision would exist with and without a timezone association (so timezone would be in the type dimension of this, not in the precision dimension).
+
+From the point of view of a more precise temporal instant, a less precise instant would appear as a range, and Cypher would support operations for determining if an instant is within a range, before a range, or after a range.
+It would be an error to try to detect if an instant is within a more precise instant (or within an equally precise instant), but being before or after would still be possible to discern.
+
+Varying the precision from the least significant end you would instead represent (in order of increasing precision):
+
+ * A particular millisecond, microsecond, or nanosecond of _any given_ second
+ * A particular second (and ms, µs, ns) of _any given_ minute
+ * A particular minute (and second, and smaller components) of _any given_ hour
+ * A particular hour (and smaller components) of _any given_ day
+ * A particular day (and smaller components) of _any given_ week (week day)
+ * A particular day (and smaller components) of _any given_ month (date)
+ * A particular day (and smaller components) of _any given_ year (ordinal date)
+ * A particular month (and smaller components) of _any given_ year
+ * A particular week (and smaller components) of _any given_ year
+ * A particular year (and smaller components) of any given decade, century, etc.
+ * An exact date
+
+The most precise versions from both directions would thus be the exact same thing, whereas at the less precise versions they would be each others compliment, and would be possible to combine to a more precise form.
+One might also imagine being able to vary the precision from both ends, and thus specifying something like _a particular hour (but not the smaller components) of a particular day of any given week_.
+
+It is quite clear how varying the precision from the most significant end is an extension of the difference between _Date_ and _DateTime_, whereas varying the precision from the least significant end is an extension of the difference between _Time_ and _DateTime_.
+
+It might be possible to evolve this proposal into being able to handle such varying levels of preciseness when we extend the capabilities of Cypher to also be able to deal with ranges.
+What is notably missing from this proposal in order to be compatible is a _Date_ with timezone, but that would be a rather simple additive change.
+Where problems might arise is from the fact that such a future change would start treating _Date_ and _DateTime_ as the same type but with different precision.
+Arguably since instants with different precision aren’t type compatible anyhow, this might not pose a problem in reality, since it could be seen as subtypes.
+
+
+=== Support for intervals
+
+Instead of letting the subtraction operator between two temporal instants produce a Duration value, it could be possible to have that operation produce an _Interval_ value instead.
+An _Interval _is a temporal range that has a start instant and an end instant.
+Intervals would be possible to compare to durations since there is a fixed point in time to offset the Duration from, essentially making the comparison implement the recommended way of comparing two temporal instants and a Duration from the proposal above.
+
+The operation would be defined to either order the two instants, taking the earlier one to be the start instant and the later one to be the end instant, regardless of which one was written on the left and right side of the operator, or it would be defined to yield an error if the value on the right hand side is earlier than the value on the left hand side.
+
+Such an interpretation would be interesting to consider when support for Intervals is added.
+
+
+=== Have comparable subtypes of Duration that only contain a single unit
+
+Since comparing durations containing different units ranges from hard to impossible (because of the it being impossible to know for instance how many days are in a month) it could be possible to define a specific _Duration_ subtype that contains only a single unit, similar to DB2s labeled durations.
+These would be comparable to one another if that single unit is the same, and other durations would not be comparable.
+If we then further define subtraction on _Date_, _Time_, and _DateTime_ to produce such a single unit duration (with the unit being DAYS for _Date_, and SECONDS for _Time_ and _DateTime_) we would be able to express “is the difference between these two temporal instants shorter than this given duration” in a slightly more intuitive way.
+
+It is questionable if making the type system more complex like this is justified by the small benefit of being able to write such comparisons, especially since the duration in the comparison would be limited to a single time unit.

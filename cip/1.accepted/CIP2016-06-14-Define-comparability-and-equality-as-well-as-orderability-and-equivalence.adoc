@@ -152,6 +152,14 @@ We propose that <<comparability-con,comparability>> should be defined between an
 - Implementation-specific types
   * Implementations may choose to define suitable comparability rules for values of additional, non-canonical types.
   * Values of an additional, non-canonical type are expected to be <<incomparable>> to values of a canonical type.
+- Temporal instant types (DateTime, LocalDateTime, Date, Time, LocalTime)
+  * Temporal instant values are only comparable within types.
+  * Given two instants `a` and `b`, `a < b` is `true` iff `a` is _before_ `b`, +
+    conversely `a > b` is `true` iff `a` is _after_ `b`.
+  * Temporal instant values with timezone (DateTime and LocalTime) are compared on a global timeline, as if the instants were normalized to UTC.
+- Durations
+  * Durations are not comparable, and can thus only be tested for equality.
+  * Inequality comparisons (`<` and `>`) between durations yield `null`.
 - `null` is <<incomparable>> with any other value (including other `null` values).
 
 [[equality-def,equality]]
@@ -227,6 +235,12 @@ We define the following ascending global sort order of disjoint types:
 ** `RELATIONSHIP`
 * `LIST OF ANY?`
 * `PATH`
+* `DATETIME`
+* `LOCALDATETIME`
+* `DATE`
+* `TIME`
+* `LOCALTIME`
+* `DURATION`
 * `STRING`
 * `BOOLEAN`
 * `NUMBER`
@@ -377,16 +391,19 @@ Any other comparison will always yield  a`null` value (except when comparing `Na
 .Comparability of values of different types (`X` means the result of comparison will always return `true` or `false`)
 [frame="topbot",options="header,footer"]
 |================================================================================================================================
-|Type           | `NODE` | `RELATIONSHIP` | `PATH` | `MAP` | `LIST OF ANY?` | `STRING` | `BOOLEAN` | `INTEGER` | `FLOAT` | `VOID`
-|`NODE`         | X      |                |        |       |                |          |           |           |         |
-|`RELATIONSHIP` |        | X              |        |       |                |          |           |           |         |
-|`PATH`         |        |                | X      |       |                |          |           |           |         |
-|`MAP`          |        |                |        | X     |                |          |           |           |         |
-|`LIST OF ANY?` |        |                |        |       | X              |          |           |           |         |
-|`STRING`       |        |                |        |       |                | X        |           |           |         |
-|`BOOLEAN`      |        |                |        |       |                |          | X         |           |         |
-|`INTEGER`      |        |                |        |       |                |          |           | X         | X       |
-|`FLOAT`        |        |                |        |       |                |          |           | X         | X       |
-|`VOID`         |        |                |        |       |                |          |           |           |         |
+|Type           | `NODE` | `RELATIONSHIP` | `PATH` | `MAP` | `LIST OF ANY?` | Temporal | `DURATION` | `STRING` | `BOOLEAN` | `INTEGER` | `FLOAT` | `VOID`
+|`NODE`         | X      |                |        |       |                |          |            |          |           |           |         |
+|`RELATIONSHIP` |        | X              |        |       |                |          |            |          |           |           |         |
+|`PATH`         |        |                | X      |       |                |          |            |          |           |           |         |
+|`MAP`          |        |                |        | X     |                |          |            |          |           |           |         |
+|`LIST OF ANY?` |        |                |        |       | X              |          |            |          |           |           |         |
+|Temporal       |        |                |        |       |                | X^†^     |            |          |           |           |         |
+|`DURATION`     |        |                |        |       |                |          |            |          |           |           |         |
+|`STRING`       |        |                |        |       |                |          |            | X        |           |           |         |
+|`BOOLEAN`      |        |                |        |       |                |          |            |          | X         |           |         |
+|`INTEGER`      |        |                |        |       |                |          |            |          |           | X         | X       |
+|`FLOAT`        |        |                |        |       |                |          |            |          |           | X         | X       |
+|`VOID`         |        |                |        |       |                |          |            |          |           |           |         |
 |================================================================================================================================
 
+† Comparisons between _the same_ Temporal instant type will always return `true` or `false`, comparisons between _different_ temporal instant types will not.
