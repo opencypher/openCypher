@@ -30,65 +30,6 @@
 
 Feature: CreateAcceptance
 
-  Scenario: Create a single node with multiple labels
-    Given an empty graph
-    When executing query:
-      """
-      CREATE (:A:B:C:D)
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes  | 1 |
-      | +labels | 4 |
-
-  Scenario: Combine MATCH and CREATE
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (), ()
-      """
-    When executing query:
-      """
-      MATCH ()
-      CREATE ()
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes  | 2 |
-
-  Scenario: Combine MATCH, WITH and CREATE
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (), ()
-      """
-    When executing query:
-      """
-      MATCH ()
-      CREATE ()
-      WITH *
-      MATCH ()
-      CREATE ()
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes  | 10 |
-
-  Scenario: Newly-created nodes not visible to preceding MATCH
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()
-      """
-    When executing query:
-      """
-      MATCH ()
-      CREATE ()
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes  | 1 |
-
   Scenario: Create a single node with properties
     Given any graph
     When executing query:

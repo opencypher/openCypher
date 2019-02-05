@@ -62,7 +62,7 @@ Feature: Create1 - Creating nodes
       | +relationships | 1 |
 
   Scenario: [4] Creating a node with a label
-    Given an empty graph
+    Given any graph
     When executing query:
       """
       CREATE (:Label)
@@ -72,7 +72,18 @@ Feature: Create1 - Creating nodes
       | +nodes  | 1 |
       | +labels | 1 |
 
-  Scenario: [5] Creating a node with a property
+  Scenario: [5] Create a single node with multiple labels
+    Given any graph
+    When executing query:
+      """
+      CREATE (:A:B:C:D)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes  | 1 |
+      | +labels | 4 |
+
+  Scenario: [6] Creating a node with a property
     Given any graph
     When executing query:
       """

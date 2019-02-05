@@ -28,52 +28,12 @@
 
 #encoding: utf-8
 
-Feature: Create3 - Interoperation with other clauses
+Feature: Create3 - Negative tests
 
-  Scenario: [1] Combine MATCH and CREATE
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (), ()
-      """
+  Scenario: Creating a relationship without a type
+    Given any graph
     When executing query:
       """
-      MATCH ()
-      CREATE ()
+      CREATE ()-->()
       """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes  | 2 |
-
-  Scenario: [2] Combine MATCH, WITH and CREATE
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (), ()
-      """
-    When executing query:
-      """
-      MATCH ()
-      CREATE ()
-      WITH *
-      MATCH ()
-      CREATE ()
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes  | 10 |
-
-  Scenario: [3] Newly-created nodes not visible to preceding MATCH
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()
-      """
-    When executing query:
-      """
-      MATCH ()
-      CREATE ()
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes  | 1 |
+    Then a SyntaxError should be raised at compile time: MissingRelationshipType

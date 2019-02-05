@@ -5,7 +5,7 @@ The two main groups are clauses and expressions.
 Each group enumerates its members.
 Within each member, there is additional categories.
 
-There is also `wip` directory containing uncategorised features`
+There is also `wip` directory containing uncategorised features.
 
 == Clauses
 
@@ -19,7 +19,9 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 ** This group is about the creation of nodes.
 * `Create2`: Creating relationships
 ** This group is about the creation of relationships.
-* `Create3`: Negative tests
+* `Create3`: Interoperation with other clauses
+** This group is about how the `CREATE` clause behaves when combined with other clauses.
+* `Create4`: Negative tests
 ** This group is about failure cases for the `CREATE` clause; invalid queries.
 
 
