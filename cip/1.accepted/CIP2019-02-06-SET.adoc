@@ -1,0 +1,227 @@
+= CIP2019-02-06 SET and REMOVE
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Authors:* Satia Herfert satia.herfert@neo4j.com and Craig Taverner craig.taverner@neo4j.com
+
+[abstract]
+.Abstract
+--
+This CIP describes the semantics of the `SET` and `REMOVE` clauses for setting and removing properties and labels from nodes and relationships.
+--
+
+toc::[]
+
+
+== Motivation
+
+There are no existing formal specifications for the semantics of the `SET` and `REMOVE` clauses.
+In addition, the semantics of `SET` with regard to setting multiple components in a single `SET` clause can be ambiguous.
+This document aims to clarify all cases.
+
+== Background
+
+The use of the `SET` and `REMOVE` clauses for modifying node and relationship properties has existed in Cypher for a long time, but not been formally described.
+Recently some subtle edge cases were found that have motivated for increased clarity in this area.
+For example, consider the following query:
+[source, cypher]
+----
+MATCH (p1:Product {name:"laptop"}), (p2:Product {name:"tablet"})
+SET p1.id = p2.id, p2.id = p1.id
+----
+
+It is ambiguous whether the components of the set clause are evaluated in order, in which case the values of `p1.id` and `p2.id` would become equal to the original `p2.id`, or if all expressions are evaluated first and then assigned, in which case the values will be swapped.
+It is anticipated that the latter semantic is the most desired, that the components should not imply order, and therefore that older versions of Cypher are not conforming with this desired behaviour.
+
+== Proposal
+
+The syntax and semantics of `SET` and `REMOVE` are described below.
+
+=== Syntax
+
+[source, ebnf]
+----
+Set                 = “SET”, SetItem, { “,”, SetItem } ;
+SetItem             = PropertyAssignment |
+                        MapAssignment |
+                        MapAugmentation |
+                        LabelAddition ;
+PropertyAssignment  = PropertyExpression, “=”, Expression ;
+MapAssignment       = Variable, “=”, Expression ;
+MapAugmentation     = Variable, “+=”, Expression ;
+LabelAddition       = Variable, NodeLabels ;
+
+Remove              = “REMOVE”, RemoveItem, { “,”, “RemoveItem } ;
+RemoveItem          = PropertyRemoval | LabelRemoval ;
+PropertyRemoval     = PropertyExpression ;
+LabelRemoval        = Variable, NodeLabels ;
+
+----
+
+
+The production rules for `Variable`, `NodeLabel`, `Expression`, and `PropertyExpression` can be found in the <<../../grammar/commands.xml,grammar for commands>> and the <<../../grammar/basic-grammar.xml,basic grammar>>.
+
+=== Semantics
+
+The semantics of the `SET` and `REMOVE` clause can be described in two ways, firstly by describing the behaviour grouped by operator used, and secondly by describing from the perspective of specific use cases that can be satisfied in multiple ways.
+
+==== Operators
+
+===== Property Assignment '='
+
+`SET n.prop = expression` will evaluate the expression to obtain a single value which can be assigned to the property `prop` of the node or relationship `n`.
+The valid assignable property types are described in <<CIP2015-09-16-public-type-system-type-annotation.adoc#types-and-type-literal-syntax,CIP2015-09-16>>.
+
+===== Map Assignment '='
+
+When the left-hand side of the assignment operator is a variable representing a node or relationship, the right-hand side expression must evaluate to a map value containing string keys and values that are all valid assignable property types.
+The node or relationship will be modified to contain exactly the properties of the map, and any other properties will be removed.
+Example: `SET n = {a: 1, b:2}`
+
+===== Map Augmentation '+='
+
+When the left-hand side of the `+=` operator is a variable representing a node or a relationship, then the right-hand side expression must evaluate to a map value containing string keys and valid property values.
+The node or relationships will be modified to contain these properties without the removal of any other previously existing properties.
+Example: `SET n += {a: 1, b:2}`
+
+===== Property Removal
+
+`REMOVE n.prop` will assign `null` to the property `prop` of the node or relationship `n`.
+This is equivalent to deleting the property.
+
+===== Label Addition
+
+The variable must represent a node.
+The node will get assigned all labels that follow.
+No labels will be removed from the node.
+Example: `SET n:Foo:Bar`
+
+===== Label Removal
+
+The variable must represent a node.
+The node will get unassigned all labels that follow.
+If the node did not have some of the labels being removed, that is a no-operation for that label.
+Example: `REMOVE n:Foo:Bar`
+
+==== Use Cases
+
+===== Assigning a Single Property
+
+The simplest canonical case is the assignment of a single property:
+
+* `SET n.prop = 5`
+* `SET n.prop = $param`
+* `SET n.prop = expression`
+
+===== Multiple Assignments
+
+The `SET` clause can be followed by a comma-separated list of assignments.
+The order of the assignments is not relevant to the semantics of the clause.
+All assignments are evaluated atomically after all right-hand side expressions have been evaluated.
+Consider for example:
+[source, cypher]
+----
+MATCH (p1:Product{name:"laptop"}), (p2:Product{name:"tablet"})
+SET p1.id = p2.id, p2.id = p1.id
+----
+
+All expressions are evaluated first and then assigned, which in this case means that `p1.id` and `p2.id` will swap their values.
+This will be unaffected by typing the clause in the opposite order: `SET p2.id = p1.id, p1.id = p2.id`
+
+===== Assigning Multiple Properties
+
+Assigning multiple properties to the same node or relationship can be achieved in two ways:
+
+* Multiple assignments: `SET n.a = 5, n.b = 'word', n.c = $param`
+* Map augmentation: `SET n += {'a': 5, 'b': 'word', 'c': $param}`
+
+===== Removing Properties
+
+The property graph model interprets a null property value as semantically identical to a missing or removed property.
+For this reason, there are multiple semantically identical ways to remove a property from a node or relationship:
+
+* Assign the property to null
+** `SET n.prop = null`
+** `SET n.prop = expression`  where expression evaluates to null, for example a variable or a parameter
+* Remove the property: `REMOVE n.prop`
+* Assign the node or relationship to a Map value that does not contain the previously existing property: `SET n = {a: var, b:var}`
+
+====== Adding or Removing Labels
+
+Labels can only be added to or removed from nodes.
+
+* Adding one label to a node: `SET n:Foo`
+* Adding multiple labels to a node: `SET n:Foo:Bar`
+* Removing one label from a node: `REMOVE n:Foo`
+* Removing multiple labels from a node: `REMOVE n:Foo:Bar`
+
+== Interaction with existing features
+
+=== Deleted Elements
+
+The `PropertyExpression` or `Variable` on the left-hand-side of a `SetItem` or `RemoveItem` might refer to a node or relationship that has been deleted previously in the same query.
+In this case, the `SET` or `REMOVE`  is a no-operation.
+
+=== Order Dependencies
+
+There are cases where the order of the incoming records can influence the final results.
+This could lead to unexpected behaviour.
+Consider the following example:
+[source, cypher]
+----
+MATCH (p1:Product {pid:85}), (p2:Product {pid:125})
+SET p1.name = p2.name
+----
+
+If there is more than one product with `pid=125`, then the `SET` clause will be applied twice to each `p1`, with a different `p2`.
+If all the `p2.name` values for `p2.pid=125` are the same, this has no surprising result.
+However, if they are not the same, the last one set will be the one that persists.
+This means the final result is a function of the order in which the `p2` nodes are found.
+This order is likely not something the user is aware of or in control of, and therefore could lead to surprising behaviour.
+
+==== Planner Warnings
+
+It is recommended that query planners detect cases where the query could result in order dependencies and issue warnings that describe this case to allow developers and users to take this into account when writing queries.
+The conditions to look for would be:
+
+* We have a `SET` on an element property where it is not known if the same element will occur on multiple rows or not.
+** If the elements come from a unique index, and their cardinality is never increased (eg. expand in pattern expression or cartesian product with another match), then the element is not repeated.
+** If the user uses a `WITH DISTINCT`, or an aggregation that groups on the element before the set to ensure uniqueness, the element is not repeated.
+* And the right-hand side expression is not guaranteed to generate the same value for each case of the same left-hand side.
+** Literal expressions are safe.
+** Expressions that are only functions of the left-hand side element are safe.
+
+==== Runtime Errors
+
+Query runtime implementations may implement stronger enforcement of rules that generate errors when order dependency violations occur.
+There are two suggestions for the level of enforcement:
+
+* Enforce that a single property can only be written to the same value for all rows of the driving table in a `SET` clause.
+** This will fail the query execution as soon as an attempt is made to set a property on a property container, if that property on that property container has been set to a different value before, in the same `SET` clause.
+** This is expected to have a large impact on memory consumption of the query since each `SET` clause needs to remember which properties it wrote on which nodes/relationships and what values.
+* Enforce that a single property can only be written once for all rows of the driving table in a `SET` clause.
+** This will fail the query execution as soon as an attempt is made to set a property on a property container, if that property on that property container has been set before, in the same `SET` clause.
+** This is expected to have a large impact on memory consumption of the query, although smaller than in the first alternative.
+   Here, each `SET` clause needs to remember which properties it wrote on which nodes/relationships.
+
+Since the enforcement of runtime errors requires the maintenance of state, the size of which is a function of the number of elements being set as well as the number of `SET` clauses, this can have a negative impact on the performance of these queries, and therefore the implementation of this enforcement is not a requirement, but an implementation specific suggestion.
+
+== What others do
+
+The `UPDATE` clause in SQL allows changing existing values in a table or in the base table of a view.
+It avoids non-determinism of the order in the driving table by guaranteeing that each row of the table or underlying base table is only referenced once.
+The SQL standard specifies `SET` in SQL as reading a tuple and then assigning that tuple to the corresponding columns.
+This is equivalent to Cyphers atomic `SET` semantics.
+
+Sources:
+
+* https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_10007.htm
+* Page 1192 of ISO/IEC 9075-2 (section 14.15 <set clause list>)
+
+
+== Caveats to this proposal
+
+This specification does not guarantee deterministic semantics if there are order dependencies.
+It does so for performance reasons but gives suggestions for implementations that want to avoid this non-determinism.
