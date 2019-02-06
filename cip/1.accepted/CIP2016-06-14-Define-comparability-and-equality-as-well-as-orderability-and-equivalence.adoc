@@ -119,8 +119,8 @@ We propose that <<comparability-con,comparability>> should be defined between an
 - Lists
   * Lists are compared in dictionary order, i.e. list elements are compared pairwise in ascending order from the start of the list to the end. Elements missing in a shorter list are considered to be less than any other value (including `null` values).
   For example, `[1] < [1, 0]` but also `[1] < [1, null]`.
-  * If comparing two lists requires comparing at least a single `null` value to some other value, these lists are <<incomparable>>.
-  For example, `[1, 2] >= [1, null]` evaluates to `null` (incomparable), but `[1, 2] >= [3, null]` evaluates to `false`.
+  * If comparing two lists requires comparing any pair of incomparable values, these lists are <<incomparable>>.
+  For example, `[1, 2] >= [1, null]` and `[1, 2] >= [1, 'text']` both evaluate to `null` (incomparable), but `[1, 2] >= [3, null]` evaluates to `false`.
   * Lists are <<incomparable>> to any value that is not also a list.
 - Maps
   * [[regular-maps,regular maps]]Regular maps
@@ -179,7 +179,7 @@ To determine if two lists `l1` and `l2` are equal, we propose two simple tests, 
 <=>
 a1 = b1 && a2 = b2 && ... && an = bn
 ----
-* If the second test requires comparing at least a single `null` value to some other value, these lists are <<incomparable>>. E.g., `[1, 2] = [1, null]` evaluates to `null` (incomparable), but `[1, 2] = [null, 'foo']` evaluates to `false`.
+* If the second test evaluates to `null`, these lists are <<incomparable>>. This will only happen if at least one element in one of the lists is `null` while all non-null elements are pairwise equal. For example, `[1, 2] = [1, null]` evaluates to `null` (incomparable), while `[1, 2] = [null, 'foo']` evaluates to `false`.
 * For nested lists, the two tests above are carried out recursively, i.e.
 ---
 [[1]] = [[1], [null]] evaluates to false
