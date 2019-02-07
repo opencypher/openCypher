@@ -30,7 +30,7 @@
 
 Feature: Create2 - Creating relationships
 
-  Scenario: Creating two nodes and a relationship
+  Scenario: [1] Creating two nodes and a relationship
     Given any graph
     When executing query:
       """
