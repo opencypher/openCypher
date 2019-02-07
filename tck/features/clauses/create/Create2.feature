@@ -30,7 +30,7 @@
 
 Feature: Create2 - Creating relationships
 
-  Scenario: [1] Creating two nodes and a relationship
+  Scenario: [1] Creating two nodes and a single relationship in a single pattern
     Given any graph
     When executing query:
       """
@@ -40,3 +40,237 @@ Feature: Create2 - Creating relationships
     And the side effects should be:
       | +nodes         | 2 |
       | +relationships | 1 |
+
+  Scenario: [2] Creating two nodes and a single relationship in separate patterns
+    Given any graph
+    When executing query:
+      """
+      CREATE (a), (b),
+             (a)-[:R]->(b)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes         | 2 |
+      | +relationships | 1 |
+
+  Scenario: [3] Creating two nodes and a single relationship in separate clauses
+    Given any graph
+    When executing query:
+      """
+      CREATE (a)
+      CREATE (b)
+      CREATE (a)-[:R]->(b)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes         | 2 |
+      | +relationships | 1 |
+
+  Scenario: [4] Creating a single relationship between two existing nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:X)
+      CREATE (:Y)
+      """
+    When executing query:
+      """
+      MATCH (x:X), (y:Y)
+      CREATE (x)-[:TYPE]->(y)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +relationships | 1 |
+
+  Scenario: [5] Creating a single relationship between two existing nodes in backward direction
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:X)
+      CREATE (:Y)
+      """
+    When executing query:
+      """
+      MATCH (x:X), (y:Y)
+      CREATE (x)<-[:TYPE]-(y)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +relationships | 1 |
+    When executing control query:
+      """
+      MATCH (x:X)<-[:TYPE]-(y:Y)
+      RETURN x, y
+      """
+    Then the result should be:
+      | x    |  y   |
+      | (:X) | (:Y) |
+
+  Scenario: [6] Creating a single nodes and a single self loop in a single pattern
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (root)-[:LINK]->(root)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes         | 1 |
+      | +relationships | 1 |
+
+  Scenario: [7] Creating a single nodes and a single self loop in separate patterns
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (root),
+             (root)-[:LINK]->(root)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes         | 1 |
+      | +relationships | 1 |
+
+  Scenario: [8] Creating a single nodes and a single self loop in separate clauses
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (root)
+      CREATE (root)-[:LINK]->(root)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes         | 1 |
+      | +relationships | 1 |
+
+  Scenario: [9] Creating a single self loop on a existing node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:R)
+      """
+    When executing query:
+      """
+      MATCH (root:R)
+      CREATE (root)-[:LINK]->(root)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +relationships | 1 |
+
+  Scenario: [10] Creating a single relationship with a property
+    Given any graph
+    When executing query:
+      """
+      CREATE ()-[:R {prop: 'foo'}]->()
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes         | 2 |
+      | +relationships | 1 |
+      | +properties    | 1 |
+
+  Scenario: [11] Creating a single relationship and an end node on a existing starting node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:Begin)
+      """
+    When executing query:
+      """
+      MATCH (x:Begin)
+      CREATE (x)-[:TYPE]->(:End)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes         | 1 |
+      | +relationships | 1 |
+      | +labels        | 1 |
+    When executing control query:
+      """
+      MATCH (x:Begin)-[:TYPE]->(y:End)
+      RETURN x, y
+      """
+    Then the result should be:
+      | x        | y      |
+      | (:Begin) | (:End) |
+
+  Scenario: [12] Creating a single relationship and an starting node on a existing end node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:End)
+      """
+    When executing query:
+      """
+      MATCH (x:End)
+      CREATE (x:Begin)-[:TYPE]->(:End)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes         | 1 |
+      | +relationships | 1 |
+      | +labels        | 1 |
+    When executing control query:
+      """
+      MATCH (x:Begin)-[:TYPE]->(y:End)
+      RETURN x, y
+      """
+    Then the result should be:
+      | x        | y      |
+      | (:Begin) | (:End) |
+
+  Scenario: [13] Creating a single relationship with a property and returning it
+    Given any graph
+    When executing query:
+      """
+      CREATE ()-[r:R {prop: 'foo'}]->()
+      RETURN r.prop AS p
+      """
+    Then the result should be:
+      | p     |
+      | 'foo' |
+    And the side effects should be:
+      | +nodes         | 2 |
+      | +relationships | 1 |
+      | +properties    | 1 |
+
+  Scenario: [14] Creating a single relationship with two properties
+    Given any graph
+    When executing query:
+      """
+      CREATE ()-[:R {id: 12, prop: 'foo'}]->()
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes         | 2 |
+      | +relationships | 1 |
+      | +properties    | 2 |
+
+  Scenario: [15] Creating a single relationship with two properties and returning them
+    Given any graph
+    When executing query:
+      """
+      CREATE ()-[r:R {id: 12, prop: 'foo'}]->()
+      RETURN r.id AS id, r.prop AS p
+      """
+    Then the result should be:
+      | id | p     |
+      | 12 | 'foo' |
+    And the side effects should be:
+      | +nodes         | 2 |
+      | +relationships | 1 |
+      | +properties    | 2 |
+
+  Scenario: [16] Creating a single relationship with null properties should not return those properties
+    Given any graph
+    When executing query:
+      """
+      CREATE ()-[r:X {id: 12, property: null}]->()
+      RETURN r.id
+      """
+    Then the result should be:
+      | r.id |
+      | 12   |
+    And the side effects should be:
+      | +nodes         | 2 |
+      | +relationships | 1 |
+      | +properties    | 1 |
