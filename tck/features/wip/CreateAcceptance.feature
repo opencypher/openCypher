@@ -45,17 +45,6 @@ Feature: CreateAcceptance
       | +relationships | 1 |
       | +properties    | 1 |
 
-  Scenario: Create a simple pattern
-    Given any graph
-    When executing query:
-      """
-      CREATE ()-[:R]->()
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 1 |
-
   Scenario: Create a self loop
     Given an empty graph
     When executing query:
