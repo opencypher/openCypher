@@ -30,7 +30,7 @@
 
 Feature: Create1 - Creating nodes
 
-  Scenario: [1] Creating a node
+  Scenario: [1] Creating a single node
     Given any graph
     When executing query:
       """
@@ -61,7 +61,7 @@ Feature: Create1 - Creating nodes
       | +nodes         | 2 |
       | +relationships | 1 |
 
-  Scenario: [4] Creating a node with a label
+  Scenario: [4] Creating a single node with a label
     Given any graph
     When executing query:
       """
@@ -72,7 +72,7 @@ Feature: Create1 - Creating nodes
       | +nodes  | 1 |
       | +labels | 1 |
 
-  Scenario: [5] Create a single node with multiple labels
+  Scenario: [5] Creating a single node with multiple labels
     Given any graph
     When executing query:
       """
@@ -83,13 +83,66 @@ Feature: Create1 - Creating nodes
       | +nodes  | 1 |
       | +labels | 4 |
 
-  Scenario: [6] Creating a node with a property
+  Scenario: [6] Creating a single node with a property
     Given any graph
     When executing query:
       """
       CREATE ({created: true})
       """
     Then the result should be empty
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
+
+  Scenario: [7] Creating a single node with a property and returning it
+    Given any graph
+    When executing query:
+      """
+      CREATE (n {prop: 'foo'})
+      RETURN n.prop AS p
+      """
+    Then the result should be:
+      | p     |
+      | 'foo' |
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
+
+  Scenario: [8] Creating a single node with two properties
+    Given any graph
+    When executing query:
+      """
+      CREATE (n {id: 12, prop: 'foo'})
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 2 |
+
+  Scenario: [9] Creating a single node with two properties and returning them
+    Given any graph
+    When executing query:
+      """
+      CREATE (n {id: 12, prop: 'foo'})
+      RETURN n.id AS id, n.prop AS p
+      """
+    Then the result should be:
+      | id | p     |
+      | 12 | 'foo' |
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 2 |
+
+  Scenario: [10] Creating a single node with null properties should not return those properties
+    Given any graph
+    When executing query:
+      """
+      CREATE (n {id: 12, prop: null})
+      RETURN n.id AS id
+      """
+    Then the result should be:
+      | id |
+      | 12 |
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 1 |

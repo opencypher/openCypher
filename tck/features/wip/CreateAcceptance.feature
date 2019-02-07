@@ -30,34 +30,6 @@
 
 Feature: CreateAcceptance
 
-  Scenario: Create a single node with properties
-    Given any graph
-    When executing query:
-      """
-      CREATE (n {prop: 'foo'})
-      RETURN n.prop AS p
-      """
-    Then the result should be:
-      | p     |
-      | 'foo' |
-    And the side effects should be:
-      | +nodes      | 1 |
-      | +properties | 1 |
-
-  Scenario: Creating a node with null properties should not return those properties
-    Given any graph
-    When executing query:
-      """
-      CREATE (n {id: 12, property: null})
-      RETURN n.id AS id
-      """
-    Then the result should be:
-      | id |
-      | 12 |
-    And the side effects should be:
-      | +nodes      | 1 |
-      | +properties | 1 |
-
   Scenario: Creating a relationship with null properties should not return those properties
     Given any graph
     When executing query:
