@@ -251,7 +251,11 @@
   </production>
 
   <production name="InQueryCall">
-    <seq>CALL &SP; <non-terminal ref="ExplicitProcedureInvocation"/> <opt>&WS; YIELD &SP; <non-terminal ref="YieldItems"/></opt></seq>
+    <seq>
+      CALL &SP;
+      <non-terminal ref="ExplicitProcedureInvocation"/>
+      <opt>&WS; YIELD &SP; <non-terminal ref="YieldItems"/></opt>
+    </seq>
   </production>
 
   <production name="StandaloneCall">
@@ -266,10 +270,16 @@
   </production>
 
   <production name="YieldItems" rr:inline="true">
-    <alt>
-      <seq><non-terminal ref="YieldItem"/> <repeat>&WS; , &WS;<non-terminal ref="YieldItem"/></repeat></seq>
-      -
-    </alt>
+    <seq>
+      <alt>
+        *
+        <seq>
+          <non-terminal ref="YieldItem"/>
+          <repeat>&WS; , &WS;<non-terminal ref="YieldItem"/></repeat>
+        </seq>
+      </alt>
+      <opt>&WS; <non-terminal ref="Where"/></opt>
+    </seq>
   </production>
 
   <production name="YieldItem" rr:inline="true">

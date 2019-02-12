@@ -302,3 +302,13 @@ DETACH DELETE null§
 DELETE a WITH 1 RETURN 2§
 MATCH (a  ) DELETE a        RETURN a   §
 MATCH   (a) DELETE    a   WITH  a RETURN   a§
+CALL db.labels() YIELD label
+WHERE label CONTAINS 'User'
+RETURN count(label) AS numLabels§
+CALL db.labels() YIELD label, foo, bar
+WHERE label CONTAINS 'User' AND foo + bar = foo
+RETURN count(label) AS numLabels§
+CALL db.labels() YIELD *
+WHERE label CONTAINS 'User' AND foo + bar = foo
+RETURN count(label) AS numLabels§
+CALL db.labels() YIELD x WHERE label CONTAINS 'User' AND foo + bar = foo RETURN count(label) AS numLabels§
