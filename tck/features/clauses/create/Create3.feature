@@ -30,7 +30,7 @@
 
 Feature: Create3 - Interoperation with other clauses
 
-  Scenario: [1] Combine MATCH and CREATE
+  Scenario: [1] MATCH-CREATE
     Given an empty graph
     And having executed:
       """
@@ -45,7 +45,24 @@ Feature: Create3 - Interoperation with other clauses
     And the side effects should be:
       | +nodes  | 2 |
 
-  Scenario: [2] Combine MATCH, WITH and CREATE
+  Scenario: [2] WITH-CREATE
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (), ()
+      """
+    When executing query:
+      """
+      MATCH ()
+      CREATE ()
+      WITH *
+      CREATE ()
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes | 4 |
+
+  Scenario: [3] MATCH-CREATE-WITH-CREATE
     Given an empty graph
     And having executed:
       """
@@ -63,7 +80,7 @@ Feature: Create3 - Interoperation with other clauses
     And the side effects should be:
       | +nodes  | 10 |
 
-  Scenario: [3] Newly-created nodes not visible to preceding MATCH
+  Scenario: [4] Newly-created nodes not visible to preceding MATCH
     Given an empty graph
     And having executed:
       """

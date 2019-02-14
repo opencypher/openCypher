@@ -30,23 +30,6 @@
 
 Feature: CreateAcceptance
 
-  Scenario: Create a single node after a WITH
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (), ()
-      """
-    When executing query:
-      """
-      MATCH ()
-      CREATE ()
-      WITH *
-      CREATE ()
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes | 4 |
-
   Scenario: Create a pattern with multiple hops
     Given an empty graph
     When executing query:
