@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Create5 - Negative tests
+Feature: Create6 - Negative tests
 
   Scenario: [1] Creating a relationship without a type
     Given any graph
