@@ -28,9 +28,9 @@
 
 #encoding: utf-8
 
-Feature: CreateAcceptance
+Feature: Create5 - Multiple hops create patterns
 
-  Scenario: Create a pattern with multiple hops
+  Scenario: [1] Create a pattern with multiple hops
     Given an empty graph
     When executing query:
       """
@@ -50,7 +50,7 @@ Feature: CreateAcceptance
       | a    | b    | c    |
       | (:A) | (:B) | (:C) |
 
-  Scenario: Create a pattern with multiple hops in the reverse direction
+  Scenario: [2] Create a pattern with multiple hops in the reverse direction
     Given an empty graph
     When executing query:
       """
@@ -70,7 +70,7 @@ Feature: CreateAcceptance
       | a    | b    | c    |
       | (:A) | (:B) | (:C) |
 
-  Scenario: Create a pattern with multiple hops in varying directions
+  Scenario: [3] Create a pattern with multiple hops in varying directions
     Given an empty graph
     When executing query:
       """
@@ -90,7 +90,7 @@ Feature: CreateAcceptance
       | a    | b    | c    |
       | (:A) | (:B) | (:C) |
 
-  Scenario: Create a pattern with multiple hops with multiple types and varying directions
+  Scenario: [4] Create a pattern with multiple hops with multiple types and varying directions
     Given any graph
     When executing query:
       """
@@ -109,7 +109,7 @@ Feature: CreateAcceptance
       | r1    | r2    | r3    |
       | [:R1] | [:R2] | [:R3] |
 
-  Scenario: Creating a pattern with multiple hops and changing directions
+  Scenario: [5] Creating a pattern with multiple hops and changing directions
     Given an empty graph
     When executing query:
       """

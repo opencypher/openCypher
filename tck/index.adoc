@@ -23,6 +23,8 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 ** This group is about how the `CREATE` clause behaves when combined with other clauses.
 * `Create4`: Large Create Query
 ** This group is about queries with a larger number of `CREATE` statements (more than 50)
+* `Create5`: Multiple hops create patterns
+** This group is about queries with a create pattern that feature more than one relationship.
 * `Create6`: Negative tests
 ** This group is about failure cases for the `CREATE` clause; invalid queries.
 
