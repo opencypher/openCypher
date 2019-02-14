@@ -47,26 +47,6 @@ Feature: CreateAcceptance
     And the side effects should be:
       | +nodes | 4 |
 
-  Scenario: Create a relationship with a reversed direction
-    Given an empty graph
-    When executing query:
-      """
-      CREATE (:A)<-[:R]-(:B)
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 1 |
-      | +labels        | 2 |
-    When executing control query:
-      """
-      MATCH (a:A)<-[:R]-(b:B)
-      RETURN a, b
-      """
-    Then the result should be:
-      | a    | b    |
-      | (:A) | (:B) |
-
   Scenario: Create a pattern with multiple hops
     Given an empty graph
     When executing query:
