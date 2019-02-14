@@ -255,15 +255,6 @@ Feature: CreateAcceptance
       | +nodes         | 2 |
       | +relationships | 2 |
 
-  Scenario: Fail when trying to create using an undirected relationship pattern
-    Given any graph
-    When executing query:
-      """
-      CREATE ({id: 2})-[r:KNOWS]-({id: 1})
-      RETURN r
-      """
-    Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
-
   Scenario: Creating a pattern with multiple hops and changing directions
     Given an empty graph
     When executing query:

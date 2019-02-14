@@ -37,3 +37,12 @@ Feature: Create5 - Negative tests
       CREATE ()-->()
       """
     Then a SyntaxError should be raised at compile time: MissingRelationshipType
+
+  Scenario: [2] Creating a relationship without a direction
+    Given any graph
+    When executing query:
+      """
+      CREATE ({id: 2})-[r:KNOWS]-({id: 1})
+      RETURN r
+      """
+    Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
