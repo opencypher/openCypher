@@ -30,6 +30,25 @@
 
 Feature: WithAcceptance
 
+  Scenario: Cope with shadowed variables
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({value: 1, name: 'King Kong'}),
+        ({value: 2, name: 'Ann Darrow'})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      WITH n.name AS n
+      RETURN n
+      """
+    Then the result should be:
+      | n            |
+      | 'Ann Darrow' |
+      | 'King Kong'  |
+    And no side effects
+
   Scenario: Passing on pattern nodes
     Given an empty graph
     And having executed:

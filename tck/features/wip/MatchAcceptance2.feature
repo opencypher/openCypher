@@ -30,17 +30,6 @@
 
 Feature: MatchAcceptance2
 
-  Scenario: Do not return non-existent nodes
-    Given an empty graph
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n
-      """
-    Then the result should be:
-      | n |
-    And no side effects
-
   Scenario: Do not return non-existent relationships
     Given an empty graph
     When executing query:
@@ -476,23 +465,6 @@ Feature: MatchAcceptance2
       | 0    | 1    |
     And no side effects
 
-  Scenario: Matching all nodes
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A), (:B)
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n
-      """
-    Then the result should be:
-      | n    |
-      | (:A) |
-      | (:B) |
-    And no side effects
-
   Scenario: Comparing nodes for equality
     Given an empty graph
     And having executed:
@@ -586,23 +558,6 @@ Feature: MatchAcceptance2
       | n.x | count(*) |
       | 1   | 1        |
       | 2   | 1        |
-    And no side effects
-
-  Scenario: Simple node property predicate
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({foo: 'bar'})
-      """
-    When executing query:
-      """
-      MATCH (n)
-      WHERE n.foo = 'bar'
-      RETURN n
-      """
-    Then the result should be:
-      | n              |
-      | ({foo: 'bar'}) |
     And no side effects
 
   Scenario: Handling direction of named paths
@@ -718,40 +673,6 @@ Feature: MatchAcceptance2
     Then the result should be:
       | r     |
       | [:T1] |
-    And no side effects
-
-  Scenario: Matching nodes using multiple labels
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A:B:C), (:A:B), (:A:C), (:B:C),
-             (:A), (:B), (:C)
-      """
-    When executing query:
-      """
-      MATCH (a:A:B:C)
-      RETURN a
-      """
-    Then the result should be:
-      | a        |
-      | (:A:B:C) |
-    And no side effects
-
-  Scenario: Returning label predicate expression
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (), (:Foo)
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN (n:Foo)
-      """
-    Then the result should be:
-      | (n:Foo) |
-      | true    |
-      | false   |
     And no side effects
 
   Scenario: Matching with many predicates and larger pattern
@@ -993,22 +914,6 @@ Feature: MatchAcceptance2
     Then the result should be:
       | p    |
       | <()> |
-    And no side effects
-
-  Scenario: Matching with aggregation
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({prop: 42})
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n.prop AS n, count(n) AS count
-      """
-    Then the result should be:
-      | n  | count |
-      | 42 | 1     |
     And no side effects
 
   Scenario: Matching using a relationship that is already bound
@@ -1300,38 +1205,6 @@ Feature: MatchAcceptance2
       """
     Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
 
-  Scenario: Matching and returning ordered results, with LIMIT
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({bar: 1}), ({bar: 3}), ({bar: 2})
-      """
-    When executing query:
-      """
-      MATCH (foo)
-      RETURN foo.bar AS x
-        ORDER BY x DESC
-        LIMIT 4
-      """
-    Then the result should be, in order:
-      | x |
-      | 3 |
-      | 2 |
-      | 1 |
-    And no side effects
-
-  Scenario: Counting an empty graph
-    Given an empty graph
-    When executing query:
-      """
-      MATCH (a)
-      RETURN count(a) > 0
-      """
-    Then the result should be:
-      | count(a) > 0 |
-      | false        |
-    And no side effects
-
   Scenario: Matching variable length pattern with property predicate
     Given an empty graph
     And having executed:
@@ -1486,22 +1359,6 @@ Feature: MatchAcceptance2
       | <(:Start)<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->()<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->(:End)> |
     And no side effects
 
-  Scenario: Returning a node property value
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({prop: 1})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      RETURN a.prop
-      """
-    Then the result should be:
-      | a.prop |
-      | 1      |
-    And no side effects
-
   Scenario: Returning a relationship property value
     Given an empty graph
     And having executed:
@@ -1566,21 +1423,6 @@ Feature: MatchAcceptance2
       | r.bar |
       | null  |
     And no side effects
-
-  Scenario: Returning multiple node property values
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({name: 'Philip J. Fry', age: 2046, seasons: [1, 2, 3, 4, 5, 6, 7]})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      RETURN a.name, a.age, a.seasons
-      """
-    Then the result should be:
-      | a.name          | a.age | a.seasons             |
-      | 'Philip J. Fry' | 2046  | [1, 2, 3, 4, 5, 6, 7] |
     And no side effects
 
   Scenario: Adding a property and a literal in projection

@@ -30,6 +30,33 @@
 
 Feature: AggregationAcceptance
 
+  Scenario: Counting an empty graph
+    Given an empty graph
+    When executing query:
+      """
+      MATCH (a)
+      RETURN count(a) > 0
+      """
+    Then the result should be:
+      | count(a) > 0 |
+      | false        |
+    And no side effects
+
+  Scenario: Matching with aggregation
+    And having executed:
+      """
+      CREATE ({prop: 42})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      RETURN n.prop AS n, count(n) AS count
+      """
+    Then the result should be:
+      | n  | count |
+      | 42 | 1     |
+    And no side effects
+
   Scenario: Support multiple divisions in aggregate function
     Given an empty graph
     And having executed:

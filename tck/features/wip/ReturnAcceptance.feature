@@ -28,7 +28,53 @@
 
 #encoding: utf-8
 
-Feature: ReturnAcceptanceTest
+Feature: ReturnAcceptance
+
+  Scenario: Honour the column name for RETURN items
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({name: 'Someone'})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a.name AS a
+      RETURN a
+      """
+    Then the result should be:
+      | a         |
+      | 'Someone' |
+    And no side effects
+
+  Scenario: Accept skip zero
+    Given any graph
+    When executing query:
+      """
+      MATCH (n)
+      WHERE 1 = 0
+      RETURN n SKIP 0
+      """
+    Then the result should be:
+      | n |
+    And no side effects
+
+  Scenario: Returning label predicate expression
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (), (:Foo)
+      """
+    When executing query:
+      """
+      MATCH (n)
+      RETURN (n:Foo)
+      """
+    Then the result should be:
+      | (n:Foo) |
+      | true    |
+      | false   |
+    And no side effects
 
   Scenario: Allow addition
     Given an empty graph

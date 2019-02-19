@@ -33,6 +33,25 @@ Feature: OrderByAcceptance
   Background:
     Given an empty graph
 
+  Scenario: Matching and returning ordered results, with LIMIT
+    And having executed:
+      """
+      CREATE ({bar: 1}), ({bar: 3}), ({bar: 2})
+      """
+    When executing query:
+      """
+      MATCH (foo)
+      RETURN foo.bar AS x
+        ORDER BY x DESC
+        LIMIT 4
+      """
+    Then the result should be, in order:
+      | x |
+      | 3 |
+      | 2 |
+      | 1 |
+    And no side effects
+
   Scenario: ORDER BY should return results in ascending order
     And having executed:
       """

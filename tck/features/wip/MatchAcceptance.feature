@@ -124,23 +124,6 @@ Feature: MatchAcceptance
       | ({name: 'Andres'}) |
     And no side effects
 
-  Scenario: Honour the column name for RETURN items
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({name: 'Someone'})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      WITH a.name AS a
-      RETURN a
-      """
-    Then the result should be:
-      | a         |
-      | 'Someone' |
-    And no side effects
-
   Scenario: Filter based on rel prop name
     Given an empty graph
     And having executed:
@@ -156,25 +139,6 @@ Feature: MatchAcceptance
     Then the result should be:
       | a    |
       | (:A) |
-    And no side effects
-
-  Scenario: Cope with shadowed variables
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({value: 1, name: 'King Kong'}),
-        ({value: 2, name: 'Ann Darrow'})
-      """
-    When executing query:
-      """
-      MATCH (n)
-      WITH n.name AS n
-      RETURN n
-      """
-    Then the result should be:
-      | n            |
-      | 'Ann Darrow' |
-      | 'King Kong'  |
     And no side effects
 
   Scenario: Get neighbours
@@ -331,26 +295,6 @@ Feature: MatchAcceptance
       | r        |
       | [:KNOWS] |
       | [:HATES] |
-    And no side effects
-
-  Scenario: Handle OR in the WHERE clause
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A {p1: 12}),
-        (b:B {p2: 13}),
-        (c:C)
-      """
-    When executing query:
-      """
-      MATCH (n)
-      WHERE n.p1 = 12 OR n.p2 = 13
-      RETURN n
-      """
-    Then the result should be:
-      | n             |
-      | (:A {p1: 12}) |
-      | (:B {p2: 13}) |
     And no side effects
 
   Scenario: Return a simple path
@@ -550,16 +494,4 @@ Feature: MatchAcceptance
       | <(:A {name: 'A'})>                                                        |
       | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})>                             |
       | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})-[:FRIEND]->(:C {name: 'C'})> |
-    And no side effects
-
-  Scenario: Accept skip zero
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      WHERE 1 = 0
-      RETURN n SKIP 0
-      """
-    Then the result should be:
-      | n |
     And no side effects

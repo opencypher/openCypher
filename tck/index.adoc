@@ -31,6 +31,9 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 
 === MATCH
 
+* `Match1`: Zero-length patterns
+** This group contains MATCH clauses without relationships
+
 === UNWIND
 
 
