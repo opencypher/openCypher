@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: ValueHashJoinAcceptance
+Feature: JoinAcceptance
 
   Scenario: Find friends of others
     Given an empty graph
@@ -48,32 +48,4 @@ Feature: ValueHashJoinAcceptance
     Then the result should be:
       | a            | b            |
       | (:A {id: 2}) | (:B {id: 2}) |
-    And no side effects
-
-  Scenario: Should only join when matching
-    Given an empty graph
-    And having executed:
-      """
-      UNWIND range(0, 1000) AS i
-      CREATE (:A {id: i})
-      MERGE (:B {id: i % 10})
-      """
-    When executing query:
-      """
-      MATCH (a:A), (b:B)
-      WHERE a.id = b.id
-      RETURN a, b
-      """
-    Then the result should be:
-      | a            | b            |
-      | (:A {id: 0}) | (:B {id: 0}) |
-      | (:A {id: 1}) | (:B {id: 1}) |
-      | (:A {id: 2}) | (:B {id: 2}) |
-      | (:A {id: 3}) | (:B {id: 3}) |
-      | (:A {id: 4}) | (:B {id: 4}) |
-      | (:A {id: 5}) | (:B {id: 5}) |
-      | (:A {id: 6}) | (:B {id: 6}) |
-      | (:A {id: 7}) | (:B {id: 7}) |
-      | (:A {id: 8}) | (:B {id: 8}) |
-      | (:A {id: 9}) | (:B {id: 9}) |
     And no side effects
