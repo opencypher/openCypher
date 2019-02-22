@@ -19,3 +19,9 @@ MERGE () UNWIND [] AS foo RETURN 1§
 //
 // Label check predicates shouldn't precede property lookup, see #288
 MATCH (p) WHERE p:Person:Teacher.name RETURN p§
+CALL db.labels() YIELD -§
+CALL db.labels() YIELD -
+RETURN count(label) AS numLabels§
+CALL db.labels() YIELD -
+WHERE label CONTAINS 'User' AND foo + bar = foo
+RETURN count(label) AS numLabels§
