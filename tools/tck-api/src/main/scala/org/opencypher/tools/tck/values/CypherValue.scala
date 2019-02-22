@@ -27,22 +27,12 @@
  */
 package org.opencypher.tools.tck.values
 
-import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
-import org.opencypher.tools.tck.parsing.generated.{FeatureResultsLexer, FeatureResultsParser}
-
 import scala.util.hashing.MurmurHash3
 
 object CypherValue {
-
   def apply(s: String, orderedLists: Boolean = true): CypherValue = {
-    val stream = CharStreams.fromString(s)
-    val tokenStream = new FeatureResultsLexer(stream)
-    val tokens = new CommonTokenStream(tokenStream)
-    val parser = new FeatureResultsParser(tokens)
-    val featureResultsContext = parser.value
-    val visitor = CypherValueVisitor(orderedLists)
-    val value = visitor.visit(featureResultsContext)
-    value
+    val parser = new CypherValueParser(orderedLists)
+    parser.parse(s)
   }
 
   implicit val ordering: Ordering[CypherValue] = new Ordering[CypherValue] {
@@ -51,10 +41,14 @@ object CypherValue {
       stringOrdering.compare(x.toString, y.toString)
     }
   }
-
 }
 
 sealed trait CypherValue
+
+object CypherNode {
+  def apply(labels: Set[String], properties: Option[CypherPropertyMap]): CypherNode =
+    CypherNode(labels, properties.getOrElse(CypherPropertyMap.empty))
+}
 
 case class CypherNode(labels: Set[String] = Set.empty, properties: CypherPropertyMap = CypherPropertyMap())
   extends CypherValue {
@@ -64,6 +58,11 @@ case class CypherNode(labels: Set[String] = Set.empty, properties: CypherPropert
     val props = if (properties.properties.isEmpty) "" else properties.toString
     Seq(lbls, props).filter(_.nonEmpty).mkString("(", " ", ")")
   }
+}
+
+object CypherRelationship {
+  def apply(relType: String, properties: Option[CypherPropertyMap]): CypherRelationship =
+    CypherRelationship(relType, properties.getOrElse(CypherPropertyMap.empty))
 }
 
 case class CypherRelationship(relType: String, properties: CypherPropertyMap = CypherPropertyMap()) extends CypherValue {
@@ -89,6 +88,10 @@ case class CypherBoolean(value: Boolean) extends CypherValue {
 
 case class CypherProperty(key: String, value: CypherValue) extends CypherValue {
   override def toString: String = s"$key: $value"
+}
+
+object CypherPropertyMap {
+  val empty = CypherPropertyMap()
 }
 
 case class CypherPropertyMap(properties: Map[String, CypherValue] = Map.empty)
@@ -146,6 +149,11 @@ case class CypherPath(startingNode: CypherNode, connections: List[Connection] = 
 trait Connection {
   def n: CypherNode
   def r: CypherRelationship
+}
+
+object Connection {
+  def forward(t: (CypherRelationship, CypherNode)) = Forward(t._1, t._2)
+  def backward(t: (CypherRelationship, CypherNode)) = Backward(t._1, t._2)
 }
 
 case class Forward(r: CypherRelationship, n: CypherNode) extends Connection {

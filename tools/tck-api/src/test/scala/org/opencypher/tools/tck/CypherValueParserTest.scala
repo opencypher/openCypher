@@ -30,12 +30,12 @@ package org.opencypher.tools.tck
 import org.opencypher.tools.tck.values._
 import org.scalatest.{FunSuite, Matchers}
 
-class CypherValueVisitorTest extends FunSuite with Matchers {
+class CypherValueParserTest extends FunSuite with Matchers {
 
   test("unlabelled node") {
     val string = "()"
     val parsed = CypherValue(string)
-    val expected = CypherNode(Set.empty, CypherPropertyMap(Map.empty))
+    val expected = CypherNode(Set.empty[String], CypherPropertyMap(Map.empty))
     parsed should equal(expected)
   }
 
@@ -62,6 +62,15 @@ class CypherValueVisitorTest extends FunSuite with Matchers {
     CypherValue("''") should equal(CypherString(""))
     CypherValue("'-1'") should equal(CypherString("-1"))
     CypherValue("null") should equal(CypherNull)
+  }
+
+  test("floats in exponent form") {
+    CypherValue(".4e10") should equal(CypherFloat(.4e10))
+    CypherValue(".4e-10") should equal(CypherFloat(.4e-10))
+    CypherValue("-.4e-10") should equal(CypherFloat(-.4e-10))
+    CypherValue("-1e-10") should equal(CypherFloat(-1e-10))
+    CypherValue("8e10") should equal(CypherFloat(8e10))
+    CypherValue("8.12312e2") should equal(CypherFloat(8.12312e2))
   }
 
   test("path with a single node") {
@@ -96,9 +105,12 @@ class CypherValueVisitorTest extends FunSuite with Matchers {
 
   test("list") {
     CypherValue("[]") should equal(CypherOrderedList())
+    CypherValue("[1, null, 2]") should equal(
+      CypherOrderedList(List(CypherInteger(1), CypherNull, CypherInteger(2))))
     CypherValue("[1, 2, null]") should equal(
       CypherOrderedList(List(CypherInteger(1), CypherInteger(2), CypherNull)))
     CypherValue("[]", orderedLists = false) should equal(CypherUnorderedList())
+    CypherValue("[2, 1]", orderedLists = false) should equal(CypherUnorderedList(List(CypherInteger(2), CypherInteger(1)).sorted(CypherValue.ordering)))
     CypherValue("[1, 2, null]", orderedLists = false) should equal(
       CypherUnorderedList(List(CypherInteger(1), CypherInteger(2), CypherNull).sorted(CypherValue.ordering)))
   }
