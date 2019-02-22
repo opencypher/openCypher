@@ -27,6 +27,8 @@
  */
 package org.opencypher.tools.tck.values
 
+import java.time.format.DateTimeFormatter
+
 import scala.util.hashing.MurmurHash3
 
 object CypherValue {
@@ -162,4 +164,8 @@ case class Forward(r: CypherRelationship, n: CypherNode) extends Connection {
 
 case class Backward(r: CypherRelationship, n: CypherNode) extends Connection {
   override def toString: String = s"<-$r-$n"
+}
+
+case class CypherDate(value: java.time.LocalDate) extends CypherValue {
+  override def toString: String = s"${value.format(DateTimeFormatter.ISO_DATE)}"
 }

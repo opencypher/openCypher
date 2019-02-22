@@ -26,6 +26,9 @@
  * Cypher that are not yet approved by the openCypher community".
  */
 package org.opencypher.tools.tck.values
+
+import java.time.LocalDate
+
 import fastparse.Parsed.{Failure, Success}
 import fastparse._
 import org.opencypher.tools.tck.values.Connection.{backward, forward}
@@ -65,6 +68,7 @@ class CypherValueParser(val orderedLists: Boolean) {
       path |
       list |
       map |
+      temporal |
       string |
       float |
       integer |
@@ -96,8 +100,16 @@ class CypherValueParser(val orderedLists: Boolean) {
       CypherPropertyMap(keyValuePairs.toMap)
     }
 
+  private def temporal[_: P] =
+    date
+
+  private def date[_:P] =
+    P(CharsWhileIn("0-9", 1) ~~ "-" ~~/ CharsWhileIn("0-9", 1) ~~/ "-" ~~/ CharsWhileIn("0-9", 1)).!.map { s =>
+      CypherDate(LocalDate.parse(s))
+    }
+
   private def string[_: P]: P[CypherString] =
-    P("'" ~ CharsWhile(_ != ''', 0).!.map(CypherString) ~ "'")
+    P("'" ~/ CharsWhile(_ != ''', 0).!.map(CypherString) ~ "'")
 
   private def float[_: P]: P[CypherFloat] =
     P("-".? ~ floatRepr).!.map { s =>
