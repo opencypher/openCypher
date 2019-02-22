@@ -479,16 +479,6 @@ Feature: ProcedureCallAcceptance
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
-  Scenario: In-query call to procedure that both takes arguments and has outputs fails if the arguments are passed implicitly and no outputs are yielded
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
-      | in | out |
-    When executing query:
-      """
-      CALL test.my.proc
-      RETURN out
-      """
-    Then a SyntaxError should be raised at compile time: UndefinedVariable
-
   Scenario: Standalone call to unknown procedure should fail
     When executing query:
       """
