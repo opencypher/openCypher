@@ -177,3 +177,7 @@ case class CypherLocalTime(value: java.time.LocalTime) extends CypherValue {
 case class CypherLocalDateTime(value: java.time.LocalDateTime) extends CypherValue {
   override def toString: String = s"${value.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
 }
+
+case class CypherTime(value: java.time.OffsetTime) extends CypherValue {
+  override def toString: String = s"t${value.format(DateTimeFormatter.ISO_OFFSET_TIME)}"
+}

@@ -27,7 +27,7 @@
  */
 package org.opencypher.tools.tck.values
 
-import java.time.{LocalDate, LocalDateTime, LocalTime}
+import java.time.{LocalDate, LocalDateTime, LocalTime, OffsetTime}
 
 import fastparse.Parsed.{Failure, Success}
 import fastparse._
@@ -101,10 +101,10 @@ class CypherValueParser(val orderedLists: Boolean) {
     }
 
   private def temporal[_: P]: P[CypherValue] =
-    localDateTime | date | localTime
+    localDateTime | date | time | localTime
 
   private def date[_:P]: P[CypherDate] =
-    P(digits() ~~ "-" ~~/ digits() ~~/ "-" ~~/ digits()).!.map { s =>
+    P(digits() ~~ "-" ~~ digits() ~~ "-" ~~ digits()).!.map { s =>
       CypherDate(LocalDate.parse(s))
     }
 
@@ -114,8 +114,13 @@ class CypherValueParser(val orderedLists: Boolean) {
     }
 
   private def localDateTime[_: P]: P[CypherLocalDateTime] =
-    P(date ~~ "T" ~~ localTime).!.map { s =>
+    P(date ~~ "T" ~~/ localTime).!.map { s =>
       CypherLocalDateTime(LocalDateTime.parse(s))
+    }
+
+  private def time[_: P]: P[CypherTime] =
+    P(localTime ~~ ("+" | "-") ~~ digits() ~~ ":" ~~ digits()).!.map { s =>
+      CypherTime(OffsetTime.parse(s))
     }
 
   private def string[_: P]: P[CypherString] =
