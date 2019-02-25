@@ -27,7 +27,7 @@
  */
 package org.opencypher.tools.tck
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalTime}
 
 import org.opencypher.tools.tck.values._
 import org.scalatest.{FunSuite, Matchers}
@@ -120,6 +120,13 @@ class CypherValueParserTest extends FunSuite with Matchers {
   test("date") {
     CypherValue("2018-12-23") should equal(CypherDate(LocalDate.of(2018, 12, 23)))
     CypherValue("0002-01-21") should equal(CypherDate(LocalDate.of(2, 1, 21)))
+  }
+
+  test("localtime") {
+    CypherValue("12:31:14.645876123") should equal(CypherLocalTime(LocalTime.of(12, 31, 14, 645876123)))
+    CypherValue("12:31:14.0") should equal(CypherLocalTime(LocalTime.of(12, 31, 14, 0)))
+    CypherValue("12:31:14") should equal(CypherLocalTime(LocalTime.of(12, 31, 14)))
+    CypherValue("09:00:59") should equal(CypherLocalTime(LocalTime.of(9, 0, 59)))
   }
 
 }

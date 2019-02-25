@@ -27,7 +27,7 @@
  */
 package org.opencypher.tools.tck.values
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalTime}
 
 import fastparse.Parsed.{Failure, Success}
 import fastparse._
@@ -100,12 +100,17 @@ class CypherValueParser(val orderedLists: Boolean) {
       CypherPropertyMap(keyValuePairs.toMap)
     }
 
-  private def temporal[_: P] =
-    date
+  private def temporal[_: P]: P[CypherValue] =
+    date | localtime
 
-  private def date[_:P] =
-    P(CharsWhileIn("0-9", 1) ~~ "-" ~~/ CharsWhileIn("0-9", 1) ~~/ "-" ~~/ CharsWhileIn("0-9", 1)).!.map { s =>
+  private def date[_:P]: P[CypherDate] =
+    P(digits() ~~ "-" ~~/ digits() ~~/ "-" ~~/ digits()).!.map { s =>
       CypherDate(LocalDate.parse(s))
+    }
+
+  private def localtime[_: P]: P[CypherLocalTime] =
+    P(digits() ~~ ":" ~~ digits() ~~ ":" ~~ digits() ~~ ("." ~~ digits()).?).!.map { s =>
+      CypherLocalTime(LocalTime.parse(s))
     }
 
   private def string[_: P]: P[CypherString] =
@@ -117,7 +122,7 @@ class CypherValueParser(val orderedLists: Boolean) {
     }
 
   private def integer[_: P]: P[CypherInteger] =
-    P("-".? ~~ digits).!.map { s =>
+    P("-".? ~~ digits()).!.map { s =>
       CypherInteger(s.toLong)
     }
 
@@ -141,17 +146,16 @@ class CypherValueParser(val orderedLists: Boolean) {
   private def forwardRel[_: P]: P[CypherRelationship] = "-" ~~ relationship ~~ "->"
   private def backRel[_: P]: P[CypherRelationship] = "<-" ~~ relationship ~~ "-"
 
-  private def symbolicName[_: P]: P[String] = CharsWhileIn("a-zA-Z0-9$_").!
-
-  private def digits[_: P]: P[Unit] = CharsWhileIn("0-9")
   private def floatRepr[_: P]: P[Unit] =
-    (digits ~~ "." ~~ digits ~~ exponent.?) |
-      ("." ~~ digits ~~ exponent.?) |
-      (digits ~~ exponent)
-  private def exponent[_: P]: P[Unit] = "e" ~~ "-".? ~~ digits
+    (digits() ~~ "." ~~ digits() ~~ exponent.?) |
+      ("." ~~ digits() ~~ exponent.?) |
+      (digits() ~~ exponent)
+  private def exponent[_: P]: P[Unit] = "e" ~~ "-".? ~~ digits()
 
-  private def newline[_: P]: P[Unit] = "\n" | "\r\n" | "\r" | "\f"
-  private def invisible[_: P]: P[Unit] = " " | "\t" | newline
+  private def symbolicName[_: P]: P[String] = CharsWhileIn("a-zA-Z0-9$_").!
+  private def digits[_: P](min: Int = 1): P[Unit] = CharsWhileIn("0-9", min)
+
+  private def invisible[_: P]: P[Unit] = " " | "\t"
 
   implicit val whitespace: P[_] => P[Unit] = { implicit ctx: ParsingRun[_] => invisible.rep }
 }

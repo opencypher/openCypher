@@ -169,3 +169,7 @@ case class Backward(r: CypherRelationship, n: CypherNode) extends Connection {
 case class CypherDate(value: java.time.LocalDate) extends CypherValue {
   override def toString: String = s"${value.format(DateTimeFormatter.ISO_DATE)}"
 }
+
+case class CypherLocalTime(value: java.time.LocalTime) extends CypherValue {
+  override def toString: String = s"lt${value.format(DateTimeFormatter.ISO_LOCAL_TIME)}"
+}
