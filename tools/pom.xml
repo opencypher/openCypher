@@ -11,7 +11,6 @@
 
   <artifactId>tools</artifactId>
   <packaging>pom</packaging>
-  <version>1.0-SNAPSHOT</version>
   <name>tools</name>
   <url>http://opencypher.org</url>
   <description>openCypher Developer Tools</description>
@@ -20,15 +19,7 @@
   </scm>
 
   <properties>
-    <antlr.generator.version>4.5.3</antlr.generator.version>
-    <antlr.runtime.version>4.7</antlr.runtime.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.rootdir>${project.basedir}/..</project.rootdir>
-    <scala.binary.version>2.12</scala.binary.version>
-    <scala.maven.plugin.version>3.4.4</scala.maven.plugin.version>
-    <scala.scalacheck.version>1.13.5</scala.scalacheck.version>
-    <scala.scalatest.version>3.0.5</scala.scalatest.version>
-    <scala.version>2.12.7</scala.version>
   </properties>
 
   <licenses>
@@ -40,44 +31,22 @@
 
   <build>
     <plugins>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.0.0</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.0.0</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.5</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-          <compilerArgs>
-            <arg>-parameters</arg>
-          </compilerArgs>
-        </configuration>
       </plugin>
+
     </plugins>
   </build>
 
