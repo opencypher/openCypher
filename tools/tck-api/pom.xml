@@ -10,15 +10,13 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>tck-api</artifactId>
+  <artifactId>tck-api_2.12</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>openCypher TCK API</name>
   <url>http://opencypher.org</url>
   <description>openCypher Technology Compatibility Kit API</description>
 
   <properties>
-    <scala.version>2.11.7</scala.version>
-    <scala.binary.version>2.11</scala.binary.version>
     <project.rootdir>${project.basedir}/../..</project.rootdir>
   </properties>
 
@@ -34,7 +32,7 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>${scala.maven.plugin.version}</version>
         <executions>
           <execution>
             <goals>
@@ -50,22 +48,29 @@
           <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
         </configuration>
       </plugin>
+
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.19</version>
+        <version>2.22.1</version>
         <dependencies>
           <dependency>
             <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-surefire-provider</artifactId>
-            <version>1.0.2</version>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>1.4.0</version>
+          </dependency>
+          <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.4.0</version>
           </dependency>
           <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
-            <version>4.12.2</version>
+            <version>5.4.0</version>
           </dependency>
         </dependencies>
       </plugin>
+
     </plugins>
   </build>
 
@@ -92,7 +97,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.0.2</version>
+      <version>5.4.0</version>
     </dependency>
 
     <dependency>
@@ -111,8 +116,8 @@
 
     <dependency>
       <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_2.11</artifactId>
-      <version>2.2.6</version>
+      <artifactId>scalatest_${scala.binary.version}</artifactId>
+      <version>${scala.scalatest.version}</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -124,22 +129,22 @@
 
     <dependency>
       <groupId>org.scalacheck</groupId>
-      <artifactId>scalacheck_2.11</artifactId>
-      <version>1.13.0</version>
+      <artifactId>scalacheck_${scala.binary.version}</artifactId>
+      <version>${scala.scalacheck.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.junit.platform</groupId>
       <artifactId>junit-platform-launcher</artifactId>
-      <version>1.0.2</version>
+      <version>1.4.0</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.0.2</version>
+      <version>5.4.0</version>
       <scope>test</scope>
     </dependency>
 

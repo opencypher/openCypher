@@ -20,10 +20,15 @@
   </scm>
 
   <properties>
-    <project.rootdir>${project.basedir}/..</project.rootdir>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <antlr.runtime.version>4.7</antlr.runtime.version>
     <antlr.generator.version>4.5.3</antlr.generator.version>
+    <antlr.runtime.version>4.7</antlr.runtime.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.rootdir>${project.basedir}/..</project.rootdir>
+    <scala.binary.version>2.12</scala.binary.version>
+    <scala.maven.plugin.version>3.4.4</scala.maven.plugin.version>
+    <scala.scalacheck.version>1.13.5</scala.scalacheck.version>
+    <scala.scalatest.version>3.0.5</scala.scalatest.version>
+    <scala.version>2.12.7</scala.version>
   </properties>
 
   <licenses>

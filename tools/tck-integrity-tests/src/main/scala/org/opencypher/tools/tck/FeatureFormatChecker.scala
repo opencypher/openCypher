@@ -29,7 +29,7 @@ package org.opencypher.tools.tck
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import cucumber.api.DataTable
+import io.cucumber.datatable.DataTable
 import org.opencypher.tools.tck.api.InvalidFeatureFormatException
 import org.opencypher.tools.tck.constants.TCKStepDefinitions._
 
