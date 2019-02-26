@@ -8,7 +8,7 @@ case "$(basename $0)" in
         JARFILE="$(cd $(dirname $0); pwd)/$(basename $0)"
         ;;
     launch.sh)
-        pomfile="$(realpath $(dirname $0)/../../../../../pom.xml)"
+        pomfile="$(cd "$(dirname $0)/../../../../.."; pwd)/pom.xml"
         VERSION=$(grep --max-count=1 --regexp="<version>[^<]*" "$pomfile" | cut -f2 -d ">" | cut -f1 -d "<")
         if [[ -z "$VERSION" ]]; then
             >&2 echo "Cannot find version in $pomfile"
