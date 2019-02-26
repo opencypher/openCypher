@@ -8,9 +8,10 @@ case "$(basename $0)" in
         JARFILE="$(cd $(dirname $0); pwd)/$(basename $0)"
         ;;
     launch.sh)
-        VERSION="$(grep -A1 '<artifactId>grammar</artifactId>' $(dirname $0)/../../../pom.xml | grep -m1 version | cut -d\> -f2 | cut -d\< -f1)"
+        pomfile="$(realpath $(dirname $0)/../../../../../pom.xml)"
+        VERSION=$(grep --max-count=1 --regexp="<version>[^<]*" "$pomfile" | cut -f2 -d ">" | cut -f1 -d "<")
         if [[ -z "$VERSION" ]]; then
-            >&2 echo "Cannot find version in $(cd $(dirname $0)/../../..; pwd)/pom.xml"
+            >&2 echo "Cannot find version in $pomfile"
             exit 1
         fi
         JARFILE="$(cd $(dirname $0)/../../..; pwd)/target/grammar-${VERSION}.jar"
