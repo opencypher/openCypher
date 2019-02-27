@@ -27,7 +27,7 @@
  */
 package org.opencypher.tools.tck
 
-import cucumber.api.DataTable
+import io.cucumber.datatable.DataTable
 import org.opencypher.tools.tck.parsing.FormatListener
 
 import scala.collection.JavaConverters._
@@ -41,8 +41,8 @@ object validateResults extends (DataTable => Option[String]) {
 
   override def apply(table: DataTable): Option[String] = {
     // TODO: Specify constraints for column names, and enforce these here
-    val keys = table.topCells().asScala
-    val cells = table.cells(1).asScala
+    val keys = table.cells().asScala.head
+    val cells = table.cells().asScala.tail
 
     val badValues = cells.flatMap { list =>
       list.asScala.filterNot(this (_))

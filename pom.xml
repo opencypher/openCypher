@@ -27,9 +27,30 @@
   </modules>
 
   <properties>
-    <project.rootdir>${project.basedir}</project.rootdir>
+    <dep.antlr.generator.version>4.5.3</dep.antlr.generator.version>
+    <dep.antlr.runtime.version>4.7</dep.antlr.runtime.version>
+    <dep.apiguardian.version>1.0.0</dep.apiguardian.version>
+    <dep.batik.version>1.8</dep.batik.version>
+    <dep.cucumber.version>4.2.0</dep.cucumber.version>
+    <dep.gherkin.version>5.0.0</dep.gherkin.version>
+    <dep.hamcrest.version>1.3</dep.hamcrest.version>
+    <dep.junit.platform.version>1.4.0</dep.junit.platform.version>
+    <dep.junit.version>5.4.0</dep.junit.version>
+    <dep.maven.compiler.plugin.version>3.5</dep.maven.compiler.plugin.version>
+    <dep.maven.javadoc.plugin.version>3.0.0</dep.maven.javadoc.plugin.version>
+    <dep.maven.source.plugin.version>3.0.0</dep.maven.source.plugin.version>
+    <dep.maven.surefire.plugin.version>2.22.1</dep.maven.surefire.plugin.version>
+    <dep.scala.maven.plugin.version>3.4.4</dep.scala.maven.plugin.version>
+    <dep.scala.version>2.12.7</dep.scala.version>
+    <dep.scalacheck.version>1.13.5</dep.scalacheck.version>
+    <dep.scalatest.version>3.0.5</dep.scalatest.version>
+    <dep.xmlgraphics-commons.version>2.0</dep.xmlgraphics-commons.version>
     <license.header>${project.rootdir}/ASL-2-header.txt</license.header>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.rootdir>${project.basedir}</project.rootdir>
+    <scala.binary.version>2.12</scala.binary.version>
   </properties>
 
   <developers>
@@ -41,42 +62,264 @@
     </developer>
   </developers>
 
+  <dependencyManagement>
+    <dependencies>
+
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-library</artifactId>
+        <version>${dep.scala.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.opencypher</groupId>
+        <artifactId>tck</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-runtime</artifactId>
+        <version>${dep.antlr.runtime.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4</artifactId>
+        <version>${dep.antlr.generator.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>${dep.junit.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>gherkin</artifactId>
+        <version>${dep.gherkin.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apiguardian</groupId>
+        <artifactId>apiguardian-api</artifactId>
+        <version>${dep.apiguardian.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>cucumber-scala_${scala.binary.version}</artifactId>
+        <version>${dep.cucumber.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>cucumber-junit</artifactId>
+        <version>${dep.cucumber.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-svggen</artifactId>
+        <version>${dep.batik.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-swing</artifactId>
+        <version>${dep.batik.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>xmlgraphics-commons</artifactId>
+        <version>${dep.xmlgraphics-commons.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.scalatest</groupId>
+        <artifactId>scalatest_${scala.binary.version}</artifactId>
+        <version>${dep.scalatest.version}</version>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.scalacheck</groupId>
+        <artifactId>scalacheck_${scala.binary.version}</artifactId>
+        <version>${dep.scalacheck.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.junit.platform</groupId>
+        <artifactId>junit-platform-launcher</artifactId>
+        <version>${dep.junit.platform.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>${dep.junit.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-library</artifactId>
+        <version>${dep.hamcrest.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
   <build>
+
+    <pluginManagement>
+      <plugins>
+
+        <plugin>
+          <groupId>net.alchim31.maven</groupId>
+          <artifactId>scala-maven-plugin</artifactId>
+          <version>${dep.scala.maven.plugin.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>compile</goal>
+                <goal>testCompile</goal>
+                <goal>add-source</goal>
+                <goal>doc-jar</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <scalaVersion>${dep.scala.version}</scalaVersion>
+            <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${dep.maven.surefire.plugin.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.junit.platform</groupId>
+              <artifactId>junit-platform-launcher</artifactId>
+              <version>${dep.junit.platform.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.junit.jupiter</groupId>
+              <artifactId>junit-jupiter-engine</artifactId>
+              <version>${dep.junit.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.junit.vintage</groupId>
+              <artifactId>junit-vintage-engine</artifactId>
+              <version>${dep.junit.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+
+        <plugin>
+          <groupId>org.neo4j.build.plugins</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>3</version>
+          <executions>
+            <execution>
+              <id>check-licenses</id>
+              <phase>initialize</phase>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <strictCheck>true</strictCheck>
+            <header>${license.header}</header>
+            <includes>
+              <include>src/**/*.java</include>
+              <include>src/**/*.scala</include>
+              <include>**/*.feature</include>
+              <include>grammar/*.xml</include>
+            </includes>
+            <mapping>
+              <java>SLASHSTAR_STYLE</java>
+              <scala>SLASHSTAR_STYLE</scala>
+              <feature>SCRIPT_STYLE</feature>
+              <xml>XML_STYLE</xml>
+            </mapping>
+            <timestampPropertyName>currentYear</timestampPropertyName>
+            <properties>
+              <inceptionYear>2015</inceptionYear>
+            </properties>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${dep.maven.source.plugin.version}</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${dep.maven.javadoc.plugin.version}</version>
+          <executions>
+            <execution>
+              <id>attach-javadocs</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${dep.maven.compiler.plugin.version}</version>
+          <configuration>
+            <compilerArgs>
+              <arg>-parameters</arg>
+            </compilerArgs>
+          </configuration>
+        </plugin>
+
+      </plugins>
+    </pluginManagement>
+
     <plugins>
-      <plugin>
-        <groupId>org.neo4j.build.plugins</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <version>3</version>
-        <executions>
-          <execution>
-            <id>check-licenses</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <strictCheck>true</strictCheck>
-          <header>${license.header}</header>
-          <includes>
-            <include>src/**/*.java</include>
-            <include>src/**/*.scala</include>
-            <include>**/*.feature</include>
-            <include>grammar/*.xml</include>
-          </includes>
-          <mapping>
-            <java>SLASHSTAR_STYLE</java>
-            <scala>SLASHSTAR_STYLE</scala>
-            <feature>SCRIPT_STYLE</feature>
-            <xml>XML_STYLE</xml>
-          </mapping>
-          <timestampPropertyName>currentYear</timestampPropertyName>
-          <properties>
-            <inceptionYear>2015</inceptionYear>
-          </properties>
-        </configuration>
-      </plugin>
+        <plugin>
+          <groupId>org.neo4j.build.plugins</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+        </plugin>
     </plugins>
   </build>
 

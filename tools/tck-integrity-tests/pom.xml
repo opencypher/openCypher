@@ -10,15 +10,12 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>tck-integrity-tests</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <artifactId>tck-integrity-tests_2.12</artifactId>
   <name>openCypher TCK Integrity Tests</name>
   <url>http://opencypher.org</url>
   <description>openCypher Technology Compatibility Kit Integrity Tests</description>
 
   <properties>
-    <scala.version>2.11.7</scala.version>
-    <scala.binary.version>2.11</scala.binary.version>
     <project.rootdir>${project.basedir}/../..</project.rootdir>
   </properties>
 
@@ -34,39 +31,12 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
-        <version>3.2.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-              <goal>testCompile</goal>
-              <goal>add-source</goal>
-              <goal>doc-jar</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <scalaVersion>${scala.version}</scalaVersion>
-          <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.19</version>
-        <dependencies>
-          <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-surefire-provider</artifactId>
-            <version>1.0.2</version>
-          </dependency>
-          <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <version>4.12.2</version>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
+
     <resources>
       <resource>
         <directory>../../grammar</directory>
@@ -80,27 +50,23 @@
   <dependencies>
 
     <dependency>
-      <groupId>info.cukes</groupId>
-      <artifactId>cucumber-scala_2.11</artifactId>
-      <version>1.2.4</version>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-scala_${scala.binary.version}</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>info.cukes</groupId>
+      <groupId>io.cucumber</groupId>
       <artifactId>cucumber-junit</artifactId>
-      <version>1.2.4</version>
     </dependency>
 
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
-      <version>${scala.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr4-runtime</artifactId>
-      <version>${antlr.runtime.version}</version>
     </dependency>
 
     <!-- Test deps -->
@@ -108,33 +74,21 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_2.11</artifactId>
-      <version>2.2.6</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.scala-lang</groupId>
-          <artifactId>scala-library</artifactId>
-        </exclusion>
-      </exclusions>
+      <artifactId>scalatest_${scala.binary.version}</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.scalacheck</groupId>
-      <artifactId>scalacheck_2.11</artifactId>
-      <version>1.13.0</version>
-      <scope>test</scope>
+      <artifactId>scalacheck_${scala.binary.version}</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.opencypher</groupId>
-      <artifactId>tck-api</artifactId>
+      <artifactId>tck-api_${scala.binary.version}</artifactId>
       <version>${project.version}</version>
     </dependency>
 

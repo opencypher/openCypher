@@ -27,7 +27,7 @@
  */
 package org.opencypher.tools.tck
 
-import cucumber.api.DataTable
+import io.cucumber.datatable.DataTable
 import org.opencypher.tools.tck.constants.TCKSideEffects
 
 import scala.collection.JavaConverters._
@@ -39,8 +39,8 @@ import scala.collection.JavaConverters._
 object validateSideEffects extends (DataTable => Option[String]) {
 
   override def apply(table: DataTable): Option[String] = {
-    val keys = table.transpose().topCells().asScala
-    val values = table.transpose().cells(1).asScala.head.asScala
+    val keys = table.transpose().row(0).asScala
+    val values = table.transpose().rows(1).asList.asScala
 
     val msg = s"""${checkKeys(keys)}
                  |${checkValues(values)}""".stripMargin

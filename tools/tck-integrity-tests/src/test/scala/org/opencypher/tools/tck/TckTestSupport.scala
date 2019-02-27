@@ -27,7 +27,7 @@
  */
 package org.opencypher.tools.tck
 
-import cucumber.api.DataTable
+import io.cucumber.datatable.DataTable
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuiteLike, Matchers}
