@@ -139,6 +139,13 @@ class CypherValueParserTest extends FunSuite with Matchers {
     CypherValue("12:31:14.645876123+01:00") should equal(CypherTime(OffsetTime.of(12, 31, 14, 645876123, ZoneOffset.ofHours(1))))
     CypherValue("00:00:00+00:00") should equal(CypherTime(OffsetTime.of(0, 0, 0, 0, ZoneOffset.UTC)))
     CypherValue("00:00:00-08:30") should equal(CypherTime(OffsetTime.of(0, 0, 0, 0, ZoneOffset.ofHoursMinutes(-8, -30))))
+    CypherValue("23:59:59Z") should equal(CypherTime(OffsetTime.of(23, 59, 59, 0, ZoneOffset.UTC)))
+  }
+
+  test("datetime") {
+    CypherValue("1984-10-11T12:31:14.645876123+01:00") should equal(CypherDateTime(OffsetDateTime.of(1984, 10, 11, 12, 31, 14, 645876123, ZoneOffset.ofHours(1))))
+    CypherValue("0000-01-31T12:31:14-02:00") should equal(CypherDateTime(OffsetDateTime.of(0, 1, 31, 12, 31, 14, 0, ZoneOffset.ofHours(-2))))
+    CypherValue("1234-12-12T00:00:00Z") should equal(CypherDateTime(OffsetDateTime.of(1234, 12, 12, 0, 0, 0, 0, ZoneOffset.UTC)))
   }
 
 }

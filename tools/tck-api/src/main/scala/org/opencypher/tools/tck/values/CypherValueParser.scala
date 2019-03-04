@@ -27,7 +27,7 @@
  */
 package org.opencypher.tools.tck.values
 
-import java.time.{LocalDate, LocalDateTime, LocalTime, OffsetTime}
+import java.time._
 
 import fastparse.Parsed.{Failure, Success}
 import fastparse._
@@ -48,11 +48,11 @@ class CypherValueParser(val orderedLists: Boolean) {
         val msg =
           s"""|Failed at index $index:
               |
-                  |Expected:\t$expected
+              |Expected:\t$expected
               |
-                  |$locationPointer
+              |$locationPointer
               |
-                  |${extra.trace().msg}""".stripMargin
+              |${extra.trace().msg}""".stripMargin
         throw CypherValueParseException(msg)
     }
   }
@@ -101,7 +101,7 @@ class CypherValueParser(val orderedLists: Boolean) {
     }
 
   private def temporal[_: P]: P[CypherValue] =
-    localDateTime | date | time | localTime
+    dateTime | localDateTime | date | time | localTime
 
   private def date[_:P]: P[CypherDate] =
     P(digits() ~~ "-" ~~ digits() ~~ "-" ~~ digits()).!.map { s =>
@@ -119,8 +119,13 @@ class CypherValueParser(val orderedLists: Boolean) {
     }
 
   private def time[_: P]: P[CypherTime] =
-    P(localTime ~~ ("+" | "-") ~~ digits() ~~ ":" ~~ digits()).!.map { s =>
+    P(localTime ~~ timezone).!.map { s =>
       CypherTime(OffsetTime.parse(s))
+    }
+
+  private def dateTime[_: P]: P[CypherDateTime] =
+    P(date ~~ "T" ~~ time).!.map { s =>
+      CypherDateTime(OffsetDateTime.parse(s))
     }
 
   private def string[_: P]: P[CypherString] =
@@ -147,6 +152,10 @@ class CypherValueParser(val orderedLists: Boolean) {
     }
 
   // Sub-parsers:
+
+  // Either a +/- diff or just Z for UTC
+  private def timezone[_: P] =
+    (("+" | "-") ~~ digits() ~~ ":" ~~ digits()) | "Z"
 
   private def label[_: P]: P[String] = ":" ~~ symbolicName.!
 
