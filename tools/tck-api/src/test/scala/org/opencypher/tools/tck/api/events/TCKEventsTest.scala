@@ -31,7 +31,7 @@ import java.util
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.{AfterAll, BeforeAll, DynamicTest, TestFactory}
-import org.opencypher.tools.tck.IdeDetection
+import org.opencypher.tools.tck.RuntimeDetection
 import org.opencypher.tools.tck.api._
 import org.opencypher.tools.tck.values.CypherValue
 
@@ -77,7 +77,7 @@ class TCKEventsTest {
 
   @TestFactory
   def testSingleScenario(): util.Collection[DynamicTest] = {
-    val scenarios = IdeDetection.allTckScenarios.filter(s => s.name == "Return list size")
+    val scenarios = RuntimeDetection.allTckScenarios.filter(s => s.name == "Return list size")
 
     def createTestGraph(): Graph = FakeGraph
 

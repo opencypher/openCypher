@@ -28,17 +28,17 @@
 package org.opencypher.tools.tck.api
 
 import org.junit.jupiter.api.Test
-import org.opencypher.tools.tck.IdeDetection
+import org.opencypher.tools.tck.RuntimeDetection
 import org.opencypher.tools.tck.api.CypherTCK.{featuresPath, parseClasspathFeatures}
 
 class CypherTCKTest {
 
   /**
-    * This test does not work in IntelliJ, as the features are not loaded from a classpath when inside the IDE.
+    * This test does not work in IntelliJ or on Mac OS X, as the features are not loaded from a classpath when inside the IDE.
     */
   @Test
   def callParseClasspathFeaturesRepeatedly() {
-    if (!IdeDetection.isRunningInsideIntelliJ) {
+    if (!(RuntimeDetection.isRunningOnMacOS || RuntimeDetection.isRunningInsideIntelliJ)) {
       parseClasspathFeatures(featuresPath)
       parseClasspathFeatures(featuresPath)
     }
