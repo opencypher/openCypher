@@ -32,7 +32,7 @@
     <dep.apiguardian.version>1.0.0</dep.apiguardian.version>
     <dep.batik.version>1.8</dep.batik.version>
     <dep.cucumber.version>4.2.0</dep.cucumber.version>
-    <dep.gherkin.version>5.0.0</dep.gherkin.version>
+    <dep.gherkin.version>5.1.0</dep.gherkin.version>
     <dep.hamcrest.version>1.3</dep.hamcrest.version>
     <dep.junit.platform.version>1.4.0</dep.junit.platform.version>
     <dep.junit.version>5.4.0</dep.junit.version>
@@ -116,6 +116,12 @@
       <dependency>
         <groupId>io.cucumber</groupId>
         <artifactId>cucumber-junit</artifactId>
+        <version>${dep.cucumber.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>cucumber-core</artifactId>
         <version>${dep.cucumber.version}</version>
       </dependency>
 

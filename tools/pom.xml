@@ -56,5 +56,6 @@
     <module>grammar</module>
     <module>tck-api</module>
     <module>tck-integrity-tests</module>
+    <module>tck-reporting</module>
   </modules>
 </project>
