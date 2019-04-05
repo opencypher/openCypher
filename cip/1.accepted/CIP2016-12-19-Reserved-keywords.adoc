@@ -62,6 +62,7 @@ In addition to this, we list a number of words that are reserved for future use.
 * DELETE
 * DETACH
 * EXISTS
+* MANDATORY
 * MATCH
 * MERGE
 * OPTIONAL
@@ -124,7 +125,6 @@ In addition to this, we list a number of words that are reserved for future use.
 * DO
 * DROP
 * FOR
-* MANDATORY
 * OF
 * REQUIRE
 * SCALAR
