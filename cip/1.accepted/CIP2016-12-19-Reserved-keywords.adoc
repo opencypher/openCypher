@@ -58,6 +58,7 @@ In addition to this, we list a number of words that are reserved for future use.
 
 ===== Clauses
 
+* CALL
 * CREATE
 * DELETE
 * DETACH
@@ -72,6 +73,7 @@ In addition to this, we list a number of words that are reserved for future use.
 * UNION
 * UNWIND
 * WITH
+* YIELD
 
 ===== Subclauses
 
