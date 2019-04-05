@@ -127,6 +127,8 @@ In addition to this, we list a number of words that are reserved for future use.
 * DO
 * DROP
 * FOR
+* FROM
+* GRAPH
 * OF
 * REQUIRE
 * SCALAR
