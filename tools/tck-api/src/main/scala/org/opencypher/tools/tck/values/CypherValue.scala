@@ -105,6 +105,9 @@ trait CypherList extends CypherValue {
   def elements: List[CypherValue]
 }
 
+/**
+  * The standard Cypher list, with ordered elements.
+  */
 case class CypherOrderedList(elements: List[CypherValue] = List.empty) extends CypherList {
   override def toString: String = s"[${elements.mkString(", ")}]"
 
@@ -120,7 +123,7 @@ case class CypherOrderedList(elements: List[CypherValue] = List.empty) extends C
 
 /**
   * Enables comparisons between lists without enforcing order of elements.
-  * Requires the input list to be sorted by the CypherValue default ordering.
+  * Instances of this class are only constructed when the step [[org.opencypher.tools.tck.constants.TCKStepDefinitions.EXPECT_RESULT_UNORDERED_LISTS]] is used.
   */
 private[tck] case class CypherUnorderedList(elements: List[CypherValue] = List.empty) extends CypherList {
 
@@ -129,9 +132,9 @@ private[tck] case class CypherUnorderedList(elements: List[CypherValue] = List.e
   override def equals(obj: scala.Any): Boolean = obj match {
     case null => false
     case other: CypherOrderedList =>
-      other.elements.sorted(CypherValue.ordering) == elements
+      other.elements.sorted(CypherValue.ordering) == elements.sorted(CypherValue.ordering)
     case other: CypherUnorderedList =>
-      other.elements == elements
+      other.elements.sorted(CypherValue.ordering) == elements.sorted(CypherValue.ordering)
     case _ => false
   }
 

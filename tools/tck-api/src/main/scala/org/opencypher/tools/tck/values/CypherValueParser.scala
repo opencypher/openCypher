@@ -88,7 +88,12 @@ class CypherValueParser(val orderedLists: Boolean) {
 
   private def list[_: P]: P[CypherList] =
     P("[" ~~ cypherValue.rep(sep = ",") ~~/ "]").map { seq =>
-      CypherOrderedList(seq.toList)
+      if (orderedLists) {
+        CypherOrderedList(seq.toList)
+      }
+      else {
+        CypherUnorderedList(seq.toList)
+      }
     }
 
   private def map[_: P]: P[CypherPropertyMap] =

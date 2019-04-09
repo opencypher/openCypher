@@ -115,6 +115,9 @@ class CypherValueParserTest extends FunSuite with Matchers {
     CypherValue("[2, 1]", orderedLists = false) should equal(CypherUnorderedList(List(CypherInteger(2), CypherInteger(1)).sorted(CypherValue.ordering)))
     CypherValue("[1, 2, null]", orderedLists = false) should equal(
       CypherUnorderedList(List(CypherInteger(1), CypherInteger(2), CypherNull).sorted(CypherValue.ordering)))
+    CypherValue("['address', 'name', 'age']", orderedLists = false) should equal(
+      CypherOrderedList(List(CypherString("name"), CypherString("age"), CypherString("address")))
+    )
   }
 
 }
