@@ -45,4 +45,10 @@ class CypherTCKTest {
 
   }
 
+  @Test
+  def parseAllScenarioValues(): Unit = {
+    RuntimeDetection.allTckScenarios
+    // does not throw exception
+  }
+
 }
