@@ -136,7 +136,7 @@ class CypherValueParser(val orderedLists: Boolean) {
     (digits ~~ "." ~~ digits ~~ exponent.?) |
       ("." ~~ digits ~~ exponent.?) |
       (digits ~~ exponent)
-  private def exponent[_: P]: P[Unit] = "e" ~~ "-".? ~~ digits
+  private def exponent[_: P]: P[Unit] = IgnoreCase("e") ~~ "-".? ~~ digits
 
   private def newline[_: P]: P[Unit] = "\n" | "\r\n" | "\r" | "\f"
   private def invisible[_: P]: P[Unit] = " " | "\t" | newline

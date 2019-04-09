@@ -71,6 +71,8 @@ class CypherValueParserTest extends FunSuite with Matchers {
     CypherValue("-1e-10") should equal(CypherFloat(-1e-10))
     CypherValue("8e10") should equal(CypherFloat(8e10))
     CypherValue("8.12312e2") should equal(CypherFloat(8.12312e2))
+    CypherValue("-1.0E-9") should equal(CypherFloat(-1e-9))
+    CypherValue("-1E-9") should equal(CypherFloat(-1e-9))
   }
 
   test("path with a single node") {
