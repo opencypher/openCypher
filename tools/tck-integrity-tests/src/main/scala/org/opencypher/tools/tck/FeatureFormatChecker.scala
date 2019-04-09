@@ -30,12 +30,12 @@ package org.opencypher.tools.tck
 import java.util.concurrent.atomic.AtomicInteger
 
 import io.cucumber.datatable.DataTable
-import org.opencypher.tools.tck.api.InvalidFeatureFormatException
+import org.opencypher.tools.tck.api.{CypherTCK, InvalidFeatureFormatException}
 import org.opencypher.tools.tck.constants.TCKStepDefinitions._
 
 import scala.util.{Failure, Success, Try}
 
-class FeatureFormatChecker extends TCKCucumberTemplate {
+object FeatureFormatChecker {
 
   private var lastSeenQuery = ""
   private val orderBy = "(?si).*ORDER BY.*"
@@ -43,7 +43,14 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   private var currentScenarioName = ""
   private val stepValidator = new ScenarioFormatValidator
 
-  Background(BACKGROUND) {}
+  val scenarios = RuntimeDetection.allTckScenarios
+
+  def validate(): Unit = {
+    scenarios.foreach { scenario =>
+      scenario
+      ???
+    }
+  }
 
   Given(NAMED_GRAPH) { (name: String) =>
     validateNamedGraph(name).map(msg => throw InvalidFeatureFormatException(msg))
