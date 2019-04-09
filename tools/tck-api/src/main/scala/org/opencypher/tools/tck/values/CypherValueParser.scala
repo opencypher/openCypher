@@ -45,11 +45,11 @@ class CypherValueParser(val orderedLists: Boolean) {
         val msg =
           s"""|Failed at index $index:
               |
-                  |Expected:\t$expected
+              |Expected:\t$expected
               |
-                  |$locationPointer
+              |$locationPointer
               |
-                  |${extra.trace().msg}""".stripMargin
+              |${extra.trace().msg}""".stripMargin
         throw CypherValueParseException(msg)
     }
   }
