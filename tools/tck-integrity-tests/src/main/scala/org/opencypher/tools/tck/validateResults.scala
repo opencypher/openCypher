@@ -28,9 +28,10 @@
 package org.opencypher.tools.tck
 
 import io.cucumber.datatable.DataTable
-import org.opencypher.tools.tck.parsing.FormatListener
+import org.opencypher.tools.tck.values.CypherValue
 
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
 
 /**
   * This function will validate that a given DataTable from a TCK scenario contains parseable results representations.
@@ -53,6 +54,9 @@ object validateResults extends (DataTable => Option[String]) {
   }
 
   def apply(value: String): Boolean = {
-    new FormatListener().parseResults(value)
+    Try(CypherValue(value)) match {
+      case Success(_) => true
+      case Failure(_) => false
+    }
   }
 }

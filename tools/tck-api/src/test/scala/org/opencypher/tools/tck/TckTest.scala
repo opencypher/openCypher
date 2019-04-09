@@ -65,7 +65,7 @@ class TckTest {
   @TestFactory
   def testCustomFeature(): util.Collection[DynamicTest] = {
     val fooUri = getClass.getResource("Foo.feature").toURI
-    val scenarios = if (!IdeDetection.isRunningInsideIntelliJ) List.empty else {
+    val scenarios = if (!RuntimeDetection.isRunningInsideIntelliJ) List.empty else {
       CypherTCK.parseFilesystemFeature(new File(fooUri)).scenarios
     }
 

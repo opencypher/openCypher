@@ -33,7 +33,7 @@ import org.opencypher.tools.tck.api.{CypherTCK, Scenario}
   * Detect if a program is run from inside of an IDE. This is important for tests that try to access files from
   * the classpath/filesystem, because running from inside of the IDE behaves differently from running with Maven.
   */
-object IdeDetection {
+object RuntimeDetection {
 
   def isRunningInsideIntelliJ: Boolean = System.getProperty("java.class.path").contains("idea_rt.jar")
 

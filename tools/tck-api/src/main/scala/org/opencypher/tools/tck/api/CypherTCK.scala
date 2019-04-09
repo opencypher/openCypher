@@ -82,6 +82,8 @@ object CypherTCK {
     }
   }
 
+  private def withSource[T](s: Source)(f: Source => T) = try { f(s) } finally { s.close() }
+
   def parseFilesystemFeatures(directory: File): Seq[Feature] = {
     require(directory.isDirectory)
     val featureFileNames = directory.listFiles.filter(_.getName.endsWith(featureSuffix))
@@ -89,11 +91,13 @@ object CypherTCK {
   }
 
   def parseFilesystemFeature(file: File): Feature = {
-    parseFeature(file.getAbsolutePath, Source.fromFile(file)(Codec.UTF8).mkString)
+    val featureString = withSource(Source.fromFile(file)(Codec.UTF8))(_.mkString)
+    parseFeature(file.getAbsolutePath, featureString)
   }
 
   def parseClasspathFeature(pathUrl: URL): Feature = {
-    parseFeature(pathUrl.toString, Source.fromURL(pathUrl)(Codec.UTF8).mkString)
+    val featureString = withSource(Source.fromURL(pathUrl)(Codec.UTF8))(_.mkString)
+    parseFeature(pathUrl.toString, featureString)
   }
 
   def parseFeature(source: String, featureString: String): Feature = {
@@ -149,7 +153,7 @@ object CypherTCK {
         parseMap(CypherValue(_))
       }
 
-      def parseMap[V](parseValue: (String => V)): Map[String, V] = {
+      def parseMap[V](parseValue: String => V): Map[String, V] = {
         require(step.getArgument.size == 1)
         val rows = stepArguments.head.asInstanceOf[PickleTable].getRows.asScala
         rows.map { row =>
@@ -182,10 +186,10 @@ object CypherTCK {
         case expectErrorR(errorType, time, detail) =>
           val expectedError = ExpectError(errorType, time, detail, step)
           if (shouldValidate) {
-            expectedError.validate match {
+            expectedError.validate() match {
               case None => // No problem
               case Some(errorMessage) =>
-                throw new InvalidFeatureFormatException(
+                throw InvalidFeatureFormatException(
                   s"""Invalid error format in scenario "${pickle.getName}" from feature "$featureName":
                     $errorMessage
                     If this is a custom error, then disable this validation with tag "@allowCustomErrors"""")

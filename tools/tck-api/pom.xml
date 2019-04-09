@@ -50,8 +50,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.antlr</groupId>
-      <artifactId>antlr4-runtime</artifactId>
+      <groupId>com.lihaoyi</groupId>
+      <artifactId>fastparse_${scala.binary.version}</artifactId>
+      <version>${dep.fastparse.version}</version>
     </dependency>
 
     <dependency>

@@ -28,9 +28,10 @@
 package org.opencypher.tools.tck
 
 import io.cucumber.datatable.DataTable
-import org.opencypher.tools.tck.parsing.FormatListener
+import org.opencypher.tools.tck.values.{CypherNode, CypherPath, CypherRelationship, CypherValue}
 
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
 
 /**
   * This function will validate that a given DataTable from a TCK scenario contains parseable parameter representations.
@@ -49,6 +50,13 @@ object validateParameters extends (DataTable => Option[String]) {
   }
 
   def apply(value: String): Boolean = {
-    new FormatListener().parseParameter(value)
+    Try(CypherValue(value)) match {
+      case Success(v) => v match {
+        // graph elements are not valid parameters
+        case _: CypherNode | _: CypherRelationship | _: CypherPath => false
+        case _                                                     => true
+      }
+      case Failure(_) => false
+    }
   }
 }
