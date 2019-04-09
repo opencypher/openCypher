@@ -35,6 +35,27 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
+      <plugin>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-maven-plugin</artifactId>
+        <version>4.7</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>antlr4</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <sourceDirectory>${basedir}/src/main/resources/</sourceDirectory>
+          <outputDirectory>${basedir}/src/main/java/org/opencypher/tools/tck/parsing/generated</outputDirectory>
+          <visitor>true</visitor>
+          <arguments>
+            <argument>-package</argument>
+            <argument>org.opencypher.tools.tck.parsing.generated</argument>
+          </arguments>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

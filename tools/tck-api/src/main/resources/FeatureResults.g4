@@ -80,17 +80,17 @@ propertyMap : '{' (mapContents)? '}' ;
 
 mapContents : keyValuePair (', ' keyValuePair)* ;
 
-keyValuePair: propertyKey ':' WS? propertyValue ;
+keyValuePair: (propertyKey | ('`' propertyKey '`')) ':' WS? propertyValue ;
 
 propertyKey : SYMBOLIC_NAME ;
 
 propertyValue : value ;
 
-relationshipType : ':' relationshipTypeName ;
+relationshipType : ':' (relationshipTypeName | ('`' relationshipTypeName '`'));
 
 relationshipTypeName : SYMBOLIC_NAME ;
 
-label : ':' labelName ;
+label : ':' (labelName | ('`' labelName '`')) ;
 
 labelName : SYMBOLIC_NAME ;
 

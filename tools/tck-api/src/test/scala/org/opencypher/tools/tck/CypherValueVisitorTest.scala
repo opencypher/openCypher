@@ -46,8 +46,22 @@ class CypherValueVisitorTest extends FunSuite with Matchers {
     parsed should equal(expected)
   }
 
+  test("node with escaped label") {
+    val string = "(:A:`B` {name: 'Hans', `age`: 42})"
+    val parsed = CypherValue(string)
+    val expected = CypherNode(Set("A", "B"), CypherPropertyMap(Map("name" -> CypherString("Hans"), "age" -> CypherInteger(42))))
+    parsed should equal(expected)
+  }
+
   test("relationship") {
     val string = "[:A {since: 1920}]"
+    val parsed = CypherValue(string)
+    val expected = CypherRelationship("A", CypherPropertyMap(Map("since" -> CypherInteger(1920))))
+    parsed should equal(expected)
+  }
+
+  test("relationship with escaped label") {
+    val string = "[:`A` {`since`: 1920}]"
     val parsed = CypherValue(string)
     val expected = CypherRelationship("A", CypherPropertyMap(Map("since" -> CypherInteger(1920))))
     parsed should equal(expected)
@@ -90,7 +104,7 @@ class CypherValueVisitorTest extends FunSuite with Matchers {
 
   test("map") {
     CypherValue("{}") should equal(CypherPropertyMap())
-    CypherValue("{name: 'Hello', foo: true}") should equal(
+    CypherValue("{name: 'Hello', `foo`: true}") should equal(
       CypherPropertyMap(Map("name" -> CypherString("Hello"), "foo" -> CypherBoolean(true))))
   }
 
