@@ -30,7 +30,7 @@ import fastparse.Parsed.{Failure, Success}
 import fastparse._
 import org.opencypher.tools.tck.values.Connection.{backward, forward}
 
-case class CypherValueParseException(msg: String) extends Exception(msg)
+case class CypherValueParseException(msg: String, expected: String) extends Exception(msg)
 
 class CypherValueParser(val orderedLists: Boolean) {
   def parse(s: String): CypherValue = {
@@ -50,7 +50,7 @@ class CypherValueParser(val orderedLists: Boolean) {
               |$locationPointer
               |
               |${extra.trace().msg}""".stripMargin
-        throw CypherValueParseException(msg)
+        throw CypherValueParseException(msg, expected)
     }
   }
 
@@ -102,7 +102,10 @@ class CypherValueParser(val orderedLists: Boolean) {
     }
 
   private def string[_: P]: P[CypherString] =
-    P("'" ~ CharsWhile(_ != ''', 0).!.map(CypherString) ~ "'")
+    P("'" ~/ (stringChunk | backslash | escape).rep.!.map { s =>
+      val escaped = s.replaceAllLiterally("\\'", "'").replaceAllLiterally("\\\\", "\\")
+      CypherString(escaped)
+    } ~ "'")
 
   private def float[_: P]: P[CypherFloat] =
     P("-".? ~ floatRepr).!.map { s =>
@@ -135,6 +138,25 @@ class CypherValueParser(val orderedLists: Boolean) {
   private def backRel[_: P]: P[CypherRelationship] = "<-" ~~ relationship ~~ "-"
 
   private def symbolicName[_: P]: P[String] = CharsWhileIn("a-zA-Z0-9$_").!
+
+  /**
+    * A 'simple' string chunk; without apostrophes or backslash (escape sequence)
+    */
+  private def stringChunk[_: P]: P[Unit] = {
+    CharsWhile(c => c != ''' && c != '\\')
+  }
+  /**
+    * We escape apostrophes inside strings using a backslash
+    */
+  private def escape[_: P]: P[Unit] = {
+    P("\\") ~/ P("'")
+  }
+  /**
+    * Since backslash is used
+    */
+  private def backslash[_: P]: P[Unit] = {
+    P("\\\\")
+  }
 
   private def digits[_: P]: P[Unit] = CharsWhileIn("0-9")
   private def floatRepr[_: P]: P[Unit] =

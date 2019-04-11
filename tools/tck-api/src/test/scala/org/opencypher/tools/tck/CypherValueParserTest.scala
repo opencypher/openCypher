@@ -64,6 +64,18 @@ class CypherValueParserTest extends FunSuite with Matchers {
     CypherValue("null") should equal(CypherNull)
   }
 
+  test("string escaping") {
+    CypherValue("'The Devil\\'s Advocate'") should equal(CypherString("The Devil's Advocate"))
+    CypherValue("'\\\\'") should equal(CypherString("\\"))
+    CypherValue("'\\''") should equal(CypherString("'"))
+    CypherValue("'\\'\\''") should equal(CypherString("''"))
+  }
+
+  test("incorrect escaping") {
+    (the[CypherValueParseException] thrownBy CypherValue("'\\'")).expected should equal("\"'\"")
+    (the[CypherValueParseException] thrownBy CypherValue("'''")).expected should equal("end-of-input")
+  }
+
   test("floats in exponent form") {
     CypherValue(".4e10") should equal(CypherFloat(.4e10))
     CypherValue(".4e-10") should equal(CypherFloat(.4e-10))
