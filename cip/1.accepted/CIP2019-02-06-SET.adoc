@@ -4,6 +4,7 @@
 :toc-placement: macro
 :source-highlighter: codemirror
 
+*Authors:* Satia Herfert <satia.herfert@neo4j.com>, Craig Taverner <craig.taverner@neo4j.com>
 *Authors:* Satia Herfert satia.herfert@neo4j.com and Craig Taverner craig.taverner@neo4j.com
 
 [abstract]
@@ -17,9 +18,9 @@ toc::[]
 
 == Motivation
 
-There are no existing formal specifications for the semantics of the `SET` and `REMOVE` clauses.
-In addition, the semantics of `SET` with regard to setting multiple components in a single `SET` clause can be ambiguous.
-This document aims to clarify all cases.
+There is no existing formal specification of the semantics of the `SET` and `REMOVE` clauses.
+The semantics of `SET` with regard to setting multiple components in a single `SET` clause may be ambiguous, based on implementation experience.
+This CIP aims to clarify all cases.
 
 == Background
 
@@ -28,12 +29,16 @@ Recently some subtle edge cases were found that have motivated for increased cla
 For example, consider the following query:
 [source, cypher]
 ----
-MATCH (p1:Product {name:"laptop"}), (p2:Product {name:"tablet"})
+MATCH (p1:Product {name: 'laptop'}), (p2:Product {name: 'tablet'})
 SET p1.id = p2.id, p2.id = p1.id
 ----
 
-It is ambiguous whether the components of the set clause are evaluated in order, in which case the values of `p1.id` and `p2.id` would become equal to the original `p2.id`, or if all expressions are evaluated first and then assigned, in which case the values will be swapped.
-It is anticipated that the latter semantic is the most desired, that the components should not imply order, and therefore that older versions of Cypher are not conforming with this desired behaviour.
+Here it is ambiguous whether
+a) the components of the `SET` clause are evaluated in order, or
+b) all right-hand-side expressions are evaluated first and then assigned.
+
+Given a), the values of `p1.id` and `p2.id` would become equal to the original `p2.id`, whilst given b) the values will be swapped.
+It is anticipated that the semantics given by b) is the most desired, that the components should not imply order, and therefore that older versions of Cypher are not conforming with this desired behaviour.
 
 == Proposal
 
@@ -76,15 +81,15 @@ The valid assignable property types are described in <<CIP2015-09-16-public-type
 
 ===== Map Assignment '='
 
-When the left-hand side of the assignment operator is a variable representing a node or relationship, the right-hand side expression must evaluate to a map value containing string keys and values that are all valid assignable property types.
+When the left-hand side of the assignment operator is a variable representing a node or relationship, the right-hand side expression must evaluate to a map value with values that are all valid assignable property types.
 The node or relationship will be modified to contain exactly the properties of the map, and any other properties will be removed.
-Example: `SET n = {a: 1, b:2}`
+Example: `SET n = {a: 1, b: 2}` will make `n` have properties `a` and `b` with the given values, regardless of what properties `n` had previously.
 
 ===== Map Augmentation '+='
 
-When the left-hand side of the `+=` operator is a variable representing a node or a relationship, then the right-hand side expression must evaluate to a map value containing string keys and valid property values.
+When the left-hand side of the `+=` operator is a variable representing a node or a relationship, then the right-hand side expression must evaluate to a map value containing valid property values.
 The node or relationships will be modified to contain these properties without the removal of any other previously existing properties.
-Example: `SET n += {a: 1, b:2}`
+Example: `SET n += {a: 1, b: 2}` will make `n` have properties `a` and `b` with the given values, in addition to other properties `n` already had.
 
 ===== Property Removal
 
@@ -96,14 +101,14 @@ This is equivalent to deleting the property.
 The variable must represent a node.
 The node will get assigned all labels that follow.
 No labels will be removed from the node.
-Example: `SET n:Foo:Bar`
+Example: `SET n:Foo:Bar` will make `n` have labels `Foo` and `Bar`, in addition to any other labels `n` had previously.
 
 ===== Label Removal
 
 The variable must represent a node.
 The node will get unassigned all labels that follow.
 If the node did not have some of the labels being removed, that is a no-operation for that label.
-Example: `REMOVE n:Foo:Bar`
+Example: `REMOVE n:Foo:Bar` will make `n` not have labels `Foo` nor `Bar`, regardless of any other labels `n` may have.
 
 ==== Use Cases
 
@@ -123,7 +128,7 @@ All assignments are evaluated atomically after all right-hand side expressions h
 Consider for example:
 [source, cypher]
 ----
-MATCH (p1:Product{name:"laptop"}), (p2:Product{name:"tablet"})
+MATCH (p1:Product {name: 'laptop'}), (p2:Product {name: 'tablet'})
 SET p1.id = p2.id, p2.id = p1.id
 ----
 
@@ -135,7 +140,7 @@ This will be unaffected by typing the clause in the opposite order: `SET p2.id =
 Assigning multiple properties to the same node or relationship can be achieved in two ways:
 
 * Multiple assignments: `SET n.a = 5, n.b = 'word', n.c = $param`
-* Map augmentation: `SET n += {'a': 5, 'b': 'word', 'c': $param}`
+* Map augmentation: `SET n += {a: 5, b: 'word', c: $param}`
 
 ===== Removing Properties
 
@@ -144,9 +149,9 @@ For this reason, there are multiple semantically identical ways to remove a prop
 
 * Assign the property to null
 ** `SET n.prop = null`
-** `SET n.prop = expression`  where expression evaluates to null, for example a variable or a parameter
+** `SET n.prop = expression` where expression evaluates to null
 * Remove the property: `REMOVE n.prop`
-* Assign the node or relationship to a Map value that does not contain the previously existing property: `SET n = {a: var, b:var}`
+* Assign to the node or relationship a map value that does not contain the previously existing property: `SET n = {a: var, b: var}`
 
 ====== Adding or Removing Labels
 
@@ -162,7 +167,7 @@ Labels can only be added to or removed from nodes.
 === Deleted Elements
 
 The `PropertyExpression` or `Variable` on the left-hand-side of a `SetItem` or `RemoveItem` might refer to a node or relationship that has been deleted previously in the same query.
-In this case, the `SET` or `REMOVE`  is a no-operation.
+In this case, the `SET` or `REMOVE` is a no-operation.
 
 === Order Dependencies
 
@@ -171,7 +176,7 @@ This could lead to unexpected behaviour.
 Consider the following example:
 [source, cypher]
 ----
-MATCH (p1:Product {pid:85}), (p2:Product {pid:125})
+MATCH (p1:Product {pid: 85}), (p2:Product {pid: 125})
 SET p1.name = p2.name
 ----
 
