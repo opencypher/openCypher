@@ -28,37 +28,97 @@
 
 #encoding: utf-8
 
-Feature: Literals1 - Boolean and Null
+Feature: Literals1 - Literals
 
   Background:
     Given any graph
 
-  Scenario: [1] Return a boolean true
+  Scenario: Return an integer
     When executing query:
       """
-      RETURN true AS literal
+      RETURN 1 AS literal
       """
     Then the result should be:
       | literal |
-      | true    |
+      | 1       |
     And no side effects
 
-  Scenario: [2] Return a boolean false
+  Scenario: Return a float
     When executing query:
       """
-      RETURN false AS literal
+      RETURN 1.0 AS literal
       """
     Then the result should be:
       | literal |
-      | false    |
+      | 1.0     |
     And no side effects
 
-  Scenario: [3] Return null
+  Scenario: Return a float in exponent form
     When executing query:
       """
-      RETURN null AS literal
+      RETURN -1e-9 AS literal
+      """
+    Then the result should be:
+      | literal     |
+      | -.000000001 |
+    And no side effects
+
+  Scenario: Return a single-quoted string
+    When executing query:
+      """
+      RETURN '' AS literal
       """
     Then the result should be:
       | literal |
-      | null    |
+      | ''      |
+    And no side effects
+
+  Scenario: Return a double-quoted string
+    When executing query:
+      """
+      RETURN "" AS literal
+      """
+    Then the result should be:
+      | literal |
+      | ''      |
+    And no side effects
+
+  Scenario: Return an empty list
+    When executing query:
+      """
+      RETURN [] AS literal
+      """
+    Then the result should be:
+      | literal |
+      | []      |
+    And no side effects
+
+  Scenario: Return a nonempty list
+    When executing query:
+      """
+      RETURN [0, 1, 2] AS literal
+      """
+    Then the result should be:
+      | literal   |
+      | [0, 1, 2] |
+    And no side effects
+
+  Scenario: Return an empty map
+    When executing query:
+      """
+      RETURN {} AS literal
+      """
+    Then the result should be:
+      | literal |
+      | {}      |
+    And no side effects
+
+  Scenario: Return a nonempty map
+    When executing query:
+      """
+      RETURN {k1: 0, k2: 'string'} AS literal
+      """
+    Then the result should be:
+      | literal               |
+      | {k1: 0, k2: 'string'} |
     And no side effects
