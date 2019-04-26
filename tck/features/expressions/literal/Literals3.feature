@@ -28,12 +28,12 @@
 
 #encoding: utf-8
 
-Feature: Literals3 - Literals
+Feature: Literals3 - Float
 
   Background:
     Given any graph
 
-  Scenario: Return a float
+  Scenario: [1] Return a short positive float
     When executing query:
       """
       RETURN 1.0 AS literal
@@ -43,72 +43,253 @@ Feature: Literals3 - Literals
       | 1.0     |
     And no side effects
 
-  Scenario: Return a float in exponent form
+  Scenario: [2] Return a short positive float without integer digits
     When executing query:
       """
-      RETURN -1e-9 AS literal
+      RETURN .1 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | 0.1     |
+    And no side effects
+
+  Scenario: [3] Return a long positive float
+    When executing query:
+      """
+      RETURN 3985764.3405892687 AS literal
+      """
+    Then the result should be:
+      | literal            |
+      | 3985764.3405892686 |
+    And no side effects
+
+  Scenario: [4] Return a long positive float without integer digits
+    When executing query:
+      """
+      RETURN .3405892687 AS literal
+      """
+    Then the result should be:
+      | literal      |
+      | 0.3405892687 |
+    And no side effects
+
+  Scenario: [5] Return a very long positive float
+    When executing query:
+      """
+      RETURN 126354186523812635418263552340512384016094862983471987543918591348961093487896783409268730945879405123840160948812635418265234051238401609486298347198754391859134896109348789678340926873094587962983471812635265234051238401609486298348126354182652340512384016094862983471987543918591348961093487896783409218.0 AS literal
+      """
+    Then the result should be:
+      | literal                   |
+      | 1.2635418652381264e+305.0 |
+    And no side effects
+
+  Scenario: [6] Return a very long positive float without integer digits
+    When executing query:
+      """
+      RETURN .00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | 1e-305  |
+    And no side effects
+
+  Scenario: [7] Return a positive zero float
+    When executing query:
+      """
+      RETURN 0.0 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | 0.0     |
+    And no side effects
+
+  Scenario: [8] Return a positive zero float without integer digits
+    When executing query:
+      """
+      RETURN .0 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | 0.0     |
+    And no side effects
+
+  Scenario: [9] Return a negative zero float
+    When executing query:
+      """
+      RETURN -0.0 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | 0.0     |
+    And no side effects
+
+  Scenario: [10] Return a negative zero float without integer digits
+    When executing query:
+      """
+      RETURN -.0 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | 0.0     |
+    And no side effects
+
+  Scenario: [11] Return a very long negative float
+    When executing query:
+      """
+      RETURN -126354186523812635418263552340512384016094862983471987543918591348961093487896783409268730945879405123840160948812635418265234051238401609486298347198754391859134896109348789678340926873094587962983471812635265234051238401609486298348126354182652340512384016094862983471987543918591348961093487896783409218.0 AS literal
+      """
+    Then the result should be:
+      | literal                    |
+      | -1.2635418652381264e+305.0 |
+    And no side effects
+
+  Scenario: [12] Return a very long negative float without integer digits
+    When executing query:
+      """
+      RETURN -.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | -1e-305 |
+    And no side effects
+
+  Scenario: [13] Return a positive float with positive lower case exponent
+    When executing query:
+      """
+      RETURN 1e9 AS literal
+      """
+    Then the result should be:
+      | literal      |
+      | 1000000000.0 |
+    And no side effects
+
+  Scenario: [14] Return a positive float with positive upper case exponent
+    When executing query:
+      """
+      RETURN 1E9 AS literal
+      """
+    Then the result should be:
+      | literal      |
+      | 1000000000.0 |
+    And no side effects
+
+  Scenario: [15] Return a positive float with positive lower case exponent without integer digits
+    When executing query:
+      """
+      RETURN .1e9 AS literal
       """
     Then the result should be:
       | literal     |
-      | -.000000001 |
+      | 100000000.0 |
     And no side effects
 
-  Scenario: Return a single-quoted string
+  Scenario: [16] Return a positive float with negative lower case exponent
     When executing query:
       """
-      RETURN '' AS literal
+      RETURN 1e-5 AS literal
       """
     Then the result should be:
       | literal |
-      | ''      |
+      | 0.00001 |
     And no side effects
 
-  Scenario: Return a double-quoted string
+  Scenario: [17] Return a positive float with negative lower case exponent without integer digits
     When executing query:
       """
-      RETURN "" AS literal
+      RETURN .1e-5 AS literal
       """
     Then the result should be:
-      | literal |
-      | ''      |
+      | literal  |
+      | 0.000001 |
     And no side effects
 
-  Scenario: Return an empty list
+  Scenario: [18] Return a positive float with negative upper case exponent without integer digits
     When executing query:
       """
-      RETURN [] AS literal
+      RETURN .1E-5 AS literal
       """
     Then the result should be:
-      | literal |
-      | []      |
+      | literal  |
+      | 0.000001 |
     And no side effects
 
-  Scenario: Return a nonempty list
+  Scenario: [19] Return a negative float in with positive lower case exponent
     When executing query:
       """
-      RETURN [0, 1, 2] AS literal
+      RETURN -1e9 AS literal
+      """
+    Then the result should be:
+      | literal       |
+      | -1000000000.0 |
+    And no side effects
+
+  Scenario: [20] Return a negative float in with positive upper case exponent
+    When executing query:
+      """
+      RETURN -1E9 AS literal
+      """
+    Then the result should be:
+      | literal       |
+      | -1000000000.0 |
+    And no side effects
+
+  Scenario: [21] Return a negative float with positive lower case exponent without integer digits
+    When executing query:
+      """
+      RETURN -.1e9 AS literal
+      """
+    Then the result should be:
+      | literal      |
+      | -100000000.0 |
+    And no side effects
+
+  Scenario: [22] Return a negative float with negative lower case exponent
+    When executing query:
+      """
+      RETURN -1e-5 AS literal
+      """
+    Then the result should be:
+      | literal  |
+      | -0.00001 |
+    And no side effects
+
+  Scenario: [23] Return a negative float with negative lower case exponent without integer digits
+    When executing query:
+      """
+      RETURN -.1e-5 AS literal
       """
     Then the result should be:
       | literal   |
-      | [0, 1, 2] |
+      | -0.000001 |
     And no side effects
 
-  Scenario: Return an empty map
+  Scenario: [24] Return a negative float with negative upper case exponent without integer digits
     When executing query:
       """
-      RETURN {} AS literal
+      RETURN -.1E-5 AS literal
       """
     Then the result should be:
-      | literal |
-      | {}      |
+      | literal   |
+      | -0.000001 |
     And no side effects
 
-  Scenario: Return a nonempty map
+  Scenario: [25] Return a positive float with one integer digit and maximum positive exponent
     When executing query:
       """
-      RETURN {k1: 0, k2: 'string'} AS literal
+      RETURN 1e308 AS literal
       """
     Then the result should be:
-      | literal               |
-      | {k1: 0, k2: 'string'} |
+      | literal  |
+      | 1e+308.0 |
     And no side effects
+
+  Scenario: [26] Return a positive float with nine integer digit and maximum positive exponent
+    When executing query:
+      """
+      RETURN 123456789e300 AS literal
+      """
+    Then the result should be:
+      | literal           |
+      | 1.23456789e+308.0 |
+    And no side effects
+
