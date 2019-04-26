@@ -112,3 +112,83 @@ Feature: Literals2 - Integer
       | literal              |
       | -9223372036854775808 |
     And no side effects
+
+  Scenario: [9] Return a short positive hexadecimal integer
+    When executing query:
+      """
+      RETURN 0x1 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | 1       |
+    And no side effects
+
+  Scenario: [10] Return a long positive hexadecimal integer
+    When executing query:
+      """
+      RETURN 0x162CD4F6 AS literal
+      """
+    Then the result should be:
+      | literal    |
+      | 372036854  |
+    And no side effects
+
+  Scenario: [11] Return the largest hexadecimal integer
+    When executing query:
+      """
+      RETURN 0x7FFFFFFFFFFFFFFF AS literal
+      """
+    Then the result should be:
+      | literal              |
+      | 9223372036854775807  |
+    And no side effects
+
+  Scenario: [12] Return a positive hexadecimal zero
+    When executing query:
+      """
+      RETURN 0x0 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | 0       |
+    And no side effects
+
+  Scenario: [13] Return a negative hexadecimal zero
+    When executing query:
+      """
+      RETURN -0x0 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | 0       |
+    And no side effects
+
+  Scenario: [14] Return a short negative hexadecimal integer
+    When executing query:
+      """
+      RETURN -0x1 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | -1      |
+    And no side effects
+
+  Scenario: [15] Return a long negative hexadecimal integer
+    When executing query:
+      """
+      RETURN -0x162CD4F6 AS literal
+      """
+    Then the result should be:
+      | literal    |
+      | -372036854 |
+    And no side effects
+
+  Scenario: [16] Return the smallest hexadecimal integer
+    When executing query:
+      """
+      RETURN -0x8000000000000000 AS literal
+      """
+    Then the result should be:
+      | literal              |
+      | -9223372036854775808 |
+    And no side effects
