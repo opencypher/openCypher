@@ -47,17 +47,3 @@ Feature: SyntaxErrorAcceptance
       RETURN count(rand())
       """
     Then a SyntaxError should be raised at compile time: NonConstantExpression
-
-  Scenario: Supplying invalid hexadecimal literal 1
-    When executing query:
-      """
-      RETURN 0x23G34
-      """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
-
-  Scenario: Supplying invalid hexadecimal literal 2
-    When executing query:
-      """
-      RETURN 0x23j
-      """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
