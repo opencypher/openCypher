@@ -193,7 +193,37 @@ Feature: Literals2 - Integer
       | -9223372036854775808 |
     And no side effects
 
-  Scenario: [17] Return a short positive octal integer
+  Scenario: [17] Return a lower case hexadecimal integer
+    When executing query:
+      """
+      RETURN 0x1a2b3c4d5e6f7 AS literal
+      """
+    Then the result should be:
+      | literal         |
+      | 460367961908983 |
+    And no side effects
+
+  Scenario: [18] Return a upper case hexadecimal integer
+    When executing query:
+      """
+      RETURN 0x1A2B3C4D5E6F7 AS literal
+      """
+    Then the result should be:
+      | literal         |
+      | 460367961908983 |
+    And no side effects
+
+  Scenario: [19] Return a mixed case hexadecimal integer
+    When executing query:
+      """
+      RETURN 0x1A2b3c4D5E6f7 AS literal
+      """
+    Then the result should be:
+      | literal         |
+      | 460367961908983 |
+    And no side effects
+
+  Scenario: [21] Return a short positive octal integer
     When executing query:
       """
       RETURN 01 AS literal
@@ -203,7 +233,7 @@ Feature: Literals2 - Integer
       | 1       |
     And no side effects
 
-  Scenario: [18] Return a long positive octal integer
+  Scenario: [22] Return a long positive octal integer
     When executing query:
       """
       RETURN 02613152366 AS literal
@@ -213,7 +243,7 @@ Feature: Literals2 - Integer
       | 372036854  |
     And no side effects
 
-  Scenario: [19] Return the largest octal integer
+  Scenario: [23] Return the largest octal integer
     When executing query:
       """
       RETURN 0777777777777777777777 AS literal
@@ -223,7 +253,7 @@ Feature: Literals2 - Integer
       | 9223372036854775807  |
     And no side effects
 
-  Scenario: [20] Return a positive octal zero
+  Scenario: [24] Return a positive octal zero
     When executing query:
       """
       RETURN 00 AS literal
@@ -233,7 +263,7 @@ Feature: Literals2 - Integer
       | 0       |
     And no side effects
 
-  Scenario: [21] Return a negative octal zero
+  Scenario: [25] Return a negative octal zero
     When executing query:
       """
       RETURN -00 AS literal
@@ -243,7 +273,7 @@ Feature: Literals2 - Integer
       | 0       |
     And no side effects
 
-  Scenario: [22] Return a short negative octal integer
+  Scenario: [26] Return a short negative octal integer
     When executing query:
       """
       RETURN -01 AS literal
@@ -253,7 +283,7 @@ Feature: Literals2 - Integer
       | -1      |
     And no side effects
 
-  Scenario: [23] Return a long negative octal integer
+  Scenario: [27] Return a long negative octal integer
     When executing query:
       """
       RETURN -02613152366 AS literal
@@ -263,7 +293,7 @@ Feature: Literals2 - Integer
       | -372036854 |
     And no side effects
 
-  Scenario: [24] Return the smallest octal integer
+  Scenario: [28] Return the smallest octal integer
     When executing query:
       """
       RETURN -0800000000000000000000 AS literal
