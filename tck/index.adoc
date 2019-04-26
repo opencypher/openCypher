@@ -32,7 +32,14 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 === MATCH
 
 * `Match1`: Zero-length patterns
-** This group contains MATCH clauses without relationships
+** This group contains `MATCH` clauses without relationships
+
+=== UNION
+
+* `Union1`: Basic morphology and de-duplication semantics
+** This group tests that the basic structure holds with respect to projection and de-duplication semantics
+* `Union2`: Projection correctness
+** This group tests that the more complex aspects of projecting values is correct
 
 === UNWIND
 

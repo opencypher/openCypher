@@ -28,29 +28,23 @@
 
 #encoding: utf-8
 
-Feature: UnionAcceptance
+Feature: Union1 - Basic morphology and de-duplication semantics
 
-  Scenario: Should be able to create text output from union queries
+  Scenario: [1] All unique values with two-arm set semantics
     Given an empty graph
-    And having executed:
-      """
-      CREATE (:A), (:B)
-      """
     When executing query:
       """
-      MATCH (a:A)
-      RETURN a AS a
+      RETURN 1 AS x
       UNION
-      MATCH (b:B)
-      RETURN b AS a
+      RETURN 2 AS x
       """
     Then the result should be:
-      | a    |
-      | (:A) |
-      | (:B) |
+      | x |
+      | 1 |
+      | 2 |
     And no side effects
 
-  Scenario: Two elements, both unique, not distinct
+  Scenario: [2] All unique values with two-arm multiset semantics
     Given an empty graph
     When executing query:
       """
@@ -64,21 +58,7 @@ Feature: UnionAcceptance
       | 2 |
     And no side effects
 
-  Scenario: Two elements, both unique, distinct
-    Given an empty graph
-    When executing query:
-      """
-      RETURN 1 AS x
-      UNION
-      RETURN 2 AS x
-      """
-    Then the result should be:
-      | x |
-      | 1 |
-      | 2 |
-    And no side effects
-
-  Scenario: Three elements, two unique, distinct
+  Scenario: [3] Some unique values with multi-arm set-only semantics
     Given an empty graph
     When executing query:
       """
@@ -94,7 +74,7 @@ Feature: UnionAcceptance
       | 1 |
     And no side effects
 
-  Scenario: Three elements, two unique, not distinct
+  Scenario: [4] Some unique values with multi-arm multiset-only semantics
     Given an empty graph
     When executing query:
       """
