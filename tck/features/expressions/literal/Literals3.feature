@@ -28,87 +28,87 @@
 
 #encoding: utf-8
 
-Feature: Literals2 - Integer
+Feature: Literals3 - Literals
 
   Background:
     Given any graph
 
-  Scenario: Return a short positive integer
+  Scenario: Return a float
     When executing query:
       """
-      RETURN 1 AS literal
+      RETURN 1.0 AS literal
       """
     Then the result should be:
       | literal |
-      | 1       |
+      | 1.0     |
     And no side effects
 
-  Scenario: Return a long positive integer
+  Scenario: Return a float in exponent form
     When executing query:
       """
-      RETURN 372036854 AS literal
+      RETURN -1e-9 AS literal
       """
     Then the result should be:
-      | literal    |
-      | 372036854  |
+      | literal     |
+      | -.000000001 |
     And no side effects
 
-  Scenario: Return the largest integer
+  Scenario: Return a single-quoted string
     When executing query:
       """
-      RETURN 9223372036854775807 AS literal
-      """
-    Then the result should be:
-      | literal              |
-      | 9223372036854775807  |
-    And no side effects
-
-  Scenario: Return a positive zero
-    When executing query:
-      """
-      RETURN 0 AS literal
+      RETURN '' AS literal
       """
     Then the result should be:
       | literal |
-      | 0       |
+      | ''      |
     And no side effects
 
-  Scenario: Return a negative zero
+  Scenario: Return a double-quoted string
     When executing query:
       """
-      RETURN -0 AS literal
+      RETURN "" AS literal
       """
     Then the result should be:
       | literal |
-      | 0       |
+      | ''      |
     And no side effects
 
-  Scenario: Return a short negative integer
+  Scenario: Return an empty list
     When executing query:
       """
-      RETURN -1 AS literal
+      RETURN [] AS literal
       """
     Then the result should be:
       | literal |
-      | -1      |
+      | []      |
     And no side effects
 
-  Scenario: Return a long negative integer
+  Scenario: Return a nonempty list
     When executing query:
       """
-      RETURN -372036854 AS literal
+      RETURN [0, 1, 2] AS literal
       """
     Then the result should be:
-      | literal    |
-      | -372036854 |
+      | literal   |
+      | [0, 1, 2] |
     And no side effects
 
-  Scenario: Return the smallest integer
+  Scenario: Return an empty map
     When executing query:
       """
-      RETURN -9223372036854775808 AS literal
+      RETURN {} AS literal
       """
     Then the result should be:
-      | literal              |
-      | -9223372036854775808 |
+      | literal |
+      | {}      |
+    And no side effects
+
+  Scenario: Return a nonempty map
+    When executing query:
+      """
+      RETURN {k1: 0, k2: 'string'} AS literal
+      """
+    Then the result should be:
+      | literal               |
+      | {k1: 0, k2: 'string'} |
     And no side effects
