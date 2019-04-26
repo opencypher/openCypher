@@ -81,6 +81,7 @@ object TCKErrorDetails {
   val INVALID_UNICODE_CHARACTER = "InvalidUnicodeCharacter"
   val NON_CONSTANT_EXPRESSION = "NonConstantExpression"
   val NO_SINGLE_RELATIONSHIP_TYPE = "NoSingleRelationshipType"
+  val MISSING_RELATIONSHIP_TYPE = "MissingRelationshipType"
   val INVALID_AGGREGATION = "InvalidAggregation"
   val UNKNOWN_FUNCTION = "UnknownFunction"
   val INVALID_NUMBER_LITERAL = "InvalidNumberLiteral"
@@ -137,5 +138,6 @@ object TCKErrorDetails {
                 INVALID_NUMBER_OF_ARGUMENTS,
                 MISSING_PARAMETER,
                 PROCEDURE_NOT_FOUND,
-                DELETED_ENTITY_ACCESS)
+                DELETED_ENTITY_ACCESS,
+                MISSING_RELATIONSHIP_TYPE)
 }
