@@ -71,6 +71,53 @@ For the following discussion, it is helpful to clarify the meaning of `null`. In
 [[unknown-null,unknown `null`]]*Unknown*:: An "unknown" `null` is taken to be a placeholder for an arbitrary but unknown value. When evaluating predicates, an "unknown" `null` is the `maybe` truth value of ternary logic. For node and relationship properties, an "unknown" `null` is a value that is definite in the real world but has not been stored in the graph. Since in these cases, two "unknown" `null` values stand for arbitrary but definite values in the real world, two "unknown" `null` values should never be treated as certainly being the same value.
 [[missing-null,missing `null`]]*Missing*:: A "missing" `null` is taken to be a marker for the absence of a value. In the context of updating node properties from a map, a "missing" `null` is used to mark properties that are to be removed. In the context of `DISTINCT` and grouping, a "missing" `null` value is used as grouping key for all records that miss a more specific value. Since in these cases, two "missing" `null` values represent the same concept, they should always be treated as the same value.
 
+===== Ternary logic truth tables
+
+Allowing null for an unknown boolean value requires defining ternary logic for boolean operators.
+The truth tables for the boolean operators `NOT`, `AND` and `OR` are given below.
+The `XOR` in Cypher is defined by these basic operators as `a XOR b = (a AND NOT(b)) OR (NOT(a) AND b)`.
+
+*Negation*
+[width="50%",options="header"]
+|===========
+|a    |NOT a
+|true |false
+|null |null
+|false|true
+|===========
+
+
+*Conjunction*
+[width="50%",options="header"]
+|===================
+|a    |b    |a AND B
+|true |true |true
+|true |null |null
+|true |false|false
+|null |true |null
+|null |null |null
+|null |false|false
+|false|true |false
+|false|null |false
+|false|false|false
+|===================
+
+
+*Disjunction*
+[width="50%",options="header"]
+|==================
+|a    |b    |a OR B
+|true |true |true
+|true |null |true
+|true |false|true
+|null |true |true
+|null |null |null
+|null |false|null
+|false|true |true
+|false|null |null
+|false|false|false
+|==================
+
 [[regular-map]]
 ==== Regular maps
 
