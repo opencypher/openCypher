@@ -192,3 +192,83 @@ Feature: Literals2 - Integer
       | literal              |
       | -9223372036854775808 |
     And no side effects
+
+  Scenario: [17] Return a short positive octal integer
+    When executing query:
+      """
+      RETURN 01 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | 1       |
+    And no side effects
+
+  Scenario: [18] Return a long positive octal integer
+    When executing query:
+      """
+      RETURN 02613152366 AS literal
+      """
+    Then the result should be:
+      | literal    |
+      | 372036854  |
+    And no side effects
+
+  Scenario: [19] Return the largest octal integer
+    When executing query:
+      """
+      RETURN 0777777777777777777777 AS literal
+      """
+    Then the result should be:
+      | literal              |
+      | 9223372036854775807  |
+    And no side effects
+
+  Scenario: [20] Return a positive octal zero
+    When executing query:
+      """
+      RETURN 00 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | 0       |
+    And no side effects
+
+  Scenario: [21] Return a negative octal zero
+    When executing query:
+      """
+      RETURN -00 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | 0       |
+    And no side effects
+
+  Scenario: [22] Return a short negative octal integer
+    When executing query:
+      """
+      RETURN -01 AS literal
+      """
+    Then the result should be:
+      | literal |
+      | -1      |
+    And no side effects
+
+  Scenario: [23] Return a long negative octal integer
+    When executing query:
+      """
+      RETURN -02613152366 AS literal
+      """
+    Then the result should be:
+      | literal    |
+      | -372036854 |
+    And no side effects
+
+  Scenario: [24] Return the smallest octal integer
+    When executing query:
+      """
+      RETURN -0800000000000000000000 AS literal
+      """
+    Then the result should be:
+      | literal              |
+      | -9223372036854775808 |
+    And no side effects
