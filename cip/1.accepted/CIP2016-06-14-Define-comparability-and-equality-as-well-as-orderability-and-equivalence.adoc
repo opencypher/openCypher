@@ -77,7 +77,8 @@ Allowing null for an unknown boolean value requires defining ternary logic for b
 The truth tables for the boolean operators `NOT`, `AND` and `OR` are given below.
 The `XOR` in Cypher is defined by these basic operators as `a XOR b = (a AND NOT(b)) OR (NOT(a) AND b)`.
 
-*Negation*
+[[negation,negation]]
+.Negation
 [width="50%",options="header"]
 |===========
 |a    |NOT a
@@ -86,8 +87,8 @@ The `XOR` in Cypher is defined by these basic operators as `a XOR b = (a AND NOT
 |false|true
 |===========
 
-
-*Conjunction*
+[[conjunction,conjunction]]
+.Conjunction
 [width="50%",options="header"]
 |===================
 |a    |b    |a AND B
@@ -102,8 +103,8 @@ The `XOR` in Cypher is defined by these basic operators as `a XOR b = (a AND NOT
 |false|false|false
 |===================
 
-
-*Disjunction*
+[[disjunction,disjunction]]
+.Disjunction
 [width="50%",options="header"]
 |==================
 |a    |b    |a OR B
@@ -174,7 +175,7 @@ We propose that <<comparability-con,comparability>> should be defined between an
   ** The comparison order for maps is unspecified and left to implementations.
   ** The comparison order for maps must align with the <<equality-def,equality semantics>> outlined below.
   In consequence, any map that contains an entry that maps its key to a `null` value is <<incomparable>>.
-  For exampe, `{a: 1} \<= {a: 1, b: null}` evaluates to `null`.
+  For example, `{a: 1} \<= {a: 1, b: null}` evaluates to `null`.
   ** Regular maps are <<incomparable>> to any value that is not also a regular map.
   * Nodes
   ** The comparison order for nodes is based on an implementation specific internal total order of node identities.
@@ -212,27 +213,40 @@ We propose that <<comparability-con,comparability>> should be defined between an
 [[equality-def,equality]]
 ==== Equality ====
 
+Given that values are only comparable within their most specific type, and comparability and equality are tied together, equlity of values of different types always evaluates to `null`.
 In order to align equality with <<comparability-def>>, we change equality of lists and maps that contain `null` values to treat those values in the same way as if they would have been compared outside of those lists and maps, as individual, simple values.
 
 ===== List equality =====
 
 Specifically, we propose to redefine how equality works for lists in Cypher.
-To determine if two lists `l1` and `l2` are equal, we propose two simple tests, as exemplified by the following:
+The equality of two lists `a` and `b` is defined is the <<conjunction>> of `size(a) = size(b)` and a pairwise comparison of all elements of the list.
+If `a = b` evaluates to `null` these lists are <<incomparable>>.
 
-* `l1` and `l2` must have the same size, i.e. inversely `size(l1) <> size(l2) \=> l1 <> l2`. This also applies when any of the lists contains null, i.e. `[a1, a2, ..., an] = [b1, b2, ..., null, ..., bm]` evaluates to false if `m <> n`.
-* the pairwise elements of both `l1` and `l2` must be equal, i.e.
+In the following example `=>` means "evaluates to".
 ----
-[a1, a2, ..., an] = [b1, b2, ..., bn]
-<=>
-a1 = b1 && a2 = b2 && ... && an = bn
+[1, 2] = [1]
+    => size([1, 2]) = size([1]) AND 1 = 1 AND 2 = null
+    => false                    AND true  AND null
+    => false
+
+[null] = [1]
+    => size([null]) = size[1]) AND null = 1
+    => true                    AND null
+    => null
+
+["a"] = [1]
+    => size(["a"]) = size[1]) AND "a" = 1
+    => true                   AND null
+    => null
 ----
-* If the second test evaluates to `null`, these lists are <<incomparable>>. This will only happen if at least one element in one of the lists is `null` while all non-null elements are pairwise equal. For example, `[1, 2] = [1, null]` evaluates to `null` (incomparable), while `[1, 2] = [null, 'foo']` evaluates to `false`.
-* For nested lists, the two tests above are carried out recursively, i.e.
----
-[[1]] = [[1], [null]] evaluates to false
-[[1, 2], [1, 3]] = [[1, 2], [null, 'foo']] evaluates to false
-[[1, 2], ['foo', 'bar']] = [[1, 2], [null, 'bar']] evaluates to null (incomparable)
----
+
+The same logic applies recursively when comparing nested lists.
+----
+[[1]] = [[1], [null]]
+    => size([[1]]) = size([[1], [null]]) AND [1] = [1] AND null = [null]
+    => false                             AND true      AND null
+    => false
+----
 
 ===== Map equality =====
 
@@ -254,14 +268,13 @@ However, this definition is aligned with the most common use case for maps with 
 
 ====== New map equality ======
 
-To rectify this, we propose instead that two maps `m1` and `m2` should be equal if:
+To rectify this, we propose instead to define the equality of two maps `m1` and `m2` as:
 
-* `m1` and `m2` have the same keys,
-** including keys that map to a `null` value (the order of keys as returned by `keys()` does not matter here).
-* Additionally, for each such key `k`,
-** `m1.k = m2.k` is `true`.
+* `m1` and `m2` have the same keys, including keys that map to a `null` value (the order of keys as returned by `keys()` does not matter here) `AND`
+* the <<conjunction>> of `m1.k = m2.k` for each key `k`.
 
-As a consequence of these changes, plain <<equality-def>> is not reflexive for all values (consider: `{a: null} = {a: null}`, `[null] = [null]`). However this was already the case (consider: `null = null` \=> `null`).
+As a consequence of these changes, plain <<equality-def>> is not reflexive for all values (consider: `{a: null} = {a: null}`, `[null] = [null]`).
+However this was already the case (consider: `null = null` \=> `null`).
 
 Note that <<equality-def>> is reflexive for values that do not involve `null` though.
 
