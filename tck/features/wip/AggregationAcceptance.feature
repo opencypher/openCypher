@@ -43,6 +43,7 @@ Feature: AggregationAcceptance
     And no side effects
 
   Scenario: Matching with aggregation
+    Given an empty graph
     And having executed:
       """
       CREATE ({prop: 42})
