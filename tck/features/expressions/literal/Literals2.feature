@@ -33,7 +33,7 @@ Feature: Literals2 - Integer
   Background:
     Given any graph
 
-  Scenario: Return a short positive integer
+  Scenario: [1] Return a short positive integer
     When executing query:
       """
       RETURN 1 AS literal
@@ -43,7 +43,7 @@ Feature: Literals2 - Integer
       | 1       |
     And no side effects
 
-  Scenario: Return a long positive integer
+  Scenario: [2] Return a long positive integer
     When executing query:
       """
       RETURN 372036854 AS literal
@@ -53,7 +53,7 @@ Feature: Literals2 - Integer
       | 372036854  |
     And no side effects
 
-  Scenario: Return the largest integer
+  Scenario: [3] Return the largest integer
     When executing query:
       """
       RETURN 9223372036854775807 AS literal
@@ -63,7 +63,7 @@ Feature: Literals2 - Integer
       | 9223372036854775807  |
     And no side effects
 
-  Scenario: Return a positive zero
+  Scenario: [4] Return a positive zero
     When executing query:
       """
       RETURN 0 AS literal
@@ -73,7 +73,7 @@ Feature: Literals2 - Integer
       | 0       |
     And no side effects
 
-  Scenario: Return a negative zero
+  Scenario: [5] Return a negative zero
     When executing query:
       """
       RETURN -0 AS literal
@@ -83,7 +83,7 @@ Feature: Literals2 - Integer
       | 0       |
     And no side effects
 
-  Scenario: Return a short negative integer
+  Scenario: [6] Return a short negative integer
     When executing query:
       """
       RETURN -1 AS literal
@@ -93,7 +93,7 @@ Feature: Literals2 - Integer
       | -1      |
     And no side effects
 
-  Scenario: Return a long negative integer
+  Scenario: [7] Return a long negative integer
     When executing query:
       """
       RETURN -372036854 AS literal
@@ -103,7 +103,7 @@ Feature: Literals2 - Integer
       | -372036854 |
     And no side effects
 
-  Scenario: Return the smallest integer
+  Scenario: [8] Return the smallest integer
     When executing query:
       """
       RETURN -9223372036854775808 AS literal
