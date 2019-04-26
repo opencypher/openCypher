@@ -33,7 +33,7 @@ Feature: Literals1 - Boolean and Null
   Background:
     Given any graph
 
-  Scenario: [1] Return a boolean true
+  Scenario: [1] Return a boolean true lower case
     When executing query:
       """
       RETURN true AS literal
@@ -43,7 +43,17 @@ Feature: Literals1 - Boolean and Null
       | true    |
     And no side effects
 
-  Scenario: [2] Return a boolean false
+  Scenario: [2] Return a boolean true upper case
+    When executing query:
+      """
+      RETURN TRUE AS literal
+      """
+    Then the result should be:
+      | literal |
+      | true    |
+    And no side effects
+
+  Scenario: [3] Return a boolean false lower case
     When executing query:
       """
       RETURN false AS literal
@@ -53,10 +63,30 @@ Feature: Literals1 - Boolean and Null
       | false    |
     And no side effects
 
-  Scenario: [3] Return null
+  Scenario: [4] Return a boolean false upper case
+    When executing query:
+      """
+      RETURN FALSE AS literal
+      """
+    Then the result should be:
+      | literal |
+      | false    |
+    And no side effects
+
+  Scenario: [5] Return null lower case
     When executing query:
       """
       RETURN null AS literal
+      """
+    Then the result should be:
+      | literal |
+      | null    |
+    And no side effects
+
+  Scenario: [6] Return null upper case
+    When executing query:
+      """
+      RETURN NULL AS literal
       """
     Then the result should be:
       | literal |
