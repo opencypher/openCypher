@@ -201,7 +201,8 @@ For this reason, the rows of the expected results table are to be considered a s
 * Graph elements:
 ** A node with labels `L1` and `L2`, and properties `p` and `q` with values `0` and `'string'`, respectively, will be written as `(:L1:L2 {p: 0, q: 'string'})`.
 ** A relationship with type `T`, and properties as the node above, will be written as `[:T {p: 0, q: 'string'}]`.
-** A path will be written as `<n~0~, r~1~, n~1~, r~2~, ..., r~k~, n~k~>`, where `n~i~` and `r~i~` are the nodes and relationships, respectively, that make up the path.
+** A path will be written as `<n~0~-r~1~\->n~1~\<-r~2~- ... -r~k~\->n~k~>`, where `n~i~` and `r~i~` are the nodes and relationships, respectively, that make up the path.
+*** Note that the relationship direction is always specified and may be left-to-right or right-to-left, as exemplified in the outline.
 *** Note that the smallest possible path, with length zero, consists of one node and zero relationships.
 
 === Downloading the TCK
