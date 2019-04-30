@@ -130,8 +130,8 @@ Cypher today has one supertype `MAP` for all map values. This includes nodes (of
 We propose that comparability and equality should be aligned with each other, i.e.
 
 
-`expr1 = expr2` = `expr1 >= expr2 AND expr1 \<= expr2`.
-This equaltion is also valid for null values.
+`expr1 = expr2 := expr1 >= expr2 AND expr1 \<= expr2`.
+This equation is also valid for null values.
 
 
 Comparability and equality produce <<unknown-null,"unknown" `null` values>>.
@@ -217,13 +217,13 @@ We propose that <<comparability-con,comparability>> should be defined between an
 [[equality-def,equality]]
 ==== Equality ====
 
-Given that values are only comparable within their most specific type, and comparability and equality are tied together, equlity of values of different types always evaluates to `null`.
+Given that values are only comparable within their type, and comparability and equality are tied together, equality for values of different types generally evaluate to `null`.
 In order to align equality with <<comparability-def>>, we change equality of lists and maps that contain `null` values to treat those values in the same way as if they would have been compared outside of those lists and maps, as individual, simple values.
 
 ===== List equality =====
 
 Specifically, we propose to redefine how equality works for lists in Cypher.
-The equality of two lists `a` and `b` is defined as the <<conjunction>> of `size(a) = size(b)` and a pairwise comparison of all elements of the list.
+The equality of two lists `a` and `b` is defined as the <<conjunction>> of `size(a) = size(b)` and a pairwise comparison of all elements in the list.
 If `a = b` evaluates to `null` these lists are <<incomparable>>.
 
 ----
