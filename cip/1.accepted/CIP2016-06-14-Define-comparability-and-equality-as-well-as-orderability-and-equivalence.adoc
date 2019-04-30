@@ -129,7 +129,10 @@ Cypher today has one supertype `MAP` for all map values. This includes nodes (of
 
 We propose that comparability and equality should be aligned with each other, i.e.
 
-`expr1 = expr2` if and only if `expr1 >= expr2 && expr1 \<= expr2`.
+
+`expr1 = expr2` = `expr1 >= expr2 AND expr1 \<= expr2`.
+This equaltion is also valid for null values.
+
 
 Comparability and equality produce <<unknown-null,"unknown" `null` values>>.
 
@@ -167,8 +170,9 @@ We propose that <<comparability-con,comparability>> should be defined between an
 - Lists
   * Lists are compared in dictionary order, i.e. list elements are compared pairwise in ascending order from the start of the list to the end. Elements missing in a shorter list are considered to be less than any other value (including `null` values).
   For example, `[1] < [1, 0]` but also `[1] < [1, null]`.
-  * If comparing two lists requires comparing any pair of incomparable values, these lists are <<incomparable>>.
-  For example, `[1, 2] >= [1, null]` and `[1, 2] >= [1, 'text']` both evaluate to `null` (incomparable), but `[1, 2] >= [3, null]` evaluates to `false`.
+  * If comparing two lists includes comparing any pair of incomparable values, these lists may be <<incomparable>>.
+  On the one hand, `[1, 2] >= [1, null]`  and `[1, 2] >= [1, 'text']` both evaluate to `null` (incomparable), because `2` is incomparable with both `null` and `'text'`, and `1 \<= 1`.
+  On the other hand, `[1, 2] >= [3, null]` evaluates to `false`, because `1 < 3`.
   * Lists are <<incomparable>> to any value that is not also a list.
 - Maps
   * [[regular-maps,regular maps]]Regular maps
@@ -189,11 +193,11 @@ We propose that <<comparability-con,comparability>> should be defined between an
 
       p1 < p2
   <=> [n1, r1, n3] < [n1, r2, n2]
-  <=> n1 < n1 || (n1 = n1 && [r1, n3] < [r2, n2])
-  <=> false || (true && [r1, n3] < [r2, n2])
+  <=> n1 < n1 OR (n1 = n1 AND [r1, n3] < [r2, n2])
+  <=> false OR (true AND [r1, n3] < [r2, n2])
   <=> [r1, n3] < [r2, n2]
-  <=> r1 < r2 || (r1 = r2 && n3 < n2)
-  <=> true || (false && false)
+  <=> r1 < r2 OR (r1 = r2 AND n3 < n2)
+  <=> true OR (false AND false)
   <=> true
 
   ** Paths are <<incomparable>> to any value that is not also a path.
@@ -219,33 +223,33 @@ In order to align equality with <<comparability-def>>, we change equality of lis
 ===== List equality =====
 
 Specifically, we propose to redefine how equality works for lists in Cypher.
-The equality of two lists `a` and `b` is defined is the <<conjunction>> of `size(a) = size(b)` and a pairwise comparison of all elements of the list.
+The equality of two lists `a` and `b` is defined as the <<conjunction>> of `size(a) = size(b)` and a pairwise comparison of all elements of the list.
 If `a = b` evaluates to `null` these lists are <<incomparable>>.
 
-In the following example `=>` means "evaluates to".
 ----
-[1, 2] = [1]
-    => size([1, 2]) = size([1]) AND 1 = 1 AND 2 = null
-    => false                    AND true  AND null
-    => false
+    [1, 2] = [1]
+<=> size([1, 2]) = size([1]) AND 1 = 1 AND 2 = null
+<=> false                    AND true  AND null
+<=> false
 
-[null] = [1]
-    => size([null]) = size[1]) AND null = 1
-    => true                    AND null
-    => null
+    [null] = [1]
+<=> size([null]) = size[1]) AND null = 1
+<=> true                    AND null
+<=> null
 
-["a"] = [1]
-    => size(["a"]) = size[1]) AND "a" = 1
-    => true                   AND null
-    => null
+    ["a"] = [1]
+<=> size(["a"]) = size[1]) AND "a" = 1
+<=> size(["a"]) = size[1]) AND "a" = 1
+<=> true                   AND null
+<=> null
 ----
 
 The same logic applies recursively when comparing nested lists.
 ----
-[[1]] = [[1], [null]]
-    => size([[1]]) = size([[1], [null]]) AND [1] = [1] AND null = [null]
-    => false                             AND true      AND null
-    => false
+    [[1]] = [[1], [null]]
+<=> size([[1]]) = size([[1], [null]]) AND [1] = [1] AND null = [null]
+<=> false                             AND true      AND null
+<=> false
 ----
 
 ===== Map equality =====
@@ -263,8 +267,8 @@ This is at odds with the decision to produce <<unknown-null,"unknown" `null` val
 
 However, this definition is aligned with the most common use case for maps with `null` entries: updating multiple properties through the use of a single `SET` clause, e.g. `SET n += { size: 12, remove_this_key: null }`. In this case, there is no need to differentiate between different `null` values, as `null` merely serves as a marker for keys to be removed (i.e. is a <<missing-null,"missing" `null` value>>). Current equality semantics make it easy to check if two maps would correspond to the same property update in this scenario. We note though that this type of update map comparison is rare and could be emulated using a more complex predicate. The current rules do however break symmetry with how equality handles `null` in all other cases. This becomes more apparent by considering these two examples:
 
-* `expr1 = expr2` evaluates to `null` if `expr1 IS NULL && expr2 IS NULL`
-* `{a: expr1} = {a: expr2}` evaluates to `true` if `expr1 IS NULL && expr2 IS NULL`
+* `expr1 = expr2` evaluates to `null` if `expr1 IS NULL AND expr2 IS NULL`
+* `{a: expr1} = {a: expr2}` evaluates to `true` if `expr1 IS NULL AND expr2 IS NULL`
 
 ====== New map equality ======
 
