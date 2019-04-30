@@ -98,3 +98,22 @@ Feature: Comparability
       | <=       | 1    | 3.14 |
       | >=       | 3.14 | 1    |
       | >        | 3.14 | 1    |
+
+  Scenario Outline: Comparing lists
+    Given an empty graph
+    When executing query:
+      """
+      RETURN <lhs> >= <rhs> AS result
+      """
+    Then the result should be:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | lhs       | rhs       | result |
+      | [1, 0]    | [1]       | true   |
+      | [1, null] | [1]       | true   |
+      | [1, 2]    | [1, null] | null   |
+      | [1, 'a']  | [1, null] | null   |
+      | [1, 2]    | [3, null] | false  |
