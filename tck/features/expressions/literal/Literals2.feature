@@ -296,7 +296,7 @@ Feature: Literals2 - Integer
   Scenario: [28] Return the smallest octal integer
     When executing query:
       """
-      RETURN -0800000000000000000000 AS literal
+      RETURN -0100000000000000000000 AS literal
       """
     Then the result should be:
       | literal              |
