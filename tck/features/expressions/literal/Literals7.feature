@@ -113,6 +113,6 @@ Feature: Literals7 - Negative tests
   Scenario: [12] Returning a too small hexadecimal integer
     When executing query:
       """
-      RETURN -0800000000000000000001 AS literal
+      RETURN -0100000000000000000001 AS literal
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
