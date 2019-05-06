@@ -44,14 +44,16 @@ object validateCodeStyle extends (String => Option[String]) {
       case (q, word) => q.replaceAll(s"(?i)(^|[^a-zA-Z])$word ", s"$$1$word ")
     }
 
-    val onlySingleQuotes = lowerCased2.replaceAll("\"([^']+)\"", "'$1'")
+    //val onlySingleQuotes = lowerCased2.replaceAll("\"([^\"']+)\"", "'$1'")
+    val onlySingleQuotes = lowerCased2 // dealing currectly with quotes in context of lists and maps is difficult with regex
 
     val spaceAfterComma = if (onlySingleQuotes.contains("'")) {
       onlySingleQuotes // it's difficult to find out whether the comma is in a string or not... just avoid this case
     } else onlySingleQuotes.replaceAll(",([^ \\n])", ", $1")
 
     // Do negative lookbehind and lookahead to not requires changes for times like 12:00
-    val spaceAfterColon = spaceAfterComma.replaceAll("(?<!\\d\\d):(?!\\d\\d)([^A-Z ])", ": $1")
+    //val spaceAfterColon = spaceAfterComma.replaceAll("(?<!\\d\\d):(?!(\\d\\d|\\s))([^A-Z ])", ": $1")
+    val spaceAfterColon = spaceAfterComma // dealing currectly with line breaks in context of maps is difficult with regex
 
     val noIllegals = if (spaceAfterColon.contains("'")) spaceAfterColon // literal strings
     else illegal.foldLeft(spaceAfterColon) {
