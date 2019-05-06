@@ -33,49 +33,49 @@ Feature: Literals7 - Negative tests
   Background:
     Given any graph
 
-  Scenario: [1] Returning a too large integer
+  Scenario: [1] Return a too large integer
     When executing query:
       """
       RETURN 9223372036854775808 AS literal
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
-  Scenario: [2] Returning a too small integer
+  Scenario: [2] Return a too small integer
     When executing query:
       """
       RETURN -9223372036854775809 AS literal
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
-  Scenario: [3] Returning an integer containing a alphabetic character
+  Scenario: [3] Return an integer containing a alphabetic character
     When executing query:
       """
       RETURN 9223372h54775808 AS literal
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
-  Scenario: [4] Returning an integer containing a invalid symbol character
+  Scenario: [4] Return an integer containing a invalid symbol character
     When executing query:
       """
       RETURN 9223372#54775808 AS literal
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
-  Scenario: [5] Returning an incomplete hexadecimal integer
+  Scenario: [5] Return an incomplete hexadecimal integer
     When executing query:
       """
       RETURN 0x AS literal
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
-  Scenario: [6] Returning an hexadecimal literal containing a lower case invalid alphanumeric character
+  Scenario: [6] Return an hexadecimal literal containing a lower case invalid alphanumeric character
     When executing query:
       """
       RETURN 0x1A2b3j4D5E6f7 AS literal
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
-  Scenario: [7] Returning an hexadecimal literal containing a upper case invalid alphanumeric character
+  Scenario: [7] Return an hexadecimal literal containing a upper case invalid alphanumeric character
     When executing query:
       """
       RETURN 0x1A2b3c4Z5E6f7 AS literal
@@ -89,30 +89,114 @@ Feature: Literals7 - Negative tests
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
-  Scenario: [9] Returning a too large hexadecimal integer
+  Scenario: [9] Return a too large hexadecimal integer
     When executing query:
       """
       RETURN 0x8000000000000000 AS literal
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
-  Scenario: [10] Returning a too small hexadecimal integer
+  Scenario: [10] Return a too small hexadecimal integer
     When executing query:
       """
       RETURN -0x8000000000000001 AS literal
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
-  Scenario: [11] Returning a too large hexadecimal integer
+  Scenario: [11] Return a too large hexadecimal integer
     When executing query:
       """
       RETURN 0800000000000000000000 AS literal
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
-  Scenario: [12] Returning a too small hexadecimal integer
+  Scenario: [12] Return a too small hexadecimal integer
     When executing query:
       """
       RETURN -0100000000000000000001 AS literal
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  Scenario: [13] Return a list containing a comma
+    When executing query:
+      """
+      RETURN [, ] AS literal
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  Scenario: [14] Return a nested list with non-matching brackets
+    When executing query:
+      """
+      RETURN [[[]] AS literal
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  Scenario: [15] Return a nested list with missing commas
+    When executing query:
+      """
+      RETURN [[','[]',']] AS literal
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  Scenario: [16] Return a map containing key starting with a number
+    When executing query:
+      """
+      RETURN {1B2c3e67:1} AS literal
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  Scenario: [17] Return a map containing key with symbol
+    When executing query:
+      """
+      RETURN {k1#k:1} AS literal
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  Scenario: [18] Return a map containing key with dot
+    When executing query:
+      """
+      RETURN {k1.k:1} AS literal
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  Scenario: [19] Return a map containing unquoted string
+    When executing query:
+      """
+      RETURN {k1:k2} AS literal
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  Scenario: [20] Return a map containing a comma
+    When executing query:
+      """
+      RETURN {, } AS literal
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  Scenario: [21] Return a map containing a value without key
+    When executing query:
+      """
+      RETURN {1} AS literal
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  Scenario: [22] Return a map containing a list without key
+    When executing query:
+      """
+      RETURN {[]} AS literal
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  Scenario: [23] Return a map containing a map without key
+    When executing query:
+      """
+      RETURN {{}} AS literal
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  Scenario: [24] Return a nested map with non-matching braces
+    When executing query:
+      """
+      RETURN {k:{k:{}} AS literal
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
