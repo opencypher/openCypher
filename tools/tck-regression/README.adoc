@@ -1,0 +1,98 @@
+= TCK Regression
+
+Tools for TCK result comparison.
+
+== Options
+
+JUnit XML and CSV formats are supported.
+
+Comparsion report in HTML format or CSV file will be generated in
+`build/reports/tests/` directory. To change directory use
+`--output /path/to/dir`.
+
+== Compare two reports
+
+Arguments: `/path/to/report1 --compareTo /path/to/report2`
+
+Compare `report1` with `report2`.
+
+Fail the build if there are new failed scenarios in `report1`.
+
+== Verify
+
+Useful for gradual TCK implementation. Build passes if there are only
+expected TCK failures. If TCK has new failing or passing scenarios, the
+build will fail. Developer should update expected TCK failures list
+before committing changes that affect TCK.
+
+Arguments: `/path/to/report1 --verifyFailures /path/to/report2`
+
+Verify that all failing scenarios in `report1` are in `report2`.
+`report2` should contain only scenarios with `status=failed` (or empty
+`status` column in csv).
+
+Fail the build if there are new passing or failing scenarios in
+`report1`.
+
+== Create CSV from XML report
+
+Storing JUnit XML report in the repository might not be practical, as it
+contains a lot of surplus information. CSV with format
+`feature,scenario,status` might be more manageable.
+
+Arguments: `/path/to/report1.xml --saveCsv`
+
+Will convert `report1.xml` to `base.csv` in output directory. Resulting CSV will have following columns:
+`feature,scenario,status`.
+
+== Usage
+
+=== Command line
+
+Run from command line:
+
+[source,sh]
+----
+mvn clean install -DskipTests
+mvn -pl tools/tck-regression exec:java -Dexec.mainClass="org.opencypher.tools.tck.regression.TckResultsComparator"
+    -Dexec.args="<arguments>"
+# Example
+mvn -pl tools/tck-regression exec:java -Dexec.mainClass="org.opencypher.tools.tck.regression.TckResultsComparator"
+    -Dexec.args="/path/to/report1.xml --compareTo /path/to/report2.xml"
+----
+
+=== Integrate in build
+
+Using
+https://www.mojohaus.org/exec-maven-plugin/usage.html[exec-maven-plugin]
+
+[source,xml]
+----
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>exec-maven-plugin</artifactId>
+      <version>1.1.1</version>
+      <executions>
+        <execution>
+          <phase>test</phase>
+          <goals>
+            <goal>java</goal>
+          </goals>
+          <configuration>
+            <mainClass>org.opencypher.tools.tck.regression.TckResultsComparator</mainClass>
+            <arguments>
+              <argument>/path/to/report1.xml</argument>
+              <argument>--verifyFailures</argument>
+              <argument>/path/to/report2.xml</argument>
+              <argument>--output</argument>
+              <argument>${project.build.directory}</argument>
+            </arguments>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+----
