@@ -13,32 +13,10 @@ Its purpose is to be central to the process of evolving the specification and st
 
 == Overview of the process
 
-It is our aim to make the process of specifying and evolving the Cypher property graph database query language as open as possible.
-"We" are the Cypher Language Group, put together by Neo Technology to govern the Cypher query language.
-
-While we aim for the process to be open, this does not mean a public democracy, as all decisions are currently made by the Cypher Language Group (CLG).
-That said, we are of course extremely grateful for comments and suggestions on how to improve the Cypher query language.
+Changes to openCypher are made through consensus in the openCypher Implementers Group (oCIG).
+The process for proposing changes, voting on proposals and measuring consensus is described in https://docs.google.com/presentation/d/1OHMxiz9xW6rINiJcCdm28a8uNcZEtCsMPfhFSIA-XXE/edit[this set of slides].
 
 Refer to the link:CIP-PROCESS.adoc[Cypher Improvement Process] document for more details on CIPs, CIRs, their structure and lifecycle.
-
-=== The Cypher Language Group
-
-The Cypher Language Group consists of:
-
-* https://github.com/thobe[Tobias Lindaaker]
-* https://github.com/boggle[Stefan Plantikow]
-* https://github.com/petraselmer[Petra Selmer]
-* https://github.com/Mats-SX[Mats Rydberg]
-* https://www.linkedin.com/in/alastair-green-65a861a7[Alastair Green]
-
-Stefan, in capacity of being the current team lead, has ultimate say on language design, should that ever be necessary.
-Petra additionally acts as secretary for the group, calling meetings and ensuring that notes get taken at said meetings.
-
-Cypher was originally created by https://github.com/systay[Andrés Taylor].
-
-=== Meeting notes
-
-The Cypher Language Group published meeting notes from all the group meetings at https://opencypher.github.io/meeting-minutes/
 
 == The structure of this repository
 
