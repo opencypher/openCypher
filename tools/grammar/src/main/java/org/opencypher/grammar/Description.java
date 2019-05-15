@@ -49,6 +49,10 @@ class Description
 
     static void extract( StringBuilder target, char[] buffer, int origin, int length )
     {
+    	//  this method won't work if the buffer has \r in it, other than in the \r\n combination as in
+    	//  Windows lineSeparator
+    	
+    	String NL = System.lineSeparator();
         int end = origin + length;
         int start = findStart( buffer, origin, end );
         if ( start >= end ) // all whitespace
@@ -67,23 +71,24 @@ class Description
         // it is excluded from the indentation detection by emitting it immediately.
         if ( start == origin && !isWhitespace( codePointAt( buffer, start ) ) )
         {
+        	// if there is already stuff in the target, and it doesn't end with newline, add newline
             if ( target.length() > 0 && target.charAt( target.length() - 1 ) != '\n' )
             {
-                target.append( '\n' );
+                target.append( NL );
             }
             start = emitLine( target, buffer, start, end, 0 );
             if ( start >= end )
             {
                 return;
             }
-            target.append( '\n' );
+            target.append( NL );
             // emit blank lines
             for ( int pos = start, cp; pos < end; pos += charCount( cp ) )
             {
                 cp = codePointAt( buffer, pos );
                 if ( cp == '\n' )
                 {
-                    target.append( '\n' );
+                    target.append( NL );
                     start = pos + 1;
                 }
                 else if ( !isWhitespace( cp ) )
@@ -95,20 +100,21 @@ class Description
         // find the shortest indentation (sequence of same WS char as the first) of any of the (remaining) lines
         int indentation = shortestIndentation( buffer, start, end );
         // emit all lines
+    	// if there is already stuff in the target, and it doesn't end with newline, add newline
         if ( target.length() > 0 && target.charAt( target.length() - 1 ) != '\n' )
         {
-            target.append( '\n' );
+            target.append( NL );
         }
         for ( int ln = target.length() > 0 ? 2 : 0; start < end; ln++ )
         {
             if ( ln == 1 )
             {
-                target.append( '\n' );
+                target.append( NL );
             }
             start = emitLine( target, buffer, start, end, indentation );
             if ( ln > 0 )
             {
-                target.append( '\n' );
+                target.append( NL );
             }
         }
     }
@@ -149,11 +155,16 @@ class Description
             }
             if ( indentation > 0 )
             {
+            	if (cp == '\r') {
+            		// next will be \n (we assume)
+            		// since we are in the indentation, this must be a blank line
+            		start = pos + 1;
+            	}
                 if ( --indentation == 0 )
                 {
                     start = pos + 1;
                 }
-                last = pos;
+                last = pos; 
             }
             else if ( !isWhitespace( cp ) )
             {
@@ -169,6 +180,7 @@ class Description
      */
     private static int shortestIndentation( char[] buffer, int start, int end )
     {
+    	// find the indenting character (so behaviour with mixed space and tab may not be what we expect)
         int indentCP = codePointAt( buffer, start );
         if ( indentCP != ' ' && indentCP != '\t' )
         {
@@ -183,6 +195,10 @@ class Description
                 cur++;
             }
             else if ( cp == '\n' )
+            {
+                cur = 0;
+            }
+            else if ( cp == '\r' )
             {
                 cur = 0;
             }

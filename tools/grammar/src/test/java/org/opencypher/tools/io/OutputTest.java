@@ -109,10 +109,15 @@ public class OutputTest
         assertThat( multiplexed, instanceOf( MultiplexedOutput.class ) );
         Output[] output = ((MultiplexedOutput) multiplexed).output;
         assertEquals( 4, output.length );
-        assertThat( output, allOf(
-                arrayWithSize( 4 ),
-                arrayContainingInAnyOrder( a, b, c, d ),
-                not( arrayContaining( instanceOf( MultiplexedOutput.class ) ) ) ) );
+//        originally:  this failed with a compilation error on Windows 
+//                     (possibly because of Eclipse's java compiler)
+//        assertThat( output, allOf(
+//                arrayWithSize( 4 ),
+//                arrayContainingInAnyOrder( a, b, c, d ),
+//                not( arrayContaining( instanceOf( MultiplexedOutput.class ) ) ) ) );
+        assertThat( output, arrayWithSize( 4 ));
+        assertThat( output, arrayContainingInAnyOrder( a, b, c, d ));
+        assertThat( output, not( arrayContaining( instanceOf( MultiplexedOutput.class ) ) ) );
     }
 
     @Test

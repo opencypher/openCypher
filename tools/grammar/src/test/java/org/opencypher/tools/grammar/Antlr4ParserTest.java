@@ -32,6 +32,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -109,7 +110,11 @@ public class Antlr4ParserTest
     private List<String> getQueries( String queryFile ) throws FileNotFoundException, URISyntaxException
     {
         URL resource = getClass().getResource( queryFile );
-        Scanner scanner = new Scanner( new FileReader( Paths.get( resource.toURI() ).toFile() ) );
+        // using new FileReader( ) will assume the platform default encoding, which on Windows is liable to
+        // be CP1252. This will cause the scanner to split at SectionSign §, but leave the escape
+        // octet (C2) in the extracted string (appearing as Â).
+//        Scanner scanner = new Scanner( new FileReader( Paths.get( resource.toURI() ).toFile() ) );
+        Scanner scanner = new Scanner( Paths.get( resource.toURI() ).toFile() , "UTF-8" );
         scanner.useDelimiter( "§\n(//.*\n)*" );
         ArrayList<String> queries = new ArrayList<>();
             while ( scanner.hasNext() )
