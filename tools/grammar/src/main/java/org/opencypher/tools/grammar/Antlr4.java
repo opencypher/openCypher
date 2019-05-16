@@ -73,11 +73,11 @@ public class Antlr4 extends BnfWriter
         String header = grammar.header();
         if ( header != null )
         {
-            output.append( "/*\n * " )
+            output.println( "/*").append(" * " )
                   .printLines( header, " * " )
                   .println( " */" );
         }
-        output.append( "grammar " ).append( grammar.language() ).println( ";\n" );
+        output.append( "grammar " ).append( grammar.language() ).println( ";" ).println(); // PRF was ";\n"
 
         try ( Antlr4 antlr = new Antlr4( output ) )
         {
@@ -128,14 +128,14 @@ public class Antlr4 extends BnfWriter
                 set.accept( new SetFormatter( output ) );
                 output.append( ']' );
             }
-            output.println( " ;\n" );
+            output.println( " ;" ).println();  // PRF was " ;\n"
         }
     }
 
     @Override
     protected void productionCommentPrefix()
     {
-        output.append( "/**\n * " );
+        output.println( "/**").append(" * " );
     }
 
     @Override

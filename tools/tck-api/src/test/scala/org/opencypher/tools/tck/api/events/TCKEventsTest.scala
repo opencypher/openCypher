@@ -63,11 +63,11 @@ object TCKEventsTest {
       "Step 'Measure -> executing query:' started",
       "Step 'Measure' finished. Result: <empty result>",
       "Step 'Execute -> executing query:' started",
-      "Step 'Execute' finished. Result: | n |\n| 3 |",
+      "Step 'Execute' finished. Result: | n |" + System.lineSeparator + "| 3 |",
       "Step 'ExpectResult -> the result should be:' started",
-      "Step 'ExpectResult' finished. Result: | n |\n| 3 |",
+      "Step 'ExpectResult' finished. Result: | n |" + System.lineSeparator + "| 3 |",
       "Step 'SideEffects -> no side effects' started",
-      "Step 'SideEffects' finished. Result: | n |\n| 3 |"
+      "Step 'SideEffects' finished. Result: | n |" + System.lineSeparator + "| 3 |"
     )
     assertEquals(expected.asJava, events.toList.asJava, s"${expected.asJava} did not equal ${events.toList.asJava}")
   }
