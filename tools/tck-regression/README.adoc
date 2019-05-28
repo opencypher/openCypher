@@ -1,4 +1,4 @@
-= TCK Regression
+= TCK Report Comparison
 
 Tools for TCK result comparison.
 
@@ -11,6 +11,9 @@ Comparsion report in HTML format or CSV file will be generated in
 `--output /path/to/dir`.
 
 == Compare two reports
+
+After execution of TCK, JUnit report is located in target test directory
+(example `target/surefire-reports`).
 
 Arguments: `/path/to/report1 --compareTo /path/to/report2`
 

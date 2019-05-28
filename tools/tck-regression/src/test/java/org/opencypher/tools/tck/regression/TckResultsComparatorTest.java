@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.UUID;
+import junit.framework.AssertionFailedError;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -153,10 +154,10 @@ public class TckResultsComparatorTest {
         String path = temp.newFolder().getAbsolutePath();
 
         assertThat(comparatorException(test1, "--compareTo", test2, "--output", path),
-            containsString("size changed"));
+            containsString("number of all scenarios changed"));
 
         assertThat(comparatorException(test2, "--compareTo", test1, "--output", path),
-            containsString("size changed"));
+            containsString("number of all scenarios changed"));
 
         assertThat(new File(path, "regression.html").exists(), is(false));
     }
@@ -220,7 +221,6 @@ public class TckResultsComparatorTest {
         assertThat(actual, equalTo(expected));
     }
 
-
     private void comparator(String... args) throws Exception {
         TckResultsComparator.main(args);
     }
@@ -228,8 +228,8 @@ public class TckResultsComparatorTest {
     private String comparatorException(String... args) {
         try {
             comparator(args);
-            return null;
-        } catch (Throwable t) {
+            throw new AssertionFailedError("Exception expected");
+        } catch (Exception t) {
             return t.getMessage();
         }
     }

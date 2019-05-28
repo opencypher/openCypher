@@ -100,10 +100,6 @@ public class TckResultsComparator {
             File otherFile = new File(cmd.getOptionValue(VERIFY));
             Scenarios other = getFeatures(otherFile);
 
-            checkState(
-                other.all().stream().noneMatch(Scenario::isPassed),
-                "When using %s argument should contain only failed scenarios.", VERIFY);
-
             Diff diff = base.verify(other);
             TckRegressionReport.generate(out, diff);
 

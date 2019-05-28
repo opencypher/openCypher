@@ -27,7 +27,6 @@
  */
 package org.opencypher.tools.tck.regression;
 
-import static java.lang.String.format;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
@@ -50,8 +49,8 @@ import java.util.regex.Pattern;
 public class TckRegressionModel {
     static class Scenarios {
         private final List<Scenario> all;
-        private final List<Scenario> passing;
-        private final List<Scenario> failed;
+        protected final List<Scenario> passing;
+        protected final List<Scenario> failed;
 
         private Scenarios(List<Scenario> all, List<Scenario> passing, List<Scenario> failed) {
             this.all = all;
@@ -78,28 +77,28 @@ public class TckRegressionModel {
         }
 
         Diff compare(Scenarios other) {
-            if (this.all.size() != other.all.size()) {
-                throw new IllegalStateException(format("Can not compare: all size changed from %s to %s",
-                    other.all.size(),
-                    this.all.size()));
-            }
+            checkState(this.all.size() == other.all.size(),
+                "Cannot compare: the number of all scenarios changed from %s to %s.", other.all.size(), this.all.size());
 
             List<Scenario> newlyPassingScenarios = subtract(this.passing, other.passing);
             List<Scenario> newlyFailedScenarios = subtract(this.failed, other.failed);
             int totalPassingScenarios = passing.size();
             int totalScenarios = all.size();
 
-            return new Diff(newlyPassingScenarios, newlyFailedScenarios,
+            return Diff.create(newlyPassingScenarios, newlyFailedScenarios,
                 totalPassingScenarios, totalScenarios, all);
         }
 
         Diff verify(Scenarios other) {
+            checkState(other.all().stream().noneMatch(Scenario::isPassed),
+                "Verification should contain only failed scenarios");
+
             List<Scenario> newlyPassingScenarios = subtract(other.failed, this.failed);
             List<Scenario> newlyFailedScenarios = subtract(this.failed, other.failed);
             int totalPassingScenarios = passing.size();
             int totalScenarios = all.size();
 
-            return new Diff(newlyPassingScenarios, newlyFailedScenarios,
+            return Diff.create(newlyPassingScenarios, newlyFailedScenarios,
                 totalPassingScenarios, totalScenarios, all);
         }
 
@@ -118,17 +117,28 @@ public class TckRegressionModel {
         private final List<Scenario> allScenarios;
         private final int totalPassingScenarios;
         private final int totalScenarios;
+        private final String passingPercentage;
 
-        String passingPercentage;
-
-        Diff(List<Scenario> newlyPassingScenarios, List<Scenario> newlyFailedScenarios,
-             int totalPassingScenarios, int totalScenarios, List<Scenario> allScenarios) {
-            this.newlyPassingScenarios = unmodifiableList(newlyPassingScenarios);
-            this.newlyFailedScenarios = unmodifiableList(newlyFailedScenarios);
-            this.allScenarios = unmodifiableList(allScenarios);
+        private Diff(List<Scenario> newlyPassingScenarios, List<Scenario> newlyFailedScenarios, List<Scenario> allScenarios, int totalPassingScenarios, int totalScenarios, String passingPercentage) {
+            this.newlyPassingScenarios = newlyPassingScenarios;
+            this.newlyFailedScenarios = newlyFailedScenarios;
+            this.allScenarios = allScenarios;
             this.totalPassingScenarios = totalPassingScenarios;
             this.totalScenarios = totalScenarios;
-            this.passingPercentage = new DecimalFormat("#.##").format((0.0 + totalPassingScenarios) / totalScenarios * 100) + "%";
+            this.passingPercentage = passingPercentage;
+        }
+
+        static Diff create(List<Scenario> newlyPassingScenarios, List<Scenario> newlyFailedScenarios,
+                           int totalPassingScenarios, int totalScenarios, List<Scenario> allScenarios) {
+            String passingPercentage = totalScenarios == 0 ? "N/A" :
+                new DecimalFormat("#.##%").format((float) totalPassingScenarios / totalScenarios);
+            return new Diff(
+                unmodifiableList(newlyPassingScenarios),
+                unmodifiableList(newlyFailedScenarios),
+                unmodifiableList(allScenarios),
+                totalPassingScenarios,
+                totalScenarios,
+                passingPercentage);
         }
 
         public List<Scenario> getNewlyPassingScenarios() {
@@ -190,7 +200,7 @@ public class TckRegressionModel {
         @JsonCreator
         public static Scenario create(@JsonProperty("name") String title, @JsonProperty("failure") Failure failure) {
             Matcher matcher = pattern.matcher(title);
-            checkState(matcher.find(), "Expecting string in format `Feature [name]: Scenario: [name]`, got `%s`", title);
+            checkState(matcher.find(), "Expecting string in format `Feature \"[name]\": Scenario: \"[name]\"`, got `%s`", title);
             String featureName = matcher.group(1);
             String name = matcher.group(2);
             return new Scenario(featureName, name, failure != null);
