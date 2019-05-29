@@ -4,16 +4,27 @@ Tools for TCK result comparison.
 
 == Options
 
-JUnit XML and CSV formats are supported.
+JUnit XML, Cucumber JSON and CSV formats are supported.
+
+IMPORTANT: JUnit XML need to contain test display name. This was
+https://github.com/junit-team/junit5/issues/990[available before JUnit 5.1.1 version]
+and is https://issues.apache.org/jira/browse/SUREFIRE-1546[fixed in Surefire 3.0.0-M4] (not released yet).
+If version change is not possible - use link:../tck-reporting[Cucumber report].
 
 Comparsion report in HTML format or CSV file will be generated in
 `build/reports/tests/` directory. To change directory use
 `--output /path/to/dir`.
 
-== Compare two reports
 
-After execution of TCK, JUnit report is located in target test directory
-(example `target/surefire-reports`).
+[TIP]
+====
+After execution of TCK, report is located in target test directory, for example:
+
+* Surefire `target/surefire-reports/TEST ... xml`
+* Cucumber `target/cucumber/cucumber-report.json`
+====
+
+== Compare two reports
 
 Arguments: `/path/to/report1 --compareTo /path/to/report2`
 

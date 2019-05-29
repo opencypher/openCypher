@@ -41,7 +41,6 @@ import org.junit.rules.ExpectedException;
 import org.opencypher.tools.tck.regression.TckRegressionModel.Diff;
 import org.opencypher.tools.tck.regression.TckRegressionModel.Scenario;
 import org.opencypher.tools.tck.regression.TckRegressionModel.Scenarios;
-import org.opencypher.tools.tck.regression.TckRegressionModel.TestSuite;
 
 public class TckRegressionModelTest {
     Scenarios suite0;
@@ -54,28 +53,28 @@ public class TckRegressionModelTest {
 
     @Before
     public void setUp() throws Exception {
-        suite0 = Scenarios.create(new TestSuite(asList(
+        suite0 = Scenarios.create(asList(
             new Scenario("Feature1", "Scenario1", false),
             new Scenario("Feature1", "Scenario2", false),
             new Scenario("Feature2", "Scenario3", false)
-        )));
+        ));
 
-        suite1 = Scenarios.create(new TestSuite(asList(
+        suite1 = Scenarios.create(asList(
             new Scenario("Feature1", "Scenario1", true),
             new Scenario("Feature1", "Scenario2", false),
             new Scenario("Feature2", "Scenario3", false)
-        )));
+        ));
 
-        suite2 = Scenarios.create(new TestSuite(asList(
+        suite2 = Scenarios.create(asList(
             new Scenario("Feature1", "Scenario1", true),
             new Scenario("Feature1", "Scenario2", true)
-        )));
+        ));
 
-        suite3 = Scenarios.create(new TestSuite(asList(
+        suite3 = Scenarios.create(asList(
             new Scenario("Feature1", "Scenario1", true),
             new Scenario("Feature1", "Scenario2", true),
             new Scenario("Feature2", "Scenario3", true)
-        )));
+        ));
     }
 
     @Test
@@ -136,7 +135,7 @@ public class TckRegressionModelTest {
 
     @Test
     public void testPassedScenario() {
-        Scenario scenario = Scenario.create("Feature \"Feature1\": Scenario \"Scenario2\"", null);
+        Scenario scenario = Scenario.create("Feature \"Feature1\": Scenario \"Scenario2\"", (TckRegressionModel.Failure) null);
 
         assertThat(scenario.getFeatureName(), equalTo("Feature1"));
         assertThat(scenario.getName(), equalTo("Scenario2"));

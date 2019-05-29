@@ -58,8 +58,8 @@ public class TckRegressionModel {
             this.failed = failed;
         }
 
-        static Scenarios create(TestSuite feature) {
-            List<Scenario> all = unmodifiableList(feature.testcase);
+        static Scenarios create(List<Scenario> scenarios) {
+            List<Scenario> all = unmodifiableList(scenarios);
 
             List<Scenario> passed = all.stream()
                 .filter(Scenario::isPassed)
@@ -176,6 +176,10 @@ public class TckRegressionModel {
         public TestSuite(@JacksonXmlProperty(localName = "testcase") List<Scenario> testcase) {
             this.testcase = testcase;
         }
+
+        public List<Scenario> getScenarios() {
+            return testcase;
+        }
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -200,7 +204,11 @@ public class TckRegressionModel {
         @JsonCreator
         public static Scenario create(@JsonProperty("name") String title, @JsonProperty("failure") Failure failure) {
             Matcher matcher = pattern.matcher(title);
-            checkState(matcher.find(), "Expecting string in format `Feature \"[name]\": Scenario: \"[name]\"`, got `%s`", title);
+            checkState(matcher.find(),
+                "Expecting string in format `Feature \"[name]\": Scenario \"[name]\"`, got `%s`." +
+                    "This will work with junit-jupiter-engine<=5.1.1 or maven-surefire >=3.0.0-M4." +
+                    "If version change is not possible - use Cucumber report."
+                , title);
             String featureName = matcher.group(1);
             String name = matcher.group(2);
             return new Scenario(featureName, name, failure != null);
@@ -238,6 +246,69 @@ public class TckRegressionModel {
         @Override
         public int hashCode() {
             return name != null ? name.hashCode() : 0;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class CucumberFeature {
+        private List<Scenario> scenarios;
+
+        private CucumberFeature(List<Scenario> scenarios) {
+            this.scenarios = scenarios;
+        }
+
+        @JsonCreator
+        public static CucumberFeature create(@JsonProperty("name") String featureName, @JsonProperty("elements") List<CucumberScenario> cucumberScenarios) {
+            List<Scenario> scenarios = cucumberScenarios.stream()
+                .map(s -> new Scenario(featureName, s.name, s.failed))
+                .collect(collectingAndThen(toList(), Collections::unmodifiableList));
+
+            return new CucumberFeature(scenarios);
+        }
+
+
+        public List<Scenario> getScenarios() {
+            return scenarios;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class CucumberScenario {
+        private final String name;
+        private final boolean failed;
+
+        private CucumberScenario(String name, boolean failed) {
+            this.name = name;
+            this.failed = failed;
+        }
+
+        @JsonCreator
+        public static CucumberScenario create(@JsonProperty("name") String name, @JsonProperty("steps") List<CucumberStep> steps) {
+            boolean failed = steps.stream()
+                .anyMatch(s -> s.result.status.equals("failed"));
+
+            return new CucumberScenario(name, failed);
+        }
+
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class CucumberStep {
+        private CucumberResult result;
+
+        @JsonCreator
+        public CucumberStep(@JsonProperty("result") CucumberResult result) {
+            this.result = result;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class CucumberResult {
+        private String status;
+
+        @JsonCreator
+        public CucumberResult(@JsonProperty("status") String status) {
+            this.status = status;
         }
     }
 }

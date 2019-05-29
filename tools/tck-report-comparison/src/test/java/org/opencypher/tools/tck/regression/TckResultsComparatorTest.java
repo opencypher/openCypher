@@ -36,8 +36,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.Scanner;
 import java.util.UUID;
 import junit.framework.AssertionFailedError;
 import org.junit.BeforeClass;
@@ -51,6 +53,7 @@ public class TckResultsComparatorTest {
     private static String test2;
     private static String test3;
     private static String test4;
+    private static String test5;
 
     @ClassRule
     public static TemporaryFolder temp = new TemporaryFolder();
@@ -100,6 +103,9 @@ public class TckResultsComparatorTest {
                 "</testsuite>\n",
             ".xml"
         );
+
+        String cucumber = getResource("cucumber.json");
+        test5 = write(cucumber, ".json");
     }
 
     @Test
@@ -141,6 +147,19 @@ public class TckResultsComparatorTest {
         String path = temp.newFolder().getAbsolutePath();
 
         assertThat(comparatorException(test4, "--compareTo", test0, "--output", path),
+            containsString("has failures"));
+
+        String content = read(path, "regression.html");
+
+        assertThat(content, containsString("TCK coverage degraded"));
+        assertThat(content, containsString(failing(1)));
+    }
+
+    @Test
+    public void testCompareJson() throws Exception {
+        String path = temp.newFolder().getAbsolutePath();
+
+        assertThat(comparatorException(test5, "--compareTo", test0, "--output", path),
             containsString("has failures"));
 
         String content = read(path, "regression.html");
@@ -209,10 +228,23 @@ public class TckResultsComparatorTest {
     }
 
     @Test
-    public void testConvertCsv() throws Exception {
+    public void testConvertXmlCsv() throws Exception {
         String path = temp.newFolder().getAbsolutePath();
 
         comparator(test4, "--saveCsv", "--output", path);
+
+        String actual = read(path, "base.csv").replaceAll("\r\n", "\n");
+
+        String expected = read("", test1);
+
+        assertThat(actual, equalTo(expected));
+    }
+
+    @Test
+    public void testConvertJsonCsv() throws Exception {
+        String path = temp.newFolder().getAbsolutePath();
+
+        comparator(test5, "--saveCsv", "--output", path);
 
         String actual = read(path, "base.csv").replaceAll("\r\n", "\n");
 
@@ -251,5 +283,13 @@ public class TckResultsComparatorTest {
 
     private String read(String path, String file) throws IOException {
         return new String(readAllBytes(new File(path, file).toPath()));
+    }
+
+    static String getResource(String path) throws IOException {
+        InputStream resource = TckResultsComparatorTest.class.getResourceAsStream(path);
+        if (resource == null) {
+            throw new IOException(path + " not found");
+        }
+        return new Scanner(resource, "UTF-8").useDelimiter("\\A").next();
     }
 }

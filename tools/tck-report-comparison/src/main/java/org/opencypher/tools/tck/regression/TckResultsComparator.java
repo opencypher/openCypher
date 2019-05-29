@@ -39,7 +39,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -48,6 +50,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
+import org.opencypher.tools.tck.regression.TckRegressionModel.CucumberFeature;
 import org.opencypher.tools.tck.regression.TckRegressionModel.Diff;
 import org.opencypher.tools.tck.regression.TckRegressionModel.Scenario;
 import org.opencypher.tools.tck.regression.TckRegressionModel.Scenarios;
@@ -142,6 +145,8 @@ public class TckResultsComparator {
                 return getFeaturesFromXml(reportFile);
             case ".csv":
                 return getFeaturesFromCsv(reportFile);
+            case ".json":
+                return getFeaturesFromJson(reportFile);
             default:
                 throw new IllegalStateException(format("File %s must have .xml or .csv extension", reportFile.toURI()));
         }
@@ -155,7 +160,7 @@ public class TckResultsComparator {
 
         TestSuite value = xmlMapper.readValue(reportFile, TestSuite.class);
 
-        return Scenarios.create(value);
+        return Scenarios.create(value.getScenarios());
     }
 
     private static Scenarios getFeaturesFromCsv(File reportFile) throws IOException {
@@ -171,9 +176,22 @@ public class TckResultsComparator {
             scenarios.add(scenario);
         }
 
-        TestSuite testSuite = new TestSuite(scenarios);
+        return Scenarios.create(scenarios);
+    }
 
-        return Scenarios.create(testSuite);
+    private static Scenarios getFeaturesFromJson(File reportFile) throws IOException {
+        ObjectMapper jsonMapper = new ObjectMapper();
+
+        jsonMapper.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
+        jsonMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
+        CucumberFeature[] features = jsonMapper.readValue(reportFile, CucumberFeature[].class);
+
+        List<Scenario> scenarios = Arrays.stream(features)
+            .flatMap(f -> f.getScenarios().stream())
+            .collect(Collectors.toList());
+
+        return Scenarios.create(scenarios);
     }
 
     static void checkState(boolean expression, String error, Object... args) {
