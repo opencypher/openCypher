@@ -22,7 +22,7 @@ NOTE: `@cucumber.api.CucumberOptions` annotation is not recognized.
 
 == Use cases
 
-* Run with `-Dcucumber.options="--plugin json:/path/to/html"` to generate Cucumber html report
+* Run with `-Dcucumber.options="--plugin html:/path/to/html"` to generate Cucumber html report
 * Run with `-Dcucumber.options="--plugin json:/path/to/cucumber.json"` to generate Cucumber json report
     - `cucumber.json` is usually required for integration with other reporting/tools
 * **Recommended**: run with `-Dcucumber.options="--plugin json:/path/to/cucumber.json"` and setup https://github.com/damianszczepanik/cucumber-reporting[Masterthought Cucumber Reporting]
