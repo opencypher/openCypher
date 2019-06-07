@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.regression;
+package org.opencypher.tools.tck.reporting.comparison;
 
 import static java.lang.String.format;
 
@@ -50,11 +50,11 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
-import org.opencypher.tools.tck.regression.TckRegressionModel.CucumberFeature;
-import org.opencypher.tools.tck.regression.TckRegressionModel.Diff;
-import org.opencypher.tools.tck.regression.TckRegressionModel.Scenario;
-import org.opencypher.tools.tck.regression.TckRegressionModel.Scenarios;
-import org.opencypher.tools.tck.regression.TckRegressionModel.TestSuite;
+import org.opencypher.tools.tck.reporting.comparison.TckReportModel.CucumberFeature;
+import org.opencypher.tools.tck.reporting.comparison.TckReportModel.Diff;
+import org.opencypher.tools.tck.reporting.comparison.TckReportModel.Scenario;
+import org.opencypher.tools.tck.reporting.comparison.TckReportModel.Scenarios;
+import org.opencypher.tools.tck.reporting.comparison.TckReportModel.TestSuite;
 
 public class TckResultsComparator {
     public static final String CSV = "saveCsv";
@@ -89,10 +89,10 @@ public class TckResultsComparator {
             File otherFile = new File(cmd.getOptionValue(COMPARE));
             Scenarios other = getFeatures(otherFile);
             Diff diff = base.compare(other);
-            TckRegressionReport.generate(out, diff);
+            TckComparisonReport.generate(out, diff);
 
             checkState(diff.getNewlyFailedScenarios().isEmpty(),
-                "Scenarios in %s has failures relatively to %s. See regression report at %s.",
+                "Scenarios in %s has failures relatively to %s. See comparison report at %s.",
                 otherFile.toURI(),
                 baseFile.toURI(),
                 out.toURI()
@@ -104,10 +104,10 @@ public class TckResultsComparator {
             Scenarios other = getFeatures(otherFile);
 
             Diff diff = base.verify(other);
-            TckRegressionReport.generate(out, diff);
+            TckComparisonReport.generate(out, diff);
 
             checkState(diff.getNewlyFailedScenarios().isEmpty() && diff.getNewlyPassingScenarios().isEmpty(),
-                "Scenarios in %s does not match %s. See regression report at %s.",
+                "Scenarios in %s does not match %s. See comparison report at %s.",
                 otherFile.toURI(),
                 baseFile.toURI(),
                 out.toURI());

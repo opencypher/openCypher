@@ -25,12 +25,12 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.regression;
+package org.opencypher.tools.tck.reporting.comparison;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
-import static org.opencypher.tools.tck.regression.TckResultsComparator.checkState;
+import static org.opencypher.tools.tck.reporting.comparison.TckResultsComparator.checkState;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -46,7 +46,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TckRegressionModel {
+public class TckReportModel {
     static class Scenarios {
         private final List<Scenario> all;
         protected final List<Scenario> passing;

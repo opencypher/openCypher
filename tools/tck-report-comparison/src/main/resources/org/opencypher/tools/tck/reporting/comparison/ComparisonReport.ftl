@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>TCK Regression Report</title>
+    <title>TCK Comparison Report</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <style>
@@ -12,7 +12,7 @@
 </head>
 <body>
 <div class="container">
-    <h1>TCK Regression Report</h1>
+    <h1>TCK Comparison Report</h1>
     <#if diff.newlyFailedScenarios?size == 0 && diff.newlyPassingScenarios?size != 0>
         <div class="alert alert-success">
             <strong>Success!</strong> TCK coverage improved.

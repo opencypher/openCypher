@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.regression;
+package org.opencypher.tools.tck.reporting.comparison;
 
 import static java.lang.String.format;
 import static java.nio.file.Files.readAllBytes;
@@ -113,7 +113,7 @@ public class TckResultsComparatorTest {
         String path = temp.newFolder().getAbsolutePath();
 
         comparator(test0, "--compareTo", test1, "--output", path);
-        String content = read(path, "regression.html");
+        String content = read(path, "comparison.html");
 
         assertThat(content, containsString("TCK coverage improved"));
         assertThat(content, containsString(passing(1)));
@@ -124,7 +124,7 @@ public class TckResultsComparatorTest {
         String path = temp.newFolder().getAbsolutePath();
 
         comparator(test0, "--compareTo", test0, "--output", path);
-        String content = read(path, "regression.html");
+        String content = read(path, "comparison.html");
 
         assertThat(content, containsString("Nothing changed"));
     }
@@ -136,7 +136,7 @@ public class TckResultsComparatorTest {
         assertThat(comparatorException(test1, "--compareTo", test0, "--output", path),
             containsString("has failures"));
 
-        String content = read(path, "regression.html");
+        String content = read(path, "comparison.html");
 
         assertThat(content, containsString("TCK coverage degraded"));
         assertThat(content, containsString(failing(1)));
@@ -149,7 +149,7 @@ public class TckResultsComparatorTest {
         assertThat(comparatorException(test4, "--compareTo", test0, "--output", path),
             containsString("has failures"));
 
-        String content = read(path, "regression.html");
+        String content = read(path, "comparison.html");
 
         assertThat(content, containsString("TCK coverage degraded"));
         assertThat(content, containsString(failing(1)));
@@ -162,7 +162,7 @@ public class TckResultsComparatorTest {
         assertThat(comparatorException(test5, "--compareTo", test0, "--output", path),
             containsString("has failures"));
 
-        String content = read(path, "regression.html");
+        String content = read(path, "comparison.html");
 
         assertThat(content, containsString("TCK coverage degraded"));
         assertThat(content, containsString(failing(1)));
@@ -178,7 +178,7 @@ public class TckResultsComparatorTest {
         assertThat(comparatorException(test2, "--compareTo", test1, "--output", path),
             containsString("number of all scenarios changed"));
 
-        assertThat(new File(path, "regression.html").exists(), is(false));
+        assertThat(new File(path, "comparison.html").exists(), is(false));
     }
 
 
@@ -189,7 +189,7 @@ public class TckResultsComparatorTest {
         assertThat(comparatorException(test0, "--verifyFailures", test1, "--output", path),
             containsString("only failed scenarios"));
 
-        assertThat(new File(path, "regression.html").exists(), is(false));
+        assertThat(new File(path, "comparison.html").exists(), is(false));
     }
 
     @Test
@@ -199,7 +199,7 @@ public class TckResultsComparatorTest {
         assertThat(comparatorException(test0, "--verifyFailures", test2, "--output", path),
             containsString("does not match"));
 
-        String content = read(path, "regression.html");
+        String content = read(path, "comparison.html");
 
         assertThat(content, containsString(passing(2)));
     }
@@ -210,7 +210,7 @@ public class TckResultsComparatorTest {
 
         comparator(test2, "--verifyFailures", test2, "--output", path);
 
-        String content = read(path, "regression.html");
+        String content = read(path, "comparison.html");
 
         assertThat(content, containsString("Nothing changed"));
     }
@@ -222,7 +222,7 @@ public class TckResultsComparatorTest {
         assertThat(comparatorException(test3, "--verifyFailures", test2, "--output", path),
             containsString("does not match"));
 
-        String content = read(path, "regression.html");
+        String content = read(path, "comparison.html");
 
         assertThat(content, containsString(failing(1)));
     }

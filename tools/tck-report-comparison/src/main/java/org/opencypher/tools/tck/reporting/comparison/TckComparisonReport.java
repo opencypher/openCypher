@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.regression;
+package org.opencypher.tools.tck.reporting.comparison;
 
 import static freemarker.template.Configuration.VERSION_2_3_23;
 import static freemarker.template.TemplateExceptionHandler.RETHROW_HANDLER;
@@ -40,26 +40,26 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
-import org.opencypher.tools.tck.regression.TckRegressionModel.Diff;
+import org.opencypher.tools.tck.reporting.comparison.TckReportModel.Diff;
 
 
-public class TckRegressionReport {
+public class TckComparisonReport {
     public static void generate(File outputDir, Diff diff) throws IOException, TemplateException {
-        File report = new File(outputDir, "regression.html");
+        File report = new File(outputDir, "comparison.html");
 
         Configuration cfg = new Configuration(VERSION_2_3_23);
         cfg.setDefaultEncoding("UTF-8");
         cfg.setTemplateExceptionHandler(RETHROW_HANDLER);
-        ClassTemplateLoader templateLoader = new ClassTemplateLoader(TckRegressionReport.class, "");
+        ClassTemplateLoader templateLoader = new ClassTemplateLoader(TckComparisonReport.class, "");
         cfg.setTemplateLoader(templateLoader);
 
         Map<String, Object> input = new HashMap<>();
         input.put("diff", diff);
 
         try (Writer fileWriter = new FileWriter(report)) {
-            Template template = cfg.getTemplate("Regression.ftl");
+            Template template = cfg.getTemplate("ComparisonReport.ftl");
             template.process(input, fileWriter);
-            System.out.println("\nRegression report saved to " + report.toURI());
+            System.out.println("\nComparison report saved to " + report.toURI());
         }
     }
 }

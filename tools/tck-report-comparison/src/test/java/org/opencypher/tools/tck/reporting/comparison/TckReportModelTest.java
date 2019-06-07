@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.regression;
+package org.opencypher.tools.tck.reporting.comparison;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,11 +38,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.opencypher.tools.tck.regression.TckRegressionModel.Diff;
-import org.opencypher.tools.tck.regression.TckRegressionModel.Scenario;
-import org.opencypher.tools.tck.regression.TckRegressionModel.Scenarios;
+import org.opencypher.tools.tck.reporting.comparison.TckReportModel.Diff;
+import org.opencypher.tools.tck.reporting.comparison.TckReportModel.Scenario;
+import org.opencypher.tools.tck.reporting.comparison.TckReportModel.Scenarios;
 
-public class TckRegressionModelTest {
+public class TckReportModelTest {
     Scenarios suite0;
     Scenarios suite1;
     Scenarios suite2;
@@ -126,7 +126,7 @@ public class TckRegressionModelTest {
 
     @Test
     public void testFailedScenario() {
-        Scenario scenario = Scenario.create("Feature \"Feature1\": Scenario \"Scenario2\"", new TckRegressionModel.Failure());
+        Scenario scenario = Scenario.create("Feature \"Feature1\": Scenario \"Scenario2\"", new TckReportModel.Failure());
 
         assertThat(scenario.getFeatureName(), equalTo("Feature1"));
         assertThat(scenario.getName(), equalTo("Scenario2"));
@@ -135,7 +135,7 @@ public class TckRegressionModelTest {
 
     @Test
     public void testPassedScenario() {
-        Scenario scenario = Scenario.create("Feature \"Feature1\": Scenario \"Scenario2\"", (TckRegressionModel.Failure) null);
+        Scenario scenario = Scenario.create("Feature \"Feature1\": Scenario \"Scenario2\"", (TckReportModel.Failure) null);
 
         assertThat(scenario.getFeatureName(), equalTo("Feature1"));
         assertThat(scenario.getName(), equalTo("Scenario2"));
