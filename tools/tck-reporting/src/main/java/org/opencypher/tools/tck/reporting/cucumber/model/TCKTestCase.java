@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.reporting.model;
+package org.opencypher.tools.tck.reporting.cucumber.model;
 
 import cucumber.api.TestCase;
 import cucumber.api.TestStep;

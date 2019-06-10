@@ -18,6 +18,8 @@ class TckTest {
 ----
 3. Run test with property `cucumber.options` = `--plugin PLUGIN[:PATH_OR_URL]`
 
+NOTE: Make sure that TCK Tests are not executed in parallel. For Maven Surefire set [forkCount](http://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#forkCount) to 1.
+
 NOTE: `@cucumber.api.CucumberOptions` annotation is not recognized.
 
 == Use cases

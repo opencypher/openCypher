@@ -25,25 +25,61 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.reporting;
+package org.opencypher.tools.tck.reporting.cucumber.model;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import cucumber.api.PickleStepTestStep;
+import gherkin.pickles.PickleStep;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.junit.jupiter.api.Test;
+public class TCKTestStep implements PickleStepTestStep {
+    private PickleStep step;
+    private String uri;
+    private int line;
 
-public class SystemOutReaderTest {
-    @Test
-    public void testTee() throws Exception {
-        SystemOutReader output = new SystemOutReader();
-        System.out.println("test1");
-        System.out.println("test2");
-        String out1 = output.clear();
-        System.out.println("test3");
-        String out2 = output.clear();
-        output.close();
-        System.out.println("test4");
+    public TCKTestStep(PickleStep step, String uri, int line) {
+        this.step = step;
+        this.uri = uri;
+        this.line = line;
+    }
 
-        assertEquals(out1, "test1\ntest2\n");
-        assertEquals(out2, "test3\n");
+    @Override
+    public PickleStep getPickleStep() {
+        return step;
+    }
+
+    @Override
+    public String getStepLocation() {
+        return uri + ":" + getStepLine();
+    }
+
+    @Override
+    public int getStepLine() {
+        return line;
+    }
+
+    @Override
+    public String getStepText() {
+        return step.getText();
+    }
+
+    @Override
+    public List<cucumber.api.Argument> getDefinitionArgument() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<gherkin.pickles.Argument> getStepArgument() {
+        return step.getArgument();
+    }
+
+    @Override
+    public String getPattern() {
+        return "";
+    }
+
+    @Override
+    public String getCodeLocation() {
+        return "";
     }
 }

@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.reporting;
+package org.opencypher.tools.tck.reporting.cucumber;
 
 import cucumber.api.PickleStepTestStep;
 import cucumber.api.Result;
@@ -59,8 +59,8 @@ import org.opencypher.tools.tck.api.Scenario;
 import org.opencypher.tools.tck.api.SideEffects;
 import org.opencypher.tools.tck.api.Step;
 import org.opencypher.tools.tck.api.events.TCKEvents;
-import org.opencypher.tools.tck.reporting.model.TCKTestCase;
-import org.opencypher.tools.tck.reporting.model.TCKTestStep;
+import org.opencypher.tools.tck.reporting.cucumber.model.TCKTestCase;
+import org.opencypher.tools.tck.reporting.cucumber.model.TCKTestStep;
 import scala.runtime.AbstractFunction1;
 import scala.runtime.BoxedUnit;
 import scala.util.Either;
@@ -113,7 +113,7 @@ public class CucumberReportAdapter implements BeforeAllCallback, AfterAllCallbac
     private Consumer<Scenario> scenarioStartedEvent() {
         return scenario -> {
             Long startedAt = time();
-            String featureUri = featureNameToUri.get(scenario.featureName());
+            String featureUri = checkNull(featureNameToUri.get(scenario.featureName()));
             Pickle pickle = scenario.source();
             List<TestStep> steps = pickle.getSteps()
                 .stream()
@@ -132,8 +132,8 @@ public class CucumberReportAdapter implements BeforeAllCallback, AfterAllCallbac
             Step step = event.step();
             if (shouldReport(step)) {
                 int line = outlineLocation(step.source().getLocations());
-                TCKTestStep testStep = new TCKTestStep(step.source(), currentTestCase.getUri(), line);
-                TestStepStarted cucumberEvent = new TestStepStarted(startedAt, currentTestCase, testStep);
+                TCKTestStep testStep = new TCKTestStep(step.source(), checkNull(currentTestCase).getUri(), line);
+                TestStepStarted cucumberEvent = new TestStepStarted(startedAt, checkNull(currentTestCase), testStep);
                 bus.handle(cucumberEvent);
             }
         };
@@ -145,12 +145,13 @@ public class CucumberReportAdapter implements BeforeAllCallback, AfterAllCallbac
             Step step = event.step();
             if (shouldReport(step)) {
                 logOutput(step, finishedAt);
-                Long duration = finishedAt - stepTimestamp.get(event.correlationId());
+                Long startedAt = checkNull(stepTimestamp.get(event.correlationId()));
+                Long duration = finishedAt - startedAt;
                 Result.Type status = getStatus(event.result());
                 int line = outlineLocation(step.source().getLocations());
-                PickleStepTestStep testStep = new TCKTestStep(step.source(), currentTestCase.getUri(), line);
+                PickleStepTestStep testStep = new TCKTestStep(step.source(), checkNull(currentTestCase).getUri(), line);
                 Result result = new Result(status, duration, errorOrNull(event.result()));
-                TestStepFinished cucumberEvent = new TestStepFinished(finishedAt, currentTestCase, testStep, result);
+                TestStepFinished cucumberEvent = new TestStepFinished(finishedAt, checkNull(currentTestCase), testStep, result);
                 bus.handle(cucumberEvent);
             } else {
                 output.clear();
@@ -167,7 +168,7 @@ public class CucumberReportAdapter implements BeforeAllCallback, AfterAllCallbac
         }
 
         if (!log.isEmpty()) {
-            bus.handle(new WriteEvent(timeNow, currentTestCase, log));
+            bus.handle(new WriteEvent(timeNow, checkNull(currentTestCase), log));
         }
     }
 
@@ -199,5 +200,12 @@ public class CucumberReportAdapter implements BeforeAllCallback, AfterAllCallbac
 
     private int outlineLocation(List<PickleLocation> locations) {
         return locations.get(locations.size() - 1).getLine();
+    }
+
+    private  <T> T checkNull(T value) {
+        if (value == null) {
+            throw new IllegalStateException("Wrong order of test events. Disable parallel execution of tests (forkCount).");
+        }
+        return value;
     }
 }
