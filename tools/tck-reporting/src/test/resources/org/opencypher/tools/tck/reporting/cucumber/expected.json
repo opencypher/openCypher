@@ -1,0 +1,378 @@
+[
+  {
+    "line": 29,
+    "elements": [
+      {
+        "line": 31,
+        "name": "Return literal",
+        "description": "",
+        "id": "foo;return-literal",
+        "type": "scenario",
+        "keyword": "Scenario",
+        "steps": [
+          {
+            "result": {
+              "status": "passed"
+            },
+            "line": 32,
+            "name": "an empty graph",
+            "match": {
+              "location": ""
+            },
+            "keyword": "Given "
+          },
+          {
+            "output": [
+              "Producing some output 1\n"
+            ],
+            "result": {
+              "status": "passed"
+            },
+            "line": 33,
+            "name": "executing query:",
+            "match": {
+              "location": ""
+            },
+            "keyword": "When ",
+            "doc_string": {
+              "line": 34,
+              "value": "RETURN 1"
+            }
+          },
+          {
+            "result": {
+              "status": "passed"
+            },
+            "line": 37,
+            "name": "the result should be:",
+            "match": {
+              "location": ""
+            },
+            "rows": [
+              {
+                "cells": [
+                  "1"
+                ]
+              },
+              {
+                "cells": [
+                  "1"
+                ]
+              }
+            ],
+            "keyword": "Then "
+          },
+          {
+            "output": [
+              "-labels:        0\n+labels:        0\n+nodes:         0\n-nodes:         0\n-properties:    0\n+properties:    0\n-relationships: 0\n+relationships: 0"
+            ],
+            "result": {
+              "status": "passed"
+            },
+            "line": 40,
+            "name": "no side effects",
+            "match": {
+              "location": ""
+            },
+            "keyword": "And "
+          }
+        ]
+      },
+      {
+        "line": 42,
+        "name": "Fail",
+        "description": "",
+        "id": "foo;fail",
+        "type": "scenario",
+        "keyword": "Scenario",
+        "steps": [
+          {
+            "result": {
+              "status": "passed"
+            },
+            "line": 43,
+            "name": "an empty graph",
+            "match": {
+              "location": ""
+            },
+            "keyword": "Given "
+          },
+          {
+            "result": {
+              "status": "passed"
+            },
+            "line": 44,
+            "name": "executing query:",
+            "match": {
+              "location": ""
+            },
+            "keyword": "When ",
+            "doc_string": {
+              "line": 45,
+              "value": "RETURN foo()"
+            }
+          },
+          {
+            "result": {
+              "status": "passed"
+            },
+            "line": 48,
+            "name": "a SyntaxError should be raised at compile time: UnknownFunction",
+            "match": {
+              "location": ""
+            },
+            "keyword": "Then "
+          },
+          {
+            "output": [
+              "-labels:        0\n+labels:        0\n+nodes:         0\n-nodes:         0\n-properties:    0\n+properties:    0\n-relationships: 0\n+relationships: 0"
+            ],
+            "result": {
+              "status": "passed"
+            },
+            "line": 48,
+            "name": "a SyntaxError should be raised at compile time: UnknownFunction",
+            "match": {
+              "location": ""
+            },
+            "keyword": "Then "
+          }
+        ]
+      },
+      {
+        "line": 50,
+        "name": "Outline Test",
+        "description": "",
+        "id": "foo;outline-test",
+        "type": "scenario",
+        "keyword": "Scenario Outline",
+        "steps": [
+          {
+            "result": {
+              "status": "passed"
+            },
+            "line": 51,
+            "name": "an empty graph",
+            "match": {
+              "location": ""
+            },
+            "keyword": "Given "
+          },
+          {
+            "output": [
+              "Producing some output 1\n"
+            ],
+            "result": {
+              "status": "passed"
+            },
+            "line": 52,
+            "name": "executing query:",
+            "match": {
+              "location": ""
+            },
+            "keyword": "When ",
+            "doc_string": {
+              "line": 53,
+              "value": "RETURN 1"
+            }
+          },
+          {
+            "result": {
+              "status": "passed"
+            },
+            "line": 56,
+            "name": "the result should be:",
+            "match": {
+              "location": ""
+            },
+            "rows": [
+              {
+                "cells": [
+                  "1"
+                ]
+              },
+              {
+                "cells": [
+                  "1"
+                ]
+              }
+            ],
+            "keyword": "Then "
+          },
+          {
+            "output": [
+              "-labels:        0\n+labels:        0\n+nodes:         0\n-nodes:         0\n-properties:    0\n+properties:    0\n-relationships: 0\n+relationships: 0"
+            ],
+            "result": {
+              "status": "passed"
+            },
+            "line": 59,
+            "name": "no side effects",
+            "match": {
+              "location": ""
+            },
+            "keyword": "And "
+          }
+        ]
+      },
+      {
+        "line": 50,
+        "name": "Outline Test",
+        "description": "",
+        "id": "foo;outline-test",
+        "type": "scenario",
+        "keyword": "Scenario Outline",
+        "steps": [
+          {
+            "result": {
+              "status": "passed"
+            },
+            "line": 51,
+            "name": "an empty graph",
+            "match": {
+              "location": ""
+            },
+            "keyword": "Given "
+          },
+          {
+            "output": [
+              "Producing some output 2\n"
+            ],
+            "result": {
+              "status": "passed"
+            },
+            "line": 52,
+            "name": "executing query:",
+            "match": {
+              "location": ""
+            },
+            "keyword": "When ",
+            "doc_string": {
+              "line": 53,
+              "value": "RETURN 2"
+            }
+          },
+          {
+            "result": {
+              "status": "passed"
+            },
+            "line": 56,
+            "name": "the result should be:",
+            "match": {
+              "location": ""
+            },
+            "rows": [
+              {
+                "cells": [
+                  "2"
+                ]
+              },
+              {
+                "cells": [
+                  "2"
+                ]
+              }
+            ],
+            "keyword": "Then "
+          },
+          {
+            "output": [
+              "-labels:        0\n+labels:        0\n+nodes:         0\n-nodes:         0\n-properties:    0\n+properties:    0\n-relationships: 0\n+relationships: 0"
+            ],
+            "result": {
+              "status": "passed"
+            },
+            "line": 59,
+            "name": "no side effects",
+            "match": {
+              "location": ""
+            },
+            "keyword": "And "
+          }
+        ]
+      },
+      {
+        "line": 50,
+        "name": "Outline Test",
+        "description": "",
+        "id": "foo;outline-test",
+        "type": "scenario",
+        "keyword": "Scenario Outline",
+        "steps": [
+          {
+            "result": {
+              "status": "passed"
+            },
+            "line": 51,
+            "name": "an empty graph",
+            "match": {
+              "location": ""
+            },
+            "keyword": "Given "
+          },
+          {
+            "output": [
+              "Producing some output 3\n"
+            ],
+            "result": {
+              "status": "passed"
+            },
+            "line": 52,
+            "name": "executing query:",
+            "match": {
+              "location": ""
+            },
+            "keyword": "When ",
+            "doc_string": {
+              "line": 53,
+              "value": "RETURN 3"
+            }
+          },
+          {
+            "result": {
+              "status": "passed"
+            },
+            "line": 56,
+            "name": "the result should be:",
+            "match": {
+              "location": ""
+            },
+            "rows": [
+              {
+                "cells": [
+                  "3"
+                ]
+              },
+              {
+                "cells": [
+                  "3"
+                ]
+              }
+            ],
+            "keyword": "Then "
+          },
+          {
+            "output": [
+              "-labels:        0\n+labels:        0\n+nodes:         0\n-nodes:         0\n-properties:    0\n+properties:    0\n-relationships: 0\n+relationships: 0"
+            ],
+            "result": {
+              "status": "passed"
+            },
+            "line": 59,
+            "name": "no side effects",
+            "match": {
+              "location": ""
+            },
+            "keyword": "And "
+          }
+        ]
+      }
+    ],
+    "name": "Foo",
+    "description": "",
+    "id": "foo",
+    "keyword": "Feature",
+    "uri": "Foo.feature",
+    "tags": []
+  }
+]

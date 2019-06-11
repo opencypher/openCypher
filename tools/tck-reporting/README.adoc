@@ -1,0 +1,30 @@
+= TCK Reporting
+
+link:../tck-api[TCK Scala API] adapter to enable https://docs.cucumber.io/cucumber/reporting/[Cucumber reporting]. See https://opencypher.github.io/cypher-for-gremlin/test-reports/1.0.0/cucumber-html-reports/overview-features.html[example report].
+
+== Usage
+
+1. Add dependency to `org.opencypher.tck-reporting`
+2. Annotate test class with `@org.junit.jupiter.api.extension.ExtendWith` with argument `org.opencypher.tools.tck.reporting.CucumberReportAdapter`:
++
+[source, scala]
+----
+@ExtendWith(Array(classOf[CucumberReportAdapter]))
+class TckTest {
+  @TestFactory
+  def testTck(): util.Collection[DynamicTest] = {
+    // See example in TCK Api
+  }
+----
+3. Run test with property `cucumber.options` = `--plugin PLUGIN[:PATH_OR_URL]`
+
+NOTE: Make sure that TCK Tests are not executed in parallel. For Maven Surefire set [forkCount](http://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#forkCount) to 1.
+
+NOTE: `@cucumber.api.CucumberOptions` annotation is not recognized.
+
+== Use cases
+
+* Run with `-Dcucumber.options="--plugin html:/path/to/html"` to generate Cucumber html report
+* Run with `-Dcucumber.options="--plugin json:/path/to/cucumber.json"` to generate Cucumber json report
+    - `cucumber.json` is usually required for integration with other reporting/tools
+* **Recommended**: run with `-Dcucumber.options="--plugin json:/path/to/cucumber.json"` and setup https://github.com/damianszczepanik/cucumber-reporting[Masterthought Cucumber Reporting]
