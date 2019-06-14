@@ -57,5 +57,6 @@
     <module>tck-api</module>
     <module>tck-integrity-tests</module>
     <module>tck-reporting</module>
+    <module>tck-report-comparison</module>
   </modules>
 </project>

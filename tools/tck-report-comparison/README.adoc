@@ -1,0 +1,117 @@
+= TCK Report Comparison
+
+Tools for TCK result comparison.
+
+== Options
+
+JUnit XML, Cucumber JSON and CSV formats are supported.
+
+IMPORTANT: JUnit XML need to contain test display name. This was
+https://github.com/junit-team/junit5/issues/990[available before JUnit 5.1.1 version]
+and is https://issues.apache.org/jira/browse/SUREFIRE-1546[fixed in Surefire 3.0.0-M4] (not released yet).
+If version change is not possible - use link:../tck-reporting[Cucumber report].
+
+Comparison report in HTML format or CSV file will be generated in
+`build/reports/tests/` directory. To change directory use
+`--output /path/to/dir`.
+
+
+[TIP]
+====
+After execution of TCK, report is located in target test directory, for example:
+
+* Surefire `target/surefire-reports/TEST ... xml`
+* Cucumber `target/cucumber/cucumber-report.json`
+====
+
+== Compare two reports
+
+Arguments: `/path/to/report1 --compareTo /path/to/report2`
+
+Compare `report1` with `report2`.
+
+Fail the build if there are new failed scenarios in `report1`.
+
+== Verify
+
+Useful for gradual TCK implementation. Build passes if there are only
+expected TCK failures. If TCK has new failing or passing scenarios, the
+build will fail. Developer should update expected TCK failures list
+before committing changes that affect TCK.
+
+Arguments: `/path/to/report1 --verifyFailures /path/to/report2`
+
+Verify that all failing scenarios in `report1` are in `report2`.
+`report2` should contain only scenarios with `status=failed` (or empty
+`status` column in csv).
+
+Fail the build if there are new passing or failing scenarios in
+`report1`.
+
+== Create CSV from XML or JSON report
+
+Storing JUnit XML or Cucumber reports in the repository might not be practical, as it
+contains a lot of surplus information. CSV with format
+`feature,scenario,status` might be more manageable.
+
+Arguments: `/path/to/report1 --saveCsv`
+
+Will convert `report1` to `base.csv` in output directory. Resulting CSV will have following columns:
+`feature,scenario,status`.
+
+== Usage
+
+=== Command line
+
+Run from command line:
+
+[source,sh]
+----
+mvn clean install -DskipTests
+mvn -pl tools/tck-report-comparison exec:java -Dexec.mainClass="org.opencypher.tools.tck.reporting.comparison.TckResultsComparator"
+    -Dexec.args="<arguments>"
+# Example for JUnit xml
+mvn -pl tools/tck-report-comparison exec:java -Dexec.mainClass="org.opencypher.tools.tck.reporting.comparison.TckResultsComparator"
+    -Dexec.args="/path/to/report1.xml --compareTo /path/to/report2.xml"
+# Example for Cucumber json
+mvn -pl tools/tck-report-comparison exec:java -Dexec.mainClass="org.opencypher.tools.tck.reporting.comparison.TckResultsComparator"
+    -Dexec.args="/path/to/cucumber.json --compareTo /path/to/cucumber.json"
+----
+
+Report type is detected by extension. Supported extensions: `.xml`, `.json`, `.csv`.
+
+=== Integrate in build
+
+Using
+https://www.mojohaus.org/exec-maven-plugin/usage.html[exec-maven-plugin]
+
+[source,xml]
+----
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>exec-maven-plugin</artifactId>
+      <version>1.1.1</version>
+      <executions>
+        <execution>
+          <phase>test</phase>
+          <goals>
+            <goal>java</goal>
+          </goals>
+          <configuration>
+            <mainClass>org.opencypher.tools.tck.reporting.comparison.TckResultsComparator</mainClass>
+            <arguments>
+              <argument>/path/to/report1.xml</argument>
+              <argument>--verifyFailures</argument>
+              <argument>/path/to/report2.xml</argument>
+              <argument>--output</argument>
+              <argument>${project.build.directory}</argument>
+            </arguments>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+----

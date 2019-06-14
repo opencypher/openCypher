@@ -1,0 +1,248 @@
+[
+  {
+    "line": 29,
+    "elements": [
+      {
+        "line": 31,
+        "name": "Scenario1",
+        "description": "",
+        "id": "feature1;scenario1",
+        "type": "scenario",
+        "keyword": "Scenario",
+        "steps": [
+          {
+            "result": {
+              "status": "passed"
+            },
+            "line": 32,
+            "name": "an empty graph",
+            "match": {
+              "location": ""
+            },
+            "keyword": "Given "
+          },
+          {
+            "output": [
+              "Producing some output 1\n"
+            ],
+            "result": {
+              "duration": 1,
+              "status": "passed"
+            },
+            "line": 33,
+            "name": "executing query:",
+            "match": {
+              "location": ""
+            },
+            "keyword": "When ",
+            "doc_string": {
+              "line": 34,
+              "value": "RETURN 1"
+            }
+          },
+          {
+            "result": {
+              "error_message": "org.opencypher.tools.tck.api.Scenario$ScenarioFailedException: Feature \"Feature1\": Scenario \"Scenario1\" failed with message: \nExpected (in any order of rows):\n| 1 |\n| 2 |\nActual:\n| 1 |\n| 1 |\n\tat org.opencypher.tools.tck.api.Scenario.$anonfun$executeOnGraph$1(Scenario.scala:90)\n\tat scala.collection.LinearSeqOptimized.foldLeft(LinearSeqOptimized.scala:122)\n\tat scala.collection.LinearSeqOptimized.foldLeft$(LinearSeqOptimized.scala:118)\n\tat scala.collection.immutable.List.foldLeft(List.scala:85)\n\tat org.opencypher.tools.tck.api.Scenario.executeOnGraph(Scenario.scala:60)\n\tat org.opencypher.tools.tck.api.Scenario$$anon$1.execute(Scenario.scala:54)\n\tat org.junit.jupiter.engine.descriptor.JupiterTestDescriptor.executeAndMaskThrowable(JupiterTestDescriptor.java:204)\n\tat org.junit.jupiter.engine.descriptor.DynamicTestTestDescriptor.execute(DynamicTestTestDescriptor.java:43)\n\tat org.junit.jupiter.engine.descriptor.DynamicTestTestDescriptor.execute(DynamicTestTestDescriptor.java:25)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$5(NodeTestTask.java:135)\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$7(NodeTestTask.java:125)\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:135)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:123)\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:122)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:80)\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:32)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask$DefaultDynamicTestExecutor.execute(NodeTestTask.java:198)\n\tat java.util.Optional.ifPresent(Optional.java:159)\n\tat org.junit.jupiter.engine.descriptor.TestFactoryTestDescriptor.lambda$invokeTestMethod$1(TestFactoryTestDescriptor.java:101)\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\n\tat org.junit.jupiter.engine.descriptor.TestFactoryTestDescriptor.invokeTestMethod(TestFactoryTestDescriptor.java:88)\n\tat org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:127)\n\tat org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:68)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$5(NodeTestTask.java:135)\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$7(NodeTestTask.java:125)\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:135)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:123)\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:122)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:80)\n\tat java.util.ArrayList.forEach(ArrayList.java:1257)\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:38)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$5(NodeTestTask.java:139)\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$7(NodeTestTask.java:125)\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:135)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:123)\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:122)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:80)\n\tat java.util.ArrayList.forEach(ArrayList.java:1257)\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:38)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$5(NodeTestTask.java:139)\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$7(NodeTestTask.java:125)\n\tat org.junit.platform.engine.support.hierarchical.Node.around(Node.java:135)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:123)\n\tat org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:122)\n\tat org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:80)\n\tat org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:32)\n\tat org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)\n\tat org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:51)\n\tat org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:229)\n\tat org.junit.platform.launcher.core.DefaultLauncher.lambda$execute$6(DefaultLauncher.java:197)\n\tat org.junit.platform.launcher.core.DefaultLauncher.withInterceptedStreams(DefaultLauncher.java:211)\n\tat org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:191)\n\tat org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:128)\n\tat com.intellij.junit5.JUnit5IdeaTestRunner.startRunnerWithArgs(JUnit5IdeaTestRunner.java:69)\n\tat com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)\n\tat com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)\n\tat com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)\n",
+              "duration": 7,
+              "status": "failed"
+            },
+            "line": 37,
+            "name": "the result should be:",
+            "match": {
+              "location": ""
+            },
+            "rows": [
+              {
+                "cells": [
+                  "1"
+                ]
+              },
+              {
+                "cells": [
+                  "2"
+                ]
+              }
+            ],
+            "keyword": "Then "
+          }
+        ]
+      },
+      {
+        "line": 42,
+        "name": "Scenario2",
+        "description": "",
+        "id": "feature1;scenario2",
+        "type": "scenario",
+        "keyword": "Scenario",
+        "steps": [
+          {
+            "result": {
+              "status": "passed"
+            },
+            "line": 43,
+            "name": "an empty graph",
+            "match": {
+              "location": ""
+            },
+            "keyword": "Given "
+          },
+          {
+            "output": [
+              "Producing some output 1\n"
+            ],
+            "result": {
+              "duration": 1,
+              "status": "passed"
+            },
+            "line": 44,
+            "name": "executing query:",
+            "match": {
+              "location": ""
+            },
+            "keyword": "When ",
+            "doc_string": {
+              "line": 45,
+              "value": "RETURN 1"
+            }
+          },
+          {
+            "result": {
+              "duration": 1,
+              "status": "passed"
+            },
+            "line": 48,
+            "name": "the result should be:",
+            "match": {
+              "location": ""
+            },
+            "rows": [
+              {
+                "cells": [
+                  "1"
+                ]
+              },
+              {
+                "cells": [
+                  "1"
+                ]
+              }
+            ],
+            "keyword": "Then "
+          },
+          {
+            "output": [
+              "-labels:        0\n+labels:        0\n+nodes:         0\n-nodes:         0\n-properties:    0\n+properties:    0\n-relationships: 0\n+relationships: 0"
+            ],
+            "result": {
+              "duration": 1,
+              "status": "passed"
+            },
+            "line": 51,
+            "name": "no side effects",
+            "match": {
+              "location": ""
+            },
+            "keyword": "And "
+          }
+        ]
+      }
+    ],
+    "name": "Feature1",
+    "description": "",
+    "id": "feature1",
+    "keyword": "Feature",
+    "uri": "Feature1.feature",
+    "tags": []
+  },
+  {
+    "line": 29,
+    "elements": [
+      {
+        "line": 31,
+        "name": "Scenario3",
+        "description": "",
+        "id": "feature2;scenario3",
+        "type": "scenario",
+        "keyword": "Scenario",
+        "steps": [
+          {
+            "result": {
+              "duration": 6,
+              "status": "passed"
+            },
+            "line": 32,
+            "name": "an empty graph",
+            "match": {
+              "location": ""
+            },
+            "keyword": "Given "
+          },
+          {
+            "output": [
+              "Producing some output 1\n"
+            ],
+            "result": {
+              "duration": 3,
+              "status": "passed"
+            },
+            "line": 33,
+            "name": "executing query:",
+            "match": {
+              "location": ""
+            },
+            "keyword": "When ",
+            "doc_string": {
+              "line": 34,
+              "value": "RETURN 1"
+            }
+          },
+          {
+            "result": {
+              "duration": 6,
+              "status": "passed"
+            },
+            "line": 37,
+            "name": "the result should be:",
+            "match": {
+              "location": ""
+            },
+            "rows": [
+              {
+                "cells": [
+                  "1"
+                ]
+              },
+              {
+                "cells": [
+                  "1"
+                ]
+              }
+            ],
+            "keyword": "Then "
+          },
+          {
+            "output": [
+              "-labels:        0\n+labels:        0\n+nodes:         0\n-nodes:         0\n-properties:    0\n+properties:    0\n-relationships: 0\n+relationships: 0"
+            ],
+            "result": {
+              "duration": 5,
+              "status": "passed"
+            },
+            "line": 40,
+            "name": "no side effects",
+            "match": {
+              "location": ""
+            },
+            "keyword": "And "
+          }
+        ]
+      }
+    ],
+    "name": "Feature2",
+    "description": "",
+    "id": "feature2",
+    "keyword": "Feature",
+    "uri": "Feature2.feature",
+    "tags": []
+  }
+]
