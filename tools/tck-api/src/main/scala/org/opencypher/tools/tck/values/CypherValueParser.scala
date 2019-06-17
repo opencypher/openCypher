@@ -69,7 +69,8 @@ class CypherValueParser(val orderedLists: Boolean) {
       float |
       integer |
       boolean |
-      nullValue
+      nullValue |
+      nanValue
 
   private def node[_: P]: P[CypherNode] =
     P("(" ~~/ label.rep ~/ map.? ~/ ")").map { case (labels, properties) =>
@@ -125,6 +126,11 @@ class CypherValueParser(val orderedLists: Boolean) {
   private def nullValue[_: P]: P[CypherNull.type] =
     P("null").!.map { _ =>
       CypherNull
+    }
+
+  private def nanValue[_: P]: P[CypherNaN.type] =
+    P("NaN").!.map { _ =>
+      CypherNaN
     }
 
   // Sub-parsers:

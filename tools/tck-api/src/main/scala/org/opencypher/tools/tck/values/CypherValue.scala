@@ -145,6 +145,10 @@ case object CypherNull extends CypherValue {
   override def toString: String = "null"
 }
 
+case object CypherNaN extends CypherValue {
+  override def toString: String = "NaN"
+}
+
 case class CypherPath(startingNode: CypherNode, connections: List[Connection] = List.empty) extends CypherValue {
   override def toString: String = s"<$startingNode${connections.mkString("")}>"
 }
