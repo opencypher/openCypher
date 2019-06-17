@@ -246,6 +246,96 @@ Feature: OrderByAcceptance
       | 1.3    |
     And no side effects
 
+  Scenario: ORDER BY should order lists in the expected order
+    When executing query:
+      """
+      UNWIND [[], ['a'], ['a', 1], [1], [1, 'a'], [1, null], [null, 1], [null, 2]] AS lists
+      RETURN lists
+      ORDER BY lists
+      """
+    Then the result should be, in order:
+      | types     |
+      | []        |
+      | ['a']     |
+      | ['a', 1]  |
+      | [1]       |
+      | [1, 'a']  |
+      | [1, null] |
+      | [null, 1] |
+      | [null, 2] |
+    And no side effects
+
+  Scenario: ORDER BY DESC should order lists in the expected order
+    When executing query:
+      """
+      UNWIND [[], ['a'], ['a', 1], [1], [1, 'a'], [1, null], [null, 1], [null, 2]] AS lists
+      RETURN lists
+      ORDER BY lists DESC
+      """
+    Then the result should be, in order:
+      | types     |
+      | [null, 2] |
+      | [null, 1] |
+      | [1, null] |
+      | [1, 'a']  |
+      | [1]       |
+      | ['a', 1]  |
+      | ['a']     |
+      | []        |
+    And no side effects
+
+  Scenario: ORDER BY should order distinct types in the expected order
+    And having executed:
+      """
+      CREATE (:N)-[:REL]->()
+      """
+    When executing query:
+      """
+      MATCH p = (n:N)-[r:REL]->()
+      UNWIND [n, r, p, 1.5, ['list'], 'text', null, false, toFloat(null), {a: 'map'}] AS types
+      RETURN types
+      ORDER BY types
+      """
+    Then the result should be, in order:
+      | types             |
+      | {a: 'map'}        |
+      | (:N)              |
+      | [:REL]            |
+      | ['list']          |
+      | <(:N)-[:REL]->()> |
+      | 'text'            |
+      | false             |
+      | 1.5               |
+      | NaN               |
+      | null              |
+    And no side effects
+
+  Scenario: ORDER BY DESC should order distinct types in the expected order
+    And having executed:
+      """
+      CREATE (:N)-[:REL]->()
+      """
+    When executing query:
+      """
+      MATCH p = (n:N)-[r:REL]->()
+      UNWIND [n, r, p, 1.5, ['list'], 'text', null, false, toFloat(null), {a: 'map'}] AS types
+      RETURN types
+      ORDER BY types DESC
+      """
+    Then the result should be, in order:
+      | types             |
+      | null              |
+      | NaN               |
+      | 1.5               |
+      | false             |
+      | 'text'            |
+      | <(:N)-[:REL]->()> |
+      | ['list']          |
+      | [:REL]            |
+      | (:N)              |
+      | {a: 'map'}        |
+    And no side effects
+
   Scenario: Handle ORDER BY with LIMIT 1
     And having executed:
       """

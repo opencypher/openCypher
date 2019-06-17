@@ -62,6 +62,7 @@ class CypherValueParserTest extends FunSuite with Matchers {
     CypherValue("''") should equal(CypherString(""))
     CypherValue("'-1'") should equal(CypherString("-1"))
     CypherValue("null") should equal(CypherNull)
+    CypherValue("NaN") should equal(CypherNaN)
   }
 
   test("string escaping") {
