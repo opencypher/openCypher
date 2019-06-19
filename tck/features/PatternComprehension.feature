@@ -101,7 +101,7 @@ Feature: PatternComprehension
       RETURN [p = (a)-[*]->(b) | p] AS paths
       """
     Then the result should be:
-      | paths                |
+      | paths               |
       | [<(:A)-[:T]->(:B)>] |
     And no side effects
 
@@ -181,7 +181,7 @@ Feature: PatternComprehension
     Given an empty graph
     And having executed:
       """
-      CREATE (a:X {prop: 42}), (:X {prop: 43})
+      CREATE (a:X {num: 42}), (:X {num: 43})
       CREATE (a)-[:T]->()
       """
     When executing query:
@@ -190,9 +190,9 @@ Feature: PatternComprehension
       RETURN n, size([(n)--() | 1]) > 0 AS b
       """
     Then the result should be:
-      | n               | b     |
-      | (:X {prop: 42}) | true  |
-      | (:X {prop: 43}) | false |
+      | n              | b     |
+      | (:X {num: 42}) | true  |
+      | (:X {num: 43}) | false |
     And no side effects
 
   Scenario: Pattern comprehension inside list comprehension
@@ -282,13 +282,13 @@ Feature: PatternComprehension
     Given an empty graph
     And having executed:
       """
-      CREATE (a), (b {prop: 'val'})
+      CREATE (a), (b {name: 'val'})
       CREATE (a)-[:T]->(b)
       """
     When executing query:
       """
       MATCH (n)
-      RETURN [(n)-[:T]->(b) | b.prop] AS list
+      RETURN [(n)-[:T]->(b) | b.name] AS list
       """
     Then the result should be:
       | list    |
@@ -301,12 +301,12 @@ Feature: PatternComprehension
     And having executed:
       """
       CREATE (a), (b)
-      CREATE (a)-[:T {prop: 'val'}]->(b)
+      CREATE (a)-[:T {name: 'val'}]->(b)
       """
     When executing query:
       """
       MATCH (n)
-      RETURN [(n)-[r:T]->() | r.prop] AS list
+      RETURN [(n)-[r:T]->() | r.name] AS list
       """
     Then the result should be:
       | list    |

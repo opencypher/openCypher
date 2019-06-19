@@ -47,12 +47,12 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     When executing query:
       """
-      MERGE (a:Label)
+      MERGE (a:TheLabel)
       RETURN labels(a)
       """
     Then the result should be:
-      | labels(a) |
-      | ['Label'] |
+      | labels(a)    |
+      | ['TheLabel'] |
     And the side effects should be:
       | +nodes  | 1 |
       | +labels | 1 |
@@ -61,13 +61,13 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     When executing query:
       """
-      MERGE (a:Label)
+      MERGE (a:TheLabel)
         ON CREATE SET a:Foo
       RETURN labels(a)
       """
     Then the result should be:
-      | labels(a)        |
-      | ['Label', 'Foo'] |
+      | labels(a)           |
+      | ['TheLabel', 'Foo'] |
     And the side effects should be:
       | +nodes  | 1 |
       | +labels | 2 |
@@ -76,13 +76,13 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     When executing query:
       """
-      MERGE (a:Label)
-        ON CREATE SET a.prop = 42
-      RETURN a.prop
+      MERGE (a:TheLabel)
+        ON CREATE SET a.num = 42
+      RETURN a.num
       """
     Then the result should be:
-      | a.prop |
-      | 42     |
+      | a.num |
+      | 42    |
     And the side effects should be:
       | +nodes      | 1 |
       | +labels     | 1 |
@@ -92,11 +92,11 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Label {id: 1})
+      CREATE (:TheLabel {id: 1})
       """
     When executing query:
       """
-      MERGE (a:Label)
+      MERGE (a:TheLabel)
       RETURN a.id
       """
     Then the result should be:
@@ -108,16 +108,16 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({prop: 42})
+      CREATE ({num: 42})
       """
     When executing query:
       """
-      MERGE (a {prop: 43})
-      RETURN a.prop
+      MERGE (a {num: 43})
+      RETURN a.num
       """
     Then the result should be:
-      | a.prop |
-      | 43     |
+      | a.num |
+      | 43    |
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 1 |
@@ -126,16 +126,16 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Label {prop: 42})
+      CREATE (:TheLabel {num: 42})
       """
     When executing query:
       """
-      MERGE (a:Label {prop: 43})
-      RETURN a.prop
+      MERGE (a:TheLabel {num: 43})
+      RETURN a.num
       """
     Then the result should be:
-      | a.prop |
-      | 43     |
+      | a.num |
+      | 43    |
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 1 |
@@ -144,33 +144,33 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Label {prop: 42})
+      CREATE (:TheLabel {num: 42})
       """
     When executing query:
       """
-      MERGE (a:Label {prop: 42})
-      RETURN a.prop
+      MERGE (a:TheLabel {num: 42})
+      RETURN a.num
       """
     Then the result should be:
-      | a.prop |
-      | 42     |
+      | a.num |
+      | 42    |
     And no side effects
 
   Scenario: Merge node with label add label on match when it exists
     Given an empty graph
     And having executed:
       """
-      CREATE (:Label)
+      CREATE (:TheLabel)
       """
     When executing query:
       """
-      MERGE (a:Label)
+      MERGE (a:TheLabel)
         ON MATCH SET a:Foo
       RETURN labels(a)
       """
     Then the result should be:
-      | labels(a)        |
-      | ['Label', 'Foo'] |
+      | labels(a)           |
+      | ['TheLabel', 'Foo'] |
     And the side effects should be:
       | +labels | 1 |
 
@@ -178,34 +178,34 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Label)
+      CREATE (:TheLabel)
       """
     When executing query:
       """
-      MERGE (a:Label)
-        ON CREATE SET a.prop = 42
-      RETURN a.prop
+      MERGE (a:TheLabel)
+        ON CREATE SET a.num = 42
+      RETURN a.num
       """
     Then the result should be:
-      | a.prop |
-      | null   |
+      | a.num |
+      | null  |
     And no side effects
 
   Scenario: Merge node and set property on match
     Given an empty graph
     And having executed:
       """
-      CREATE (:Label)
+      CREATE (:TheLabel)
       """
     When executing query:
       """
-      MERGE (a:Label)
-        ON MATCH SET a.prop = 42
-      RETURN a.prop
+      MERGE (a:TheLabel)
+        ON MATCH SET a.num = 42
+      RETURN a.num
       """
     Then the result should be:
-      | a.prop |
-      | 42     |
+      | a.num |
+      | 42    |
     And the side effects should be:
       | +properties | 1 |
 
@@ -226,13 +226,13 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({x: 42}),
-        ({x: 'not42'})
+      CREATE ({var: 42}),
+        ({var: 'not42'})
       """
     When executing query:
       """
-      WITH 42 AS x
-      MERGE (c:N {x: x})
+      WITH 42 AS var
+      MERGE (c:N {var: var})
       """
     Then the result should be empty
     And the side effects should be:
@@ -244,8 +244,8 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     When executing query:
       """
-      CREATE (a {p: 1})
-      MERGE ({v: a.p})
+      CREATE (a {num: 1})
+      MERGE ({v: a.num})
       """
     Then the result should be empty
     And the side effects should be:
@@ -414,11 +414,11 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:L:A {prop: 42})
+      CREATE (:L:A {num: 42})
       """
     When executing query:
       """
-      MERGE (test:L:B {prop: 42})
+      MERGE (test:L:B {num: 42})
       RETURN labels(test) AS labels
       """
     Then the result should be:
@@ -463,20 +463,20 @@ Feature: MergeNodeAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:A {value: 1}),
-        (:A {value: 2})
+      CREATE (:A {num: 1}),
+        (:A {num: 2})
       """
     When executing query:
       """
       MATCH (a:A)
       DELETE a
       MERGE (a2:A)
-      RETURN a2.value
+      RETURN a2.num
       """
     Then the result should be:
-      | a2.value |
-      | null     |
-      | null     |
+      | a2.num |
+      | null   |
+      | null   |
     And the side effects should be:
       | +nodes      | 1 |
       | -nodes      | 2 |
@@ -491,6 +491,6 @@ Feature: MergeNodeAcceptance
       """
     Then the result should be empty
     And the side effects should be:
-      | +nodes         | 1 |
-      | +properties    | 1 |
+      | +nodes      | 1 |
+      | +properties | 1 |
 

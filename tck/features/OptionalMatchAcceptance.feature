@@ -34,8 +34,8 @@ Feature: OptionalMatchAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (s:Single), (a:A {prop: 42}),
-             (b:B {prop: 46}), (c:C)
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
              (a)-[:REL]->(c),
@@ -72,12 +72,12 @@ Feature: OptionalMatchAcceptance
       """
       MATCH (n:Single)
       OPTIONAL MATCH (n)-[r]-(m)
-      WHERE m.prop = 42
+      WHERE m.num = 42
       RETURN m
       """
     Then the result should be:
-      | m               |
-      | (:A {prop: 42}) |
+      | m              |
+      | (:A {num: 42}) |
     And no side effects
 
   Scenario: Returning label predicate on null node
@@ -115,8 +115,8 @@ Feature: OptionalMatchAcceptance
       RETURN a, b
       """
     Then the result should be:
-      | a               | b               |
-      | (:A {prop: 42}) | (:B {prop: 46}) |
+      | a              | b              |
+      | (:A {num: 42}) | (:B {num: 46}) |
     And no side effects
 
   Scenario: Named paths in optional matches
@@ -139,8 +139,8 @@ Feature: OptionalMatchAcceptance
       RETURN x
       """
     Then the result should be:
-      | x               |
-      | (:A {prop: 42}) |
+      | x              |
+      | (:A {num: 42}) |
     And no side effects
 
   Scenario: OPTIONAL MATCH with labels on the optional end node
@@ -183,11 +183,11 @@ Feature: OptionalMatchAcceptance
       RETURN b
       """
     Then the result should be:
-      | b               |
-      | (:A {prop: 42}) |
-      | (:B {prop: 46}) |
-      | (:B {prop: 46}) |
-      | (:C)            |
+      | b              |
+      | (:A {num: 42}) |
+      | (:B {num: 46}) |
+      | (:B {num: 46}) |
+      | (:C)           |
     And no side effects
 
   Scenario: Variable length optional relationships with length predicates
@@ -261,8 +261,8 @@ Feature: OptionalMatchAcceptance
       RETURN b
       """
     Then the result should be:
-      | b               |
-      | (:A {prop: 42}) |
+      | b              |
+      | (:A {num: 42}) |
     And no side effects
 
   Scenario: Longer pattern with bound nodes without matches
@@ -301,8 +301,8 @@ Feature: OptionalMatchAcceptance
       RETURN a, b, r
       """
     Then the result should be:
-      | a    | b               | r    |
-      | null | (:B {prop: 46}) | null |
+      | a    | b              | r    |
+      | null | (:B {num: 46}) | null |
     And no side effects
 
   Scenario: Handling optional matches between nulls
@@ -322,15 +322,15 @@ Feature: OptionalMatchAcceptance
   Scenario: OPTIONAL MATCH and `collect()`
     And having executed:
       """
-      CREATE (:DoesExist {property: 42})
-      CREATE (:DoesExist {property: 43})
-      CREATE (:DoesExist {property: 44})
+      CREATE (:DoesExist {num: 42})
+      CREATE (:DoesExist {num: 43})
+      CREATE (:DoesExist {num: 44})
       """
     When executing query:
       """
       OPTIONAL MATCH (f:DoesExist)
       OPTIONAL MATCH (n:DoesNotExist)
-      RETURN collect(DISTINCT n.property) AS a, collect(DISTINCT f.property) AS b
+      RETURN collect(DISTINCT n.num) AS a, collect(DISTINCT f.num) AS b
       """
     Then the result should be:
       | a  | b            |

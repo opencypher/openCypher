@@ -74,16 +74,16 @@ Feature: StartingPointAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({prop: 1}),
-             ({prop: 2})
+      CREATE ({num: 1}),
+             ({num: 2})
       """
     When executing query:
       """
       MATCH (n)
-      WHERE n.prop = 2
+      WHERE n.num = 2
       RETURN n
       """
     Then the result should be:
-      | n           |
-      | ({prop: 2}) |
+      | n          |
+      | ({num: 2}) |
     And no side effects

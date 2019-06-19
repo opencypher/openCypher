@@ -57,20 +57,20 @@ Feature: MatchAcceptance2
     And having executed:
       """
       CREATE (root:Root {name: 'x'}),
-             (child1:TextNode {id: 'text'}),
-             (child2:IntNode {id: 0})
+             (child1:TextNode {var: 'text'}),
+             (child2:IntNode {var: 0})
       CREATE (root)-[:T]->(child1),
              (root)-[:T]->(child2)
       """
     When executing query:
       """
       MATCH (:Root {name: 'x'})-->(i:TextNode)
-      WHERE i.id > 'te'
+      WHERE i.var > 'te'
       RETURN i
       """
     Then the result should be:
-      | i                        |
-      | (:TextNode {id: 'text'}) |
+      | i                         |
+      | (:TextNode {var: 'text'}) |
     And no side effects
 
   Scenario: Do not fail when evaluating predicates with illegal operations if the OR'd predicate evaluates to true
@@ -78,21 +78,21 @@ Feature: MatchAcceptance2
     And having executed:
       """
       CREATE (root:Root {name: 'x'}),
-             (child1:TextNode {id: 'text'}),
-             (child2:IntNode {id: 0})
+             (child1:TextNode {var: 'text'}),
+             (child2:IntNode {var: 0})
       CREATE (root)-[:T]->(child1),
              (root)-[:T]->(child2)
       """
     When executing query:
       """
       MATCH (:Root {name: 'x'})-->(i)
-      WHERE exists(i.id) OR i.id > 'te'
+      WHERE exists(i.var) OR i.var > 'te'
       RETURN i
       """
     Then the result should be:
-      | i                        |
-      | (:TextNode {id: 'text'}) |
-      | (:IntNode {id: 0})       |
+      | i                         |
+      | (:TextNode {var: 'text'}) |
+      | (:IntNode {var: 0})       |
     And no side effects
 
   Scenario: Aggregation with named paths
@@ -430,7 +430,7 @@ Feature: MatchAcceptance2
       """
       MATCH (n)-->(x0)
       OPTIONAL MATCH (x0)-->(x1)
-      WHERE x1.foo = 'bar'
+      WHERE x1.name = 'bar'
       RETURN x0.name
       """
     Then the result should be:
@@ -568,7 +568,7 @@ Feature: MatchAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A), (n1 {x: 1}), (n2 {x: 2}),
+      CREATE (a:A), (n1 {num: 1}), (n2 {num: 2}),
              (m1), (m2)
       CREATE (a)-[:T]->(n1),
              (n1)-[:T]->(m1),
@@ -578,31 +578,31 @@ Feature: MatchAcceptance2
     When executing query:
       """
       MATCH (a:A)-->(n)-->(m)
-      RETURN n.x, count(*)
-        ORDER BY n.x
+      RETURN n.num, count(*)
+        ORDER BY n.num
         LIMIT 1000
       """
     Then the result should be, in order:
-      | n.x | count(*) |
-      | 1   | 1        |
-      | 2   | 1        |
+      | n.num | count(*) |
+      | 1     | 1        |
+      | 2     | 1        |
     And no side effects
 
   Scenario: Simple node property predicate
     Given an empty graph
     And having executed:
       """
-      CREATE ({foo: 'bar'})
+      CREATE ({name: 'bar'})
       """
     When executing query:
       """
       MATCH (n)
-      WHERE n.foo = 'bar'
+      WHERE n.name = 'bar'
       RETURN n
       """
     Then the result should be:
-      | n              |
-      | ({foo: 'bar'}) |
+      | n                |
+      | ({name: 'bar'}) |
     And no side effects
 
   Scenario: Handling direction of named paths
@@ -928,7 +928,7 @@ Feature: MatchAcceptance2
       """
     When executing query:
       """
-      OPTIONAL MATCH (a:Label)
+      OPTIONAL MATCH (a:TheLabel)
       WITH a
       MATCH (a)-->(b)
       RETURN b
@@ -999,12 +999,12 @@ Feature: MatchAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE ({prop: 42})
+      CREATE ({num: 42})
       """
     When executing query:
       """
       MATCH (n)
-      RETURN n.prop AS n, count(n) AS count
+      RETURN n.num AS n, count(n) AS count
       """
     Then the result should be:
       | n  | count |
@@ -1290,13 +1290,13 @@ Feature: MatchAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE ({prop: 42})
+      CREATE ({num: 42})
       """
     When executing query:
       """
       MATCH (n)
-      WITH n.prop AS n2
-      RETURN n2.prop
+      WITH n.num AS n2
+      RETURN n2.num
       """
     Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
 
@@ -1304,12 +1304,12 @@ Feature: MatchAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE ({bar: 1}), ({bar: 3}), ({bar: 2})
+      CREATE ({num: 1}), ({num: 3}), ({num: 2})
       """
     When executing query:
       """
       MATCH (foo)
-      RETURN foo.bar AS x
+      RETURN foo.num AS x
         ORDER BY x DESC
         LIMIT 4
       """
@@ -1354,7 +1354,7 @@ Feature: MatchAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE (a:Label {id: 0}), (b:Label {id: 1}), (c:Label {id: 2})
+      CREATE (a:TheLabel {id: 0}), (b:TheLabel {id: 1}), (c:TheLabel {id: 2})
       CREATE (a)-[:T]->(b),
              (b)-[:T]->(c)
       """
@@ -1362,13 +1362,13 @@ Feature: MatchAcceptance2
       """
       MATCH (a), (b)
       WHERE a.id = 0
-        AND (a)-[:T]->(b:Label)
+        AND (a)-[:T]->(b:TheLabel)
         OR (a)-[:T*]->(b:MissingLabel)
       RETURN DISTINCT b
       """
     Then the result should be:
-      | b                |
-      | (:Label {id: 1}) |
+      | b                   |
+      | (:TheLabel {id: 1}) |
     And no side effects
 
   Scenario: Variable length pattern with label predicate on both sides
@@ -1490,32 +1490,32 @@ Feature: MatchAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE ({prop: 1})
+      CREATE ({num: 1})
       """
     When executing query:
       """
       MATCH (a)
-      RETURN a.prop
+      RETURN a.num
       """
     Then the result should be:
-      | a.prop |
-      | 1      |
+      | a.num |
+      | 1     |
     And no side effects
 
   Scenario: Returning a relationship property value
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[:T {prop: 1}]->()
+      CREATE ()-[:T {num: 1}]->()
       """
     When executing query:
       """
       MATCH ()-[r]->()
-      RETURN r.prop
+      RETURN r.num
       """
     Then the result should be:
-      | r.prop |
-      | 1      |
+      | r.num |
+      | 1     |
     And no side effects
 
   Scenario: Projecting nodes and relationships
@@ -1539,32 +1539,32 @@ Feature: MatchAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE ({foo: 1})
+      CREATE ({num: 1})
       """
     When executing query:
       """
       MATCH (a)
-      RETURN a.bar
+      RETURN a.name
       """
     Then the result should be:
-      | a.bar |
-      | null  |
+      | a.name |
+      | null    |
     And no side effects
 
   Scenario: Missing relationship property should become null
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[:T {foo: 1}]->()
+      CREATE ()-[:T {name: 1}]->()
       """
     When executing query:
       """
       MATCH ()-[r]->()
-      RETURN r.bar
+      RETURN r.name2
       """
     Then the result should be:
-      | r.bar |
-      | null  |
+      | r.name2 |
+      | null    |
     And no side effects
 
   Scenario: Returning multiple node property values
@@ -1587,12 +1587,12 @@ Feature: MatchAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE ({prop: 1})
+      CREATE ({num: 1})
       """
     When executing query:
       """
       MATCH (a)
-      RETURN a.prop + 1 AS foo
+      RETURN a.num + 1 AS foo
       """
     Then the result should be:
       | foo |
@@ -1603,12 +1603,12 @@ Feature: MatchAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE ({prop1: [1, 2, 3], prop2: [4, 5]})
+      CREATE ({list1: [1, 2, 3], list2: [4, 5]})
       """
     When executing query:
       """
       MATCH (a)
-      RETURN a.prop2 + a.prop1 AS foo
+      RETURN a.list2 + a.list1 AS foo
       """
     Then the result should be:
       | foo             |
@@ -1692,29 +1692,29 @@ Feature: MatchAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE (a {prop: 'a'}), (b {prop: 'b'})
+      CREATE (a {name: 'a'}), (b {name: 'b'})
       CREATE (a)-[:T]->(b)
       """
     When executing query:
       """
-      MATCH p = ({prop: 'a'})-->({prop: 'b'})
+      MATCH p = ({name: 'a'})-->({name: 'b'})
       RETURN p
       """
     Then the result should be:
       | p                                   |
-      | <({prop: 'a'})-[:T]->({prop: 'b'})> |
+      | <({name: 'a'})-[:T]->({name: 'b'})> |
     And no side effects
 
   Scenario: Respecting direction when matching non-existent path
     Given an empty graph
     And having executed:
       """
-      CREATE (a {prop: 'a'}), (b {prop: 'b'})
+      CREATE (a {name: 'a'}), (b {name: 'b'})
       CREATE (a)-[:T]->(b)
       """
     When executing query:
       """
-      MATCH p = ({prop: 'a'})<--({prop: 'b'})
+      MATCH p = ({name: 'a'})<--({name: 'b'})
       RETURN p
       """
     Then the result should be:
@@ -1800,10 +1800,10 @@ Feature: MatchAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE (a {prop: 'start'}), (b {prop: 'end'})
+      CREATE (a {var: 'start'}), (b {var: 'end'})
       WITH *
       UNWIND range(1, 20) AS i
-      CREATE (n {prop: i})
+      CREATE (n {var: i})
       WITH [a] + collect(n) + [b] AS nodeList
       UNWIND range(0, size(nodeList) - 2, 1) AS i
       WITH nodeList[i] AS n1, nodeList[i+1] AS n2
@@ -1811,12 +1811,12 @@ Feature: MatchAcceptance2
       """
     When executing query:
       """
-      MATCH (n {prop: 'start'})-[:T*]->(m {prop: 'end'})
+      MATCH (n {var: 'start'})-[:T*]->(m {var: 'end'})
       RETURN m
       """
     Then the result should be:
-      | m               |
-      | ({prop: 'end'}) |
+      | m              |
+      | ({var: 'end'}) |
     And no side effects
 
   Scenario: Counting rows after MATCH, MERGE, OPTIONAL MATCH

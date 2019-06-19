@@ -103,18 +103,18 @@ Feature: TypeConversionFunctions
     Given an empty graph
     And having executed:
       """
-      CREATE (:Person {age: '42'})
+      CREATE (:Person {name: '42'})
       """
     When executing query:
       """
-      MATCH (p:Person { age: '42' })
+      MATCH (p:Person { name: '42' })
       WITH *
       MATCH (n)
-      RETURN toInteger(n.age) AS age
+      RETURN toInteger(n.name) AS name
       """
     Then the result should be:
-      | age |
-      | 42  |
+      | name |
+      | 42   |
     And no side effects
 
   Scenario: `toInteger()` on float

@@ -188,8 +188,8 @@ Feature: SetAcceptance
     When executing query:
       """
       MATCH (n:A)
-      SET n.x = [1, 2, 3]
-      RETURN [i IN n.x | i / 2.0] AS x
+      SET n.numbers = [1, 2, 3]
+      RETURN [i IN n.numbers | i / 2.0] AS x
       """
     Then the result should be:
       | x               |
@@ -201,12 +201,12 @@ Feature: SetAcceptance
     Given any graph
     When executing query:
       """
-      CREATE (a {foo: [1, 2, 3]})
-      SET a.foo = a.foo + [4, 5]
-      RETURN a.foo
+      CREATE (a {numbers: [1, 2, 3]})
+      SET a.numbers = a.numbers + [4, 5]
+      RETURN a.numbers
       """
     Then the result should be:
-      | a.foo           |
+      | a.numbers       |
       | [1, 2, 3, 4, 5] |
     And the side effects should be:
       | +nodes      | 1 |
@@ -216,12 +216,12 @@ Feature: SetAcceptance
     Given any graph
     When executing query:
       """
-      CREATE (a {foo: [3, 4, 5]})
-      SET a.foo = [1, 2] + a.foo
-      RETURN a.foo
+      CREATE (a {numbers: [3, 4, 5]})
+      SET a.numbers = [1, 2] + a.numbers
+      RETURN a.numbers
       """
     Then the result should be:
-      | a.foo           |
+      | a.numbers       |
       | [1, 2, 3, 4, 5] |
     And the side effects should be:
       | +nodes      | 1 |
@@ -231,17 +231,17 @@ Feature: SetAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:X {foo: 'A', bar: 'B'})
+      CREATE (:X {name: 'A', name2: 'B'})
       """
     When executing query:
       """
-      MATCH (n:X {foo: 'A'})
-      SET n += {bar: 'C'}
+      MATCH (n:X {name: 'A'})
+      SET n += {name2: 'C'}
       RETURN n
       """
     Then the result should be:
-      | n                         |
-      | (:X {foo: 'A', bar: 'C'}) |
+      | n                             |
+      | (:X {name: 'A', name2: 'C'}) |
     And the side effects should be:
       | +properties | 1 |
       | -properties | 1 |
@@ -250,17 +250,17 @@ Feature: SetAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:X {foo: 'A'})
+      CREATE (:X {name: 'A'})
       """
     When executing query:
       """
-      MATCH (n:X {foo: 'A'})
-      SET n += {bar: 'B'}
+      MATCH (n:X {name: 'A'})
+      SET n += {name2: 'B'}
       RETURN n
       """
     Then the result should be:
-      | n                         |
-      | (:X {foo: 'A', bar: 'B'}) |
+      | n                             |
+      | (:X {name: 'A', name2: 'B'}) |
     And the side effects should be:
       | +properties | 1 |
 
@@ -268,17 +268,17 @@ Feature: SetAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:X {foo: 'A', bar: 'B'})
+      CREATE (:X {name: 'A', name2: 'B'})
       """
     When executing query:
       """
-      MATCH (n:X {foo: 'A'})
-      SET n += {foo: null}
+      MATCH (n:X {name: 'A'})
+      SET n += {name: null}
       RETURN n
       """
     Then the result should be:
-      | n               |
-      | (:X {bar: 'B'}) |
+      | n                 |
+      | (:X {name2: 'B'}) |
     And the side effects should be:
       | -properties | 1 |
 
@@ -286,17 +286,17 @@ Feature: SetAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:X {foo: 'A', bar: 'B'})
+      CREATE (:X {name: 'A', name2: 'B'})
       """
     When executing query:
       """
-      MATCH (n:X {foo: 'A'})
-      SET n = {foo: 'B', baz: 'C'}
+      MATCH (n:X {name: 'A'})
+      SET n = {name: 'B', baz: 'C'}
       RETURN n
       """
     Then the result should be:
-      | n                         |
-      | (:X {foo: 'B', baz: 'C'}) |
+      | n                           |
+      | (:X {name: 'B', baz: 'C'}) |
     And the side effects should be:
       | +properties | 2 |
       | -properties | 2 |

@@ -311,14 +311,14 @@ Feature: MergeRelationshipAcceptance
     Given an empty graph
     When executing query:
       """
-      MERGE (a {x: 1})
-      MERGE (b {x: 2})
+      MERGE (a {num: 1})
+      MERGE (b {num: 2})
       MERGE p = (a)-[:R]->(b)
       RETURN p
       """
     Then the result should be:
-      | p                         |
-      | <({x: 1})-[:R]->({x: 2})> |
+      | p                             |
+      | <({num: 1})-[:R]->({num: 2})> |
     And the side effects should be:
       | +nodes         | 2 |
       | +relationships | 1 |
@@ -328,12 +328,12 @@ Feature: MergeRelationshipAcceptance
     Given an empty graph
     When executing query:
       """
-      MERGE p = (a {x: 1})
+      MERGE p = (a {num: 1})
       RETURN p
       """
     Then the result should be:
-      | p          |
-      | <({x: 1})> |
+      | p            |
+      | <({num: 1})> |
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 1 |
@@ -426,12 +426,12 @@ Feature: MergeRelationshipAcceptance
     And having executed:
       """
       CREATE (a:A), (b:B)
-      CREATE (a)-[:T {prop: [42, 43]}]->(b)
+      CREATE (a)-[:T {numbers: [42, 43]}]->(b)
       """
     When executing query:
       """
       MATCH (a:A), (b:B)
-      MERGE (a)-[r:T {prop: [42, 43]}]->(b)
+      MERGE (a)-[r:T {numbers: [42, 43]}]->(b)
       RETURN count(*)
       """
     Then the result should be:
@@ -475,7 +475,7 @@ Feature: MergeRelationshipAcceptance
     And having executed:
       """
       CREATE (a:A)
-      CREATE (b1:B {value: 0}), (b2:B {value: 1})
+      CREATE (b1:B {num: 0}), (b2:B {num: 1})
       CREATE (c1:C), (c2:C)
       CREATE (a)-[:REL]->(b1),
              (a)-[:REL]->(b2),
@@ -486,7 +486,7 @@ Feature: MergeRelationshipAcceptance
       """
       MATCH (a:A)-[ab]->(b:B)-[bc]->(c:C)
       DELETE ab, bc, b, c
-      MERGE (newB:B {value: 1})
+      MERGE (newB:B {num: 1})
       MERGE (a)-[:REL]->(newB)
       MERGE (newC:C)
       MERGE (newB)-[:REL]->(newC)

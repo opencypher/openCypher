@@ -34,39 +34,39 @@ Feature: Comparability
     Given an empty graph
     And having executed:
       """
-      CREATE (root:Root)-[:T]->(:Child {id: 0}),
-             (root)-[:T]->(:Child {id: 'xx'}),
+      CREATE (root:Root)-[:T]->(:Child {var: 0}),
+             (root)-[:T]->(:Child {var: 'xx'}),
              (root)-[:T]->(:Child)
       """
     When executing query:
       """
       MATCH (:Root)-->(i:Child)
-      WHERE exists(i.id) AND i.id > 'x'
-      RETURN i.id
+      WHERE exists(i.var) AND i.var > 'x'
+      RETURN i.var
       """
     Then the result should be:
-      | i.id |
-      | 'xx' |
+      | i.var |
+      | 'xx'  |
     And no side effects
 
   Scenario: Comparing strings and integers using > in a OR'd predicate
     Given an empty graph
     And having executed:
       """
-      CREATE (root:Root)-[:T]->(:Child {id: 0}),
-             (root)-[:T]->(:Child {id: 'xx'}),
+      CREATE (root:Root)-[:T]->(:Child {var: 0}),
+             (root)-[:T]->(:Child {var: 'xx'}),
              (root)-[:T]->(:Child)
       """
     When executing query:
       """
       MATCH (:Root)-->(i:Child)
-      WHERE NOT exists(i.id) OR i.id > 'x'
-      RETURN i.id
+      WHERE NOT exists(i.var) OR i.var > 'x'
+      RETURN i.var
       """
     Then the result should be:
-      | i.id |
-      | 'xx' |
-      | null |
+      | i.var |
+      | 'xx'  |
+      | null  |
     And no side effects
 
   Scenario Outline: Comparing across types yields null, except numbers

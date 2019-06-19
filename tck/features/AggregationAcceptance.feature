@@ -135,56 +135,56 @@ Feature: AggregationAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({x: 33})
-      CREATE ({x: 33})
-      CREATE ({x: 42})
+      CREATE ({num: 33})
+      CREATE ({num: 33})
+      CREATE ({num: 42})
       """
     When executing query:
       """
       MATCH (n)
-      RETURN n.x, count(*)
+      RETURN n.num, count(*)
       """
     Then the result should be:
-      | n.x | count(*) |
-      | 42  | 1        |
-      | 33  | 2        |
+      | n.num | count(*) |
+      | 42    | 1        |
+      | 33    | 2        |
     And no side effects
 
   Scenario: Count non-null values
     Given an empty graph
     And having executed:
       """
-      CREATE ({y: 'a', x: 33})
-      CREATE ({y: 'a'})
-      CREATE ({y: 'b', x: 42})
+      CREATE ({name: 'a', num: 33})
+      CREATE ({name: 'a'})
+      CREATE ({name: 'b', num: 42})
       """
     When executing query:
       """
       MATCH (n)
-      RETURN n.y, count(n.x)
+      RETURN n.name, count(n.num)
       """
     Then the result should be:
-      | n.y | count(n.x) |
-      | 'a' | 1          |
-      | 'b' | 1          |
+      | n.name | count(n.num) |
+      | 'a'    | 1            |
+      | 'b'    | 1            |
     And no side effects
 
   Scenario: Sum non-null values
     Given an empty graph
     And having executed:
       """
-      CREATE ({y: 'a', x: 33})
-      CREATE ({y: 'a'})
-      CREATE ({y: 'a', x: 42})
+      CREATE ({name: 'a', num: 33})
+      CREATE ({name: 'a'})
+      CREATE ({name: 'a', num: 42})
       """
     When executing query:
       """
       MATCH (n)
-      RETURN n.y, sum(n.x)
+      RETURN n.name, sum(n.num)
       """
     Then the result should be:
-      | n.y | sum(n.x) |
-      | 'a' | 75       |
+      | n.name | sum(n.num) |
+      | 'a'    | 75         |
     And no side effects
 
   Scenario: Handle aggregation on functions
@@ -226,11 +226,11 @@ Feature: AggregationAcceptance
     When executing query:
       """
       MATCH (a)
-      RETURN count(DISTINCT a.foo)
+      RETURN count(DISTINCT a.name)
       """
     Then the result should be:
-      | count(DISTINCT a.foo) |
-      | 0                     |
+      | count(DISTINCT a.name) |
+      | 0                      |
     And no side effects
 
   Scenario: Collect distinct nulls
@@ -398,33 +398,33 @@ Feature: AggregationAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:A), (:B {prop: 42})
+      CREATE (:A), (:B {num: 42})
       """
     When executing query:
       """
       MATCH (a:A), (b:B)
-      RETURN coalesce(a.prop, b.prop) AS foo,
-        b.prop AS bar,
-        {y: count(b)} AS baz
+      RETURN coalesce(a.num, b.num) AS foo,
+        b.num AS bar,
+        {name: count(b)} AS baz
       """
     Then the result should be:
-      | foo | bar | baz    |
-      | 42  | 42  | {y: 1} |
+      | foo | bar | baz      |
+      | 42  | 42  | {name:1} |
     And no side effects
 
   Scenario: Projection during aggregation in WITH before MERGE and after WITH with predicate
     Given an empty graph
     And having executed:
       """
-      CREATE (:A {prop: 42})
+      CREATE (:A {num: 42})
       """
     When executing query:
       """
       UNWIND [42] AS props
       WITH props WHERE props > 32
       WITH DISTINCT props AS p
-      MERGE (a:A {prop: p})
-      RETURN a.prop AS prop
+      MERGE (a:A {num: p})
+      RETURN a.num AS prop
       """
     Then the result should be:
       | prop |
