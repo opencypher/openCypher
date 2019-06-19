@@ -254,7 +254,7 @@ Feature: OrderByAcceptance
       ORDER BY lists
       """
     Then the result should be, in order:
-      | types     |
+      | lists     |
       | []        |
       | ['a']     |
       | ['a', 1]  |
@@ -273,7 +273,7 @@ Feature: OrderByAcceptance
       ORDER BY lists DESC
       """
     Then the result should be, in order:
-      | types     |
+      | lists     |
       | [null, 2] |
       | [null, 1] |
       | [1, null] |
