@@ -30,9 +30,14 @@ package org.opencypher.tools.grammar;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,7 +61,8 @@ import static org.opencypher.tools.io.Output.output;
  */
 public class Antlr4 extends BnfWriter
 {
-    static String PREFIX = "oC_";
+//	   static String PREFIX = "oC_";
+	   static String PREFIX = "";
 
     public static void write( Grammar grammar, Writer writer )
     {
@@ -77,7 +83,7 @@ public class Antlr4 extends BnfWriter
                   .printLines( header, " * " )
                   .println( " */" );
         }
-        output.append( "grammar " ).append( grammar.language() ).println( ";" ).println(); // PRF was ";\n"
+        output.append( "grammar " ).append( grammar.language() ).println( ";" ).println();
 
         try ( Antlr4 antlr = new Antlr4( output ) )
         {
@@ -87,10 +93,24 @@ public class Antlr4 extends BnfWriter
 
     public static void main( String... args ) throws Exception
     {
+    	List<String> argsList = new ArrayList<>(Arrays.asList(args));
+    	int index = argsList.indexOf("-o");
+    	String filePath = null;
+    	if (index >= 0) {
+    		filePath = argsList.remove(index + 1);
+    		argsList.remove(index);
+    	}
+    	
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         execute( Antlr4::write, out, "grammar/cypher.xml" );
 
-        System.out.print( out.toString( UTF_8.name() ) );
+        if (filePath == null) {
+        	System.out.print( out.toString( UTF_8.name() ) );
+        } else {
+			Files.write(Paths.get(filePath), out.toByteArray() );
+			System.out.println("Wrote xml to " + filePath);
+
+        }
     }
 
     private final Map<String, CharacterSet> fragmentRules = new HashMap<>();
@@ -420,6 +440,10 @@ public class Antlr4 extends BnfWriter
             {
                 lexerRule = "L_" + lexerRule;
             }
+//            else {
+//            	// mark keyword as such
+//            	lexerRule = "K_" + lexerRule;
+//            }
             output.append( lexerRule );
             keywordsInProduction.put( lexerRule, value );
         }

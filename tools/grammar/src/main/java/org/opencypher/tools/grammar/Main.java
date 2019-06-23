@@ -27,8 +27,14 @@
  */
 package org.opencypher.tools.grammar;
 
+import static java.lang.String.format;
+import static org.opencypher.tools.Reflection.lambdaClass;
+import static org.opencypher.tools.Reflection.pathOf;
+
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,16 +44,13 @@ import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.BiFunction;
 
 import org.opencypher.grammar.Grammar;
-
-import static java.lang.String.format;
-
-import static org.opencypher.tools.Reflection.lambdaClass;
-import static org.opencypher.tools.Reflection.pathOf;
 
 /**
  * {@code Main-Class} for the jar, dispatches to the class (in this package) named (by {@linkplain Class#getSimpleName()
@@ -146,7 +149,21 @@ interface Main extends Serializable
 
     static void execute( Main program, String... args ) throws Exception
     {
-        execute( program, System.out, args );
+    	final OutputStream outStream;
+        List<String> argList = new ArrayList<>(Arrays.asList(args));
+        String outFile = null;
+    	int index = argList.indexOf("-o");
+    	if (index >= 0) {
+    		argList.remove(index);
+    		outFile = argList.remove(index);
+    		outStream =new FileOutputStream(outFile);
+    	} else {
+    		outStream = System.out;
+    	}
+    	execute( program, outStream, argList.toArray(new String[argList.size()]));
+    	if (outFile != null) {
+    		System.out.println("Wrote xml to " + outFile);
+    	}
     }
 
     default String usage( BiFunction<String, String, String> usage )
