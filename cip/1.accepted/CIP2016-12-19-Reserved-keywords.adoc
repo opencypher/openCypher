@@ -58,10 +58,12 @@ In addition to this, we list a number of words that are reserved for future use.
 
 ===== Clauses
 
+* CALL
 * CREATE
 * DELETE
 * DETACH
 * EXISTS
+* MANDATORY
 * MATCH
 * MERGE
 * OPTIONAL
@@ -71,6 +73,7 @@ In addition to this, we list a number of words that are reserved for future use.
 * UNION
 * UNWIND
 * WITH
+* YIELD
 
 ===== Subclauses
 
@@ -124,7 +127,8 @@ In addition to this, we list a number of words that are reserved for future use.
 * DO
 * DROP
 * FOR
-* MANDATORY
+* FROM
+* GRAPH
 * OF
 * REQUIRE
 * SCALAR
