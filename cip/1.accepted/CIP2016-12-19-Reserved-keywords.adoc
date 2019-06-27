@@ -140,8 +140,8 @@ The query exemplified in <<Motivation>> would no longer be valid, but would have
 
 [source, cypher]
 ----
-MATCH (`null`)-[:MERGE]->(`true`)
-WITH `null`.delete AS `with`, `true`.false AS `null`
+MATCH (`null`)-[:`MERGE`]->(`true`)
+WITH `null`.`delete` AS `with`, `true`.`false` AS `null`
 RETURN 2 + `with`, coalesce(`null`, 3.1415)
 ----
 
