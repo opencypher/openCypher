@@ -30,10 +30,8 @@
 
 Feature: SkipLimitAcceptanceTest
 
-  Background:
-    Given any graph
-
   Scenario: SKIP with an expression that depends on variables should fail
+    Given any graph
     When executing query:
       """
       MATCH (n) RETURN n SKIP n.count
@@ -41,6 +39,7 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
   Scenario: LIMIT with an expression that depends on variables should fail
+    Given any graph
     When executing query:
       """
       MATCH (n) RETURN n LIMIT n.count
@@ -48,6 +47,7 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
   Scenario: SKIP with an expression that does not depend on variables
+    Given an empty graph
     And having executed:
       """
       UNWIND range(1, 10) AS i
@@ -67,6 +67,7 @@ Feature: SkipLimitAcceptanceTest
 
 
   Scenario: LIMIT with an expression that does not depend on variables
+    Given an empty graph
     And having executed:
       """
       UNWIND range(1, 3) AS i
@@ -82,3 +83,165 @@ Feature: SkipLimitAcceptanceTest
       | count |
       | 2     |
     And no side effects
+
+  Scenario: Negative parameter for LIMIT should fail
+    Given any graph
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    And parameters are:
+      | limit | -1 |
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      LIMIT $limit
+      """
+    Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
+
+  Scenario: Negative parameter for TOP should fail
+    Given any graph
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    And parameters are:
+      | limit | -1 |
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      ORDER BY name LIMIT $limit
+      """
+    Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
+
+  Scenario: Negative LIMIT should fail with a syntax exception
+    Given any graph
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      LIMIT -1
+      """
+    Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
+
+  Scenario: Negative parameter for SKIP should fail
+    Given any graph
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    And parameters are:
+      | limit | -1 |
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      SKIP $limit
+      """
+    Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
+
+  Scenario: Negative SKIP should fail with a syntax exception
+    Given any graph
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      SKIP -1
+      """
+    Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
+
+  Scenario: Floating point parameter for LIMIT should fail
+    Given any graph
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    And parameters are:
+      | limit | 1.0 |
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      LIMIT $limit
+      """
+    Then a SyntaxError should be raised at runtime: InvalidArgumentType
+
+  Scenario: Floating point parameter for TOP should fail
+    Given any graph
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    And parameters are:
+      | limit | 1.0 |
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      ORDER BY name LIMIT $limit
+      """
+    Then a SyntaxError should be raised at runtime: InvalidArgumentType
+
+  Scenario: Floating point LIMIT should fail with a syntax exception
+    Given any graph
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      LIMIT 1.0
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  Scenario: Floating point parameter for SKIP should fail
+    Given any graph
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    And parameters are:
+      | limit | 1.0 |
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      SKIP $limit
+      """
+    Then a SyntaxError should be raised at runtime: InvalidArgumentType
+
+  Scenario: Floating point SKIP should fail with a syntax exception
+    Given any graph
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      SKIP 1.0
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType

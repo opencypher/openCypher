@@ -365,32 +365,3 @@ Feature: OrderByAcceptance
     Then the result should be, in order:
       | name |
     And no side effects
-
-  Scenario: ORDER BY with negative parameter for LIMIT should not generate errors
-    And parameters are:
-      | limit | -1 |
-    When executing query:
-      """
-      MATCH (p:Person)
-      RETURN p.name AS name
-      ORDER BY p.name
-      LIMIT $`limit`
-      """
-    Then the result should be, in order:
-      | name |
-    And no side effects
-
-  Scenario: ORDER BY with a negative LIMIT should fail with a syntax exception
-    And having executed:
-      """
-      CREATE (s:Person {name: 'Steven'}),
-        (c:Person {name: 'Craig'})
-      """
-    When executing query:
-      """
-      MATCH (p:Person)
-      RETURN p.name AS name
-      ORDER BY p.name
-      LIMIT -1
-      """
-    Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
