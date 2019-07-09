@@ -601,7 +601,7 @@ Feature: MatchAcceptance2
       RETURN n
       """
     Then the result should be:
-      | n                |
+      | n               |
       | ({name: 'bar'}) |
     And no side effects
 
