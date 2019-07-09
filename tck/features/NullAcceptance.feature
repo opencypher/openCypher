@@ -81,7 +81,7 @@ Feature: NullAcceptance
     When executing query:
       """
       OPTIONAL MATCH (a:DoesNotExist)
-      SET a.prop = 42
+      SET a.num = 42
       RETURN a
       """
     Then the result should be:
@@ -94,7 +94,7 @@ Feature: NullAcceptance
     When executing query:
       """
       OPTIONAL MATCH (a:DoesNotExist)
-      REMOVE a.prop
+      REMOVE a.num
       RETURN a
       """
     Then the result should be:
@@ -107,7 +107,7 @@ Feature: NullAcceptance
     When executing query:
       """
       OPTIONAL MATCH (a:DoesNotExist)
-      SET a += {prop: 42}
+      SET a += {num: 42}
       RETURN a
       """
     Then the result should be:
@@ -120,7 +120,7 @@ Feature: NullAcceptance
     When executing query:
       """
       OPTIONAL MATCH (a:DoesNotExist)
-      SET a = {prop: 42}
+      SET a = {num: 42}
       RETURN a
       """
     Then the result should be:

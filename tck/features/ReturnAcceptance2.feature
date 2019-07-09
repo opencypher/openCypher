@@ -34,13 +34,13 @@ Feature: ReturnAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE ({p: 0})
+      CREATE ({num: 0})
       """
     When executing query:
       """
       MATCH (n)
       DELETE n
-      RETURN n.p
+      RETURN n.num
       """
     Then a EntityNotFound should be raised at runtime: DeletedEntityAccess
 
@@ -62,13 +62,13 @@ Feature: ReturnAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[:T {p: 0}]->()
+      CREATE ()-[:T {num: 0}]->()
       """
     When executing query:
       """
       MATCH ()-[r]->()
       DELETE r
-      RETURN r.p
+      RETURN r.num
       """
     Then a EntityNotFound should be raised at runtime: DeletedEntityAccess
 
@@ -260,7 +260,7 @@ Feature: ReturnAcceptance2
     Given an empty graph
     And having executed:
       """
-      CREATE ({foo: [1, 2, 3]})
+      CREATE ({numbers: [1, 2, 3]})
       """
     When executing query:
       """
@@ -268,15 +268,15 @@ Feature: ReturnAcceptance2
       RETURN n
       """
     Then the result should be:
-      | n                  |
-      | ({foo: [1, 2, 3]}) |
+      | n                      |
+      | ({numbers: [1, 2, 3]}) |
     And no side effects
 
   Scenario: Returning a projected map
     Given an empty graph
     And having executed:
       """
-      CREATE ({foo: [1, 2, 3]})
+      CREATE ({numbers: [1, 2, 3]})
       """
     When executing query:
       """
@@ -461,7 +461,7 @@ Feature: ReturnAcceptance2
     When executing query:
       """
       MATCH (a)
-      WITH a.a AS a, count(*) AS count
+      WITH a.num AS a, count(*) AS count
       RETURN count
       """
     Then the result should be:
@@ -499,7 +499,7 @@ Feature: ReturnAcceptance2
     When executing query:
       """
       MATCH (n)
-      RETURN count(DISTINCT {foo: n.list}) AS count
+      RETURN count(DISTINCT {name: n.list}) AS count
       """
     Then the result should be:
       | count |
@@ -515,7 +515,7 @@ Feature: ReturnAcceptance2
     When executing query:
       """
       MATCH (n)
-      WITH DISTINCT {foo: n.list} AS map
+      WITH DISTINCT {name: n.list} AS map
       RETURN count(*)
       """
     Then the result should be:
@@ -532,7 +532,7 @@ Feature: ReturnAcceptance2
     When executing query:
       """
       MATCH (n)
-      RETURN count(DISTINCT {foo: [[n.list, n.list], [n.list, n.list]]}) AS count
+      RETURN count(DISTINCT {name: [[n.list, n.list], [n.list, n.list]]}) AS count
       """
     Then the result should be:
       | count |
@@ -548,7 +548,7 @@ Feature: ReturnAcceptance2
     When executing query:
       """
       MATCH (n)
-      RETURN count(DISTINCT {foo: [{bar: n.list}, {baz: {apa: n.list}}]}) AS count
+      RETURN count(DISTINCT {name: [{name2: n.list}, {baz: {apa: n.list}}]}) AS count
       """
     Then the result should be:
       | count |

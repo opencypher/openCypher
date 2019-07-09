@@ -422,7 +422,7 @@ Feature: TemporalCreateAcceptance
     Given an empty graph
     When executing query:
       """
-      CREATE ({p: <temporal>})
+      CREATE ({created: <temporal>})
       """
     Then the result should be empty
     And the side effects should be:
@@ -431,21 +431,21 @@ Feature: TemporalCreateAcceptance
     When executing control query:
       """
       MATCH (n)
-      RETURN n.p
+      RETURN n.created
       """
     Then the result should be:
-      | n.p      |
-      | <result> |
+      | n.created |
+      | <result>  |
 
     Examples:
-      | temporal                                                                                                                 | result                                     |
-      | date({year: 1984, month: 10, day: 11})                                                                                   | '1984-10-11'                               |
+      | temporal                               | result       |
+      | date({year: 1984, month: 10, day: 11}) | '1984-10-11' |
 
   Scenario Outline: Should store date array
     Given an empty graph
     When executing query:
       """
-      CREATE ({p: <temporal>})
+      CREATE ({dates: <temporal>})
       """
     Then the result should be empty
     And the side effects should be:
@@ -454,10 +454,10 @@ Feature: TemporalCreateAcceptance
     When executing control query:
       """
       MATCH (n)
-      RETURN n.p
+      RETURN n.dates
       """
     Then the result should be:
-      | n.p      |
+      | n.dates  |
       | <result> |
 
     Examples:
@@ -469,7 +469,7 @@ Feature: TemporalCreateAcceptance
     Given an empty graph
     When executing query:
       """
-      CREATE ({p: <temporal>})
+      CREATE ({created: <temporal>})
       """
     Then the result should be empty
     And the side effects should be:
@@ -478,21 +478,21 @@ Feature: TemporalCreateAcceptance
     When executing control query:
       """
       MATCH (n)
-      RETURN n.p
+      RETURN n.created
       """
     Then the result should be:
-      | n.p      |
-      | <result> |
+      | n.created |
+      | <result>  |
 
     Examples:
-      | temporal                                                              | result                      |
-      | localtime({hour: 12})                                                 | '12:00'                     |
+      | temporal              | result  |
+      | localtime({hour: 12}) | '12:00' |
 
   Scenario Outline: Should store local time array
     Given an empty graph
     When executing query:
       """
-      CREATE ({p: <temporal>})
+      CREATE ({dates: <temporal>})
       """
     Then the result should be empty
     And the side effects should be:
@@ -501,10 +501,10 @@ Feature: TemporalCreateAcceptance
     When executing control query:
       """
       MATCH (n)
-      RETURN n.p
+      RETURN n.dates
       """
     Then the result should be:
-      | n.p      |
+      | n.dates  |
       | <result> |
 
     Examples:
@@ -516,7 +516,7 @@ Feature: TemporalCreateAcceptance
     Given an empty graph
     When executing query:
       """
-      CREATE ({p: <temporal>})
+      CREATE ({created: <temporal>})
       """
     Then the result should be empty
     And the side effects should be:
@@ -525,21 +525,21 @@ Feature: TemporalCreateAcceptance
     When executing control query:
       """
       MATCH (n)
-      RETURN n.p
+      RETURN n.created
       """
     Then the result should be:
-      | n.p      |
-      | <result> |
+      | n.created |
+      | <result>  |
 
     Examples:
-      | temporal                                               | result                         |
-      | time({hour: 12})                                       | '12:00Z'                       |
+      | temporal         | result   |
+      | time({hour: 12}) | '12:00Z' |
 
   Scenario Outline: Should store time array
     Given an empty graph
     When executing query:
       """
-      CREATE ({p: <temporal>})
+      CREATE ({dates: <temporal>})
       """
     Then the result should be empty
     And the side effects should be:
@@ -548,10 +548,10 @@ Feature: TemporalCreateAcceptance
     When executing control query:
       """
       MATCH (n)
-      RETURN n.p
+      RETURN n.dates
       """
     Then the result should be:
-      | n.p      |
+      | n.dates  |
       | <result> |
 
     Examples:
@@ -563,7 +563,7 @@ Feature: TemporalCreateAcceptance
     Given an empty graph
     When executing query:
       """
-      CREATE ({p: <temporal>})
+      CREATE ({created: <temporal>})
       """
     Then the result should be empty
     And the side effects should be:
@@ -572,21 +572,21 @@ Feature: TemporalCreateAcceptance
     When executing control query:
       """
       MATCH (n)
-      RETURN n.p
+      RETURN n.created
       """
     Then the result should be:
-      | n.p      |
-      | <result> |
+      | n.created |
+      | <result>  |
 
     Examples:
-      | temporal                                                                                | result                                                       |
-      | localdatetime({year: 1912})                                                             | '1912-01-01T00:00'                                           |
+      | temporal                    | result             |
+      | localdatetime({year: 1912}) | '1912-01-01T00:00' |
 
   Scenario Outline: Should store local date time array
     Given an empty graph
     When executing query:
       """
-      CREATE ({p: <temporal>})
+      CREATE ({dates: <temporal>})
       """
     Then the result should be empty
     And the side effects should be:
@@ -595,10 +595,10 @@ Feature: TemporalCreateAcceptance
     When executing control query:
       """
       MATCH (n)
-      RETURN n.p
+      RETURN n.dates
       """
     Then the result should be:
-      | n.p      |
+      | n.dates  |
       | <result> |
 
     Examples:
@@ -610,7 +610,7 @@ Feature: TemporalCreateAcceptance
     Given an empty graph
     When executing query:
       """
-      CREATE ({p: <temporal>})
+      CREATE ({created: <temporal>})
       """
     Then the result should be empty
     And the side effects should be:
@@ -619,21 +619,21 @@ Feature: TemporalCreateAcceptance
     When executing control query:
       """
       MATCH (n)
-      RETURN n.p
+      RETURN n.created
       """
     Then the result should be:
-      | n.p      |
-      | <result> |
+      | n.created |
+      | <result>  |
 
     Examples:
-      | temporal                                                                 | result                                                          |
-      | datetime({year: 1912})                                                   | '1912-01-01T00:00Z'                                             |
+      | temporal               | result              |
+      | datetime({year: 1912}) | '1912-01-01T00:00Z' |
 
   Scenario Outline: Should store date time array
     Given an empty graph
     When executing query:
       """
-      CREATE ({p: <temporal>})
+      CREATE ({dates: <temporal>})
       """
     Then the result should be empty
     And the side effects should be:
@@ -642,10 +642,10 @@ Feature: TemporalCreateAcceptance
     When executing control query:
       """
       MATCH (n)
-      RETURN n.p
+      RETURN n.dates
       """
     Then the result should be:
-      | n.p      |
+      | n.dates  |
       | <result> |
 
     Examples:
@@ -657,7 +657,7 @@ Feature: TemporalCreateAcceptance
     Given an empty graph
     When executing query:
       """
-      CREATE ({p: <temporal>})
+      CREATE ({created: <temporal>})
       """
     Then the result should be empty
     And the side effects should be:
@@ -666,21 +666,21 @@ Feature: TemporalCreateAcceptance
     When executing control query:
       """
       MATCH (n)
-      RETURN n.p
+      RETURN n.created
       """
     Then the result should be:
-      | n.p      |
-      | <result> |
+      | n.created |
+      | <result>  |
 
     Examples:
-      | temporal                                                                    | result                      |
-      | duration({seconds: 12})                                                     | 'PT12S'                     |
+      | temporal                | result  |
+      | duration({seconds: 12}) | 'PT12S' |
 
   Scenario Outline: Should store duration array
     Given an empty graph
     When executing query:
       """
-      CREATE ({p: <temporal>})
+      CREATE ({dates: <temporal>})
       """
     Then the result should be empty
     And the side effects should be:
@@ -689,10 +689,10 @@ Feature: TemporalCreateAcceptance
     When executing control query:
       """
       MATCH (n)
-      RETURN n.p
+      RETURN n.dates
       """
     Then the result should be:
-      | n.p      |
+      | n.dates  |
       | <result> |
 
     Examples:

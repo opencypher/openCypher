@@ -36,15 +36,15 @@ Feature: OrderByAcceptance
   Scenario: ORDER BY should return results in ascending order
     And having executed:
       """
-      CREATE (n1 {prop: 1}),
-        (n2 {prop: 3}),
-        (n3 {prop: -5})
+      CREATE (n1 {num: 1}),
+        (n2 {num: 3}),
+        (n3 {num: -5})
       """
     When executing query:
       """
       MATCH (n)
-      RETURN n.prop AS prop
-      ORDER BY n.prop
+      RETURN n.num AS prop
+      ORDER BY n.num
       """
     Then the result should be, in order:
       | prop |
@@ -56,15 +56,15 @@ Feature: OrderByAcceptance
   Scenario: ORDER BY DESC should return results in descending order
     And having executed:
       """
-      CREATE (n1 {prop: 1}),
-        (n2 {prop: 3}),
-        (n3 {prop: -5})
+      CREATE (n1 {num: 1}),
+        (n2 {num: 3}),
+        (n3 {num: -5})
       """
     When executing query:
       """
       MATCH (n)
-      RETURN n.prop AS prop
-      ORDER BY n.prop DESC
+      RETURN n.num AS prop
+      ORDER BY n.num DESC
       """
     Then the result should be, in order:
       | prop |
@@ -92,14 +92,14 @@ Feature: OrderByAcceptance
   Scenario: Renaming columns before ORDER BY should return results in ascending order
     And having executed:
       """
-      CREATE (n1 {prop: 1}),
-        (n2 {prop: 3}),
-        (n3 {prop: -5})
+      CREATE (n1 {num: 1}),
+        (n2 {num: 3}),
+        (n3 {num: -5})
       """
     When executing query:
       """
       MATCH (n)
-      RETURN n.prop AS n
+      RETURN n.num AS n
       ORDER BY n + 2
       """
     Then the result should be, in order:

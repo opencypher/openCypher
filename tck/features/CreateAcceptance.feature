@@ -54,7 +54,7 @@ Feature: CreateAcceptance
       """
     Then the result should be empty
     And the side effects should be:
-      | +nodes  | 2 |
+      | +nodes | 2 |
 
   Scenario: Combine MATCH, WITH and CREATE
     Given an empty graph
@@ -72,7 +72,7 @@ Feature: CreateAcceptance
       """
     Then the result should be empty
     And the side effects should be:
-      | +nodes  | 10 |
+      | +nodes | 10 |
 
   Scenario: Newly-created nodes not visible to preceding MATCH
     Given an empty graph
@@ -87,14 +87,14 @@ Feature: CreateAcceptance
       """
     Then the result should be empty
     And the side effects should be:
-      | +nodes  | 1 |
+      | +nodes | 1 |
 
   Scenario: Create a single node with properties
     Given any graph
     When executing query:
       """
-      CREATE (n {prop: 'foo'})
-      RETURN n.prop AS p
+      CREATE (n {name: 'foo'})
+      RETURN n.name AS p
       """
     Then the result should be:
       | p     |
@@ -107,7 +107,7 @@ Feature: CreateAcceptance
     Given any graph
     When executing query:
       """
-      CREATE (n {id: 12, property: null})
+      CREATE (n {id: 12, name: null})
       RETURN n.id AS id
       """
     Then the result should be:
@@ -121,7 +121,7 @@ Feature: CreateAcceptance
     Given any graph
     When executing query:
       """
-      CREATE ()-[r:X {id: 12, property: null}]->()
+      CREATE ()-[r:X {id: 12, name: null}]->()
       RETURN r.id
       """
     Then the result should be:
@@ -186,7 +186,7 @@ Feature: CreateAcceptance
     Given any graph
     When executing query:
       """
-      CREATE ()-[:R {prop: 42}]->()
+      CREATE ()-[:R {num: 42}]->()
       """
     Then the result should be empty
     And the side effects should be:
@@ -363,7 +363,7 @@ Feature: CreateAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({foo: 1})
+      CREATE ({num: 1})
       """
     When executing query:
       """
@@ -375,7 +375,7 @@ Feature: CreateAcceptance
       """
     Then the result should be:
       | a          | b          |
-      | ({foo: 1}) | ({foo: 1}) |
+      | ({num: 1}) | ({num: 1}) |
     And the side effects should be:
       | +relationships | 1 |
 
@@ -403,7 +403,7 @@ Feature: CreateAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({foo: 'A'})
+      CREATE ({name: 'A'})
       """
     When executing query:
       """
@@ -416,8 +416,8 @@ Feature: CreateAcceptance
       RETURN x, y
       """
     Then the result should be:
-      | x            | y            |
-      | ({foo: 'A'}) | ({foo: 'A'}) |
+      | x              | y              |
+      | ({name: 'A'}) | ({name: 'A'}) |
     And the side effects should be:
       | +relationships | 2 |
 
@@ -425,7 +425,7 @@ Feature: CreateAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({foo: 5})
+      CREATE ({num: 5})
       """
     When executing query:
       """
@@ -438,7 +438,7 @@ Feature: CreateAcceptance
       """
     Then the result should be:
       | x          |
-      | ({foo: 5}) |
+      | ({num: 5}) |
     And the side effects should be:
       | +nodes         | 2 |
       | +relationships | 2 |

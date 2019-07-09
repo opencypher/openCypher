@@ -34,35 +34,35 @@ Feature: RemoveAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ({prop: 42})
+      CREATE ({num: 42})
       """
     When executing query:
       """
       MATCH (n)
       OPTIONAL MATCH (n)-[r]->()
-      REMOVE r.prop
+      REMOVE r.num
       RETURN n
       """
     Then the result should be:
-      | n            |
-      | ({prop: 42}) |
+      | n           |
+      | ({num: 42}) |
     And no side effects
 
   Scenario: Remove a single label
     Given an empty graph
     And having executed:
       """
-      CREATE (:L {prop: 42})
+      CREATE (:L {num: 42})
       """
     When executing query:
       """
       MATCH (n)
       REMOVE n:L
-      RETURN n.prop
+      RETURN n.num
       """
     Then the result should be:
-      | n.prop |
-      | 42     |
+      | n.num |
+      | 42    |
     And the side effects should be:
       | -labels | 1 |
 
@@ -70,7 +70,7 @@ Feature: RemoveAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:L1:L2:L3 {prop: 42})
+      CREATE (:L1:L2:L3 {num: 42})
       """
     When executing query:
       """
@@ -88,13 +88,13 @@ Feature: RemoveAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:L {prop: 42})
+      CREATE (:L {num: 42})
       """
     When executing query:
       """
       MATCH (n)
-      REMOVE n.prop
-      RETURN exists(n.prop) AS still_there
+      REMOVE n.num
+      RETURN exists(n.num) AS still_there
       """
     Then the result should be:
       | still_there |
@@ -106,12 +106,12 @@ Feature: RemoveAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:L {prop: 42, a: 'a', b: 'B'})
+      CREATE (:L {num: 42, name: 'a', name2: 'B'})
       """
     When executing query:
       """
       MATCH (n)
-      REMOVE n.prop, n.a
+      REMOVE n.num, n.name
       RETURN size(keys(n)) AS props
       """
     Then the result should be:
@@ -124,13 +124,13 @@ Feature: RemoveAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a), (b), (a)-[:X {prop: 42}]->(b)
+      CREATE (a), (b), (a)-[:X {num: 42}]->(b)
       """
     When executing query:
       """
       MATCH ()-[r]->()
-      REMOVE r.prop
-      RETURN exists(r.prop) AS still_there
+      REMOVE r.num
+      RETURN exists(r.num) AS still_there
       """
     Then the result should be:
       | still_there |
@@ -142,12 +142,12 @@ Feature: RemoveAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (a), (b), (a)-[:X {prop: 42, a: 'a', b: 'B'}]->(b)
+      CREATE (a), (b), (a)-[:X {num: 42, a: 'a', b: 'B'}]->(b)
       """
     When executing query:
       """
       MATCH ()-[r]->()
-      REMOVE r.prop, r.a
+      REMOVE r.num, r.a
       RETURN size(keys(r)) AS props
       """
     Then the result should be:
@@ -165,7 +165,7 @@ Feature: RemoveAcceptance
     When executing query:
       """
       MATCH (n)
-      REMOVE n.prop
+      REMOVE n.num
       RETURN sum(size(keys(n))) AS totalNumberOfProps
       """
     Then the result should be:

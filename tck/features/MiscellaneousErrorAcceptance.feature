@@ -44,14 +44,14 @@ Feature: MiscellaneousErrorAcceptance
     When executing query:
       """
       CREATE (a), (b)
-      MERGE (a)-[r:X {p: null}]->(b)
+      MERGE (a)-[r:X {num: null}]->(b)
       """
     Then a SemanticError should be raised at compile time: MergeReadOwnWrites
 
   Scenario: Failing on merging node with null property
     When executing query:
       """
-      MERGE ({p: null})
+      MERGE ({num: null})
       """
     Then a SemanticError should be raised at compile time: MergeReadOwnWrites
 
@@ -68,8 +68,8 @@ Feature: MiscellaneousErrorAcceptance
     When executing query:
       """
       MATCH (n)
-      RETURN n.prop1
-        ORDER BY max(n.prop2)
+      RETURN n.num1
+        ORDER BY max(n.num2)
       """
     Then a SyntaxError should be raised at compile time: InvalidAggregation
 
@@ -77,8 +77,8 @@ Feature: MiscellaneousErrorAcceptance
     When executing query:
       """
       MATCH (n)
-      WITH n.prop1 AS foo
-        ORDER BY max(n.prop2)
+      WITH n.num1 AS foo
+        ORDER BY max(n.num2)
       RETURN foo AS foo
       """
     Then a SyntaxError should be raised at compile time: InvalidAggregation
@@ -152,7 +152,7 @@ Feature: MiscellaneousErrorAcceptance
       """
       MATCH (n)
       MATCH (n)-[r*]->()
-      WHERE r.foo = 'apa'
+      WHERE r.name = 'apa'
       RETURN r
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
@@ -203,7 +203,7 @@ Feature: MiscellaneousErrorAcceptance
     When executing query:
       """
       CREATE (a)
-      SET a.foo = [{x: 1}]
+      SET a.maplist = [{num: 1}]
       """
     Then a TypeError should be raised at compile time: InvalidPropertyType
 

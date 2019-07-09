@@ -585,17 +585,17 @@ Feature: ListOperations
     Given an empty graph
     And having executed:
       """
-      CREATE (:Label)
+      CREATE (:TheLabel)
       """
     When executing query:
       """
-      MATCH (n:Label)
-      SET n.x = [1, 2, 3]
-      RETURN size(n.x)
+      MATCH (n:TheLabel)
+      SET n.numbers = [1, 2, 3]
+      RETURN size(n.numbers)
       """
     Then the result should be:
-      | size(n.x) |
-      | 3         |
+      | size(n.numbers) |
+      | 3               |
     And the side effects should be:
       | +properties | 1 |
 
@@ -614,11 +614,11 @@ Feature: ListOperations
     Given an empty graph
     And having executed:
       """
-      CREATE (:Label)
+      CREATE (:TheLabel)
       """
     When executing query:
       """
-      MATCH (n:Label)
+      MATCH (n:TheLabel)
       SET n.array = [1, 2, 3, 4, 5]
       RETURN tail(tail(n.array))
       """

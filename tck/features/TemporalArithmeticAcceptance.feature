@@ -146,13 +146,13 @@ Feature: TemporalArithmeticAcceptance
   Scenario Outline: Should add or subtract durations
     And having executed:
       """
-      CREATE (:Duration1 {prop: duration(<map1>)})
-      CREATE (:Duration2 {prop: duration(<map2>)})
+      CREATE (:Duration1 {date: duration(<map1>)})
+      CREATE (:Duration2 {date: duration(<map2>)})
       """
     When executing query:
       """
       MATCH (dur:Duration1), (dur2: Duration2)
-      RETURN dur.prop + dur2.prop AS sum, dur.prop - dur2.prop AS diff
+      RETURN dur.date + dur2.date AS sum, dur.date - dur2.date AS diff
       """
     Then the result should be:
       | sum   | diff   |
@@ -174,12 +174,12 @@ Feature: TemporalArithmeticAcceptance
   Scenario Outline: Should multiply or divide durations by numbers
     And having executed:
       """
-      CREATE (:Duration {prop: duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 1})})
+      CREATE (:Duration {date: duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 1})})
       """
     When executing query:
       """
       MATCH (d:Duration)
-      RETURN d.prop * <num1> AS prod, d.prop / <num2> AS div
+      RETURN d.date * <num1> AS prod, d.date / <num2> AS div
       """
     Then the result should be:
       | prod   | div   |

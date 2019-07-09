@@ -229,7 +229,7 @@ Feature: SemanticErrorAcceptance
     When executing query:
       """
       MERGE (n)
-        ON CREATE SET x.foo = 1
+        ON CREATE SET x.num = 1
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
@@ -237,7 +237,7 @@ Feature: SemanticErrorAcceptance
     When executing query:
       """
       MERGE (n)
-        ON MATCH SET x.foo = 1
+        ON MATCH SET x.num = 1
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
@@ -260,28 +260,28 @@ Feature: SemanticErrorAcceptance
   Scenario: Handling property access on the Any type
     When executing query:
       """
-      WITH [{prop: 0}, 1] AS list
-      RETURN (list[0]).prop
+      WITH [{num: 0}, 1] AS list
+      RETURN (list[0]).num
       """
     Then the result should be:
-      | (list[0]).prop |
-      | 0              |
+      | (list[0]).num |
+      | 0             |
     And no side effects
 
   Scenario: Failing when performing property access on a non-map 1
     When executing query:
       """
-      WITH [{prop: 0}, 1] AS list
-      RETURN (list[1]).prop
+      WITH [{num: 0}, 1] AS list
+      RETURN (list[1]).num
       """
     Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
 
   Scenario: Failing when performing property access on a non-map 2
     When executing query:
       """
-      CREATE (n {prop: 'foo'})
-      WITH n.prop AS n2
-      RETURN n2.prop
+      CREATE (n {name: 'foo'})
+      WITH n.name AS n2
+      RETURN n2.name
       """
     Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
 
@@ -289,7 +289,7 @@ Feature: SemanticErrorAcceptance
     When executing query:
       """
       MATCH (n)
-      RETURN exists(n.prop + 1)
+      RETURN exists(n.num + 1)
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentExpression
 

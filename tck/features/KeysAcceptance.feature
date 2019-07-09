@@ -105,7 +105,7 @@ Feature: KeysAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[:KNOWS {level: 'bad', year: '2015'}]->()
+      CREATE ()-[:KNOWS {status: 'bad', year: '2015'}]->()
       """
     When executing query:
       """
@@ -115,7 +115,7 @@ Feature: KeysAcceptance
       """
     Then the result should be:
       | theProps |
-      | 'level'  |
+      | 'status' |
       | 'year'   |
     And no side effects
 

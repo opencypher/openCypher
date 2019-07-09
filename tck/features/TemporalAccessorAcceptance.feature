@@ -36,12 +36,12 @@ Feature: TemporalAccessorAcceptance
   Scenario: Should provide accessors for date
     And having executed:
       """
-      CREATE (:Val {prop: date({year: 1984, month: 10, day: 11})})
+      CREATE (:Val {date: date({year: 1984, month: 10, day: 11})})
       """
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop AS d
+      WITH v.date AS d
       RETURN d.year, d.quarter, d.month, d.week, d.weekYear, d.day, d.ordinalDay, d.weekDay, d.dayOfQuarter
       """
     Then the result should be:
@@ -52,12 +52,12 @@ Feature: TemporalAccessorAcceptance
   Scenario: Should provide accessors for date in last weekYear
     And having executed:
       """
-      CREATE (:Val {prop: date({year: 1984, month: 01, day: 01})})
+      CREATE (:Val {date: date({year: 1984, month: 01, day: 01})})
       """
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop AS d
+      WITH v.date AS d
       RETURN d.year, d.weekYear, d.week, d.weekDay
       """
     Then the result should be:
@@ -68,12 +68,12 @@ Feature: TemporalAccessorAcceptance
   Scenario: Should provide accessors for local time
     And having executed:
       """
-      CREATE (:Val {prop: localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})})
+      CREATE (:Val {date: localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})})
       """
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop AS d
+      WITH v.date AS d
       RETURN d.hour, d.minute, d.second, d.millisecond, d.microsecond, d.nanosecond
       """
     Then the result should be:
@@ -84,12 +84,12 @@ Feature: TemporalAccessorAcceptance
   Scenario: Should provide accessors for time
     And having executed:
       """
-      CREATE (:Val {prop: time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})})
+      CREATE (:Val {date: time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})})
       """
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop AS d
+      WITH v.date AS d
       RETURN d.hour, d.minute, d.second, d.millisecond, d.microsecond, d.nanosecond, d.timezone, d.offset, d.offsetMinutes, d.offsetSeconds
       """
     Then the result should be:
@@ -100,12 +100,12 @@ Feature: TemporalAccessorAcceptance
   Scenario: Should provide accessors for local date time
     And having executed:
       """
-      CREATE (:Val {prop: localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})})
+      CREATE (:Val {date: localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})})
       """
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop AS d
+      WITH v.date AS d
       RETURN d.year, d.quarter, d.month, d.week, d.weekYear, d.day, d.ordinalDay, d.weekDay, d.dayOfQuarter,
              d.hour, d.minute, d.second, d.millisecond, d.microsecond, d.nanosecond
       """
@@ -117,12 +117,12 @@ Feature: TemporalAccessorAcceptance
   Scenario: Should provide accessors for date time
     And having executed:
       """
-      CREATE (:Val {prop: datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: 'Europe/Stockholm'})})
+      CREATE (:Val {date: datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: 'Europe/Stockholm'})})
       """
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop AS d
+      WITH v.date AS d
       RETURN d.year, d.quarter, d.month, d.week, d.weekYear, d.day, d.ordinalDay, d.weekDay, d.dayOfQuarter,
              d.hour, d.minute, d.second, d.millisecond, d.microsecond, d.nanosecond,
              d.timezone, d.offset, d.offsetMinutes, d.offsetSeconds, d.epochSeconds, d.epochMillis
@@ -135,17 +135,17 @@ Feature: TemporalAccessorAcceptance
   Scenario: Should provide accessors for duration
     And having executed:
       """
-      CREATE (:Val {prop: duration({years: 1, months: 4, days: 10, hours: 1, minutes: 1, seconds: 1, nanoseconds: 111111111})})
+      CREATE (:Val {date: duration({years: 1, months: 4, days: 10, hours: 1, minutes: 1, seconds: 1, nanoseconds: 111111111})})
       """
     When executing query:
       """
       MATCH (v:Val)
-      WITH v.prop AS d
+      WITH v.date AS d
       RETURN d.years, d.quarters, d.months, d.weeks, d.days,
              d.hours, d.minutes, d.seconds, d.milliseconds, d.microseconds, d.nanoseconds,
              d.quartersOfYear, d.monthsOfQuarter, d.monthsOfYear, d.daysOfWeek, d.minutesOfHour, d.secondsOfMinute, d.millisecondsOfSecond, d.microsecondsOfSecond, d.nanosecondsOfSecond
       """
     Then the result should be:
-      | d.years | d.quarters | d.months | d.weeks | d.days | d.hours | d.minutes | d.seconds | d.milliseconds | d.microseconds | d.nanoseconds | d.quartersOfYear | d.monthsOfQuarter| d.monthsOfYear | d.daysOfWeek | d.minutesOfHour | d.secondsOfMinute | d.millisecondsOfSecond | d.microsecondsOfSecond | d.nanosecondsOfSecond |
-      | 1       | 5          | 16       | 1       | 10     | 1       | 61        | 3661      |  3661111       | 3661111111     | 3661111111111 | 1                | 1                | 4              | 3            | 1               | 1                 | 111                    | 111111                 | 111111111             |
+      | d.years | d.quarters | d.months | d.weeks | d.days | d.hours | d.minutes | d.seconds | d.milliseconds | d.microseconds | d.nanoseconds | d.quartersOfYear | d.monthsOfQuarter | d.monthsOfYear | d.daysOfWeek | d.minutesOfHour | d.secondsOfMinute | d.millisecondsOfSecond | d.microsecondsOfSecond | d.nanosecondsOfSecond |
+      | 1       | 5          | 16       | 1       | 10     | 1       | 61        | 3661      | 3661111        | 3661111111     | 3661111111111 | 1                | 1                 | 4              | 3            | 1               | 1                 | 111                    | 111111                 | 111111111             |
     And no side effects

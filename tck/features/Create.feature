@@ -65,7 +65,7 @@ Feature: Create
     Given an empty graph
     When executing query:
       """
-      CREATE (:Label)
+      CREATE (:TheLabel)
       """
     Then the result should be empty
     And the side effects should be:
@@ -76,7 +76,7 @@ Feature: Create
     Given any graph
     When executing query:
       """
-      CREATE ({created: true})
+      CREATE ({ok: true})
       """
     Then the result should be empty
     And the side effects should be:

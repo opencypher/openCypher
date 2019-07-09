@@ -71,14 +71,14 @@ Feature: ListComprehension
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A {prop: 'c'})
+      CREATE (a:A {name: 'c'})
       CREATE (a)-[:T]->(:B),
              (a)-[:T]->(:C)
       """
     When executing query:
       """
       MATCH (n)-->(b)
-      WHERE n.prop IN [x IN labels(b) | lower(x)]
+      WHERE n.name IN [x IN labels(b) | lower(x)]
       RETURN b
       """
     Then the result should be:

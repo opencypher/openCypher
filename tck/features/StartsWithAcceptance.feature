@@ -34,9 +34,9 @@ Feature: StartsWithAcceptance
     Given an empty graph
     And having executed:
       """
-      CREATE (:Label {name: 'ABCDEF'}), (:Label {name: 'AB'}),
-             (:Label {name: 'abcdef'}), (:Label {name: 'ab'}),
-             (:Label {name: ''}), (:Label)
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
       """
 
   Scenario: Finding exact matches
@@ -47,8 +47,8 @@ Feature: StartsWithAcceptance
       RETURN a
       """
     Then the result should be:
-      | a                         |
-      | (:Label {name: 'ABCDEF'}) |
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
 
   Scenario: Finding beginning of string
@@ -59,8 +59,8 @@ Feature: StartsWithAcceptance
       RETURN a
       """
     Then the result should be:
-      | a                         |
-      | (:Label {name: 'ABCDEF'}) |
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
 
   Scenario: Finding end of string 1
@@ -71,8 +71,8 @@ Feature: StartsWithAcceptance
       RETURN a
       """
     Then the result should be:
-      | a                         |
-      | (:Label {name: 'ABCDEF'}) |
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
 
   Scenario: Finding end of string 2
@@ -83,8 +83,8 @@ Feature: StartsWithAcceptance
       RETURN a
       """
     Then the result should be:
-      | a                     |
-      | (:Label {name: 'AB'}) |
+      | a                        |
+      | (:TheLabel {name: 'AB'}) |
     And no side effects
 
   Scenario: Finding middle of string
@@ -96,8 +96,8 @@ Feature: StartsWithAcceptance
       RETURN a
       """
     Then the result should be:
-      | a                         |
-      | (:Label {name: 'abcdef'}) |
+      | a                            |
+      | (:TheLabel {name: 'abcdef'}) |
     And no side effects
 
   Scenario: Finding the empty string
@@ -108,12 +108,12 @@ Feature: StartsWithAcceptance
       RETURN a
       """
     Then the result should be:
-      | a                         |
-      | (:Label {name: 'ABCDEF'}) |
-      | (:Label {name: 'AB'})     |
-      | (:Label {name: 'abcdef'}) |
-      | (:Label {name: 'ab'})     |
-      | (:Label {name: ''})       |
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
+      | (:TheLabel {name: 'AB'})     |
+      | (:TheLabel {name: 'abcdef'}) |
+      | (:TheLabel {name: 'ab'})     |
+      | (:TheLabel {name: ''})       |
     And no side effects
 
   Scenario: Finding when the middle is known
@@ -124,16 +124,16 @@ Feature: StartsWithAcceptance
       RETURN a
       """
     Then the result should be:
-      | a                         |
-      | (:Label {name: 'ABCDEF'}) |
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
 
   Scenario: Finding strings starting with whitespace
     And having executed:
       """
-      CREATE (:Label {name: ' Foo '}),
-             (:Label {name: '\nFoo\n'}),
-             (:Label {name: '\tFoo\t'})
+      CREATE (:TheLabel {name: ' Foo '}),
+             (:TheLabel {name: '\nFoo\n'}),
+             (:TheLabel {name: '\tFoo\t'})
       """
     When executing query:
       """
@@ -149,9 +149,9 @@ Feature: StartsWithAcceptance
   Scenario: Finding strings starting with newline
     And having executed:
       """
-      CREATE (:Label {name: ' Foo '}),
-             (:Label {name: '\nFoo\n'}),
-             (:Label {name: '\tFoo\t'})
+      CREATE (:TheLabel {name: ' Foo '}),
+             (:TheLabel {name: '\nFoo\n'}),
+             (:TheLabel {name: '\tFoo\t'})
       """
     When executing query:
       """
@@ -167,9 +167,9 @@ Feature: StartsWithAcceptance
   Scenario: Finding strings ending with newline
     And having executed:
       """
-      CREATE (:Label {name: ' Foo '}),
-             (:Label {name: '\nFoo\n'}),
-             (:Label {name: '\tFoo\t'})
+      CREATE (:TheLabel {name: ' Foo '}),
+             (:TheLabel {name: '\nFoo\n'}),
+             (:TheLabel {name: '\tFoo\t'})
       """
     When executing query:
       """
@@ -185,9 +185,9 @@ Feature: StartsWithAcceptance
   Scenario: Finding strings ending with whitespace
     And having executed:
       """
-      CREATE (:Label {name: ' Foo '}),
-             (:Label {name: '\nFoo\n'}),
-             (:Label {name: '\tFoo\t'})
+      CREATE (:TheLabel {name: ' Foo '}),
+             (:TheLabel {name: '\nFoo\n'}),
+             (:TheLabel {name: '\tFoo\t'})
       """
     When executing query:
       """
@@ -203,9 +203,9 @@ Feature: StartsWithAcceptance
   Scenario: Finding strings containing whitespace
     And having executed:
       """
-      CREATE (:Label {name: ' Foo '}),
-             (:Label {name: '\nFoo\n'}),
-             (:Label {name: '\tFoo\t'})
+      CREATE (:TheLabel {name: ' Foo '}),
+             (:TheLabel {name: '\nFoo\n'}),
+             (:TheLabel {name: '\tFoo\t'})
       """
     When executing query:
       """
@@ -221,9 +221,9 @@ Feature: StartsWithAcceptance
   Scenario: Finding strings containing newline
     And having executed:
       """
-      CREATE (:Label {name: ' Foo '}),
-             (:Label {name: '\nFoo\n'}),
-             (:Label {name: '\tFoo\t'})
+      CREATE (:TheLabel {name: ' Foo '}),
+             (:TheLabel {name: '\nFoo\n'}),
+             (:TheLabel {name: '\tFoo\t'})
       """
     When executing query:
       """
@@ -312,8 +312,8 @@ Feature: StartsWithAcceptance
       RETURN a
       """
     Then the result should be:
-      | a                         |
-      | (:Label {name: 'ABCDEF'}) |
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
 
   Scenario: NOT with CONTAINS
@@ -324,10 +324,10 @@ Feature: StartsWithAcceptance
       RETURN a
       """
     Then the result should be:
-      | a                         |
-      | (:Label {name: 'ABCDEF'}) |
-      | (:Label {name: 'AB'})     |
-      | (:Label {name: ''})       |
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
+      | (:TheLabel {name: 'AB'})     |
+      | (:TheLabel {name: ''})       |
     And no side effects
 
   Scenario: Handling non-string operands for STARTS WITH
