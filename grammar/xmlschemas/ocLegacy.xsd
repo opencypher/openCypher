@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://opencypher.org/opencypher" 
+	xmlns:tns="http://opencypher.org/opencypher" elementFormDefault="qualified">
+   	<xsd:attribute name="legacy" type="xsd:boolean"></xsd:attribute>
+   	<xsd:attribute name="lexer" type="xsd:boolean" default="false"></xsd:attribute>
+</xsd:schema>

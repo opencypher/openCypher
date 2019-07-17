@@ -38,7 +38,10 @@
   xmlns="http://opencypher.org/grammar"
   xmlns:rr="http://opencypher.org/railroad"
   xmlns:oc="http://opencypher.org/opencypher"
-  xmlns:scope="http://opencypher.org/scope">
+  xmlns:scope="http://opencypher.org/scope"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://opencypher.org/grammar xmlschemas/ocGrammar.xsd "
+ >
 
   <production name="Cypher">
     &WS;

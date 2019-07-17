@@ -36,7 +36,10 @@
   xmlns="http://opencypher.org/grammar"
   xmlns:rr="http://opencypher.org/railroad"
   xmlns:oc="http://opencypher.org/opencypher"
-  xmlns:ast="http://opencypher.org/syntaxtree">
+  xmlns:ast="http://opencypher.org/syntaxtree"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://opencypher.org/grammar xmlschemas/ocGrammar.xsd "
+  >
 
   <!-- / PRE-PARSER \ -->
 
