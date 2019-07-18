@@ -162,7 +162,7 @@ interface Main extends Serializable
     	}
     	execute( program, outStream, argList.toArray(new String[argList.size()]));
     	if (outFile != null) {
-    		System.out.println("Wrote xml to " + outFile);
+    		System.out.println("Wrote output grammar to " + outFile);
     	}
     }
 
