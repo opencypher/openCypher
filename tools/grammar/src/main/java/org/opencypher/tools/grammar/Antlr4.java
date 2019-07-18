@@ -61,8 +61,8 @@ import static org.opencypher.tools.io.Output.output;
  */
 public class Antlr4 extends BnfWriter
 {
-//	   static String PREFIX = "oC_";
-	   static String PREFIX = "";
+	   static String PREFIX = "oC_";
+//	   static String PREFIX = "";
 
     public static void write( Grammar grammar, Writer writer )
     {
@@ -95,20 +95,20 @@ public class Antlr4 extends BnfWriter
     {
     	List<String> argsList = new ArrayList<>(Arrays.asList(args));
     	int index = argsList.indexOf("-o");
-    	String filePath = null;
+    	String g4OutputFilePath = null;
     	if (index >= 0) {
-    		filePath = argsList.remove(index + 1);
+    		g4OutputFilePath = argsList.remove(index + 1);
     		argsList.remove(index);
     	}
     	
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         execute( Antlr4::write, out, "grammar/cypher.xml" );
 
-        if (filePath == null) {
+        if (g4OutputFilePath == null) {
         	System.out.print( out.toString( UTF_8.name() ) );
         } else {
-			Files.write(Paths.get(filePath), out.toByteArray() );
-			System.out.println("Wrote xml to " + filePath);
+			Files.write(Paths.get(g4OutputFilePath), out.toByteArray() );
+			System.out.println("Wrote output grammar to " + g4OutputFilePath);
 
         }
     }
@@ -133,6 +133,14 @@ public class Antlr4 extends BnfWriter
          * This prints all the 'fragment' rules (rules that are used to construct lexer tokens,
          * and the only type of rule that can use the character set syntax []) at the bottom of the grammar file.
          */
+    	// now add the letter rules
+    	String[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    	for (String letter : alphabet) {
+			output.append("fragment ").append(letter).append(" : '").append(letter)
+				.append("' | '").append(letter.toLowerCase()).append("'");
+			output.println(" ;");
+		}
+    	output.println();
         for ( Map.Entry<String,CharacterSet> rule : fragmentRules.entrySet() )
         {
             CharacterSet set = rule.getValue();
@@ -206,12 +214,14 @@ public class Antlr4 extends BnfWriter
                 caseInsensitiveProductionStart( ruleName );
                 for ( char c : lexerRule.getValue().toCharArray() )
                 {
-                    groupWith( '(', () ->
-                    {
-                        literal( String.valueOf( c ).toUpperCase() );
-                        alternativesSeparator();
-                        literal( String.valueOf( c ).toLowerCase() );
-                    }, ')' );
+                	// alternative style (can't work out what the indirect way of this is
+                	output.append(String.valueOf( c ).toUpperCase() );
+//                    groupWith( '(', () ->
+//                    {
+//                        literal( String.valueOf( c ).toUpperCase() );
+//                        alternativesSeparator();
+//                        literal( String.valueOf( c ).toLowerCase() );
+//                    }, ')' );
                     sequenceSeparator();
                 }
                 output.println( " ;" ).println();
@@ -440,10 +450,6 @@ public class Antlr4 extends BnfWriter
             {
                 lexerRule = "L_" + lexerRule;
             }
-//            else {
-//            	// mark keyword as such
-//            	lexerRule = "K_" + lexerRule;
-//            }
             output.append( lexerRule );
             keywordsInProduction.put( lexerRule, value );
         }
@@ -478,7 +484,13 @@ public class Antlr4 extends BnfWriter
             case '\f': return "\\f";
             case '\'': return "\\'";
             case '\\': return "\\\\";
-            default: return null;
+            default: 
+            	// how mad will this get ?  PRF
+            	if (cp >= 128) {
+            		String hex =  Integer.toHexString(cp);
+            		return "\\u" + (hex.length() < 4 ? "00" : "") + Integer.toHexString(cp);
+            	}
+            	return null;
         } //</pre>
     }
 
