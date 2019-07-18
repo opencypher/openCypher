@@ -53,7 +53,7 @@ abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVis
     private int altPrefix;
     private boolean group;
     protected final Output output;
-    private final Set<Integer> caseChars = new HashSet<>();
+    protected final Set<Integer> caseChars = new HashSet<>();
 
     BnfWriter( Output output )
     {
