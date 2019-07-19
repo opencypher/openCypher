@@ -34,8 +34,8 @@ The constraint syntax is defined as follows:
 .Grammar definition for constraint syntax.
 [source, ebnf]
 ----
-constraint command    = add-constraint | drop-constraint ;
-add-constraint        = "ADD", "CONSTRAINT", [ constraint-name ], "FOR", pattern, "REQUIRE", constraint-predicate, { "REQUIRE", constraint-predicate } ;
+constraint command    = create-constraint | drop-constraint ;
+add-constraint        = "CREATE", "CONSTRAINT", [ constraint-name ], "FOR", pattern, "REQUIRE", constraint-predicate, { "REQUIRE", constraint-predicate } ;
 constraint-name       = symbolic-name
 constraint-predicate  = expression | unique | node-key ;
 unique                = "UNIQUE", property-expression
@@ -99,7 +99,7 @@ Following on rule <<domain-exception,3.>> above, entities for which the property
 .Example of a constraint definition using `UNIQUE`, over the domain of nodes labeled with `:Person`:
 [source, cypher]
 ----
-ADD CONSTRAINT only_one_person_per_name
+CREATE CONSTRAINT only_one_person_per_name
 FOR (p:Person)
 REQUIRE UNIQUE p.name
 ----
@@ -115,7 +115,7 @@ The domain of a node key constraint is thus exactly defined as all entities whic
 .Example of a constraint definition using `NODE KEY`, over the domain of nodes labeled with `:Person`:
 [source, cypher]
 ----
-ADD CONSTRAINT person_details
+CREATE CONSTRAINT person_details
 FOR (p:Person)
 REQUIRE NODE KEY p.name, p.email, p.address
 ----
@@ -125,7 +125,7 @@ In the context of a single property, a semantically equivalent constraint is ach
 .Example of a constraint definition equivalent to a `NODE KEY` on a single property `name`:
 [source, cypher]
 ----
-ADD CONSTRAINT person_details
+CREATE CONSTRAINT person_details
 FOR (p:Person)
 REQUIRE UNIQUE p.name
 REQUIRE exists(p.name)
@@ -161,7 +161,7 @@ The contents of this field are left unspecified, to be used for implementation-s
 Consider the following constraint:
 [source, Cypher]
 ----
-ADD CONSTRAINT myConstraint
+CREATE CONSTRAINT myConstraint
 FOR (n:Node)
 REQUIRE NODE KEY n.prop1, n.prop2
 ----
@@ -199,7 +199,7 @@ Owing to the duplication of the `rgb` property, the following attempt at adding 
 
 [source, cypher]
 ----
-ADD CONSTRAINT only_one_color_per_rgb
+CREATE CONSTRAINT only_one_color_per_rgb
 FOR (c:Color)
 REQUIRE UNIQUE c.rgb
 ----
@@ -218,7 +218,7 @@ It may, however, be eliminated by the introduction of a constraint asserting the
 
 [source, cypher]
 ----
-ADD CONSTRAINT colors_must_have_rgb
+CREATE CONSTRAINT colors_must_have_rgb
 FOR (c:Color)
 REQUIRE exists(c.rgb)
 ----
@@ -229,7 +229,7 @@ If we instead want to make the _combination_ of the properties `name` and `rgb` 
 
 [source, cypher]
 ----
-ADD CONSTRAINT color_schema
+CREATE CONSTRAINT color_schema
 FOR (c:Color)
 REQUIRE NODE KEY c.rgb, c.name
 ----
@@ -242,7 +242,7 @@ More complex constraint definitions are considered below:
 .Multiple property existence using conjunction
 [source, cypher]
 ----
-ADD CONSTRAINT person_properties
+CREATE CONSTRAINT person_properties
 FOR (p:Person)
 REQUIRE exists(p.name) AND exists(p.email)
 ----
@@ -250,7 +250,7 @@ REQUIRE exists(p.name) AND exists(p.email)
 .Using larger pattern
 [source, cypher]
 ----
-ADD CONSTRAINT not_rating_own_posts
+CREATE CONSTRAINT not_rating_own_posts
 FOR (u1:User)-[:RATED]->(:Post)<-[:POSTED_BY]-(u2:User)
 REQUIRE u.name <> u2.name
 ----
@@ -258,7 +258,7 @@ REQUIRE u.name <> u2.name
 .Property value limitations
 [source, cypher]
 ----
-ADD CONSTRAINT road_width
+CREATE CONSTRAINT road_width
 FOR ()-[r:ROAD]-()
 REQUIRE 5 < r.width < 50
 ----
@@ -266,7 +266,7 @@ REQUIRE 5 < r.width < 50
 .Cardinality
 [source, cypher]
 ----
-ADD CONSTRAINT spread_the_love
+CREATE CONSTRAINT spread_the_love
 FOR (p:Person)
 REQUIRE size((p)-[:LOVES]->()) > 3
 ----
@@ -274,7 +274,7 @@ REQUIRE size((p)-[:LOVES]->()) > 3
 .Endpoint requirements
 [source, cypher]
 ----
-ADD CONSTRAINT can_only_own_things
+CREATE CONSTRAINT can_only_own_things
 FOR ()-[:OWNS]->(t)
 REQUIRE (t:Vehicle) OR (t:Building) OR (t:Object)
 ----
@@ -282,7 +282,7 @@ REQUIRE (t:Vehicle) OR (t:Building) OR (t:Object)
 .Label coexistence
 [source, cypher]
 ----
-ADD CONSTRAINT programmers_are_people_too
+CREATE CONSTRAINT programmers_are_people_too
 FOR (p:Programmer)
 REQUIRE p:Person
 ----
@@ -292,7 +292,7 @@ Assuming a function `acyclic()` that takes a path as argument and returns `true`
 .Constraint example from CIR-2017-172
 [source, cypher]
 ----
-ADD CONSTRAINT enforce_dag_acyclic_for_R_links
+CREATE CONSTRAINT enforce_dag_acyclic_for_R_links
 FOR p = ()-[:R*]-()
 REQUIRE acyclic(p)
 ----
@@ -308,6 +308,8 @@ Alternative syntaxes have been discussed:
 
 * `GIVEN`, `CONSTRAIN`, `ASSERT` instead of `FOR`
 * `ASSERT`, `ENFORCE`, `IMPLIES` instead of `REQUIRE`
+* `ADD` instead of `CREATE`
+** It is desirable for verb pairs for modifying operations to be consistent in the language, and recent discussions are (so far informally) suggesting `INSERT`/`DELETE` to be used for data modification, thus making `CREATE` and `DROP` available for schema modification such as constraints.
 
 The use of an existing expression to express uniqueness -- instead of using the operator `UNIQUE` -- becomes unwieldy for multiple properties, as exemplified by the following:
 ----
