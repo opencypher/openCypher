@@ -86,6 +86,17 @@ class Root implements Iterable<ProductionNode>
             throw new IllegalArgumentException( "Duplicate definition of '" + production.name + "' production" );
         }
     }
+    
+    // this is probably naughty, but we need to mark the production, but not a reference
+    // special
+    void markAsBnfSymbols(String productionName)
+    {
+    	ProductionNode production = productions.get(productionName.toLowerCase());
+    	if (production == null) {
+    		throw new IllegalStateException("Can't find production " + productionName); 
+    	}
+    	production.bnfsymbols = true;
+    }
 
     @Child
     void addVocabulary( VocabularyReference vocabulary ) throws ParserConfigurationException, SAXException, IOException

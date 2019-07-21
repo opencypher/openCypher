@@ -32,4 +32,5 @@
 	xmlns:tns="http://opencypher.org/opencypher" elementFormDefault="qualified">
    	<xsd:attribute name="legacy" type="xsd:boolean"></xsd:attribute>
    	<xsd:attribute name="lexer" type="xsd:boolean" default="false"></xsd:attribute>
+   	<xsd:attribute name="bnfsymbols" type="xsd:boolean" default="false"></xsd:attribute>
 </xsd:schema>

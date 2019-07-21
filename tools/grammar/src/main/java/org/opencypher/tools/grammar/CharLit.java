@@ -27,37 +27,48 @@
  */
 package org.opencypher.tools.grammar;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * non-alpha characters that are handled in different ways by the notations
  */
 public enum CharLit  {
 	
+//	ASSIGN | LBRACE | RBRACE | LEND | REND | BAR | GT | LT | ELLIPSIS 
+
+	ASSIGN("::=", true),
 	COMMA(","),
 	MINUS_SIGN("-"),
 	PLUS_SIGN("+"),
+	DOUBLE_EXCLAMATION("!!", "", true, "", false),
 	// supplying an xml form will cause xml serialisation to use <literal ... rather than in line
 	DOUBLE_QUOTE("\"",  "&quot;"),
-	LESS_THAN_OPERATOR("<",   "&lt;"),
-	GREATER_THAN_OPERATOR(">",   "&gt;"),
+	LESS_THAN_OPERATOR("<",   "&lt;", true, "", false),
+	GREATER_THAN_OPERATOR(">",   "&gt;", true, "", false),
 	NOT_EQUALS_ANGLES("<>",  "&lt;&gt;"),
-	GREATER_EQUALS(">=",  "&gt;="),
-	LESS_EQUALS("<=",  "&lt;="),
+	// these two aren't really bnf, but provided we don't get other mixe items, all is good
+	GREATER_EQUALS(">=",  "&gt;=", true, "", true),
+	LESS_EQUALS("<=",  "&lt;=", true, "", true),
 	AMPERSAND("&", "&amp;"),
 	EQUALS("="),
-	RIGHT_BRACKET("]"),
-	LEFT_BRACKET("["),
-	VERTICAL_BAR("|"),
-	RIGHT_BRACE("}"),
-	LEFT_BRACE("{"),
-	ELLIPSIS("..."),
+	RIGHT_BRACKET("]","", true, "\\]", false),
+	LEFT_BRACKET("[","", true, "\\[", false),
+	VERTICAL_BAR("|","", true, "\\|", false),
+	RIGHT_BRACE("}", "", true, "\\}", false),
+	LEFT_BRACE("{", "", true, "\\{", false),
+	ELLIPSIS("...", true),
 	NEGATIVE_ELLIPSIS("!..."),
-	SINGLE_QUOTE("'", "'","\\'"),
+	SINGLE_QUOTE("'", "'",false, "\\'", false),
 	SEMI_COLON(";"),
 	INCREMENT_OPERATOR("+="),
 	ASTERISK("*"),
@@ -79,45 +90,62 @@ public enum CharLit  {
 	
 	private static final Map<String, CharLit> charMap;
 	private static final Map<String, CharLit> nameMap;
+	private static final Set<String> punctuation;
+	private static final Pattern bnfPattern;
+	private static final Map<String, CharLit> escapedMap;
 	
 	static {
 		charMap = new HashMap<>();
 		nameMap = new HashMap<>();
+		escapedMap = new HashMap<>();
+		punctuation = new HashSet<>();
+		List<String> bnfSyms = new ArrayList<>();
 		for (CharLit lit : CharLit.values()) {
 			charMap.put(lit.actualCharacters, lit);
 			nameMap.put(lit.name(), lit);
+			escapedMap.put(lit.escaped,  lit);
+			for (String character : lit.actualCharacters.split("")) {
+				punctuation.add(character);
+			}
+			if (lit.isBnfSymbols()) {
+				bnfSyms.add(lit.escaped);
+			}
 		}
+		bnfPattern = Pattern.compile(bnfSyms.stream().collect(Collectors.joining("|")));
 	}
 	
 	
-	public static CharLit getByValue(String characters) {
-		return charMap.get(characters);
-	}
-	
-	public static CharLit getByName(String suppliedName) {
-		return nameMap.get(suppliedName.toUpperCase().replaceAll(" ", "_"));
-	}
-	
+
 	private final String actualCharacters;
+	private final boolean bnfSymbols;
 	private final String xmlForm;
 	private final String bnfForm;
+	private final boolean mixed;
 	private final String g4Form;
 	private final String xmlName;
 	private final String xmlLiteral;
-
+	private final String  escaped;
+	private final String bnfName;
+	
 
 	CharLit(String characters) {
-		this(characters, "", "");
+		this(characters, "", false, "", false);
 	}
-	
+
+	CharLit(String characters, boolean bnfSymbol) {
+		this(characters, "", bnfSymbol, "", false);
+	}
 	CharLit(String characters, String xml) {
-		this(characters, xml, "");
+		this(characters, xml, false, "", false);
 	}
 	
-	CharLit(String characters, String xml, String escapedCharacters) {
+	CharLit(String characters, String xml, boolean bnfSymbol, String escapedCharacters, boolean mixed) {
 		// can override the enum name
 		
 		this.actualCharacters = characters;
+		this.escaped =  (escapedCharacters.length() > 0) ? escapedCharacters : characters;
+			
+		
 		if (xml != null) {
 			this.xmlLiteral = "<literal value=\"" + xml + "\" case-sensitive=\"true\"/>";
 			this.xmlForm = xmlLiteral;
@@ -126,9 +154,12 @@ public enum CharLit  {
 			this.xmlForm = characters;
 			
 		}
-		
+		this.bnfSymbols = bnfSymbol;
 			// bnfName is lower case with spaces in angles
-		this.bnfForm = "<" + name().toLowerCase().replaceAll("_", " ") + ">";
+		this.bnfName = name().toLowerCase().replaceAll("_", " ");
+		this.bnfForm = "<" + bnfName + ">";
+		this.mixed = mixed;
+		
 		// g4name is as is (uppercase with _) - this is a lexer rule
 		g4Form = name();
 
@@ -143,6 +174,35 @@ public enum CharLit  {
 		}
 		this.xmlName = b.toString();
 	}
+
+	public static CharLit getByValue(String characters) {
+		return charMap.get(characters);
+	}
+	
+	public static CharLit getByName(String suppliedName) {
+		return nameMap.get(suppliedName.toUpperCase().replaceAll(" ", "_"));
+	}
+	
+	public static boolean allPunctuation(String subject) 
+	{
+		return Arrays.asList(subject.split("")).stream().allMatch(c -> punctuation.contains(c));
+	}
+	
+	public static boolean allBnfSymbols(String subject) 
+	{
+		Matcher m = bnfPattern.matcher(subject);
+		int start = 0;
+		while (m.find()) {
+			if (m.start() != start) {
+				return false;
+			}
+			start = m.end();
+		}
+		return start == subject.length();
+	}
+
+	// TODO   haven't completed the case for partial bnf - where a production wants some thing
+	// like +>
 	
 	private static Map<String, CharLit> initCharMap() {
 		Map<String, CharLit> temp = new HashMap<>();
@@ -156,6 +216,21 @@ public enum CharLit  {
 		return actualCharacters;
 	}
 	
+	public boolean isBnfSymbols() {
+		return bnfSymbols;
+	}
+
+	/**
+	 * @return true if a mixture of bnf and non-bnf characters
+	 */
+	public boolean isMixed() {
+		return mixed;
+	}
+
+	public String getBnfName() {
+		return bnfName;
+	}
+
 	public String getSQLBNF() {
 		return bnfForm ;
 	}

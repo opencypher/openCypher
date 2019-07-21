@@ -133,14 +133,16 @@ public class Antlr4 extends BnfWriter
          * This prints all the 'fragment' rules (rules that are used to construct lexer tokens,
          * and the only type of rule that can use the character set syntax []) at the bottom of the grammar file.
          */
-    	// now add the letter rules
-    	String[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    	for (String letter : alphabet) {
-			output.append("fragment ").append(letter).append(" : '").append(letter)
-				.append("' | '").append(letter.toLowerCase()).append("'");
-			output.println(" ;");
-		}
-    	output.println();
+//    	// now add the letter rules
+//    	if (seenKeywords.size() > 0) {
+//        	String[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+//        	for (String letter : alphabet) {
+//    			output.append("fragment ").append(letter).append(" : '").append(letter)
+//    				.append("' | '").append(letter.toLowerCase()).append("'");
+//    			output.println(" ;");
+//    		}
+//        	output.println();
+//    	}
         for ( Map.Entry<String,CharacterSet> rule : fragmentRules.entrySet() )
         {
             CharacterSet set = rule.getValue();
@@ -214,14 +216,15 @@ public class Antlr4 extends BnfWriter
                 caseInsensitiveProductionStart( ruleName );
                 for ( char c : lexerRule.getValue().toCharArray() )
                 {
-                	// alternative style (can't work out what the indirect way of this is
-                	output.append(String.valueOf( c ).toUpperCase() );
-//                    groupWith( '(', () ->
-//                    {
-//                        literal( String.valueOf( c ).toUpperCase() );
-//                        alternativesSeparator();
-//                        literal( String.valueOf( c ).toLowerCase() );
-//                    }, ')' );
+                	// possible alternative style (can't work out what the indirect way of this is
+                	// can't cope with non-alpha numerics and test not setup for it
+//                	output.append(String.valueOf( c ).toUpperCase() );
+                    groupWith( '(', () ->
+                    {
+                        literal( String.valueOf( c ).toUpperCase() );
+                        alternativesSeparator();
+                        literal( String.valueOf( c ).toLowerCase() );
+                    }, ')' );
                     sequenceSeparator();
                 }
                 output.println( " ;" ).println();

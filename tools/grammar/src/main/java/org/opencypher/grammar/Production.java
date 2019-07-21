@@ -51,6 +51,8 @@ public interface Production
     boolean legacy();
 
     boolean lexer();
+    
+    boolean bnfsymbols();
 
     Collection<NonTerminal> references();
 

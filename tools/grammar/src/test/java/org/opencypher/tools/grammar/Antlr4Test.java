@@ -206,6 +206,7 @@ public class Antlr4Test
     {
         Output.Readable result = stringBuilder();
         Antlr4.write( grammar, result );
+        String sres = result.toString();
         assertThat( result, contentsEquals( lines ) );
     }
 

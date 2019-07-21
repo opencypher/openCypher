@@ -29,6 +29,7 @@ package org.opencypher.tools.grammar;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.opencypher.grammar.Alternatives;
 import org.opencypher.grammar.CharacterSet;
@@ -53,7 +54,7 @@ abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVis
     private int altPrefix;
     private boolean group;
     protected final Output output;
-    protected final Set<Integer> caseChars = new HashSet<>();
+    protected final Set<Integer> caseChars = new TreeSet<>();
 
     BnfWriter( Output output )
     {

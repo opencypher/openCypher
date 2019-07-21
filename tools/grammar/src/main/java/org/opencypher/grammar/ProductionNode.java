@@ -51,7 +51,7 @@ final class ProductionNode extends Located implements Production
     @Attribute(uri = Grammar.RAILROAD_XML_NAMESPACE, optional = true)
     boolean skip, inline;
     @Attribute(uri = Grammar.OPENCYPHER_XML_NAMESPACE, optional = true)
-    boolean legacy, lexer;
+    boolean legacy, lexer, bnfsymbols;
     private List<NonTerminal> references;
 
     public ProductionNode( Root root )
@@ -143,7 +143,11 @@ final class ProductionNode extends Located implements Production
         return lexer;
     }
 
-    void addReference( NonTerminalNode nonTerminal )
+    public boolean bnfsymbols() {
+		return bnfsymbols;
+	}
+
+	void addReference( NonTerminalNode nonTerminal )
     {
         if ( references == null )
         {

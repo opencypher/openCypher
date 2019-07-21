@@ -251,6 +251,10 @@ public interface Grammar
             return this;
         }
 
+        public void setBnfSymbol(String productionName) 
+        {
+        	
+        }
         public Grammar build( Option... options )
         {
             return resolve( (options == null ? Stream.<Option>empty() : Stream.of( options ))

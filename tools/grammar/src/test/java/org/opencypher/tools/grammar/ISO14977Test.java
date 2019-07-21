@@ -77,18 +77,19 @@ public class ISO14977Test
     @Test
     public void shouldRenderCaseInsensitiveLiteral() throws Exception
     {
+    	// to ensure reproducability (via a set) the letters are sorted
         verify( production( "foo", caseInsensitive( "LIteR@L" ) ),
                 "foo = L,I,T,E,R,'@',L ;",
-                "",
-                "R = 'R' | 'r' ;",
-                "",
-                "T = 'T' | 't' ;",
                 "",
                 "E = 'E' | 'e' ;",
                 "",
                 "I = 'I' | 'i' ;",
                 "",
-                "L = 'L' | 'l' ;" );
+                "L = 'L' | 'l' ;",
+                "",
+                "R = 'R' | 'r' ;",
+                "",
+                "T = 'T' | 't' ;");
     }
 
     @Test

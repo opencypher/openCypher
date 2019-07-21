@@ -40,6 +40,8 @@ import org.opencypher.grammar.NonTerminal;
 import org.opencypher.grammar.Production;
 import org.opencypher.tools.io.HtmlTag;
 import org.opencypher.tools.io.Output;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.opencypher.tools.io.Output.output;
 
@@ -48,6 +50,12 @@ import static org.opencypher.tools.io.Output.output;
  */
 public class SQLBNF extends BnfWriter
 {
+	private static final String COMMENT_START = "// ****************";
+	private static final String COMMENT_LINE  = "// * ";
+	private static final String COMMENT_END   = "// ****************";
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(SQLBNF.class.getName());
+
      public static void write( Grammar grammar, Writer writer )
     {
         write( grammar, output( writer ) );
@@ -63,9 +71,10 @@ public class SQLBNF extends BnfWriter
         String header = grammar.header();
         if ( header != null )
         {
-            output.append( "(*\n * " )
-                  .printLines( header, " * " )
-                  .println( " *)" );
+        	
+            output.append( COMMENT_START).println().append(COMMENT_LINE)
+                  .printLines( header, COMMENT_LINE )
+                  .println( COMMENT_END );
         }
         try ( SQLBNF writer = new SQLBNF( output ) )
         {
@@ -73,6 +82,7 @@ public class SQLBNF extends BnfWriter
         }
     }
 
+    
     public static void main( String... args ) throws Exception
     {
         Main.execute( SQLBNF::write, args );
@@ -118,8 +128,16 @@ public class SQLBNF extends BnfWriter
      * and is emptied when the production is exited.
      */
     private final Map<String, String> keywordsInProduction = new LinkedHashMap<>();
-
+    /*
+     * Mutable state -- if the production is all bnfsymbols, don't generate a new one
+     * 
+     */
+    private boolean bnfSymbols = false;
+    /**
+     * character literals that need to be added (once)
+     */
     private final Set<CharLit> characterLiterals = new HashSet<>();
+    private final Set<String>  existingCharLiterals = new HashSet<>();
     
     private SQLBNF( Output output )
     {
@@ -210,25 +228,29 @@ public class SQLBNF extends BnfWriter
     @Override
     protected void productionCommentPrefix()
     {
-        output.append( "(* " );
+        output.append( COMMENT_START ).println().append(COMMENT_LINE);
     }
 
     @Override
     protected void productionCommentLinePrefix()
     {
-        output.append( " * " );
+        output.append( COMMENT_LINE);
     }
 
     @Override
     protected void productionCommentSuffix()
     {
-        output.append( " *)" );
+        output.append(COMMENT_END ).println();
     }
 
     @Override
     protected void productionStart( Production p )
     {
         output.append("<").append( p.name() ).append( "> ::= " );
+        bnfSymbols = p.bnfsymbols();
+        if (bnfSymbols) {
+        	existingCharLiterals.add(p.name());
+        }
     }
 
     @Override
@@ -241,6 +263,7 @@ public class SQLBNF extends BnfWriter
     protected void productionEnd()
     {
         output.println().println();
+        bnfSymbols = false;
         /*
          * We print out productions for all literal words mentioned in the production
          */
@@ -252,14 +275,16 @@ public class SQLBNF extends BnfWriter
             {
                 seenKeywords.add( ruleName );
                 caseInsensitiveProductionStart( ruleName );
+                String glue = "";
                 for ( char c : keywordProduction.getValue().toCharArray() )
                 {
                 	addCaseChar(c);
                 	// alternative style (can't work out what the indirect way of this is
-                	output.append("<").append(String.valueOf( c ).toUpperCase() ).append("> ");
+                	output.append(glue).append("<").append(String.valueOf( c ).toUpperCase() ).append(">");
+                	glue = " ";
 
                 }
-                output.println( " ;" ).println();
+                output.println().println();
             }
         }
         keywordsInProduction.clear();
@@ -287,15 +312,22 @@ public class SQLBNF extends BnfWriter
     @Override
     protected void sequenceSeparator()
     {
-        output.append( "  " );
+        output.append( " " );
     }
 
     @Override
     protected void literal( String value )
     {
-    	// sqlbnf never writes explicit punctuation
+    	// sqlbnf never writes explicit punctuation - except if whole rhs is bnf/punctuation
+    	if (bnfSymbols) {
+    		// this is the whole production
+    		output.append(value);
+    		return;
+    	}
+    	
     	CharLit lit = CharLit.getByValue(value);
     	if (lit == null) {
+    		// not simple punctuation punctuation
     		if (value.matches("[\\w\\d]+")) {
     			// we will do it explicitly
     			output.append(value);
@@ -400,13 +432,17 @@ public class SQLBNF extends BnfWriter
     {
     }
 
+    private Output appendNormalTextLine(String text) {
+    	return output.append(" !! ").append(text).println();
+    }
+    
     @Override
     protected void characterSet( CharacterSet characters )
     {
         String name = characters.name();
         if ( name != null )
         {
-            output.append( name );
+            appendNormalTextLine("characterset '" + name + "'");
         }
         else
         {
@@ -417,23 +453,23 @@ public class SQLBNF extends BnfWriter
                 @Override
                 public CharacterSet.ExclusionVisitor<RuntimeException> visitSet( String name )
                 {
-                    output.append( name );
+                	appendNormalTextLine("characterset '" + name + "'");
                     return new CharacterSet.ExclusionVisitor<RuntimeException>()
                     {
-                        String sep = " - (";
+                        String sep = " except (";
 
                         @Override
                         public void excludeCodePoint( int cp ) throws RuntimeException
                         {
-                            output.append( sep );
+                        	output.append(" !! ").append(sep).append(" character ");
                             codePoint( cp );
+                            output.println();
                             sep = " | ";
                         }
-
                         @Override
                         public void excludeSet( String name )
                         {
-                            output.append( sep ).append( name );
+                        	appendNormalTextLine(sep + " characterset '" + name + "'");
                             sep = " | ";
                         }
 
@@ -442,7 +478,7 @@ public class SQLBNF extends BnfWriter
                         {
                             if ( sep.charAt( sep.length() - 1 ) != '(' )
                             {
-                                output.append( ')' );
+                                appendNormalTextLine( "  )" );
                             }
                         }
                     };
@@ -451,8 +487,9 @@ public class SQLBNF extends BnfWriter
                 @Override
                 public void visitCodePoint( int cp )
                 {
-                    output.append( sep );
+                	output.append(" !! ").append(sep).append(" character ");
                     codePoint( cp );
+                    output.println();
                     sep = " | ";
                 }
 
@@ -485,14 +522,14 @@ public class SQLBNF extends BnfWriter
     @Override
     protected boolean optionalPrefix()
     {
-        output.append( "[" );
+        output.append( "[ " );
         return true;
     }
 
     @Override
     protected void optionalSuffix()
     {
-        output.append( "]" );
+        output.append( " ]" );
     }
 
     @Override
@@ -522,11 +559,13 @@ public class SQLBNF extends BnfWriter
     public void close()
     {
     	for (CharLit lit : characterLiterals) {
-    		output.append(lit.getSQLBNF()).append(" ::= ").append(lit.getCharacters());
-    		output.println().println();
+    		String name = lit.getBnfName();
+    		if (! existingCharLiterals.contains(name)) {
+        		output.append(lit.getSQLBNF()).append(" ::= ").append(lit.getCharacters());
+        		output.println().println();
+    		}
 		}
-    	
-        for ( int chr : caseChars )
+    	for ( int chr : caseChars )
         {
             int upper = Character.toUpperCase( chr );
             int lower = Character.toLowerCase( chr );
