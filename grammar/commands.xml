@@ -66,7 +66,7 @@
   <!-- / NEW CONSTRAINT SYNTAX \ -->
 
   <production name="CreateConstraint">
-    ADD &SP; CONSTRAINT &SP; <non-terminal ref="ConstraintName"/> &SP;
+    CREATE &SP; CONSTRAINT &SP; <non-terminal ref="ConstraintName"/> &SP;
     FOR &SP; <non-terminal ref="ConstraintPattern"/> &SP;
     REQUIRE &SP; <non-terminal ref="ConstraintExpression"/>
   </production>
