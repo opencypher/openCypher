@@ -47,7 +47,7 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
   Scenario: SKIP with an expression that does not depend on variables
-    Given an empty graph
+    Given any graph
     And having executed:
       """
       UNWIND range(1, 10) AS i
@@ -101,7 +101,7 @@ Feature: SkipLimitAcceptanceTest
       """
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
-  Scenario: Negative parameter for TOP should fail
+  Scenario: Negative parameter for LIMIT with ORDER BY should fail
     Given any graph
     And having executed:
       """
@@ -118,7 +118,7 @@ Feature: SkipLimitAcceptanceTest
       """
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
-  Scenario: Negative LIMIT should fail with a syntax exception
+  Scenario: Negative LIMIT should fail
     Given any graph
     And having executed:
       """
@@ -141,16 +141,16 @@ Feature: SkipLimitAcceptanceTest
              (c:Person {name: 'Craig'})
       """
     And parameters are:
-      | limit | -1 |
+      | skip | -1 |
     When executing query:
       """
       MATCH (p:Person)
       RETURN p.name AS name
-      SKIP $limit
+      SKIP $skip
       """
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
-  Scenario: Negative SKIP should fail with a syntax exception
+  Scenario: Negative SKIP should fail
     Given any graph
     And having executed:
       """
@@ -173,7 +173,7 @@ Feature: SkipLimitAcceptanceTest
              (c:Person {name: 'Craig'})
       """
     And parameters are:
-      | limit | 1.0 |
+      | limit | 1.5 |
     When executing query:
       """
       MATCH (p:Person)
@@ -182,7 +182,7 @@ Feature: SkipLimitAcceptanceTest
       """
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
-  Scenario: Floating point parameter for TOP should fail
+  Scenario: Floating point parameter for LIMIT with ORDER BY should fail
     Given any graph
     And having executed:
       """
@@ -190,7 +190,7 @@ Feature: SkipLimitAcceptanceTest
              (c:Person {name: 'Craig'})
       """
     And parameters are:
-      | limit | 1.0 |
+      | limit | 1.5 |
     When executing query:
       """
       MATCH (p:Person)
@@ -199,7 +199,7 @@ Feature: SkipLimitAcceptanceTest
       """
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
-  Scenario: Floating point LIMIT should fail with a syntax exception
+  Scenario: Floating point LIMIT should fail
     Given any graph
     And having executed:
       """
@@ -210,7 +210,7 @@ Feature: SkipLimitAcceptanceTest
       """
       MATCH (p:Person)
       RETURN p.name AS name
-      LIMIT 1.0
+      LIMIT 1.5
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
@@ -222,7 +222,7 @@ Feature: SkipLimitAcceptanceTest
              (c:Person {name: 'Craig'})
       """
     And parameters are:
-      | limit | 1.0 |
+      | limit | 1.5 |
     When executing query:
       """
       MATCH (p:Person)
@@ -231,7 +231,7 @@ Feature: SkipLimitAcceptanceTest
       """
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
-  Scenario: Floating point SKIP should fail with a syntax exception
+  Scenario: Floating point SKIP should fail
     Given any graph
     And having executed:
       """
@@ -242,6 +242,6 @@ Feature: SkipLimitAcceptanceTest
       """
       MATCH (p:Person)
       RETURN p.name AS name
-      SKIP 1.0
+      SKIP 1.5
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
