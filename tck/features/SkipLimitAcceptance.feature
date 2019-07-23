@@ -30,8 +30,10 @@
 
 Feature: SkipLimitAcceptanceTest
 
-  Scenario: SKIP with an expression that depends on variables should fail
+  Background:
     Given any graph
+
+  Scenario: SKIP with an expression that depends on variables should fail
     When executing query:
       """
       MATCH (n) RETURN n SKIP n.count
@@ -39,7 +41,6 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
   Scenario: LIMIT with an expression that depends on variables should fail
-    Given any graph
     When executing query:
       """
       MATCH (n) RETURN n LIMIT n.count
@@ -47,7 +48,6 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
   Scenario: SKIP with an expression that does not depend on variables
-    Given any graph
     And having executed:
       """
       UNWIND range(1, 10) AS i
@@ -67,7 +67,6 @@ Feature: SkipLimitAcceptanceTest
 
 
   Scenario: LIMIT with an expression that does not depend on variables
-    Given an empty graph
     And having executed:
       """
       UNWIND range(1, 3) AS i
@@ -85,7 +84,6 @@ Feature: SkipLimitAcceptanceTest
     And no side effects
 
   Scenario: Negative parameter for LIMIT should fail
-    Given any graph
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -102,7 +100,6 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
   Scenario: Negative parameter for LIMIT with ORDER BY should fail
-    Given any graph
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -119,7 +116,6 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
   Scenario: Negative LIMIT should fail
-    Given any graph
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -134,7 +130,6 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
 
   Scenario: Negative parameter for SKIP should fail
-    Given any graph
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -151,7 +146,6 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
   Scenario: Negative SKIP should fail
-    Given any graph
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -166,7 +160,6 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
 
   Scenario: Floating point parameter for LIMIT should fail
-    Given any graph
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -183,7 +176,6 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
   Scenario: Floating point parameter for LIMIT with ORDER BY should fail
-    Given any graph
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -200,7 +192,6 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
   Scenario: Floating point LIMIT should fail
-    Given any graph
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -215,7 +206,6 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   Scenario: Floating point parameter for SKIP should fail
-    Given any graph
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -232,7 +222,6 @@ Feature: SkipLimitAcceptanceTest
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
   Scenario: Floating point SKIP should fail
-    Given any graph
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
