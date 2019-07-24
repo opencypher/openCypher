@@ -533,7 +533,7 @@ public class Antlr4 extends BnfWriter
         @Override
         public void visitCodePoint( int cp )
         {
-            throw new UnsupportedOperationException();
+        	throw new UnsupportedOperationException();
         }
 
         @Override

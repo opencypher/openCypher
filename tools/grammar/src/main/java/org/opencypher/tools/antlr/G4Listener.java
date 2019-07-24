@@ -25,11 +25,9 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
- package org.opencypher.tools.antlr;
+  package org.opencypher.tools.antlr;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -58,6 +56,7 @@ import org.opencypher.tools.antlr.g4.Gee4Parser.RulelistContext;
 import org.opencypher.tools.antlr.g4.Gee4Parser.SpecialRuleContext;
 import org.opencypher.tools.antlr.g4.Gee4Parser.WholegrammarContext;
 import org.opencypher.tools.antlr.tree.EOFreference;
+import org.opencypher.tools.antlr.tree.ExclusionCharacterSet;
 import org.opencypher.tools.antlr.tree.GrammarItem;
 import org.opencypher.tools.antlr.tree.GrammarName;
 import org.opencypher.tools.antlr.tree.GrammarTop;
@@ -70,12 +69,10 @@ import org.opencypher.tools.antlr.tree.ListedCharacterSet;
 import org.opencypher.tools.antlr.tree.NormalText;
 import org.opencypher.tools.antlr.tree.OneOrMore;
 import org.opencypher.tools.antlr.tree.Rule;
+import org.opencypher.tools.antlr.tree.Rule.RuleType;
 import org.opencypher.tools.antlr.tree.RuleId;
 import org.opencypher.tools.antlr.tree.RuleList;
-import org.opencypher.tools.antlr.tree.BnfSymbolLiteral;
-import org.opencypher.tools.antlr.tree.SpecialSeqLiteral;
 import org.opencypher.tools.antlr.tree.ZeroOrMore;
-import org.opencypher.tools.grammar.CharLit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,11 +139,12 @@ public class G4Listener extends Gee4BaseListener
 		final Rule rule;
 		GrammarItem item = getItem(ctx.ruleElements());
 		String ruleName = getItem(ctx.ruleName()).toString().replaceFirst("^L_", "");
-		if (lexerRule && ruleName.matches("[A-Z]+") && item.isKeywordPart()) {
-			rule = new Rule(getItem(ctx.ruleName()), item, lexerRule);
-		} else {
+		// this is juggled in the normaliser
+//		if (lexerRule && ruleName.matches("[A-Z]+") && item.isKeywordPart()) {
+//			rule = new Rule(getItem(ctx.ruleName()), item, true, RuleType.NORMAL);
+//		} else {
 			rule = new Rule(getItem(ctx.ruleName()), item);
-		}
+//		}
 		setItem(ctx, rule);
 	}
 
@@ -157,9 +155,9 @@ public class G4Listener extends Gee4BaseListener
 		GrammarItem item = getItem(ctx.literal());
 		String ruleName = getItem(ctx.ruleName()).toString().replaceFirst("^L_", "");
 		if (lexerRule && ruleName.matches("[A-Z]+") && item.isKeywordPart()) {
-			rule = new Rule(getItem(ctx.ruleName()), item, lexerRule);
+			rule = new Rule(getItem(ctx.ruleName()), item, true, RuleType.KEYWORD);
 		} else {
-			rule = new Rule(getItem(ctx.ruleName()), item);
+			rule = new Rule(getItem(ctx.ruleName()), item, false, RuleType.FRAGMENT);
 		}
 		setItem(ctx, rule);
 	}
@@ -178,7 +176,7 @@ public class G4Listener extends Gee4BaseListener
 		String ruleName = ctx.getText();
 		// flip a flag that will last for the processing of the rule
 		lexerRule = ruleName.equals(ruleName.toUpperCase());
-		// special rule to under the marking of reserved words
+		// special rule to undo the marking of reserved words
 		setItem(ctx, new RuleId(ruleName.replaceFirst("^L_", "")));
 	}
 
@@ -276,48 +274,98 @@ public class G4Listener extends Gee4BaseListener
 
 	@Override
 	public void exitNegatedQuotedString(NegatedQuotedStringContext ctx) {
-		setItem(ctx, new InLiteral("@negated quoted string@"));
+		setItem(ctx, new ExclusionCharacterSet(ctx.getText().replaceFirst("^~'","").replaceFirst("'$", "")));
 	}
 
 	@Override
 	public void exitCharSet(CharSetContext ctx) {
-		setItem(ctx, new ListedCharacterSet(ctx.getText().replaceFirst("^\\[","").replaceFirst("\\]'$", "")));
+		String charSetString = ctx.getText().replaceFirst("^\\[","").replaceFirst("\\]$", "");
+		if (charSetString.contains("\\")) {
+			charSetString = interpret(charSetString);
+		}
+		setItem(ctx, new ListedCharacterSet(charSetString));
 	}
 
+	private String interpret(String charSetString) {
+		// to cope with punctuation, especially backslash, the syntax has text+,
+		// but we want them together again
+		LOGGER.warn("interpreting {}", charSetString);
+		boolean escaped = false;
+		StringBuilder b = new StringBuilder();
+		for (int i = 0, end = charSetString.length() - 1; i < end; i++ ) {
+			int cp = charSetString.codePointAt(i);
+			switch (cp) {
+			case '\\':
+				if (escaped) {
+					b.append(cp);
+					escaped = false;
+				} else {
+					escaped = true;
+				}
+				break;
+
+			default:
+				if (escaped) {
+					escaped = false;
+					switch (cp) {
+					case 'r':
+						b.append('\r');
+						break;
+					case 'n':
+						b.append("\n");
+						break;
+					case 't':
+						b.append("\t");
+						break;
+					case 'b':
+						b.append("\b");
+						break;
+					case 'f':
+						b.append("\f");
+						break;
+					case '\\':
+						b.append("\\");
+						break;
+					case 'u':
+						if (i + 4 > charSetString.length()) {
+							throw new IllegalArgumentException("unicode escape requires 4 hex digits");
+						}
+						String hexchars = charSetString.substring(i+1, i + 5);
+						LOGGER.warn("at {}, hex {}", i, hexchars);
+						int ch = Integer.parseInt(hexchars, 16);
+						b.append((char) ch);
+						i += 4;
+						break;
+					default:
+						throw new IllegalArgumentException("Don't know how to interpret escaped character " + cp);
+					}
+				} else {
+					b.append(cp);
+				}
+
+			}
+		}
+		String answer = b.toString();
+		LOGGER.warn("became {}, len {}", answer, answer.length());
+
+		return answer;
+
+	}
+	
 	@Override
 	public void exitNegatedCharSet(NegatedCharSetContext ctx) {
-		setItem(ctx, new InLiteral("@negated char set@"));
+		setItem(ctx, new ExclusionCharacterSet(ctx.getText().replaceFirst("^~\\[","").replaceFirst("\\]$", "")));
 	}
 
 	@Override
 	public void exitDotPattern(DotPatternContext ctx) {
-		setItem(ctx, new InLiteral("@dot pattern@"));
+		throw new UnsupportedOperationException("Cannot handle lexer dot pattern: " + ctx.getText());
 	}
 
 	@Override
 	public void exitLiteral(LiteralContext ctx)
 	{
-		// i think there's only one here now
 		pullUpItem(ctx);
-//		// chop off the quotes
-//		String text = ctx.getText().replaceFirst("^'","").replaceFirst("'$", "");
-//		
-//		if (CharLit.allPunctuation(text)) {
-//			// is it a known construct
-//			CharLit lit = CharLit.getByValue(text);
-//			if (lit != null) {
-//				setItem(ctx, new SpecialLiteral(text));
-//			} else {
-//				// split into individual characters
-//				List<CharLit> charLits = Arrays.asList(text.split("")).stream().map(ch -> CharLit.getByValue(ch)).collect(Collectors.toList());
-//				setItem(ctx, new SpecialSeqLiteral(charLits));
-//			}
-//		} else {
-//			// does this cope with mixtures ?
-//			setItem(ctx, new InLiteral(text));
-//		}
-////		setItem(ctx, lexerRule ?  new InLiteral(content)
-////				: MappedLiterals.getFromG4literal(content));
 	}
 
 	
@@ -330,7 +378,7 @@ public class G4Listener extends Gee4BaseListener
 	public void exitRuleReference(RuleReferenceContext ctx)
 	{
 		// special case keywords thata have been escaped by Antlr4 write
-		String ruleName = respaceString(ctx.getText());
+		String ruleName = ctx.getText();
 		if (ruleName.startsWith("L_")) {
 			setItem(ctx, new InLiteral(ruleName.substring(2)));
 //		} else if (ruleName.matches("[A-Z]+")) {

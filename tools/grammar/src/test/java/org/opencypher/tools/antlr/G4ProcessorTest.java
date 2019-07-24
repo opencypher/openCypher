@@ -29,6 +29,7 @@ package org.opencypher.tools.antlr;
 
 import static org.junit.Assert.assertEquals;
 import static org.opencypher.tools.io.Output.lines;
+import static org.opencypher.tools.io.Output.stringBuilder;
 import static org.opencypher.grammar.Grammar.caseInsensitive;
 import static org.opencypher.grammar.Grammar.charactersOfSet;
 import static org.opencypher.grammar.Grammar.grammar;
@@ -37,7 +38,14 @@ import static org.opencypher.grammar.Grammar.nonTerminal;
 import static org.opencypher.grammar.Grammar.optional;
 import static org.opencypher.grammar.Grammar.zeroOrMore;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.xml.transform.TransformerException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,6 +54,8 @@ import org.junit.Test;
 import org.opencypher.grammar.Fixture;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.tools.grammar.Antlr4;
+import org.opencypher.tools.grammar.Xml;
+import org.opencypher.tools.io.Output;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +80,7 @@ public class G4ProcessorTest {
 
 	@Test
 	public void twoProductions() {
-		roundTripBNFG4("<alpha> ::= ALPHA",
+		roundTripBNFG4("<alpha> ::= ALPHA <beta>",
 				 "",
 				 "<beta> ::= BETA");
 	}
@@ -172,11 +182,23 @@ public class G4ProcessorTest {
 	public void punctuation() {
 		roundTripBNFG4("<puncs> ::= +.-");
 	}
+	
 	@Test
 	public void commasProduction() {
 		roundTripBNFG4("<list> ::= ONE <comma> TWO <comma> THREE",
 				"",
 				"<comma> ::= ,");
+	}
+	
+	
+	@Test
+	public void charsetG4() {
+		// passage through std grammar will lose any original fragment rule name
+		roundTripG4("grammar four;",
+				"",
+				"four : FOUR_0 ;",
+				"",
+				"fragment FOUR_0 : [abcd] ;");
 	}
 	
 	@Test
@@ -185,31 +207,52 @@ public class G4ProcessorTest {
 		        .production( "test", charactersOfSet( "[abcd]" ) ).build());
 	}
 	
-	// haven't made this one work
-	@Test
+	//  G4 serialiser can't do these yet
 	@Ignore
-	public void charsetChoice() {
-		roundTripBNFG4("<anychars> ::= !! characterset 'ID_Start'",
-					"  |  !! characterset 'Pc'");
+	@Test
+	public void negCharset() {
+		roundTripG4(grammar( "test" )
+		        .production( "test", charactersOfSet("ANY").except('a','b','c') ).build());
 	}
 	
+	// this goes wrong because the antlr writer can't process the charset created by itself
+	@Ignore
+	@Test
+	public void charsetChoice() {
+		roundTripBNFG4("<anychars> ::= $ID_Start$ | $Pc$");
+	}
+	
+	
+	@Test
+	public void unionFromXml() {
+		String production = "  <production name=\"Union\">\n" + 
+				"    <alt>\n" + 
+				"      <seq>\n" + 
+				"        <literal value=\"UNION\" case-sensitive=\"false\"/>\n" + 
+				"        <literal value=\"ALL\" case-sensitive=\"false\"/>\n" + 
+				"      </seq>\n" + 
+				"        <literal value=\"UNION\" case-sensitive=\"false\"/>\n" + 
+				"    </alt>\n" + 
+				"  </production>";
+		Grammar prodGrammar = xmlin(production);
+		roundTripG4(prodGrammar);
+	}
+	
+	@Ignore
 	@Test
 	public void shouldRecycleCypher() throws Exception
 	{
-//		G4Processor processor = new G4Processor();
-		Grammar grammar = Fixture.grammarResource( G4Processor.class, "/cypher.xml");
-//		String bnfFile = "C:/Users/Peter/gitg4bnf/antlr4-bnf-translator/grammars/cypher.bnf";
-//		Grammar grammar = processor.processFile(bnfFile);
-		// now reprocess 
-		// not doing this at the moment because two of the rules get an unnecessary { } round a single item
-		String firstG4 = makeAntlr4(grammar);
-		LOGGER.debug("Generated \n{}", firstG4);
+		Grammar grammarFromXml = Fixture.grammarResource( G4Processor.class, "/cypher.xml");
+		//  LOGGER.debug("xml out\n{}", xmlout(grammarFromXml));
+		// now process 
+		String firstG4 = makeAntlr4(grammarFromXml);
+		LOGGER.debug("Generated G4\n{}", firstG4);
 		// do we need a new one ?
-		G4Processor secondProcessor = new G4Processor();
-		Grammar grammarTwo = secondProcessor.processString(firstG4);
-		String intermediateG4 = makeAntlr4(grammarTwo);
-		Grammar grammarThree = secondProcessor.processString(intermediateG4);
-		String finalG4 = makeAntlr4(grammarTwo);
+		G4Processor g4processor = new G4Processor();
+		Grammar grammarFromG4 = g4processor.processString(firstG4);
+		String intermediateG4 = makeAntlr4(grammarFromG4);
+		Grammar grammarFromSecondGenG4 = g4processor.processString(intermediateG4);
+		String finalG4 = makeAntlr4(grammarFromG4);
 		// can i eat my own dog food
 		assertEquals(intermediateG4, finalG4);
 		// but can i handle everything ?
@@ -227,13 +270,15 @@ public class G4ProcessorTest {
 	}
 
 	private void roundTripG4(Grammar testGrammar) {
+		//  LOGGER.debug("xml of input\n{}", xmlout(testGrammar));
 		String firstG4 = makeAntlr4(testGrammar);
-		LOGGER.warn("in \n{}", firstG4);
+		LOGGER.debug("generated G4\n{}", firstG4);
 		
 		G4Processor processor = new G4Processor();
 		Grammar grammar = processor.processString(firstG4);
+		//  LOGGER.debug("xml from g4\n{}", xmlout(grammar));
 		String outputG4 = makeAntlr4(grammar);
-		LOGGER.debug("out \n{}", outputG4);
+		LOGGER.debug("second g4\n{}", outputG4);
 		assertEquals(unPretty(firstG4), unPretty(outputG4));
 	}
 
@@ -245,13 +290,46 @@ public class G4ProcessorTest {
 		G4Processor processor = new G4Processor();
 		LOGGER.debug("in {}", inG4);
 		Grammar grammar = processor.processString(lines(inputG4));
+		//  LOGGER.debug("grammar from g4 is \n{}", xmlout(grammar));
 		String outputG4 = makeAntlr4(grammar);
 		LOGGER.debug("out {}", outputG4);
 		assertEquals(unPretty(inG4), unPretty(outputG4));
 	}
 
+	private String xmlout(Grammar testGrammar) {
+        // given
+        Output.Readable out = stringBuilder();
 
-	
+        try {
+			Xml.write( testGrammar, out );
+			return out.toString();
+		} catch (TransformerException e) {
+			throw new IllegalStateException("Failed to create xml", e);
+		}
+	}
+
+	private static final Pattern XMLANG_PATTERN = Pattern.compile("name=(?:'|\")(\\w+)(?:'|\\\")");
+	private Grammar xmlin(String productions) {
+		Matcher m = XMLANG_PATTERN.matcher(productions);
+		if (m.find()) {
+			String language = m.group(1);
+
+			StringBuilder xb = new StringBuilder(
+					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<grammar language=\"").append(language)
+							.append("\" xmlns=\"http://opencypher.org/grammar\">\n").append(productions)
+							.append("\n</grammar>");
+			String xmlString = xb.toString();
+			InputStream inputStream = new ByteArrayInputStream(xmlString.getBytes(Charset.forName("UTF-8")));
+			try {
+				return Grammar.parseXML(inputStream);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Failed to parse xml\n" + xmlString, e);
+			}
+		} else {
+			throw new IllegalArgumentException("Cannot find first production name in " + productions);
+		}
+	}
+
 	private String makeAntlr4(Grammar grammar) {
 		StringWriter writer = new StringWriter();
 		Antlr4.write(grammar, writer);

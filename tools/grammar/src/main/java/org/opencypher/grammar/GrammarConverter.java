@@ -27,6 +27,17 @@
  */
 package org.opencypher.grammar;
 
+import static org.opencypher.grammar.Grammar.caseInsensitive;
+import static org.opencypher.grammar.Grammar.charactersOfSet;
+import static org.opencypher.grammar.Grammar.epsilon;
+import static org.opencypher.grammar.Grammar.literal;
+import static org.opencypher.grammar.Grammar.nonTerminal;
+import static org.opencypher.grammar.Grammar.oneOf;
+import static org.opencypher.grammar.Grammar.oneOrMore;
+import static org.opencypher.grammar.Grammar.optional;
+import static org.opencypher.grammar.Grammar.sequence;
+import static org.opencypher.grammar.Grammar.zeroOrMore;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,26 +46,17 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.opencypher.grammar.Grammar.caseInsensitive;
-import static org.opencypher.grammar.Grammar.charactersOfSet;
-import static org.opencypher.grammar.Grammar.grammar;
-import static org.opencypher.grammar.Grammar.literal;
-import static org.opencypher.grammar.Grammar.nonTerminal;
-import static org.opencypher.grammar.Grammar.oneOf;
-import static org.opencypher.grammar.Grammar.oneOrMore;
-import static org.opencypher.grammar.Grammar.optional;
-import static org.opencypher.grammar.Grammar.sequence;
-import static org.opencypher.grammar.Grammar.zeroOrMore;
-import static org.opencypher.grammar.Grammar.epsilon;
-
-import org.opencypher.grammar.Grammar.CharacterSet;
-import org.opencypher.grammar.Grammar.Option;
 import org.opencypher.grammar.Grammar.Term;
-import org.opencypher.grammar.Root.ResolutionOption;
-import org.opencypher.tools.antlr.tree.InAlternative;
+import org.opencypher.tools.antlr.Normaliser;
+import org.opencypher.tools.antlr.tree.BnfSymbolLiteral;
+import org.opencypher.tools.antlr.tree.BnfSymbols;
+import org.opencypher.tools.antlr.tree.CharacterLiteral;
+import org.opencypher.tools.antlr.tree.ElementWithCardinality;
+import org.opencypher.tools.antlr.tree.ExclusionCharacterSet;
 import org.opencypher.tools.antlr.tree.GrammarItem;
 import org.opencypher.tools.antlr.tree.GrammarItem.ItemType;
 import org.opencypher.tools.antlr.tree.GrammarTop;
+import org.opencypher.tools.antlr.tree.InAlternative;
 import org.opencypher.tools.antlr.tree.InAlternatives;
 import org.opencypher.tools.antlr.tree.InLiteral;
 import org.opencypher.tools.antlr.tree.ListedCharacterSet;
@@ -62,15 +64,6 @@ import org.opencypher.tools.antlr.tree.NamedCharacterSet;
 import org.opencypher.tools.antlr.tree.NormalText;
 import org.opencypher.tools.antlr.tree.Rule;
 import org.opencypher.tools.antlr.tree.RuleId;
-import org.opencypher.tools.antlr.tree.SpecialCharLiteral;
-import org.opencypher.tools.antlr.tree.BnfSymbolLiteral;
-import org.opencypher.tools.antlr.tree.BnfSymbols;
-import org.opencypher.tools.antlr.tree.CharacterLiteral;
-import org.opencypher.tools.antlr.tree.SpecialSeqLiteral;
-import org.opencypher.tools.antlr.tree.Rule.RuleType;
-import org.opencypher.tools.antlr.Normaliser;
-import org.opencypher.tools.antlr.tree.ElementWithCardinality;
-import org.opencypher.tools.antlr.tree.ExclusionCharacterSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,9 +79,9 @@ public class GrammarConverter {
 	
 	public GrammarConverter(GrammarTop grammarTop) {
 		this.grammarTop = grammarTop;
-		LOGGER.warn("originally {}", grammarTop.getStructure(""));
+		LOGGER.debug("originally \n{}", grammarTop.getStructure(""));
 		ruleMap = normaliser.normalise(grammarTop);
-		LOGGER.warn("normalised {}", grammarTop.getStructure(""));
+		LOGGER.debug("normalised \n{}", grammarTop.getStructure(""));
 	}
 	
 	public Grammar convert() {
@@ -108,11 +101,11 @@ public class GrammarConverter {
     			Term term = convertItem(rhs);
     			LOGGER.debug("defining rule {}",ruleName);
     			builder.production(ruleName, term);
-    			if (rhs.getType() == ItemType.BNF_LITERAL || rhs.getType() == ItemType.SPECIAL_LIST) {
+    			if (rhs.getType() == ItemType.BNF_LITERAL ) {
     				builder.markAsBnfSymbols(ruleName);
     			}
 			} else {
-				LOGGER.warn("suppressing {}", ruleName);
+				LOGGER.debug("suppressing {}", rule.getStructure(""));
 			}
 		}
 		
@@ -133,8 +126,6 @@ public class GrammarConverter {
 			return convertWithCardinality((ElementWithCardinality) item);
 		case BNF_LITERAL:
 			return convertSpecial( (BnfSymbolLiteral) item);
-		case SPECIAL_LIST:
-			return convertSpecialList( (SpecialSeqLiteral) item);
 		case TEXT:
 			return convertText( (NormalText) item);
 		case NAMEDCHARSET:
@@ -158,7 +149,12 @@ public class GrammarConverter {
 	}
 
 	private Term convertCharSet(ListedCharacterSet item) {
-		return charactersOfSet("[" + item.getCharacters() + "]");
+		String characters = item.getCharacters();
+		if (characters.contains("\\u")) {
+			LOGGER.warn("We have unicode escapes in {}", characters);
+		}
+		return charactersOfSet("[" + item.getCharacters()  + "]");
+		
 	}
 	
 	private Term convertCharSet(ExclusionCharacterSet item) {
@@ -263,10 +259,6 @@ public class GrammarConverter {
 		return sequence(lits.get(0), getRest(lits));
 	}
 
-	private Term convertSpecialList(SpecialSeqLiteral item) {
-		throw new IllegalStateException("wrong place");
-	}
-
 	private Term convertSpecial(BnfSymbolLiteral item) {
 		// if this hasn't been suppressed (for being a bnf special), it is part of a 
 		// user-specified, all bnf rule
@@ -285,6 +277,7 @@ public class GrammarConverter {
 		String ruleName = ref.getName();
 		Rule referencedRule = ruleMap.get(ruleName);
 		if (referencedRule != null) {
+			LOGGER.debug("ref to {} which is a {}", ruleName, referencedRule.getRuleType());
 			switch (referencedRule.getRuleType()) {
 			case NORMAL:
 				return nonTerminal(ruleName);
@@ -297,10 +290,22 @@ public class GrammarConverter {
 				// not sure about LETTER
 			case LETTER:
 				return literal(ruleName);
+			case FRAGMENT:
+				// pull up the fragment into the reference. i think
+				List<GrammarItem> children = referencedRule.getChildren();
+				List<Term> terms = children.stream().map(g -> convertItem(g)).collect(Collectors.toList());
+				LOGGER.debug("fragment reference becomes {}", terms);
+				if (terms.size() == 1) {
+					return terms.get(0);
+				}
+				return sequence(first(terms), getRest(terms));
 			default:
 				LOGGER.warn("No special handling for rulereference {}, type {}", ruleName, referencedRule.getRuleType());
 				break;
 			}
+		} else {
+			LOGGER.warn("Reference to unknown rule {}", ruleName);
+			return epsilon();
 		}
 		return nonTerminal(ruleName);
 	}

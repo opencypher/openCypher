@@ -53,7 +53,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SQLBNF extends BnfWriter
 {
-	private boolean log = false;
 	private static final String DESCRIPTION_START = "#(*";
 	private static final String DESCRIPTION_LINE  = "# * ";
 	private static final String DESCRIPTION_END   = "# *)";
@@ -256,10 +255,7 @@ public class SQLBNF extends BnfWriter
     protected void productionStart( Production p )
     {
     	String ruleName = p.name();
-		log = ruleName.equals("PartialComparisonExpression");
-    	if (log) {
-    		LOGGER.warn("starting {}", ruleName);
-    	}
+
         output.append("<").append( ruleName ).append( "> ::= " );
         // some jiggery-pokery to handle "escaping" bnf symbols by putting them in their own rules
         
@@ -268,7 +264,7 @@ public class SQLBNF extends BnfWriter
         markedBnfRule = p.bnfsymbols();
         
         bnfSymbolFromRuleName = BnfSymbols.getByName(ruleName);
-        LOGGER.warn("matching {} to {}", ruleName, bnfSymbolFromRuleName);
+        LOGGER.debug("matching {} to {}", ruleName, bnfSymbolFromRuleName);
 		if (bnfSymbolFromRuleName != null) {
 			existingRulesWithBnfSymbolNames.add(ruleName);
     	}
@@ -343,9 +339,7 @@ public class SQLBNF extends BnfWriter
     @Override
     protected void literal( String value )
     {
-    	if (log) {
-    		LOGGER.warn("literal value {}", value);
-    	}
+
     	// if the rule is marked as pure bnfsymbols, just do it
     	if (markedBnfRule) {
     		output.append(value);

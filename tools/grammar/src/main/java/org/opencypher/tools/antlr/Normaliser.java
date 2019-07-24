@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
- package org.opencypher.tools.antlr;
+  package org.opencypher.tools.antlr;
 
 import java.util.HashMap;
 import java.util.List;
@@ -65,10 +65,10 @@ public class Normaliser {
 				LOGGER.warn("duplicate rule {}", rule.getRuleName());
 			}
 		}
-		
 //		Map<String, Rule> ruleMap = rules.stream().collect(Collectors.toMap(r -> r.getRuleName(), r -> r));
-		markKeywordLiteralRules(rules, ruleMap);
+		markKeywordLiteralRulesSeparateAlphabet(rules, ruleMap);
 		markKeywordRules(rules, ruleMap);
+		markKeywordRulesAlternativesOfCase(rules, ruleMap);
 	    return ruleMap;
 	}
 
@@ -109,8 +109,9 @@ public class Normaliser {
 
 	}
 
-	private void markKeywordLiteralRules(List<Rule> rules, Map<String, Rule> ruleMap) {
-		// now find the first generation keyword rules 
+	private void markKeywordLiteralRulesSeparateAlphabet(List<Rule> rules, Map<String, Rule> ruleMap) {
+		// now find the first generation keyword rules - this is assuming we have letter fragments to
+		// handle the case insensitivity
 		// they have upper-case names, with references to the letters
 //	      Rule (NORMAL) :STOP
 //	         Alternatives (*)
@@ -150,6 +151,92 @@ public class Normaliser {
 		}
 	}
 
+	private void markKeywordRulesAlternativesOfCase(List<Rule> rules, Map<String, Rule> ruleMap) {
+		// now find the keyword rules - this is assuming the keyword is represented as 
+		// rules with a sequence of upper or lower case literals
+		// they have upper-case names, with references to the letters
+//		Rule (NORMAL) :ALL
+//		   Alternatives (*)
+//		         Alternative (*):
+//		               Group
+//		                  Alternatives (*)
+//		                        Alternative ():
+//		                              Literal : "A"
+//		                        Alternative ():
+//		                              Literal : "a"
+//		               Group
+//		                  Alternatives (*)
+//		                        Alternative ():
+//		                              Literal : "L"
+//		                        Alternative ():
+//		                              Literal : "l"
+//		               Group
+//		                  Alternatives (*)
+//		                        Alternative ():
+//		                              Literal : "L"
+//		                        Alternative ():
+//		                              Literal : "l"
+		for (Rule rule : rules) {
+			// they have multi-letter upper-case names
+			String ruleName = rule.getRuleName();
+			if (ruleName.matches("[A-Z]+")) {
+				LOGGER.debug("rule \n{}", rule.getStructure(""));
+				GrammarItem rhs = rule.getRhs();
+    			if (rhs.getType() == ItemType.ALTERNATIVES) {
+    				// one alternative child
+    				List<GrammarItem> topAlts = rhs.getChildren();
+    				if (topAlts.size() == 1) {
+						List<GrammarItem> groups = topAlts.get(0).getChildren();
+    					// same length as name
+    					if (groups.size() == ruleName.length()) {
+    						// to make the final comparison, split into letters
+    						String[] letters = ruleName.split("");
+    						int i = 0;
+    						boolean goodSoFar = true;
+    						for (GrammarItem group : groups) {
+								// that should be
+//    							 Alternatives (al*)
+//    		                        Alternative ():
+//    		                              Literal : "O"
+//    		                        Alternative ():
+//    		                              Literal : "o"
+    							List<GrammarItem> groupContent = group.getChildren();
+    							if (groupContent.size() == 1) {
+    								List<GrammarItem> alts = groupContent.get(0).getChildren();
+    								if (alts.size() == 2) {
+     									boolean lower = false;
+     									boolean upper = false;
+     									for (GrammarItem alt : alts) {
+											if (alt.getType() == ItemType.ALTERNATIVE && alt.getChildren().size() == 1
+													&& alt.getChildren().get(0).getType() == ItemType.LITERAL) {
+												String letter = ((InLiteral) alt.getChildren().get(0)).getValue();
+												if (letter.length() == 1) {
+													if (letter.equals(letters[i])) {
+														upper = true;
+													} else if (letter.toUpperCase().equals(letters[i])) {
+														lower = true;
+													}
+												}
+												
+											}
+										}
+     									goodSoFar = goodSoFar & upper & lower;
+     									
+    								}
+    								i++;
+    								
+    							}
+							}
+    						if (goodSoFar) {
+    							rule.setRuleType(RuleType.KEYWORD);
+    						}
+   
+    					}
+    				}
+    			}
+			}
+		}
+	}
 	private void markLetterRules(List<Rule> rules) {
 		// find the letter rules - example
 //	      Rule: P
@@ -188,26 +275,12 @@ public class Normaliser {
 			// they have names matching the
 			String ruleName = rule.getRuleName();
 			BnfSymbols bnfSymbolFromRuleName = BnfSymbols.getByName(ruleName);
-			LOGGER.warn("rule {} gave {}", ruleName, bnfSymbolFromRuleName);
+			LOGGER.debug("rule {} gave {}", ruleName, bnfSymbolFromRuleName);
 			if (bnfSymbolFromRuleName != null) {
 				// should check further ?
 				rule.setRuleType(RuleType.BNF);
-				LOGGER.warn("BNF rule {}", rule.getStructure(""));
-//				GrammarItem rhs = rule.getRhs();
-//    			if (rhs.getType() == ItemType.ALTERNATIVES) {
-//    				// children must all be alternative
-//    				List<GrammarItem> alts = rhs.getChildren();
-//    				if (alts.size() == 2) {
-//    					if ( alts.stream().allMatch(a -> 
-//    							a.getChildren().size() == 1 
-//    							&& a.getChildren().stream().allMatch(c ->
-//    								c.getType() == ItemType.LITERAL
-//    							 && ((InLiteral) c).getValue().equalsIgnoreCase(ruleName)))){
-//    						LOGGER.debug("Rule {} is a letter rule", ruleName);
-//    						rule.setRuleType(RuleType.LETTER);
-//    					}
-//    				}
-//    			}
+				LOGGER.debug("BNF rule {}", rule.getStructure(""));
+
 			}
 		}
 	}

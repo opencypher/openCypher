@@ -25,11 +25,9 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-   package org.opencypher.tools.antlr;
+    package org.opencypher.tools.antlr;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -58,10 +56,12 @@ import org.opencypher.tools.antlr.bnf.BNFParser.RuleidContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.RulelistContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.RulerefContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.TextContext;
+import org.opencypher.tools.antlr.tree.BnfSymbolLiteral;
+import org.opencypher.tools.antlr.tree.BnfSymbols;
+import org.opencypher.tools.antlr.tree.CharacterLiteral;
 import org.opencypher.tools.antlr.tree.EOFreference;
 import org.opencypher.tools.antlr.tree.ExclusionCharacterSet;
 import org.opencypher.tools.antlr.tree.GrammarItem;
-import org.opencypher.tools.antlr.tree.GrammarItem.ItemType;
 import org.opencypher.tools.antlr.tree.GrammarName;
 import org.opencypher.tools.antlr.tree.GrammarTop;
 import org.opencypher.tools.antlr.tree.Group;
@@ -76,12 +76,7 @@ import org.opencypher.tools.antlr.tree.OneOrMore;
 import org.opencypher.tools.antlr.tree.Rule;
 import org.opencypher.tools.antlr.tree.RuleId;
 import org.opencypher.tools.antlr.tree.RuleList;
-import org.opencypher.tools.antlr.tree.BnfSymbols;
-import org.opencypher.tools.antlr.tree.BnfSymbolLiteral;
-import org.opencypher.tools.antlr.tree.CharacterLiteral;
-import org.opencypher.tools.antlr.tree.SpecialSeqLiteral;
 import org.opencypher.tools.antlr.tree.ZeroOrMore;
-import org.opencypher.tools.grammar.CharLit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

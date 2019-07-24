@@ -35,10 +35,14 @@ import static org.opencypher.tools.io.Output.lines;
 import static org.opencypher.tools.io.Output.stringBuilder;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.junit.Ignore;
@@ -51,6 +55,7 @@ import org.opencypher.tools.grammar.Xml;
 import org.opencypher.tools.io.Output;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 public class BNFProcessorTest {
 
@@ -65,7 +70,7 @@ public class BNFProcessorTest {
 
 	@Test
 	public void twoProductions() {
-		roundTripBNF("<alpha> ::= ALPHA",
+		roundTripBNF("<alpha> ::= ALPHA <beta>",
 				 "",
 				 "<beta> ::= BETA");
 	}
@@ -227,18 +232,10 @@ public class BNFProcessorTest {
 	@Test
 	public void xmlProduction() throws Exception 
 	{        
-		//use ByteArrayInputStream to get the bytes of the String and convert them to InputStream.
-		String string = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
-				"<!DOCTYPE grammar [\r\n" + 
-				"  <!ENTITY SP \"<non-terminal ref='whitespace'/>\">\r\n" + 
-				"]>\r\n" + 
-				"<grammar language=\"alpha\" xmlns=\"http://opencypher.org/grammar\">"
-				+ "<production name=\"alpha\">\r\n" + 
-				"    <alt>a b c d e f g h i j k l m n o p q r s t u v x y z</alt>\r\n" + 
-				"  </production>"
-				+" </grammar>";
-        InputStream inputStream = new ByteArrayInputStream(string.getBytes(Charset.forName("UTF-8")));
-		Grammar grammar = Grammar.parseXML(inputStream);
+		Grammar grammar = xmlin("<production name=\"alpha\">\n" + 
+				"    <alt>a b c d e f g h i j k l m n o p q r s t u v x y z</alt>\n" + 
+				"  </production>");
+
 		roundTrip(grammar);
 	}
 	
@@ -276,9 +273,9 @@ public class BNFProcessorTest {
 	{
 		Grammar grammar = Fixture.grammarResource( BNFProcessor.class, "/cypher.xml");
 		// not doing this at the moment because two of the rules get an unnecessary { } round a single item
-		LOGGER.warn("Original grammar \n{}", xmlout(grammar));
+		//  LOGGER.debug("Original grammar \n{}", xmlout(grammar));
 		String firstBNF = makeSQLBNF(grammar);
-		LOGGER.warn("Generated \n{}", firstBNF);
+		LOGGER.debug("Generated \n{}", firstBNF);
 		// do we need a new one ?
 		BNFProcessor secondProcessor = new BNFProcessor();
 		Grammar grammarTwo = secondProcessor.processString(firstBNF);
@@ -293,13 +290,13 @@ public class BNFProcessorTest {
 	}
 	
 	private void roundTrip(Grammar testGrammar) {
-		LOGGER.warn("supplied grammar \n{}", xmlout(testGrammar));
+		//  LOGGER.debug("supplied grammar \n{}", xmlout(testGrammar));
 		String firstBNF = makeSQLBNF(testGrammar);
-		LOGGER.warn("in \n{}", firstBNF);
+		LOGGER.debug("in \n{}", firstBNF);
 		
 		BNFProcessor processor = new BNFProcessor();
 		Grammar grammar = processor.processString(firstBNF);
-		LOGGER.warn("grammar afer first pass through bnf\n{}", xmlout(grammar));
+		//  LOGGER.debug("grammar afer first pass through bnf\n{}", xmlout(grammar));
 
 		String outputBNF = makeSQLBNF(grammar);
 		LOGGER.debug("out \n{}", outputBNF);
@@ -317,14 +314,37 @@ public class BNFProcessorTest {
 			throw new IllegalStateException("Failed to create xml", e);
 		}
 	}
+	
+	private static final Pattern XMLANG_PATTERN = Pattern.compile("name=(?:'|\")(\\w+)(?:'|\\\")");
+	
+	private Grammar xmlin(String productions) {
+		Matcher m = XMLANG_PATTERN.matcher(productions);
+		if (m.find()) {
+			String language = m.group(1);
+
+			StringBuilder xb = new StringBuilder(
+					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<grammar language=\"").append(language)
+							.append("\" xmlns=\"http://opencypher.org/grammar\">\n").append(productions)
+							.append("\n</grammar>");
+			String xmlString = xb.toString();
+			InputStream inputStream = new ByteArrayInputStream(xmlString.getBytes(Charset.forName("UTF-8")));
+			try {
+				return Grammar.parseXML(inputStream);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Failed to parse xml\n" + xmlString, e);
+			}
+		} else {
+			throw new IllegalArgumentException("Cannot find first production name in " + productions);
+		}
+	}
 
 	private void roundTripBNF(String... inputBnf) 
 	{
 		String inBnf = lines(inputBnf).trim();
 		BNFProcessor processor = new BNFProcessor();
-		LOGGER.warn("in {}", inBnf);
+		LOGGER.debug("in {}", inBnf);
 		Grammar grammar = processor.processString(lines(inputBnf));
-		LOGGER.warn("bnf read makes\n{}", xmlout(grammar));
+		//  LOGGER.debug("bnf read makes\n{}", xmlout(grammar));
 		String outputBnf = makeSQLBNF(grammar);
 		LOGGER.debug("out {}", outputBnf);
 		assertEquals(unPretty(inBnf), unPretty(outputBnf));
