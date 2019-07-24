@@ -25,10 +25,12 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-  package org.opencypher.tools.antlr;
+   package org.opencypher.tools.antlr;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -41,17 +43,23 @@ import org.opencypher.tools.antlr.bnf.BNFLexer;
 import org.opencypher.tools.antlr.bnf.BNFParser.AlternativeContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.AlternativesContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.BnfsymbolsContext;
+import org.opencypher.tools.antlr.bnf.BNFParser.CharactersetContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.ElementContext;
+import org.opencypher.tools.antlr.bnf.BNFParser.ExclusioncharactersetContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.IdContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.LhsContext;
+import org.opencypher.tools.antlr.bnf.BNFParser.ListcharactersetContext;
+import org.opencypher.tools.antlr.bnf.BNFParser.NamedcharactersetContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.OptionalitemContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.RequireditemContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.RhsContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.Rule_Context;
 import org.opencypher.tools.antlr.bnf.BNFParser.RuleidContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.RulelistContext;
+import org.opencypher.tools.antlr.bnf.BNFParser.RulerefContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.TextContext;
 import org.opencypher.tools.antlr.tree.EOFreference;
+import org.opencypher.tools.antlr.tree.ExclusionCharacterSet;
 import org.opencypher.tools.antlr.tree.GrammarItem;
 import org.opencypher.tools.antlr.tree.GrammarItem.ItemType;
 import org.opencypher.tools.antlr.tree.GrammarName;
@@ -61,13 +69,16 @@ import org.opencypher.tools.antlr.tree.InAlternative;
 import org.opencypher.tools.antlr.tree.InAlternatives;
 import org.opencypher.tools.antlr.tree.InLiteral;
 import org.opencypher.tools.antlr.tree.InOptional;
-import org.opencypher.tools.antlr.tree.MappedLiterals;
+import org.opencypher.tools.antlr.tree.ListedCharacterSet;
+import org.opencypher.tools.antlr.tree.NamedCharacterSet;
 import org.opencypher.tools.antlr.tree.NormalText;
 import org.opencypher.tools.antlr.tree.OneOrMore;
 import org.opencypher.tools.antlr.tree.Rule;
 import org.opencypher.tools.antlr.tree.RuleId;
 import org.opencypher.tools.antlr.tree.RuleList;
-import org.opencypher.tools.antlr.tree.SpecialLiteral;
+import org.opencypher.tools.antlr.tree.BnfSymbols;
+import org.opencypher.tools.antlr.tree.BnfSymbolLiteral;
+import org.opencypher.tools.antlr.tree.CharacterLiteral;
 import org.opencypher.tools.antlr.tree.SpecialSeqLiteral;
 import org.opencypher.tools.antlr.tree.ZeroOrMore;
 import org.opencypher.tools.grammar.CharLit;
@@ -107,16 +118,28 @@ public class BNFListener extends BNFBaseListener
 	}
 
 	private void pullUpItem(ParseTree ctx) {
-		LOGGER.debug("promoting a {} from {}", ctx.getClass().getSimpleName(),  ctx.getChild(0).getClass().getSimpleName());
-		items.put(ctx,  getItem(ctx.getChild(0)));
+
+		if (ctx.getChildCount() != 1) {
+			throw new IllegalStateException("There should be only one child at " + ctx.getText() + " but there are " +
+						ctx.getChildCount());
+		}
+		GrammarItem movedItem = getItem(ctx.getChild(0));
+		if (movedItem != null) {
+//			LOGGER.debug("moving a {} upto to ctx {}", 
+//				  movedItem.getClass().getSimpleName(), ctx.getClass().getSimpleName());
+			items.put(ctx,  movedItem);
+		} else {
+			throw new IllegalStateException("No item to be moved from " + ctx.getChild(0).getClass().getSimpleName()
+					+ " up to " + ctx.getClass().getSimpleName());
+		}
 	}
 	
-	@Override
-	public void exitEveryRule(ParserRuleContext ctx)
-	{
-		LOGGER.debug("exiting a {}", ctx.getClass().getSimpleName().replaceFirst("Context",""));
-		super.exitEveryRule(ctx);
-	}
+//	@Override
+//	public void exitEveryRule(ParserRuleContext ctx)
+//	{
+//		LOGGER.debug("exiting a {}", ctx.getClass().getSimpleName().replaceFirst("Context",""));
+//		super.exitEveryRule(ctx);
+//	}
 
 	@Override
 	public void exitRulelist(RulelistContext ctx)
@@ -171,47 +194,48 @@ public class BNFListener extends BNFBaseListener
 	@Override
 	public void exitBnfsymbols(BnfsymbolsContext ctx)
 	{
-		setItem(ctx, new SpecialLiteral(ctx.getText()));
+		setItem(ctx, new InLiteral(ctx.getText()));
 	}
 
 	@Override
 	public void exitRhs(RhsContext ctx)
 	{
-		// is rhs a bunch of bnf symbols
-		// which will currently be normal literals
-		// if one is, they all are
-		// only important if there is more than one
-		if (ctx.getChildCount() > 1) {
-			// we need to combine them, i think
-			SpecialSeqLiteral item = new SpecialSeqLiteral(ctx.children.stream()
-					.map(c -> ((SpecialLiteral) getItem(c)).getCharLit()).collect(Collectors.toList()));
-			setItem(ctx, item);
-		} else {
-//			LOGGER.warn("promoting a {} from {}", ctx.getClass().getSimpleName(),  ctx.getChild(0).getClass().getSimpleName());
-			GrammarItem item = getItem(ctx.getChild(0));
-			// is this a punctuation definition
-			if (item.getType() == ItemType.ALTERNATIVES) {
-				List<GrammarItem> children = item.getChildren();
-				if (children.size() == 1) {
-					if (children.get(0).getType() == ItemType.ALTERNATIVE) {
-						List<GrammarItem> grandChildren = children.get(0).getChildren();
-						if (grandChildren.stream().allMatch(gc -> gc.getType() == ItemType.SPECIAL)) {
-//							LOGGER.warn("Consider {}", grandChildren.stream()
-//									.map(gc -> gc.getClass().getSimpleName()).collect(Collectors.joining(" ")));
-							if (grandChildren.size() == 1) {
-								setItem(ctx, grandChildren.get(0));
-							} else {
-								setItem(ctx, new SpecialSeqLiteral(grandChildren.stream()
-										.map(gc -> (((SpecialLiteral) gc).getCharLit())).collect(Collectors.toList())));
-							}
-							return;
-						}
-					}
-				}
-			}
-				
-			setItem(ctx,  item);
-		}
+		pullUpItem(ctx);
+//		// is rhs a bunch of bnf symbols
+//		// which will currently be normal literals
+//		// if one is, they all are
+//		// only important if there is more than one
+//		if (ctx.getChildCount() > 1) {
+//			// we need to combine them, i think
+//			SpecialSeqLiteral item = new SpecialSeqLiteral(ctx.children.stream()
+//					.map(c -> ((SpecialLiteral) getItem(c)).getCharLit()).collect(Collectors.toList()));
+//			setItem(ctx, item);
+//		} else {
+////			LOGGER.warn("promoting a {} from {}", ctx.getClass().getSimpleName(),  ctx.getChild(0).getClass().getSimpleName());
+//			GrammarItem item = getItem(ctx.getChild(0));
+//			// is this a punctuation definition
+//			if (item.getType() == ItemType.ALTERNATIVES) {
+//				List<GrammarItem> children = item.getChildren();
+//				if (children.size() == 1) {
+//					if (children.get(0).getType() == ItemType.ALTERNATIVE) {
+//						List<GrammarItem> grandChildren = children.get(0).getChildren();
+//						if (grandChildren.stream().allMatch(gc -> gc.getType() == ItemType.SPECIAL)) {
+////							LOGGER.warn("Consider {}", grandChildren.stream()
+////									.map(gc -> gc.getClass().getSimpleName()).collect(Collectors.joining(" ")));
+//							if (grandChildren.size() == 1) {
+//								setItem(ctx, grandChildren.get(0));
+//							} else {
+//								setItem(ctx, new SpecialSeqLiteral(grandChildren.stream()
+//										.map(gc -> (((SpecialLiteral) gc).getCharLit())).collect(Collectors.toList())));
+//							}
+//							return;
+//						}
+//					}
+//				}
+//			}
+//				
+//			setItem(ctx,  item);
+//		}
 	}
 
 	@Override
@@ -305,26 +329,132 @@ public class BNFListener extends BNFBaseListener
 		setItem(ctx, ourItem);
 	}
 
-
+	private static final Pattern UCODE_PATTERN = Pattern.compile("\\\\u([0-9a-fA-F]+)");
+	
 	@Override
 	public void exitText(TextContext ctx)
 	{
 		String text = ctx.getText().trim();
-		if (CharLit.allPunctuation(text)) {
-			// is it a known construct
-			CharLit lit = CharLit.getByValue(text);
-			if (lit != null) {
-				setItem(ctx, new SpecialLiteral(text));
-			} else {
-				// split into individual characters
-				List<CharLit> charLits = Arrays.asList(text.split("")).stream().map(ch -> CharLit.getByValue(ch)).collect(Collectors.toList());
-				setItem(ctx, new SpecialSeqLiteral(charLits));
-			}
+		// text is UNICODE_LITERAL | WORD | CHARACTER_LITERAL | INTEGER_LITERAL
+		if (ctx.UNICODE_LITERAL() != null) {
+			 // translate it
+			setItem(ctx, new InLiteral(((Character) ((char) Integer.parseInt(text.substring(2), 16))).toString() ));
+		} else if (ctx.CHARACTER_LITERAL() != null) {
+			setItem(ctx, new CharacterLiteral(text));
 		} else {
-			// does this cope with mixtures ?
+			// i think everything else is just a regular literal
 			setItem(ctx, new InLiteral(text));
 		}
+//		if (CharLit.allPunctuation(text)) {
+//			// is it a known construct
+//			CharLit lit = CharLit.getByValue(text);
+//			if (lit != null) {
+//				setItem(ctx, new SpecialLiteral(text));
+//			} else {
+//				// split into individual characters
+//				List<CharLit> charLits = Arrays.asList(text.split("")).stream().map(ch -> CharLit.getByValue(ch)).collect(Collectors.toList());
+//				setItem(ctx, new SpecialSeqLiteral(charLits));
+//			}
+//		} else {
+//			Matcher um = UCODE_PATTERN.matcher(text);
+//			if (um.matches()) {
+//				// special case space
+//				 if (text.equals("\\u0020")) {
+////					 setItem(ctx, new ListedCharacterSet(" "));
+////				 } else {
+//					 setItem(ctx, new InLiteral(((Character) ((char) Integer.parseInt(text.substring(2), 16))).toString() ));
+//				 }
+//			} else {
+//    			// does this cope with mixtures ?
+//    			setItem(ctx, new InLiteral(text));
+//			}
+//		}
 	}
+
+	@Override
+	public void exitCharacterset(CharactersetContext ctx) {
+		if (ctx.getChildCount() == 3) {
+    		GrammarItem movedItem = getItem(ctx.getChild(1));
+    		if (movedItem != null) {
+//    			LOGGER.warn("moving a {} upto to ctx {}", 
+//    				  movedItem.getClass().getSimpleName(), ctx.getClass().getSimpleName());
+    			items.put(ctx,  movedItem);
+    		} else {
+    			throw new IllegalStateException("No item to be moved from " + ctx.getChild(1).getClass().getSimpleName()
+    					+ " up to " + ctx.getClass().getSimpleName());
+    		}
+		} else {
+			throw new IllegalStateException("child count for character set is " + ctx.getChildCount() + ". expected 3");
+		}
+	}
+	
+	
+	@Override
+	public void exitNamedcharacterset(NamedcharactersetContext ctx) {
+		setItem(ctx, new NamedCharacterSet(ctx.ID().getText()));
+	}
+
+	@Override
+	public void exitExclusioncharacterset(ExclusioncharactersetContext ctx) {
+		ListcharactersetContext listCtx = ctx.listcharacterset();
+		setItem(ctx, new ExclusionCharacterSet(interpret(listCtx)));
+	}
+
+	@Override
+	public void exitListcharacterset(ListcharactersetContext ctx) {
+		setItem(ctx, new ListedCharacterSet(interpret(ctx)));
+	}
+	
+	private String interpret(ListcharactersetContext listCtx) {
+		// to cope with punctuation, especially backslash, the syntax has text+,
+		// but we want them together again
+		
+		List<String> bnfString = listCtx.text().stream().map(TextContext::getText).collect(Collectors.toList());
+		StringBuilder b = new StringBuilder();
+		while (! bnfString.isEmpty()) {
+			String piece = bnfString.remove(0);
+			LOGGER.debug("piece is [{}]", piece);
+			if (! piece.equals("\\")) {
+				b.append(piece);
+			} else {
+				String next = bnfString.remove(0);
+				char first = next.charAt(0);
+				String rest = next.substring(1);
+				switch (first) {
+                    case 'r': b.append('\r');  break;
+                    case 'n': b.append("\n");  break;
+                    case 't': b.append("\t");  break;
+                    case 'b': b.append("\b");  break;
+                    case 'f': b.append("\f");  break;
+                    case '\\': b.append("\\"); break;
+                    case '-':  b.append("-");  break;
+                    case ']':  b.append("]");  break;
+                    case '$':  b.append("$");  break;
+                    // have to escape bnf comment characters !
+                    case '/':  b.append("/");  break;
+                    case 'u':  
+                    	if (rest.length() < 4) {
+                    		throw new IllegalArgumentException("unicode escape requires 4 hex digits");
+                    	}
+                    	int cp = Integer.parseInt(rest.substring(1,4), 16);
+                    	b.append((char) cp);
+                    	rest = rest.substring(4);
+                    	break;
+				default:
+					throw new IllegalArgumentException("Don't know how to interpret escaped character " + first);
+				}
+				if (rest.length() > 0) {
+					b.append(rest);
+				}
+			}
+			
+		}
+		String answer = b.toString();
+//		LOGGER.warn("became {}, len {}", answer, answer.length());
+		
+		return answer;
+	}
+
 
 	@Override
 	public void exitId(IdContext ctx)
@@ -345,9 +475,23 @@ public class BNFListener extends BNFBaseListener
 	}
 
 	@Override
+	public void exitRuleref(RulerefContext ctx) {
+		String referencedName = ctx.getText();
+		BnfSymbols bnfSymbol = BnfSymbols.getByName(referencedName);
+		if (bnfSymbol != null) {
+			// if this is only here because bnf can't put bnf symbols in normal rules, 
+			// reverse it
+			setItem(ctx, new BnfSymbolLiteral(bnfSymbol));
+		} else {
+			setItem(ctx, new RuleId(referencedName));
+		}
+	}
+
+	@Override
 	public void exitRuleid(RuleidContext ctx)
 	{
 		setItem(ctx, new RuleId(ctx.getText()));
+
 	}
 
 	

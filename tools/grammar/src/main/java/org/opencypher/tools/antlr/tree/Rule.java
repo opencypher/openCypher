@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-  package org.opencypher.tools.antlr.tree;
+   package org.opencypher.tools.antlr.tree;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 public class Rule implements GrammarItem
 {
-	public enum RuleType { NORMAL(true), KEYWORD(false), KEYWORD_LITERAL(false), LETTER(false) ;
+	public enum RuleType { NORMAL(true), KEYWORD(false), KEYWORD_LITERAL(false), LETTER(false), BNF(false) ;
 		private final boolean keep;
 		private RuleType(boolean keep) {
 			this.keep = keep;

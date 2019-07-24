@@ -62,7 +62,17 @@ import static org.opencypher.tools.io.Output.output;
 public class Antlr4 extends BnfWriter
 {
 	   static String PREFIX = "oC_";
-//	   static String PREFIX = "";
+
+	private static String prefix = PREFIX;
+	
+	public static void setPrefix(String newPrefix) {
+		prefix = newPrefix;
+	}
+
+	public static void resetPrefix() {
+		prefix = PREFIX;
+	}
+
 
     public static void write( Grammar grammar, Writer writer )
     {
@@ -158,7 +168,7 @@ public class Antlr4 extends BnfWriter
                 set.accept( new SetFormatter( output ) );
                 output.append( ']' );
             }
-            output.println( " ;" ).println();  // PRF was " ;\n"
+            output.println( " ;" ).println();
         }
     }
 
@@ -365,13 +375,18 @@ public class Antlr4 extends BnfWriter
         }
     }
 
+    private String unspaceString(String original) {
+    	return original.replaceAll("\\s+", "_");
+    }
+    
     private Output parserRule( String name )
     {
-        return output.append( prefix( name ) );
+        return output.append( prefix( unspaceString(name) ) );
     }
 
-    private Output lexerRule( String name )
+    private Output lexerRule( String original )
     {
+    	String name = unspaceString(original);
         int cp = name.codePointAt( 0 );
         if ( !isUpperCase( cp ) )
         {
@@ -391,7 +406,7 @@ public class Antlr4 extends BnfWriter
     @Override
     protected String prefix( String s )
     {
-        return Antlr4.PREFIX + s;
+        return Antlr4.prefix + s;
     }
 
     @Override

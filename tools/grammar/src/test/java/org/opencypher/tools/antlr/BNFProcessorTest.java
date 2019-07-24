@@ -28,27 +28,34 @@
 package org.opencypher.tools.antlr;
 
 import static org.junit.Assert.assertEquals;
+import static org.opencypher.grammar.Grammar.charactersOfSet;
+import static org.opencypher.grammar.Grammar.grammar;
+import static org.opencypher.grammar.Grammar.literal;
 import static org.opencypher.tools.io.Output.lines;
+import static org.opencypher.tools.io.Output.stringBuilder;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.StringWriter;
-import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.opencypher.grammar.Fixture;
 import org.opencypher.grammar.Grammar;
-import org.opencypher.tools.grammar.ISO14977;
 import org.opencypher.tools.grammar.SQLBNF;
+import org.opencypher.tools.grammar.Xml;
+import org.opencypher.tools.io.Output;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 public class BNFProcessorTest {
 
-	
+    public final @Rule Fixture fixture = new Fixture();
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(BNFProcessorTest.class.getName());
 	
 	@Test
@@ -109,7 +116,9 @@ public class BNFProcessorTest {
 	
 	@Test
 	public void verticalBar() {
-		roundTripBNF("<vertical bar> ::= |");
+		roundTripBNF("<thing> ::= <vertical bar>",
+				"",
+				"<vertical bar> ::= |");
 	}
 	
 	
@@ -132,21 +141,29 @@ public class BNFProcessorTest {
 				);
 	}
 	
+	
+	
 	@Test
-	public void unicode() {
-		roundTripBNF("<whitespace> ::= SPACE | TAB | LF | 0x1680 | 0x180e | 0x2000 | 0x2001");
+	public void whitespace() {
+		roundTripBNF("<whitespace> ::= \\u0020 | $TAB$ | $LF$ | \\u1680 | \\u180E | \\u2000 | \\u2001");
 	}
 
 
 	@Test
 	public void bnfProduction() {
-		roundTripBNF("<prodassign> ::= ::=");
+		// the sql writer can't tell that all of the rhs is bnf without more special work to 
+		// set the production/@bnfsymbols attribute.  So it will unwind it
+		roundTripBNF("<prodassign> ::= <assign>",
+				"",
+				"<assign> ::= ::=");
 	}
 	
 
 	@Test
 	public void bnfSymbolsProduction() {
-		roundTripBNF("<notequal> ::= <>");
+		// original form of this <notequals> ::= <> requires detection of all bnf
+		roundTrip(grammar( "notequals" )
+		        .production( "notequals", literal( "<>" ) ).build());
 	}
 	
 	@Test
@@ -156,8 +173,16 @@ public class BNFProcessorTest {
 		
 	@Test
 	public void punctuation() {
-		roundTripBNF("<puncs> ::= +.-");
+		roundTripBNF("<puncs> ::= +.*=");
 	}
+	
+	// TODO minus sign is a problem - it is both punctuation and a hyphen in words
+	//   probably need to call it out as a specialliteral and concatenate if surrounded by words
+    @Test
+    public void minus() {
+    	roundTripBNF("<mmm> ::= a-");
+    }
+	
 	@Test
 	public void commasProduction() {
 		roundTripBNF("<list> ::= ONE <comma> TWO <comma> THREE",
@@ -166,29 +191,94 @@ public class BNFProcessorTest {
 	}
 	
 	@Test
-	public void charset() {
-		roundTripBNF("<anychars> ::= !! characterset 'ANY'");
+	public void charsetList() {
+		roundTrip(grammar( "test" )
+		        .production( "test", charactersOfSet( "[abcd]" ) ).build());
+	}
+	
+	@Test
+	public void charsetName() {
+		roundTrip(grammar( "test" )
+		        .production( "test", charactersOfSet( "FF" ) ).build());
+	}
+	
+	@Test
+	public void charsetNameWithException() {
+		roundTrip(grammar( "test" )
+		        .production( "test", charactersOfSet( "Lu" ).except('X','Y') )
+		        .build());
+	}
+	
+	@Test
+	public void charsetRT() {
+		roundTripBNF("<namedCharset> ::= $FF$");
 	}
 	
 	// haven't made this one work
 	@Test
-	@Ignore
 	public void charsetChoice() {
-		roundTripBNF("<anychars> ::= !! characterset 'ID_Start'",
-					"  |  !! characterset 'Pc'");
+		roundTripBNF("<IdentifierStart> ::= $ID_Start$",
+					"  |  $Pc$");
 	}
+	
+	
+	// next two ignored until the handling of letter rules is correct
+	@Ignore
+	@Test
+	public void xmlProduction() throws Exception 
+	{        
+		//use ByteArrayInputStream to get the bytes of the String and convert them to InputStream.
+		String string = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
+				"<!DOCTYPE grammar [\r\n" + 
+				"  <!ENTITY SP \"<non-terminal ref='whitespace'/>\">\r\n" + 
+				"]>\r\n" + 
+				"<grammar language=\"alpha\" xmlns=\"http://opencypher.org/grammar\">"
+				+ "<production name=\"alpha\">\r\n" + 
+				"    <alt>a b c d e f g h i j k l m n o p q r s t u v x y z</alt>\r\n" + 
+				"  </production>"
+				+" </grammar>";
+        InputStream inputStream = new ByteArrayInputStream(string.getBytes(Charset.forName("UTF-8")));
+		Grammar grammar = Grammar.parseXML(inputStream);
+		roundTrip(grammar);
+	}
+	
+	@Ignore
+	@Test
+	public void someGrammar() throws Exception 
+	{        
+		Grammar grammar = fixture.grammarResource( "/somegrammar.xml" ) ;
+
+		roundTrip(grammar);
+	}
+	
+	@Test
+	public void doubleSlash() throws Exception 
+	{        
+		roundTrip(grammar( "test" )
+		        .production( "test", literal("//") ).build());
+	}
+
+	@Test
+	public void leftArrowHead() {
+		roundTripBNF("<LeftArrowHead> ::= <less than>",
+				"    |  \\u27E8", 
+				"    |  \\u3008",
+				"    |  \\uFE64",
+				"    |  \\uFF1C ",
+				"",
+				"<less than> ::= <");
+	}
+
+	
 	
 	@Test
 	public void shouldRecycleCypher() throws Exception
 	{
-//		BNFProcessor processor = new BNFProcessor();
 		Grammar grammar = Fixture.grammarResource( BNFProcessor.class, "/cypher.xml");
-//		String bnfFile = "C:/Users/Peter/gitg4bnf/antlr4-bnf-translator/grammars/cypher.bnf";
-//		Grammar grammar = processor.processFile(bnfFile);
-		// now reprocess 
 		// not doing this at the moment because two of the rules get an unnecessary { } round a single item
+		LOGGER.warn("Original grammar \n{}", xmlout(grammar));
 		String firstBNF = makeSQLBNF(grammar);
-		LOGGER.debug("Generated \n{}", firstBNF);
+		LOGGER.warn("Generated \n{}", firstBNF);
 		// do we need a new one ?
 		BNFProcessor secondProcessor = new BNFProcessor();
 		Grammar grammarTwo = secondProcessor.processString(firstBNF);
@@ -202,13 +292,39 @@ public class BNFProcessorTest {
 //		assertEquals(firstBNF, intermediateBNF);
 	}
 	
+	private void roundTrip(Grammar testGrammar) {
+		LOGGER.warn("supplied grammar \n{}", xmlout(testGrammar));
+		String firstBNF = makeSQLBNF(testGrammar);
+		LOGGER.warn("in \n{}", firstBNF);
+		
+		BNFProcessor processor = new BNFProcessor();
+		Grammar grammar = processor.processString(firstBNF);
+		LOGGER.warn("grammar afer first pass through bnf\n{}", xmlout(grammar));
+
+		String outputBNF = makeSQLBNF(grammar);
+		LOGGER.debug("out \n{}", outputBNF);
+		assertEquals(unPretty(firstBNF), unPretty(outputBNF));
+	}
 	
+	private String xmlout(Grammar testGrammar) {
+        // given
+        Output.Readable out = stringBuilder();
+
+        try {
+			Xml.write( testGrammar, out );
+			return out.toString();
+		} catch (TransformerException e) {
+			throw new IllegalStateException("Failed to create xml", e);
+		}
+	}
+
 	private void roundTripBNF(String... inputBnf) 
 	{
 		String inBnf = lines(inputBnf).trim();
 		BNFProcessor processor = new BNFProcessor();
-		LOGGER.debug("in {}", inBnf);
+		LOGGER.warn("in {}", inBnf);
 		Grammar grammar = processor.processString(lines(inputBnf));
+		LOGGER.warn("bnf read makes\n{}", xmlout(grammar));
 		String outputBnf = makeSQLBNF(grammar);
 		LOGGER.debug("out {}", outputBnf);
 		assertEquals(unPretty(inBnf), unPretty(outputBnf));
@@ -221,7 +337,7 @@ public class BNFProcessorTest {
 		String outputBnf = writer.toString().trim();
 		return outputBnf;
 	}
-
+	
 	private String unPretty(String original) {
 		String nl = System.lineSeparator();
 		return original.replaceAll(nl + nl, "#!#").replaceAll("\\s+", " ").replaceAll("#!#", nl + nl);

@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-  package org.opencypher.tools.antlr.tree;
+   package org.opencypher.tools.antlr.tree;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,31 +39,9 @@ public class InLiteral implements Element
 {
 
 	private final String content;
-	private static final Map<String, String> bnfSpecials = new HashMap<>();
-	static {
-		bnfSpecials.put("]", "<right bracket>");
-		bnfSpecials.put("[", "<left bracket>");
-		bnfSpecials.put(">", "<greater than operator>");
-		bnfSpecials.put("<", "<less than operator>");
 
-		bnfSpecials.put("|", "<vertical bar>");
-		bnfSpecials.put("}", "<right brace>");
-		bnfSpecials.put("{", "<left brace>");
-		bnfSpecials.put("...", "<ellipsis>");
-		bnfSpecials.put("!...", "<negative ellipsis>");
-		// TODO this suggests we need a rework
-		bnfSpecials.put("\\'", "'");
-
-	}
-	
 	public InLiteral(String content) {
-		if (content.startsWith("[#x")) {
-			this.content = "\\u" + content.substring(3,content.length()-1);
-		} else if (content.equalsIgnoreCase("'")) {
-			this.content = "\'";
-		} else {
-			this.content = content;
-		}
+		this.content = content;
 	}
 	
 	public String getValue() {
@@ -74,7 +52,6 @@ public class InLiteral implements Element
 	public ItemType getType() {
 		return ItemType.LITERAL;
 	}
-	
 
 	@Override
 	public List<GrammarItem> getChildren() {

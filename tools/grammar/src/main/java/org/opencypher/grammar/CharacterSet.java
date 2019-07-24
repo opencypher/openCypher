@@ -70,6 +70,7 @@ public interface CharacterSet
         interface NamedSetVisitor<EX extends Exception> extends DefinitionVisitor<EX>
         {
             ExclusionVisitor<EX> visitSet( String name ) throws EX;
+
         }
     }
 

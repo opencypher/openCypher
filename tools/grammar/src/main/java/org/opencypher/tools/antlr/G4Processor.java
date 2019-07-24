@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-   package org.opencypher.tools.antlr;
+ package org.opencypher.tools.antlr;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -39,21 +39,13 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.GrammarConverter;
-import org.opencypher.tools.antlr.bnf.BNFLexer;
-import org.opencypher.tools.antlr.bnf.BNFParser;
-import org.opencypher.tools.antlr.tree.GrammarItem;
+import org.opencypher.tools.antlr.g4.Gee4Lexer;
+import org.opencypher.tools.antlr.g4.Gee4Parser;
 import org.opencypher.tools.antlr.tree.GrammarTop;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-/**
- * create a grammar 
- */
-public class BNFProcessor
+
+public class G4Processor
 {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(BNFProcessor.class.getName());
-	
 	public Grammar processString(String inString) {
 		return processStream(new ByteArrayInputStream((inString).getBytes()) );
 	}
@@ -61,7 +53,7 @@ public class BNFProcessor
 	public Grammar processStream(InputStream inStream)
 	{
 		try
-		{
+			{
 			return processAntrlStream(new ANTLRInputStream(inStream));
 		} catch (IOException e)
 		{
@@ -84,21 +76,21 @@ public class BNFProcessor
 
 	private Grammar processAntrlStream(CharStream inStream)
 	{
-		BNFLexer lexer = new BNFLexer(inStream);
+		Gee4Lexer lexer = new Gee4Lexer(inStream);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		BNFParser parser = new BNFParser(tokens);
+		Gee4Parser parser = new Gee4Parser(tokens);
 		// leaving the old listeners in gives a nice error messsage
 		// parser.removeErrorListeners();
 		// lexer.removeErrorListeners();
 		lexer.addErrorListener(new FailingErrorListener());
 		parser.addErrorListener(new FailingErrorListener());
 
-		ParseTree tree = parser.rulelist();
+		ParseTree tree = parser.wholegrammar();
 
 		ParseTreeWalker walker = new ParseTreeWalker();
-		BNFListener listener = new BNFListener(tokens);
+		G4Listener listener = new G4Listener(tokens);
 		walker.walk(listener, tree);
-
+		
 		GrammarTop itemTree = listener.getTreeTop();
 //		LOGGER.warn("bnf gave {}", itemTree.getStructure(""));
 		// convert to openCypher grammar

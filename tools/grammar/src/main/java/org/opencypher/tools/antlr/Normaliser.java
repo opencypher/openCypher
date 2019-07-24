@@ -25,13 +25,14 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.antlr;
+ package org.opencypher.tools.antlr;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.opencypher.tools.antlr.tree.BnfSymbols;
 import org.opencypher.tools.antlr.tree.GrammarItem;
 import org.opencypher.tools.antlr.tree.GrammarItem.ItemType;
 import org.opencypher.tools.antlr.tree.GrammarTop;
@@ -56,6 +57,7 @@ public class Normaliser {
 	public Map<String, Rule> normalise(GrammarTop top) {
 		List<Rule> rules = top.getRuleList().getRules();
 		markLetterRules(rules);
+		markBnfRules(rules);
 		// build a map of the rules by name
 		Map<String, Rule> ruleMap = new HashMap<>();
 		for (Rule rule : rules) {
@@ -175,6 +177,37 @@ public class Normaliser {
     					}
     				}
     			}
+			}
+		}
+	}
+	
+	private void markBnfRules(List<Rule> rules) {
+		// find the concocted bnf rules - example
+
+		for (Rule rule : rules) {
+			// they have names matching the
+			String ruleName = rule.getRuleName();
+			BnfSymbols bnfSymbolFromRuleName = BnfSymbols.getByName(ruleName);
+			LOGGER.warn("rule {} gave {}", ruleName, bnfSymbolFromRuleName);
+			if (bnfSymbolFromRuleName != null) {
+				// should check further ?
+				rule.setRuleType(RuleType.BNF);
+				LOGGER.warn("BNF rule {}", rule.getStructure(""));
+//				GrammarItem rhs = rule.getRhs();
+//    			if (rhs.getType() == ItemType.ALTERNATIVES) {
+//    				// children must all be alternative
+//    				List<GrammarItem> alts = rhs.getChildren();
+//    				if (alts.size() == 2) {
+//    					if ( alts.stream().allMatch(a -> 
+//    							a.getChildren().size() == 1 
+//    							&& a.getChildren().stream().allMatch(c ->
+//    								c.getType() == ItemType.LITERAL
+//    							 && ((InLiteral) c).getValue().equalsIgnoreCase(ruleName)))){
+//    						LOGGER.debug("Rule {} is a letter rule", ruleName);
+//    						rule.setRuleType(RuleType.LETTER);
+//    					}
+//    				}
+//    			}
 			}
 		}
 	}

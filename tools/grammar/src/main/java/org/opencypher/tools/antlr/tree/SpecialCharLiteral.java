@@ -25,35 +25,29 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
- package org.opencypher.tools.antlr.tree;
+  package org.opencypher.tools.antlr.tree;
 
 import java.util.Collections;
 import java.util.List;
 
 import org.opencypher.tools.grammar.CharLit;
 
-public class SpecialLiteral implements GrammarItem {
+public class SpecialCharLiteral implements GrammarItem {
 
-	private CharLit charLit;
+	private BnfSymbols special;
 
-	public SpecialLiteral(String characters) {
-		this.charLit = CharLit.getByValue(characters);
-		if (charLit == null) {
-			throw new IllegalStateException("Cannot find character literal for '" + characters + "'");
-		}
+	public SpecialCharLiteral(BnfSymbols special) {
+		this.special = special;
 	}
 	
 	public String getCharacters() {
-		return charLit.getCharacters();
+		return special.getActualCharacters();
 	}
 	
-	public CharLit getCharLit() {
-		return charLit;
-	}
 	
 	@Override
 	public ItemType getType() {
-		return ItemType.SPECIAL;
+		return ItemType.BNF_LITERAL;
 	}
 
 	@Override
@@ -78,7 +72,7 @@ public class SpecialLiteral implements GrammarItem {
 
 	@Override
 	public String getStructure(String indent) {
-		return indent + "Special : '" + charLit.getCharacters() + "'";
+		return indent + "Special : " + special.name();
 	}
 
 }

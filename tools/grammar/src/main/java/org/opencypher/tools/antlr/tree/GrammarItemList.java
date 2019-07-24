@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-  package org.opencypher.tools.antlr.tree;
+   package org.opencypher.tools.antlr.tree;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +60,13 @@ abstract class GrammarItemList implements GrammarItem
 	@Override
 	public boolean isPlural()
 	{
-		return items.size() > 1 || items.get(0).isPlural();
+		if (items.size() > 1) {
+			return true;
+		} else if (items.size() == 1) {
+			return items.get(0).isPlural();
+		} else {
+			return false;
+		}
 	}
 
 	@Override

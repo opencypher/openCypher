@@ -39,19 +39,18 @@ rulelist
     rule_* EOF
 ;
 
-//header
-//	: HEADER_START
-//	  headerline*
-//	  HEADER_END 
+//header : description ;
+//
+//description : DESCRIPTION_START
+//	descriptionLine*
+//	DESCRIPTION_END
 //	;
+//	
+//descriptionLine : '*' DESCRIPTION_CONTENT* ; 
 //
-//headerline : '*' headerContent HEADER_LINEEND; 
-//
-//headerContent : HEADER_CONTENT ;
-//
-//HEADER_START : '(*'  [\r]? [\n];
-//HEADER_CONTENT  :  ~[\r\n]* ;
-//HEADER_END   : '*)'  ~[\r\n]* [\r\n] ;
+//DESCRIPTION_START : '(*' ; // [\r]? [\n];
+//DESCRIPTION_CONTENT  :  ~[\r\n] ;
+//DESCRIPTION_END   : '*)'; //  ~[\r\n]* [\r\n] ;
 //HEADER_LINEEND :  [\r]? [\n] ;
 
 rule_
@@ -69,6 +68,8 @@ rhs
     :  bnfsymbols+ | alternatives
     ;
 
+bnfsymbols : bnfsymbol+ ; 
+
 alternatives
     : alternative (BAR alternative)*
     ;
@@ -82,6 +83,7 @@ element
     | requireditem
     | text
     | id
+    | characterset
     ;
 
 optionalitem
@@ -92,14 +94,20 @@ requireditem
     : RBRACE alternatives LBRACE ELLIPSIS?
     ;
 
-// conceivable this could have ellipsis, but i doubt they do that
+// this was ID,not WORD, but ID allows space
 text
-    : ID | CHARACTER_LITERAL | INTEGER_LITERAL| UNICODE_LITERAL
+    : UNICODE_LITERAL | ID | CHARACTER_LITERAL | INTEGER_LITERAL
     ;
 
 id
     : LT ruleref GT ELLIPSIS?
     ;
+
+characterset : '$' ( namedcharacterset | exclusioncharacterset | listcharacterset) '$' ;
+
+namedcharacterset : ID ;
+exclusioncharacterset : '~' listcharacterset ;
+listcharacterset : REND text+ LEND ;
 
 ruleref 
 	: ID
@@ -109,16 +117,8 @@ ruleid
     : ID
     ;
 
-// include = to allow sql g4 to include <= >= and - to allow -
-bnfsymbols :
-	ASSIGN | LBRACE | RBRACE | LEND | REND | BAR | GT | LT | ELLIPSIS | DOUBLE_EXCLAM
-	// these aren't really bnf - they are mixed, but it is complicated to cope with those
-	| GE | LE
-	//   <> will be ok, as it is all bnfsymbols
-	// don't need these here because they are in character literal
-//	 | EQUALS | EXCLAM 
-// these were there but I'm not sure why. not in 9075-1	| '-' | '+'
-//	| MINUS | PLUS
+bnfsymbol :
+	ASSIGN | LBRACE | RBRACE | LEND | REND | BAR | GT | LT | ELLIPSIS | DOUBLE_EXCLAM | DOLLAR
 	;
 
 
@@ -168,60 +168,53 @@ ELLIPSIS
 	;
 
 DOUBLE_EXCLAM : '!!' ;
-
+// since these are partly bnf symbols, we treat as a unit
 GE : '>=' ;
 LE : '<=' ;
 
-// pseudo bnf to make sql/pg ddl work
-//    not sure about these. 2 July 2019
-//EQUALS
-//	: '='
-//	;
-//	
-//EXCLAM
-//	: '!'
-//	;
-//
-//PLUS 
-//	: '+'
-//	;
-//	
-//MINUS
-//	: '-'
-//	;
-//	
-//PLUS_MINUS : PLUS | MINUS ;
+// now used for charset delimitation
+DOLLAR : '$' ;
 
+// allow hyphens and underscore, but not space
+//WORD
+//    : ('a'..'z'|'A'..'Z') ('a'..'z'|'A'..'Z'|'0'..'9'|'-'|'_')*
+//    ;
+
+// and space
 ID
     : ('a'..'z'|'A'..'Z') ('a'..'z'|'A'..'Z'|'0'..'9'|'-'|' '|'_')*
     ;
 
 INTEGER_LITERAL : '0'..'9'+ ;
 
-CHARACTER_LITERAL
-	: '(' | ')' | ',' | '&' | '.' | '-' | '*' | ':' | '=' | '/' | '%' | '+' | '!' 
-	| '~' | ';' | '?' | '_' | '"' | '\'' | '`' | '@' | '$' | '\\'
+CHARACTER_LITERAL : [(),&.\*:=/%+!~;?_"\'`@\\'^-] ;
+
+//	: '(' | ')' | ',' | '&' | '.' | '-' | '*' | ':' | '=' |  '/' | '%' | '+' | '!' 
+//	| '~' | ';' | '?' | '_' | '"' | '\'' | '`' | '@' | '\\' 
 // added for gql
-	| '^'
+//	| '^'
 // added for cypher via bnf (for now)
-	| '..'
-	;
+//	| '..'
+//	;
 	
 // modified from http://www.rpatk.net/rpatk/doc/doxygen/rpadoc/html/rpa_bnf.html
 // (which had [ ] round it
 UNICODE_LITERAL
-	: '0x' [0123456789ABCDEFabcdef]+ 
+	: '\\u' [0123456789ABCDEFabcdef]+ 
 	;
 
 NORMAL_TEXT
 	: '!!' ~[\r\n]* -> channel(HIDDEN)
 	;
 
+// don't need commens
 SINGLE_LINE_COMMENT
-	: '//' ~[\r\n]* -> channel(HIDDEN)
+	: '#' ~[\r\n]* -> channel(HIDDEN)
 	;
 
 // whitespace goes to hidden so we can handle block comments (i hope)
 WS
     : [ \r\n\t] -> skip
     ;
+    
+//fragment MINUS : '-' ;

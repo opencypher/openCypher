@@ -27,32 +27,41 @@
  */
 package org.opencypher.tools.grammar;
 
+import static org.opencypher.tools.io.Output.output;
+
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
 import org.opencypher.grammar.NonTerminal;
 import org.opencypher.grammar.Production;
+import org.opencypher.tools.antlr.tree.BnfSymbols;
+import org.opencypher.tools.antlr.tree.BnfSymbols.Interleaver;
 import org.opencypher.tools.io.HtmlTag;
 import org.opencypher.tools.io.Output;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.opencypher.tools.io.Output.output;
 
 /**
  * Generates a SQL BNF grammar according to ISO/IEC 9075-1 notation specification.
  */
 public class SQLBNF extends BnfWriter
 {
-	private static final String COMMENT_START = "// ****************";
-	private static final String COMMENT_LINE  = "// * ";
-	private static final String COMMENT_END   = "// ****************";
+	private boolean log = false;
+	private static final String DESCRIPTION_START = "#(*";
+	private static final String DESCRIPTION_LINE  = "# * ";
+	private static final String DESCRIPTION_END   = "# *)";
+	private static final String CHARACTER_SET_START = "$";
+	private static final String CHARACTER_SET_END = "$";
+	private static final String CODEPOINT_LIST_START = "[";
+	private static final String CODEPOINT_LIST_END = "]";
+	private static final String CHARACTER_SET_EXCEPT = "~";
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SQLBNF.class.getName());
 
@@ -71,10 +80,9 @@ public class SQLBNF extends BnfWriter
         String header = grammar.header();
         if ( header != null )
         {
-        	
-            output.append( COMMENT_START).println().append(COMMENT_LINE)
-                  .printLines( header, COMMENT_LINE )
-                  .println( COMMENT_END );
+            output.append( DESCRIPTION_START).println().append(DESCRIPTION_LINE)
+                  .printLines( header, DESCRIPTION_LINE )
+                  .println( DESCRIPTION_END );
         }
         try ( SQLBNF writer = new SQLBNF( output ) )
         {
@@ -132,12 +140,13 @@ public class SQLBNF extends BnfWriter
      * Mutable state -- if the production is all bnfsymbols, don't generate a new one
      * 
      */
-    private boolean bnfSymbols = false;
+    private boolean markedBnfRule = false;
+	private BnfSymbols bnfSymbolFromRuleName;
     /**
      * character literals that need to be added (once)
      */
-    private final Set<CharLit> characterLiterals = new HashSet<>();
-    private final Set<String>  existingCharLiterals = new HashSet<>();
+    private final Set<BnfSymbols> bnfSymbolsNeedingRules = new HashSet<>();
+    private final Set<String>  existingRulesWithBnfSymbolNames = new HashSet<>();
     
     private SQLBNF( Output output )
     {
@@ -228,29 +237,45 @@ public class SQLBNF extends BnfWriter
     @Override
     protected void productionCommentPrefix()
     {
-        output.append( COMMENT_START ).println().append(COMMENT_LINE);
+        output.append( DESCRIPTION_START ).println().append(DESCRIPTION_LINE);
     }
 
     @Override
     protected void productionCommentLinePrefix()
     {
-        output.append( COMMENT_LINE);
+        output.append( DESCRIPTION_LINE);
     }
 
     @Override
     protected void productionCommentSuffix()
     {
-        output.append(COMMENT_END ).println();
+        output.append(DESCRIPTION_END ).println();
     }
 
     @Override
     protected void productionStart( Production p )
     {
-        output.append("<").append( p.name() ).append( "> ::= " );
-        bnfSymbols = p.bnfsymbols();
-        if (bnfSymbols) {
-        	existingCharLiterals.add(p.name());
-        }
+    	String ruleName = p.name();
+		log = ruleName.equals("PartialComparisonExpression");
+    	if (log) {
+    		LOGGER.warn("starting {}", ruleName);
+    	}
+        output.append("<").append( ruleName ).append( "> ::= " );
+        // some jiggery-pokery to handle "escaping" bnf symbols by putting them in their own rules
+        
+		// need to distinguish original rules that have bnf names from ones planted in generated bnf
+		//   using p.bnfsymbols() (via attribute in xml) catches some
+        markedBnfRule = p.bnfsymbols();
+        
+        bnfSymbolFromRuleName = BnfSymbols.getByName(ruleName);
+        LOGGER.warn("matching {} to {}", ruleName, bnfSymbolFromRuleName);
+		if (bnfSymbolFromRuleName != null) {
+			existingRulesWithBnfSymbolNames.add(ruleName);
+    	}
+		// need to distinguish original rules that have bnf names from ones planted in generated bnf
+		//   using p.bnfsymbols() (via attribute in xml) and perhaps some tweaking of the name
+
+        
     }
 
     @Override
@@ -263,7 +288,7 @@ public class SQLBNF extends BnfWriter
     protected void productionEnd()
     {
         output.println().println();
-        bnfSymbols = false;
+        bnfSymbolFromRuleName = null;
         /*
          * We print out productions for all literal words mentioned in the production
          */
@@ -318,34 +343,62 @@ public class SQLBNF extends BnfWriter
     @Override
     protected void literal( String value )
     {
-    	// sqlbnf never writes explicit punctuation - except if whole rhs is bnf/punctuation
-    	if (bnfSymbols) {
-    		// this is the whole production
+    	if (log) {
+    		LOGGER.warn("literal value {}", value);
+    	}
+    	// if the rule is marked as pure bnfsymbols, just do it
+    	if (markedBnfRule) {
     		output.append(value);
     		return;
     	}
-    	
-    	CharLit lit = CharLit.getByValue(value);
-    	if (lit == null) {
-    		// not simple punctuation punctuation
-    		if (value.matches("[\\w\\d]+")) {
-    			// we will do it explicitly
+    	// sqlbnf must escape bnf symbols by pushing them into a single production
+    	// if this happens to be one, don't mess with it
+    	if (bnfSymbolFromRuleName != null) {
+    		if (value.equals(bnfSymbolFromRuleName)) {
+        		LOGGER.warn("Production name {} for '{}'", bnfSymbolFromRuleName.getBnfName(), 
+        				bnfSymbolFromRuleName.getActualCharacters() );
+   			    // this is the whole production, we hope
     			output.append(value);
     			return;
-    		}
-    		if (value.length() == 1 && value.charAt(0) >= 128) {
-    			// looks like one unicode
-        		String hex =  Integer.toHexString(value.charAt(0));
-        		output.append("0x" + hex);
-        		return;
-            	
-    		}
+    		} else {
+        		LOGGER.warn("Production name {} is that of expected bnf definition for '{}'", bnfSymbolFromRuleName.getBnfName(), 
+        				bnfSymbolFromRuleName.getActualCharacters() + " but contains " + value );
 
-    		throw new IllegalStateException("Unknown character literal " + value + ".");
+    		}
     	}
-    	characterLiterals.add(lit);
-    	output.append(lit.getSQLBNF());
-//        enclose( value );
+    	// if this contains bnf symbols, they will need replacing
+    	String sep = "";
+    	if (BnfSymbols.anyBnfSymbols(value)) {
+    		Interleaver interleaver = BnfSymbols.getInterleave(value);
+    		while (interleaver.hasNext()) {
+    			String text = interleaver.nextText();
+    			if (text.length() > 0) {
+    				output.append(sep).append(text);
+    				sep = " ";
+    			}
+    			BnfSymbols symbol = interleaver.nextSymbol();
+    	    	bnfSymbolsNeedingRules.add(symbol);
+    	    	output.append(sep).append("<").append(symbol.getBnfName()).append(">");
+    	    	sep = " ";
+    		}
+    		String text = interleaver.nextText();
+			if (text.length() > 0) {
+				output.append(sep).append(text);
+			}
+    	} else {
+     		// could do this with a different interleaver
+    		char[] chars = value.toCharArray();
+    		for (char cp : chars) {
+                if ( ' ' < cp && cp <= '~' )
+                	// printable, excluding space
+                {
+                    output.appendCodePoint( cp );
+                }
+                else
+                	
+                	output.format( " \\u%04X ", (int) cp );
+                }				
+			}
     }
 
     @Override
@@ -432,85 +485,118 @@ public class SQLBNF extends BnfWriter
     {
     }
 
-    private Output appendNormalTextLine(String text) {
-    	return output.append(" !! ").append(text).println();
-    }
     
     @Override
     protected void characterSet( CharacterSet characters )
     {
+    	output.append(CHARACTER_SET_START);
         String name = characters.name();
-        if ( name != null )
+        if ( name != null && !name.equals("ANY"))
         {
-            appendNormalTextLine("characterset '" + name + "'");
+            output.append(name);
         }
+        // according to the notes, we should be able to have (in xml)
+        //   <character set="Lu"><except literal="X"/></character>
+        //  but I don't think that parses in for xml (name doesn't seem to be set)
+        //  so we will assume all exclusions are against any
         else
         {
+        	// can't work out the right way to get the closing ] on a non-exclusion set
+        	// since, in practice they are all exclude or include, cheat
             characters.accept( new CharacterSet.DefinitionVisitor.NamedSetVisitor<RuntimeException>()
             {
-                String sep = "";
-
+                String sep = CODEPOINT_LIST_START;
+ 
+                @Override
+                public void visitCodePoint( int cp )
+                {
+                	output.append(sep);
+                	codePoint( cp);
+                	sep = "";
+                }
+                
                 @Override
                 public CharacterSet.ExclusionVisitor<RuntimeException> visitSet( String name )
                 {
-                	appendNormalTextLine("characterset '" + name + "'");
-                    return new CharacterSet.ExclusionVisitor<RuntimeException>()
+                	output.append(CHARACTER_SET_EXCEPT);
+                	return new CharacterSet.ExclusionVisitor<RuntimeException>()
                     {
-                        String sep = " except (";
+                        String sep = CODEPOINT_LIST_START;
 
                         @Override
                         public void excludeCodePoint( int cp ) throws RuntimeException
                         {
-                        	output.append(" !! ").append(sep).append(" character ");
+                        	output.append(sep);
                             codePoint( cp );
-                            output.println();
-                            sep = " | ";
+                            sep = "";
                         }
                         @Override
                         public void excludeSet( String name )
                         {
-                        	appendNormalTextLine(sep + " characterset '" + name + "'");
-                            sep = " | ";
+                        	// this isn't supported anyway
+                        	throw new UnsupportedOperationException("can't do exclusion of set name");
                         }
 
                         @Override
                         public void close() throws RuntimeException
                         {
-                            if ( sep.charAt( sep.length() - 1 ) != '(' )
-                            {
-                                appendNormalTextLine( "  )" );
-                            }
+                        	// this is the cheat
+//                        	if ( !sep.equals(CODEPOINT_LIST_START)) {
+//                        		output.append(CODEPOINT_LIST_END);
+//                        	}
                         }
                     };
                 }
 
-                @Override
-                public void visitCodePoint( int cp )
-                {
-                	output.append(" !! ").append(sep).append(" character ");
-                    codePoint( cp );
-                    output.println();
-                    sep = " | ";
-                }
 
+                
                 private void codePoint( int cp )
                 {
-                    String controlChar = CharacterSet.controlCharName( cp );
-                    if ( controlChar != null )
-                    {
-                        output.append( controlChar );
+                    switch ( cp )
+                    {// <pre>
+                        case '\r': output.append("\\r");  break;
+                        case '\n': output.append("\\n");  break;
+                        case '\t': output.append("\\t");  break;
+                        case '\b': output.append("\\b");  break;
+                        case '\f': output.append("\\f");  break;
+                        case '\\': output.append("\\\\"); break;
+                        case '-':  output.append("\\-");  break;
+                        case ']':  output.append("\\]");  break;
+                        // this probably won't parse
+                        case '$':  output.append("\\$");  break;
+                    // </pre>
+                    default:
+                        if ( ' ' < cp && cp <= '~' )
+                        	// printable, excluding space
+                        {
+                            output.appendCodePoint( cp );
+                        }
+                        else
+                        {
+                            output.format( "\\u%04X", cp );
+                        }
                     }
-                    else if ( cp == '\'' )
-                    {
-                        output.append( "\"'\"" );
-                    }
-                    else
-                    {
-                        output.append( '\'' ).appendCodePoint( cp ).append( '\'' );
-                    }
+
+//                    String controlChar = CharacterSet.controlCharName( cp );
+//                    if ( controlChar != null )
+//                    {
+//                        output.append( controlChar );
+//                    }
+//                    else if ( cp == '\'' )
+//                    {
+//                        output.append( "\"'\"" );
+//                    }
+//                    else
+//                    {
+//                        output.append( '\'' ).appendCodePoint( cp ).append( '\'' );
+//                    }
                 }
             } );
+            // list end probably ought to be in a close() but there isn't one
+            output.append(CODEPOINT_LIST_END);
         }
+
+        output.append(CHARACTER_SET_END);
     }
 
     @Override
@@ -558,10 +644,10 @@ public class SQLBNF extends BnfWriter
     @Override
     public void close()
     {
-    	for (CharLit lit : characterLiterals) {
+    	for (BnfSymbols lit : bnfSymbolsNeedingRules) {
     		String name = lit.getBnfName();
-    		if (! existingCharLiterals.contains(name)) {
-        		output.append(lit.getSQLBNF()).append(" ::= ").append(lit.getCharacters());
+    		if (! existingRulesWithBnfSymbolNames.contains(name)) {
+        		output.append("<").append(name).append("> ::= ").append(lit.getBnfForm());
         		output.println().println();
     		}
 		}

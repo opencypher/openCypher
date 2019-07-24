@@ -77,6 +77,7 @@ public enum CharLit  {
 	COLON(":"),
 	DOUBLE_DOT(".."),
 	SOLIDUS("/"),
+	ESCAPED_SOLIDUS("/", "", false, "\\/", false),
 	REVERSE_SOLIDUS("\\"),
 	PER_CENT("%"),
 	CARET("^"),
@@ -85,25 +86,25 @@ public enum CharLit  {
 	BACK_TICK("`"),
 	COMMENT_START("/*"),  // these will need thinking about
 	COMMENT_END("*/"),
-	DOUBLE_SOLIDUS("//")
+	DOUBLE_SOLIDUS("//", "", false, "\\/\\/", false);
 	;
 	
 	private static final Map<String, CharLit> charMap;
 	private static final Map<String, CharLit> nameMap;
 	private static final Set<String> punctuation;
 	private static final Pattern bnfPattern;
-	private static final Map<String, CharLit> escapedMap;
 	
 	static {
 		charMap = new HashMap<>();
 		nameMap = new HashMap<>();
-		escapedMap = new HashMap<>();
 		punctuation = new HashSet<>();
 		List<String> bnfSyms = new ArrayList<>();
 		for (CharLit lit : CharLit.values()) {
 			charMap.put(lit.actualCharacters, lit);
 			nameMap.put(lit.name(), lit);
-			escapedMap.put(lit.escaped,  lit);
+			// a special literal may have been escaped 
+			//  (arguably, this depends on the input language
+			charMap.put(lit.escaped,  lit);
 			for (String character : lit.actualCharacters.split("")) {
 				punctuation.add(character);
 			}
@@ -124,7 +125,7 @@ public enum CharLit  {
 	private final String g4Form;
 	private final String xmlName;
 	private final String xmlLiteral;
-	private final String  escaped;
+	private final String escaped;
 	private final String bnfName;
 	
 
@@ -214,6 +215,10 @@ public enum CharLit  {
 		
 	public String getCharacters() {
 		return actualCharacters;
+	}
+	
+	public String getEscapedCharacters() {
+		return escaped;
 	}
 	
 	public boolean isBnfSymbols() {

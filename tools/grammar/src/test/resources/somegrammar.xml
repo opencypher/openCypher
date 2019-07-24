@@ -6,7 +6,10 @@
   <!-- A grammar should contain at least one production, with the same name as the grammar -->
   <production name="SomeLanguage">
     <repeat>
-      <non-terminal ref="stmt"/>
+      <alt>
+      	<non-terminal ref="stmt"/>
+      	<non-terminal ref="Comment"/>
+      </alt>
     </repeat>
   </production>
   <production name="stmt">
@@ -63,4 +66,27 @@
       </alt>
     </repeat>
   </production>
+  <!-- from cypher, but without the oc:lexer="true" attribute -->
+  <production name="Comment">
+    <alt>
+      <seq>/* <repeat><alt>
+        <character><except literal="*"/></character>
+        <seq>* <character><except literal="/"/></character></seq>
+      </alt></repeat> */</seq>
+      <seq>//
+        <repeat>
+          <character>
+            <except literal="&#10;"/> <!-- Line Feed -->
+            <except literal="&#13;"/> <!-- Carriage Return -->
+          </character>
+        </repeat>
+        <opt><literal value="&#13;"/></opt> <!-- Carriage Return -->
+        <alt>
+          <literal value="&#10;"/> <!-- Line Feed -->
+          <character set="EOI"/>
+        </alt>
+      </seq>
+    </alt>
+  </production>
+  
 </grammar>

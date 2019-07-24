@@ -27,6 +27,7 @@
  */
 package org.opencypher.grammar;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -46,6 +47,7 @@ import static org.opencypher.grammar.Grammar.sequence;
 import static org.opencypher.grammar.Grammar.zeroOrMore;
 import static org.opencypher.grammar.Grammar.epsilon;
 
+import org.opencypher.grammar.Grammar.CharacterSet;
 import org.opencypher.grammar.Grammar.Option;
 import org.opencypher.grammar.Grammar.Term;
 import org.opencypher.grammar.Root.ResolutionOption;
@@ -55,14 +57,20 @@ import org.opencypher.tools.antlr.tree.GrammarItem.ItemType;
 import org.opencypher.tools.antlr.tree.GrammarTop;
 import org.opencypher.tools.antlr.tree.InAlternatives;
 import org.opencypher.tools.antlr.tree.InLiteral;
+import org.opencypher.tools.antlr.tree.ListedCharacterSet;
+import org.opencypher.tools.antlr.tree.NamedCharacterSet;
 import org.opencypher.tools.antlr.tree.NormalText;
 import org.opencypher.tools.antlr.tree.Rule;
 import org.opencypher.tools.antlr.tree.RuleId;
-import org.opencypher.tools.antlr.tree.SpecialLiteral;
+import org.opencypher.tools.antlr.tree.SpecialCharLiteral;
+import org.opencypher.tools.antlr.tree.BnfSymbolLiteral;
+import org.opencypher.tools.antlr.tree.BnfSymbols;
+import org.opencypher.tools.antlr.tree.CharacterLiteral;
 import org.opencypher.tools.antlr.tree.SpecialSeqLiteral;
 import org.opencypher.tools.antlr.tree.Rule.RuleType;
 import org.opencypher.tools.antlr.Normaliser;
 import org.opencypher.tools.antlr.tree.ElementWithCardinality;
+import org.opencypher.tools.antlr.tree.ExclusionCharacterSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,9 +86,9 @@ public class GrammarConverter {
 	
 	public GrammarConverter(GrammarTop grammarTop) {
 		this.grammarTop = grammarTop;
-//		LOGGER.warn("originally {}", grammarTop.getStructure(""));
+		LOGGER.warn("originally {}", grammarTop.getStructure(""));
 		ruleMap = normaliser.normalise(grammarTop);
-//		LOGGER.warn("normalised {}", grammarTop.getStructure(""));
+		LOGGER.warn("normalised {}", grammarTop.getStructure(""));
 	}
 	
 	public Grammar convert() {
@@ -100,11 +108,11 @@ public class GrammarConverter {
     			Term term = convertItem(rhs);
     			LOGGER.debug("defining rule {}",ruleName);
     			builder.production(ruleName, term);
-    			if (rhs.getType() == ItemType.SPECIAL || rhs.getType() == ItemType.SPECIAL_LIST) {
+    			if (rhs.getType() == ItemType.BNF_LITERAL || rhs.getType() == ItemType.SPECIAL_LIST) {
     				builder.markAsBnfSymbols(ruleName);
     			}
 			} else {
-				LOGGER.debug("suppressing {}", ruleName);
+				LOGGER.warn("suppressing {}", ruleName);
 			}
 		}
 		
@@ -123,17 +131,47 @@ public class GrammarConverter {
 			return convertReference((RuleId) item);
 		case CARDINALITY:
 			return convertWithCardinality((ElementWithCardinality) item);
-		case SPECIAL:
-			return convertSpecial( (SpecialLiteral) item);
+		case BNF_LITERAL:
+			return convertSpecial( (BnfSymbolLiteral) item);
 		case SPECIAL_LIST:
 			return convertSpecialList( (SpecialSeqLiteral) item);
 		case TEXT:
 			return convertText( (NormalText) item);
+		case NAMEDCHARSET:
+			return convertCharSet( (NamedCharacterSet) item);
+		case LISTEDCHARSET:
+			return convertCharSet( (ListedCharacterSet) item);
+		case EXCLUSIONCHARSET:
+			return convertCharSet( (ExclusionCharacterSet) item);
+		case EOI:
+			return convertEOI();
+			
 		default:
 			LOGGER.warn("Don't know how to handle {} that is a {}", item.getType(), item.getClass().getSimpleName());
 			break;
 		}
 		return literal("* itemtype = " + item.getType() + "*");
+	}
+
+	private Term convertCharSet(NamedCharacterSet item) {
+		return charactersOfSet( item.getName());
+	}
+
+	private Term convertCharSet(ListedCharacterSet item) {
+		return charactersOfSet("[" + item.getCharacters() + "]");
+	}
+	
+	private Term convertCharSet(ExclusionCharacterSet item) {
+		char[] exclusions =  item.getCharacters().toCharArray();
+		int[] intEx = new int[exclusions.length];
+		for (int i=0; i < exclusions.length; i++) {
+			intEx[i] = (int) exclusions[i];
+		}
+		return charactersOfSet("ANY").except(intEx);
+	}
+	
+	private Term convertEOI() {
+		return charactersOfSet("EOI");
 	}
 
 	private static final Pattern CHARSET_PATTERN = Pattern.compile("\\s*character\\s*set\\s+'(\\w+)'\\s*");
@@ -176,13 +214,49 @@ public class GrammarConverter {
 
 	private Term convertAlternative(InAlternative item) {
 		List<GrammarItem> children = item.getChildren();
-		List<Term> terms = children.stream().map(g -> convertItem(g)).collect(Collectors.toList());
+		if (children.size() == 0) {
+			LOGGER.warn("no child items from {}", item);
+			return epsilon();
+		}
+		// leaving bnf, combine sequence of literal and references to bnfsymbol rules
+		List<Term> terms = new ArrayList<>();
+		boolean inLiterals = false;
+		StringBuilder pending = new StringBuilder();
+		
+		for (GrammarItem grammarItem : children) {
+			switch (grammarItem.getType()) {
+			case CHARACTER_LITERAL:
+				pending.append(((CharacterLiteral) grammarItem).getValue());
+				inLiterals = true;
+				break;
+			case BNF_LITERAL:
+				// a reference to bnf characters, that can be unwound in standard grammar
+				pending.append(((BnfSymbolLiteral) grammarItem).getCharacters());
+				inLiterals = true;
+			default:
+				if (inLiterals) {
+					terms.add(convertItem(new InLiteral(pending.toString())));
+					pending = new StringBuilder();
+					inLiterals = false;
+				}
+				terms.add(convertItem(grammarItem));
+				break;
+			}
+		}
+		if (inLiterals) {
+			terms.add(convertItem(new InLiteral(pending.toString())));
+		}
+
 		return sequence(first(terms), getRest(terms));
 	}
 
 	private Term convertLiteral(InLiteral lit) {
 		String value = lit.getValue();
 		String[] words = value.split("\\s+");
+		if (words.length == 0) {
+			// its all whitespace !
+			return literal(value);
+		}
 		// i'm sure there are better ways of doing this
 		List<Term> lits = Stream.of(words).map(w -> literal(w)).collect(Collectors.toList());
 
@@ -190,12 +264,12 @@ public class GrammarConverter {
 	}
 
 	private Term convertSpecialList(SpecialSeqLiteral item) {
-		String value = item.getCharacters();
-		return literal(value);
+		throw new IllegalStateException("wrong place");
 	}
 
-	private Term convertSpecial(SpecialLiteral item) {
-		// i think we can glue these together
+	private Term convertSpecial(BnfSymbolLiteral item) {
+		// if this hasn't been suppressed (for being a bnf special), it is part of a 
+		// user-specified, all bnf rule
 		String value = item.getCharacters();
 		return literal(value);
 	}
@@ -211,18 +285,30 @@ public class GrammarConverter {
 		String ruleName = ref.getName();
 		Rule referencedRule = ruleMap.get(ruleName);
 		if (referencedRule != null) {
-			if (referencedRule.getRuleType() == RuleType.KEYWORD ||
-					referencedRule.getRuleType() == RuleType.KEYWORD_LITERAL) {
+			switch (referencedRule.getRuleType()) {
+			case NORMAL:
+				return nonTerminal(ruleName);
+			case KEYWORD:
+			case KEYWORD_LITERAL:
 				return caseInsensitive(ruleName);
+			case BNF:
+				BnfSymbols bnfSymbol = BnfSymbols.getByName(ruleName);
+				return literal(bnfSymbol.getActualCharacters());
+				// not sure about LETTER
+			case LETTER:
+				return literal(ruleName);
+			default:
+				LOGGER.warn("No special handling for rulereference {}, type {}", ruleName, referencedRule.getRuleType());
+				break;
 			}
 		}
 		return nonTerminal(ruleName);
 	}
 	
-	private Term first(List<Term> list) {
+	protected Term first(List<Term> list) {
 		return list.get(0);
 	}
-	private Term[] getRest(List<Term> list) {
+	protected Term[] getRest(List<Term> list) {
 		if (list.size() <= 1) {
 			return null;
 		}

@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-  package org.opencypher.tools.antlr.tree;
+   package org.opencypher.tools.antlr.tree;
 
 import java.util.List;
 
@@ -44,8 +44,12 @@ public interface GrammarItem
 		OTHER,
 		RULE, 
 		CHARACTER_LITERAL,
-		SPECIAL,
-		SPECIAL_LIST
+		BNF_LITERAL,
+		SPECIAL_LIST,
+		EOI, 
+		NAMEDCHARSET, 
+		LISTEDCHARSET,
+		EXCLUSIONCHARSET
 	}
 	
 	/**

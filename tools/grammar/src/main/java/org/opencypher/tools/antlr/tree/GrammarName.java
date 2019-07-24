@@ -24,7 +24,8 @@
  * proposals for change that have been documented or implemented should only be
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
- */ 
+ */
+  
 package org.opencypher.tools.antlr.tree;
 
 import java.util.Collections;

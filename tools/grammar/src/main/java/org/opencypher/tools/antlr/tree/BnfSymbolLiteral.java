@@ -30,26 +30,27 @@
 import java.util.Collections;
 import java.util.List;
 
-import org.opencypher.tools.antlr.tree.GrammarItem.ItemType;
+import org.opencypher.tools.grammar.CharLit;
 
-public class MappedLiteral implements GrammarItem
-{
+/** literal containing bnf symbols
+ * 	in bnf this can only be the whole rule.
+ *  it may be a special case
+ */
+public class BnfSymbolLiteral implements GrammarItem {
 
-	private final String bnfName;
 	private final String characters;
-	private final String g4name;
-//	private final String xmlLiteral;
 
-	public MappedLiteral(String bnfName, String characters) {
-		this.bnfName = bnfName;
-		this.characters = characters;
-		this.g4name = bnfName.toUpperCase().replaceAll(" ", "_");
-//		xmlLiteral = TransformationControl.getXmlLiteral(characters);
+	public BnfSymbolLiteral(BnfSymbols bnfSymbol) {
+		this.characters = bnfSymbol.getActualCharacters();
 	}
-
+	
+	public String getCharacters() {
+		return characters;
+	}
+	
 	@Override
 	public ItemType getType() {
-		return ItemType.CHARACTER_LITERAL;
+		return ItemType.BNF_LITERAL;
 	}
 
 	@Override
@@ -57,34 +58,24 @@ public class MappedLiteral implements GrammarItem
 		return Collections.emptyList();
 	}
 
-	
 	@Override
-	public boolean isPlural()
-	{
+	public boolean isPlural() {
 		return false;
 	}
-	@Override
-	public String toString()
-	{
-//		return "MappedLiteral [bnfName=" + bnfName + ", characters=" + characters + ", g4name=" + g4name + "]";
-		return bnfName;
-	}
-	@Override
-	public String getStructure(String indent)
-	{
-		return indent + "MappedLiteral : " + bnfName;
-	}
-
 
 	@Override
-	public GrammarItem reachThrough()
-	{
+	public GrammarItem reachThrough() {
 		return this;
 	}
-	
 
 	@Override
 	public boolean isKeywordPart() {
 		return false;
 	}
+
+	@Override
+	public String getStructure(String indent) {
+		return indent + "Special : '" + characters + "'";
+	}
+
 }
