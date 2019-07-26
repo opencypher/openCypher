@@ -33,7 +33,7 @@ The index syntax is based on the constraint syntax (see the Constraint Syntax CI
 .Grammar definition for Neo4j index syntax.
 [source, ebnf]
 ----
-index command = create-index | drop-index ;
+index-command = create-index | drop-index ;
 create-index  = "CREATE", "INDEX", [ index-name ], "FOR", index-pattern, "ON", index-key ;
 index-pattern = node-pattern
 index-name    = symbolic-name
@@ -87,6 +87,44 @@ The following list describes the situations in which an error will be raised:
 
 Once an index has been created, its definition may not be amended.
 Should a user wish to change the definition of an index, the index will have to be dropped and recreated with the amended definition.
+
+[[return-record]]
+==== Return record
+
+Similar to the Constraint Syntax CIP, index commands will yield a single return record.
+The result record has a fixed structure, with three string fields: `name`, `definition`, and `details`.
+
+An index command will always return exactly one record, if successful.
+Note that also `DROP INDEX` will return a record.
+
+===== Name
+
+This field contains the name of the index, either user- or system-defined.
+
+===== Definition
+
+This field contains the index definition, which is the contents of the index creation command following (and including) the `FOR` clause.
+
+===== Details
+
+The contents of this field are left unspecified, to be used for implementation-specific messages and/or details.
+
+.Example: consider the following index:
+[source, cypher]
+----
+CREATE INDEX myIndex
+FOR (n:Node)
+ON n.prop1, n.prop2
+----
+
+A correct result record for it could be:
+
+----
+name    | definition          | details
+---------------------------------------
+myIndex | FOR (n:NODE)        | n/a
+        | ON n.prop1, n.prop2 |
+----
 
 === Examples
 
