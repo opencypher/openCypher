@@ -82,3 +82,155 @@ Feature: SkipLimitAcceptanceTest
       | count |
       | 2     |
     And no side effects
+
+  Scenario: Negative parameter for LIMIT should fail
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    And parameters are:
+      | limit | -1 |
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      LIMIT $limit
+      """
+    Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
+
+  Scenario: Negative parameter for LIMIT with ORDER BY should fail
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    And parameters are:
+      | limit | -1 |
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      ORDER BY name LIMIT $limit
+      """
+    Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
+
+  Scenario: Negative LIMIT should fail
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      LIMIT -1
+      """
+    Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
+
+  Scenario: Negative parameter for SKIP should fail
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    And parameters are:
+      | skip | -1 |
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      SKIP $skip
+      """
+    Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
+
+  Scenario: Negative SKIP should fail
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      SKIP -1
+      """
+    Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
+
+  Scenario: Floating point parameter for LIMIT should fail
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    And parameters are:
+      | limit | 1.5 |
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      LIMIT $limit
+      """
+    Then a SyntaxError should be raised at runtime: InvalidArgumentType
+
+  Scenario: Floating point parameter for LIMIT with ORDER BY should fail
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    And parameters are:
+      | limit | 1.5 |
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      ORDER BY name LIMIT $limit
+      """
+    Then a SyntaxError should be raised at runtime: InvalidArgumentType
+
+  Scenario: Floating point LIMIT should fail
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      LIMIT 1.5
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  Scenario: Floating point parameter for SKIP should fail
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    And parameters are:
+      | limit | 1.5 |
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      SKIP $limit
+      """
+    Then a SyntaxError should be raised at runtime: InvalidArgumentType
+
+  Scenario: Floating point SKIP should fail
+    And having executed:
+      """
+      CREATE (s:Person {name: 'Steven'}),
+             (c:Person {name: 'Craig'})
+      """
+    When executing query:
+      """
+      MATCH (p:Person)
+      RETURN p.name AS name
+      SKIP 1.5
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
