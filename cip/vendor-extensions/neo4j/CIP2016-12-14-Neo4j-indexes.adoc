@@ -24,6 +24,8 @@ This enables queries that reference these label/property combinations to use the
 Indexes in Neo4j are able to index _labeled nodes_ only.
 These nodes are kept in a separate, persisted data structure which allows lookups based on providing values for the specified indexed properties.
 
+While not going into exact detail on every aspect, this proposal is intended to comply with all rules stated in the Constraint Syntax CIP, where applicable.
+
 === Syntax
 
 The index syntax is based on the constraint syntax (see the Constraint Syntax CIP), and is detailed below:
