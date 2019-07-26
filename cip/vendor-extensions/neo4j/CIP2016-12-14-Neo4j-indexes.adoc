@@ -26,7 +26,7 @@ These nodes are kept in a separate, persisted data structure which allows lookup
 
 === Syntax
 
-The index syntax is based on the constraint syntax, and is detailed below:
+The index syntax is based on the constraint syntax (see the Constraint Syntax CIP), and is detailed below:
 
 .Grammar definition for Neo4j index syntax.
 [source, ebnf]
@@ -44,7 +44,7 @@ The `index-key` expression defines the key for the index, and consist of one or 
 ==== Index names
 
 Just like constraints, indexes have names.
-Neo4j does not support user-defined names, but the index will be assigned a system-generated name.
+If the user does not provide a name, a system-generated name will be generated.
 
 ==== Removing indexes
 
@@ -60,21 +60,31 @@ DROP INDEX index-1
 
 Indexes do not impose any semantics on the graph, or on queries.
 They exist solely for performance reasons.
-
-Any query that is matching for nodes using a label and property/ies that match an index is viable to be planned using the matching index.
-The _query key_ is formed by combining the referenced properties, and using this to scan the index for matching entities.
-Predicates in which
+In other words, any query on any graph should behave exactly identical in the presence of indexes as they would otherwise.
 
 ==== Domain
 
-Only nodes with the specified label, and values for _all_ the properties are considered part of the index domain.
-This means that only queries that specify _all_ the properties will be able to be planned with index lookups.
-Queries that only reference a subset of properties of an index will need the creation of another, smaller index that is defined using those properties only.
+For a node to be considered part of an index domain, it is required that it
+
+A. has the label referenced in the index pattern
+B. [[B]]has a value different from `null` for all properties referenced in the index key
+
+A consequence of <<B, B.>> is that an index will only partially support queries that project the indexed properties.
+However, queries that pose predicates on the indexed properties will still enjoy full support in many cases.
+See <<domain-example>> for more details on this difference.
+
+==== Errors
+
+The following list describes the situations in which an error will be raised:
+
+* Attempting to create an index with a name that already exists.
+* Attempting to create an index that the underlying engine does not support enforcing.
+* Attempting to drop an index referencing a non-existent name.
 
 ==== Mutability
 
 Once an index has been created, its definition may not be amended.
-Should a user wish to change its definition, the index will have to be dropped and recreated with an updated structure.
+Should a user wish to change the definition of an index, the index will have to be dropped and recreated with the amended definition.
 
 === Examples
 
@@ -83,29 +93,81 @@ Creating indexes is straight-forward following the specified syntax.
 .An index with multiple properties
 [source, cypher]
 ----
-CREATE INDEX
+CREATE INDEX addresses
 FOR (a:Address)
 ON a.street, a.city, a.country
 ----
 
-.An index with a single properties
+.An index with a single property
 [source, cypher]
 ----
-CREATE INDEX
+CREATE INDEX person_names
 FOR (p:Person)
 ON p.name
 ----
 
+[[domain-example]]
+==== Domain example
+
+Consider a graph of `:Person` nodes with `name`, `email`, and `age` properties.
+Not all nodes in this graph has all properties.
+On this graph we declare the following index on all the properties:
+
+[source, cypher]
+----
+CREATE INDEX person_properties
+FOR (p:Person)
+ON p.name, p.email, p.age
+----
+
+Queries that _project_ these properties will be unable to find all nodes for its result in the index domain.
+The projection query is required to return all nodes regardless of whether the projected properties contain non-null values or not, and nodes with `null` for any of the referenced properties will not be found in the index domain.
+
+.Projection query:
+[source, cypher]
+----
+MATCH (p:Person)
+RETURN p.name, p.age, p.email
+----
+
+Queries that pose _conjunctive predicates_ on the properties will however be able to find all required nodes in the index domain.
+The predicate query is only required to return all nodes that passes the predicate, and predicates on non-existing properties will discard the tuple.
+This applies even when the predicate does not reference all indexed properties.
+
+.Conjunctive predicate query:
+[source, cypher]
+----
+MATCH (p:Person)
+WHERE p.email ENDS WITH '@opencypher.org'
+  AND p.age > 25
+RETURN p.name, p.age, p.email
+----
+
+[NOTE]
+While this example is generally applicable, some predicate constructs behave differently for `null` values and need to taken into special consideration.
+
+.Predicate with special `null` semantics:
+[source, cypher]
+----
+MATCH (p:Person)
+WHERE p.email IS NULL
+  AND p.age > 25
+RETURN p.name, p.age, p.email
+----
+
+In this query the index domain does not contain all nodes required for the result.
+Similar reasoning must be applied to disjunctive predicates which reference expressions other than indexed properties (e.g. `WHERE p.age > 25 OR p.country = 'SWE'` ).
+
 ==== Combination with Neo4j constraints
 
-In Neo4j, constraints are upheld through the use of indexes.
-Neo4j supports three types of constraints: property uniqueness, property existence, and primary key.
+In Neo4j, constraints are generally upheld through the use of indexes.
+Neo4j supports three types of constraints: property uniqueness, property existence, and node key.
 These are expressed as exemplified below.
 
 .A Neo4j property uniqueness constraint
 [source, cypher]
 ----
-CREATE CONSTRAINT
+CREATE CONSTRAINT one_address_per_street
 FOR (a:Address)
 REQUIRE UNIQUE a.street
 ----
@@ -113,26 +175,28 @@ REQUIRE UNIQUE a.street
 .A Neo4j node property existence constraint
 [source, cypher]
 ----
-CREATE CONSTRAINT
+CREATE CONSTRAINT streets_on_all_addresses
 FOR (a:Address)
 REQUIRE exists(a.street)
 ----
 
-.A Neo4j relationship property existence constraint
+.A Neo4j node key constraint
 [source, cypher]
 ----
-CREATE CONSTRAINT
-FOR ()-[o:OWNS]->()
-REQUIRE exists(o.since)
-----
-
-.A Neo4j primary key constraint
-[source, cypher]
-----
-CREATE CONSTRAINT
+CREATE CONSTRAINT address_key
 FOR (a:Address)
-REQUIRE PRIMARY KEY a.street, a.city, a.country
+REQUIRE NODE KEY a.street, a.city, a.country
 ----
 
 Creating a constraint as outlined above will also create a matching index.
 It will not be possible to drop that index without also dropping the constraint.
+
+An exception to this rule is the relationship existence constraint, which is not upheld by the use of an index.
+
+.A Neo4j relationship property existence constraint
+[source, cypher]
+----
+CREATE CONSTRAINT owning_must_have_start_time
+FOR ()-[o:OWNS]->()
+REQUIRE exists(o.since)
+----
