@@ -238,6 +238,21 @@ PHASE will be either `runtime` or `compile time`.
 
 DETAIL is a more fine-grained categorization of the error, and will describe the actual circumstance that caused the error to happen.
 
+== Property naming
+
+TCK might be executed on graph databases with a schema. To avoid errors when values with different types are assigned to properties with the same name, following property names are suggested:
+
+|===
+| Type | Property name
+
+| Variable types | `var`
+| Integer | `num`
+| String | `name`
+| Float | `price`
+| Temporal | `date`, `created`
+| Boolean | `ok`
+| List | plural of type e.g. `numbers`, `names`...
+|===
 
 == License
 
