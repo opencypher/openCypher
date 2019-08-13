@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE grammar []>
+<grammar language="FewRules" xmlns="http://opencypher.org/grammar" xmlns:oc="http://opencypher.org/opencypher"
+         xmlns:rr="http://opencypher.org/railroad">
+  <!-- A grammar should contain at least one production, with the same name as the grammar -->
+  <production name="FewRules">
+    <repeat>
+      <non-terminal ref="ExponentDecimalReal"/>
+    </repeat>
+  </production>
+
+<production name="ExponentDecimalReal" oc:lexer="true">
+    <alt>
+      <repeat min="1"><non-terminal ref="Digit"/></repeat>
+      <seq>
+        <repeat min="1"><non-terminal ref="Digit"/></repeat> . <repeat min="1"><non-terminal ref="Digit"/></repeat>
+      </seq>
+      <seq>. <repeat min="1"><non-terminal ref="Digit"/></repeat></seq>
+    </alt>
+    <alt>e E</alt>
+    <opt>-</opt>
+    <repeat min="1"><non-terminal ref="Digit"/></repeat>
+  </production>
+  
+   <production name="Digit" rr:inline="true" oc:lexer="true">
+    <alt>0 1 2 3 4 5 6 7 8 9</alt>
+  </production>
+  
+  </grammar>
+ 

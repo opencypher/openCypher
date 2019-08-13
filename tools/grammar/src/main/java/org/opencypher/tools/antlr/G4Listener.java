@@ -28,12 +28,15 @@
   package org.opencypher.tools.antlr;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.opencypher.grammar.CharacterSet;
 import org.opencypher.tools.antlr.g4.Gee4BaseListener;
 import org.opencypher.tools.antlr.g4.Gee4Lexer;
 import org.opencypher.tools.antlr.g4.Gee4Parser.CardinalityContext;
@@ -66,6 +69,7 @@ import org.opencypher.tools.antlr.tree.InAlternatives;
 import org.opencypher.tools.antlr.tree.InLiteral;
 import org.opencypher.tools.antlr.tree.InOptional;
 import org.opencypher.tools.antlr.tree.ListedCharacterSet;
+import org.opencypher.tools.antlr.tree.NamedCharacterSet;
 import org.opencypher.tools.antlr.tree.NormalText;
 import org.opencypher.tools.antlr.tree.OneOrMore;
 import org.opencypher.tools.antlr.tree.Rule;
@@ -277,22 +281,41 @@ public class G4Listener extends Gee4BaseListener
 		setItem(ctx, new ExclusionCharacterSet(ctx.getText().replaceFirst("^~'","").replaceFirst("'$", "")));
 	}
 
+	private static final Pattern NAMED_CHARSET_PATT = Pattern.compile("\\\\p\\{(\\w+)\\}");
 	@Override
 	public void exitCharSet(CharSetContext ctx) {
 		String charSetString = ctx.getText().replaceFirst("^\\[","").replaceFirst("\\]$", "");
+		// special case named (better to rework Gee4.g4 and do this in the lexer, parser
+		Matcher namedM = NAMED_CHARSET_PATT.matcher(charSetString);
+		if (namedM.matches()) {
+			setItem(ctx, new NamedCharacterSet(namedM.group(1)));
+			return;
+		}
 		if (charSetString.contains("\\")) {
 			charSetString = interpret(charSetString);
+			if (charSetString.length() == 1) {
+				// possibly a control character
+				int cp = charSetString.codePointAt(0);
+				String name = CharacterSet.controlCharName(cp);
+				if (name != null) {
+					setItem(ctx, new NamedCharacterSet(name));
+					return;
+				}
+			}
 		}
 		setItem(ctx, new ListedCharacterSet(charSetString));
 	}
 
+
 	private String interpret(String charSetString) {
 		// to cope with punctuation, especially backslash, the syntax has text+,
 		// but we want them together again
-		LOGGER.warn("interpreting {}", charSetString);
+		LOGGER.debug("interpreting {}", charSetString);
 		boolean escaped = false;
+		boolean inRange = false;
+		int previous = 0;
 		StringBuilder b = new StringBuilder();
-		for (int i = 0, end = charSetString.length() - 1; i < end; i++ ) {
+		for (int i = 0, end = charSetString.length() ; i < end; i++ ) {
 			int cp = charSetString.codePointAt(i);
 			switch (cp) {
 			case '\\':
@@ -303,7 +326,6 @@ public class G4Listener extends Gee4BaseListener
 					escaped = true;
 				}
 				break;
-
 			default:
 				if (escaped) {
 					escaped = false;
@@ -326,12 +348,15 @@ public class G4Listener extends Gee4BaseListener
 					case '\\':
 						b.append("\\");
 						break;
+					case '-':
+						b.append('-');
+						break;
 					case 'u':
 						if (i + 4 > charSetString.length()) {
 							throw new IllegalArgumentException("unicode escape requires 4 hex digits");
 						}
 						String hexchars = charSetString.substring(i+1, i + 5);
-						LOGGER.warn("at {}, hex {}", i, hexchars);
+						LOGGER.debug("at {}, hex {}", i, hexchars);
 						int ch = Integer.parseInt(hexchars, 16);
 						b.append((char) ch);
 						i += 4;
@@ -346,7 +371,7 @@ public class G4Listener extends Gee4BaseListener
 			}
 		}
 		String answer = b.toString();
-		LOGGER.warn("became {}, len {}", answer, answer.length());
+		LOGGER.debug("became {}, len {}", answer, answer.length());
 
 		return answer;
 

@@ -27,6 +27,8 @@
  */
     package org.opencypher.tools.antlr;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,6 +38,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.opencypher.tools.antlr.bnf.BNFBaseListener;
 import org.opencypher.tools.antlr.bnf.BNFLexer;
 import org.opencypher.tools.antlr.bnf.BNFParser.AlternativeContext;
@@ -401,10 +404,12 @@ public class BNFListener extends BNFBaseListener
 	}
 	
 	private String interpret(ListcharactersetContext listCtx) {
-		// to cope with punctuation, especially backslash, the syntax has text+,
-		// but we want them together again
+		// to cope with punctuation, especially backslash, we use text.  this may cause grief 
+		// if we need to have ] in character set
 		
+	
 		List<String> bnfString = listCtx.text().stream().map(TextContext::getText).collect(Collectors.toList());
+		LOGGER.debug("bnfString {}.", bnfString);
 		StringBuilder b = new StringBuilder();
 		while (! bnfString.isEmpty()) {
 			String piece = bnfString.remove(0);
@@ -421,7 +426,7 @@ public class BNFListener extends BNFBaseListener
                     case 't': b.append("\t");  break;
                     case 'b': b.append("\b");  break;
                     case 'f': b.append("\f");  break;
-                    case '\\': b.append("\\"); break;
+                    case '\\': b.append("\\\\"); break;
                     case '-':  b.append("-");  break;
                     case ']':  b.append("]");  break;
                     case '$':  b.append("$");  break;

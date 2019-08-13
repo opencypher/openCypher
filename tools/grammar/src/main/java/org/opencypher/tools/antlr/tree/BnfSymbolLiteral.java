@@ -30,8 +30,6 @@
 import java.util.Collections;
 import java.util.List;
 
-import org.opencypher.tools.grammar.CharLit;
-
 /** literal containing bnf symbols
  * 	in bnf this can only be the whole rule.
  *  it may be a special case

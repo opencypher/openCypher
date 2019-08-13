@@ -617,6 +617,7 @@
     </alt>
   </production>
 
+  <!--  this used to have <alt>e E</alt> but that implies alternatives of the same case-insensitive literal  -->
   <production name="ExponentDecimalReal" oc:lexer="true">
     <alt>
       <repeat min="1"><non-terminal ref="Digit"/></repeat>
@@ -625,7 +626,7 @@
       </seq>
       <seq>. <repeat min="1"><non-terminal ref="Digit"/></repeat></seq>
     </alt>
-    <alt>e E</alt>
+    E
     <opt>-</opt>
     <repeat min="1"><non-terminal ref="Digit"/></repeat>
   </production>

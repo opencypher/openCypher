@@ -55,6 +55,10 @@ public interface CharacterSet
 
     boolean contains( int codePoint );
 
+    boolean hasExclusions();
+    
+    boolean isControlCharacter();
+    
     interface DefinitionVisitor<EX extends Exception>
     {
         default void visitRange( int start, int end ) throws EX
@@ -322,6 +326,7 @@ public interface CharacterSet
                 DLE.name(), DC1.name(), DC2.name(), DC3.name(), DC4.name(), NAK.name(), SYN.name(), ETB.name(),
                 CAN.name(), EM.name(), SUB.name(), ESC.name(), FS.name(), GS.name(), RS.name(), US.name()};
 
+        
         Unicode( CodePointSet set )
         {
             (this.set = set).name = name();
@@ -549,9 +554,17 @@ public interface CharacterSet
             } );
             return result.append( ']' ).toString();
         }
+        
+        /**
+         * antlr4 4.7.2 recognises standard set names, but not the control chars
+         */
+        public boolean isSingleCharacter()
+        {
+        	return set.isSingleCharacter();
+        }
     }
 
-    static String controlCharName( int cp )
+    public static String controlCharName( int cp )
     {
         if ( cp < Unicode.CONTROL_CHAR_NAMES.length )
         {
@@ -563,7 +576,7 @@ public interface CharacterSet
         }
         return null;
     }
-
+    
     static String escapeCodePoint( int cp )
     {
         return String.format( cp > 0xFFFF ? "\\U%08X" : "\\u%04X", cp );

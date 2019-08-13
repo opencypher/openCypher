@@ -215,6 +215,13 @@ public class BNFProcessorTest {
 	}
 	
 	@Test
+	public void charsetExceptBackslash() {
+		roundTrip(grammar( "test" )
+		        .production( "test", charactersOfSet( "ANY" ).except('"','\\') )
+		        .build());
+	}
+	
+	@Test
 	public void charsetRT() {
 		roundTripBNF("<namedCharset> ::= $FF$");
 	}
@@ -290,7 +297,7 @@ public class BNFProcessorTest {
 	}
 	
 	private void roundTrip(Grammar testGrammar) {
-		//  LOGGER.debug("supplied grammar \n{}", xmlout(testGrammar));
+		  LOGGER.debug("supplied grammar \n{}", xmlout(testGrammar));
 		String firstBNF = makeSQLBNF(testGrammar);
 		LOGGER.debug("in \n{}", firstBNF);
 		

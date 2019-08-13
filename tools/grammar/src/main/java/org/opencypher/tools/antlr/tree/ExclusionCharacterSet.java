@@ -35,6 +35,8 @@ public class ExclusionCharacterSet implements GrammarItem {
 	private String characters;
 
 	public ExclusionCharacterSet(String characters) {
+		// this may be a range
+		// or a sequence of ranges
 		this.characters = characters;
 	}
 
@@ -65,7 +67,7 @@ public class ExclusionCharacterSet implements GrammarItem {
 
 	@Override
 	public String getStructure(String indent) {
-		return indent + "CharacterSet : [" + characters + "]";
+		return indent + "CharacterSet : except [" + characters + "]";
 	}
 
 	public String getCharacters() {

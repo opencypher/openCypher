@@ -106,8 +106,9 @@ id
 characterset : '$' ( namedcharacterset | exclusioncharacterset | listcharacterset) '$' ;
 
 namedcharacterset : ID ;
-exclusioncharacterset : '~' listcharacterset ;
-listcharacterset : REND text+ LEND ;
+exclusioncharacterset : '~'listcharacterset ;
+listcharacterset :  '[' text+ ']' ;
+
 
 ruleref 
 	: ID
@@ -187,7 +188,10 @@ ID
 
 INTEGER_LITERAL : '0'..'9'+ ;
 
-CHARACTER_LITERAL : [(),&.\*:=/%+!~;?_"\'`@\\'^-] ;
+// this was
+//  CHARACTER_LITERAL : [(),&.\*:=/%+!~;?_"\'`@\\'^-] ;
+//  but \* and \' were disallowed at 4.7.2.  Not sure if it meant \ or *.  Assumi
+CHARACTER_LITERAL : [(),&.*:=/%+!~;?_"'`@\\^-] ;
 
 //	: '(' | ')' | ',' | '&' | '.' | '-' | '*' | ':' | '=' |  '/' | '%' | '+' | '!' 
 //	| '~' | ';' | '?' | '_' | '"' | '\'' | '`' | '@' | '\\' 

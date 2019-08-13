@@ -154,11 +154,16 @@ public class Antlr4Test
     @Test
     public void shouldGenerateCharacterSet() throws Exception
     {
-        assertCharset( "White_Space",
-                       "[\\t\\n\\u000B\\f\\r \\u0085\\u00A0\\u1680" +
-                       "\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005" +
-                       "\\u2006\\u2007\\u2008\\u2009\\u200A" +
-                       "\\u2028\\u2029\\u202F\\u205F\\u3000]" );
+        assertCharset( "White_Space", "[\\p{White_Space}]");
+//                "[\\t\\n\\u000B\\f\\r \\u0085\\u00A0\\u1680" +
+//                "\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005" +
+//                "\\u2006\\u2007\\u2008\\u2009\\u200A" +
+//                "\\u2028\\u2029\\u202F\\u205F\\u3000]" );
+//        assertCharset( "White_Space",
+//                       "[\\t\\n\\u000B\\f\\r \\u0085\\u00A0\\u1680" +
+//                       "\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005" +
+//                       "\\u2006\\u2007\\u2008\\u2009\\u200A" +
+//                       "\\u2028\\u2029\\u202F\\u205F\\u3000]" );
     }
 
     @Test
@@ -174,8 +179,14 @@ public class Antlr4Test
                 "",
                 "oC_test : TEST_0 ;",
                 "",
-                "fragment TEST_0 : [$\\u00A2-\\u00A5\\u20A0-\\u20BA] ;",
+                "fragment TEST_0 : ~[\\u058F\\u060B\\u09F2-\\u09F3\\u09FB\\u0AF1\\u0BF9\\u0E3F\\u17DB\\uA838\\uFDFC\\uFE69\\uFF04\\uFFE0-\\uFFE1\\uFFE5-\\uFFE6] ;",
                 "" );
+//        "grammar test;",
+//        "",
+//        "oC_test : TEST_0 ;",
+//        "",
+//        "fragment TEST_0 : [$\\u00A2-\\u00A5\\u20A0-\\u20BA] ;",
+//        "" );
     }
 
     static void assertCharset( String name, String def )
@@ -191,6 +202,12 @@ public class Antlr4Test
                 "" );
     }
 
+    @Test
+    public void shouldGenerateTinyGrammar() throws Exception
+    {
+        assertGeneratesValidParser( "/FewRules.xml" );
+    }
+    
     @Test
     public void shouldGenerateCypherGrammar() throws Exception
     {

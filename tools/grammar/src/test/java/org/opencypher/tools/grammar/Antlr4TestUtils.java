@@ -101,6 +101,7 @@ public class Antlr4TestUtils
         {
             Antlr4.write( Fixture.grammarResource( Antlr4.class, resource, options ), out );
             grammarString = out.toString( UTF_8.name() );
+            System.out.println(grammarString);
         }
         catch ( Throwable t )
         {

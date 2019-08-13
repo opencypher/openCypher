@@ -53,6 +53,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.opencypher.grammar.Fixture;
 import org.opencypher.grammar.Grammar;
+import org.opencypher.grammar.Grammar.Builder;
+import org.opencypher.grammar.Grammar.CharacterSet;
 import org.opencypher.tools.grammar.Antlr4;
 import org.opencypher.tools.grammar.Xml;
 import org.opencypher.tools.io.Output;
@@ -202,23 +204,42 @@ public class G4ProcessorTest {
 	}
 	
 	@Test
-	public void charset() {
+	public void charsetList() {
 		roundTripG4(grammar( "test" )
 		        .production( "test", charactersOfSet( "[abcd]" ) ).build());
 	}
 	
-	//  G4 serialiser can't do these yet
-	@Ignore
+	// named chars sets aren't recognised second time round
+	@Test
+	public void charsetSimpleName() {
+		roundTripG4((grammar( "test" )
+		        .production( "test", charactersOfSet("TAB")).build()));
+	}
+	
+	//  G4 serialiser can't do these sensibly yet (or possibly even correctly)
 	@Test
 	public void negCharset() {
 		roundTripG4(grammar( "test" )
 		        .production( "test", charactersOfSet("ANY").except('a','b','c') ).build());
 	}
 	
-	// this goes wrong because the antlr writer can't process the charset created by itself
-	@Ignore
+	// this used not work, but I changed the g4 serialisation
 	@Test
-	public void charsetChoice() {
+	public void charsetSpecialName() {
+		roundTripG4((grammar( "test" )
+		        .production( "test", charactersOfSet("ID_Start")).build()));
+	}
+	
+	@Test
+	public void charsetExceptBackslash() {
+		roundTripG4(grammar( "test" )
+		        .production( "test", charactersOfSet( "ANY" ).except('"','\\') )
+		        .build());
+	}
+	
+	// this used not work, but I changed the g4 serialisation
+	@Test
+	public void charsetChoiceBNF() {
 		roundTripBNFG4("<anychars> ::= $ID_Start$ | $Pc$");
 	}
 	
@@ -238,7 +259,7 @@ public class G4ProcessorTest {
 		roundTripG4(prodGrammar);
 	}
 	
-	@Ignore
+
 	@Test
 	public void shouldRecycleCypher() throws Exception
 	{
@@ -246,7 +267,7 @@ public class G4ProcessorTest {
 		//  LOGGER.debug("xml out\n{}", xmlout(grammarFromXml));
 		// now process 
 		String firstG4 = makeAntlr4(grammarFromXml);
-		LOGGER.debug("Generated G4\n{}", firstG4);
+		LOGGER.warn("Generated G4\n{}", firstG4);
 		// do we need a new one ?
 		G4Processor g4processor = new G4Processor();
 		Grammar grammarFromG4 = g4processor.processString(firstG4);
@@ -272,7 +293,7 @@ public class G4ProcessorTest {
 	private void roundTripG4(Grammar testGrammar) {
 		//  LOGGER.debug("xml of input\n{}", xmlout(testGrammar));
 		String firstG4 = makeAntlr4(testGrammar);
-		LOGGER.debug("generated G4\n{}", firstG4);
+		LOGGER.warn("generated G4\n{}", firstG4);
 		
 		G4Processor processor = new G4Processor();
 		Grammar grammar = processor.processString(firstG4);

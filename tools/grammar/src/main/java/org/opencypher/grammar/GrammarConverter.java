@@ -150,20 +150,41 @@ public class GrammarConverter {
 
 	private Term convertCharSet(ListedCharacterSet item) {
 		String characters = item.getCharacters();
+		LOGGER.debug("We have charset {}.", characters);
 		if (characters.contains("\\u")) {
 			LOGGER.warn("We have unicode escapes in {}", characters);
 		}
-		return charactersOfSet("[" + item.getCharacters()  + "]");
+		return charactersOfSet("[" + characters  + "]");
 		
 	}
 	
 	private Term convertCharSet(ExclusionCharacterSet item) {
 		char[] exclusions =  item.getCharacters().toCharArray();
-		int[] intEx = new int[exclusions.length];
-		for (int i=0; i < exclusions.length; i++) {
-			intEx[i] = (int) exclusions[i];
+		List<Integer> cps = new ArrayList<>();
+		int lastOne = 0;
+		try {
+			for (int i=0; i < exclusions.length; i++) {
+				// usual escape fun
+				char ch = exclusions[i];
+				if (ch == '\\') {
+					ch = exclusions[++i];
+				} else if (ch == '-') {
+					char next = exclusions[++i];
+					if (next == '\\') {
+						next = exclusions[++i];
+					}
+					for (int cp = lastOne+1; cp < next; cp++) {
+						cps.add(cp);
+					}
+					ch = next;
+				}
+				lastOne = (int) ch;
+				cps.add(lastOne);
+			}
+		} catch (ArrayIndexOutOfBoundsException e) {
+			throw new IllegalArgumentException("Bad character set with exceptions : '" + item.getCharacters() + "'");
 		}
-		return charactersOfSet("ANY").except(intEx);
+		return charactersOfSet("ANY").except(cps.stream().mapToInt(cp->cp).toArray());
 	}
 	
 	private Term convertEOI() {
@@ -211,7 +232,7 @@ public class GrammarConverter {
 	private Term convertAlternative(InAlternative item) {
 		List<GrammarItem> children = item.getChildren();
 		if (children.size() == 0) {
-			LOGGER.warn("no child items from {}", item);
+			LOGGER.debug("no child items from {}", item);
 			return epsilon();
 		}
 		// leaving bnf, combine sequence of literal and references to bnfsymbol rules
@@ -293,6 +314,7 @@ public class GrammarConverter {
 			case FRAGMENT:
 				// pull up the fragment into the reference. i think
 				List<GrammarItem> children = referencedRule.getChildren();
+				LOGGER.debug("consider fragment {} = {}", ruleName, children);
 				List<Term> terms = children.stream().map(g -> convertItem(g)).collect(Collectors.toList());
 				LOGGER.debug("fragment reference becomes {}", terms);
 				if (terms.size() == 1) {

@@ -31,12 +31,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import org.opencypher.tools.grammar.CharLit;
 
 /**
  * characters or groups of characters that need special treatment in BNF, G4 or both
@@ -56,7 +53,8 @@ public enum BnfSymbols {
 	ELLIPSIS("...", "\\.\\.\\."),
 	DOUBLE_EXCLAM("!!","!!","\\!\\!"),
 	VERTICAL_BAR("|","\\|"),
-	DOLLAR("$","\\$")   // used for charsets
+	DOLLAR("$","\\$"),   // used for charsets
+	REVERSE_SOLIDUS("\\", "\\\\")  // used in unicode
 	;
 	
 	/** what the characters really are */

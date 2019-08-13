@@ -46,7 +46,7 @@ cardinality
 	: QUESTION | PLUS | STAR ;
 		
 // reworked to split in parser
-literal : quotedString | negatedQuotedString | charSet | negatedCharSet | dotPattern ;
+literal : quotedString | negatedQuotedString | charSet  | negatedCharSet | dotPattern ;
 
 quotedString : QUOTED_STRING ;
 negatedQuotedString : NEGATED_STRING ;

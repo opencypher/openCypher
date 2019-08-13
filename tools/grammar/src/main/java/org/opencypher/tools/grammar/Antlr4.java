@@ -158,11 +158,21 @@ public class Antlr4 extends BnfWriter
             CharacterSet set = rule.getValue();
             output.append( "fragment " );
             lexerRule( rule.getKey() ).append( " : " );
+            if (set.name() != null && ! set.isControlCharacter() ) {
+            	// antrl 4.7.2 is thought to accept all the names we know except the control characters
+            	output.append("[\\p{").append(set.name()).append("}]");
+            }
+//            
+//            	// this test used not have the haveExclusions test -
+//////          but setting an exception changes the name of the set to null (since it isn't the any set anymore)
+            else 
             if ( CharacterSet.ANY.equals( set.name() ) )
             {
                 set.accept( new AnyCharacterExceptFormatter( output ) );
+            } else if (set.hasExclusions() ) {
+                set.accept( new AnyCharacterExceptFormatter( output ) );
             }
-            else
+            else 
             {
                 output.append( '[' );
                 set.accept( new SetFormatter( output ) );
