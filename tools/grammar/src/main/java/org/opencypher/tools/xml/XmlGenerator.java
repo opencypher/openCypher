@@ -278,7 +278,7 @@ public abstract class XmlGenerator implements XMLReader
         children = true;
         handler.endElement( uris.get( prefix ), localName, qualify( prefix, localName ) );
     }
-
+    
     protected final void println( CharSequence content ) throws SAXException
     {
         newline();

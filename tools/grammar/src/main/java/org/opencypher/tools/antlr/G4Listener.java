@@ -25,11 +25,12 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-  package org.opencypher.tools.antlr;
+package org.opencypher.tools.antlr;
 
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -37,13 +38,16 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.opencypher.grammar.CharacterSet;
+import org.opencypher.tools.antlr.bnf.BNFLexer;
 import org.opencypher.tools.antlr.g4.Gee4BaseListener;
 import org.opencypher.tools.antlr.g4.Gee4Lexer;
 import org.opencypher.tools.antlr.g4.Gee4Parser.CardinalityContext;
 import org.opencypher.tools.antlr.g4.Gee4Parser.CharSetContext;
+import org.opencypher.tools.antlr.g4.Gee4Parser.DescriptionContext;
 import org.opencypher.tools.antlr.g4.Gee4Parser.DotPatternContext;
 import org.opencypher.tools.antlr.g4.Gee4Parser.FragmentRuleContext;
 import org.opencypher.tools.antlr.g4.Gee4Parser.GrammardefContext;
+import org.opencypher.tools.antlr.g4.Gee4Parser.HeaderContext;
 import org.opencypher.tools.antlr.g4.Gee4Parser.LiteralContext;
 import org.opencypher.tools.antlr.g4.Gee4Parser.NegatedCharSetContext;
 import org.opencypher.tools.antlr.g4.Gee4Parser.NegatedQuotedStringContext;
@@ -104,11 +108,19 @@ public class G4Listener extends Gee4BaseListener
 	@Override
 	public void exitWholegrammar(WholegrammarContext ctx) {
 		GrammarName name = (GrammarName) getItem(ctx.grammardef());
+		String headerText = cleanQuasiComment(ctx.header());
 		RuleList rules = (RuleList) getItem(ctx.rulelist());
-		final String headerText;
-		headerText = null;
+
 		treeTop = new GrammarTop(name, rules, headerText);
 		
+	}
+
+	private String cleanQuasiComment(ParserRuleContext cmtCtx) {
+		if (cmtCtx != null) {
+			return cmtCtx.getText().replaceFirst("/\\*\\*","").replaceFirst("\\*/","").replaceAll("\n\\s*\\*","\n");
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -143,11 +155,12 @@ public class G4Listener extends Gee4BaseListener
 		final Rule rule;
 		GrammarItem item = getItem(ctx.ruleElements());
 		String ruleName = getItem(ctx.ruleName()).toString().replaceFirst("^L_", "");
+		final String description = cleanQuasiComment(ctx.description());
 		// this is juggled in the normaliser
 //		if (lexerRule && ruleName.matches("[A-Z]+") && item.isKeywordPart()) {
 //			rule = new Rule(getItem(ctx.ruleName()), item, true, RuleType.NORMAL);
 //		} else {
-			rule = new Rule(getItem(ctx.ruleName()), item);
+			rule = new Rule(getItem(ctx.ruleName()), item, description);
 //		}
 		setItem(ctx, rule);
 	}
@@ -159,9 +172,9 @@ public class G4Listener extends Gee4BaseListener
 		GrammarItem item = getItem(ctx.literal());
 		String ruleName = getItem(ctx.ruleName()).toString().replaceFirst("^L_", "");
 		if (lexerRule && ruleName.matches("[A-Z]+") && item.isKeywordPart()) {
-			rule = new Rule(getItem(ctx.ruleName()), item, true, RuleType.KEYWORD);
+			rule = new Rule(getItem(ctx.ruleName()), item, true, RuleType.KEYWORD, null);
 		} else {
-			rule = new Rule(getItem(ctx.ruleName()), item, false, RuleType.FRAGMENT);
+			rule = new Rule(getItem(ctx.ruleName()), item, false, RuleType.FRAGMENT, null);
 		}
 		setItem(ctx, rule);
 	}
@@ -218,11 +231,9 @@ public class G4Listener extends Gee4BaseListener
 		List<Token> normalTextChannel =
 					tokens.getHiddenTokensToRight(i, Gee4Lexer.HIDDEN);
 		if (normalTextChannel != null) {
-			Token normalToken = normalTextChannel.get(0);
-			if (normalToken != null) {
-				String txt = normalToken.getText().replaceFirst("//!!\\s*", "");
-				return new NormalText(txt);
-			}
+			List<String> content = normalTextChannel.stream().map(tk -> tk.getText().replaceFirst("!!", ""))
+					.collect(Collectors.toList());
+			return new NormalText(content);
 		}
 		return null;
 	}

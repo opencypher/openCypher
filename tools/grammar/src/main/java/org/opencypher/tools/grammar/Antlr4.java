@@ -89,7 +89,7 @@ public class Antlr4 extends BnfWriter
         String header = grammar.header();
         if ( header != null )
         {
-            output.println( "/*").append(" * " )
+            output.println( "/**").append(" * " )
                   .printLines( header, " * " )
                   .println( " */" );
         }

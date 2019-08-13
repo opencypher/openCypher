@@ -85,6 +85,13 @@ public class Xml extends XmlGenerator implements ProductionVisitor<SAXException>
     {
         startDocument();
         startPrefixMapping( "", Grammar.XML_NAMESPACE );
+        // can't work out how to do this - you can't write <-- as characters because it gets escaped to &gt;
+//        String headerText = grammar.header().replaceAll("\r", "");
+//        if (headerText != null) {
+//        	startComment();
+//        	characters(headerText);
+//        	endComment();
+//        }
         startElement( "grammar", attribute( "language", grammar.language() ) );
         grammar.accept( this );
         endElement( "grammar" );

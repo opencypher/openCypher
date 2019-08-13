@@ -272,6 +272,7 @@ public class G4ProcessorTest {
 		G4Processor g4processor = new G4Processor();
 		Grammar grammarFromG4 = g4processor.processString(firstG4);
 		String intermediateG4 = makeAntlr4(grammarFromG4);
+		LOGGER.debug("Regenerated G4\n{}", intermediateG4);
 		Grammar grammarFromSecondGenG4 = g4processor.processString(intermediateG4);
 		String finalG4 = makeAntlr4(grammarFromG4);
 		// can i eat my own dog food

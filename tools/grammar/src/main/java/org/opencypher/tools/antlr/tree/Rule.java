@@ -61,23 +61,25 @@ public class Rule implements GrammarItem
 	private final GrammarItem ruleName;
 	private final GrammarItem rhs;
 	private final boolean keyWordRule;
+	private final String description;
 	// not final
 	private RuleType ruleType;
 	
 	@SuppressWarnings("unused")
 	private static final Logger LOGGER = LoggerFactory.getLogger(Rule.class.getName());
 	
-	public Rule(GrammarItem ruleName, GrammarItem rhs) {
-		this(ruleName, rhs, false, RuleType.NORMAL);
+	public Rule(GrammarItem ruleName, GrammarItem rhs, String description) {
+		this(ruleName, rhs, false, RuleType.NORMAL, description);
 	}
 	
-	public Rule(GrammarItem ruleName, GrammarItem rhs, boolean keyWordRule, RuleType ruleType)
+	public Rule(GrammarItem ruleName, GrammarItem rhs, boolean keyWordRule, RuleType ruleType, String description)
 	{
 		super();
 		this.ruleName = ruleName;
 		this.rhs = rhs;
 		this.keyWordRule = keyWordRule;
 		this.ruleType = ruleType;
+		this.description = description;
 	}
 
 	
@@ -97,6 +99,10 @@ public class Rule implements GrammarItem
 	
 	public String getRuleName() {
 		return ruleName.toString();
+	}
+
+	public String getDescription() {
+		return description;
 	}
 
 	public GrammarItem getRhs() {

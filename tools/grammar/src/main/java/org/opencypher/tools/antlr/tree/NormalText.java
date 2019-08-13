@@ -27,20 +27,22 @@
  */
     package org.opencypher.tools.antlr.tree;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.opencypher.tools.antlr.tree.GrammarItem.ItemType;
 
 public class NormalText implements GrammarItem
 {
-	private final String content;
+	private final List<String> content;
 	
-	public NormalText(String content) {
-		this.content = content;
+	public NormalText(List<String> content) {
+		this.content = new ArrayList<String>(content);
 	}
 	
-	public String getContent() {
+	public List<String> getContent() {
 		return content;
 	}
 	@Override
@@ -63,7 +65,7 @@ public class NormalText implements GrammarItem
 	@Override
 	public String getStructure(String indent)
 	{
-		return indent + "!!" + content;
+		return content.stream().collect(Collectors.joining(indent + " * ", indent + "/* ", indent + " */"));
 	}
 
 

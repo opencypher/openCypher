@@ -86,7 +86,6 @@ public class GrammarConverter {
 	
 	public Grammar convert() {
 		String language = grammarTop.getName();
-		// no header for now
 		Grammar.Builder builder = Grammar.grammar(language);
 		
 		String headerText = grammarTop.getHeader();
@@ -100,7 +99,8 @@ public class GrammarConverter {
     			GrammarItem rhs = rule.getRhs();
     			Term term = convertItem(rhs);
     			LOGGER.debug("defining rule {}",ruleName);
-    			builder.production(ruleName, term);
+    			
+    			builder.production(ruleName, rule.getDescription(), term);
     			if (rhs.getType() == ItemType.BNF_LITERAL ) {
     				builder.markAsBnfSymbols(ruleName);
     			}
@@ -195,18 +195,13 @@ public class GrammarConverter {
 	
 	private Term convertText(NormalText item) {
 		// for some reason some comment boundary markers appear here
-		String text = item.getContent();
-		if (text.startsWith("//")) {
-			LOGGER.warn("ignoring text {}", item.getContent());
-			return epsilon();
-		}
-		
-		// something to do with character sets
-		Matcher matchCharset = CHARSET_PATTERN.matcher(text);
-		if (matchCharset.matches()) {
-			return charactersOfSet(matchCharset.group(1));
-		}
-		LOGGER.warn("ignoring text {}", item.getContent());
+		LOGGER.warn("ignoring {}.", item.getContent());
+//		return nonTerminal("Cypher");
+//		String text = item.getContent();
+//		if (text.startsWith("!!")) {
+//			LOGGER.warn("ignoring text {}.", item.getContent());
+//			return epsilon();
+//		}
 		return epsilon();
 	}
 

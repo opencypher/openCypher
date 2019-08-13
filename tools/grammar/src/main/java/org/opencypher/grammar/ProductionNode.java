@@ -90,7 +90,7 @@ final class ProductionNode extends Located implements Production
     {
         return name;
     }
-
+    
     @Override
     public String description()
     {

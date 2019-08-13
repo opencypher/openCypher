@@ -53,9 +53,9 @@ import org.slf4j.LoggerFactory;
  */
 public class SQLBNF extends BnfWriter
 {
-	private static final String DESCRIPTION_START = "#(*";
-	private static final String DESCRIPTION_LINE  = "# * ";
-	private static final String DESCRIPTION_END   = "# *)";
+	private static final String DESCRIPTION_START = "";
+	private static final String DESCRIPTION_LINE_MARKER  = "!! ";
+	private static final String DESCRIPTION_END   = "";
 	private static final String CHARACTER_SET_START = "$";
 	private static final String CHARACTER_SET_END = "$";
 	private static final String CODEPOINT_LIST_START = "[";
@@ -79,9 +79,13 @@ public class SQLBNF extends BnfWriter
         String header = grammar.header();
         if ( header != null )
         {
-            output.append( DESCRIPTION_START).println().append(DESCRIPTION_LINE)
-                  .printLines( header, DESCRIPTION_LINE )
-                  .println( DESCRIPTION_END );
+        	// header appears as quasi-comment, each line preceded by !!
+        	// an empty quasi-comment line is inserted before and after
+        	// and a blank line after
+        	// the empty and blank lines will not be in the parsed header
+            output.println(DESCRIPTION_LINE_MARKER).append(DESCRIPTION_LINE_MARKER)
+                  .printLines( header, DESCRIPTION_LINE_MARKER )
+                  .println(DESCRIPTION_LINE_MARKER).println();
         }
         try ( SQLBNF writer = new SQLBNF( output ) )
         {
@@ -233,22 +237,26 @@ public class SQLBNF extends BnfWriter
         }
     }
 
+    // descriptions before rules are just the lines as quasicomments. No interspersed blank lines
+    //  (comments on the first rule will be confused with the header, so don't)
+    // in parsing, there must be no blank lines after the description lines before the rule itself.
+    //  there can be empty description lines
     @Override
     protected void productionCommentPrefix()
     {
-        output.append( DESCRIPTION_START ).println().append(DESCRIPTION_LINE);
+        output.append(DESCRIPTION_LINE_MARKER);
     }
 
     @Override
     protected void productionCommentLinePrefix()
     {
-        output.append( DESCRIPTION_LINE);
+        output.append( DESCRIPTION_LINE_MARKER);
     }
 
     @Override
     protected void productionCommentSuffix()
     {
-        output.append(DESCRIPTION_END ).println();
+//        output.append(DESCRIPTION_END ).println();
     }
 
     @Override
@@ -256,7 +264,7 @@ public class SQLBNF extends BnfWriter
     {
     	String ruleName = p.name();
 
-        output.append("<").append( ruleName ).append( "> ::= " );
+        output.append("<").append( ruleName ).append( "> ::=").println();
         // some jiggery-pokery to handle "escaping" bnf symbols by putting them in their own rules
         
 		// need to distinguish original rules that have bnf names from ones planted in generated bnf

@@ -142,6 +142,7 @@ public class BNFListener extends BNFBaseListener
 	@Override
 	public void exitRulelist(RulelistContext ctx)
 	{
+		String header = findNormalTextBefore(ctx, true);
 		// this is the top level for bnf, since that doesn't have a global declaration
 		RuleList rules = new RuleList();
 		GrammarName name = null;
@@ -154,15 +155,8 @@ public class BNFListener extends BNFBaseListener
 			}
 			rules.addItem(grammarItem);
 		}
-//		HeaderContext headerCtx = ctx.header();
-		final String headerText;
-//		if (headerCtx != null) {
-//			InHeader header = (InHeader) getItem(headerCtx);
-//			headerText = header.getContent();
-//		} else {
-			headerText = null;
-//		}
-		treeTop = new GrammarTop(name, rules, headerText);
+
+		treeTop = new GrammarTop(name, rules, header);
 	}
 
 	
@@ -178,7 +172,11 @@ public class BNFListener extends BNFBaseListener
 	@Override
 	public void exitRule_(Rule_Context ctx)
 	{
-		Rule rule = new Rule(getItem(ctx.lhs()), getItem(ctx.rhs()));
+		String description = findNormalTextBefore(ctx, false);
+//		if (description != null) {
+//			LOGGER.warn("we have {} on {}", description, getItem(ctx.lhs()));
+//		}
+		Rule rule = new Rule(getItem(ctx.lhs()), getItem(ctx.rhs()), description);
 		setItem(ctx, rule);
 	}
 
@@ -255,24 +253,53 @@ public class BNFListener extends BNFBaseListener
 		{
 			alt.addItem(getItem(element));
 		}
-		GrammarItem normalText = findNormalText(ctx);
+		GrammarItem normalText = findNormalTextAfter(ctx);
 		if (normalText != null) {
 			alt.addItem(normalText);
 		}
 		setItem(ctx, alt);
 	}
 
-	private NormalText findNormalText(ParserRuleContext ctx)
+	private String findNormalTextBefore(ParserRuleContext ctx, boolean allowPrecedingBlankLines)
 	{
-		Token endAlt = ctx.getStop();
-		int i = endAlt.getTokenIndex();
+		Token startCtx = ctx.getStart();
+		int i = startCtx.getTokenIndex();
+		List<Token> normalTextChannel =
+					tokens.getHiddenTokensToLeft(i, BNFLexer.HIDDEN);
+		if (normalTextChannel != null) {
+			// when called for a rule, is the quasi-comment part of the content of the previous rule or
+			// the description of this one. Immaterial for grammar header
+			Token lastToken = normalTextChannel.get(normalTextChannel.size()-1);
+			int precedingBlankLines = startCtx.getLine() - lastToken.getLine() - 1;
+//			LOGGER.warn("After : first line of item ctx {}, last line of comment {}, content last comment " + lastToken.getText() + ".", startCtx.getLine(), lastToken.getLine());
+			if (allowPrecedingBlankLines || precedingBlankLines < 1) 
+			{
+				return normalTextChannel.stream().map(tk -> tk.getText().replaceFirst("!!", ""))
+					.collect(Collectors.joining());
+			}
+		}
+		return null;
+	}
+	
+	private NormalText findNormalTextAfter(ParserRuleContext ctx)
+	{
+		Token endCtx = ctx.getStop();
+		int i = endCtx.getTokenIndex();
 		List<Token> normalTextChannel =
 					tokens.getHiddenTokensToRight(i, BNFLexer.HIDDEN);
 		if (normalTextChannel != null) {
-			Token normalToken = normalTextChannel.get(0);
-			if (normalToken != null) {
-				String txt = normalToken.getText().replaceFirst("!!\\s*", "");
-				return new NormalText(txt);
+			// the quasi-comment may be part of the content of a rule (in which case it will appear) or 
+			// may be the description of the next one. Distinguish by whether there are blank lines
+			// between us
+			Token firstToken = normalTextChannel.get(0);
+			int followingBlankLines = firstToken.getLine() - endCtx.getLine() - 1 ;
+//			LOGGER.warn("After : last line of item ctx {}, first line of comment {}, content last comment " + firstToken.getText() + ".", endCtx.getLine(), firstToken.getLine());
+			if (followingBlankLines < 1) 
+			{
+//    			LOGGER.warn("Hidden after {}", normalTextChannel.stream().map(Token::getText).collect(Collectors.joining(";")));
+    			List<String> content = normalTextChannel.stream().map(tk -> tk.getText().replaceFirst("!!", ""))
+    					.collect(Collectors.toList());
+    			return new NormalText(content);
 			}
 		}
 		return null;

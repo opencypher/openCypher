@@ -10,8 +10,10 @@
 grammar Gee4;
 
 wholegrammar
-	: grammardef rulelist
+	: header?  grammardef rulelist
 	;
+
+header : QUASI_COMMENT;
 
 grammardef 
 	: 'grammar' IDENTIFIER ';' ;
@@ -22,7 +24,9 @@ rulelist
 
 	
 rule_
-	: ruleName ':' ruleElements ';' ;
+	: description? ruleName ':' ruleElements ';' ;
+
+description : QUASI_COMMENT;
 
 ruleName
 	: IDENTIFIER
@@ -98,6 +102,13 @@ ACTION :
 	'{'  ~'}'* '}'
 	;
 
+// by making the header and description like javadocs, the are distinguished by the lexer
+// with all the linefeeds included
+QUASI_COMMENT
+	: '/**' .*?  '*/' 
+	;
+	
+// can we consider sql bnf "normal text" ?
 NORMAL_LINE_COMMENT
 	: '//!!' ~[\r\n]* -> channel(HIDDEN)
 	;

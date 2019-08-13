@@ -35,18 +35,18 @@ grammar BNF;
 
 rulelist
     : 
-//    header? 
+    header? 
     rule_* EOF
 ;
 
-//header : description ;
-//
-//description : DESCRIPTION_START
+header : description ;
+
+description : descriptionLine+ ;
 //	descriptionLine*
 //	DESCRIPTION_END
 //	;
 //	
-//descriptionLine : '*' DESCRIPTION_CONTENT* ; 
+descriptionLine : NORMAL_TEXT ; 
 //
 //DESCRIPTION_START : '(*' ; // [\r]? [\n];
 //DESCRIPTION_CONTENT  :  ~[\r\n] ;
@@ -55,7 +55,7 @@ rulelist
 
 rule_
     : 
-//    header? 
+    description? 
     lhs ASSIGN rhs
     ;
 
@@ -208,10 +208,10 @@ UNICODE_LITERAL
 	;
 
 NORMAL_TEXT
-	: '!!' ~[\r\n]* -> channel(HIDDEN)
+	: '!!' ~[\r\n]* [\r]? [\n] -> channel(HIDDEN)
 	;
 
-// don't need commens
+// don't need comments
 SINGLE_LINE_COMMENT
 	: '#' ~[\r\n]* -> channel(HIDDEN)
 	;

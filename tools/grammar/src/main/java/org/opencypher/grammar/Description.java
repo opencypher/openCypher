@@ -171,7 +171,9 @@ class Description
                 last = pos + 1;
             }
         }
-        target.append( buffer, start, last - start );
+        if (last > start) {
+        	target.append( buffer, start, last - start );
+        }
         return end;
     }
 
