@@ -707,10 +707,10 @@ Feature: ListOperations
       WITH nodes, [x IN nodes WHERE x.name = 'original'] AS noopFiltered
       UNWIND nodes AS n
       SET n.name = 'newName'
-      RETURN n.name, length(noopFiltered)
+      RETURN n.name, size(noopFiltered)
       """
     Then the result should be:
-      | n.name    | length(noopFiltered) |
+      | n.name    | size(noopFiltered) |
       | 'newName' | 1                    |
     And the side effects should be:
       | +properties | 1 |
