@@ -264,7 +264,10 @@ public class SQLBNF extends BnfWriter
     {
     	String ruleName = p.name();
 
-        output.append("<").append( ruleName ).append( "> ::=").println();
+        output.append("<").append( ruleName ).append( "> ::=");
+        // indent the first line as much as the content of alternatives will be
+        // (alternative marker is output as " | "
+        alternativesLinePrefix(ruleName.length() + 3);
         // some jiggery-pokery to handle "escaping" bnf symbols by putting them in their own rules
         
 		// need to distinguish original rules that have bnf names from ones planted in generated bnf

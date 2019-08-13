@@ -209,13 +209,17 @@ public class Antlr4 extends BnfWriter
         currentProduction = p.name();
         if ( p.lexer() )
         {
-            lexerRule( currentProduction ).append( " : " );
+            lexerRule( currentProduction );
         }
         else
         {
-            parserRule( currentProduction ).append( " : " );
+            parserRule( currentProduction );
             nextLexerRule = 0;
         }
+        // we don't really want the : to line up with all the pipes (at least, I don't)
+        alternativesLinePrefix(currentProduction.length() );
+        output.append(":  ");
+//        output.append(" : ");
     }
 
     @Override

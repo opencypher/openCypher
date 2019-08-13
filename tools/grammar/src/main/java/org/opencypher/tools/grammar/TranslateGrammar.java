@@ -86,6 +86,7 @@ public class TranslateGrammar {
 		} 
 		if (outG4 != null) {
 			OutputStream outStream = outG4.equals(".") ? System.out :new FileOutputStream(outG4);
+			Antlr4.setPrefix("");
 			Antlr4.write(grammar,  outStream);
 			outStream.close();
 			written = true;
@@ -122,7 +123,7 @@ public class TranslateGrammar {
         		"      -X : output xml file path\n" +
         		"      -G : output antlr G4 file path or . for sysout\n" +
         		"      -B : output SQL BNF file path or . for sysout\n" +
-        		" One input file path must be given or . for sysout\n" +
+        		" One input file path must be given\n" +
         		" Zero or more output file paths may be given\n" +
         		" If no output file path is given, the output will go to sysout.");
         
