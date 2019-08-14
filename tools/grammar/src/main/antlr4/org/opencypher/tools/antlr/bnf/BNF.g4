@@ -169,9 +169,6 @@ ELLIPSIS
 	;
 
 DOUBLE_EXCLAM : '!!' ;
-// since these are partly bnf symbols, we treat as a unit
-GE : '>=' ;
-LE : '<=' ;
 
 // now used for charset delimitation
 DOLLAR : '$' ;
