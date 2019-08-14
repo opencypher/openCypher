@@ -60,26 +60,12 @@ dotPattern : DOT_PATTERN;
 
 QUOTED_STRING : '\'' ( '\\' . | ~'\'' )*? '\'' ;
 NEGATED_STRING : '~' QUOTED_STRING ;
-CHAR_SET : '[' ( ~']' | '\\]')* ']' ;
+CHAR_SET : '[' ( ~']' )*? ']' ;
+//  including ] in a charset is really difficutl. this will swallow the end ] if \ the last character in the set
+//CHAR_SET : '[' ( ~']' | '\\' ']')* ']' ;
 NEGATED_CHAR_SET : '~' CHAR_SET ;
 DOT_PATTERN : ( '.' '*'? '?'? ) ;
 
-//LITERAL is a possibly negated quoted string, or a possibly negated character set or dot
-//   changed from original
-	// had a lot of trouble with this - and I can't remember where i got this whole grammar from
-	// it doesn't seem to be the usual antlr4 github page https://github.com/antlr/grammars-v4
-	// and can't character sets only be frags
-	// three alternative s
-	//     possibly negated quoted string that may contain escaped characters or no quotes until the ending quote
-	//     possibly negated character set enclosedin [] , escaping ] if need be
-	//     dot with cardinality or optional markers
-	//   that charset definition isn't enough - see https://github.com/antlr/antlr4/blob/master/doc/lexer-rules.md
-LITERAL
-	: ('~'? '\'' ( '\\' . | ~'\'' )*? '\'') | ( '~'? '[' ( ~']' | '\\]')* ']'  ) | ( '.' '*'? '?'? );
-	
-	
-//  re-present that assuming we could use " for quoting and \ isn't escaping
-//	: ('~'? "'" ( ~"'" | "\'" )*? "'")          | ( '~'? '[' ( ~']' | '\\]')* ']'  ) | ( '.' '*'? '?'? );
 ruleReference
 	: IDENTIFIER
 	;

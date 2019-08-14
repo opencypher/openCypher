@@ -287,7 +287,7 @@ public class BNFProcessorTest {
 		BNFProcessor secondProcessor = new BNFProcessor();
 		Grammar grammarTwo = secondProcessor.processString(firstBNF);
 		String intermediateBNF = makeSQLBNF(grammarTwo);
-		LOGGER.warn("Regenerated\n{}", intermediateBNF);
+		LOGGER.debug("Regenerated\n{}", intermediateBNF);
 		Grammar grammarThree = secondProcessor.processString(intermediateBNF);
 		String finalBNF = makeSQLBNF(grammarTwo);
 		// can i eat my own dog food

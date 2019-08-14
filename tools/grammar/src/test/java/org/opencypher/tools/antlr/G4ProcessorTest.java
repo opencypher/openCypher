@@ -261,13 +261,36 @@ public class G4ProcessorTest {
 	
 
 	@Test
+	public void shouldRecycleFewRules() throws Exception
+	{
+		Grammar grammarFromXml = Fixture.grammarResource( G4Processor.class, "/FewRules.xml");
+		//  LOGGER.debug("xml out\n{}", xmlout(grammarFromXml));
+		// now process 
+		String firstG4 = makeAntlr4(grammarFromXml);
+		LOGGER.debug("Generated G4\n{}", firstG4);
+		// do we need a new one ?
+		G4Processor g4processor = new G4Processor();
+		Grammar grammarFromG4 = g4processor.processString(firstG4);
+		String intermediateG4 = makeAntlr4(grammarFromG4);
+		LOGGER.debug("Regenerated G4\n{}", intermediateG4);
+		Grammar grammarFromSecondGenG4 = g4processor.processString(intermediateG4);
+		String finalG4 = makeAntlr4(grammarFromG4);
+		// can i eat my own dog food
+		assertEquals(intermediateG4, finalG4);
+		// but can i handle everything ?
+		// not yet
+//		assertEquals(firstG4, intermediateG4);
+	}
+	
+	
+	@Test
 	public void shouldRecycleCypher() throws Exception
 	{
 		Grammar grammarFromXml = Fixture.grammarResource( G4Processor.class, "/cypher.xml");
 		//  LOGGER.debug("xml out\n{}", xmlout(grammarFromXml));
 		// now process 
 		String firstG4 = makeAntlr4(grammarFromXml);
-		LOGGER.warn("Generated G4\n{}", firstG4);
+		LOGGER.debug("Generated G4\n{}", firstG4);
 		// do we need a new one ?
 		G4Processor g4processor = new G4Processor();
 		Grammar grammarFromG4 = g4processor.processString(firstG4);
@@ -294,7 +317,7 @@ public class G4ProcessorTest {
 	private void roundTripG4(Grammar testGrammar) {
 		//  LOGGER.debug("xml of input\n{}", xmlout(testGrammar));
 		String firstG4 = makeAntlr4(testGrammar);
-		LOGGER.warn("generated G4\n{}", firstG4);
+		LOGGER.debug("generated G4\n{}", firstG4);
 		
 		G4Processor processor = new G4Processor();
 		Grammar grammar = processor.processString(firstG4);

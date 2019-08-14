@@ -6,12 +6,22 @@
   <production name="FewRules">
     <repeat>
       <non-terminal ref="Easy"/>
+      <non-terminal ref="whitespace"/>
     </repeat>
   </production>
 
 <production name="Easy" oc:lexer="true">
     E
 </production>
-  
-  </grammar>
+ 
+<production name="whitespace" oc:lexer="true">
+    <alt>
+      <!-- some ASCII whitespace characters -->
+      <character set="SPACE"/> <!-- SPACE -->
+      <character set="TAB"/> <!-- (Horisontal) Tab -->
+      <character set="LF"/> <!-- Line Feed -->
+      <character set="VT"/> <!-- Vertical Tab -->
+	</alt>
+</production>  
+</grammar>
  

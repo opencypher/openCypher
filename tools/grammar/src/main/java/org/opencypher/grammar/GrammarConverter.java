@@ -39,9 +39,10 @@ import static org.opencypher.grammar.Grammar.sequence;
 import static org.opencypher.grammar.Grammar.zeroOrMore;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -75,6 +76,7 @@ public class GrammarConverter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(GrammarConverter.class.getName());
 	private final Normaliser normaliser = new Normaliser();
 	private final Map<String, Rule> ruleMap;
+	private final Set<String> unknownRules = new HashSet<>();
 	private final GrammarTop grammarTop;
 	
 	public GrammarConverter(GrammarTop grammarTop) {
@@ -108,7 +110,11 @@ public class GrammarConverter {
 				LOGGER.debug("suppressing {}", rule.getStructure(""));
 			}
 		}
-		
+		for (String ruleName : unknownRules) {
+			// concoct dummy rules
+			String description = "this rule was missing in the input grammar";
+			builder.production(ruleName, description,  literal(ruleName.replaceAll(" ", "_")));
+		}
 		return builder.build();
 	}
 	
@@ -322,7 +328,8 @@ public class GrammarConverter {
 			}
 		} else {
 			LOGGER.warn("Reference to unknown rule {}", ruleName);
-			return epsilon();
+			unknownRules.add(ruleName);
+			return nonTerminal(ruleName);
 		}
 		return nonTerminal(ruleName);
 	}
