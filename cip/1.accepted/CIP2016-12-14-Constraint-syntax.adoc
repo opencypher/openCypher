@@ -50,6 +50,9 @@ This allows for very complex concrete constraint definitions (using custom predi
 
 For details on `UNIQUE` and `NODE KEY`, see the dedicated sections below: <<uniqueness>>, <<node-key>>.
 
+The term 'constraint expression' is used in the following to describe the expressions that constitute the body of the constraint predicate.
+In other words, the `expression` or `property-expression` grammar references in the above syntax.
+
 ==== Constraint names
 
 All constraints provide the user the option to specify a nonempty _name_ at constraint creation time.
