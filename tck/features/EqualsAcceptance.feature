@@ -44,7 +44,7 @@ Feature: EqualsAcceptance
       MATCH (n) WHERE toInteger(n.id) = expected
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n         |
       | ({id: 0}) |
     And no side effects
@@ -63,7 +63,7 @@ Feature: EqualsAcceptance
       MATCH (n) WHERE toInteger(n.id) = expected
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n |
     And no side effects
 
@@ -81,7 +81,7 @@ Feature: EqualsAcceptance
       MATCH (n) WHERE toInteger(n.id) = expected
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n |
     And no side effects
 
@@ -99,7 +99,7 @@ Feature: EqualsAcceptance
       WHERE a = b
       RETURN count(b)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(b) |
       | 1        |
     And no side effects
@@ -118,7 +118,7 @@ Feature: EqualsAcceptance
       WHERE a = b
       RETURN count(b)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(b) |
       | 1        |
     And no side effects
@@ -129,7 +129,7 @@ Feature: EqualsAcceptance
       """
       RETURN <lhs> = <rhs> AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects

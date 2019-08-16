@@ -48,7 +48,7 @@ Feature: VarLengthAcceptance2
       MATCH p = (n)-[*0..1]-()-[r]-()-[*0..1]-(m)
       RETURN count(p) AS c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c  |
       | 32 |
     And no side effects

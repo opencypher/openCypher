@@ -39,7 +39,7 @@ Feature: ListOperations
       WITH [[1, 2, 3]] AS list
       RETURN 3 IN list[0] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r    |
       | true |
     And no side effects
@@ -50,7 +50,7 @@ Feature: ListOperations
       """
       RETURN 3 IN [[1, 2, 3]][0] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r    |
       | true |
     And no side effects
@@ -62,7 +62,7 @@ Feature: ListOperations
       WITH [1, 2, 3] AS list
       RETURN 3 IN list[0..1] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r     |
       | false |
     And no side effects
@@ -73,7 +73,7 @@ Feature: ListOperations
       """
       RETURN 3 IN [1, 2, 3][0..1] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r     |
       | false |
     And no side effects
@@ -84,7 +84,7 @@ Feature: ListOperations
       """
       RETURN 1 IN ['1', 2] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -95,7 +95,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] IN [1, [1, '2']] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -106,7 +106,7 @@ Feature: ListOperations
       """
       RETURN [1] IN [1, 2] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -117,7 +117,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] IN [1, 2] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -128,7 +128,7 @@ Feature: ListOperations
       """
       RETURN [1] IN [1, 2, [1]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -139,7 +139,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] IN [1, [1, 2]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -150,7 +150,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] IN [1, [2, 1]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -161,7 +161,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] IN [1, [1, 2, 3]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -172,7 +172,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] IN [1, [[1, 2]]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -183,7 +183,7 @@ Feature: ListOperations
       """
       RETURN [[1, 2], [3, 4]] IN [5, [[1, 2], [3, 4]]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -194,7 +194,7 @@ Feature: ListOperations
       """
       RETURN [[1, 2], 3] IN [1, [[1, 2], 3]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -205,7 +205,7 @@ Feature: ListOperations
       """
       RETURN [[1]] IN [2, [[1]]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -216,7 +216,7 @@ Feature: ListOperations
       """
       RETURN [[1, 3]] IN [2, [[1, 3]]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -227,7 +227,7 @@ Feature: ListOperations
       """
       RETURN [[1]] IN [2, [1]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -238,7 +238,7 @@ Feature: ListOperations
       """
       RETURN [[1, 3]] IN [2, [1, 3]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -251,7 +251,7 @@ Feature: ListOperations
       """
       RETURN null IN [null] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | null |
     And no side effects
@@ -262,7 +262,7 @@ Feature: ListOperations
       """
       RETURN [null] IN [[null]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | null |
     And no side effects
@@ -273,7 +273,7 @@ Feature: ListOperations
       """
       RETURN [null] IN [null] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | null |
     And no side effects
@@ -284,7 +284,7 @@ Feature: ListOperations
       """
       RETURN [1] IN [[1, null]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -295,7 +295,7 @@ Feature: ListOperations
       """
       RETURN 3 IN [1, null, 3] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -306,7 +306,7 @@ Feature: ListOperations
       """
       RETURN 4 IN [1, null, 3] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | null |
     And no side effects
@@ -317,7 +317,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] IN [[null, 'foo'], [1, 2]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -328,7 +328,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] IN [1, [1, 2], null] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -339,7 +339,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] IN [[null, 'foo']] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -350,7 +350,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] IN [[null, 2]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | null |
     And no side effects
@@ -361,7 +361,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] IN [1, [1, 2, null]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -372,7 +372,7 @@ Feature: ListOperations
       """
       RETURN [1, 2, null] IN [1, [1, 2, null]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | null |
     And no side effects
@@ -383,7 +383,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] IN [[null, 2], [1, 2]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -394,7 +394,7 @@ Feature: ListOperations
       """
       RETURN [[1, 2], [3, 4]] IN [5, [[1, 2], [3, 4], null]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -405,7 +405,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] IN [[null, 2], [1, 3]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | null |
     And no side effects
@@ -418,7 +418,7 @@ Feature: ListOperations
       """
       RETURN [] IN [[]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -429,7 +429,7 @@ Feature: ListOperations
       """
       RETURN [] IN [] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -440,7 +440,7 @@ Feature: ListOperations
       """
       RETURN [] IN [1, []] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -451,7 +451,7 @@ Feature: ListOperations
       """
       RETURN [] IN [1, 2] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -462,7 +462,7 @@ Feature: ListOperations
       """
       RETURN [[]] IN [1, [[]]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -473,7 +473,7 @@ Feature: ListOperations
       """
       RETURN [] IN [1, 2, null] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | null |
     And no side effects
@@ -484,7 +484,7 @@ Feature: ListOperations
       """
       RETURN [[], []] IN [1, [[], []]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
@@ -497,7 +497,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] = 'foo' AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -508,7 +508,7 @@ Feature: ListOperations
       """
       RETURN [1] = [1, null] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -519,7 +519,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] = [null, 'foo'] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -530,7 +530,7 @@ Feature: ListOperations
       """
       RETURN [1, 2] = [null, 2] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | null |
     And no side effects
@@ -541,7 +541,7 @@ Feature: ListOperations
       """
       RETURN [[1]] = [[1], [null]] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -552,7 +552,7 @@ Feature: ListOperations
       """
       RETURN [[1, 2], [1, 3]] = [[1, 2], [null, 'foo']] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
@@ -563,7 +563,7 @@ Feature: ListOperations
       """
       RETURN [[1, 2], ['foo', 'bar']] = [[1, 2], [null, 'bar']] AS res
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | res  |
       | null |
     And no side effects
@@ -576,7 +576,7 @@ Feature: ListOperations
       """
       RETURN size([1, 2, 3]) AS n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n |
       | 3 |
     And no side effects
@@ -593,7 +593,7 @@ Feature: ListOperations
       SET n.numbers = [1, 2, 3]
       RETURN size(n.numbers)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | size(n.numbers) |
       | 3               |
     And the side effects should be:
@@ -605,7 +605,7 @@ Feature: ListOperations
       """
       RETURN size([[], []] + [[]]) AS l
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | l |
       | 3 |
     And no side effects
@@ -622,7 +622,7 @@ Feature: ListOperations
       SET n.array = [1, 2, 3, 4, 5]
       RETURN tail(tail(n.array))
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | tail(tail(n.array)) |
       | [3, 4, 5]           |
     And the side effects should be:
@@ -634,7 +634,7 @@ Feature: ListOperations
       """
       RETURN [1, 2, 3][0] AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | 1     |
     And no side effects
@@ -645,7 +645,7 @@ Feature: ListOperations
       """
       RETURN [[1]][0][0]
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | [[1]][0][0] |
       | 1           |
     And no side effects
@@ -656,7 +656,7 @@ Feature: ListOperations
       """
       RETURN [1, 10, 100] + [4, 5] AS foo
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | foo                |
       | [1, 10, 100, 4, 5] |
     And no side effects
@@ -667,7 +667,7 @@ Feature: ListOperations
       """
       RETURN [false, true] + false AS foo
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | foo                  |
       | [false, true, false] |
     And no side effects
@@ -687,7 +687,7 @@ Feature: ListOperations
       SET n.name = 'newName'
       RETURN n.name, oldNames
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.name    | oldNames     |
       | 'newName' | ['original'] |
     And the side effects should be:
@@ -709,7 +709,7 @@ Feature: ListOperations
       SET n.name = 'newName'
       RETURN n.name, size(noopFiltered)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.name    | size(noopFiltered) |
       | 'newName' | 1                    |
     And the side effects should be:
@@ -724,7 +724,7 @@ Feature: ListOperations
       OPTIONAL MATCH (n)-[r]->(m)
       RETURN size([x IN collect(r) WHERE x <> null]) AS cn
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | cn |
       | 0  |
     And no side effects
@@ -741,7 +741,7 @@ Feature: ListOperations
       WITH $expr AS expr, $idx AS idx
       RETURN expr[idx] AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | 'Apa' |
     And no side effects
@@ -755,7 +755,7 @@ Feature: ListOperations
       WITH ['Apa'] AS expr
       RETURN expr[$idx] AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | 'Apa' |
     And no side effects
@@ -770,7 +770,7 @@ Feature: ListOperations
       WITH $expr AS expr, $idx AS idx
       RETURN expr[toInteger(idx)] AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | 'Apa' |
     And no side effects
@@ -784,7 +784,7 @@ Feature: ListOperations
       WITH [1, 2, 3, 4, 5] AS list
       RETURN list[1..3] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r      |
       | [2, 3] |
     And no side effects
@@ -796,7 +796,7 @@ Feature: ListOperations
       WITH [1, 2, 3] AS list
       RETURN list[1..] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r      |
       | [2, 3] |
     And no side effects
@@ -808,7 +808,7 @@ Feature: ListOperations
       WITH [1, 2, 3] AS list
       RETURN list[..2] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r      |
       | [1, 2] |
     And no side effects
@@ -820,7 +820,7 @@ Feature: ListOperations
       WITH [1, 2, 3] AS list
       RETURN list[0..1] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r   |
       | [1] |
     And no side effects
@@ -832,7 +832,7 @@ Feature: ListOperations
       WITH [1, 2, 3] AS list
       RETURN list[0..0] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r  |
       | [] |
     And no side effects
@@ -844,7 +844,7 @@ Feature: ListOperations
       WITH [1, 2, 3] AS list
       RETURN list[-3..-1] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r      |
       | [1, 2] |
     And no side effects
@@ -856,7 +856,7 @@ Feature: ListOperations
       WITH [1, 2, 3] AS list
       RETURN list[3..1] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r  |
       | [] |
     And no side effects
@@ -868,7 +868,7 @@ Feature: ListOperations
       WITH [1, 2, 3] AS list
       RETURN list[-5..5] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r         |
       | [1, 2, 3] |
     And no side effects
@@ -880,7 +880,7 @@ Feature: ListOperations
       WITH [1, 2, 3] AS list
       RETURN list[<lower>..<upper>] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r    |
       | null |
     And no side effects
@@ -903,7 +903,7 @@ Feature: ListOperations
       WITH [1, 2, 3] AS list
       RETURN list[$from..$to] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r      |
       | [2, 3] |
     And no side effects
@@ -918,7 +918,7 @@ Feature: ListOperations
       WITH [1, 2, 3] AS list
       RETURN list[$from..$to] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r  |
       | [] |
     And no side effects

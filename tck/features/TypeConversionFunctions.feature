@@ -36,7 +36,7 @@ Feature: TypeConversionFunctions
       """
       RETURN toBoolean('true') AS b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b    |
       | true |
     And no side effects
@@ -48,7 +48,7 @@ Feature: TypeConversionFunctions
       UNWIND [true, false] AS b
       RETURN toBoolean(b) AS b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b     |
       | true  |
       | false |
@@ -61,7 +61,7 @@ Feature: TypeConversionFunctions
       UNWIND ['true', 'false'] AS s
       RETURN toBoolean(s) AS b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b     |
       | true  |
       | false |
@@ -74,7 +74,7 @@ Feature: TypeConversionFunctions
       UNWIND [null, '', ' tru ', 'f alse'] AS things
       RETURN toBoolean(things) AS b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b    |
       | null |
       | null |
@@ -112,7 +112,7 @@ Feature: TypeConversionFunctions
       MATCH (n)
       RETURN toInteger(n.name) AS name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | name |
       | 42   |
     And no side effects
@@ -124,7 +124,7 @@ Feature: TypeConversionFunctions
       WITH 82.9 AS weight
       RETURN toInteger(weight)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | toInteger(weight) |
       | 82                |
     And no side effects
@@ -136,7 +136,7 @@ Feature: TypeConversionFunctions
       WITH 'foo' AS foo_string, '' AS empty_string
       RETURN toInteger(foo_string) AS foo, toInteger(empty_string) AS empty
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | foo  | empty |
       | null | null  |
     And no side effects
@@ -148,7 +148,7 @@ Feature: TypeConversionFunctions
       WITH [2, 2.9] AS numbers
       RETURN [n IN numbers | toInteger(n)] AS int_numbers
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | int_numbers |
       | [2, 2]      |
     And no side effects
@@ -160,7 +160,7 @@ Feature: TypeConversionFunctions
       WITH [2, 2.9, '1.7'] AS things
       RETURN [n IN things | toInteger(n)] AS int_numbers
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | int_numbers |
       | [2, 2, 1]   |
     And no side effects
@@ -172,7 +172,7 @@ Feature: TypeConversionFunctions
       WITH ['2', '2.9', 'foo'] AS numbers
       RETURN [n IN numbers | toInteger(n)] AS int_numbers
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | int_numbers  |
       | [2, 2, null] |
     And no side effects
@@ -185,7 +185,7 @@ Feature: TypeConversionFunctions
       """
       RETURN toInteger(1 - $param) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result |
       | 0      |
     And no side effects
@@ -225,7 +225,7 @@ Feature: TypeConversionFunctions
       MATCH (n)
       RETURN toFloat(n.rating) AS float
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | float |
       | 4.0   |
     And no side effects
@@ -237,7 +237,7 @@ Feature: TypeConversionFunctions
       WITH [3.4, 3] AS numbers
       RETURN [n IN numbers | toFloat(n)] AS float_numbers
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | float_numbers |
       | [3.4, 3.0]    |
     And no side effects
@@ -249,7 +249,7 @@ Feature: TypeConversionFunctions
       WITH 'foo' AS foo_string, '' AS empty_string
       RETURN toFloat(foo_string) AS foo, toFloat(empty_string) AS empty
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | foo  | empty |
       | null | null  |
     And no side effects
@@ -261,7 +261,7 @@ Feature: TypeConversionFunctions
       WITH [3.4, 3, '5'] AS numbers
       RETURN [n IN numbers | toFloat(n)] AS float_numbers
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | float_numbers   |
       | [3.4, 3.0, 5.0] |
     And no side effects
@@ -273,7 +273,7 @@ Feature: TypeConversionFunctions
       WITH ['1', '2', 'foo'] AS numbers
       RETURN [n IN numbers | toFloat(n)] AS float_numbers
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | float_numbers    |
       | [1.0, 2.0, null] |
     And no side effects
@@ -313,7 +313,7 @@ Feature: TypeConversionFunctions
       MATCH (n)
       RETURN toString(n.rating)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | toString(n.rating) |
       | '4'                |
     And no side effects
@@ -329,7 +329,7 @@ Feature: TypeConversionFunctions
       MATCH (m:Movie)
       RETURN toString(m.watched)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | toString(m.watched) |
       | 'true'              |
     And no side effects
@@ -340,7 +340,7 @@ Feature: TypeConversionFunctions
       """
       RETURN toString(1 < 0) AS bool
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | bool    |
       | 'false' |
     And no side effects
@@ -351,7 +351,7 @@ Feature: TypeConversionFunctions
       """
       RETURN toString(true) AS bool
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | bool   |
       | 'true' |
     And no side effects
@@ -362,7 +362,7 @@ Feature: TypeConversionFunctions
       """
       RETURN [x IN [1, 2.3, true, 'apa'] | toString(x) ] AS list
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | list                        |
       | ['1', '2.3', 'true', 'apa'] |
     And no side effects
@@ -374,7 +374,7 @@ Feature: TypeConversionFunctions
       WITH [1, 2, 3] AS numbers
       RETURN [n IN numbers | toString(n)] AS string_numbers
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | string_numbers  |
       | ['1', '2', '3'] |
     And no side effects
@@ -407,7 +407,7 @@ Feature: TypeConversionFunctions
       UNWIND ['male', 'female', null] AS gen
       RETURN coalesce(toString(gen), 'x') AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | 'male'   |
       | 'female' |
@@ -421,7 +421,7 @@ Feature: TypeConversionFunctions
       UNWIND ['male', 'female', null] AS gen
       RETURN toString(coalesce(gen, 'x')) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | 'male'   |
       | 'female' |

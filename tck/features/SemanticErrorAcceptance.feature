@@ -254,7 +254,7 @@ Feature: SemanticErrorAcceptance
       WITH [{num: 0}, 1] AS list
       RETURN (list[0]).num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | (list[0]).num |
       | 0             |
     And no side effects

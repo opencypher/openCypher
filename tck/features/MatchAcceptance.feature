@@ -41,7 +41,7 @@ Feature: MatchAcceptance
       MATCH p = (a:Label1)<--(:Label2)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                              |
       | <(:Label1)<-[:TYPE]-(:Label2)> |
     And no side effects
@@ -57,7 +57,7 @@ Feature: MatchAcceptance
       MATCH p = (a:Label1)<--(:Label2)--()
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                                             |
       | <(:Label1)<-[:T1]-(:Label2)-[:T2]->(:Label3)> |
     And no side effects
@@ -75,7 +75,7 @@ Feature: MatchAcceptance
       MATCH (n), (m)
       RETURN n.num AS n, m.num AS m
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n | m |
       | 1 | 1 |
       | 1 | 2 |
@@ -102,7 +102,7 @@ Feature: MatchAcceptance
       WHERE r.name = $param
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b                 |
       | (:B {name: 'me'}) |
     And no side effects
@@ -119,7 +119,7 @@ Feature: MatchAcceptance
       WHERE a.name = 'Andres'
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a                  |
       | ({name: 'Andres'}) |
     And no side effects
@@ -136,7 +136,7 @@ Feature: MatchAcceptance
       WITH a.name AS a
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a         |
       | 'Someone' |
     And no side effects
@@ -153,7 +153,7 @@ Feature: MatchAcceptance
       WHERE r.name = 'monkey'
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    |
       | (:A) |
     And no side effects
@@ -171,7 +171,7 @@ Feature: MatchAcceptance
       WITH n.name AS n
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n            |
       | 'Ann Darrow' |
       | 'King Kong'  |
@@ -188,7 +188,7 @@ Feature: MatchAcceptance
       MATCH (n1)-[rel:KNOWS]->(n2)
       RETURN n1, n2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n1            | n2            |
       | (:A {num: 1}) | (:B {num: 2}) |
     And no side effects
@@ -206,7 +206,7 @@ Feature: MatchAcceptance
       MATCH ()-[rel:KNOWS]->(x)
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x             |
       | (:B {num: 2}) |
       | (:C {num: 3}) |
@@ -223,7 +223,7 @@ Feature: MatchAcceptance
       MATCH (n)-->(a)-->(b)
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b             |
       | (:C {num: 3}) |
     And no side effects
@@ -247,7 +247,7 @@ Feature: MatchAcceptance
       WHERE n.animal = x.animal
       RETURN n, x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n                       | x                       |
       | (:A {animal: 'monkey'}) | (:C {animal: 'monkey'}) |
       | (:D {animal: 'cow'})    | (:B {animal: 'cow'})    |
@@ -264,7 +264,7 @@ Feature: MatchAcceptance
       MATCH (a)-[r {name: 'r'}]-(b)
       RETURN a, b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a             | b             |
       | (:B {num: 2}) | (:A {num: 1}) |
       | (:A {num: 1}) | (:B {num: 2}) |
@@ -283,7 +283,7 @@ Feature: MatchAcceptance
       WHERE r <> r2
       RETURN a, b, c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a             | b             | c             |
       | (:A {num: 1}) | (:B {num: 2}) | (:C {num: 3}) |
       | (:B {num: 2}) | (:A {num: 1}) | null          |
@@ -305,7 +305,7 @@ Feature: MatchAcceptance
       WHERE type(r) = 'KNOWS'
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x                |
       | (:B {name: 'B'}) |
     And no side effects
@@ -327,7 +327,7 @@ Feature: MatchAcceptance
       WHERE type(r) = 'KNOWS' OR type(r) = 'HATES'
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r        |
       | [:KNOWS] |
       | [:HATES] |
@@ -347,7 +347,7 @@ Feature: MatchAcceptance
       WHERE n.p1 = 12 OR n.p2 = 13
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n             |
       | (:A {p1: 12}) |
       | (:B {p2: 13}) |
@@ -364,7 +364,7 @@ Feature: MatchAcceptance
       MATCH p = (a {name: 'A'})-->(b)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                                             |
       | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})> |
     And no side effects
@@ -380,7 +380,7 @@ Feature: MatchAcceptance
       MATCH p = (a {name: 'A'})-[rel1]->(b)-[rel2]->(c)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                                                                        |
       | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})-[:KNOWS]->(:C {name: 'C'})> |
     And no side effects
@@ -397,7 +397,7 @@ Feature: MatchAcceptance
       WHERE length(p) = 10
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x |
     And no side effects
 
@@ -413,7 +413,7 @@ Feature: MatchAcceptance
       WHERE length(p) = 1
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x                |
       | (:B {name: 'B'}) |
     And no side effects
@@ -429,7 +429,7 @@ Feature: MatchAcceptance
       MATCH p = (a)-[:REL*2..2]->(b:End)
       RETURN relationships(p)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | relationships(p)                   |
       | [[:REL {num: 1}], [:REL {num: 2}]] |
     And no side effects
@@ -445,7 +445,7 @@ Feature: MatchAcceptance
       MATCH p = (a:Start)-[:REL*2..2]->(b)
       RETURN relationships(p)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | relationships(p)                   |
       | [[:REL {num: 1}], [:REL {num: 2}]] |
     And no side effects
@@ -461,7 +461,7 @@ Feature: MatchAcceptance
       MATCH (a)-[r:REL*2..2]->(b:End)
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r                                  |
       | [[:REL {num: 1}], [:REL {num: 2}]] |
     And no side effects
@@ -477,7 +477,7 @@ Feature: MatchAcceptance
       MATCH (a)-[r:REL*2..2]-(b:End)
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r                                |
       | [[:REL {num:1}], [:REL {num:2}]] |
       | [[:REL {num:2}], [:REL {num:1}]] |
@@ -494,7 +494,7 @@ Feature: MatchAcceptance
       MATCH (a:Start)-[r:REL*2..2]-(b)
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r                                  |
       | [[:REL {num: 1}], [:REL {num: 2}]] |
     And no side effects
@@ -510,7 +510,7 @@ Feature: MatchAcceptance
       MATCH p = (n {name: 'A'})-[:KNOWS*1..2]->(x)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                                                                                          |
       | <(:A {name: 'A'})-[:KNOWS {num: 1}]->(:B {name: 'B'})>                                     |
       | <(:A {name: 'A'})-[:KNOWS {num: 1}]->(:B {name: 'B'})-[:KNOWS {num: 2}]->(:C {name: 'C'})> |
@@ -527,7 +527,7 @@ Feature: MatchAcceptance
       MATCH p = (a)-[*0..1]->(b)
       RETURN a, b, length(p) AS l
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b    | l |
       | (:A) | (:A) | 0 |
       | (:B) | (:B) | 0 |
@@ -545,7 +545,7 @@ Feature: MatchAcceptance
       MATCH p = (a {name: 'A'})-[:KNOWS*0..1]->(b)-[:FRIEND*0..1]->(c)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                                                                         |
       | <(:A {name: 'A'})>                                                        |
       | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})>                             |
@@ -560,6 +560,6 @@ Feature: MatchAcceptance
       WHERE 1 = 0
       RETURN n SKIP 0
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n |
     And no side effects

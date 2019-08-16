@@ -37,7 +37,7 @@ Feature: MatchAcceptance2
       MATCH (n)
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n |
     And no side effects
 
@@ -48,7 +48,7 @@ Feature: MatchAcceptance2
       MATCH ()-[r]->()
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r |
     And no side effects
 
@@ -68,7 +68,7 @@ Feature: MatchAcceptance2
       WHERE i.var > 'te'
       RETURN i
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | i                         |
       | (:TextNode {var: 'text'}) |
     And no side effects
@@ -89,7 +89,7 @@ Feature: MatchAcceptance2
       WHERE exists(i.var) OR i.var > 'te'
       RETURN i
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | i                         |
       | (:TextNode {var: 'text'}) |
       | (:IntNode {var: 0})       |
@@ -111,7 +111,7 @@ Feature: MatchAcceptance2
       WITH nodes(p) AS nodes
       RETURN *
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | nodes                    |
       | [({num: 1}), ({num: 2})] |
       | [({num: 3}), ({num: 4})] |
@@ -132,7 +132,7 @@ Feature: MatchAcceptance2
       MATCH (a {name: 'A'})-[:CONTAINS*0..1]->(b)-[:FRIEND*0..1]->(c)
       RETURN a, b, c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a             | b             | c             |
       | ({name: 'A'}) | ({name: 'A'}) | ({name: 'A'}) |
       | ({name: 'A'}) | ({name: 'B'}) | ({name: 'B'}) |
@@ -154,7 +154,7 @@ Feature: MatchAcceptance2
       MATCH (a {name: 'A'})-[*]->(x)
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x             |
       | ({name: 'B'}) |
       | ({name: 'C'}) |
@@ -175,7 +175,7 @@ Feature: MatchAcceptance2
       MATCH p = ({name: 'A'})-[:KNOWS*..2]->()
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                                                               |
       | <({name: 'A'})-[:KNOWS]->({name: 'B'})>                         |
       | <({name: 'A'})-[:KNOWS]->({name: 'B'})-[:KNOWS]->({name: 'C'})> |
@@ -195,7 +195,7 @@ Feature: MatchAcceptance2
       MATCH p = ({name: 'A'})-[:KNOWS*..]->()
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                                                               |
       | <({name: 'A'})-[:KNOWS]->({name: 'B'})>                         |
       | <({name: 'A'})-[:KNOWS]->({name: 'B'})-[:KNOWS]->({name: 'C'})> |
@@ -215,7 +215,7 @@ Feature: MatchAcceptance2
       MATCH (a)-->(b)
       RETURN a, b, c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a             | b             | c             |
       | ({name: 'A'}) | ({name: 'B'}) | ({name: 'C'}) |
     And no side effects
@@ -237,7 +237,7 @@ Feature: MatchAcceptance2
       MATCH (a)-->(x)<-->(b)
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x              |
       | ({name: 'x1'}) |
       | ({name: 'x2'}) |
@@ -262,7 +262,7 @@ Feature: MatchAcceptance2
       MATCH (a)-->(x), (b)-->(x), (c)-->(x)
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x              |
       | ({name: 'x1'}) |
       | ({name: 'x2'}) |
@@ -298,7 +298,7 @@ Feature: MatchAcceptance2
       MATCH (a)-->(x), (b)-->(x), (c)-->(x)
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x             |
       | ({name: 'd'}) |
       | ({name: 'e'}) |
@@ -318,7 +318,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH (a)-[:KNOWS]->()-[:KNOWS]->(foo)
       RETURN foo
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | foo           |
       | ({name: 'C'}) |
     And no side effects
@@ -337,7 +337,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH p = (a)-->(x)
       RETURN x, p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x             | p                                   |
       | ({name: 'B'}) | <({name: 'A'})-[:X]->({name: 'B'})> |
       | ({name: 'C'}) | null                                |
@@ -356,7 +356,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH p = (a)-->(b)-[*]->(c)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p    |
       | null |
     And no side effects
@@ -375,7 +375,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH p = (a)-[r*]->(x)
       RETURN r, x, p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r      | x             | p                                   |
       | [[:X]] | ({name: 'B'}) | <({name: 'A'})-[:X]->({name: 'B'})> |
       | null   | ({name: 'C'}) | null                                |
@@ -414,7 +414,7 @@ Feature: MatchAcceptance2
       WITH other WHERE r IS NULL
       RETURN other
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | other        |
       | (:B {id: 2}) |
     And no side effects
@@ -433,7 +433,7 @@ Feature: MatchAcceptance2
       WHERE x1.name = 'bar'
       RETURN x0.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x0.name |
       | 'Mark'  |
     And no side effects
@@ -454,7 +454,7 @@ Feature: MatchAcceptance2
       WHERE c:C
       RETURN a.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.name |
       | 'A'    |
     And no side effects
@@ -471,7 +471,7 @@ Feature: MatchAcceptance2
       WHERE a:A
       RETURN a.id, b.id
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.id | b.id |
       | 0    | 1    |
     And no side effects
@@ -487,7 +487,7 @@ Feature: MatchAcceptance2
       MATCH (n)
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n    |
       | (:A) |
       | (:B) |
@@ -505,7 +505,7 @@ Feature: MatchAcceptance2
       WHERE a <> b
       RETURN a, b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b    |
       | (:A) | (:B) |
       | (:B) | (:A) |
@@ -524,7 +524,7 @@ Feature: MatchAcceptance2
       MATCH (a)-->(b), (b)-->(b)
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b |
     And no side effects
 
@@ -542,7 +542,7 @@ Feature: MatchAcceptance2
         AND a <> b
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b    |
       | (:B) |
     And no side effects
@@ -559,7 +559,7 @@ Feature: MatchAcceptance2
       MATCH (a)-[:T|:T]->(b)
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b    |
       | (:B) |
     And no side effects
@@ -600,7 +600,7 @@ Feature: MatchAcceptance2
       WHERE n.name = 'bar'
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n               |
       | ({name: 'bar'}) |
     And no side effects
@@ -616,7 +616,7 @@ Feature: MatchAcceptance2
       MATCH p = (b)<--(a)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                 |
       | <(:B)<-[:T]-(:A)> |
     And no side effects
@@ -628,7 +628,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH (n)
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n    |
       | null |
     And no side effects
@@ -645,7 +645,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH (n)-[:NOT_EXIST]->(x)
       RETURN n, x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n  | x    |
       | () | null |
     And no side effects
@@ -662,7 +662,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH (n)-[:NOT_EXIST]->(x)
       RETURN n, collect(x)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n  | collect(x) |
       | () | []         |
     And no side effects
@@ -679,7 +679,7 @@ Feature: MatchAcceptance2
       WHERE a:A
       RETURN c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c |
     And no side effects
 
@@ -696,7 +696,7 @@ Feature: MatchAcceptance2
       MATCH (a)-->(b:Foo)
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b      |
       | (:Foo) |
     And no side effects
@@ -715,7 +715,7 @@ Feature: MatchAcceptance2
       MATCH (:A)-[r]->(:B)
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r     |
       | [:T1] |
     And no side effects
@@ -732,7 +732,7 @@ Feature: MatchAcceptance2
       MATCH (a:A:B:C)
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a        |
       | (:A:B:C) |
     And no side effects
@@ -748,7 +748,7 @@ Feature: MatchAcceptance2
       MATCH (n)
       RETURN (n:Foo)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | (n:Foo) |
       | true    |
       | false   |
@@ -781,7 +781,7 @@ Feature: MatchAcceptance2
         AND out.name = 'product1'
       RETURN out.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | out.name   |
       | 'product1' |
     And no side effects
@@ -801,7 +801,7 @@ Feature: MatchAcceptance2
       WHERE n.name = 'Bob'
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n                       |
       | (:Person {name: 'Bob'}) |
     And no side effects
@@ -820,7 +820,7 @@ Feature: MatchAcceptance2
       MATCH (c)-->(d)
       RETURN a, b, c, d
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b    | c    | d    |
       | (:A) | (:B) | (:A) | (:B) |
       | (:A) | (:B) | (:A) | (:C) |
@@ -847,7 +847,7 @@ Feature: MatchAcceptance2
         AND c.id = 2
       RETURN d
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | d    |
       | (:A) |
       | (:D) |
@@ -867,7 +867,7 @@ Feature: MatchAcceptance2
       MATCH (a)-[:A]->()-[:B]->(a)
       RETURN a.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.name |
       | 'a'    |
     And no side effects
@@ -886,7 +886,7 @@ Feature: MatchAcceptance2
       MATCH (a)-[:A]->(b), (b)-[:B]->(a)
       RETURN a.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.name |
       | 'a'    |
     And no side effects
@@ -902,7 +902,7 @@ Feature: MatchAcceptance2
       MATCH (a)-[r*1..1]->(b)
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r      |
       | [[:T]] |
     And no side effects
@@ -916,7 +916,7 @@ Feature: MatchAcceptance2
       MATCH (a)-->(b)
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b |
     And no side effects
 
@@ -933,7 +933,7 @@ Feature: MatchAcceptance2
       MATCH (a)-->(b)
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b |
     And no side effects
 
@@ -946,7 +946,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH (a)-->(b)
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b    |
       | null |
     And no side effects
@@ -958,7 +958,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH (a)
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    |
       | null |
     And no side effects
@@ -974,7 +974,7 @@ Feature: MatchAcceptance2
       MATCH p = (a)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p    |
       | <()> |
     And no side effects
@@ -990,7 +990,7 @@ Feature: MatchAcceptance2
       MATCH p = ()-[*0..]->()
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p    |
       | <()> |
     And no side effects
@@ -1006,7 +1006,7 @@ Feature: MatchAcceptance2
       MATCH (n)
       RETURN n.num AS n, count(n) AS count
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n  | count |
       | 42 | 1     |
     And no side effects
@@ -1025,7 +1025,7 @@ Feature: MatchAcceptance2
       MATCH ()-[r2]->()
       RETURN r2 AS rel
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | rel   |
       | [:T1] |
       | [:T2] |
@@ -1046,7 +1046,7 @@ Feature: MatchAcceptance2
       MATCH ()-[r2]->()
       RETURN r2 AS rel
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | rel   |
       | [:T1] |
       | [:T2] |
@@ -1088,7 +1088,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH (a2)-[r]->(b2)
       RETURN a2, r, b2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a2   | r    | b2   |
       | (:A) | [:T] | (:B) |
     And no side effects
@@ -1107,7 +1107,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH (a1)-[r]->(b2)
       RETURN a1, r, b2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a1   | r    | b2   |
       | (:A) | [:T] | (:B) |
     And no side effects
@@ -1126,7 +1126,7 @@ Feature: MatchAcceptance2
       MATCH (a1:X)-[r]->(b2)
       RETURN a1, r, b2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a1 | r | b2 |
     And no side effects
 
@@ -1144,7 +1144,7 @@ Feature: MatchAcceptance2
       MATCH (a1:Y)-[r]->(b2)
       RETURN a1, r, b2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a1     | r    | b2 |
       | (:X:Y) | [:T] | () |
     And no side effects
@@ -1163,7 +1163,7 @@ Feature: MatchAcceptance2
       MATCH (a1)-[r:Y]->(b2)
       RETURN a1, r, b2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a1 | r | b2 |
     And no side effects
 
@@ -1180,7 +1180,7 @@ Feature: MatchAcceptance2
       MATCH (a1)-[r:T]->(b2)
       RETURN a1, r, b2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a1   | r    | b2   |
       | (:A) | [:T] | (:B) |
     And no side effects
@@ -1201,7 +1201,7 @@ Feature: MatchAcceptance2
       MATCH (first)-[rs*]->(second)
       RETURN first, second
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | first | second |
       | (:A)  | (:C)   |
     And no side effects
@@ -1222,7 +1222,7 @@ Feature: MatchAcceptance2
       MATCH (first)-[rs*]->(second)
       RETURN first, second
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | first | second |
       | (:A)  | (:C)   |
     And no side effects
@@ -1243,7 +1243,7 @@ Feature: MatchAcceptance2
       MATCH (first)-[rs*]->(second)
       RETURN first, second
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | first | second |
     And no side effects
 
@@ -1261,7 +1261,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH (a1)<-[r]-(b2)
       RETURN a1, r, b2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a1   | r    | b2   |
       | (:A) | [:T] | null |
     And no side effects
@@ -1281,7 +1281,7 @@ Feature: MatchAcceptance2
       WHERE a1 = a2
       RETURN a1, r, b2, a2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a1   | r    | b2   | a2   |
       | (:A) | [:T] | null | null |
     And no side effects
@@ -1327,7 +1327,7 @@ Feature: MatchAcceptance2
       MATCH (a)
       RETURN count(a) > 0
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(a) > 0 |
       | false        |
     And no side effects
@@ -1345,7 +1345,7 @@ Feature: MatchAcceptance2
       MATCH (a:Artist)-[:WORKED_WITH* {year: 1988}]->(b:Artist)
       RETURN *
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a           | b           |
       | (:Artist:B) | (:Artist:C) |
     And no side effects
@@ -1366,7 +1366,7 @@ Feature: MatchAcceptance2
         OR (a)-[:T*]->(b:MissingLabel)
       RETURN DISTINCT b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b                   |
       | (:TheLabel {id: 1}) |
     And no side effects
@@ -1385,7 +1385,7 @@ Feature: MatchAcceptance2
       MATCH (a:Blue)-[r*]->(b:Green)
       RETURN count(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(r) |
       | 1        |
     And no side effects
@@ -1403,7 +1403,7 @@ Feature: MatchAcceptance2
       RETURN p
         LIMIT 1
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                   |
       | <(:Movie)<-[:T]-()> |
     And no side effects
@@ -1420,7 +1420,7 @@ Feature: MatchAcceptance2
       WITH p
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p    |
       | <()> |
     And no side effects
@@ -1438,7 +1438,7 @@ Feature: MatchAcceptance2
       MATCH p = (n)-->(m)--(o)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                            |
       | <(:C)-[:T]->(:B)-[:T]->(:A)> |
     And no side effects
@@ -1457,7 +1457,7 @@ Feature: MatchAcceptance2
       MATCH path = (n)-->(m)--(o)--(p)
       RETURN path
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | path                                    |
       | <(:D)-[:T]->(:C)-[:T]->(:B)-[:T]->(:A)> |
     And no side effects
@@ -1478,7 +1478,7 @@ Feature: MatchAcceptance2
       MATCH topRoute = (:Start)<-[:CONNECTED_TO]-()-[:CONNECTED_TO*3..3]-(:End)
       RETURN topRoute
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | topRoute                                                                                       |
       | <(:Start)<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->()<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->(:End)> |
       | <(:Start)<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->()<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->(:End)> |
@@ -1497,7 +1497,7 @@ Feature: MatchAcceptance2
       MATCH (a)
       RETURN a.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.num |
       | 1     |
     And no side effects
@@ -1513,7 +1513,7 @@ Feature: MatchAcceptance2
       MATCH ()-[r]->()
       RETURN r.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r.num |
       | 1     |
     And no side effects
@@ -1530,7 +1530,7 @@ Feature: MatchAcceptance2
       MATCH (a)-[r]->()
       RETURN a AS foo, r AS bar
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | foo  | bar  |
       | (:A) | [:T] |
     And no side effects
@@ -1546,7 +1546,7 @@ Feature: MatchAcceptance2
       MATCH (a)
       RETURN a.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.name |
       | null    |
     And no side effects
@@ -1562,7 +1562,7 @@ Feature: MatchAcceptance2
       MATCH ()-[r]->()
       RETURN r.name2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r.name2 |
       | null    |
     And no side effects
@@ -1578,7 +1578,7 @@ Feature: MatchAcceptance2
       MATCH (a)
       RETURN a.name, a.age, a.seasons
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.name          | a.age | a.seasons             |
       | 'Philip J. Fry' | 2046  | [1, 2, 3, 4, 5, 6, 7] |
     And no side effects
@@ -1594,7 +1594,7 @@ Feature: MatchAcceptance2
       MATCH (a)
       RETURN a.num + 1 AS foo
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | foo |
       | 2   |
     And no side effects
@@ -1610,7 +1610,7 @@ Feature: MatchAcceptance2
       MATCH (a)
       RETURN a.list2 + a.list1 AS foo
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | foo             |
       | [4, 5, 1, 2, 3] |
     And no side effects
@@ -1627,7 +1627,7 @@ Feature: MatchAcceptance2
       MATCH ()-[r*0..1]-()
       RETURN last(r) AS l
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | l    |
       | [:T] |
       | [:T] |
@@ -1649,7 +1649,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH (b)<-[:BAR*]-(c:B)
       RETURN a, b, c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b    | c    |
       | (:A) | null | null |
     And no side effects
@@ -1666,7 +1666,7 @@ Feature: MatchAcceptance2
       MATCH (n)-[r]->(m)
       RETURN [n, r, m] AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r                  |
       | [(:A), [:T], (:B)] |
     And no side effects
@@ -1683,7 +1683,7 @@ Feature: MatchAcceptance2
       MATCH (n)-[r]->(m)
       RETURN {node1: n, rel: r, node2: m} AS m
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | m                                     |
       | {node1: (:A), rel: [:T], node2: (:B)} |
     And no side effects
@@ -1700,7 +1700,7 @@ Feature: MatchAcceptance2
       MATCH p = ({name: 'a'})-->({name: 'b'})
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                                   |
       | <({name: 'a'})-[:T]->({name: 'b'})> |
     And no side effects
@@ -1717,7 +1717,7 @@ Feature: MatchAcceptance2
       MATCH p = ({name: 'a'})<--({name: 'b'})
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p |
     And no side effects
 
@@ -1734,7 +1734,7 @@ Feature: MatchAcceptance2
       MATCH p = (n)-->(k)<--(n)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p |
     And no side effects
 
@@ -1751,7 +1751,7 @@ Feature: MatchAcceptance2
       MATCH p = (n)<-->(k)<--(n)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                              |
       | <(:A)<-[:T2]-(:B)<-[:T1]-(:A)> |
       | <(:B)<-[:T1]-(:A)<-[:T2]-(:B)> |
@@ -1770,7 +1770,7 @@ Feature: MatchAcceptance2
       MATCH p=(n)<-->(k)<-->(n)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                              |
       | <(:A)<-[:T2]-(:B)<-[:T1]-(:A)> |
       | <(:A)-[:T1]->(:B)-[:T2]->(:A)> |
@@ -1791,7 +1791,7 @@ Feature: MatchAcceptance2
       MATCH (n:A:B:C:D:E:F:G:H:I:J:K:L:M)-[:T]->(m:Z:Y:X:W:V:U)
       RETURN n, m
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n                            | m              |
       | (:A:B:C:D:E:F:G:H:I:J:K:L:M) | (:Z:Y:X:W:V:U) |
     And no side effects
@@ -1814,7 +1814,7 @@ Feature: MatchAcceptance2
       MATCH (n {var: 'start'})-[:T*]->(m {var: 'end'})
       RETURN m
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | m              |
       | ({var: 'end'}) |
     And no side effects
@@ -1835,7 +1835,7 @@ Feature: MatchAcceptance2
       OPTIONAL MATCH (a)--(b)
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 6        |
     And no side effects
@@ -1852,7 +1852,7 @@ Feature: MatchAcceptance2
       MATCH ()-[r]-()
       RETURN type(r) AS r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r   |
       | 'T' |
     And no side effects

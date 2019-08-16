@@ -44,7 +44,7 @@ Feature: TemporalArithmeticAcceptance
       MATCH (d:Duration)
       RETURN x + d.dur AS sum, x - d.dur AS diff
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | sum   | diff   |
       | <sum> | <diff> |
     And no side effects
@@ -66,7 +66,7 @@ Feature: TemporalArithmeticAcceptance
       MATCH (d:Duration)
       RETURN x + d.dur AS sum, x - d.dur AS diff
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | sum   | diff   |
       | <sum> | <diff> |
     And no side effects
@@ -88,7 +88,7 @@ Feature: TemporalArithmeticAcceptance
       MATCH (d:Duration)
       RETURN x + d.dur AS sum, x - d.dur AS diff
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | sum   | diff   |
       | <sum> | <diff> |
     And no side effects
@@ -110,7 +110,7 @@ Feature: TemporalArithmeticAcceptance
       MATCH (d:Duration)
       RETURN x + d.dur AS sum, x - d.dur AS diff
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | sum   | diff   |
       | <sum> | <diff> |
     And no side effects
@@ -132,7 +132,7 @@ Feature: TemporalArithmeticAcceptance
       MATCH (d:Duration)
       RETURN x + d.dur AS sum, x - d.dur AS diff
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | sum   | diff   |
       | <sum> | <diff> |
     And no side effects
@@ -154,7 +154,7 @@ Feature: TemporalArithmeticAcceptance
       MATCH (dur:Duration1), (dur2: Duration2)
       RETURN dur.date + dur2.date AS sum, dur.date - dur2.date AS diff
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | sum   | diff   |
       | <sum> | <diff> |
     And no side effects
@@ -181,7 +181,7 @@ Feature: TemporalArithmeticAcceptance
       MATCH (d:Duration)
       RETURN d.date * <num1> AS prod, d.date / <num2> AS div
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | prod   | div   |
       | <prod> | <div> |
     And no side effects

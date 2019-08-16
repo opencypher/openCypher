@@ -84,7 +84,7 @@ Feature: ReturnAcceptance2
       DELETE r
       RETURN type(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | type(r) |
       | 'T'     |
     And the side effects should be:
@@ -96,7 +96,7 @@ Feature: ReturnAcceptance2
       """
       RETURN '\u01FF' AS a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a   |
       | 'ǿ' |
     And no side effects
@@ -113,7 +113,7 @@ Feature: ReturnAcceptance2
       RETURN n
         LIMIT 0
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n |
     And no side effects
 
@@ -143,7 +143,7 @@ Feature: ReturnAcceptance2
       RETURN n.name, count(*) AS foo
         ORDER BY n.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.name  | foo |
       | 'nisse' | 1   |
     And no side effects
@@ -159,7 +159,7 @@ Feature: ReturnAcceptance2
       MATCH (n)
       RETURN DISTINCT n.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.name     |
       | 'Florescu' |
       | null       |
@@ -176,7 +176,7 @@ Feature: ReturnAcceptance2
       MATCH p = (a:Start)-->(b)
       RETURN *
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a        | b  | p                   |
       | (:Start) | () | <(:Start)-[:T]->()> |
     And no side effects
@@ -187,7 +187,7 @@ Feature: ReturnAcceptance2
       """
       RETURN sqrt(12.96)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | sqrt(12.96) |
       | 3.6         |
     And no side effects
@@ -219,7 +219,7 @@ Feature: ReturnAcceptance2
       MATCH (me)-[r1:ATE]->()<-[r2:ATE]-(you)
       RETURN me, you, sum((1 - abs(r1.times / H1 - r2.times / H2)) * (r1.times + r2.times) / (H1 + H2)) AS sum
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | me                  | you                | sum |
       | ({name: 'Michael'}) | ({name: 'Andres'}) | -7  |
       | ({name: 'Michael'}) | ({name: 'Peter'})  | 0   |
@@ -251,7 +251,7 @@ Feature: ReturnAcceptance2
       MATCH ()-[r1]->()<--()
       RETURN sum(r1.times)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | sum(r1.times) |
       | 776           |
     And no side effects
@@ -267,7 +267,7 @@ Feature: ReturnAcceptance2
       MATCH (n)
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n                      |
       | ({numbers: [1, 2, 3]}) |
     And no side effects
@@ -282,7 +282,7 @@ Feature: ReturnAcceptance2
       """
       RETURN {a: 1, b: 'foo'}
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | {a: 1, b: 'foo'} |
       | {a: 1, b: 'foo'} |
     And no side effects
@@ -298,7 +298,7 @@ Feature: ReturnAcceptance2
       MATCH (a)
       RETURN exists(a.id), a IS NOT NULL
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | exists(a.id) | a IS NOT NULL |
       | false        | true          |
     And no side effects
@@ -334,7 +334,7 @@ Feature: ReturnAcceptance2
       """
       RETURN substring('0123456789', 1) AS s
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | s           |
       | '123456789' |
     And no side effects
@@ -399,7 +399,7 @@ Feature: ReturnAcceptance2
       """
       RETURN 1 + (2 - (3 * (4 / (5 ^ (6 % null))))) AS a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    |
       | null |
     And no side effects
@@ -415,7 +415,7 @@ Feature: ReturnAcceptance2
       MATCH (a)
       RETURN a.id AS a, a.id
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a  | a.id |
       | 42 | 42   |
     And no side effects
@@ -431,7 +431,7 @@ Feature: ReturnAcceptance2
       MATCH (a)
       RETURN a, count(a) + 3
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a          | count(a) + 3 |
       | ({id: 42}) | 4            |
     And no side effects
@@ -445,7 +445,7 @@ Feature: ReturnAcceptance2
       WITH {second: m.first} AS m
       RETURN m.second
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | m.second |
       | 0        |
     And the side effects should be:
@@ -464,7 +464,7 @@ Feature: ReturnAcceptance2
       WITH a.num AS a, count(*) AS count
       RETURN count
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count |
       | 2     |
     And no side effects
@@ -501,7 +501,7 @@ Feature: ReturnAcceptance2
       MATCH (n)
       RETURN count(DISTINCT {name: n.list}) AS count
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count |
       | 1     |
     And no side effects
@@ -518,7 +518,7 @@ Feature: ReturnAcceptance2
       WITH DISTINCT {name: n.list} AS map
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 1        |
     And no side effects
@@ -534,7 +534,7 @@ Feature: ReturnAcceptance2
       MATCH (n)
       RETURN count(DISTINCT {name: [[n.list, n.list], [n.list, n.list]]}) AS count
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count |
       | 1     |
     And no side effects
@@ -550,7 +550,7 @@ Feature: ReturnAcceptance2
       MATCH (n)
       RETURN count(DISTINCT {name: [{name2: n.list}, {baz: {apa: n.list}}]}) AS count
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count |
       | 1     |
     And no side effects

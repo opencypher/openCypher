@@ -39,7 +39,7 @@ Feature: DurationBetweenAcceptance
       WITH duration.between(<d1>, <d2>) AS dur
       RETURN dur, dur.days, dur.seconds, dur.nanosecondsOfSecond
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | dur   | dur.days | dur.seconds | dur.nanosecondsOfSecond |
       | <dur> | <days>   | <seconds>   | <nanos>                 |
     And no side effects
@@ -58,7 +58,7 @@ Feature: DurationBetweenAcceptance
       """
       RETURN duration.between(<lhs>, <rhs>) AS duration
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | duration |
       | <result> |
     And no side effects
@@ -96,7 +96,7 @@ Feature: DurationBetweenAcceptance
       """
       RETURN duration.inMonths(<lhs>, <rhs>) AS duration
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | duration |
       | <result> |
     And no side effects
@@ -130,7 +130,7 @@ Feature: DurationBetweenAcceptance
       """
       RETURN duration.inDays(<lhs>, <rhs>) AS duration
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | duration |
       | <result> |
     And no side effects
@@ -164,7 +164,7 @@ Feature: DurationBetweenAcceptance
       """
       RETURN duration.inSeconds(<lhs>, <rhs>) AS duration
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | duration |
       | <result> |
     And no side effects
@@ -202,7 +202,7 @@ Feature: DurationBetweenAcceptance
       """
       RETURN duration.inSeconds(localdatetime('2014-07-21T21:40:36.143'), localdatetime('2014-07-21T21:40:36.142')) AS d
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | d           |
       | 'PT-0.001S' |
     And no side effects
@@ -212,7 +212,7 @@ Feature: DurationBetweenAcceptance
       """
       RETURN duration.inMonths(<lhs>, <rhs>) AS duration
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | duration |
       | <result> |
     And no side effects
@@ -230,7 +230,7 @@ Feature: DurationBetweenAcceptance
       """
       RETURN duration.inSeconds(<lhs>, <rhs>) AS duration
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | duration |
       | <result> |
     And no side effects
@@ -249,7 +249,7 @@ Feature: DurationBetweenAcceptance
       """
       RETURN duration.between(date('-999999999-01-01'), date('+999999999-12-31')) AS duration
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | duration             |
       | 'P1999999998Y11M30D' |
     And no side effects
@@ -259,7 +259,7 @@ Feature: DurationBetweenAcceptance
       """
       RETURN duration.inSeconds(localdatetime('-999999999-01-01'), localdatetime('+999999999-12-31T23:59:59')) AS duration
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | duration                  |
       | 'PT17531639991215H59M59S' |
     And no side effects
@@ -269,7 +269,7 @@ Feature: DurationBetweenAcceptance
       """
       RETURN duration.inSeconds(localtime(<lhs>), localtime(<rhs>)) AS duration
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | duration |
       | <result> |
     And no side effects
@@ -292,7 +292,7 @@ Feature: DurationBetweenAcceptance
       """
       RETURN duration.inSeconds(<value>, <value>) AS duration
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | duration |
       | 'PT0S'   |
     And no side effects
@@ -310,7 +310,7 @@ Feature: DurationBetweenAcceptance
       """
       RETURN <func>(null, null) AS t
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | t    |
       | null |
     And no side effects

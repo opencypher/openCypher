@@ -38,7 +38,7 @@ Feature: TemporalSelectAcceptance
       WITH <other> AS other
       RETURN date(<expression>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -73,7 +73,7 @@ Feature: TemporalSelectAcceptance
       WITH <other> AS other
       RETURN localtime(<expression>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -99,7 +99,7 @@ Feature: TemporalSelectAcceptance
       WITH <other> AS other
       RETURN time(<expression>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -133,7 +133,7 @@ Feature: TemporalSelectAcceptance
       WITH <other> AS other
       RETURN localdatetime(<expression>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -153,7 +153,7 @@ Feature: TemporalSelectAcceptance
       WITH <other> AS other
       RETURN localdatetime(<expression>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -175,7 +175,7 @@ Feature: TemporalSelectAcceptance
       WITH <otherDate> AS otherDate, <otherTime> AS otherTime
       RETURN localdatetime(<expression>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -213,7 +213,7 @@ Feature: TemporalSelectAcceptance
       WITH <other> AS other
       RETURN localdatetime(<expression>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -233,7 +233,7 @@ Feature: TemporalSelectAcceptance
       WITH <other> AS other
       RETURN datetime(<expression>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -259,7 +259,7 @@ Feature: TemporalSelectAcceptance
       WITH <other> AS other
       RETURN datetime(<expression>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -289,7 +289,7 @@ Feature: TemporalSelectAcceptance
       WITH <otherDate> AS otherDate, <otherTime> AS otherTime
       RETURN datetime(<expression>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -351,7 +351,7 @@ Feature: TemporalSelectAcceptance
       WITH <other> AS other
       RETURN datetime(<expression>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects

@@ -34,7 +34,7 @@ Feature: Foo
       """
       RETURN 1
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | 1 |
       | 1 |
     And no side effects

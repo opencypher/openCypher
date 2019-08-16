@@ -38,7 +38,7 @@ Feature: TemporalTruncateAcceptance
       """
       RETURN date.truncate(<unit>, <other>, <map>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -102,7 +102,7 @@ Feature: TemporalTruncateAcceptance
       """
       RETURN datetime.truncate(<unit>, <other>, <map>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -220,7 +220,7 @@ Feature: TemporalTruncateAcceptance
       """
       RETURN localdatetime.truncate(<unit>, <other>, <map>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -307,7 +307,7 @@ Feature: TemporalTruncateAcceptance
       """
       RETURN localtime.truncate(<unit>, <other>, <map>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -364,7 +364,7 @@ Feature: TemporalTruncateAcceptance
       """
       RETURN time.truncate(<unit>, <other>, <map>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects

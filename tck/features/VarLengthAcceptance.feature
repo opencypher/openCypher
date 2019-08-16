@@ -73,7 +73,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name  |
       | 'n00'   |
       | 'n01'   |
@@ -98,7 +98,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*..]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name  |
       | 'n00'   |
       | 'n01'   |
@@ -132,7 +132,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*0]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n0'   |
     And no side effects
@@ -144,7 +144,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*1]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n00'  |
       | 'n01'  |
@@ -157,7 +157,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*2]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n000' |
       | 'n001' |
@@ -172,7 +172,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*0..2]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n0'   |
       | 'n00'  |
@@ -190,7 +190,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*1..2]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n00'  |
       | 'n01'  |
@@ -207,7 +207,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*0..0]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n0'   |
     And no side effects
@@ -219,7 +219,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*1..1]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n00'  |
       | 'n01'  |
@@ -232,7 +232,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*2..2]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n000' |
       | 'n001' |
@@ -256,7 +256,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*2..1]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
     And no side effects
 
@@ -267,7 +267,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*1..0]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
     And no side effects
 
@@ -278,7 +278,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*..0]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
     And no side effects
 
@@ -289,7 +289,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*..1]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n00'  |
       | 'n01'  |
@@ -302,7 +302,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*..2]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n00'  |
       | 'n01'  |
@@ -319,7 +319,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*0..]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name  |
       | 'n0'    |
       | 'n00'   |
@@ -345,7 +345,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*1..]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name  |
       | 'n00'   |
       | 'n01'   |
@@ -370,7 +370,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*2..]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name  |
       | 'n000'  |
       | 'n001'  |
@@ -393,7 +393,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*0]->()-[:LIKES]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n00'  |
       | 'n01'  |
@@ -406,7 +406,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES]->()-[:LIKES*0]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n00'  |
       | 'n01'  |
@@ -419,7 +419,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*1]->()-[:LIKES]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n000' |
       | 'n001' |
@@ -434,7 +434,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES]->()-[:LIKES*1]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'n000' |
       | 'n001' |
@@ -449,7 +449,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES*2]->()-[:LIKES]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name  |
       | 'n0000' |
       | 'n0001' |
@@ -468,7 +468,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES]->()-[:LIKES*2]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name  |
       | 'n0000' |
       | 'n0001' |
@@ -495,7 +495,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES]->()-[:LIKES*3]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name   |
       | 'n00000' |
       | 'n00001' |
@@ -536,7 +536,7 @@ Feature: VarLengthAcceptance
       MATCH (a)<-[:LIKES]-()-[:LIKES*3]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name   |
       | 'n00000' |
       | 'n00001' |
@@ -579,7 +579,7 @@ Feature: VarLengthAcceptance
       MATCH (a)-[:LIKES]->()<-[:LIKES*3]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name   |
       | 'n00000' |
       | 'n00001' |
@@ -614,7 +614,7 @@ Feature: VarLengthAcceptance
       MATCH (p)-[:LIKES*1]->()-[:LIKES]->()-[r:LIKES*2]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name   |
       | 'n00000' |
       | 'n00001' |
@@ -649,7 +649,7 @@ Feature: VarLengthAcceptance
       MATCH (p)-[:LIKES]->()-[:LIKES*2]->()-[r:LIKES]->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name   |
       | 'n00000' |
       | 'n00001' |

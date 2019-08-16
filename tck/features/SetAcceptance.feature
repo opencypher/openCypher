@@ -42,7 +42,7 @@ Feature: SetAcceptance
       SET n.property1 = null
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n                    |
       | (:A {property2: 46}) |
     And the side effects should be:
@@ -60,7 +60,7 @@ Feature: SetAcceptance
       SET r.property1 = null
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r                      |
       | [:REL {property2: 24}] |
     And the side effects should be:
@@ -79,7 +79,7 @@ Feature: SetAcceptance
       SET n.name = 'Michael'
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n                      |
       | (:A {name: 'Michael'}) |
     And the side effects should be:
@@ -99,7 +99,7 @@ Feature: SetAcceptance
       SET n.name = n.name + ' was here'
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n                              |
       | (:A {name: 'Andres was here'}) |
     And the side effects should be:
@@ -118,7 +118,7 @@ Feature: SetAcceptance
       SET (n).name = 'neo4j'
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n                    |
       | (:A {name: 'neo4j'}) |
     And the side effects should be:
@@ -136,7 +136,7 @@ Feature: SetAcceptance
       SET (r).name = 'neo4j'
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r                      |
       | [:REL {name: 'neo4j'}] |
     And the side effects should be:
@@ -155,7 +155,7 @@ Feature: SetAcceptance
       SET n.name = null
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n              |
       | (:A {age: 35}) |
     And the side effects should be:
@@ -173,7 +173,7 @@ Feature: SetAcceptance
       SET n:Foo
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n        |
       | (:A:Foo) |
     And the side effects should be:
@@ -191,7 +191,7 @@ Feature: SetAcceptance
       SET n.numbers = [1, 2, 3]
       RETURN [i IN n.numbers | i / 2.0] AS x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x               |
       | [0.5, 1.0, 1.5] |
     And the side effects should be:
@@ -205,7 +205,7 @@ Feature: SetAcceptance
       SET a.numbers = a.numbers + [4, 5]
       RETURN a.numbers
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.numbers       |
       | [1, 2, 3, 4, 5] |
     And the side effects should be:
@@ -220,7 +220,7 @@ Feature: SetAcceptance
       SET a.numbers = [1, 2] + a.numbers
       RETURN a.numbers
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.numbers       |
       | [1, 2, 3, 4, 5] |
     And the side effects should be:
@@ -239,7 +239,7 @@ Feature: SetAcceptance
       SET n += {name2: 'C'}
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n                             |
       | (:X {name: 'A', name2: 'C'}) |
     And the side effects should be:
@@ -258,7 +258,7 @@ Feature: SetAcceptance
       SET n += {name2: 'B'}
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n                             |
       | (:X {name: 'A', name2: 'B'}) |
     And the side effects should be:
@@ -276,7 +276,7 @@ Feature: SetAcceptance
       SET n += {name: null}
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n                 |
       | (:X {name2: 'B'}) |
     And the side effects should be:
@@ -294,7 +294,7 @@ Feature: SetAcceptance
       SET n = {name: 'B', baz: 'C'}
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n                           |
       | (:X {name: 'B', baz: 'C'}) |
     And the side effects should be:

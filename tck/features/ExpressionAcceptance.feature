@@ -43,7 +43,7 @@ Feature: ExpressionAcceptance
       MATCH (n {name: 'Apa'})
       RETURN n['nam' + 'e'] AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | 'Apa' |
     And no side effects
@@ -54,7 +54,7 @@ Feature: ExpressionAcceptance
       CREATE (n {name: 'Apa'})
       RETURN n['nam' + 'e'] AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | 'Apa' |
     And the side effects should be:
@@ -70,7 +70,7 @@ Feature: ExpressionAcceptance
       WITH $expr AS expr, $idx AS idx
       RETURN expr[idx] AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | 'Apa' |
     And no side effects
@@ -83,7 +83,7 @@ Feature: ExpressionAcceptance
       CREATE (n {name: 'Apa'})
       RETURN n[$idx] AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | 'Apa' |
     And the side effects should be:
@@ -99,7 +99,7 @@ Feature: ExpressionAcceptance
       WITH $expr AS expr, $idx AS idx
       RETURN expr[toString(idx)] AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | 'Apa' |
     And no side effects

@@ -96,7 +96,7 @@ Feature: CreateAcceptance
       CREATE (n {name: 'foo'})
       RETURN n.name AS p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p     |
       | 'foo' |
     And the side effects should be:
@@ -110,7 +110,7 @@ Feature: CreateAcceptance
       CREATE (n {id: 12, name: null})
       RETURN n.id AS id
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | id |
       | 12 |
     And the side effects should be:
@@ -124,7 +124,7 @@ Feature: CreateAcceptance
       CREATE ()-[r:X {id: 12, name: null}]->()
       RETURN r.id
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r.id |
       | 12   |
     And the side effects should be:
@@ -214,7 +214,7 @@ Feature: CreateAcceptance
       MATCH (x:X)<-[:TYPE]-(y:Y)
       RETURN x, y
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x    |  y   |
       | (:X) | (:Y) |
 
@@ -239,7 +239,7 @@ Feature: CreateAcceptance
       MATCH (x:Begin)-[:TYPE]->()
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x        |
       | (:Begin) |
 
@@ -276,7 +276,7 @@ Feature: CreateAcceptance
       MATCH (a:A)<-[:R]-(b:B)
       RETURN a, b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b    |
       | (:A) | (:B) |
 
@@ -296,7 +296,7 @@ Feature: CreateAcceptance
       MATCH (a:A)-[:R]->(b:B)-[:R]->(c:C)
       RETURN a, b, c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b    | c    |
       | (:A) | (:B) | (:C) |
 
@@ -316,7 +316,7 @@ Feature: CreateAcceptance
       MATCH (a)<-[:R]-(b)<-[:R]-(c)
       RETURN a, b, c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b    | c    |
       | (:A) | (:B) | (:C) |
 
@@ -336,7 +336,7 @@ Feature: CreateAcceptance
       MATCH (a:A)-[r1:R]->(b:B)<-[r2:R]-(c:C)
       RETURN a, b, c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b    | c    |
       | (:A) | (:B) | (:C) |
 
@@ -355,7 +355,7 @@ Feature: CreateAcceptance
       MATCH ()-[r1:R1]->()<-[r2:R2]-()-[r3:R3]->()
       RETURN r1, r2, r3
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r1    | r2    | r3    |
       | [:R1] | [:R2] | [:R3] |
 
@@ -373,7 +373,7 @@ Feature: CreateAcceptance
       CREATE (a)-[:T]->(b)
       RETURN a, b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a          | b          |
       | ({num: 1}) | ({num: 1}) |
     And the side effects should be:
@@ -392,7 +392,7 @@ Feature: CreateAcceptance
       CREATE (a)-[:T]->()
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    |
       | (:X) |
     And the side effects should be:
@@ -415,7 +415,7 @@ Feature: CreateAcceptance
       CREATE (x)-[:T]->(y)
       RETURN x, y
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x              | y              |
       | ({name: 'A'}) | ({name: 'A'}) |
     And the side effects should be:
@@ -436,7 +436,7 @@ Feature: CreateAcceptance
       CREATE (x)-[:T]->()
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x          |
       | ({num: 5}) |
     And the side effects should be:
@@ -530,6 +530,6 @@ Feature: CreateAcceptance
       MATCH (a:A)<-[r1:R1]-(b:B)-[r2:R2]->(c:C)
       RETURN *
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b    | c    | r1    | r2    |
       | (:A) | (:B) | (:C) | [:R1] | [:R2] |

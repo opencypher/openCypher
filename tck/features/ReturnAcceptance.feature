@@ -42,7 +42,7 @@ Feature: ReturnAcceptanceTest
       WHERE a.id = 1337
       RETURN a.version + 5
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.version + 5 |
       | 104           |
     And no side effects
@@ -55,7 +55,7 @@ Feature: ReturnAcceptanceTest
       RETURN i
       LIMIT 2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | i |
       | 1 |
       | 1 |
@@ -78,7 +78,7 @@ Feature: ReturnAcceptanceTest
       ORDER BY n.name ASC
       LIMIT 2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n             |
       | ({name: 'A'}) |
       | ({name: 'B'}) |
@@ -239,7 +239,7 @@ Feature: ReturnAcceptanceTest
       MATCH (a)
       RETURN a AS ColumnName
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | ColumnName   |
       | (:Singleton) |
     And no side effects
@@ -267,7 +267,7 @@ Feature: ReturnAcceptanceTest
       """
       RETURN 12 / 4 * 3 - 2 * 4
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | 12 / 4 * 3 - 2 * 4 |
       | 1                  |
     And no side effects
@@ -278,7 +278,7 @@ Feature: ReturnAcceptanceTest
       """
       RETURN 12 / 4 * (3 - 2 * 4)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | 12 / 4 * (3 - 2 * 4) |
       | -15                  |
     And no side effects
@@ -295,7 +295,7 @@ Feature: ReturnAcceptanceTest
       RETURN a, count(*)
       ORDER BY count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a     | count(*) |
       | (:L1) | 1        |
       | (:L2) | 1        |
@@ -308,7 +308,7 @@ Feature: ReturnAcceptanceTest
       """
       RETURN abs(-1)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | abs(-1) |
       | 1       |
     And no side effects

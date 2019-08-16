@@ -60,7 +60,7 @@ Feature: SkipLimitAcceptanceTest
       WITH count(*) AS count
       RETURN count > 0 AS nonEmpty
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | nonEmpty |
       | true     |
     And no side effects
@@ -78,7 +78,7 @@ Feature: SkipLimitAcceptanceTest
       WITH n LIMIT toInteger(ceil(1.7))
       RETURN count(*) AS count
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count |
       | 2     |
     And no side effects

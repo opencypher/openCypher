@@ -38,7 +38,7 @@ Feature: Literals
       """
       RETURN 1 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 1       |
     And no side effects
@@ -48,7 +48,7 @@ Feature: Literals
       """
       RETURN 1.0 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 1.0     |
     And no side effects
@@ -58,7 +58,7 @@ Feature: Literals
       """
       RETURN -1e-9 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal     |
       | -.000000001 |
     And no side effects
@@ -68,7 +68,7 @@ Feature: Literals
       """
       RETURN true AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | true    |
     And no side effects
@@ -78,7 +78,7 @@ Feature: Literals
       """
       RETURN '' AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | ''      |
     And no side effects
@@ -88,7 +88,7 @@ Feature: Literals
       """
       RETURN "" AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | ''      |
     And no side effects
@@ -98,7 +98,7 @@ Feature: Literals
       """
       RETURN null AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | null    |
     And no side effects
@@ -108,7 +108,7 @@ Feature: Literals
       """
       RETURN [] AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | []      |
     And no side effects
@@ -118,7 +118,7 @@ Feature: Literals
       """
       RETURN [0, 1, 2] AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal   |
       | [0, 1, 2] |
     And no side effects
@@ -128,7 +128,7 @@ Feature: Literals
       """
       RETURN {} AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | {}      |
     And no side effects
@@ -138,7 +138,7 @@ Feature: Literals
       """
       RETURN {k1: 0, k2: 'string'} AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal               |
       | {k1: 0, k2: 'string'} |
     And no side effects

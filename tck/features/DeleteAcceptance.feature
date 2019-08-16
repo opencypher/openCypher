@@ -144,7 +144,7 @@ Feature: DeleteAcceptance
       DELETE r, a, b
       RETURN count(*) AS c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c |
       | 2 |
     And the side effects should be:
@@ -165,7 +165,7 @@ Feature: DeleteAcceptance
       DETACH DELETE a, b
       RETURN count(*) AS c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c |
       | 6 |
     And the side effects should be:

@@ -53,7 +53,7 @@ Feature: MergeIntoAcceptance
       MATCH ()-[r:TYPE]->()
       RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | keyValue      |
       | ['name->foo'] |
 
@@ -72,7 +72,7 @@ Feature: MergeIntoAcceptance
       MATCH ()-[r:TYPE]->()
       RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | keyValue |
       | []       |
 
@@ -92,7 +92,7 @@ Feature: MergeIntoAcceptance
       MATCH ()-[r:TYPE]->()
       RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | keyValue    |
       | ['name->A'] |
 
@@ -117,7 +117,7 @@ Feature: MergeIntoAcceptance
       MATCH ()-[r:TYPE]->()
       RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | keyValue    |
       | ['name->A'] |
 

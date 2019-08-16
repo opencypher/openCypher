@@ -43,7 +43,7 @@ Feature: LargeIntegerEquality
       MATCH (p:TheLabel)
       RETURN p.id
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p.id                |
       | 4611686018427387905 |
     And no side effects
@@ -54,7 +54,7 @@ Feature: LargeIntegerEquality
       MATCH (p:TheLabel {id: 4611686018427387905})
       RETURN p.id
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p.id                |
       | 4611686018427387905 |
     And no side effects
@@ -66,7 +66,7 @@ Feature: LargeIntegerEquality
       WHERE p.id = 4611686018427387905
       RETURN p.id
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p.id                |
       | 4611686018427387905 |
     And no side effects
@@ -77,7 +77,7 @@ Feature: LargeIntegerEquality
       MATCH (p:TheLabel {id : 4611686018427387900})
       RETURN p.id
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p.id |
     And no side effects
 
@@ -88,6 +88,6 @@ Feature: LargeIntegerEquality
       WHERE p.id = 4611686018427387900
       RETURN p.id
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p.id |
     And no side effects

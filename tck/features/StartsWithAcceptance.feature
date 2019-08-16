@@ -46,7 +46,7 @@ Feature: StartsWithAcceptance
       WHERE a.name STARTS WITH 'ABCDEF'
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a                            |
       | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
@@ -58,7 +58,7 @@ Feature: StartsWithAcceptance
       WHERE a.name STARTS WITH 'ABC'
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a                            |
       | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
@@ -70,7 +70,7 @@ Feature: StartsWithAcceptance
       WHERE a.name ENDS WITH 'DEF'
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a                            |
       | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
@@ -82,7 +82,7 @@ Feature: StartsWithAcceptance
       WHERE a.name ENDS WITH 'AB'
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a                        |
       | (:TheLabel {name: 'AB'}) |
     And no side effects
@@ -95,7 +95,7 @@ Feature: StartsWithAcceptance
         AND a.name ENDS WITH 'f'
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a                            |
       | (:TheLabel {name: 'abcdef'}) |
     And no side effects
@@ -107,7 +107,7 @@ Feature: StartsWithAcceptance
       WHERE a.name STARTS WITH ''
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a                            |
       | (:TheLabel {name: 'ABCDEF'}) |
       | (:TheLabel {name: 'AB'})     |
@@ -123,7 +123,7 @@ Feature: StartsWithAcceptance
       WHERE a.name CONTAINS 'CD'
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a                            |
       | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
@@ -141,7 +141,7 @@ Feature: StartsWithAcceptance
       WHERE a.name STARTS WITH ' '
       RETURN a.name AS name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | name    |
       | ' Foo ' |
     And no side effects
@@ -159,7 +159,7 @@ Feature: StartsWithAcceptance
       WHERE a.name STARTS WITH '\n'
       RETURN a.name AS name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | name      |
       | '\nFoo\n' |
     And no side effects
@@ -177,7 +177,7 @@ Feature: StartsWithAcceptance
       WHERE a.name ENDS WITH '\n'
       RETURN a.name AS name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | name      |
       | '\nFoo\n' |
     And no side effects
@@ -195,7 +195,7 @@ Feature: StartsWithAcceptance
       WHERE a.name ENDS WITH ' '
       RETURN a.name AS name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | name    |
       | ' Foo ' |
     And no side effects
@@ -213,7 +213,7 @@ Feature: StartsWithAcceptance
       WHERE a.name CONTAINS ' '
       RETURN a.name AS name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | name    |
       | ' Foo ' |
     And no side effects
@@ -231,7 +231,7 @@ Feature: StartsWithAcceptance
       WHERE a.name CONTAINS '\n'
       RETURN a.name AS name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | name      |
       | '\nFoo\n' |
     And no side effects
@@ -243,7 +243,7 @@ Feature: StartsWithAcceptance
       WHERE a.name STARTS WITH null
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a |
     And no side effects
 
@@ -254,7 +254,7 @@ Feature: StartsWithAcceptance
       WHERE NOT a.name STARTS WITH null
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a |
     And no side effects
 
@@ -265,7 +265,7 @@ Feature: StartsWithAcceptance
       WHERE a.name ENDS WITH null
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a |
     And no side effects
 
@@ -276,7 +276,7 @@ Feature: StartsWithAcceptance
       WHERE NOT a.name ENDS WITH null
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a |
     And no side effects
 
@@ -287,7 +287,7 @@ Feature: StartsWithAcceptance
       WHERE a.name CONTAINS null
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a |
     And no side effects
 
@@ -298,7 +298,7 @@ Feature: StartsWithAcceptance
       WHERE NOT a.name CONTAINS null
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a |
     And no side effects
 
@@ -311,7 +311,7 @@ Feature: StartsWithAcceptance
         AND a.name ENDS WITH 'EF'
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a                            |
       | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
@@ -323,7 +323,7 @@ Feature: StartsWithAcceptance
       WHERE NOT a.name CONTAINS 'b'
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a                            |
       | (:TheLabel {name: 'ABCDEF'}) |
       | (:TheLabel {name: 'AB'})     |
@@ -339,7 +339,7 @@ Feature: StartsWithAcceptance
       WITH op1 STARTS WITH op2 AS v
       RETURN v, count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | v    | count(*) |
       | null | 36       |
     And no side effects
@@ -353,7 +353,7 @@ Feature: StartsWithAcceptance
       WITH op1 STARTS WITH op2 AS v
       RETURN v, count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | v    | count(*) |
       | null | 36       |
     And no side effects
@@ -367,7 +367,7 @@ Feature: StartsWithAcceptance
       WITH op1 STARTS WITH op2 AS v
       RETURN v, count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | v    | count(*) |
       | null | 36       |
     And no side effects
