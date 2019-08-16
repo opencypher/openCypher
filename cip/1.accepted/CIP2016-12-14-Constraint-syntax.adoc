@@ -280,6 +280,18 @@ FOR (p:Person)
 REQUIRE size((p)-[:LOVES]->()) > 3
 ----
 
+.Property value limitations and cardinality
+[source, cypher]
+----
+CREATE CONSTRAINTS
+road_width
+FOR ()-[r:ROAD]-()
+REQUIRE 5 < r.width < 50,
+spread_the_love
+FOR (p:Person)
+REQUIRE size((p)-[:LOVES]->()) > 3
+----
+
 .Endpoint requirements
 [source, cypher]
 ----
