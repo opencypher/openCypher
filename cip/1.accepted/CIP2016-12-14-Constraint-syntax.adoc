@@ -74,6 +74,8 @@ The semantics for constraints follow these general rules:
 
 3. [[domain-exception]]Entities for which a constraint expression evaluate to `null` under Cypher's ternary logic are _excluded_ from the constraint domain, even if they fit within the constraint pattern.
 
+4. The constraint expression must be deterministic and free of side effects (such as graph mutations).
+
 ==== Errors
 
 The following list describes the situations in which an error will be raised:
