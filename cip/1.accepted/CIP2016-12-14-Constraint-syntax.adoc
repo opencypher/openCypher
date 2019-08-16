@@ -36,10 +36,10 @@ The constraint syntax is defined as follows:
 ----
 constraint command    = create-constraint | drop-constraint ;
 add-constraint        = "CREATE", "CONSTRAINT", [ constraint-name ], "FOR", pattern, "REQUIRE", constraint-predicate, { "REQUIRE", constraint-predicate } ;
-constraint-name       = symbolic-name
+constraint-name       = symbolic-name ;
 constraint-predicate  = expression | unique | node-key ;
-unique                = "UNIQUE", property-expression
-node-key              = "NODE KEY", property-expression, { ",", property-expression }
+unique                = "UNIQUE", property-expression ;
+node-key              = "NODE KEY", property-expression, { ",", property-expression } ;
 drop-constraint       = "DROP", "CONSTRAINT", constraint-name ;
 ----
 
