@@ -34,13 +34,15 @@ The constraint syntax is defined as follows:
 .Grammar definition for constraint syntax.
 [source, ebnf]
 ----
-constraint command    = create-constraint | drop-constraint ;
-add-constraint        = "CREATE", "CONSTRAINT", [ constraint-name ], "FOR", pattern, "REQUIRE", constraint-predicate, { "REQUIRE", constraint-predicate } ;
-constraint-name       = symbolic-name ;
-constraint-predicate  = expression | unique | node-key ;
-unique                = "UNIQUE", property-expression ;
-node-key              = "NODE KEY", property-expression, { ",", property-expression } ;
-drop-constraint       = "DROP", "CONSTRAINT", constraint-name ;
+constraint command     = create-constraint | drop-constraint ;
+add-constraint         = "CREATE", constraint-keyword, constraint-declaration, { ",", constraint-declaration } ;
+constraint-keyword     = "CONSTRAINT" | "CONSTRAINTS" ;
+constraint-declaration = [ constraint-name ], "FOR", pattern, "REQUIRE", constraint-predicate, { "REQUIRE", constraint-predicate } ;
+constraint-name        = symbolic-name ;
+constraint-predicate   = expression | unique | node-key ;
+unique                 = "UNIQUE", property-expression ;
+node-key               = "NODE KEY", property-expression, { ",", property-expression } ;
+drop-constraint        = "DROP", "CONSTRAINT", constraint-name ;
 ----
 
 The `REQUIRE` clause works exactly like the `WHERE` clause in a standard Cypher query, with the addition of also supporting the special constraint operators `UNIQUE` and `NODE KEY`.
@@ -63,6 +65,11 @@ A constraint is removed by referring to its name.
 ----
 DROP CONSTRAINT foo
 ----
+
+==== Plurality
+
+The syntax allows for multiple constraint creations to be requested simultaneously, by using the `CREATE CONSTRAINTS ...` syntax.
+This is a syntactic shorthand for specifying each individual constraint separately and combining the return records (see <<return-record>>) as a `UNION`.
 
 === Semantics
 
