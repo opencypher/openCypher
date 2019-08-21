@@ -117,6 +117,13 @@ public interface Grammar
     {
         return Node.epsilon();
     }
+    
+    static Term freeText(String text) 
+    {
+    	FreeTextNode freeText = new FreeTextNode();
+    	freeText.text = requireNonNull(text, "free text content");
+    	return freeText;
+    }
 
     static Term caseInsensitive( String value )
     {
@@ -259,10 +266,6 @@ public interface Grammar
             return this;
         }
 
-        public void setBnfSymbol(String productionName) 
-        {
-        	
-        }
         public Grammar build( Option... options )
         {
             return resolve( (options == null ? Stream.<Option>empty() : Stream.of( options ))

@@ -29,6 +29,7 @@
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -123,21 +124,13 @@ public class BNFListener extends BNFBaseListener
 		}
 		GrammarItem movedItem = getItem(ctx.getChild(0));
 		if (movedItem != null) {
-//			LOGGER.debug("moving a {} upto to ctx {}", 
-//				  movedItem.getClass().getSimpleName(), ctx.getClass().getSimpleName());
 			items.put(ctx,  movedItem);
 		} else {
 			throw new IllegalStateException("No item to be moved from " + ctx.getChild(0).getClass().getSimpleName()
 					+ " up to " + ctx.getClass().getSimpleName());
 		}
 	}
-	
-//	@Override
-//	public void exitEveryRule(ParserRuleContext ctx)
-//	{
-//		LOGGER.debug("exiting a {}", ctx.getClass().getSimpleName().replaceFirst("Context",""));
-//		super.exitEveryRule(ctx);
-//	}
+
 
 	@Override
 	public void exitRulelist(RulelistContext ctx)
@@ -159,23 +152,11 @@ public class BNFListener extends BNFBaseListener
 		treeTop = new GrammarTop(name, rules, header);
 	}
 
-	
-//	@Override
-//	public void exitHeader(HeaderContext ctx) {
-//		
-//		StringBuilder b = new StringBuilder();
-//		ctx.headerline().stream().map(l -> b.append(l).append("\n")).count();
-//		
-//		setItem(ctx, new InHeader(b.toString()));
-//	}
-//
+
 	@Override
 	public void exitRule_(Rule_Context ctx)
 	{
 		String description = findNormalTextBefore(ctx, false);
-//		if (description != null) {
-//			LOGGER.warn("we have {} on {}", description, getItem(ctx.lhs()));
-//		}
 		Rule rule = new Rule(getItem(ctx.lhs()), getItem(ctx.rhs()), description);
 		setItem(ctx, rule);
 	}
@@ -197,41 +178,6 @@ public class BNFListener extends BNFBaseListener
 	public void exitRhs(RhsContext ctx)
 	{
 		pullUpItem(ctx);
-//		// is rhs a bunch of bnf symbols
-//		// which will currently be normal literals
-//		// if one is, they all are
-//		// only important if there is more than one
-//		if (ctx.getChildCount() > 1) {
-//			// we need to combine them, i think
-//			SpecialSeqLiteral item = new SpecialSeqLiteral(ctx.children.stream()
-//					.map(c -> ((SpecialLiteral) getItem(c)).getCharLit()).collect(Collectors.toList()));
-//			setItem(ctx, item);
-//		} else {
-////			LOGGER.warn("promoting a {} from {}", ctx.getClass().getSimpleName(),  ctx.getChild(0).getClass().getSimpleName());
-//			GrammarItem item = getItem(ctx.getChild(0));
-//			// is this a punctuation definition
-//			if (item.getType() == ItemType.ALTERNATIVES) {
-//				List<GrammarItem> children = item.getChildren();
-//				if (children.size() == 1) {
-//					if (children.get(0).getType() == ItemType.ALTERNATIVE) {
-//						List<GrammarItem> grandChildren = children.get(0).getChildren();
-//						if (grandChildren.stream().allMatch(gc -> gc.getType() == ItemType.SPECIAL)) {
-////							LOGGER.warn("Consider {}", grandChildren.stream()
-////									.map(gc -> gc.getClass().getSimpleName()).collect(Collectors.joining(" ")));
-//							if (grandChildren.size() == 1) {
-//								setItem(ctx, grandChildren.get(0));
-//							} else {
-//								setItem(ctx, new SpecialSeqLiteral(grandChildren.stream()
-//										.map(gc -> (((SpecialLiteral) gc).getCharLit())).collect(Collectors.toList())));
-//							}
-//							return;
-//						}
-//					}
-//				}
-//			}
-//				
-//			setItem(ctx,  item);
-//		}
 	}
 
 	@Override
@@ -260,27 +206,49 @@ public class BNFListener extends BNFBaseListener
 		setItem(ctx, alt);
 	}
 
-	private String findNormalTextBefore(ParserRuleContext ctx, boolean allowPrecedingBlankLines)
+	// this is looking for description or grammar header
+	// defined as !! lines
+	//   for description : immediately before rule, with no blank lines
+	//   for header : blank line before
+	private String findNormalTextBefore(ParserRuleContext ctx, boolean forHeader)
 	{
 		Token startCtx = ctx.getStart();
 		int i = startCtx.getTokenIndex();
 		List<Token> normalTextChannel =
 					tokens.getHiddenTokensToLeft(i, BNFLexer.HIDDEN);
 		if (normalTextChannel != null) {
+			// find where the blank lines are
 			// when called for a rule, is the quasi-comment part of the content of the previous rule or
 			// the description of this one. Immaterial for grammar header
-			Token lastToken = normalTextChannel.get(normalTextChannel.size()-1);
-			int precedingBlankLines = startCtx.getLine() - lastToken.getLine() - 1;
-//			LOGGER.warn("After : first line of item ctx {}, last line of comment {}, content last comment " + lastToken.getText() + ".", startCtx.getLine(), lastToken.getLine());
-			if (allowPrecedingBlankLines || precedingBlankLines < 1) 
-			{
-				return normalTextChannel.stream().map(tk -> tk.getText().replaceFirst("!!", ""))
-					.collect(Collectors.joining());
+			
+			List<Token> lineTokens = normalTextChannel.stream().collect(Collectors.toList());
+
+			int precedingBlankLines = startCtx.getLine() - lineTokens.get(lineTokens.size()-1).getLine() - 1;
+			if (precedingBlankLines > 0) {
+				if (forHeader) {
+					// this is what we want
+					return lineTokens.stream().map(tk -> tk.getText().replaceFirst("!!", ""))
+							.collect(Collectors.joining());
+				}  // it wasn't a description
+			} else {
+				// description - go back and find any gap showing a last blank line
+				int lastGoodLine = startCtx.getLine() - 1;		
+				int currentIndex = lineTokens.size() - 1;
+				while (currentIndex >= 0 && lineTokens.get(currentIndex).getLine() == lastGoodLine) {
+					currentIndex--;
+					lastGoodLine--;
+				}
+				StringBuilder b = new StringBuilder();
+				for (int j = currentIndex + 1; j <lineTokens.size(); j++) {
+					b.append(lineTokens.get(j).getText().replace("!! ", ""));
+				}
+				return b.toString();
 			}
 		}
 		return null;
 	}
 	
+	// looking for free text at the end of the production
 	private NormalText findNormalTextAfter(ParserRuleContext ctx)
 	{
 		Token endCtx = ctx.getStop();
@@ -289,18 +257,19 @@ public class BNFListener extends BNFBaseListener
 					tokens.getHiddenTokensToRight(i, BNFLexer.HIDDEN);
 		if (normalTextChannel != null) {
 			// the quasi-comment may be part of the content of a rule (in which case it will appear) or 
-			// may be the description of the next one. Distinguish by whether there are blank lines
-			// between us
-			Token firstToken = normalTextChannel.get(0);
-			int followingBlankLines = firstToken.getLine() - endCtx.getLine() - 1 ;
-//			LOGGER.warn("After : last line of item ctx {}, first line of comment {}, content last comment " + firstToken.getText() + ".", endCtx.getLine(), firstToken.getLine());
-			if (followingBlankLines < 1) 
-			{
-//    			LOGGER.warn("Hidden after {}", normalTextChannel.stream().map(Token::getText).collect(Collectors.joining(";")));
-    			List<String> content = normalTextChannel.stream().map(tk -> tk.getText().replaceFirst("!!", ""))
-    					.collect(Collectors.toList());
-    			return new NormalText(content);
+			// may be the description of the next one. It runs until a blank line
+			int nextLine = endCtx.getLine() + 1;
+			List<String> content = new ArrayList<>();
+			for (Token lineToken : normalTextChannel) {
+				if (lineToken.getLine() == nextLine) {
+					content.add(lineToken.getText().replace("!! ", ""));
+					nextLine++;
+				} else {
+					break;
+				}
 			}
+			return new NormalText(content);
+
 		}
 		return null;
 	}

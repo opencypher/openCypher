@@ -200,15 +200,26 @@ public class GrammarConverter {
 	private static final Pattern CHARSET_PATTERN = Pattern.compile("\\s*character\\s*set\\s+'(\\w+)'\\s*");
 	
 	private Term convertText(NormalText item) {
-		// for some reason some comment boundary markers appear here
-		LOGGER.warn("ignoring {}.", item.getContent());
+		LOGGER.warn("free text {}.", item.getContent());
+		// treat as a literal, since we don't have a grammar object to hold it.
+		//  there's an issue with line breaks - something upstream woudl convert them to 
+		//  line feed character set, so special case them
+//		List<Term> lines = item.getContent().stream().map(ln -> literal("!! " + ln)).collect(Collectors.toList());
+//		if (lines.size() < 1) {
+//			return epsilon();
+//		} else if (lines.size() == 1) {
+//			return lines.get(0);
+//		} else {
+//			return sequence(first(lines), getRest(lines));
+//		}
+		return literal("!! " + item.getContent().stream().collect(Collectors.joining("!! ")));
 //		return nonTerminal("Cypher");
 //		String text = item.getContent();
 //		if (text.startsWith("!!")) {
 //			LOGGER.warn("ignoring text {}.", item.getContent());
 //			return epsilon();
 //		}
-		return epsilon();
+//		return epsilon();
 	}
 
 	private Term convertWithCardinality(ElementWithCardinality item) {

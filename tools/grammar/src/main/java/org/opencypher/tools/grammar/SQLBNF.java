@@ -31,11 +31,13 @@ import static org.opencypher.tools.io.Output.output;
 
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
@@ -350,12 +352,27 @@ public class SQLBNF extends BnfWriter
     @Override
     protected void literal( String value )
     {
-
     	// if the rule is marked as pure bnfsymbols, just do it
     	if (markedBnfRule) {
     		output.append(value);
     		return;
     	}
+    	// if this is really free text, just write it out (including any funny characters)
+    	if (value.startsWith("!! ")) {
+    		// if this is multi-line, we need to break it up
+    		List<String> lines = new ArrayList<>(Arrays.asList(value.split("!! ")));
+    		// first is the marker
+    		if (lines.size() < 2) {
+    			LOGGER.debug("what was [{}] meant to be ?", value);
+    			return;
+    		}
+    		lines.remove(0);
+    		for (String line : lines) {
+				output.append("!! ").append(line).println();
+			}
+    		return;
+    	}
+    	// special case // if that becomes a bnf comment
     	// sqlbnf must escape bnf symbols by pushing them into a single production
     	// if this happens to be one, don't mess with it
     	if (bnfSymbolFromRuleName != null) {

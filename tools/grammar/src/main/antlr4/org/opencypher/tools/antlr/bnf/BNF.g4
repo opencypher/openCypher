@@ -183,6 +183,16 @@ ID
     : ('a'..'z'|'A'..'Z') ('a'..'z'|'A'..'Z'|'0'..'9'|'-'|' '|'_')*
     ;
 
+//  "normal english text" is a single line 
+NORMAL_TEXT
+	: '!!' ~[\r\n]*  -> channel(HIDDEN)
+	;
+
+// comments distinct from "normal text" ?
+SINGLE_LINE_COMMENT
+	: '//' ~[\r\n]* -> skip
+	;
+
 INTEGER_LITERAL : '0'..'9'+ ;
 
 // this was
@@ -201,17 +211,10 @@ CHARACTER_LITERAL : [(),&.*:=/%+!~;?_"'`@\\^-] ;
 // modified from http://www.rpatk.net/rpatk/doc/doxygen/rpadoc/html/rpa_bnf.html
 // (which had [ ] round it
 UNICODE_LITERAL
-	: '\\u' [0123456789ABCDEFabcdef]+ 
+	: '\\u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT  
 	;
 
-NORMAL_TEXT
-	: '!!' ~[\r\n]* [\r]? [\n] -> channel(HIDDEN)
-	;
-
-// don't need comments
-SINGLE_LINE_COMMENT
-	: '#' ~[\r\n]* -> channel(HIDDEN)
-	;
+fragment HEX_DIGIT :  [0123456789ABCDEFabcdef] ;
 
 // whitespace goes to hidden so we can handle block comments (i hope)
 WS
