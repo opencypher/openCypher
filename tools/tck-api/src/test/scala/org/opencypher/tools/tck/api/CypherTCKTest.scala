@@ -38,7 +38,7 @@ class CypherTCKTest {
     */
   @Test
   def callParseClasspathFeaturesRepeatedly() {
-    if (!RuntimeDetection.isRunningInsideIntelliJ) {
+    if (!(RuntimeDetection.isRunningOnMacOS || RuntimeDetection.isRunningInsideIntelliJ)) {
       parseClasspathFeatures(featuresPath)
       parseClasspathFeatures(featuresPath)
     }
