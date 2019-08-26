@@ -292,7 +292,7 @@ Feature: OrderByAcceptance
     When executing query:
       """
       MATCH p = (n:N)-[r:REL]->()
-      UNWIND [n, r, p, 1.5, ['list'], 'text', null, false, toFloat(null), {a: 'map'}] AS types
+      UNWIND [n, r, p, 1.5, ['list'], 'text', null, false, 0.0 / 0.0, {a: 'map'}] AS types
       RETURN types
       ORDER BY types
       """
@@ -318,7 +318,7 @@ Feature: OrderByAcceptance
     When executing query:
       """
       MATCH p = (n:N)-[r:REL]->()
-      UNWIND [n, r, p, 1.5, ['list'], 'text', null, false, toFloat(null), {a: 'map'}] AS types
+      UNWIND [n, r, p, 1.5, ['list'], 'text', null, false, 0.0 / 0.0, {a: 'map'}] AS types
       RETURN types
       ORDER BY types DESC
       """

@@ -138,7 +138,43 @@ Feature: EqualsAcceptance
       | lhs           | rhs           | result |
       | [1, 2]        | [1]           | false  |
       | [null]        | [1]           | null   |
-      | ['a']         | [1]           | null   |
+      | ['a']         | [1]           | false  |
       | [[1]]         | [[1], [null]] | false  |
       | [[1], [2]]    | [[1], [null]] | null   |
       | [[1], [2, 3]] | [[1], [null]] | false  |
+
+  Scenario Outline: Comparing NaN
+    Given any graph
+    When executing query:
+      """
+      RETURN <lhs> = <rhs> AS isEqual, <lhs> <> <rhs> AS isNotEqual
+      """
+    Then the result should be:
+      | isEqual   | isNotEqual   |
+      | <isEqual> | <isNotEqual> |
+    And no side effects
+
+    Examples:
+      | lhs       | rhs       | isEqual | isNotEqual |
+      | 0.0 / 0.0 | 1         | false   | true       |
+      | 0.0 / 0.0 | 1.0       | false   | true       |
+      | 0.0 / 0.0 | 0.0 / 0.0 | false   | true       |
+      | 0.0 / 0.0 | 'a'       | false   | true       |
+
+  Scenario Outline: Equality of different types
+    Given any graph
+    When executing query:
+      """
+      RETURN <lhs> = <rhs> AS result
+      """
+    Then the result should be:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | lhs   | rhs | result  |
+      | 1.0   | 1.0 | true    |
+      | 1     | 1.0 | true    |
+      | '1.0' | 1.0 | false   |
+      | '1'   | 1   | false   |

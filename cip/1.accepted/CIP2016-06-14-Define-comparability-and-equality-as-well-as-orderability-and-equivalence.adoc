@@ -38,7 +38,6 @@ However working with values of different types can be difficult:
   ** In equality, `null = null` is `null`.
   ** In equivalence, used by `DISTINCT` and when grouping values, two `null` values are always treated as being the same value.
   ** However, equality treats `null` values differently if they are an element of a list or a map value.
-  ** Similar rules apply for `NaN` values.
 
 Furthermore, the key concepts comparability, orderability, equality, and equivalence have never been defined properly.  Therefore another motivation for this CIP is to unambiguously and precisely define these 4 concepts.
 
@@ -48,7 +47,7 @@ The reader should be mindful of the Cypher type system when reading this CIP. At
 
 == Proposal
 
-We propose to redefine <<comparability-def>> and <<equality-def>>, as well as <<orderability-def>> and <<equivalence-def>> as detailed in this section, and additionally rephrase <<aggregation,aggregation>> in terms of these new concepts.
+We propose to redefine <<comparability-equality, comparability and equality>>, as well as <<orderability-def>> and <<equivalence-def>> as detailed in this section, and additionally rephrase <<aggregation,aggregation>> in terms of these new concepts.
 
 [[concepts]]
 === Concepts
@@ -56,8 +55,8 @@ We propose to redefine <<comparability-def>> and <<equality-def>>, as well as <<
 Cypher today features four distinct concepts related to equality and ordering:
 
 [horizontal]
-[[comparability-con,comparability (concept)]]*Comparability*:: <<comparability-def,Comparability>> is used by the inequality operators (`>`, `<`, `>=`, `\<=`), and defines the underlying semantics of how to compare two values.
-[[equality-con,equality (concept)]]*Equality*:: <<equality-def,Equality>> is used by the equality operators (`=`, `<>`), and the list membership operator (`IN`).
+[[comparability-con,comparability (concept)]]*Comparability*:: <<comparability-equality,Comparability>> is used by the inequality operators (`>`, `<`, `>=`, `\<=`), and defines the underlying semantics of how to compare two values.
+[[equality-con,equality (concept)]]*Equality*:: <<comparability-equality,Equality>> is used by the equality operators (`=`, `<>`), and the list membership operator (`IN`).
 It defines the underlying semantics to determine if two values are the same in these contexts.
 Equality is also used implicitly by literal maps in node and relationship patterns, since such literal maps are merely a shorthand notation for equality predicates.
 [[orderability-con,orderability (concept)]]*Orderability*:: <<orderability-def,Orderability>> is used by the `ORDER BY` clause, and defines the underlying semantics of how to order values.
@@ -73,7 +72,7 @@ For the following discussion, it is helpful to clarify the meaning of `null`. In
 
 ===== Ternary logic truth tables
 
-Allowing null for an unknown boolean value requires defining ternary logic for boolean operators.
+Allowing `null` for an unknown boolean value requires defining ternary logic for boolean operators.
 The truth tables for the boolean operators `NOT`, `AND` and `OR` are given below.
 The `XOR` in Cypher is defined by these basic operators as `a XOR b = (a AND NOT(b)) OR (NOT(a) AND b)`.
 
@@ -127,104 +126,60 @@ Cypher today has one supertype `MAP` for all map values. This includes nodes (of
 [[comparability-equality,comparability and equality]]
 === Comparability and equality
 
-We propose that comparability and equality should be aligned with each other, i.e.
+We define equality and comparability in terms of `=` and `<`. All other operators can be derived as follows:
 
+[[Operators,Operators]]
+.Operators
+[width="50%"]
+|===========
+|a `<>` b | NOT (a `=` b)
+|a `>` b | b `<` a
+|a `\<=` b | a `<` b OR a `=` b
+|a `>=` b | b `<` a OR a `=` b
+|===========
 
-`expr1 = expr2 := expr1 >= expr2 AND expr1 \<= expr2`.
-This equation is also valid for null values.
+These equation are also valid for null values.
+`=` only evaluates to `null`, if one of the operands is `null`.
+If `a = b` then follows `NOT (a < b)` and vice versa.
+Comparability procudes <<unknown-null,"unknown" `null` values>>.
 
+Values are only comparable within their most specific type (except for numbers, see below).
+Equality for values of different types generally evaluates to `false`.
 
-Comparability and equality produce <<unknown-null,"unknown" `null` values>>.
+We propose that <<comparability-con,comparability>> and <<equality-con,equality>> should be defined between any pair of values, as specified below.
 
-[[incomparable,incomparable]]
-==== Incomparability
+==== Numbers ====
 
-If and only if every comparison and equality test involving a specific value evaluates to `null`, this value is said to be incomparable.
+Numbers of different types, i.e. integers and floats can be equal and compared to each other.
 
-Furthermore, if every comparison or equality test between two specific values evaluates to `null`, theses values are said to be incomparable with each other.
+* Integers are compared numerically in ascending order.
+* Floats (excluding `NaN` values and the Infinities) are compared numerically in ascending order.
+* Numbers of different types (excluding `NaN` values and the Infinities) are compared to each other and tested for equality as if both numbers would have been coerced to arbitrary precision big decimals (currently outside the Cypher type system) before comparing them with each other numerically in ascending order.
+* For all numbers `a`, including `NaN`, all comparibility tests (`<`, `\<=`, `>`, `>=`) evaluate to `false`.
+Furthermore `a = NaN` is always false and `a <> NaN` is always true.
+This is an exception to the definition of the derived operators.
+* Positive infinity is of type `FLOAT`, equal to itself and greater than any other number (excluding `NaN` values).
+* Negative infinity is of type `FLOAT`, equal to itself and less than any other number (excluding `NaN` values).
+* Numbers are <<incomparable>> to any value that is not also a number.
 
-[[comparability-def,comparability]]
-==== Comparability
+==== Booleans ====
 
-We propose that <<comparability-con,comparability>> should be defined between any pair of values, as specified below.
+* Intuitively, `true` is equal only to itself and `false` is equal only to itself.
+* Booleans are compared such that `false` is less than `true`.
+* Booleans are <<incomparable>> to any value that is not also a boolean.
 
-- General rules
-  * Values are only comparable within their most specific type (except for numbers, see below).
-  * Equal values are grouped together.
-- Numbers
-  * Integers are compared numerically in ascending order.
-  * Floats (excluding `NaN` values and the Infinities) are compared numerically in ascending order.
-  * Numbers of different types (excluding `NaN` values and the Infinities) are compared to each other as if both numbers would have been coerced to arbitrary precision big decimals (currently outside the Cypher type system) before comparing them with each other numerically in ascending order.
-  * Positive infinity is of type `FLOAT`, equal to itself and greater than any other number (excluding `NaN` values).
-  * Negative infinity is of type `FLOAT`, equal to itself and less than any other number (excluding `NaN` values).
-  * `NaN` values are <<incomparable>>.
-  * Numbers are <<incomparable>> to any value that is not also a number.
-- Booleans
-  * Booleans are compared such that `false` is less than `true`.
-  * Booleans are <<incomparable>> to any value that is not also a boolean.
-- Strings
-  * Strings are compared in dictionary order, i.e. characters are compared pairwise in ascending order from the start of the string to the end.
-  Characters missing in a shorter string are considered to be less than any other character.
-  For example, `'a' < 'aa'`.
-  * Strings are <<incomparable>> to any value that is not also a string.
-- Lists
-  * Lists are compared in dictionary order, i.e. list elements are compared pairwise in ascending order from the start of the list to the end. Elements missing in a shorter list are considered to be less than any other value (including `null` values).
-  For example, `[1] < [1, 0]` but also `[1] < [1, null]`.
-  * If comparing two lists includes comparing any pair of incomparable values, these lists may be <<incomparable>>.
-  On the one hand, `[1, 2] >= [1, null]`  and `[1, 2] >= [1, 'text']` both evaluate to `null` (incomparable), because `2` is incomparable with both `null` and `'text'`, and `1 \<= 1`.
-  On the other hand, `[1, 2] >= [3, null]` evaluates to `false`, because `1 < 3`.
-  * Lists are <<incomparable>> to any value that is not also a list.
-- Maps
-  * [[regular-maps,regular maps]]Regular maps
-  ** The comparison order for maps is unspecified and left to implementations.
-  ** The comparison order for maps must align with the <<equality-def,equality semantics>> outlined below.
-  In consequence, any map that contains an entry that maps its key to a `null` value is <<incomparable>>.
-  For example, `{a: 1} \<= {a: 1, b: null}` evaluates to `null`.
-  ** Regular maps are <<incomparable>> to any value that is not also a regular map.
-  * Nodes
-  ** The comparison order for nodes is based on an implementation specific internal total order of node identities.
-  ** Nodes are <<incomparable>> to any value that is not also a node.
-  * Relationships
-  ** The comparison order for relationships is based on an implementation specific internal total order of relationship identities.
-  ** Relationships are <<incomparable>> to any value that is not also a relationship.
-- Paths
-  ** Paths are compared as if they were a list of alternating nodes and relationships of the path from the start node to the end node.
-  For example, given nodes `n1`, `n2`, `n3`, and relationships `r1` and `r2`, and given that `n1 < n2 < n3` and `r1 < r2`, then the path `p1` from `n1` to `n3` via `r1` would be less than the path `p2` to `n1` from `n2` via `r2`. Expressed in terms of lists:
+==== Strings ====
 
-      p1 < p2
-  <=> [n1, r1, n3] < [n1, r2, n2]
-  <=> n1 < n1 OR (n1 = n1 AND [r1, n3] < [r2, n2])
-  <=> false OR (true AND [r1, n3] < [r2, n2])
-  <=> [r1, n3] < [r2, n2]
-  <=> r1 < r2 OR (r1 = r2 AND n3 < n2)
-  <=> true OR (false AND false)
-  <=> true
+* Two strings are equal if and only if all characters in them are identical.
+* Strings are compared in dictionary order, i.e. characters are compared pairwise in ascending order from the start of the string to the end.
+Characters missing in a shorter string are considered to be less than any other character.
+For example, `'a' < 'aa'`.
+* Strings are <<incomparable>> to any value that is not also a string.
 
-  ** Paths are <<incomparable>> to any value that is not also a path.
-- Implementation-specific types
-  * Implementations may choose to define suitable comparability rules for values of additional, non-canonical types.
-  * Values of an additional, non-canonical type are expected to be <<incomparable>> to values of a canonical type.
-- Temporal instant types (DateTime, LocalDateTime, Date, Time, LocalTime)
-  * Temporal instant values are only comparable within types.
-  * Given two instants `a` and `b`, `a < b` is `true` iff `a` is _before_ `b`, +
-    conversely `a > b` is `true` iff `a` is _after_ `b`.
-  * Temporal instant values with timezone (DateTime and LocalTime) are compared on a global timeline, as if the instants were normalized to UTC.
-- Durations
-  * Durations are not comparable, and can thus only be tested for equality.
-  * Inequality comparisons (`<` and `>`) between durations yield `null`.
-- `null` is <<incomparable>> with any other value (including other `null` values).
+==== Lists ====
 
-[[equality-def,equality]]
-==== Equality ====
-
-Given that values are only comparable within their type, and comparability and equality are tied together, equality for values of different types generally evaluate to `null`.
-In order to align equality with <<comparability-def>>, we change equality of lists and maps that contain `null` values to treat those values in the same way as if they would have been compared outside of those lists and maps, as individual, simple values.
-
-===== List equality =====
-
-Specifically, we propose to redefine how equality works for lists in Cypher.
+We define equality of lists that contain `null` values to treat those values in the same way as if they would have been compared outside of those lists, as individual, simple values.
 The equality of two lists `a` and `b` is defined as the <<conjunction>> of `size(a) = size(b)` and a pairwise comparison of all elements in the list.
-If `a = b` evaluates to `null` these lists are <<incomparable>>.
 
 ----
     [1, 2] = [1]
@@ -240,8 +195,8 @@ If `a = b` evaluates to `null` these lists are <<incomparable>>.
     ["a"] = [1]
 <=> size(["a"]) = size[1]) AND "a" = 1
 <=> size(["a"]) = size[1]) AND "a" = 1
-<=> true                   AND null
-<=> null
+<=> true                   AND false
+<=> false
 ----
 
 The same logic applies recursively when comparing nested lists.
@@ -252,9 +207,18 @@ The same logic applies recursively when comparing nested lists.
 <=> false
 ----
 
-===== Map equality =====
+* Lists are compared in dictionary order, i.e. list elements are compared pairwise in ascending order from the start of the list to the end. Elements missing in a shorter list are considered to be less than any other value (including `null` values).
+  For example, `[1] < [1, 0]` but also `[1] < [1, null]`.
+* If comparing two lists includes comparing any pair of incomparable values, these lists may be <<incomparable>>.
+  On the one hand, `[1, 2] >= [1, null]`  and `[1, 2] >= [1, 'text']` both evaluate to `null` (incomparable), because `2` is incomparable with both `null` and `'text'`, and `1 \<= 1`.
+  On the other hand, `[1, 2] >= [3, null]` evaluates to `false`, because `1 < 3`.
+* Lists are <<incomparable>> to any value that is not also a list.
 
-====== Current map equality ======
+==== Maps ====
+
+Map equality is the same for all types of maps, i.e. regular maps, nodes, and relationships.
+
+===== Current map equality =====
 For clarity, we also repeat the *current* equality semantics of maps here. Under these current semantics, two maps `m1` and `m2` are considered equal if:
 
 * `m1` and `m2` have the same keys,
@@ -265,22 +229,85 @@ For clarity, we also repeat the *current* equality semantics of maps here. Under
 
 This is at odds with the decision to produce <<unknown-null,"unknown" `null` values>> in <<comparability-equality>>.
 
-However, this definition is aligned with the most common use case for maps with `null` entries: updating multiple properties through the use of a single `SET` clause, e.g. `SET n += { size: 12, remove_this_key: null }`. In this case, there is no need to differentiate between different `null` values, as `null` merely serves as a marker for keys to be removed (i.e. is a <<missing-null,"missing" `null` value>>). Current equality semantics make it easy to check if two maps would correspond to the same property update in this scenario. We note though that this type of update map comparison is rare and could be emulated using a more complex predicate. The current rules do however break symmetry with how equality handles `null` in all other cases. This becomes more apparent by considering these two examples:
+However, this definition is aligned with the most common use case for maps with `null` entries: updating multiple properties through the use of a single `SET` clause, e.g. `SET n += { size: 12, remove_this_key: null }`.
+In this case, there is no need to differentiate between different `null` values, as `null` merely serves as a marker for keys to be removed (i.e. is a <<missing-null,"missing" `null` value>>).
+Current equality semantics make it easy to check if two maps would correspond to the same property update in this scenario. We note though that this type of update map comparison is rare and could be emulated using a more complex predicate.
+The current rules do however break symmetry with how equality handles `null` in all other cases. This becomes more apparent by considering these two examples:
 
 * `expr1 = expr2` evaluates to `null` if `expr1 IS NULL AND expr2 IS NULL`
 * `{a: expr1} = {a: expr2}` evaluates to `true` if `expr1 IS NULL AND expr2 IS NULL`
 
-====== New map equality ======
+===== New map equality =====
 
 To rectify this, we propose instead to define the equality of two maps `m1` and `m2` as:
 
 * `m1` and `m2` have the same keys, including keys that map to a `null` value (the order of keys as returned by `keys()` does not matter here) `AND`
 * the <<conjunction>> of `m1.k = m2.k` for each key `k`.
 
-As a consequence of these changes, plain <<equality-def>> is not reflexive for all values (consider: `{a: null} = {a: null}`, `[null] = [null]`).
+As a consequence of these changes, plain equality is not reflexive for all values (consider: `{a: null} = {a: null}`, `[null] = [null]`).
 However this was already the case (consider: `null = null` \=> `null`).
 
 Note that <<equality-def>> is reflexive for values that do not involve `null` though.
+
+===== Map comparability =====
+
+* [[regular-maps,regular maps]]Regular maps
+** The comparison order for maps is unspecified and left to implementations.
+** Any map that contains an entry that maps its key to a `null` value is <<incomparable>> with other values.
+For example, `{a: 1} \<= {a: 1, b: null}` evaluates to `null`.
+** Regular maps are <<incomparable>> to any value that is not also a regular map.
+* Nodes
+** The comparison order for nodes is based on an implementation specific internal total order of node identities.
+** Nodes are <<incomparable>> to any value that is not also a node.
+* Relationships
+** The comparison order for relationships is based on an implementation specific internal total order of relationship identities.
+** Relationships are <<incomparable>> to any value that is not also a relationship.
+
+==== Paths ====
+
+Paths are tested for equality as if they were a list of alternating nodes and relationships of the path from the start node to the end node.
+Two paths are equal if and only if these lists of nodes and realtionships are equal.
+
+Paths are also compared the same way.
+For example, given nodes `n1`, `n2`, `n3`, and relationships `r1` and `r2`, and given that `n1 < n2 < n3` and `r1 < r2`, then the path `p1` from `n1` to `n3` via `r1` would be less than the path `p2` to `n1` from `n2` via `r2`.
+Expressed in terms of lists:
+
+      p1 < p2
+  <=> [n1, r1, n3] < [n1, r2, n2]
+  <=> n1 < n1 OR (n1 = n1 AND [r1, n3] < [r2, n2])
+  <=> false OR (true AND [r1, n3] < [r2, n2])
+  <=> [r1, n3] < [r2, n2]
+  <=> r1 < r2 OR (r1 = r2 AND n3 < n2)
+  <=> true OR (false AND false)
+  <=> true
+
+Paths are <<incomparable>> to any value that is not also a path.
+
+==== Implementation-specific types ====
+
+* Implementations may choose to define suitable comparability and equality rules for values of additional, non-canonical types.
+* Values of an additional, non-canonical type are expected to be <<incomparable>> to values of a canonical type.
+
+==== Temporal instant types ====
+
+Instant types are `DateTime`, `LocalDateTime`, `Date`, `Time`, and `LocalTime`.
+
+* Temporal instant values are only comparable within types.
+* Given two instants `a` and `b`, `a < b` is `true` if and only if `a` is _before_ `b`, +conversely `a > b` is `true` if and only if `a` is _after_ `b`.
+* Temporal instant values with timezone (`DateTime` and `LocalTime`) are compared on a global timeline, as if the instants were normalized to UTC.
+* Two given instants `a` and `b` are equal if any only if they are of the same type and neither of them is _before_ or _after_ the other.
+
+==== Durations ====
+
+* Two durations are equal if their components `months`, `days`, `seconds`, and `nanoseconds` are pairwise equal.
+* Durations are <<incomparable>> to any value including other durations, and can thus only be tested for equality.
+
+
+[[incomparable,incomparable]]
+==== Incomparability
+
+If and only if `a < b` between two specific values `a` and `b` evaluates to `null`, theses values are said to be incomparable with each other.
+`null` is incomparable with any other value (including other `null` values).
 
 [[orderability-equivalence]]
 === Orderability and equivalence ===
@@ -380,8 +407,11 @@ The semantics of a few actual aggregation functions depends on the used notions 
 This proposal aims to simplify the conceptual model around equality, comparison, order, and grouping:
 
 - <<comparability-equality,Comparability and equality>> are aligned with each other
-  * <<equality-con,Equality>> follows natural, literal equality. However, values involving `null` are never equal to any other value. Nested structures are first tested for equality by shape (keys, size) and then their corresponding elements are tested for equality pairwise. This ensures that equality is compatible with interpreting `null` as "unknown" or "could be any value".
-  * <<comparability-con,Comparability>> ensure that any two values of the same type in the <<global-sort-order>> are comparable.
+  * <<equality-con,Equality>> follows natural, literal equality.
+  However, `null` is never equal to any other value.
+  Nested structures are first tested for equality by shape (keys, size) and then their corresponding elements are tested for equality pairwise.
+  This ensures that equality is compatible with interpreting `null` as "unknown" or "could be any value".
+  * <<comparability-con,Comparability>> ensures that any two values of the same type in the <<global-sort-order>> are comparable.
   Two values of different types are incomparable and values involving `null` are incomparable, too.
   This ensures that `MATCH (n) WHERE n.prop < 42` will never find nodes where `n.prop` is of type `STRING`.
 - <<orderability-equivalence>> are aligned with each other
@@ -423,9 +453,9 @@ RETURN DISTINCT i // should return exactly one row
 
 === Interaction with existing features
 
-Changing <<equality-def>> to treat lists and maps containing `null` as unequal is going to potentially filter out more rows when used in a predicate.
+Changing <<comparability-equality,equality>> to treat lists and maps containing `null` as unequal is going to potentially filter out more rows when used in a predicate.
 
-Redefining the <<global sort order>> as well as making all values <<comparability-def,comparable>> will change some currently failing queries to pass.
+Redefining the <<global sort order>> as well as making all values <<comparability-equality,comparable>> will change some currently failing queries to pass.
 
 === Alternatives
 
@@ -434,7 +464,7 @@ SQL also treats comparisons involving `null` as returning `null`.
 
 PostgresSQL treats some numerical operations (such as division by zero) that would compute a `NaN` value as a numerical error that causes the query to fail.
 PostgresQL considers `NaN` values to be greater than positive infinity, both in comparison and in sort order.
-This proposal achieves something very similar by evaluating comparisons involving a `NaN` to `null` and by treating both `NaN` values as the largest numbers and `null` values as the largest values in the <<global-sort-order>>.
+This proposal achieves something very similar by treating both `NaN` values as the largest numbers and `null` values as the largest values in the <<global-sort-order>>.
 
 This proposal could be extended with an operator for making equivalence accessible beyond use in grouping and `DISTINCT`. This seems desirable due to the equality operator (`=`) not being reflexive for all values.
 
@@ -457,7 +487,7 @@ It may be helpful to add a path normalization function or path to entities conve
 == Appendix: Comparability by Type
 
 The following table captures which types may be compared with each other such that the outcome is either `true` or `false`.
-Any other comparison will always yield  a`null` value (except when comparing `NaN` values which are handled as described above).
+Any other comparison will always yield a `null` value (except when comparing `NaN` values which are handled as described above).
 
 .Comparability of values of different types (`X` means the result of comparison will always return `true` or `false`)
 [frame="topbot",options="header,footer"]
