@@ -55,9 +55,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SQLBNF extends BnfWriter
 {
-	private static final String DESCRIPTION_START = "";
-	private static final String DESCRIPTION_LINE_MARKER  = "!! ";
-	private static final String DESCRIPTION_END   = "";
+	private static final String DESCRIPTION_LINE_MARKER  = "// ";
 	private static final String CHARACTER_SET_START = "$";
 	private static final String CHARACTER_SET_END = "$";
 	private static final String CODEPOINT_LIST_START = "[";
@@ -372,7 +370,12 @@ public class SQLBNF extends BnfWriter
 			}
     		return;
     	}
-    	// special case // if that becomes a bnf comment
+    	// special case // as that is a bnf comment
+    	if (value.equals("//")) {
+    		output.append("\\u002F\\u002F");
+    		return;
+    	}
+    	
     	// sqlbnf must escape bnf symbols by pushing them into a single production
     	// if this happens to be one, don't mess with it
     	if (bnfSymbolFromRuleName != null) {

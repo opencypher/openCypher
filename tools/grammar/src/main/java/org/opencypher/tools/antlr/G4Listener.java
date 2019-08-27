@@ -27,6 +27,7 @@
  */
 package org.opencypher.tools.antlr;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -115,9 +116,11 @@ public class G4Listener extends Gee4BaseListener
 		
 	}
 
+	// convert the quasi comment to a single string with line breaks
 	private String cleanQuasiComment(ParserRuleContext cmtCtx) {
 		if (cmtCtx != null) {
-			return cmtCtx.getText().replaceFirst("/\\*\\*","").replaceFirst("\\*/","").replaceAll("\n\\s*\\*","\n");
+			return cmtCtx.getText().replaceFirst("/\\*\\*","").replaceFirst("\\*/","")
+					.replaceAll("\r?\n\\s*\\*","\n").replaceFirst("\r?\n$", "");
 		} else {
 			return null;
 		}
@@ -216,7 +219,7 @@ public class G4Listener extends Gee4BaseListener
 		{
 			alt.addItem(getItem(element));
 		}
-		NormalText normal = findNormalText(ctx);
+		NormalText normal = findHiddenText(ctx);
 		if (normal != null) {
 			alt.addItem(normal);
 		}
@@ -224,15 +227,17 @@ public class G4Listener extends Gee4BaseListener
 
 	}
 
-	private NormalText findNormalText(ParserRuleContext ctx)
+	private NormalText findHiddenText(ParserRuleContext ctx)
 	{
+		// to suppress lexing, !! normal english text is a special comment //!! -> hidden
+		// not sure i need to do that
 		Token endAlt = ctx.getStop();
 		int i = endAlt.getTokenIndex();
-		List<Token> normalTextChannel =
-					tokens.getHiddenTokensToRight(i, Gee4Lexer.HIDDEN);
+		List<Token> normalTextChannel = tokens.getHiddenTokensToRight(i, Gee4Lexer.HIDDEN);
 		if (normalTextChannel != null) {
-			List<String> content = normalTextChannel.stream().map(tk -> tk.getText().replaceFirst("!!", ""))
-					.collect(Collectors.toList());
+			// there should be only one line now
+			String content = normalTextChannel.stream().map(tk -> tk.getText().replaceFirst("//!!\\s*", ""))
+					.collect(Collectors.joining());
 			return new NormalText(content);
 		}
 		return null;

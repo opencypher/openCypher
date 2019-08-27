@@ -84,6 +84,7 @@ element
     | text
     | id
     | characterset
+    | normaltext
     ;
 
 optionalitem
@@ -104,6 +105,8 @@ id
     ;
 
 characterset : '$' ( namedcharacterset | exclusioncharacterset | listcharacterset) '$' ;
+
+normaltext : NORMAL_TEXT ;
 
 namedcharacterset : ID ;
 exclusioncharacterset : '~'listcharacterset ;
@@ -126,14 +129,6 @@ bnfsymbol :
 ASSIGN
     : '::='
     ;
-
-//LPAREN
-//    : ')'
-//    ;
-
-//RPAREN
-//    : '('
-//    ;
 
 LBRACE
     : '}'
@@ -183,14 +178,14 @@ ID
     : ('a'..'z'|'A'..'Z') ('a'..'z'|'A'..'Z'|'0'..'9'|'-'|' '|'_')*
     ;
 
-//  "normal english text" is a single line 
+//  "normal english text" is a single line and an alternative
 NORMAL_TEXT
-	: '!!' ~[\r\n]*  -> channel(HIDDEN)
+	: '!!' ~[\r\n]*  
 	;
 
 // comments distinct from "normal text" ?
 SINGLE_LINE_COMMENT
-	: '//' ~[\r\n]* -> skip
+	: '//' ~[\r\n]* -> channel(HIDDEN)
 	;
 
 INTEGER_LITERAL : '0'..'9'+ ;

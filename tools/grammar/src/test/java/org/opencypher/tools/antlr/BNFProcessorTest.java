@@ -300,14 +300,14 @@ public class BNFProcessorTest {
 	private void roundTrip(Grammar testGrammar) {
 		  LOGGER.debug("supplied grammar \n{}", xmlout(testGrammar));
 		String firstBNF = makeSQLBNF(testGrammar);
-		LOGGER.debug("in \n{}", firstBNF);
+		LOGGER.warn("in \n{}", firstBNF);
 		
 		BNFProcessor processor = new BNFProcessor();
 		Grammar grammar = processor.processString(firstBNF);
-		//  LOGGER.debug("grammar afer first pass through bnf\n{}", xmlout(grammar));
+		  LOGGER.warn("grammar afer first pass through bnf\n{}", xmlout(grammar));
 
 		String outputBNF = makeSQLBNF(grammar);
-		LOGGER.debug("out \n{}", outputBNF);
+		LOGGER.warn("out \n{}", outputBNF);
 		assertEquals(unPretty(firstBNF), unPretty(outputBNF));
 	}
 	

@@ -108,7 +108,7 @@ public class Xml extends XmlGenerator implements ProductionVisitor<SAXException>
         {
             startElement( "description" );
             characters( description );
-            endElement( "description" );
+            endElementSameLine( "", "description" );
         }
         production.definition().accept( this );
         endElement( "production" );

@@ -29,6 +29,7 @@
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -52,6 +53,7 @@ import org.opencypher.tools.antlr.bnf.BNFParser.IdContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.LhsContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.ListcharactersetContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.NamedcharactersetContext;
+import org.opencypher.tools.antlr.bnf.BNFParser.NormaltextContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.OptionalitemContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.RequireditemContext;
 import org.opencypher.tools.antlr.bnf.BNFParser.RhsContext;
@@ -66,6 +68,7 @@ import org.opencypher.tools.antlr.tree.CharacterLiteral;
 import org.opencypher.tools.antlr.tree.EOFreference;
 import org.opencypher.tools.antlr.tree.ExclusionCharacterSet;
 import org.opencypher.tools.antlr.tree.GrammarItem;
+import org.opencypher.tools.antlr.tree.GrammarItem.ItemType;
 import org.opencypher.tools.antlr.tree.GrammarName;
 import org.opencypher.tools.antlr.tree.GrammarTop;
 import org.opencypher.tools.antlr.tree.Group;
@@ -135,7 +138,7 @@ public class BNFListener extends BNFBaseListener
 	@Override
 	public void exitRulelist(RulelistContext ctx)
 	{
-		String header = findNormalTextBefore(ctx, true);
+		String header = findHiddenTextBefore(ctx, true).replaceFirst("\r?\n$", "");
 		// this is the top level for bnf, since that doesn't have a global declaration
 		RuleList rules = new RuleList();
 		GrammarName name = null;
@@ -149,15 +152,15 @@ public class BNFListener extends BNFBaseListener
 			rules.addItem(grammarItem);
 		}
 
-		treeTop = new GrammarTop(name, rules, header);
+		treeTop = new GrammarTop(name, rules, header.length() > 0 ? header : null);
 	}
 
 
 	@Override
 	public void exitRule_(Rule_Context ctx)
 	{
-		String description = findNormalTextBefore(ctx, false);
-		Rule rule = new Rule(getItem(ctx.lhs()), getItem(ctx.rhs()), description);
+		String description = (findHiddenTextBefore(ctx, false) + findHiddenTextAfter(ctx)).replaceFirst("\r?\n$", "");
+		Rule rule = new Rule(getItem(ctx.lhs()), getItem(ctx.rhs()), description.length() == 0 ? null : description);
 		setItem(ctx, rule);
 	}
 
@@ -195,22 +198,29 @@ public class BNFListener extends BNFBaseListener
 	public void exitAlternative(AlternativeContext ctx)
 	{
 		InAlternative alt = new InAlternative();
+		// special case //
+		
 		for (ElementContext element : ctx.element())
 		{
 			alt.addItem(getItem(element));
 		}
-		GrammarItem normalText = findNormalTextAfter(ctx);
-		if (normalText != null) {
-			alt.addItem(normalText);
+		// special case //
+		if (alt.size() == 2 && 
+			alt.getChildren().stream().allMatch(c -> c.getType() == ItemType.LITERAL
+					&& ((InLiteral)c).getValue().equals("/")) ) {
+			// make a new one
+			alt = new InAlternative();
+			alt.addItem(new InLiteral("//"));
 		}
+
 		setItem(ctx, alt);
 	}
 
 	// this is looking for description or grammar header
-	// defined as !! lines
+	// now defined as // lines
 	//   for description : immediately before rule, with no blank lines
 	//   for header : blank line before
-	private String findNormalTextBefore(ParserRuleContext ctx, boolean forHeader)
+	private String findHiddenTextBefore(ParserRuleContext ctx, boolean forHeader)
 	{
 		Token startCtx = ctx.getStart();
 		int i = startCtx.getTokenIndex();
@@ -226,9 +236,9 @@ public class BNFListener extends BNFBaseListener
 			int precedingBlankLines = startCtx.getLine() - lineTokens.get(lineTokens.size()-1).getLine() - 1;
 			if (precedingBlankLines > 0) {
 				if (forHeader) {
-					// this is what we want
+					// this will preserve the linefeeds
 					return lineTokens.stream().map(tk -> tk.getText().replaceFirst("!!", ""))
-							.collect(Collectors.joining());
+							.collect(Collectors.joining("\n"));
 				}  // it wasn't a description
 			} else {
 				// description - go back and find any gap showing a last blank line
@@ -238,40 +248,39 @@ public class BNFListener extends BNFBaseListener
 					currentIndex--;
 					lastGoodLine--;
 				}
-				StringBuilder b = new StringBuilder();
+				List<String> content = new ArrayList<>();
 				for (int j = currentIndex + 1; j <lineTokens.size(); j++) {
-					b.append(lineTokens.get(j).getText().replace("!! ", ""));
+					content.add(lineTokens.get(j).getText().replace("!! ", ""));
 				}
-				return b.toString();
+				return content.stream().collect(Collectors.joining("\n"));
 			}
 		}
-		return null;
+		return "";
 	}
 	
-	// looking for free text at the end of the production
-	private NormalText findNormalTextAfter(ParserRuleContext ctx)
+	// looking for free (comment) text at the end of the production
+	private String findHiddenTextAfter(ParserRuleContext ctx)
 	{
 		Token endCtx = ctx.getStop();
 		int i = endCtx.getTokenIndex();
 		List<Token> normalTextChannel =
 					tokens.getHiddenTokensToRight(i, BNFLexer.HIDDEN);
 		if (normalTextChannel != null) {
-			// the quasi-comment may be part of the content of a rule (in which case it will appear) or 
-			// may be the description of the next one. It runs until a blank line
+			// the quasi-comment (description) may be the end of a rule or start of the next. separation is on
+			// a blank line
 			int nextLine = endCtx.getLine() + 1;
 			List<String> content = new ArrayList<>();
 			for (Token lineToken : normalTextChannel) {
 				if (lineToken.getLine() == nextLine) {
-					content.add(lineToken.getText().replace("!! ", ""));
+					content.add(lineToken.getText().replace("// ", ""));
 					nextLine++;
 				} else {
 					break;
 				}
 			}
-			return new NormalText(content);
-
+			return content.stream().collect(Collectors.joining("\n"));
 		}
-		return null;
+		return "";
 	}
 
 	@Override
@@ -339,30 +348,6 @@ public class BNFListener extends BNFBaseListener
 			// i think everything else is just a regular literal
 			setItem(ctx, new InLiteral(text));
 		}
-//		if (CharLit.allPunctuation(text)) {
-//			// is it a known construct
-//			CharLit lit = CharLit.getByValue(text);
-//			if (lit != null) {
-//				setItem(ctx, new SpecialLiteral(text));
-//			} else {
-//				// split into individual characters
-//				List<CharLit> charLits = Arrays.asList(text.split("")).stream().map(ch -> CharLit.getByValue(ch)).collect(Collectors.toList());
-//				setItem(ctx, new SpecialSeqLiteral(charLits));
-//			}
-//		} else {
-//			Matcher um = UCODE_PATTERN.matcher(text);
-//			if (um.matches()) {
-//				// special case space
-//				 if (text.equals("\\u0020")) {
-////					 setItem(ctx, new ListedCharacterSet(" "));
-////				 } else {
-//					 setItem(ctx, new InLiteral(((Character) ((char) Integer.parseInt(text.substring(2), 16))).toString() ));
-//				 }
-//			} else {
-//    			// does this cope with mixtures ?
-//    			setItem(ctx, new InLiteral(text));
-//			}
-//		}
 	}
 
 	@Override
@@ -399,6 +384,17 @@ public class BNFListener extends BNFBaseListener
 		setItem(ctx, new ListedCharacterSet(interpret(ctx)));
 	}
 	
+	
+	@Override
+	public void exitNormaltext(NormaltextContext ctx) {
+		// prune off the BNF marker
+		String content = ctx.getText().replaceFirst("!!\\s*","");
+		if (content.matches("\\s*")) {
+			return;
+		}
+		setItem(ctx, new NormalText(content));
+	}
+
 	private String interpret(ListcharactersetContext listCtx) {
 		// to cope with punctuation, especially backslash, we use text.  this may cause grief 
 		// if we need to have ] in character set

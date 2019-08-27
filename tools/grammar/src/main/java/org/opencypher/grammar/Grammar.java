@@ -118,12 +118,6 @@ public interface Grammar
         return Node.epsilon();
     }
     
-    static Term freeText(String text) 
-    {
-    	FreeTextNode freeText = new FreeTextNode();
-    	freeText.text = requireNonNull(text, "free text content");
-    	return freeText;
-    }
 
     static Term caseInsensitive( String value )
     {
