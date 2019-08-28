@@ -39,8 +39,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.opencypher.grammar.Grammar;
-import org.opencypher.tools.antlr.BNFProcessor;
-import org.opencypher.tools.antlr.G4Processor;
+import org.opencypher.tools.g4processors.BNFProcessor;
+import org.opencypher.tools.g4processors.G4Processor;
 import org.xml.sax.SAXException;
 
 /** translate between supported grammar serialisations, via the Grammar object model */

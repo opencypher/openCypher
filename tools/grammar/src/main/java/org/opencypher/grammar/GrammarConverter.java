@@ -48,23 +48,23 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.opencypher.grammar.Grammar.Term;
-import org.opencypher.tools.antlr.Normaliser;
-import org.opencypher.tools.antlr.tree.BnfSymbolLiteral;
-import org.opencypher.tools.antlr.tree.BnfSymbols;
-import org.opencypher.tools.antlr.tree.CharacterLiteral;
-import org.opencypher.tools.antlr.tree.ElementWithCardinality;
-import org.opencypher.tools.antlr.tree.ExclusionCharacterSet;
-import org.opencypher.tools.antlr.tree.GrammarItem;
-import org.opencypher.tools.antlr.tree.GrammarItem.ItemType;
-import org.opencypher.tools.antlr.tree.GrammarTop;
-import org.opencypher.tools.antlr.tree.InAlternative;
-import org.opencypher.tools.antlr.tree.InAlternatives;
-import org.opencypher.tools.antlr.tree.InLiteral;
-import org.opencypher.tools.antlr.tree.ListedCharacterSet;
-import org.opencypher.tools.antlr.tree.NamedCharacterSet;
-import org.opencypher.tools.antlr.tree.NormalText;
-import org.opencypher.tools.antlr.tree.Rule;
-import org.opencypher.tools.antlr.tree.RuleId;
+import org.opencypher.tools.g4processors.Normaliser;
+import org.opencypher.tools.g4tree.BnfSymbolLiteral;
+import org.opencypher.tools.g4tree.BnfSymbols;
+import org.opencypher.tools.g4tree.CharacterLiteral;
+import org.opencypher.tools.g4tree.ElementWithCardinality;
+import org.opencypher.tools.g4tree.ExclusionCharacterSet;
+import org.opencypher.tools.g4tree.FreeTextItem;
+import org.opencypher.tools.g4tree.GrammarItem;
+import org.opencypher.tools.g4tree.GrammarTop;
+import org.opencypher.tools.g4tree.InAlternative;
+import org.opencypher.tools.g4tree.InAlternatives;
+import org.opencypher.tools.g4tree.InLiteral;
+import org.opencypher.tools.g4tree.ListedCharacterSet;
+import org.opencypher.tools.g4tree.NamedCharacterSet;
+import org.opencypher.tools.g4tree.Rule;
+import org.opencypher.tools.g4tree.RuleId;
+import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,7 +131,7 @@ public class GrammarConverter {
 		case BNF_LITERAL:
 			return convertSpecial( (BnfSymbolLiteral) item);
 		case TEXT:
-			return convertText( (NormalText) item);
+			return convertText( (FreeTextItem) item);
 		case NAMEDCHARSET:
 			return convertCharSet( (NamedCharacterSet) item);
 		case LISTEDCHARSET:
@@ -197,7 +197,7 @@ public class GrammarConverter {
 
 	private static final Pattern CHARSET_PATTERN = Pattern.compile("\\s*character\\s*set\\s+'(\\w+)'\\s*");
 	
-	private Term convertText(NormalText item) {
+	private Term convertText(FreeTextItem item) {
 		LOGGER.debug("free text {}.", item.getContent());
 		// treat as a literal, since we don't have a grammar object to hold it.
 		//  there's an issue with line breaks - something upstream woudl convert them to 
