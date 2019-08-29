@@ -43,7 +43,7 @@ Feature: PatternComprehension
       RETURN [p = (liker)--() | p] AS isNew
         ORDER BY liker.time
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | isNew                               |
       | [<({time: 10})-[:T]->({time: 20})>] |
       | [<({time: 20})<-[:T]-({time: 10})>] |
@@ -62,7 +62,7 @@ Feature: PatternComprehension
       MATCH (n)
       RETURN [p = (n)-->() | p] AS ps
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | ps                                     |
       | [<(:A)-[:T]->(:C)>, <(:A)-[:T]->(:B)>] |
       | []                                     |
@@ -83,7 +83,7 @@ Feature: PatternComprehension
       MATCH (n:A)
       RETURN [p = (n)-->(:B) | p]
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | [p = (n)-->(:B) \| p]          |
       | [<(:A)-[:T]->(:B)>] |
     And no side effects
@@ -100,7 +100,7 @@ Feature: PatternComprehension
       MATCH (a:A), (b:B)
       RETURN [p = (a)-[*]->(b) | p] AS paths
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | paths               |
       | [<(:A)-[:T]->(:B)>] |
     And no side effects
@@ -119,7 +119,7 @@ Feature: PatternComprehension
       WITH [p = (n)-->() | p] AS ps, count(b) AS c
       RETURN ps, c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | ps                                      | c |
       | [<(:A)-[:T]->(:C)>, <(:A)-[:T]->(:B)>] | 2 |
     And no side effects
@@ -136,7 +136,7 @@ Feature: PatternComprehension
       WITH [p = (a)-[*]->(b) | p] AS paths, count(a) AS c
       RETURN paths, c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | paths                | c |
       | [<(:A)-[:T]->(:B)>] | 1 |
     And no side effects
@@ -153,7 +153,7 @@ Feature: PatternComprehension
       MATCH (n:A)
       RETURN [p = (n)-[:HAS]->() | p] AS ps
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | ps                   |
       | [<(:A)-[:HAS]->()>] |
       | []                  |
@@ -172,7 +172,7 @@ Feature: PatternComprehension
       MATCH (n:A)
       RETURN count([p = (n)-[:HAS]->() | p]) AS c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c |
       | 3 |
     And no side effects
@@ -189,7 +189,7 @@ Feature: PatternComprehension
       MATCH (n:X)
       RETURN n, size([(n)--() | 1]) > 0 AS b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n              | b     |
       | (:X {num: 42}) | true  |
       | (:X {num: 43}) | false |
@@ -213,7 +213,7 @@ Feature: PatternComprehension
       MATCH p = (n:X)-->(b)
       RETURN n, [x IN nodes(p) | size([(x)-->(:Y) | 1])] AS list
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n           | list   |
       | (:X {n: 1}) | [1, 2] |
       | (:X {n: 2}) | [0, 1] |
@@ -233,7 +233,7 @@ Feature: PatternComprehension
       MATCH (a:X)
       RETURN size([(a)-->() | 1]) AS length
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | length |
       | 3      |
     And no side effects
@@ -253,7 +253,7 @@ Feature: PatternComprehension
       MATCH (a:X)
       RETURN size([(a)-[:T]->() | 1]) AS length
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | length |
       | 3      |
     And no side effects
@@ -273,7 +273,7 @@ Feature: PatternComprehension
       MATCH (a:X)
       RETURN size([(a)-[:T|OTHER]->() | 1]) AS length
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | length |
       | 4      |
     And no side effects
@@ -290,7 +290,7 @@ Feature: PatternComprehension
       MATCH (n)
       RETURN [(n)-[:T]->(b) | b.name] AS list
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | list    |
       | ['val'] |
       | []      |
@@ -308,7 +308,7 @@ Feature: PatternComprehension
       MATCH (n)
       RETURN [(n)-[r:T]->() | r.name] AS list
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | list    |
       | ['val'] |
       | []      |

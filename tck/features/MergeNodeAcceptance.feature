@@ -37,7 +37,7 @@ Feature: MergeNodeAcceptance
       MERGE (a)
       RETURN count(*) AS n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n |
       | 1 |
     And the side effects should be:
@@ -50,7 +50,7 @@ Feature: MergeNodeAcceptance
       MERGE (a:TheLabel)
       RETURN labels(a)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(a)    |
       | ['TheLabel'] |
     And the side effects should be:
@@ -65,7 +65,7 @@ Feature: MergeNodeAcceptance
         ON CREATE SET a:Foo
       RETURN labels(a)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(a)           |
       | ['TheLabel', 'Foo'] |
     And the side effects should be:
@@ -80,7 +80,7 @@ Feature: MergeNodeAcceptance
         ON CREATE SET a.num = 42
       RETURN a.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.num |
       | 42    |
     And the side effects should be:
@@ -99,7 +99,7 @@ Feature: MergeNodeAcceptance
       MERGE (a:TheLabel)
       RETURN a.id
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.id |
       | 1    |
     And no side effects
@@ -115,7 +115,7 @@ Feature: MergeNodeAcceptance
       MERGE (a {num: 43})
       RETURN a.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.num |
       | 43    |
     And the side effects should be:
@@ -133,7 +133,7 @@ Feature: MergeNodeAcceptance
       MERGE (a:TheLabel {num: 43})
       RETURN a.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.num |
       | 43    |
     And the side effects should be:
@@ -151,7 +151,7 @@ Feature: MergeNodeAcceptance
       MERGE (a:TheLabel {num: 42})
       RETURN a.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.num |
       | 42    |
     And no side effects
@@ -168,7 +168,7 @@ Feature: MergeNodeAcceptance
         ON MATCH SET a:Foo
       RETURN labels(a)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(a)           |
       | ['TheLabel', 'Foo'] |
     And the side effects should be:
@@ -186,7 +186,7 @@ Feature: MergeNodeAcceptance
         ON CREATE SET a.num = 42
       RETURN a.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.num |
       | null  |
     And no side effects
@@ -203,7 +203,7 @@ Feature: MergeNodeAcceptance
         ON MATCH SET a.num = 42
       RETURN a.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.num |
       | 42    |
     And the side effects should be:
@@ -288,7 +288,7 @@ Feature: MergeNodeAcceptance
         ON CREATE SET city.name = person.bornIn
       RETURN person.bornIn
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | person.bornIn |
       | 'New York'    |
       | 'Ohio'        |
@@ -311,7 +311,7 @@ Feature: MergeNodeAcceptance
         ON MATCH SET city.name = person.bornIn
       RETURN person.bornIn
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | person.bornIn |
       | 'New York'    |
       | 'Ohio'        |
@@ -335,7 +335,7 @@ Feature: MergeNodeAcceptance
           ON CREATE SET city.name = person.bornIn
         RETURN person.bornIn
         """
-    Then the result should be:
+    Then the result should be, in any order:
       | person.bornIn |
       | 'New York'    |
       | 'Ohio'        |
@@ -394,7 +394,7 @@ Feature: MergeNodeAcceptance
       MERGE (:N {x: x + 1, y: y})
       RETURN x, y
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x | y |
       | 0 | 0 |
       | 0 | 1 |
@@ -421,7 +421,7 @@ Feature: MergeNodeAcceptance
       MERGE (test:L:B {num: 42})
       RETURN labels(test) AS labels
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels     |
       | ['L', 'B'] |
     And the side effects should be:
@@ -452,7 +452,7 @@ Feature: MergeNodeAcceptance
       MERGE (n {id: int})
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 4        |
     And the side effects should be:
@@ -473,7 +473,7 @@ Feature: MergeNodeAcceptance
       MERGE (a2:A)
       RETURN a2.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a2.num |
       | null   |
       | null   |

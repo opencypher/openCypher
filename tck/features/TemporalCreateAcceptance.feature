@@ -36,7 +36,7 @@ Feature: TemporalCreateAcceptance
       """
       RETURN date(<map>) AS d
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | d        |
       | <result> |
     And no side effects
@@ -65,7 +65,7 @@ Feature: TemporalCreateAcceptance
       """
       RETURN localdatetime(<map>) AS d
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | d        |
       | <result> |
     And no side effects
@@ -94,7 +94,7 @@ Feature: TemporalCreateAcceptance
       """
       RETURN datetime(<map>) AS d
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | d        |
       | <result> |
     And no side effects
@@ -123,7 +123,7 @@ Feature: TemporalCreateAcceptance
       """
       RETURN date(<map>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -145,7 +145,7 @@ Feature: TemporalCreateAcceptance
       """
       RETURN localtime(<map>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -166,7 +166,7 @@ Feature: TemporalCreateAcceptance
       """
       RETURN time(<map>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -194,7 +194,7 @@ Feature: TemporalCreateAcceptance
       """
       RETURN localdatetime(<map>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -239,7 +239,7 @@ Feature: TemporalCreateAcceptance
       """
       RETURN datetime(<map>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -283,7 +283,7 @@ Feature: TemporalCreateAcceptance
       """
       RETURN datetime(<map>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -326,7 +326,7 @@ Feature: TemporalCreateAcceptance
       """
       RETURN datetime(<map>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -370,7 +370,7 @@ Feature: TemporalCreateAcceptance
       RETURN datetime.fromepoch(416779, 999999999) AS d1,
              datetime.fromepochmillis(237821673987) AS d2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | d1                               | d2                         |
       | '1970-01-05T19:46:19.999999999Z' | '1977-07-15T13:34:33.987Z' |
     And no side effects
@@ -381,7 +381,7 @@ Feature: TemporalCreateAcceptance
       """
       RETURN duration(<map>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -404,7 +404,7 @@ Feature: TemporalCreateAcceptance
       """
       RETURN <temporal> AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -433,7 +433,7 @@ Feature: TemporalCreateAcceptance
       MATCH (n)
       RETURN n.created
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.created |
       | <result>  |
 
@@ -456,7 +456,7 @@ Feature: TemporalCreateAcceptance
       MATCH (n)
       RETURN n.dates
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.dates  |
       | <result> |
 
@@ -480,7 +480,7 @@ Feature: TemporalCreateAcceptance
       MATCH (n)
       RETURN n.created
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.created |
       | <result>  |
 
@@ -503,7 +503,7 @@ Feature: TemporalCreateAcceptance
       MATCH (n)
       RETURN n.dates
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.dates  |
       | <result> |
 
@@ -527,7 +527,7 @@ Feature: TemporalCreateAcceptance
       MATCH (n)
       RETURN n.created
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.created |
       | <result>  |
 
@@ -550,7 +550,7 @@ Feature: TemporalCreateAcceptance
       MATCH (n)
       RETURN n.dates
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.dates  |
       | <result> |
 
@@ -574,7 +574,7 @@ Feature: TemporalCreateAcceptance
       MATCH (n)
       RETURN n.created
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.created |
       | <result>  |
 
@@ -597,7 +597,7 @@ Feature: TemporalCreateAcceptance
       MATCH (n)
       RETURN n.dates
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.dates  |
       | <result> |
 
@@ -621,7 +621,7 @@ Feature: TemporalCreateAcceptance
       MATCH (n)
       RETURN n.created
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.created |
       | <result>  |
 
@@ -644,7 +644,7 @@ Feature: TemporalCreateAcceptance
       MATCH (n)
       RETURN n.dates
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.dates  |
       | <result> |
 
@@ -668,7 +668,7 @@ Feature: TemporalCreateAcceptance
       MATCH (n)
       RETURN n.created
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.created |
       | <result>  |
 
@@ -691,7 +691,7 @@ Feature: TemporalCreateAcceptance
       MATCH (n)
       RETURN n.dates
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.dates  |
       | <result> |
 
@@ -706,7 +706,7 @@ Feature: TemporalCreateAcceptance
       """
       RETURN <func>(null) AS t
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | t    |
       | null |
     And no side effects

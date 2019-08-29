@@ -42,7 +42,7 @@ Feature: WhereAcceptance
       WHERE NOT(n.name = 'apa' AND false)
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n             |
       | ({name: 'a'}) |
     And no side effects

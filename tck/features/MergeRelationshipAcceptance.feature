@@ -42,7 +42,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[r:TYPE]->(b)
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 1        |
     And the side effects should be:
@@ -61,7 +61,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[r:TYPE]->(b)
       RETURN count(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(r) |
       | 1        |
     And no side effects
@@ -80,7 +80,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[r:TYPE]->(b)
       RETURN count(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(r) |
       | 2        |
     And no side effects
@@ -99,7 +99,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[r:TYPE {name: 'r2'}]->(b)
       RETURN count(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(r) |
       | 1        |
     And no side effects
@@ -117,7 +117,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[r:TYPE {name: 'r2'}]->(b)
       RETURN count(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(r) |
       | 1        |
     And the side effects should be:
@@ -138,7 +138,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)<-[r:TYPE]-(b)
       RETURN count(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(r) |
       | 1        |
     And no side effects
@@ -155,7 +155,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[r:TYPE {name: 'Lola'}]->(b)
       RETURN count(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(r) |
       | 1        |
     And the side effects should be:
@@ -192,7 +192,7 @@ Feature: MergeRelationshipAcceptance
         ON CREATE SET r.name = 'Lola'
       RETURN count(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(r) |
       | 1        |
     And the side effects should be:
@@ -245,7 +245,7 @@ Feature: MergeRelationshipAcceptance
         ON MATCH SET r.name = 'Lola'
       RETURN count(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(r) |
       | 1        |
     And the side effects should be:
@@ -267,7 +267,7 @@ Feature: MergeRelationshipAcceptance
         ON MATCH SET r.name = 'RUN'
       RETURN count(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(r) |
       | 4        |
     And the side effects should be:
@@ -299,7 +299,7 @@ Feature: MergeRelationshipAcceptance
       CREATE (b)-[:KNOWS]->(c:C)
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 1        |
     And the side effects should be:
@@ -316,7 +316,7 @@ Feature: MergeRelationshipAcceptance
       MERGE p = (a)-[:R]->(b)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p                             |
       | <({num: 1})-[:R]->({num: 2})> |
     And the side effects should be:
@@ -331,7 +331,7 @@ Feature: MergeRelationshipAcceptance
       MERGE p = (a {num: 1})
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p            |
       | <({num: 1})> |
     And the side effects should be:
@@ -346,7 +346,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[r:KNOWS]-(b)
       RETURN startNode(r).id AS s, endNode(r).id AS e
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | s | e |
       | 2 | 1 |
     And the side effects should be:
@@ -367,7 +367,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[r:KNOWS]-(b)
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r        |
       | [:KNOWS] |
     And no side effects
@@ -386,7 +386,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[r:KNOWS]-(b)
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r                     |
       | [:KNOWS {name: 'ab'}] |
       | [:KNOWS {name: 'cd'}] |
@@ -412,7 +412,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[r:FB {foobar: roles}]->(b)
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 2        |
     And the side effects should be:
@@ -434,7 +434,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[r:T {numbers: [42, 43]}]->(b)
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 1        |
     And no side effects
@@ -447,7 +447,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[:X]->(b)
       RETURN count(a)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(a) |
       | 1        |
     And the side effects should be:
@@ -515,7 +515,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[t2:T {name: 'rel3'}]->(b)
       RETURN t2.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | t2.name |
       | 'rel3'  |
       | 'rel3'  |
@@ -539,7 +539,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[r:T]->(b)
       RETURN a.id AS a, b.id AS b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a | b |
       | 0 | 0 |
     And the side effects should be:
@@ -558,7 +558,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[r:T]->(b)
       RETURN a.id AS a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a |
       | 0 |
     And the side effects should be:
@@ -582,7 +582,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (a)-[:T]->(b)
       RETURN x.id AS x, y.id AS y
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x | y |
       | 0 | 0 |
     And the side effects should be:
@@ -605,7 +605,7 @@ Feature: MergeRelationshipAcceptance
       MERGE (x)-[:T]->(c)
       RETURN x.id AS x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x |
       | 0 |
     And the side effects should be:

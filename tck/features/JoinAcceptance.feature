@@ -45,7 +45,7 @@ Feature: JoinAcceptance
       WHERE a.id = b.id
       RETURN a, b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a            | b            |
       | (:A {id: 2}) | (:B {id: 2}) |
     And no side effects

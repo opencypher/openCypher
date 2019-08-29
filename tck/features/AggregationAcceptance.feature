@@ -42,7 +42,7 @@ Feature: AggregationAcceptance
       MATCH (n)
       RETURN count(n) / 60 / 60 AS count
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count |
       | 2     |
     And no side effects
@@ -59,7 +59,7 @@ Feature: AggregationAcceptance
       MATCH ()
       RETURN count(*) AS columnName
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | columnName |
       | 11         |
     And no side effects
@@ -76,7 +76,7 @@ Feature: AggregationAcceptance
       MATCH (a)
       RETURN size(collect(a))
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | size(collect(a)) |
       | 11               |
     And no side effects
@@ -88,7 +88,7 @@ Feature: AggregationAcceptance
       MATCH (a {name: 'Andres'})<-[:FATHER]-(child)
       RETURN {foo: a.name='Andres', kids: collect(child.name)}
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | {foo: a.name='Andres', kids: collect(child.name)} |
     And no side effects
 
@@ -104,7 +104,7 @@ Feature: AggregationAcceptance
       MATCH (a:L)-[rel]->(b)
       RETURN a, count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | count(*) |
       | (:L) | 2        |
     And no side effects
@@ -144,7 +144,7 @@ Feature: AggregationAcceptance
       MATCH (n)
       RETURN n.num, count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.num | count(*) |
       | 42    | 1        |
       | 33    | 2        |
@@ -163,7 +163,7 @@ Feature: AggregationAcceptance
       MATCH (n)
       RETURN n.name, count(n.num)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.name | count(n.num) |
       | 'a'    | 1            |
       | 'b'    | 1            |
@@ -182,7 +182,7 @@ Feature: AggregationAcceptance
       MATCH (n)
       RETURN n.name, sum(n.num)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.name | sum(n.num) |
       | 'a'    | 75         |
     And no side effects
@@ -199,7 +199,7 @@ Feature: AggregationAcceptance
       MATCH p=(a:L)-[*]->(b)
       RETURN b, avg(length(p))
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b  | avg(length(p)) |
       | () | 1.0            |
       | () | 1.0            |
@@ -212,7 +212,7 @@ Feature: AggregationAcceptance
       OPTIONAL MATCH (a)
       RETURN count(DISTINCT a)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(DISTINCT a) |
       | 0                 |
     And no side effects
@@ -228,7 +228,7 @@ Feature: AggregationAcceptance
       MATCH (a)
       RETURN count(DISTINCT a.name)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(DISTINCT a.name) |
       | 0                      |
     And no side effects
@@ -240,7 +240,7 @@ Feature: AggregationAcceptance
       UNWIND [null, null] AS x
       RETURN collect(DISTINCT x) AS c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c  |
       | [] |
     And no side effects
@@ -252,7 +252,7 @@ Feature: AggregationAcceptance
       UNWIND [null, 1, null] AS x
       RETURN collect(DISTINCT x) AS c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c   |
       | [1] |
     And no side effects
@@ -270,7 +270,7 @@ Feature: AggregationAcceptance
       MATCH (a)
       RETURN DISTINCT a.color, count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a.color  | count(*) |
       | ['red']  | 2        |
       | ['blue'] | 1        |
@@ -295,7 +295,7 @@ Feature: AggregationAcceptance
       MATCH ()
       RETURN count(*) * 10 AS c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c  |
       | 10 |
     And no side effects
@@ -328,7 +328,7 @@ Feature: AggregationAcceptance
       MATCH (n)
       RETURN count(n), collect(n)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(n) | collect(n) |
       | 1        | [()]       |
     And no side effects
@@ -345,7 +345,7 @@ Feature: AggregationAcceptance
       MATCH ()
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 100      |
     And no side effects
@@ -407,7 +407,7 @@ Feature: AggregationAcceptance
         b.num AS bar,
         {name: count(b)} AS baz
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | foo | bar | baz      |
       | 42  | 42  | {name:1} |
     And no side effects
@@ -426,7 +426,7 @@ Feature: AggregationAcceptance
       MERGE (a:A {num: p})
       RETURN a.num AS prop
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | prop |
       | 42   |
     And no side effects
@@ -440,7 +440,7 @@ Feature: AggregationAcceptance
       LIMIT 3000
       RETURN sum(i)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | sum(i)     |
       | 3004498500 |
     And no side effects
@@ -456,7 +456,7 @@ Feature: AggregationAcceptance
       MATCH ()-[r]-()
       RETURN count(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(r) |
       | 1        |
     And no side effects
@@ -468,7 +468,7 @@ Feature: AggregationAcceptance
       UNWIND ['a', 'b', 'B', null, 'abc', 'abc1'] AS i
       RETURN max(i)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | max(i) |
       | 'b'    |
     And no side effects
@@ -480,7 +480,7 @@ Feature: AggregationAcceptance
       UNWIND ['a', 'b', 'B', null, 'abc', 'abc1'] AS i
       RETURN min(i)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | min(i) |
       | 'B'    |
     And no side effects

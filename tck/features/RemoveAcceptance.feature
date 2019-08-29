@@ -43,7 +43,7 @@ Feature: RemoveAcceptance
       REMOVE r.num
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n           |
       | ({num: 42}) |
     And no side effects
@@ -60,7 +60,7 @@ Feature: RemoveAcceptance
       REMOVE n:L
       RETURN n.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.num |
       | 42    |
     And the side effects should be:
@@ -78,7 +78,7 @@ Feature: RemoveAcceptance
       REMOVE n:L1:L3
       RETURN labels(n)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(n) |
       | ['L2']    |
     And the side effects should be:
@@ -96,7 +96,7 @@ Feature: RemoveAcceptance
       REMOVE n.num
       RETURN exists(n.num) AS still_there
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | still_there |
       | false       |
     And the side effects should be:
@@ -114,7 +114,7 @@ Feature: RemoveAcceptance
       REMOVE n.num, n.name
       RETURN size(keys(n)) AS props
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | props |
       | 1     |
     And the side effects should be:
@@ -132,7 +132,7 @@ Feature: RemoveAcceptance
       REMOVE r.num
       RETURN exists(r.num) AS still_there
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | still_there |
       | false       |
     And the side effects should be:
@@ -150,7 +150,7 @@ Feature: RemoveAcceptance
       REMOVE r.num, r.a
       RETURN size(keys(r)) AS props
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | props |
       | 1     |
     And the side effects should be:
@@ -168,7 +168,7 @@ Feature: RemoveAcceptance
       REMOVE n.num
       RETURN sum(size(keys(n))) AS totalNumberOfProps
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | totalNumberOfProps |
       | 0                  |
     And no side effects

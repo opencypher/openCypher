@@ -44,7 +44,7 @@ Feature: UnionAcceptance
       MATCH (b:B)
       RETURN b AS a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    |
       | (:A) |
       | (:B) |
@@ -58,7 +58,7 @@ Feature: UnionAcceptance
       UNION ALL
       RETURN 2 AS x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x |
       | 1 |
       | 2 |
@@ -72,7 +72,7 @@ Feature: UnionAcceptance
       UNION
       RETURN 2 AS x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x |
       | 1 |
       | 2 |
@@ -88,7 +88,7 @@ Feature: UnionAcceptance
       UNION
       RETURN 2 AS x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x |
       | 2 |
       | 1 |
@@ -104,7 +104,7 @@ Feature: UnionAcceptance
       UNION ALL
       RETURN 2 AS x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x |
       | 2 |
       | 1 |

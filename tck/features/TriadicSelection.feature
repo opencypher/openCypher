@@ -37,7 +37,7 @@ Feature: TriadicSelection
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b2'   |
       | 'b3'   |
@@ -56,7 +56,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b3'   |
       | 'c11'  |
@@ -74,7 +74,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b2'   |
       | 'c11'  |
@@ -92,7 +92,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'c11'  |
       | 'c12'  |
@@ -109,7 +109,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b3'   |
       | 'b4'   |
@@ -132,7 +132,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b3'   |
       | 'b4'   |
@@ -155,7 +155,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b3'   |
       | 'c11'  |
@@ -171,7 +171,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'c12'  |
       | 'c22'  |
@@ -186,7 +186,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b3'   |
       | 'c11'  |
@@ -202,7 +202,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b3'   |
       | 'c11'  |
@@ -220,7 +220,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b2'   |
     And no side effects
@@ -234,7 +234,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b3'   |
     And no side effects
@@ -248,7 +248,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b2'   |
       | 'b3'   |
@@ -263,7 +263,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b1'   |
       | 'b2'   |
@@ -278,7 +278,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b1'   |
       | 'b2'   |
@@ -293,7 +293,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b2'   |
     And no side effects
@@ -307,7 +307,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
     And no side effects
 
@@ -320,7 +320,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b2'   |
     And no side effects
@@ -334,7 +334,7 @@ Feature: TriadicSelection
       WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | c.name |
       | 'b2'   |
     And no side effects

@@ -49,7 +49,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (n)-[r]-(m:NonExistent)
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r    |
       | null |
     And no side effects
@@ -62,7 +62,7 @@ Feature: OptionalMatchAcceptance
       WHERE m:NonExistent
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r    |
       | null |
     And no side effects
@@ -75,7 +75,7 @@ Feature: OptionalMatchAcceptance
       WHERE m.num = 42
       RETURN m
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | m              |
       | (:A {num: 42}) |
     And no side effects
@@ -87,7 +87,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (n)-[r:TYPE]-(m)
       RETURN m:TYPE
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | m:TYPE |
       | null   |
     And no side effects
@@ -102,7 +102,7 @@ Feature: OptionalMatchAcceptance
       MATCH (x)-->(d)
       RETURN d
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | d |
     And no side effects
 
@@ -114,7 +114,7 @@ Feature: OptionalMatchAcceptance
       MATCH (b:B)
       RETURN a, b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a              | b              |
       | (:A {num: 42}) | (:B {num: 46}) |
     And no side effects
@@ -126,7 +126,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH p = (a)-[:X]->(b)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p    |
       | null |
     And no side effects
@@ -138,7 +138,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (x)-->(b)
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x              |
       | (:A {num: 42}) |
     And no side effects
@@ -156,7 +156,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (a)-->(b:Y)
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b      |
       | null   |
       | (:Y)   |
@@ -170,7 +170,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH p = (a)-[:X]->(b)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p    |
       | null |
     And no side effects
@@ -182,7 +182,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (a)-[*]->(b)
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b              |
       | (:A {num: 42}) |
       | (:B {num: 46}) |
@@ -197,7 +197,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (a)-[*3..]-(b)
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b    |
       | null |
     And no side effects
@@ -209,7 +209,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (a)-[r]-(a)
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r       |
       | [:LOOP] |
     And no side effects
@@ -222,7 +222,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (a)-[r]->(a)
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r    |
       | null |
       | null |
@@ -236,7 +236,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (a)-[*]->(x)
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x    |
       | (:C) |
     And no side effects
@@ -248,7 +248,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH p = (a)-[*]->(b)
       RETURN p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p    |
       | null |
     And no side effects
@@ -260,7 +260,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (a)-->(b)-->(c)
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b              |
       | (:A {num: 42}) |
     And no side effects
@@ -272,7 +272,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (a)-->(b)-->(c)
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b    |
       | null |
     And no side effects
@@ -285,7 +285,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (x)-[r]->(b)
       RETURN x, r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x    | r    |
       | (:C) | null |
     And no side effects
@@ -300,7 +300,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (b)-[r:NOR_THIS]->(a)
       RETURN a, b, r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b              | r    |
       | null | (:B {num: 46}) | null |
     And no side effects
@@ -314,7 +314,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (b)-[r:NOR_THIS]->(a)
       RETURN a, b, r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b    | r    |
       | null | null | null |
     And no side effects
@@ -332,7 +332,7 @@ Feature: OptionalMatchAcceptance
       OPTIONAL MATCH (n:DoesNotExist)
       RETURN collect(DISTINCT n.num) AS a, collect(DISTINCT f.num) AS b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a  | b            |
       | [] | [42, 43, 44] |
     And no side effects
@@ -352,7 +352,7 @@ Feature: OptionalMatchAcceptance
       WHERE x.val < y.val
       RETURN x, y
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x             | y             |
       | (:X {val: 1}) | (:Y {val: 2}) |
       | (:X {val: 4}) | (:Y {val: 5}) |
@@ -374,7 +374,7 @@ Feature: OptionalMatchAcceptance
       WHERE x.val < z.val
       RETURN x, y, z
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x             | y             | z             |
       | (:X {val: 1}) | (:Y {val: 2}) | (:Z {val: 3}) |
       | (:X {val: 4}) | null          | null          |
@@ -397,7 +397,7 @@ Feature: OptionalMatchAcceptance
       WHERE x.val < z.val
       RETURN x, y, z
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x             | y             | z             |
       | (:X {val: 1}) | (:Y {val: 2}) | (:Z {val: 3}) |
       | (:X {val: 4}) | (:Y {val: 5}) | null          |

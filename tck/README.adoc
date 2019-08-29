@@ -1,5 +1,4 @@
 ifdef::env-github,env-browser[:outfilesuffix: .adoc]
-
 = The Cypher Technology Compatibility Kit (TCK)
 
 This subdirectory contains the Cypher TCK.
@@ -62,7 +61,7 @@ Scenario: Returning a single node
       RETURN n
       LIMIT 1 // <4>
       """
-    Then the result should be: // <5>
+    Then the result should be, in any order: // <5>
       | n  |
       | () |
 ----

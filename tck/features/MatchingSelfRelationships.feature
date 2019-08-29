@@ -41,7 +41,7 @@ Feature: MatchingSelfRelationships
       MATCH (a)-[r]-(b)
       RETURN a, r, b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | r       | b    |
       | (:A) | [:LOOP] | (:A) |
     And no side effects
@@ -57,7 +57,7 @@ Feature: MatchingSelfRelationships
       MATCH ()--()
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 1        |
     And no side effects
@@ -73,7 +73,7 @@ Feature: MatchingSelfRelationships
       MATCH (n)-[r]-(n)
       RETURN n, r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n    | r       |
       | (:A) | [:LOOP] |
     And no side effects
@@ -89,7 +89,7 @@ Feature: MatchingSelfRelationships
       MATCH (n)--(n)
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 1        |
     And no side effects
@@ -105,7 +105,7 @@ Feature: MatchingSelfRelationships
       MATCH (a)-[r]-(b)
       RETURN a, r, b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | r       | b    |
       | (:A) | [:LOOP] | (:B) |
       | (:B) | [:LOOP] | (:A) |
@@ -122,7 +122,7 @@ Feature: MatchingSelfRelationships
       MATCH ()--()
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 2        |
     And no side effects
@@ -138,7 +138,7 @@ Feature: MatchingSelfRelationships
       MATCH (a)-[r]->(b)
       RETURN a, r, b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | r       | b    |
       | (:A) | [:LOOP] | (:A) |
     And no side effects
@@ -154,7 +154,7 @@ Feature: MatchingSelfRelationships
       MATCH ()-->()
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 1        |
     And no side effects
@@ -170,7 +170,7 @@ Feature: MatchingSelfRelationships
       MATCH (n)-[r]->(n)
       RETURN n, r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n    | r       |
       | (:A) | [:LOOP] |
     And no side effects
@@ -186,7 +186,7 @@ Feature: MatchingSelfRelationships
       MATCH (n)-->(n)
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 1        |
     And no side effects
@@ -202,7 +202,7 @@ Feature: MatchingSelfRelationships
       MATCH (n)-[r]-(n)
       RETURN count(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(r) |
       | 1        |
     And no side effects
@@ -218,7 +218,7 @@ Feature: MatchingSelfRelationships
       MATCH (n)-[r]-(n)
       RETURN count(DISTINCT r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(DISTINCT r) |
       | 1                 |
     And no side effects
@@ -234,7 +234,7 @@ Feature: MatchingSelfRelationships
       MATCH (a)-[r]->(b)
       RETURN a, r, b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | r       | b    |
       | (:A) | [:LOOP] | (:B) |
     And no side effects
@@ -250,7 +250,7 @@ Feature: MatchingSelfRelationships
       MATCH ()-->()
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 1        |
     And no side effects
@@ -267,7 +267,7 @@ Feature: MatchingSelfRelationships
       MATCH (n)-[r]->(n)
       RETURN count(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(r) |
       | 1        |
     And no side effects
@@ -285,7 +285,7 @@ Feature: MatchingSelfRelationships
       MATCH (x:A)-[r1]->(y)-[r2]-(z)
       RETURN x, r1, y, r2, z
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x    | r1    | y         | r2      | z         |
       | (:A) | [:T1] | (:Looper) | [:LOOP] | (:Looper) |
       | (:A) | [:T1] | (:Looper) | [:T2]   | (:B)      |
@@ -304,7 +304,7 @@ Feature: MatchingSelfRelationships
       MATCH (:A)-->()--()
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 2        |
     And no side effects
@@ -322,7 +322,7 @@ Feature: MatchingSelfRelationships
       MATCH (x)-[r1]-(y)-[r2]-(z)
       RETURN x, r1, y, r2, z
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x         | r1      | y         | r2      | z         |
       | (:A)      | [:T1]   | (:Looper) | [:LOOP] | (:Looper) |
       | (:A)      | [:T1]   | (:Looper) | [:T2]   | (:B)      |
@@ -345,7 +345,7 @@ Feature: MatchingSelfRelationships
       MATCH ()-[]-()-[]-()
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 6        |
     And no side effects

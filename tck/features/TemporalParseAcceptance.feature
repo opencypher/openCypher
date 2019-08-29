@@ -38,7 +38,7 @@ Feature: TemporalParseAcceptance
       """
       RETURN date(<str>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -62,7 +62,7 @@ Feature: TemporalParseAcceptance
       """
       RETURN localtime(<str>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -82,7 +82,7 @@ Feature: TemporalParseAcceptance
       """
       RETURN time(<str>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -103,7 +103,7 @@ Feature: TemporalParseAcceptance
       """
       RETURN localdatetime(<str>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -123,7 +123,7 @@ Feature: TemporalParseAcceptance
       """
       RETURN datetime(<str>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -144,7 +144,7 @@ Feature: TemporalParseAcceptance
       """
       RETURN datetime(<str>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -162,7 +162,7 @@ Feature: TemporalParseAcceptance
       """
       RETURN duration(<str>) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects

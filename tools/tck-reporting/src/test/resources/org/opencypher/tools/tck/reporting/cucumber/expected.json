@@ -44,7 +44,7 @@
               "status": "passed"
             },
             "line": 37,
-            "name": "the result should be:",
+            "name": "the result should be, in any order:",
             "match": {
               "location": ""
             },
@@ -181,7 +181,7 @@
               "status": "passed"
             },
             "line": 56,
-            "name": "the result should be:",
+            "name": "the result should be, in any order:",
             "match": {
               "location": ""
             },
@@ -257,7 +257,7 @@
               "status": "passed"
             },
             "line": 56,
-            "name": "the result should be:",
+            "name": "the result should be, in any order:",
             "match": {
               "location": ""
             },
@@ -333,7 +333,7 @@
               "status": "passed"
             },
             "line": 56,
-            "name": "the result should be:",
+            "name": "the result should be, in any order:",
             "match": {
               "location": ""
             },

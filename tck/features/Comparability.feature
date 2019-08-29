@@ -44,7 +44,7 @@ Feature: Comparability
       WHERE exists(i.var) AND i.var > 'x'
       RETURN i.var
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | i.var |
       | 'xx'  |
     And no side effects
@@ -63,7 +63,7 @@ Feature: Comparability
       WHERE NOT exists(i.var) OR i.var > 'x'
       RETURN i.var
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | i.var |
       | 'xx'  |
       | null  |
@@ -87,7 +87,7 @@ Feature: Comparability
       WHERE result
       RETURN lhs, rhs
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | lhs   | rhs   |
       | <lhs> | <rhs> |
     And no side effects
@@ -105,7 +105,7 @@ Feature: Comparability
       """
       RETURN <lhs> >= <rhs> AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects

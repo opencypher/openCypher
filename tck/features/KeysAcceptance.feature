@@ -42,7 +42,7 @@ Feature: KeysAcceptance
       UNWIND keys(n) AS x
       RETURN DISTINCT x AS theProps
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | theProps  |
       | 'name'    |
       | 'surname' |
@@ -61,7 +61,7 @@ Feature: KeysAcceptance
       UNWIND keys(n) AS x
       RETURN DISTINCT x AS theProps
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | theProps       |
       | 'name'         |
       | 'surname'      |
@@ -81,7 +81,7 @@ Feature: KeysAcceptance
       UNWIND keys(n) AS x
       RETURN DISTINCT x AS theProps
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | theProps |
     And no side effects
 
@@ -97,7 +97,7 @@ Feature: KeysAcceptance
       UNWIND keys(n) AS x
       RETURN DISTINCT x AS theProps
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | theProps |
     And no side effects
 
@@ -113,7 +113,7 @@ Feature: KeysAcceptance
       UNWIND keys(r) AS x
       RETURN DISTINCT x AS theProps
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | theProps |
       | 'status' |
       | 'year'   |
@@ -131,7 +131,7 @@ Feature: KeysAcceptance
       UNWIND keys(r) AS x
       RETURN DISTINCT x AS theProps
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | theProps |
     And no side effects
 
@@ -147,7 +147,7 @@ Feature: KeysAcceptance
       UNWIND keys(r) AS x
       RETURN DISTINCT x AS theProps
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | theProps |
     And no side effects
 

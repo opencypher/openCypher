@@ -42,7 +42,7 @@ Feature: NullOperator
       RETURN n.missing IS NULL,
              n.exists IS NULL
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.missing IS NULL | n.exists IS NULL |
       | true              | false            |
     And no side effects
@@ -59,7 +59,7 @@ Feature: NullOperator
       RETURN n.missing IS NOT NULL,
              n.exists IS NOT NULL
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.missing IS NOT NULL | n.exists IS NOT NULL |
       | false                 | true                 |
     And no side effects
@@ -76,7 +76,7 @@ Feature: NullOperator
       RETURN n.missing IS NULL,
              n.exists IS NULL
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.missing IS NULL | n.exists IS NULL |
       | true              | false            |
     And no side effects
@@ -93,7 +93,7 @@ Feature: NullOperator
       RETURN n.missing IS NOT NULL,
              n.exists IS NOT NULL
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.missing IS NOT NULL | n.exists IS NOT NULL |
       | false                 | true                 |
     And no side effects
@@ -105,7 +105,7 @@ Feature: NullOperator
       OPTIONAL MATCH (n)
       RETURN n.missing IS NULL
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.missing IS NULL |
       | true              |
     And no side effects
@@ -117,7 +117,7 @@ Feature: NullOperator
       OPTIONAL MATCH (n)
       RETURN n.missing IS NOT NULL
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.missing IS NOT NULL |
       | false                 |
     And no side effects

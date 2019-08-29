@@ -43,7 +43,7 @@ Feature: ColumnNameAcceptance
       MATCH (n)
       RETURN cOuNt( * )
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | cOuNt( * ) |
       | 1          |
     And no side effects
@@ -54,7 +54,7 @@ Feature: ColumnNameAcceptance
       MATCH p = (n)-->(b)
       RETURN nOdEs( p )
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | nOdEs( p ) |
     And no side effects
 
@@ -64,7 +64,7 @@ Feature: ColumnNameAcceptance
       MATCH p = (n)-->(b)
       RETURN coUnt( dIstInct p )
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | coUnt( dIstInct p ) |
       | 0                   |
     And no side effects
@@ -75,7 +75,7 @@ Feature: ColumnNameAcceptance
       MATCH p = (n)-->(b)
       RETURN aVg(    n.aGe     )
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | aVg(    n.aGe     ) |
       | null                |
     And no side effects

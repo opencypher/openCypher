@@ -64,7 +64,7 @@ object TCKEventsTest {
       "Step 'Measure' finished. Result: <empty result>",
       "Step 'Execute -> executing query:' started",
       "Step 'Execute' finished. Result: | n |" + System.lineSeparator + "| 3 |",
-      "Step 'ExpectResult -> the result should be:' started",
+      "Step 'ExpectResult -> the result should be, in any order:' started",
       "Step 'ExpectResult' finished. Result: | n |" + System.lineSeparator + "| 3 |",
       "Step 'SideEffects -> no side effects' started",
       "Step 'SideEffects' finished. Result: | n |" + System.lineSeparator + "| 3 |"

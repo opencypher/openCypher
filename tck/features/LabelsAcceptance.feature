@@ -44,7 +44,7 @@ Feature: LabelsAcceptance
       SET n:Foo
       RETURN labels(n)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(n) |
       | ['Foo']   |
     And the side effects should be:
@@ -61,7 +61,7 @@ Feature: LabelsAcceptance
       SET n :Foo
       RETURN labels(n)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(n) |
       | ['Foo']   |
     And the side effects should be:
@@ -78,7 +78,7 @@ Feature: LabelsAcceptance
       SET n:Foo:Bar
       RETURN labels(n)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(n)      |
       | ['Foo', 'Bar'] |
     And the side effects should be:
@@ -95,7 +95,7 @@ Feature: LabelsAcceptance
       SET n :Foo :Bar
       RETURN labels(n)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(n)      |
       | ['Foo', 'Bar'] |
     And the side effects should be:
@@ -112,7 +112,7 @@ Feature: LabelsAcceptance
       SET n :Foo:Bar
       RETURN labels(n)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(n)      |
       | ['Foo', 'Bar'] |
     And the side effects should be:
@@ -124,7 +124,7 @@ Feature: LabelsAcceptance
       CREATE (node)
       RETURN labels(node)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(node) |
       | []           |
     And the side effects should be:
@@ -136,7 +136,7 @@ Feature: LabelsAcceptance
       CREATE (node:Foo:Bar {name: 'Mattias'})
       RETURN labels(node)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(node)   |
       | ['Foo', 'Bar'] |
     And the side effects should be:
@@ -150,7 +150,7 @@ Feature: LabelsAcceptance
       CREATE (node :Foo:Bar)
       RETURN labels(node)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(node)   |
       | ['Foo', 'Bar'] |
     And the side effects should be:
@@ -163,7 +163,7 @@ Feature: LabelsAcceptance
       CREATE (n:Person)-[:OWNS]->(:Dog)
       RETURN labels(n)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(n)  |
       | ['Person'] |
     And the side effects should be:
@@ -221,7 +221,7 @@ Feature: LabelsAcceptance
       MATCH (n)
       RETURN labels(n)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(n) |
       | []        |
     And no side effects
@@ -237,7 +237,7 @@ Feature: LabelsAcceptance
       REMOVE n:Foo
       RETURN labels(n)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(n) |
       | ['Bar']   |
     And the side effects should be:
@@ -254,7 +254,7 @@ Feature: LabelsAcceptance
       REMOVE n:Bar
       RETURN labels(n)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(n) |
       | ['Foo']   |
     And no side effects

@@ -42,7 +42,7 @@ Feature: PathEquality
       MATCH p2 = (:A)<--()
       RETURN p1 = p2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p1 = p2 |
       | true    |
     And no side effects

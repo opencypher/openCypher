@@ -43,7 +43,7 @@ Feature: WithAcceptance
       MATCH (a)-->(b)
       RETURN *
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b    |
       | (:A) | (:B) |
     And no side effects
@@ -64,7 +64,7 @@ Feature: WithAcceptance
       MATCH (a)-->(b)
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    |
       | (:A) |
     And no side effects
@@ -82,7 +82,7 @@ Feature: WithAcceptance
       MATCH (b)
       RETURN a, b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b    |
       | (:A) | (:A) |
       | (:A) | (:B) |
@@ -106,7 +106,7 @@ Feature: WithAcceptance
       WHERE property = b.num
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b                |
       | (:End {num: 42}) |
     And no side effects
@@ -128,7 +128,7 @@ Feature: WithAcceptance
       WHERE b.id = property
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b                       |
       | (:End {num: 42, id: 0}) |
     And no side effects
@@ -151,7 +151,7 @@ Feature: WithAcceptance
       WHERE b.id = idToUse
       RETURN DISTINCT b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b                            |
       | ({name: 'A', num: 0, id: 0}) |
     And no side effects
@@ -171,7 +171,7 @@ Feature: WithAcceptance
       WHERE a.name = 'B'
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a             |
       | ({name: 'B'}) |
     And no side effects
@@ -194,7 +194,7 @@ Feature: WithAcceptance
       WHERE relCount > 1
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a             |
       | ({name: 'A'}) |
     And no side effects
@@ -214,7 +214,7 @@ Feature: WithAcceptance
       ORDER BY a.name
       RETURN *
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | bars | relCount |
       | 'A'  | 2        |
       | 'B'  | 1        |
@@ -235,7 +235,7 @@ Feature: WithAcceptance
       ORDER BY a.name
       RETURN *
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | bars |
       | 'A'  |
       | 'B'  |
@@ -256,7 +256,7 @@ Feature: WithAcceptance
       WHERE a.name2 = 'B'
       RETURN *
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | bars |
       | 'B'  |
     And no side effects
@@ -276,7 +276,7 @@ Feature: WithAcceptance
       MATCH (a)-[r]->(b)
       RETURN a, r, b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | r      | b    |
       | (:A) | [:REL] | (:B) |
     And no side effects
@@ -290,7 +290,7 @@ Feature: WithAcceptance
       MATCH (a)-->(b)
       RETURN *
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a | b |
     And no side effects
 
@@ -301,7 +301,7 @@ Feature: WithAcceptance
       WITH {name: {name2: 'baz'}} AS nestedMap
       RETURN nestedMap.name.name2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | nestedMap.name.name2 |
       | 'baz'                |
     And no side effects
@@ -321,7 +321,7 @@ Feature: WithAcceptance
       MATCH (m:B), (n)-->(x:X)
       RETURN *
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | m    | n    | x    |
       | (:B) | (:A) | (:X) |
     And no side effects
@@ -339,7 +339,7 @@ Feature: WithAcceptance
       WHERE n.num = 42
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 1        |
     And no side effects
@@ -370,7 +370,7 @@ Feature: WithAcceptance
       WHERE otherPerson.name <> 'NotOther'
       RETURN count(*)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | count(*) |
       | 1        |
     And no side effects

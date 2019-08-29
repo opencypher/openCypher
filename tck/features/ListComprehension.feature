@@ -43,7 +43,7 @@ Feature: ListComprehension
       MATCH p = (n)-->()
       RETURN [x IN collect(p) | head(nodes(x))] AS p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p            |
       | [(:A), (:A)] |
     And no side effects
@@ -62,7 +62,7 @@ Feature: ListComprehension
       WITH [x IN collect(p) | head(nodes(x))] AS p, count(n) AS c
       RETURN p, c
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p            | c |
       | [(:A), (:A)] | 2 |
     And no side effects
@@ -81,7 +81,7 @@ Feature: ListComprehension
       WHERE n.name IN [x IN labels(b) | toLower(x)]
       RETURN b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | b    |
       | (:C) |
     And no side effects

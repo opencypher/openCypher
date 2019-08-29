@@ -38,7 +38,7 @@ Feature: TernaryLogicAcceptanceTest
       """
       RETURN NOT null AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | null  |
     And no side effects
@@ -48,7 +48,7 @@ Feature: TernaryLogicAcceptanceTest
       """
       RETURN null IS NULL AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | true  |
     And no side effects
@@ -58,7 +58,7 @@ Feature: TernaryLogicAcceptanceTest
       """
       RETURN null IS NOT NULL AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | false |
     And no side effects
@@ -68,7 +68,7 @@ Feature: TernaryLogicAcceptanceTest
       """
       RETURN null = null AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | null  |
     And no side effects
@@ -78,7 +78,7 @@ Feature: TernaryLogicAcceptanceTest
       """
       RETURN null <> null AS value
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | value |
       | null  |
     And no side effects
@@ -91,7 +91,7 @@ Feature: TernaryLogicAcceptanceTest
       """
       RETURN $lhs AND $rhs AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -112,7 +112,7 @@ Feature: TernaryLogicAcceptanceTest
       """
       RETURN $lhs OR $rhs AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -133,7 +133,7 @@ Feature: TernaryLogicAcceptanceTest
       """
       RETURN $lhs XOR $rhs AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -154,7 +154,7 @@ Feature: TernaryLogicAcceptanceTest
       """
       RETURN $elt IN $coll AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects

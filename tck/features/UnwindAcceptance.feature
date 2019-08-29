@@ -37,7 +37,7 @@ Feature: UnwindAcceptance
       UNWIND [1, 2, 3] AS x
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x |
       | 1 |
       | 2 |
@@ -51,7 +51,7 @@ Feature: UnwindAcceptance
       UNWIND range(1, 3) AS x
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x |
       | 1 |
       | 2 |
@@ -66,7 +66,7 @@ Feature: UnwindAcceptance
       UNWIND (first + second) AS x
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x |
       | 1 |
       | 2 |
@@ -85,7 +85,7 @@ Feature: UnwindAcceptance
       UNWIND rows AS x
       RETURN x
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x |
       | 1 |
       | 2 |
@@ -104,7 +104,7 @@ Feature: UnwindAcceptance
       UNWIND rows AS node
       RETURN node.id
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | node.id |
       | 1       |
       | 2       |
@@ -146,7 +146,7 @@ Feature: UnwindAcceptance
       UNWIND x AS y
       RETURN y
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | y |
       | 1 |
       | 2 |
@@ -163,7 +163,7 @@ Feature: UnwindAcceptance
       UNWIND [] AS empty
       RETURN empty
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | empty |
     And no side effects
 
@@ -174,7 +174,7 @@ Feature: UnwindAcceptance
       UNWIND null AS nil
       RETURN nil
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | nil |
     And no side effects
 
@@ -185,7 +185,7 @@ Feature: UnwindAcceptance
       UNWIND [1, 1, 2, 2, 3, 3, 4, 4, 5, 5] AS duplicate
       RETURN duplicate
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | duplicate |
       | 1         |
       | 1         |
@@ -207,7 +207,7 @@ Feature: UnwindAcceptance
       UNWIND list AS x
       RETURN *
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | list      | x |
       | [1, 2, 3] | 1 |
       | [1, 2, 3] | 2 |
@@ -233,7 +233,7 @@ Feature: UnwindAcceptance
       MATCH (a)-[:Y]->(b2)
       RETURN a, b2
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    | b2   |
       | (:S) | (:E) |
     And no side effects
@@ -248,7 +248,7 @@ Feature: UnwindAcceptance
       UNWIND zs AS z
       RETURN *
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x | xs     | y | ys     | z | zs     |
       | 1 | [1, 2] | 3 | [3, 4] | 5 | [5, 6] |
       | 1 | [1, 2] | 3 | [3, 4] | 6 | [5, 6] |
@@ -271,7 +271,7 @@ Feature: UnwindAcceptance
       SET p.name = prop.name
       RETURN p.name, p.login
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p.name  | p.login  |
       | 'name1' | 'login1' |
       | 'name2' | 'login2' |

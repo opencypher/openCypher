@@ -43,7 +43,7 @@ Feature: ComparisonOperatorAcceptance
       WHERE 1 < n.num < 3
       RETURN n.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.num |
       | 2     |
     And no side effects
@@ -61,7 +61,7 @@ Feature: ComparisonOperatorAcceptance
       WHERE 1 < n.num <= 3
       RETURN n.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.num |
       | 2     |
       | 3     |
@@ -80,7 +80,7 @@ Feature: ComparisonOperatorAcceptance
       WHERE 1 <= n.num < 3
       RETURN n.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.num |
       | 1     |
       | 2     |
@@ -99,7 +99,7 @@ Feature: ComparisonOperatorAcceptance
       WHERE 1 <= n.num <= 3
       RETURN n.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.num |
       | 1     |
       | 2     |
@@ -119,7 +119,7 @@ Feature: ComparisonOperatorAcceptance
       WHERE 'a' < n.name < 'c'
       RETURN n.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.name |
       | 'b'    |
     And no side effects
@@ -137,7 +137,7 @@ Feature: ComparisonOperatorAcceptance
       WHERE 'a' < n.name <= 'c'
       RETURN n.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.name |
       | 'b'    |
       | 'c'    |
@@ -156,7 +156,7 @@ Feature: ComparisonOperatorAcceptance
       WHERE 'a' <= n.name < 'c'
       RETURN n.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.name |
       | 'a'    |
       | 'b'    |
@@ -175,7 +175,7 @@ Feature: ComparisonOperatorAcceptance
       WHERE 'a' <= n.name <= 'c'
       RETURN n.name
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.name |
       | 'a'    |
       | 'b'    |
@@ -194,7 +194,7 @@ Feature: ComparisonOperatorAcceptance
       WHERE 10 < n.num <= 3
       RETURN n.num
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n.num |
     And no side effects
 
@@ -215,7 +215,7 @@ Feature: ComparisonOperatorAcceptance
       WHERE n.prop1 < m.prop1 = n.prop2 <> m.prop2
       RETURN labels(m)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | labels(m) |
       | ['B']     |
     And no side effects

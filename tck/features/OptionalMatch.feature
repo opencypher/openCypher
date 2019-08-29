@@ -44,7 +44,7 @@ Feature: OptionalMatch
       OPTIONAL MATCH (p)-[s:SUPPORTS]->(team)
       RETURN count(*) AS matches, s IS NULL AS optMatch
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | matches | optMatch |
       | 1       | false    |
     And no side effects
@@ -62,7 +62,7 @@ Feature: OptionalMatch
       OPTIONAL MATCH (p)-[s:SUPPORTS]->(team)
       RETURN count(*) AS matches, s IS NULL AS optMatch
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | matches | optMatch |
       | 1       | true     |
     And no side effects
@@ -81,7 +81,7 @@ Feature: OptionalMatch
       OPTIONAL MATCH (p)-[s:SUPPORTS]->(team)
       RETURN count(*) AS matches, s IS NULL AS optMatch
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | matches | optMatch |
       | 1       | true     |
     And no side effects

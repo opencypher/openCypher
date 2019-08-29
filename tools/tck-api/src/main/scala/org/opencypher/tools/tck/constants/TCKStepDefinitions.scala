@@ -67,7 +67,7 @@ object TCKStepDefinitions {
   val executingControlQueryR = EXECUTING_CONTROL_QUERY.r
 
   // for Then
-  val EXPECT_RESULT = "^the result should be:$"
+  val EXPECT_RESULT = "^the result should be, in any order:$"
   val expectResultR = EXPECT_RESULT.r
 
   val EXPECT_SORTED_RESULT = "^the result should be, in order:$"

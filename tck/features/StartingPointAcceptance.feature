@@ -43,7 +43,7 @@ Feature: StartingPointAcceptance
       MATCH (n)
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n             |
       | ({name: 'a'}) |
       | ({name: 'b'}) |
@@ -64,7 +64,7 @@ Feature: StartingPointAcceptance
       MATCH (n:Animal)
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n         |
       | (:Animal) |
       | (:Animal) |
@@ -83,7 +83,7 @@ Feature: StartingPointAcceptance
       WHERE n.num = 2
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n          |
       | ({num: 2}) |
     And no side effects

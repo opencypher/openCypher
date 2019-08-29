@@ -39,7 +39,7 @@ Feature: TemporalComparisonAcceptance
       WITH date(<map>) AS x, date(<map2>) AS d
       RETURN x > d, x < d, x >= d, x <= d, x = d
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x > d | x < d | x >= d | x <= d | x = d |
       | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
     And no side effects
@@ -55,7 +55,7 @@ Feature: TemporalComparisonAcceptance
       WITH localtime(<map>) AS x, localtime(<map2>) AS d
       RETURN x > d, x < d, x >= d, x <= d, x = d
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x > d | x < d | x >= d | x <= d | x = d |
       | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
     And no side effects
@@ -71,7 +71,7 @@ Feature: TemporalComparisonAcceptance
       WITH time(<map>) AS x, time(<map2>) AS d
       RETURN x > d, x < d, x >= d, x <= d, x = d
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x > d | x < d | x >= d | x <= d | x = d |
       | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
     And no side effects
@@ -87,7 +87,7 @@ Feature: TemporalComparisonAcceptance
       WITH localdatetime(<map>) AS x, localdatetime(<map2>) AS d
       RETURN x > d, x < d, x >= d, x <= d, x = d
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x > d | x < d | x >= d | x <= d | x = d |
       | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
     And no side effects
@@ -103,7 +103,7 @@ Feature: TemporalComparisonAcceptance
       WITH datetime(<map>) AS x, datetime(<map2>) AS d
       RETURN x > d, x < d, x >= d, x <= d, x = d
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x > d | x < d | x >= d | x <= d | x = d |
       | <gt>  | <lt>  | <ge>   | <le>   | <e>   |
     And no side effects
@@ -119,7 +119,7 @@ Feature: TemporalComparisonAcceptance
       WITH duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70}) AS x, <other> AS d
       RETURN x = d
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | x = d |
       | <e>   |
     And no side effects

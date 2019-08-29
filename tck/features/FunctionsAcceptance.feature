@@ -41,7 +41,7 @@ Feature: FunctionsAcceptance
       MATCH (a)
       RETURN coalesce(a.title, a.name)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | coalesce(a.title, a.name) |
       | 'CEO'                     |
       | 'Nobody'                  |
@@ -55,7 +55,7 @@ Feature: FunctionsAcceptance
       OPTIONAL MATCH p = (a)-[r]->()
       RETURN size(nodes(p)), type(r), nodes(p), relationships(p)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | size(nodes(p)) | type(r) | nodes(p) | relationships(p) |
       | null           | null    | null     | null             |
     And no side effects
@@ -67,7 +67,7 @@ Feature: FunctionsAcceptance
       UNWIND split('one1two', '1') AS item
       RETURN count(item) AS item
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | item |
       | 2    |
     And no side effects
@@ -83,7 +83,7 @@ Feature: FunctionsAcceptance
       MATCH (p:Person)
       RETURN properties(p) AS m
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | m                             |
       | {name: 'Popeye', level: 9001} |
     And no side effects
@@ -99,7 +99,7 @@ Feature: FunctionsAcceptance
       MATCH ()-[r:R]->()
       RETURN properties(r) AS m
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | m                             |
       | {name: 'Popeye', level: 9001} |
     And no side effects
@@ -110,7 +110,7 @@ Feature: FunctionsAcceptance
       """
       RETURN properties({name: 'Popeye', level: 9001}) AS m
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | m                             |
       | {name: 'Popeye', level: 9001} |
     And no side effects
@@ -145,7 +145,7 @@ Feature: FunctionsAcceptance
       """
       RETURN properties(null)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | properties(null) |
       | null             |
     And no side effects
@@ -156,7 +156,7 @@ Feature: FunctionsAcceptance
       """
       RETURN reverse('raksO')
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | reverse('raksO') |
       | 'Oskar'          |
     And no side effects
@@ -174,7 +174,7 @@ Feature: FunctionsAcceptance
       WHERE exists(n['name'])
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n                       |
       | (:Person {name: 'foo'}) |
     And no side effects
@@ -186,7 +186,7 @@ Feature: FunctionsAcceptance
       WITH <map> AS map
       RETURN exists(map.name) AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
@@ -204,7 +204,7 @@ Feature: FunctionsAcceptance
       WITH <map> AS map
       RETURN map.name IS NOT NULL
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | map.name IS NOT NULL |
       | <result>             |
     And no side effects
@@ -230,7 +230,7 @@ Feature: FunctionsAcceptance
       MATCH (n)
       RETURN percentileDisc(n.price, $percentile) AS p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p        |
       | <result> |
     And no side effects
@@ -256,7 +256,7 @@ Feature: FunctionsAcceptance
       MATCH (n)
       RETURN percentileCont(n.price, $percentile) AS p
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | p        |
       | <result> |
     And no side effects
@@ -341,7 +341,7 @@ Feature: FunctionsAcceptance
       MATCH ()-[r]->()
       RETURN type(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | type(r) |
       | 'T'     |
     And no side effects
@@ -357,7 +357,7 @@ Feature: FunctionsAcceptance
       MATCH ()-[r1]->()-[r2]->()
       RETURN type(r1), type(r2)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | type(r1) | type(r2) |
       | 'T1'     | 'T2'     |
     And no side effects
@@ -374,7 +374,7 @@ Feature: FunctionsAcceptance
       OPTIONAL MATCH (a)-[r:NOT_THERE]->()
       RETURN type(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | type(r) |
       | null    |
     And no side effects
@@ -391,7 +391,7 @@ Feature: FunctionsAcceptance
       OPTIONAL MATCH (a)-[r:T]->()
       RETURN type(r)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | type(r) |
       | 'T'     |
       | null    |
@@ -409,7 +409,7 @@ Feature: FunctionsAcceptance
       WITH [r, 1] AS list
       RETURN type(list[0])
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | type(list[0]) |
       | 'T'           |
     And no side effects
@@ -491,7 +491,7 @@ Feature: FunctionsAcceptance
       MATCH (n:X)
       RETURN n, EXIsTS(n.prop) AS b
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n               | b     |
       | (:X {prop: 42}) | true  |
       | (:X)            | false |

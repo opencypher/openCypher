@@ -42,7 +42,7 @@ Feature: NullAcceptance
       RETURN exists(n.missing),
              exists(n.exists)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | exists(n.missing) | exists(n.exists) |
       | false             | true             |
     And no side effects
@@ -59,7 +59,7 @@ Feature: NullAcceptance
       RETURN exists(n.missing),
              exists(n.exists)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | exists(n.missing) | exists(n.exists) |
       | false             | true             |
     And no side effects
@@ -71,7 +71,7 @@ Feature: NullAcceptance
       OPTIONAL MATCH (n)
       RETURN exists(n.missing)
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | exists(n.missing) |
       | null              |
     And no side effects
@@ -84,7 +84,7 @@ Feature: NullAcceptance
       SET a.num = 42
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    |
       | null |
     And no side effects
@@ -97,7 +97,7 @@ Feature: NullAcceptance
       REMOVE a.num
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    |
       | null |
     And no side effects
@@ -110,7 +110,7 @@ Feature: NullAcceptance
       SET a += {num: 42}
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    |
       | null |
     And no side effects
@@ -123,7 +123,7 @@ Feature: NullAcceptance
       SET a = {num: 42}
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    |
       | null |
     And no side effects
@@ -136,7 +136,7 @@ Feature: NullAcceptance
       SET a:L
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    |
       | null |
     And no side effects
@@ -149,7 +149,7 @@ Feature: NullAcceptance
       REMOVE a:L
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    |
       | null |
     And no side effects
@@ -162,7 +162,7 @@ Feature: NullAcceptance
       DELETE a
       RETURN a
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | a    |
       | null |
     And no side effects
@@ -175,7 +175,7 @@ Feature: NullAcceptance
       DELETE r
       RETURN r
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | r    |
       | null |
     And no side effects

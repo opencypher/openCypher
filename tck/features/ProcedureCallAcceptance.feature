@@ -117,7 +117,7 @@ Feature: ProcedureCallAcceptance
       CALL test.doNothing()
       RETURN n
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | n |
     And no side effects
 
@@ -136,7 +136,7 @@ Feature: ProcedureCallAcceptance
       CALL test.doNothing()
       RETURN n.name AS `name`
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | name |
       | 'a'  |
       | 'b'  |
@@ -160,7 +160,7 @@ Feature: ProcedureCallAcceptance
       """
       CALL test.doNothing() YIELD - RETURN 1
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | 1 |
     And no side effects
 
