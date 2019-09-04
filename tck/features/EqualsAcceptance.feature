@@ -143,7 +143,7 @@ Feature: EqualsAcceptance
       | [[1], [2]]    | [[1], [null]] | null   |
       | [[1], [2, 3]] | [[1], [null]] | false  |
 
-  Scenario Outline: Comparing NaN
+  Scenario Outline: Equality and inequality of NaN
     Given any graph
     When executing query:
       """
@@ -161,7 +161,7 @@ Feature: EqualsAcceptance
       | 0.0 / 0.0 | 0.0 / 0.0 | false   | true       |
       | 0.0 / 0.0 | 'a'       | false   | true       |
 
-  Scenario Outline: Equality of different types
+  Scenario Outline: Equality between strings and numbers
     Given any graph
     When executing query:
       """

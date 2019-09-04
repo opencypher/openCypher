@@ -125,7 +125,7 @@ Feature: Comparability
       RETURN <lhs> > <rhs> AS gt, <lhs> >= <rhs> AS gtE, <lhs> < <rhs> AS lt, <lhs> <= <rhs> AS ltE
       """
     Then the result should be:
-      | gt       | gtE      | lt       | ltE     |
+      | gt       | gtE      | lt       | ltE      |
       | <result> | <result> | <result> | <result> |
     And no side effects
 
@@ -136,7 +136,7 @@ Feature: Comparability
       | 0.0 / 0.0 | 0.0 / 0.0 | false  |
       | 0.0 / 0.0 | 'a'       | null   |
 
-  Scenario Outline: Comparability of different types
+  Scenario Outline: Comparability between numbers and strings
     Given any graph
     When executing query:
       """

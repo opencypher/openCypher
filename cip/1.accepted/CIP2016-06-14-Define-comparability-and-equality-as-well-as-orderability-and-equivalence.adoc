@@ -126,7 +126,8 @@ Cypher today has one supertype `MAP` for all map values. This includes nodes (of
 [[comparability-equality,comparability and equality]]
 === Comparability and equality
 
-We define equality and comparability in terms of `=` and `<`. All other operators can be derived as follows:
+We define equality and comparability in terms of `=` and `<`. 
+All other operators can be derived as follows:
 
 [[Operators,Operators]]
 .Operators
@@ -138,10 +139,10 @@ We define equality and comparability in terms of `=` and `<`. All other operator
 |a `>=` b | b `<` a OR a `=` b
 |===========
 
-These equation are also valid for null values.
-`=` only evaluates to `null`, if one of the operands is `null`.
-If `a = b` then follows `NOT (a < b)` and vice versa.
-Comparability procudes <<unknown-null,"unknown" `null` values>>.
+These equation are also valid for `null` values.
+`=` evaluates to `null` if and only if one of the operands is or contains `null`.
+If `a = b` is true then it follows that `NOT (a < b)` is also true, and vice versa.
+Comparability produces <<unknown-null,"unknown" `null` values>>.
 
 Values are only comparable within their most specific type (except for numbers, see below).
 Equality for values of different types generally evaluates to `false`.
@@ -150,13 +151,13 @@ We propose that <<comparability-con,comparability>> and <<equality-con,equality>
 
 ==== Numbers ====
 
-Numbers of different types, i.e. integers and floats can be equal and compared to each other.
+Numbers of different types, i.e. integers and floats, can be equal and compared to each other.
 
-* Integers are compared numerically in ascending order.
+* Integers are compared numerically in their natural order.
 * Floats (excluding `NaN` values and the Infinities) are compared numerically in ascending order.
 * Numbers of different types (excluding `NaN` values and the Infinities) are compared to each other and tested for equality as if both numbers would have been coerced to arbitrary precision big decimals (currently outside the Cypher type system) before comparing them with each other numerically in ascending order.
-* For all numbers `a`, including `NaN`, all comparibility tests (`<`, `\<=`, `>`, `>=`) evaluate to `false`.
-Furthermore `a = NaN` is always false and `a <> NaN` is always true.
+* For all numbers `a` (including `NaN`) all comparability tests (`<`, `\<=`, `>`, `>=`) evaluate to `false`.
+Furthermore `a = b` is always false and `a <> b` is always true when `b` is `NaN`.
 This is an exception to the definition of the derived operators.
 * Positive infinity is of type `FLOAT`, equal to itself and greater than any other number (excluding `NaN` values).
 * Negative infinity is of type `FLOAT`, equal to itself and less than any other number (excluding `NaN` values).
@@ -164,16 +165,16 @@ This is an exception to the definition of the derived operators.
 
 ==== Booleans ====
 
-* Intuitively, `true` is equal only to itself and `false` is equal only to itself.
+* Intuitively, `true` and `false` are equal only to themselves, respectively.
 * Booleans are compared such that `false` is less than `true`.
 * Booleans are <<incomparable>> to any value that is not also a boolean.
 
 ==== Strings ====
 
-* Two strings are equal if and only if all characters in them are identical.
+* Two strings are equal if and only if all characters in them are equal.
 * Strings are compared in dictionary order, i.e. characters are compared pairwise in ascending order from the start of the string to the end.
 Characters missing in a shorter string are considered to be less than any other character.
-For example, `'a' < 'aa'`.
+For example, `'a' < 'aa'` evaluates to true.
 * Strings are <<incomparable>> to any value that is not also a string.
 
 ==== Lists ====
@@ -207,8 +208,9 @@ The same logic applies recursively when comparing nested lists.
 <=> false
 ----
 
-* Lists are compared in dictionary order, i.e. list elements are compared pairwise in ascending order from the start of the list to the end. Elements missing in a shorter list are considered to be less than any other value (including `null` values).
-  For example, `[1] < [1, 0]` but also `[1] < [1, null]`.
+* Lists are compared in dictionary order, i.e. list elements are compared pairwise from the start of the list to the end, and the result is the conjunction of the element comparisons.
+Elements missing in a shorter list are considered to be less than any other value (including `null` values).
+  For example, `[1] < [1, 0]` and `[1] < [1, null]` both evaluate to true.
 * If comparing two lists includes comparing any pair of incomparable values, these lists may be <<incomparable>>.
   On the one hand, `[1, 2] >= [1, null]`  and `[1, 2] >= [1, 'text']` both evaluate to `null` (incomparable), because `2` is incomparable with both `null` and `'text'`, and `1 \<= 1`.
   On the other hand, `[1, 2] >= [3, null]` evaluates to `false`, because `1 < 3`.
@@ -231,8 +233,10 @@ This is at odds with the decision to produce <<unknown-null,"unknown" `null` val
 
 However, this definition is aligned with the most common use case for maps with `null` entries: updating multiple properties through the use of a single `SET` clause, e.g. `SET n += { size: 12, remove_this_key: null }`.
 In this case, there is no need to differentiate between different `null` values, as `null` merely serves as a marker for keys to be removed (i.e. is a <<missing-null,"missing" `null` value>>).
-Current equality semantics make it easy to check if two maps would correspond to the same property update in this scenario. We note though that this type of update map comparison is rare and could be emulated using a more complex predicate.
-The current rules do however break symmetry with how equality handles `null` in all other cases. This becomes more apparent by considering these two examples:
+Current equality semantics make it easy to check if two maps would correspond to the same property update in this scenario. 
+We note though that this type of update map comparison is rare and could be emulated using a more complex predicate.
+The current rules do however break symmetry with how equality handles `null` in all other cases. 
+This becomes more apparent by considering these two examples:
 
 * `expr1 = expr2` evaluates to `null` if `expr1 IS NULL AND expr2 IS NULL`
 * `{a: expr1} = {a: expr2}` evaluates to `true` if `expr1 IS NULL AND expr2 IS NULL`
@@ -266,9 +270,9 @@ For example, `{a: 1} \<= {a: 1, b: null}` evaluates to `null`.
 ==== Paths ====
 
 Paths are tested for equality as if they were a list of alternating nodes and relationships of the path from the start node to the end node.
-Two paths are equal if and only if these lists of nodes and realtionships are equal.
+Two paths are equal if and only if these lists of nodes and relationships are equal.
 
-Paths are also compared the same way.
+Paths are also compared in this way.
 For example, given nodes `n1`, `n2`, `n3`, and relationships `r1` and `r2`, and given that `n1 < n2 < n3` and `r1 < r2`, then the path `p1` from `n1` to `n3` via `r1` would be less than the path `p2` to `n1` from `n2` via `r2`.
 Expressed in terms of lists:
 
@@ -293,7 +297,7 @@ Paths are <<incomparable>> to any value that is not also a path.
 Instant types are `DateTime`, `LocalDateTime`, `Date`, `Time`, and `LocalTime`.
 
 * Temporal instant values are only comparable within types.
-* Given two instants `a` and `b`, `a < b` is `true` if and only if `a` is _before_ `b`, +conversely `a > b` is `true` if and only if `a` is _after_ `b`.
+* Given two instants `a` and `b`, `a < b` is `true` if and only if `a` is _before_ `b`, conversely `a > b` is `true` if and only if `a` is _after_ `b`.
 * Temporal instant values with timezone (`DateTime` and `LocalTime`) are compared on a global timeline, as if the instants were normalized to UTC.
 * Two given instants `a` and `b` are equal if any only if they are of the same type and neither of them is _before_ or _after_ the other.
 
@@ -306,7 +310,7 @@ Instant types are `DateTime`, `LocalDateTime`, `Date`, `Time`, and `LocalTime`.
 [[incomparable,incomparable]]
 ==== Incomparability
 
-If and only if `a < b` between two specific values `a` and `b` evaluates to `null`, theses values are said to be incomparable with each other.
+If and only if `a < b` between two specific values `a` and `b` evaluates to `null`, these values are said to be incomparable with each other.
 `null` is incomparable with any other value (including other `null` values).
 
 [[orderability-equivalence]]
