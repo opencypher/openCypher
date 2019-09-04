@@ -150,16 +150,16 @@ Feature: EqualsAcceptance
       RETURN <lhs> = <rhs> AS isEqual, <lhs> <> <rhs> AS isNotEqual
       """
     Then the result should be:
-      | isEqual   | isNotEqual   |
-      | <isEqual> | <isNotEqual> |
+      | isEqual | isNotEqual |
+      | false   | true       |
     And no side effects
 
     Examples:
-      | lhs       | rhs       | isEqual | isNotEqual |
-      | 0.0 / 0.0 | 1         | false   | true       |
-      | 0.0 / 0.0 | 1.0       | false   | true       |
-      | 0.0 / 0.0 | 0.0 / 0.0 | false   | true       |
-      | 0.0 / 0.0 | 'a'       | false   | true       |
+      | lhs       | rhs       |
+      | 0.0 / 0.0 | 1         |
+      | 0.0 / 0.0 | 1.0       |
+      | 0.0 / 0.0 | 0.0 / 0.0 |
+      | 0.0 / 0.0 | 'a'       |
 
   Scenario Outline: Equality between strings and numbers
     Given any graph

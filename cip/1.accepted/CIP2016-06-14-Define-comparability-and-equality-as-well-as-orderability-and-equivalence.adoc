@@ -131,12 +131,13 @@ All other operators can be derived as follows:
 
 [[Operators,Operators]]
 .Operators
-[width="50%"]
+[width="50%",options="header", cols="m,m"]
 |===========
-|a `<>` b | NOT (a `=` b)
-|a `>` b | b `<` a
-|a `\<=` b | a `<` b OR a `=` b
-|a `>=` b | b `<` a OR a `=` b
+| operator | defined as
+|a <> b  | NOT (a = b)
+|a > b   | b < a
+|a \<= b | a < b OR a = b
+|a >= b  | b < a OR a = b
 |===========
 
 These equation are also valid for `null` values.
@@ -154,10 +155,10 @@ We propose that <<comparability-con,comparability>> and <<equality-con,equality>
 Numbers of different types, i.e. integers and floats, can be equal and compared to each other.
 
 * Integers are compared numerically in their natural order.
-* Floats (excluding `NaN` values and the Infinities) are compared numerically in ascending order.
-* Numbers of different types (excluding `NaN` values and the Infinities) are compared to each other and tested for equality as if both numbers would have been coerced to arbitrary precision big decimals (currently outside the Cypher type system) before comparing them with each other numerically in ascending order.
-* For all numbers `a` (including `NaN`) all comparability tests (`<`, `\<=`, `>`, `>=`) evaluate to `false`.
-Furthermore `a = b` is always false and `a <> b` is always true when `b` is `NaN`.
+* Floats (excluding `NaN` values and the Infinities) are compared numerically in their natural order.
+* Numbers of different types (excluding `NaN` values and the Infinities) are compared to each other and tested for equality as if both numbers would have been coerced to unlimited precision big decimals (currently outside the Cypher type system) before comparing them with each other numerically in their natural order.
+* For all numbers `a` (including `NaN`) all comparability tests (`<`, `\<=`, `>`, `>=`) with `NaN` evaluate to `false`, e.g. `1 > b` and `1 < b` are both `false` when `b` is `NaN`.
+Furthermore `a = b` is always `false` and `a <> b` is always true when `b` is `NaN`.
 This is an exception to the definition of the derived operators.
 * Positive infinity is of type `FLOAT`, equal to itself and greater than any other number (excluding `NaN` values).
 * Negative infinity is of type `FLOAT`, equal to itself and less than any other number (excluding `NaN` values).
@@ -179,8 +180,7 @@ For example, `'a' < 'aa'` evaluates to true.
 
 ==== Lists ====
 
-We define equality of lists that contain `null` values to treat those values in the same way as if they would have been compared outside of those lists, as individual, simple values.
-The equality of two lists `a` and `b` is defined as the <<conjunction>> of `size(a) = size(b)` and a pairwise comparison of all elements in the list.
+The equality of two lists `a` and `b` is defined as the <<conjunction>> of `size(a) = size(b)` and a pairwise equality comparison of all elements in the list.
 
 ----
     [1, 2] = [1]
@@ -212,8 +212,8 @@ The same logic applies recursively when comparing nested lists.
 Elements missing in a shorter list are considered to be less than any other value (including `null` values).
   For example, `[1] < [1, 0]` and `[1] < [1, null]` both evaluate to true.
 * If comparing two lists includes comparing any pair of incomparable values, these lists may be <<incomparable>>.
-  On the one hand, `[1, 2] >= [1, null]`  and `[1, 2] >= [1, 'text']` both evaluate to `null` (incomparable), because `2` is incomparable with both `null` and `'text'`, and `1 \<= 1`.
-  On the other hand, `[1, 2] >= [3, null]` evaluates to `false`, because `1 < 3`.
+  ** On the one hand, `[1, 2] >= [1, null]` evaluates to `null` (incomparable), because `2` is incomparable with `null` and `1 \<= 1`.
+  ** On the other hand, `[1, 2] >= [3, null]` evaluates to `false`, because `1 < 3`.
 * Lists are <<incomparable>> to any value that is not also a list.
 
 ==== Maps ====
