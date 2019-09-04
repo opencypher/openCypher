@@ -124,7 +124,7 @@ Feature: Comparability
       """
       RETURN <lhs> > <rhs> AS gt, <lhs> >= <rhs> AS gtE, <lhs> < <rhs> AS lt, <lhs> <= <rhs> AS ltE
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | gt       | gtE      | lt       | ltE      |
       | <result> | <result> | <result> | <result> |
     And no side effects
@@ -142,7 +142,7 @@ Feature: Comparability
       """
       RETURN <lhs> < <rhs> AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects

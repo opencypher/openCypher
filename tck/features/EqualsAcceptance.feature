@@ -149,7 +149,7 @@ Feature: EqualsAcceptance
       """
       RETURN <lhs> = <rhs> AS isEqual, <lhs> <> <rhs> AS isNotEqual
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | isEqual | isNotEqual |
       | false   | true       |
     And no side effects
@@ -167,7 +167,7 @@ Feature: EqualsAcceptance
       """
       RETURN <lhs> = <rhs> AS result
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | result   |
       | <result> |
     And no side effects
