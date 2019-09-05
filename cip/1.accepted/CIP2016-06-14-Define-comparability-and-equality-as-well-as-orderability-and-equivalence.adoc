@@ -173,7 +173,7 @@ This is an exception to the definition of the derived operators.
 ==== Strings ====
 
 * Two strings are equal if and only if all characters in them are equal.
-* Strings are compared in dictionary order, i.e. characters are compared pairwise in ascending order from the start of the string to the end.
+* Strings are compared in dictionary order, i.e. characters are compared pairwise in numeric order of their Unicode code points from the start of the string to the end.
 Characters missing in a shorter string are considered to be less than any other character.
 For example, `'a' < 'aa'` evaluates to true.
 * Strings are <<incomparable>> to any value that is not also a string.
@@ -468,7 +468,7 @@ SQL also treats comparisons involving `null` as returning `null`.
 
 PostgresSQL treats some numerical operations (such as division by zero) that would compute a `NaN` value as a numerical error that causes the query to fail.
 PostgresQL considers `NaN` values to be greater than positive infinity, both in comparison and in sort order.
-This proposal achieves something very similar by treating both `NaN` values as the largest numbers and `null` values as the largest values in the <<global-sort-order>>.
+This proposal achieves something very similar by treating `NaN` values as the largest numbers and `null` values as the largest values in the <<global-sort-order>>.
 
 This proposal could be extended with an operator for making equivalence accessible beyond use in grouping and `DISTINCT`. This seems desirable due to the equality operator (`=`) not being reflexive for all values.
 
