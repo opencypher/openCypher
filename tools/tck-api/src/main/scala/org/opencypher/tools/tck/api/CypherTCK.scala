@@ -29,7 +29,7 @@ package org.opencypher.tools.tck.api
 
 import java.io.File
 import java.net.URL
-import java.nio.file.{FileSystems, Files, Paths}
+import java.nio.file._
 import java.util
 
 import gherkin.ast.GherkinDocument
@@ -71,19 +71,36 @@ object CypherTCK {
   def parseClasspathFeatures(path: String): Seq[Feature] = {
     val resource = getClass.getResource(path).toURI
     val fs = FileSystems.newFileSystem(resource, new util.HashMap[String, String]) // Needed to support `Paths.get` below
+    val directoryPath: Path = Paths.get(resource)
     try {
-      val directoryPath = Paths.get(resource)
-      val paths = Files.newDirectoryStream(directoryPath).asScala.toSeq
-      val featurePathStrings = paths.map(path => path.toString).filter(_.endsWith(featureSuffix))
-      val featureUrls = featurePathStrings.map(getClass.getResource(_))
+      val featureUrls = parseClasspathFeatureURLsRecursive(directoryPath)
       featureUrls.map(parseClasspathFeature)
     } finally {
-      fs.close()
+      try {
+        fs.close()
+      } catch {
+        case _: UnsupportedOperationException => Unit
+      }
+    }
+  }
+
+  private def parseClasspathFeatureURLsRecursive(directoryPath: Path): List[URL] = {
+    try {
+      val paths = Files.newDirectoryStream(directoryPath).asScala.toList
+      val pathPartitioned = paths.partition(_.toString().endsWith(featureSuffix))
+      // feature files
+      val featureUrls = pathPartitioned._1.map(path => getClass.getResource(path.toString))
+      // subdirectories
+      val subFeatureUrls = pathPartitioned._2.flatMap(parseClasspathFeatureURLsRecursive)
+      featureUrls ++ subFeatureUrls
+    } catch {
+      case _: NotDirectoryException => List[URL]()
     }
   }
 
   private def withSource[T](s: Source)(f: Source => T) = try { f(s) } finally { s.close() }
 
+  //TODO extend to parse subdirectories recursively
   def parseFilesystemFeatures(directory: File): Seq[Feature] = {
     require(directory.isDirectory)
     val featureFileNames = directory.listFiles.filter(_.getName.endsWith(featureSuffix))
