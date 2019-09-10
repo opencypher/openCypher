@@ -290,8 +290,7 @@
   <production name="With" scope:rule="new">
     <seq>
       WITH
-      <opt>&WS; DISTINCT</opt> &SP;
-      <non-terminal ref="ReturnBody"/>
+      <non-terminal ref="ProjectionBody"/>
       <opt>&WS;<non-terminal ref="Where"/></opt>
     </seq>
   </production>
@@ -299,29 +298,29 @@
   <production name="Return">
     <seq>
       RETURN
-      <opt>&WS; DISTINCT</opt> &SP;
-      <non-terminal ref="ReturnBody"/>
+      <non-terminal ref="ProjectionBody"/>
     </seq>
   </production>
 
-  <production name="ReturnBody">
-    <non-terminal ref="ReturnItems"/>
+  <production name="ProjectionBody">
+    <opt>&WS; DISTINCT</opt> &SP;
+    <non-terminal ref="ProjectionItems"/>
     <opt>&SP;<non-terminal ref="Order"/></opt>
     <opt>&SP;<non-terminal ref="Skip"/></opt>
     <opt>&SP;<non-terminal ref="Limit"/></opt>
   </production>
 
-  <production name="ReturnItems" rr:inline="true">
+  <production name="ProjectionItems" rr:inline="true">
     <alt>
-      <seq>*<repeat>&WS; , &WS;<non-terminal ref="ReturnItem"/></repeat></seq>
+      <seq>*<repeat>&WS; , &WS;<non-terminal ref="ProjectionItem"/></repeat></seq>
       <seq>
-        <non-terminal ref="ReturnItem"/>
-        <repeat>&WS; , &WS;<non-terminal ref="ReturnItem"/></repeat>
+        <non-terminal ref="ProjectionItem"/>
+        <repeat>&WS; , &WS;<non-terminal ref="ProjectionItem"/></repeat>
       </seq>
     </alt>
   </production>
 
-  <production name="ReturnItem" rr:inline="true">
+  <production name="ProjectionItem" rr:inline="true">
     <alt> <seq>&expr; &SP; AS &SP; &var;</seq> &expr; </alt>
   </production>
 
