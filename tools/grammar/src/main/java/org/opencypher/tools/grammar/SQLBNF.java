@@ -355,19 +355,9 @@ public class SQLBNF extends BnfWriter
     		output.append(value);
     		return;
     	}
-    	// if this is really free text, just write it out (including any funny characters)
+    	// if this is really "normal English text", just write it out
     	if (value.startsWith("!! ")) {
-    		// if this is multi-line, we need to break it up
-    		List<String> lines = new ArrayList<>(Arrays.asList(value.split("!! ")));
-    		// first is the marker
-    		if (lines.size() < 2) {
-    			LOGGER.debug("what was [{}] meant to be ?", value);
-    			return;
-    		}
-    		lines.remove(0);
-    		for (String line : lines) {
-				output.append("!! ").append(line).println();
-			}
+    		output.append(value);
     		return;
     	}
     	// special case // as that is a bnf comment

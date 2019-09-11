@@ -154,6 +154,72 @@ public class BNFProcessorTest {
 		roundTripBNF("<whitespace> ::= \\u0020 | $TAB$ | $LF$ | \\u1680 | \\u180E | \\u2000 | \\u2001");
 	}
 
+	@Test
+	public void exclamations() {
+		roundTripBNF("<something> ::= !! something old",
+				  "    | <newthing>",
+				  "",
+				  "<newthing> ::= NEW");
+	}
+
+	@Test
+	public void leadingDescription() {
+		// description on first prodn is tricky
+		roundTripBNF(
+					"<something> ::= <newthing>",
+				  "",
+				  "// this is one",
+				  "<newthing> ::= NEW");
+	}
+	
+	@Test
+	public void leadingDescriptionLines() {
+		// description on first prodn is tricky
+		roundTripBNF(
+					"<something> ::= <newthing>",
+				  "",
+				  "// this is line one",
+				  "//     this is line two",
+				  "//     this is line three",
+				  "<newthing> ::= NEW");
+	}
+	
+	@Test
+	public void retainHeader() {
+		// description on first prodn is tricky
+		roundTripBNF("//",
+					 "// an example header",
+					 "//",
+					 "",
+					 "<something> ::= <newthing>",
+				     "",
+				     "// this is one",
+				  "<newthing> ::= NEW");
+	}
+	
+	@Test
+	public void firstDescription() {
+		// description on first prodn 
+		roundTripBNF("// an example header",
+					 "<something> ::= <newthing>",
+				     "",
+				     "// this is one",
+				  "<newthing> ::= NEW");
+	}
+	
+	@Test
+	public void trailingDescription() {
+		// can't use the normal round trip, because the description ends up differently
+		String[] inputBnf = { "<something> ::= <newthing>", "// that might not work", "", "<newthing> ::= NEW" };
+		String inBnf = lines(inputBnf).trim();
+		BNFProcessor processor = new BNFProcessor();
+		Grammar grammar = processor.processString(lines(inputBnf));
+		String outputBnf = makeSQLBNF(grammar);
+		String[] expected = { "// that might not work", "<something> ::= <newthing>",  "", "<newthing> ::= NEW" };
+		String expect = lines(expected).trim();
+		assertEquals(unPretty(expect), unPretty(outputBnf));
+	}
+	
 
 	@Test
 	public void bnfProduction() {
@@ -299,14 +365,14 @@ public class BNFProcessorTest {
 	private void roundTrip(Grammar testGrammar) {
 		  LOGGER.debug("supplied grammar \n{}", xmlout(testGrammar));
 		String firstBNF = makeSQLBNF(testGrammar);
-		LOGGER.warn("in \n{}", firstBNF);
+		LOGGER.debug("in \n{}", firstBNF);
 		
 		BNFProcessor processor = new BNFProcessor();
 		Grammar grammar = processor.processString(firstBNF);
-		  LOGGER.warn("grammar afer first pass through bnf\n{}", xmlout(grammar));
+//		  LOGGER.warn("grammar afer first pass through bnf\n{}", xmlout(grammar));
 
 		String outputBNF = makeSQLBNF(grammar);
-		LOGGER.warn("out \n{}", outputBNF);
+		LOGGER.debug("out \n{}", outputBNF);
 		assertEquals(unPretty(firstBNF), unPretty(outputBNF));
 	}
 	
@@ -323,7 +389,7 @@ public class BNFProcessorTest {
 	}
 	
 	private static final Pattern XMLANG_PATTERN = Pattern.compile("name=(?:'|\")(\\w+)(?:'|\\\")");
-	
+
 	private Grammar xmlin(String productions) {
 		Matcher m = XMLANG_PATTERN.matcher(productions);
 		if (m.find()) {
@@ -351,7 +417,7 @@ public class BNFProcessorTest {
 		BNFProcessor processor = new BNFProcessor();
 		LOGGER.debug("in {}", inBnf);
 		Grammar grammar = processor.processString(lines(inputBnf));
-		//  LOGGER.debug("bnf read makes\n{}", xmlout(grammar));
+//		LOGGER.warn("bnf read makes\n{}", xmlout(grammar));
 		String outputBnf = makeSQLBNF(grammar);
 		LOGGER.debug("out {}", outputBnf);
 		assertEquals(unPretty(inBnf), unPretty(outputBnf));
@@ -365,9 +431,17 @@ public class BNFProcessorTest {
 		return outputBnf;
 	}
 	
+	
 	private String unPretty(String original) {
-		String nl = System.lineSeparator();
-		return original.replaceAll(nl + nl, "#!#").replaceAll("\\s+", " ").replaceAll("#!#", nl + nl);
+		// special case line comments and !!
+		original = original.replaceAll("\r", "");
+		original = original.replaceAll("((?:!!|//).*?)\n", "$1@!@");
+		original = original.replaceAll("\n\n", "#!#");
+		original = original.replaceAll("\\s+", " ");
+		original = original.replaceAll("@!@", "\n");
+		original = original.replaceAll("#!#", "\n\n");
+		original = original.replaceAll("\\s*\n\\s*", "\n");
+		return original;
 	}
 
 }

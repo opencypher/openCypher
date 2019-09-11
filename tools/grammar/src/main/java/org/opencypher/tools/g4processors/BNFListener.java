@@ -237,10 +237,14 @@ public class BNFListener extends BNFBaseListener
 			if (precedingBlankLines > 0) {
 				if (forHeader) {
 					// this will preserve the linefeeds
-					return lineTokens.stream().map(tk -> tk.getText().replaceFirst("!!", ""))
+					return lineTokens.stream().map(tk -> tk.getText().replaceFirst("// ?", ""))
 							.collect(Collectors.joining("\n"));
-				}  // it wasn't a description
+				}  // it wasn't a description (just a stray comment ?)
 			} else {
+				if (forHeader) {
+					// no blank line, so this is a description to the first 
+					return "";
+				}
 				// description - go back and find any gap showing a last blank line
 				int lastGoodLine = startCtx.getLine() - 1;		
 				int currentIndex = lineTokens.size() - 1;
@@ -250,7 +254,7 @@ public class BNFListener extends BNFBaseListener
 				}
 				List<String> content = new ArrayList<>();
 				for (int j = currentIndex + 1; j <lineTokens.size(); j++) {
-					content.add(lineTokens.get(j).getText().replace("!! ", ""));
+					content.add(lineTokens.get(j).getText().replaceFirst("// ?", ""));
 				}
 				return content.stream().collect(Collectors.joining("\n"));
 			}
@@ -272,7 +276,7 @@ public class BNFListener extends BNFBaseListener
 			List<String> content = new ArrayList<>();
 			for (Token lineToken : normalTextChannel) {
 				if (lineToken.getLine() == nextLine) {
-					content.add(lineToken.getText().replace("// ", ""));
+					content.add(lineToken.getText().replaceFirst("// ?", ""));
 					nextLine++;
 				} else {
 					break;

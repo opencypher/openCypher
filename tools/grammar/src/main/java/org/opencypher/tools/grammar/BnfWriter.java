@@ -27,7 +27,6 @@
  */
 package org.opencypher.tools.grammar;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
