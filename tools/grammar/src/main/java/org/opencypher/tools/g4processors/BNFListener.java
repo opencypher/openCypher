@@ -159,7 +159,9 @@ public class BNFListener extends BNFBaseListener
 	@Override
 	public void exitRule_(Rule_Context ctx)
 	{
-		String description = (findHiddenTextBefore(ctx, false) + findHiddenTextAfter(ctx)).replaceFirst("\r?\n$", "");
+		String description = (findHiddenTextBefore(ctx, false) 
+				+ findHiddenTextWithin(ctx)
+				+ findHiddenTextAfter(ctx)).replaceFirst("\r?\n$", "");
 		Rule rule = new Rule(getItem(ctx.lhs()), getItem(ctx.rhs()), description.length() == 0 ? null : description);
 		setItem(ctx, rule);
 	}
@@ -261,6 +263,17 @@ public class BNFListener extends BNFBaseListener
 		}
 		return "";
 	}
+	
+	// looking for free (comment) text in the middle of the production
+	private String findHiddenTextWithin(ParserRuleContext ctx)
+	{
+		List<Token> allTokens = tokens.get(ctx.getStart().getTokenIndex(),  ctx.getStop().getTokenIndex());
+		
+		return allTokens.stream().filter(t -> t.getChannel() == BNFLexer.HIDDEN)
+			.map(t -> t.getText().replaceFirst("// ?", "")).collect(Collectors.joining("\n"));
+	}
+
+
 	
 	// looking for free (comment) text at the end of the production
 	private String findHiddenTextAfter(ParserRuleContext ctx)
