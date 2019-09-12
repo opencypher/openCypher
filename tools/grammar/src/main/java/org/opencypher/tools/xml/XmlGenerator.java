@@ -52,6 +52,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.helpers.AttributesImpl;
 
 /**
@@ -253,6 +254,16 @@ public abstract class XmlGenerator implements XMLReader
     protected final void startElement( String prefix, String localName ) throws SAXException
     {
         startElement( prefix, localName, new AttributesImpl() );
+    }
+
+    protected final void comment( CharSequence content ) throws SAXException
+    {
+        char[] chars = new char[content.length()];
+        for ( int i = 0; i < chars.length; i++ )
+        {
+            chars[i] = content.charAt( i );
+        }
+        ((LexicalHandler) handler).comment( chars, 0, chars.length );
     }
 
     protected final void startElement( String prefix, String localName, Attributes attributes ) throws SAXException

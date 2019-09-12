@@ -27,6 +27,8 @@
  */
 package org.opencypher.tools.grammar;
 
+import static org.opencypher.grammar.Grammar.ParserOption.INCLUDE_LEGACY;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -55,10 +57,14 @@ public class TranslateGrammar {
 		String outXml = getArg("X", argList);
 		String outG4  = getArg("G", argList);
 		String outBnf = getArg("B", argList);
+		boolean includeLegacy = getBooleanArg("legacy", argList);
 		
 		if (argList.size() != 0) {
 			usage(args);
 			System.exit(1);
+		}
+		if (includeLegacy) {
+			 System.setProperty( INCLUDE_LEGACY.name(), "true" );
 		}
 		// ought to check for duplicates - just take the first if they're silly
 		Grammar grammar = null;
@@ -115,14 +121,25 @@ public class TranslateGrammar {
     	}
 	}
 
+	static boolean getBooleanArg(String key, List<String> argList) {
+	   	int index = argList.indexOf("-" + key);
+    	if (index >= 0) {
+    		argList.remove(index);
+    		return true;
+    	} else {
+    		return false;
+    	}
+	}
+
 	static void usage(String [] args) {
         System.err.println( "Arguments:\n" +
-        		"      -x : input xml file path\n" +
-        		"      -g : input antlr G4 file path\n" +
-        		"      -b : input SQL BNF file path\n" +
-        		"      -X : output xml file path\n" +
-        		"      -G : output antlr G4 file path or . for sysout\n" +
-        		"      -B : output SQL BNF file path or . for sysout\n" +
+        		"      -x <path> : input xml file path\n" +
+        		"      -g <path> : input antlr G4 file path\n" +
+        		"      -b <path> : input SQL BNF file path\n" +
+        		"      -X <path>: output xml file path\n" +
+        		"      -G <path or .> : output antlr G4 file path or . for sysout\n" +
+        		"      -B <path or .> : output SQL BNF file path or . for sysout\n" +
+        		"      -legacy : output SQL BNF file path or . for sysout\n" +
         		" One input file path must be given\n" +
         		" Zero or more output file paths may be given\n" +
         		" If no output file path is given, the output will go to sysout.");
