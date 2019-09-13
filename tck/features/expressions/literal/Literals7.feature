@@ -165,7 +165,7 @@ Feature: Literals7 - Negative tests
       """
       RETURN {k1:k2} AS literal
       """
-    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
+    Then a SyntaxError should be raised at compile time: UndefinedVariable
 
   Scenario: [20] Return a map containing a comma
     When executing query:
