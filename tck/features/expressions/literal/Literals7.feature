@@ -38,14 +38,14 @@ Feature: Literals7 - Negative tests
       """
       RETURN 9223372036854775808 AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: IntegerOverflow
 
   Scenario: [2] Return a too small integer
     When executing query:
       """
       RETURN -9223372036854775809 AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: IntegerOverflow
 
   Scenario: [3] Return an integer containing a alphabetic character
     When executing query:
@@ -94,28 +94,28 @@ Feature: Literals7 - Negative tests
       """
       RETURN 0x8000000000000000 AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: IntegerOverflow
 
   Scenario: [10] Return a too small hexadecimal integer
     When executing query:
       """
       RETURN -0x8000000000000001 AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: IntegerOverflow
 
   Scenario: [11] Return a too large hexadecimal integer
     When executing query:
       """
       RETURN 0800000000000000000000 AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: IntegerOverflow
 
   Scenario: [12] Return a too small hexadecimal integer
     When executing query:
       """
       RETURN -0100000000000000000001 AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: IntegerOverflow
 
   Scenario: [13] Return a list containing a comma
     When executing query:
