@@ -173,15 +173,16 @@ Feature: Literals5 - List
       | [1, -2, 0, 71034856] |
     And no side effects
 
-  Scenario: [15] Return a list containing multiple strings
-    When executing query:
-      """
-      RETURN ['abc, as#?lßdj ','',"'",",","[a","]"] AS literal
-      """
-    Then the result should be:
-      | literal                                      |
-      | ['abc, as#?lßdj ', '', '\'', ',', '[a', ']'] |
-    And no side effects
+### Needs more capable tck-api
+#  Scenario: [15] Return a list containing multiple strings
+#    When executing query:
+#      """
+#      RETURN ['abc, as#?lßdj ','',"'",",","[a","]"] AS literal
+#      """
+#    Then the result should be:
+#      | literal                                      |
+#      | ['abc, as#?lßdj ', '', '\'', ',', '[a', ']'] |
+#    And no side effects
 
   Scenario: [16] Return a list containing multiple mixed values
     When executing query:

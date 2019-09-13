@@ -53,6 +53,7 @@ Feature: Literals4 - String
       | 'a'     |
     And no side effects
 
+### Needs more capable tck-api
 #  Scenario: [3] Return a single-quoted string with uft-8 characters
 #    When executing query:
 #      """
@@ -62,26 +63,26 @@ Feature: Literals4 - String
 #      | literal    |
 #      | '🧐🍌❖⋙⚐' |
 #    And no side effects
-
-  Scenario: [4] Return a single-quoted string with escaped single-quoted
-    When executing query:
-      """
-      RETURN '\'' AS literal
-      """
-    Then the result should be:
-      | literal |
-      | '\''    |
-    And no side effects
-
-  Scenario: [5] Return a single-quoted string with escaped characters
-    When executing query:
-      """
-      RETURN 'a\tb\bc\nn\r5t\f\'\"\\//\\\"\'' AS literal
-      """
-    Then the result should be:
-      | literal                          |
-      | 'a\tb\bc\nn\r5t\f\'\"\\//\\\"\'' |
-    And no side effects
+#
+#  Scenario: [4] Return a single-quoted string with escaped single-quoted
+#    When executing query:
+#      """
+#      RETURN '\'' AS literal
+#      """
+#    Then the result should be:
+#      | literal |
+#      | '\''    |
+#    And no side effects
+#
+#  Scenario: [5] Return a single-quoted string with escaped characters
+#    When executing query:
+#      """
+#      RETURN 'a\tb\bc\nn\r5t\f\'\"\\//\\\"\'' AS literal
+#      """
+#    Then the result should be:
+#      | literal                          |
+#      | 'a\tb\bc\nn\r5t\f\'\"\\//\\\"\'' |
+#    And no side effects
 
   Scenario: [6] Return a single-quoted string with 100 characters
     When executing query:
