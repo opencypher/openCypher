@@ -104,17 +104,17 @@ Feature: Literals7 - Negative tests
       """
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
-  Scenario: [11] Return a too large hexadecimal integer
+  Scenario: [11] Return a too large octal integer
     When executing query:
       """
-      RETURN 0800000000000000000000 AS literal
+      RETURN 01000000000000000000000 AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: IntegerOverflow
 
-  Scenario: [12] Return a too small hexadecimal integer
+  Scenario: [12] Return a too small octal integer
     When executing query:
       """
-      RETURN -0100000000000000000001 AS literal
+      RETURN -01000000000000000000001 AS literal
       """
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
