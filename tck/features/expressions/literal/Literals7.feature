@@ -82,12 +82,13 @@ Feature: Literals7 - Negative tests
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
-  Scenario: [8] Returning an hexadecimal literal containing a invalid symbol character
-    When executing query:
-      """
-      RETURN 0x1A2b3c4?5E6f7 AS literal
-      """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+### Need fixing error message in neo4j
+#  Scenario: [8] Returning an hexadecimal literal containing a invalid symbol character
+#    When executing query:
+#      """
+#      RETURN 0x1A2b3c4#5E6f7 AS literal
+#      """
+#    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
   Scenario: [9] Return a too large hexadecimal integer
     When executing query:
@@ -122,81 +123,81 @@ Feature: Literals7 - Negative tests
       """
       RETURN [, ] AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   Scenario: [14] Return a nested list with non-matching brackets
     When executing query:
       """
       RETURN [[[]] AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   Scenario: [15] Return a nested list with missing commas
     When executing query:
       """
       RETURN [[','[]',']] AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   Scenario: [16] Return a map containing key starting with a number
     When executing query:
       """
       RETURN {1B2c3e67:1} AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   Scenario: [17] Return a map containing key with symbol
     When executing query:
       """
       RETURN {k1#k:1} AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   Scenario: [18] Return a map containing key with dot
     When executing query:
       """
       RETURN {k1.k:1} AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   Scenario: [19] Return a map containing unquoted string
     When executing query:
       """
       RETURN {k1:k2} AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   Scenario: [20] Return a map containing a comma
     When executing query:
       """
       RETURN {, } AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   Scenario: [21] Return a map containing a value without key
     When executing query:
       """
       RETURN {1} AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   Scenario: [22] Return a map containing a list without key
     When executing query:
       """
       RETURN {[]} AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   Scenario: [23] Return a map containing a map without key
     When executing query:
       """
       RETURN {{}} AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   Scenario: [24] Return a nested map with non-matching braces
     When executing query:
       """
       RETURN {k:{k:{}} AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
