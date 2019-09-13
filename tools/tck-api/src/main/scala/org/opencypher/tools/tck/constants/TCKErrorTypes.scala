@@ -76,6 +76,7 @@ object TCKErrorDetails {
   val INVALID_PARAMETER_USE = "InvalidParameterUse"
   val INVALID_CLAUSE_COMPOSITION = "InvalidClauseComposition"
   val FLOATING_POINT_OVERFLOW = "FloatingPointOverflow"
+  val INTEGER_OVERFLOW = "IntegerOverflow"
   val PROPERTY_ACCESS_ON_NON_MAP = "PropertyAccessOnNonMap"
   val INVALID_ARGUMENT_EXPRESSION = "InvalidArgumentExpression"
   val INVALID_UNICODE_CHARACTER = "InvalidUnicodeCharacter"
@@ -117,6 +118,7 @@ object TCKErrorDetails {
                 INVALID_PARAMETER_USE,
                 INVALID_CLAUSE_COMPOSITION,
                 FLOATING_POINT_OVERFLOW,
+                INTEGER_OVERFLOW,
                 PROPERTY_ACCESS_ON_NON_MAP,
                 INVALID_ARGUMENT_EXPRESSION,
                 INVALID_UNICODE_CHARACTER,
