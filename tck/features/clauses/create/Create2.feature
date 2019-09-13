@@ -222,7 +222,7 @@ Feature: Create2 - Creating relationships
     When executing query:
       """
       MATCH (x:End)
-      CREATE (x:Begin)-[:TYPE]->(:End)
+      CREATE (:Begin)-[:TYPE]->(x)
       """
     Then the result should be empty
     And the side effects should be:
