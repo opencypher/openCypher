@@ -62,7 +62,7 @@ Feature: Create1 - Creating nodes
       | +relationships | 1 |
 
   Scenario: [4] Creating a single node with a label
-    Given any graph
+    Given an empty graph
     When executing query:
       """
       CREATE (:Label)
@@ -73,7 +73,7 @@ Feature: Create1 - Creating nodes
       | +labels | 1 |
 
   Scenario: [5] Creating a single node with multiple labels
-    Given any graph
+    Given an empty graph
     When executing query:
       """
       CREATE (:A:B:C:D)
