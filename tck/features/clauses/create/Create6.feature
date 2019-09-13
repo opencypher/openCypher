@@ -36,7 +36,7 @@ Feature: Create6 - Negative tests
       """
       CREATE ()-->()
       """
-    Then a SyntaxError should be raised at compile time: MissingRelationshipType
+    Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
   Scenario: [2] Creating a relationship without a direction
     Given any graph
