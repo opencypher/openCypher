@@ -179,7 +179,7 @@ Feature: Literals7 - Negative tests
       """
       RETURN {1} AS literal
       """
-    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
+    Then a SyntaxError should be raised at compile time: MissingParameter
 
   Scenario: [22] Return a map containing a list without key
     When executing query:
