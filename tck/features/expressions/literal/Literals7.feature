@@ -108,7 +108,7 @@ Feature: Literals7 - Negative tests
       """
       RETURN 0800000000000000000000 AS literal
       """
-    Then a SyntaxError should be raised at compile time: IntegerOverflow
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
   Scenario: [12] Return a too small hexadecimal integer
     When executing query:
