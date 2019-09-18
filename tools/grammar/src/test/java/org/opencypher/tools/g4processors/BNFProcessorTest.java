@@ -300,9 +300,32 @@ public class BNFProcessorTest {
 					"  |  $Pc$");
 	}
 	
+	// this would require merging of the // literal together, which isn't easy
+	@Ignore
+	@Test
+	public void commentInXML() throws Exception 
+	{        
+		Grammar grammar = xmlin("<production name=\"comment\">\n" + 
+				"    <alt>      <seq>//\r\n" + 
+				"        <repeat>\r\n" + 
+				"          <character>\r\n" + 
+				"            <except literal=\"&#10;\"/> <!-- Line Feed -->\r\n" + 
+				"            <except literal=\"&#13;\"/> <!-- Carriage Return -->\r\n" + 
+				"          </character>\r\n" + 
+				"        </repeat>\r\n" + 
+				"        <opt><literal value=\"&#13;\"/></opt> <!-- Carriage Return -->\r\n" + 
+				"        <alt>\r\n" + 
+				"          <literal value=\"&#10;\"/> <!-- Line Feed -->\r\n" + 
+				"          <character set=\"EOI\"/>\r\n" + 
+				"        </alt>\r\n" + 
+				"      </seq>\r\n" + 
+				"</alt>\n" + 
+				"  </production>");
+
+		roundTrip(grammar);
+	}
 	
 	// next two ignored until the handling of letter rules is correct
-	@Ignore
 	@Test
 	public void xmlProduction() throws Exception 
 	{        
@@ -313,6 +336,7 @@ public class BNFProcessorTest {
 		roundTrip(grammar);
 	}
 	
+	// the // constract (also tested by commentInXml) doesn't get reformatted as \u002F\u002F
 	@Ignore
 	@Test
 	public void someGrammar() throws Exception 
@@ -363,7 +387,7 @@ public class BNFProcessorTest {
 	}
 	
 	private void roundTrip(Grammar testGrammar) {
-		  LOGGER.debug("supplied grammar \n{}", xmlout(testGrammar));
+//		  LOGGER.warn("supplied grammar \n{}", xmlout(testGrammar));
 		String firstBNF = makeSQLBNF(testGrammar);
 		LOGGER.debug("in \n{}", firstBNF);
 		

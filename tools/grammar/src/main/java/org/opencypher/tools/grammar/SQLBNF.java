@@ -61,7 +61,7 @@ public class SQLBNF extends BnfWriter
 	private static final String CODEPOINT_LIST_START = "[";
 	private static final String CODEPOINT_LIST_END = "]";
 	private static final String CHARACTER_SET_EXCEPT = "~";
-	
+	public static final String LETTER_SUFFIX = " case insensitive";
 	private static final Logger LOGGER = LoggerFactory.getLogger(SQLBNF.class.getName());
 
      public static void write( Grammar grammar, Writer writer )
@@ -263,7 +263,6 @@ public class SQLBNF extends BnfWriter
     protected void productionStart( Production p )
     {
     	String ruleName = p.name();
-
         output.append("<").append( ruleName ).append( "> ::=");
         // indent the first line as much as the content of alternatives will be
         // (alternative marker is output as " | "
@@ -306,11 +305,12 @@ public class SQLBNF extends BnfWriter
             if ( !seenKeywords.contains( ruleName ) )
             {
                 seenKeywords.add( ruleName );
+
                 caseInsensitiveProductionStart( ruleName );
                 String glue = "";
                 for ( char c : keywordProduction.getValue().toCharArray() )
                 {
-                	addCaseChar(c);
+                	addCaseChar(Character.toUpperCase(c));
                 	// alternative style (can't work out what the indirect way of this is
                 	output.append(glue).append("<").append(String.valueOf( c ).toUpperCase() ).append(">");
                 	glue = " ";
@@ -320,6 +320,7 @@ public class SQLBNF extends BnfWriter
             }
         }
         keywordsInProduction.clear();
+ 
     }
 
     @Override
@@ -419,16 +420,15 @@ public class SQLBNF extends BnfWriter
     @Override
     protected void caseInsensitive( String value )
     {
-    	// modified from Antlr4
-        if ( value.length() == 1 )
-        {
-            inline( value );
-        }
-        else
-        {
-            String keywordProduction =  value.toUpperCase() ;
-            output.append("<").append( keywordProduction ).append(">");
-            keywordsInProduction.put( keywordProduction, value );
+    	LOGGER.debug("caseinsens {}", value);
+        String keywordProduction =  value.toUpperCase() ;
+        output.append("<").append( keywordProduction ).append(">");
+        if ( value.length() == 1 ) {
+        	// we have a single letter keyword, so we don't want to make it here, but we must
+        	// make sure the letter is used
+			addCaseChar(keywordProduction.codePointAt(0));
+        } else {
+           keywordsInProduction.put( keywordProduction, value );
         }
     }
     

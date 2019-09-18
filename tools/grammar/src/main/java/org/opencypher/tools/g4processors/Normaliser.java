@@ -40,6 +40,7 @@ import org.opencypher.tools.g4tree.InAlternatives;
 import org.opencypher.tools.g4tree.InLiteral;
 import org.opencypher.tools.g4tree.Rule;
 import org.opencypher.tools.g4tree.RuleId;
+import org.opencypher.tools.grammar.SQLBNF;
 import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 import org.opencypher.tools.g4tree.Rule.RuleType;
 import org.slf4j.Logger;
@@ -55,6 +56,7 @@ public class Normaliser {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Normaliser.class.getName());
 
 	public Map<String, Rule> normalise(GrammarTop top) {
+//		LOGGER.warn("Normalising \n{}", top.getStructure(""));
 		List<Rule> rules = top.getRuleList().getRules();
 		markLetterRules(rules);
 		markBnfRules(rules);
@@ -65,10 +67,12 @@ public class Normaliser {
 				LOGGER.warn("duplicate rule {}", rule.getRuleName());
 			}
 		}
+//		LOGGER.warn("as received :{}", top.getStructure(""));
 //		Map<String, Rule> ruleMap = rules.stream().collect(Collectors.toMap(r -> r.getRuleName(), r -> r));
 		markKeywordLiteralRulesSeparateAlphabet(rules, ruleMap);
 		markKeywordRules(rules, ruleMap);
 		markKeywordRulesAlternativesOfCase(rules, ruleMap);
+//		LOGGER.warn("normalised : \n{}", ruleMap.values().stream().map(r -> r.getStructure("")).collect(Collectors.joining("\n")));
 	    return ruleMap;
 	}
 
@@ -135,7 +139,7 @@ public class Normaliser {
     						// and they are all references to letters
     						if (refs.stream().allMatch(r ->
     						  				r.getType() == ItemType.REFERENCE
-    						  				&&  ((RuleId) r).getName().length() == 1)) {
+    						  				&&  ruleNameIsInsensitiveLetter(((RuleId) r).getName()))) {
     							List<String> letters = refs.stream().map(r -> ((RuleId) r).getName()).collect(Collectors.toList());
     							if (letters.stream().allMatch(l -> ruleMap.containsKey(l)
     									 && ruleMap.get(l).getRuleType() == RuleType.LETTER)
@@ -151,6 +155,10 @@ public class Normaliser {
 		}
 	}
 
+	private boolean ruleNameIsInsensitiveLetter(String ruleName) {
+		return ruleName.length() == 1 || ruleName.substring(1).equals(SQLBNF.LETTER_SUFFIX);
+	}
+	
 	private void markKeywordRulesAlternativesOfCase(List<Rule> rules, Map<String, Rule> ruleMap) {
 		// now find the keyword rules - this is assuming the keyword is represented as 
 		// rules with a sequence of upper or lower case literals
@@ -237,6 +245,7 @@ public class Normaliser {
 			}
 		}
 	}
+	
 	private void markLetterRules(List<Rule> rules) {
 		// find the letter rules - example
 //	      Rule: P

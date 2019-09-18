@@ -22,7 +22,7 @@
   <production name="function">
     def&SP;
     <non-terminal ref="ident"/>
-    (<opt><repeat><non-terminal ref="ident"/>,</repeat><non-terminal ref="ident"/></opt>) :
+    (<opt><repeat><non-terminal ref="ident"/>,</repeat><non-terminal ref="ident"/></opt>):
     <non-terminal ref="INDENT"/>
     <repeat min="1"><non-terminal ref="stmt"/></repeat>
     <non-terminal ref="DEDENT"/>

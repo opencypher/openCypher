@@ -305,7 +305,7 @@ public class GrammarConverter {
 				return literal(bnfSymbol.getActualCharacters());
 				// not sure about LETTER
 			case LETTER:
-				return literal(ruleName);
+				return caseInsensitive(ruleName);
 			case FRAGMENT:
 				// pull up the fragment into the reference. i think
 				List<GrammarItem> children = referencedRule.getChildren();
