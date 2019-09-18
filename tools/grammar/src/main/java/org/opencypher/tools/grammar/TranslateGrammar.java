@@ -69,29 +69,33 @@ public class TranslateGrammar {
 		// ought to check for duplicates - just take the first if they're silly
 		Grammar grammar = null;
         Grammar.ParserOption[] parserOptions = Grammar.ParserOption.from( System.getProperties() );
+        int inputOptions = 0;
 		if (inXml != null) {
+			inputOptions++;
             grammar = Grammar.parseXML( Paths.get( inXml ), parserOptions );
 		} else if ( inG4 != null) {
+			inputOptions++;
 			G4Processor g4Processor = new G4Processor();
 			grammar = g4Processor.processFile(inG4);
 		} else if (  inBnf != null) {
+			inputOptions++;
 			BNFProcessor bnfProcessor = new BNFProcessor();
 			grammar = bnfProcessor.processFile(inBnf);
 		}
-		if (grammar == null) {
-			System.err.println("No input grammar was specified");
+		if (inputOptions != 1) {
+			System.err.println("Exactly one input grammar must be specified");
 			usage(args);
 			System.exit(1);
 		}
 		boolean written = false;
 		if (outXml != null) {
-			OutputStream outStream = outXml.equals(".") ? System.out : new FileOutputStream(outXml);
+			OutputStream outStream = outXml.equals("-") ? System.out : new FileOutputStream(outXml);
 			Xml.write(grammar,  outStream);
 			outStream.close();
 			written = true;
 		} 
 		if (outG4 != null) {
-			OutputStream outStream = outG4.equals(".") ? System.out :new FileOutputStream(outG4);
+			OutputStream outStream = outG4.equals("-") ? System.out :new FileOutputStream(outG4);
 			Antlr4.setPrefix("");
 			Antlr4.write(grammar,  outStream);
 			outStream.close();
@@ -99,7 +103,7 @@ public class TranslateGrammar {
 			
 		}
 		if (outBnf != null) {
-			OutputStream outStream = outBnf.equals(".") ? System.out :new FileOutputStream(outBnf);
+			OutputStream outStream = outBnf.equals("-") ? System.out :new FileOutputStream(outBnf);
 			SQLBNF.write(grammar,  outStream);
 			outStream.close();
 			written = true;
