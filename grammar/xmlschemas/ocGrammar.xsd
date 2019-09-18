@@ -52,7 +52,7 @@
 		schemaLocation="ocSyntaxTree.xsd" />
 
 	<!-- the global element -->
-	<xsd:element name="grammar" type="Grammar"></xsd:element>
+	<xsd:element name="grammar" type="Grammar" />
 
 	<!--  the types -->
 	<xsd:complexType name="Grammar">
@@ -62,11 +62,11 @@
 				<xsd:element name="production" type="Production" />
 			</xsd:choice>
 		</xsd:sequence>
-		<xsd:attribute name="language" type="xsd:string"></xsd:attribute>
+		<xsd:attribute name="language" type="xsd:string"/>
 	</xsd:complexType>
 
 	<xsd:complexType name="Vocabulary">
-		<xsd:attribute name="file" type="xsd:string"></xsd:attribute>
+		<xsd:attribute name="file" type="xsd:string"/>
 	</xsd:complexType>
 
 	<!-- Production is like Sequence but has an extra element at the beginning, so
@@ -76,35 +76,35 @@
 			<xsd:element name="description" type="xsd:string"
 				minOccurs="0" />
 			<xsd:choice minOccurs="0" maxOccurs="unbounded">
-				<xsd:element name="alt" type="Sequence"></xsd:element>
-				<xsd:element name="seq" type="Sequence"></xsd:element>
-				<xsd:element name="literal" type="Literal"></xsd:element>
-				<xsd:element name="character" type="Character"></xsd:element>
-				<xsd:element name="non-terminal" type="Non-terminal"></xsd:element>
-				<xsd:element name="opt" type="Sequence"></xsd:element>
-				<xsd:element name="repeat" type="Repeat"></xsd:element>
+				<xsd:element name="alt" type="Sequence"/>
+				<xsd:element name="seq" type="Sequence"/>
+				<xsd:element name="literal" type="Literal"/>
+				<xsd:element name="character" type="Character"/>
+				<xsd:element name="non-terminal" type="Non-terminal"/>
+				<xsd:element name="opt" type="Sequence"/>
+				<xsd:element name="repeat" type="Repeat"/>
 			</xsd:choice>
 		</xsd:sequence>
 
-		<xsd:attribute name="name" type="xsd:string"></xsd:attribute>
-		<xsd:attribute ref="rr:inline"></xsd:attribute>
-		<xsd:attribute ref="rr:skip"></xsd:attribute>
-		<xsd:attribute ref="oc:legacy"></xsd:attribute>
-		<xsd:attribute ref="scope:rule"></xsd:attribute>
-		<xsd:attribute ref="oc:lexer"></xsd:attribute>
+		<xsd:attribute name="name" type="xsd:string"/>
+		<xsd:attribute ref="rr:inline"/>
+		<xsd:attribute ref="rr:skip"/>
+		<xsd:attribute ref="oc:legacy"/>
+		<xsd:attribute ref="scope:rule"/>
+		<xsd:attribute ref="oc:lexer"/>
 
 	</xsd:complexType>
 
 	<xsd:complexType name="Sequence" mixed="true">
 		<xsd:sequence>
 			<xsd:choice minOccurs="0" maxOccurs="unbounded">
-				<xsd:element name="alt" type="Sequence"></xsd:element>
-				<xsd:element name="seq" type="Sequence"></xsd:element>
-				<xsd:element name="literal" type="Literal"></xsd:element>
-				<xsd:element name="character" type="Character"></xsd:element>
-				<xsd:element name="non-terminal" type="Non-terminal"></xsd:element>
-				<xsd:element name="opt" type="Sequence"></xsd:element>
-				<xsd:element name="repeat" type="Repeat"></xsd:element>
+				<xsd:element name="alt" type="Sequence"/>
+				<xsd:element name="seq" type="Sequence"/>
+				<xsd:element name="literal" type="Literal"/>
+				<xsd:element name="character" type="Character"/>
+				<xsd:element name="non-terminal" type="Non-terminal"/>
+				<xsd:element name="opt" type="Sequence"/>
+				<xsd:element name="repeat" type="Repeat"/>
 			</xsd:choice>
 		</xsd:sequence>
 	</xsd:complexType>
@@ -112,37 +112,37 @@
 	<xsd:complexType name="Repeat">
 		<xsd:complexContent>
 			<xsd:extension base="Sequence">
-				<xsd:attribute name="min" type="xsd:int" default="0"></xsd:attribute>
-				<xsd:attribute name="max" type="xsd:int"></xsd:attribute>
+				<xsd:attribute name="min" type="xsd:int" default="0"/>
+				<xsd:attribute name="max" type="xsd:int"/>
 			</xsd:extension>
 		</xsd:complexContent>
 	</xsd:complexType>
 
 	<xsd:complexType name="Non-terminal">
-		<xsd:attribute name="ref" type="xsd:string"></xsd:attribute>
-		<xsd:attribute ref="rr:title"></xsd:attribute>
-		<xsd:attribute ref="ast:entry"></xsd:attribute>
+		<xsd:attribute name="ref" type="xsd:string"/>
+		<xsd:attribute ref="rr:title"/>
+		<xsd:attribute ref="ast:entry"/>
 	</xsd:complexType>
 
 	<xsd:complexType name="Literal">
 		<xsd:attribute name="case-sensitive" type="xsd:boolean"
-			default="true"></xsd:attribute>
-		<xsd:attribute name="value" type="xsd:string"></xsd:attribute>
+			default="true"/>
+		<xsd:attribute name="value" type="xsd:string"/>
 	</xsd:complexType>
 
 	<xsd:complexType name="Character">
 		<xsd:sequence>
 			<xsd:element name="except" type="Except"
-				maxOccurs="unbounded" minOccurs="0"></xsd:element>
+				maxOccurs="unbounded" minOccurs="0"/>
 		</xsd:sequence>
-		<xsd:attribute name="set" type="xsd:string"></xsd:attribute>
+		<xsd:attribute name="set" type="xsd:string"/>
 	</xsd:complexType>
 
 
 	<xsd:complexType name="Except">
-		<xsd:attribute name="literal" type="xsd:string"></xsd:attribute>
-		<xsd:attribute name="codePoint" type="xsd:int"></xsd:attribute>
-		<xsd:attribute name="set" type="xsd:string"></xsd:attribute>
+		<xsd:attribute name="literal" type="xsd:string"/>
+		<xsd:attribute name="codePoint" type="xsd:int"/>
+		<xsd:attribute name="set" type="xsd:string"/>
 	</xsd:complexType>
 
 

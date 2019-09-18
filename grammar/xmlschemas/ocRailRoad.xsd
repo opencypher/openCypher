@@ -30,7 +30,7 @@
 -->
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://opencypher.org/railroad" 
 	xmlns:tns="http://opencypher.org/railroad" elementFormDefault="qualified">
-   	<xsd:attribute name="inline" type="xsd:boolean"></xsd:attribute>
-   	<xsd:attribute name="title" type="xsd:string"></xsd:attribute>
-   	<xsd:attribute name="skip" type="xsd:boolean"></xsd:attribute>
+   	<xsd:attribute name="inline" type="xsd:boolean"/>
+   	<xsd:attribute name="title" type="xsd:string"/>
+   	<xsd:attribute name="skip" type="xsd:boolean"/>
 </xsd:schema>

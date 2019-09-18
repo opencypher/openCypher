@@ -30,5 +30,5 @@
 -->
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://opencypher.org/scope" 
 	xmlns="http://opencypher.org/scope" elementFormDefault="qualified">
-   	<xsd:attribute name="rule" type="xsd:string"></xsd:attribute>
+   	<xsd:attribute name="rule" type="xsd:string"/>
 </xsd:schema>

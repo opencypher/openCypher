@@ -30,5 +30,5 @@
 -->
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://opencypher.org/syntaxtree" 
 	xmlns="http://opencypher.org/syntaxtree" elementFormDefault="qualified">
-   	<xsd:attribute name="entry" type="xsd:string"></xsd:attribute>
+   	<xsd:attribute name="entry" type="xsd:string"/>
 </xsd:schema>

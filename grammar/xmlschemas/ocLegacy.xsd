@@ -30,7 +30,7 @@
 -->
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://opencypher.org/opencypher" 
 	xmlns:tns="http://opencypher.org/opencypher" elementFormDefault="qualified">
-   	<xsd:attribute name="legacy" type="xsd:boolean"></xsd:attribute>
-   	<xsd:attribute name="lexer" type="xsd:boolean" default="false"></xsd:attribute>
-   	<xsd:attribute name="bnfsymbols" type="xsd:boolean" default="false"></xsd:attribute>
+   	<xsd:attribute name="legacy" type="xsd:boolean"/>
+   	<xsd:attribute name="lexer" type="xsd:boolean" default="false"/>
+   	<xsd:attribute name="bnfsymbols" type="xsd:boolean" default="false"/>
 </xsd:schema>
