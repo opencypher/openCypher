@@ -32,31 +32,31 @@ import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 public class OneOrMore extends ElementWithCardinality
 {
 
-	public OneOrMore(GrammarItem content)
-	{
-		super(content);
-	}
-	@Override
-	public
-	int getMin() {
-		return 1;
-	}
+    public OneOrMore(GrammarItem content)
+    {
+        super(content);
+    }
+    @Override
+    public
+    int getMin() {
+        return 1;
+    }
 
-	@Override
-	public
-	boolean isUnbounded() {
-		return true;
-	}
-	
-	@Override
-	public String getStructure(String indent)
-	{
-		return indent + "OneOrMore\n" + getContentStructure(indent + INDENT);
-	}
+    @Override
+    public
+    boolean isUnbounded() {
+        return true;
+    }
+    
+    @Override
+    public String getStructure(String indent)
+    {
+        return indent + "OneOrMore\n" + getContentStructure(indent + INDENT);
+    }
 
-	public GrammarItem getContent()
-	{
-		return super.extractContent();
-	}
-	
+    public GrammarItem getContent()
+    {
+        return super.extractContent();
+    }
+    
 }

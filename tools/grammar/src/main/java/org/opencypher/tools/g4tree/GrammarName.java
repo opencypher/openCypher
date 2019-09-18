@@ -35,47 +35,47 @@ import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 
 public class GrammarName implements GrammarItem {
 
-	private final String name;
-	
-	@Override
-	public ItemType getType() {
-		return ItemType.OTHER;
-	}
-	
+    private final String name;
+    
+    @Override
+    public ItemType getType() {
+        return ItemType.OTHER;
+    }
+    
 
-	@Override
-	public List<GrammarItem> getChildren() {
-		return Collections.emptyList();
-	}
+    @Override
+    public List<GrammarItem> getChildren() {
+        return Collections.emptyList();
+    }
 
-	public GrammarName(String name) {
-		super();
-		this.name = name;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	@Override
-	public String getStructure(String indent) {
-		return "language " + name;
-	}
+    public GrammarName(String name) {
+        super();
+        this.name = name;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    @Override
+    public String getStructure(String indent) {
+        return "language " + name;
+    }
 
-	@Override
-	public boolean isPlural() {
-		return false;
-	}
+    @Override
+    public boolean isPlural() {
+        return false;
+    }
 
-	@Override
-	public GrammarItem reachThrough() {
-		return this;
-	}
+    @Override
+    public GrammarItem reachThrough() {
+        return this;
+    }
 
-	@Override
-	public boolean isKeywordPart() {
-		// wrong side
-		return false;
-	}
+    @Override
+    public boolean isKeywordPart() {
+        // wrong side
+        return false;
+    }
 
 }

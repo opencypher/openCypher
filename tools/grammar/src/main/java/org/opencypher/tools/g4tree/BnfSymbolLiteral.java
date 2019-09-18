@@ -31,49 +31,49 @@ import java.util.Collections;
 import java.util.List;
 
 /** literal containing bnf symbols
- * 	in bnf this can only be the whole rule.
+ *     in bnf this can only be the whole rule.
  *  it may be a special case
  */
 public class BnfSymbolLiteral implements GrammarItem {
 
-	private final String characters;
+    private final String characters;
 
-	public BnfSymbolLiteral(BnfSymbols bnfSymbol) {
-		this.characters = bnfSymbol.getActualCharacters();
-	}
-	
-	public String getCharacters() {
-		return characters;
-	}
-	
-	@Override
-	public ItemType getType() {
-		return ItemType.BNF_LITERAL;
-	}
+    public BnfSymbolLiteral(BnfSymbols bnfSymbol) {
+        this.characters = bnfSymbol.getActualCharacters();
+    }
+    
+    public String getCharacters() {
+        return characters;
+    }
+    
+    @Override
+    public ItemType getType() {
+        return ItemType.BNF_LITERAL;
+    }
 
-	@Override
-	public List<GrammarItem> getChildren() {
-		return Collections.emptyList();
-	}
+    @Override
+    public List<GrammarItem> getChildren() {
+        return Collections.emptyList();
+    }
 
-	@Override
-	public boolean isPlural() {
-		return false;
-	}
+    @Override
+    public boolean isPlural() {
+        return false;
+    }
 
-	@Override
-	public GrammarItem reachThrough() {
-		return this;
-	}
+    @Override
+    public GrammarItem reachThrough() {
+        return this;
+    }
 
-	@Override
-	public boolean isKeywordPart() {
-		return false;
-	}
+    @Override
+    public boolean isKeywordPart() {
+        return false;
+    }
 
-	@Override
-	public String getStructure(String indent) {
-		return indent + "Special : '" + characters + "'";
-	}
+    @Override
+    public String getStructure(String indent) {
+        return indent + "Special : '" + characters + "'";
+    }
 
 }

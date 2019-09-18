@@ -34,56 +34,56 @@ import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 
 public class RuleId implements Element
 {
-	private final String baseName;
-	
-	public RuleId(String baseName)
-	{
-		super();
-		this.baseName = baseName;
-	}
+    private final String baseName;
+    
+    public RuleId(String baseName)
+    {
+        super();
+        this.baseName = baseName;
+    }
 
-	public String getName() {
-		return baseName;
-	}
-	
-	@Override
-	public ItemType getType() {
-		return ItemType.REFERENCE;
-	}
+    public String getName() {
+        return baseName;
+    }
+    
+    @Override
+    public ItemType getType() {
+        return ItemType.REFERENCE;
+    }
 
-	@Override
-	public List<GrammarItem> getChildren() {
-		return Collections.emptyList();
-	}
+    @Override
+    public List<GrammarItem> getChildren() {
+        return Collections.emptyList();
+    }
 
-	@Override
-	public boolean isPlural()
-	{
-		return false;
-	}
+    @Override
+    public boolean isPlural()
+    {
+        return false;
+    }
 
-	@Override
-	public String toString()
-	{
-		return baseName;
-	}
+    @Override
+    public String toString()
+    {
+        return baseName;
+    }
 
-	@Override
-	public String getStructure(String indent)
-	{
-		return indent + "RuleReference : " + baseName;
-	}
+    @Override
+    public String getStructure(String indent)
+    {
+        return indent + "RuleReference : " + baseName;
+    }
 
-	@Override
-	public GrammarItem reachThrough()
-	{
-		return this;
-	}
+    @Override
+    public GrammarItem reachThrough()
+    {
+        return this;
+    }
 
-	@Override
-	public boolean isKeywordPart() {
-		return false;
-	}
-	
-	
+    @Override
+    public boolean isKeywordPart() {
+        return false;
+    }
+    
+    
 }

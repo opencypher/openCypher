@@ -34,67 +34,67 @@ import java.util.List;
  */
 public interface GrammarItem
 {
-	enum ItemType {
-		ALTERNATIVE,
-		ALTERNATIVES,
-		LITERAL,
-		CARDINALITY,
-		REFERENCE,
-		TEXT,
-		OTHER,
-		RULE, 
-		CHARACTER_LITERAL,
-		BNF_LITERAL,
-		EOI, 
-		NAMEDCHARSET, 
-		LISTEDCHARSET,
-		EXCLUSIONCHARSET
-	}
-	
-	/**
-	 * what type, in terms of how to process its conversion to main grammar
-	 * @return
-	 */
-	ItemType getType();
+    enum ItemType {
+        ALTERNATIVE,
+        ALTERNATIVES,
+        LITERAL,
+        CARDINALITY,
+        REFERENCE,
+        TEXT,
+        OTHER,
+        RULE, 
+        CHARACTER_LITERAL,
+        BNF_LITERAL,
+        EOI, 
+        NAMEDCHARSET, 
+        LISTEDCHARSET,
+        EXCLUSIONCHARSET
+    }
+    
+    /**
+     * what type, in terms of how to process its conversion to main grammar
+     * @return
+     */
+    ItemType getType();
 
-	/**
-	 * get the child items as a list. Terminals will return an empty list, non-lists will return 
-	 * a list of one.
-	 * @return
-	 */
-	List<GrammarItem> getChildren();
-	/**
-	 * are there more than one of these items. Some serialisations will require brackets of some kind if there are
-	 * @return true if there are multiple of these items.
-	 */
-	boolean isPlural();
+    /**
+     * get the child items as a list. Terminals will return an empty list, non-lists will return 
+     * a list of one.
+     * @return
+     */
+    List<GrammarItem> getChildren();
+    /**
+     * are there more than one of these items. Some serialisations will require brackets of some kind if there are
+     * @return true if there are multiple of these items.
+     */
+    boolean isPlural();
 
-	/**
-	 * if this item is a wrapper round a single item, get that one. A wrapper may affect cardinality, optionality etc.
-	 * @return the wrapped item, or this item itself it if isn't wrapper.
-	 */
-	GrammarItem reachThrough();
+    /**
+     * if this item is a wrapper round a single item, get that one. A wrapper may affect cardinality, optionality etc.
+     * @return the wrapped item, or this item itself it if isn't wrapper.
+     */
+    GrammarItem reachThrough();
 
-	
-	/**
-	 * Could this be part or all of a keyword ? Is either a letter or all of its parts are letters
-	 * @return true iff this could be part of a keyword
-	 * 
-	 */
-	boolean isKeywordPart();
-	
-	/**
-	 * Reserialise showing the internal structure of the grammar. This is based on the 
-	 * rules of the "orignal BNF" g4, and may not correspond to how the user thinks of the
-	 * structre
-	 * @param indent how much to indent each level of the structure
-	 * @return a String showing the internals and values in the grammar
-	 */
-	String getStructure(String indent);
-	
-	/**
-	 * default indentation
-	 */
-	static final String INDENT = "   ";
+    
+    /**
+     * Could this be part or all of a keyword ? Is either a letter or all of its parts are letters
+     * @return true iff this could be part of a keyword
+     * 
+     */
+    boolean isKeywordPart();
+    
+    /**
+     * Reserialise showing the internal structure of the grammar. This is based on the 
+     * rules of the "orignal BNF" g4, and may not correspond to how the user thinks of the
+     * structre
+     * @param indent how much to indent each level of the structure
+     * @return a String showing the internals and values in the grammar
+     */
+    String getStructure(String indent);
+    
+    /**
+     * default indentation
+     */
+    static final String INDENT = "   ";
 
 }

@@ -37,67 +37,67 @@ import java.util.stream.Collectors;
 abstract class GrammarItemList implements GrammarItem
 {
 
-	private final List<GrammarItem> items = new ArrayList<>();
-	
-	@Override
-	public List<GrammarItem> getChildren() {
-		return items;
-	}
+    private final List<GrammarItem> items = new ArrayList<>();
+    
+    @Override
+    public List<GrammarItem> getChildren() {
+        return items;
+    }
 
-	public int size() {
-		return items.size();
-	}
-	
-	public void addItem(GrammarItem grammarItem) {
-		items.add(grammarItem);
-	}
+    public int size() {
+        return items.size();
+    }
+    
+    public void addItem(GrammarItem grammarItem) {
+        items.add(grammarItem);
+    }
 
-	protected GrammarItem getItem(int index) {
-		return items.get(index);
-	}
-	
-	
-	@Override
-	public boolean isPlural()
-	{
-		if (items.size() > 1) {
-			return true;
-		} else if (items.size() == 1) {
-			return items.get(0).isPlural();
-		} else {
-			return false;
-		}
-	}
+    protected GrammarItem getItem(int index) {
+        return items.get(index);
+    }
+    
+    
+    @Override
+    public boolean isPlural()
+    {
+        if (items.size() > 1) {
+            return true;
+        } else if (items.size() == 1) {
+            return items.get(0).isPlural();
+        } else {
+            return false;
+        }
+    }
 
-	@Override
-	public String toString() {
-		return items.stream().map(it -> it.getStructure(" ")).collect(Collectors.joining(", "));
-	}
+    @Override
+    public String toString() {
+        return items.stream().map(it -> it.getStructure(" ")).collect(Collectors.joining(", "));
+    }
 
-	public String getContentStructure(String indent)
-	{
-		return items.stream().map(it -> it.getStructure(indent + INDENT)).collect(Collectors.joining("\n"));
-	}
+    public String getContentStructure(String indent)
+    {
+        return items.stream().map(it -> it.getStructure(indent + INDENT)).collect(Collectors.joining("\n"));
+    }
 
 
-	@Override
-	public GrammarItem reachThrough()
-	{
-		if (items.size() != 1) {
-			return this;
-		} else {
-			return items.get(0).reachThrough();
-		}
-	}
-	
+    @Override
+    public GrammarItem reachThrough()
+    {
+        if (items.size() != 1) {
+            return this;
+        } else {
+            return items.get(0).reachThrough();
+        }
+    }
+    
 
-	@Override
-	public boolean isKeywordPart() {
-		for (GrammarItem grammarItem : items) {
-			if (! grammarItem.isKeywordPart()) {
-				return false;
-			}
-		}
-		return true;
-	}
+    @Override
+    public boolean isKeywordPart() {
+        for (GrammarItem grammarItem : items) {
+            if (! grammarItem.isKeywordPart()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

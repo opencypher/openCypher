@@ -38,49 +38,49 @@ import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 public class InLiteral implements Element
 {
 
-	private final String content;
+    private final String content;
 
-	public InLiteral(String content) {
-		this.content = content;
-	}
-	
-	public String getValue() {
-		return content;
-	}
-	
-	@Override
-	public ItemType getType() {
-		return ItemType.LITERAL;
-	}
+    public InLiteral(String content) {
+        this.content = content;
+    }
+    
+    public String getValue() {
+        return content;
+    }
+    
+    @Override
+    public ItemType getType() {
+        return ItemType.LITERAL;
+    }
 
-	@Override
-	public List<GrammarItem> getChildren() {
-		return Collections.emptyList();
-	}
+    @Override
+    public List<GrammarItem> getChildren() {
+        return Collections.emptyList();
+    }
 
-	@Override
-	public boolean isPlural()
-	{
-		return false;
-	}
-
-
-	@Override
-	public String getStructure(String indent)
-	{
-		return indent + "Literal : \"" + content + "\"";
-	}
+    @Override
+    public boolean isPlural()
+    {
+        return false;
+    }
 
 
-	@Override
-	public GrammarItem reachThrough()
-	{
-		return this;
-	}
-	
+    @Override
+    public String getStructure(String indent)
+    {
+        return indent + "Literal : \"" + content + "\"";
+    }
 
-	@Override
-	public boolean isKeywordPart() {
-		return content.matches("[A-Za-z]+");
-	}
+
+    @Override
+    public GrammarItem reachThrough()
+    {
+        return this;
+    }
+    
+
+    @Override
+    public boolean isKeywordPart() {
+        return content.matches("[A-Za-z]+");
+    }
 }

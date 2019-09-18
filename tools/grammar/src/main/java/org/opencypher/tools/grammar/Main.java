@@ -149,21 +149,21 @@ interface Main extends Serializable
 
     static void execute( Main program, String... args ) throws Exception
     {
-    	final OutputStream outStream;
+        final OutputStream outStream;
         List<String> argList = new ArrayList<>(Arrays.asList(args));
         String outFile = null;
-    	int index = argList.indexOf("-o");
-    	if (index >= 0) {
-    		argList.remove(index);
-    		outFile = argList.remove(index);
-    		outStream =new FileOutputStream(outFile);
-    	} else {
-    		outStream = System.out;
-    	}
-    	execute( program, outStream, argList.toArray(new String[argList.size()]));
-    	if (outFile != null) {
-    		System.out.println("Wrote output grammar to " + outFile);
-    	}
+        int index = argList.indexOf("-o");
+        if (index >= 0) {
+            argList.remove(index);
+            outFile = argList.remove(index);
+            outStream =new FileOutputStream(outFile);
+        } else {
+            outStream = System.out;
+        }
+        execute( program, outStream, argList.toArray(new String[argList.size()]));
+        if (outFile != null) {
+            System.out.println("Wrote output grammar to " + outFile);
+        }
     }
 
     default String usage( BiFunction<String, String, String> usage )

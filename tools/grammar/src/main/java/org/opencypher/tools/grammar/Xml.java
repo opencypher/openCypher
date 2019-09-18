@@ -54,8 +54,8 @@ import org.xml.sax.SAXException;
  */
 public class Xml extends XmlGenerator implements ProductionVisitor<SAXException>, TermVisitor<SAXException>
 {
-	
-	public static void write( Grammar grammar, Writer writer ) throws TransformerException
+    
+    public static void write( Grammar grammar, Writer writer ) throws TransformerException
     {
         generate( new Xml( grammar ), writer );
     }

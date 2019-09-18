@@ -144,10 +144,10 @@ final class ProductionNode extends Located implements Production
     }
 
     public boolean bnfsymbols() {
-		return bnfsymbols;
-	}
+        return bnfsymbols;
+    }
 
-	void addReference( NonTerminalNode nonTerminal )
+    void addReference( NonTerminalNode nonTerminal )
     {
         if ( references == null )
         {

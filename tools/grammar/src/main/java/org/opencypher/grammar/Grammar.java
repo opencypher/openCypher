@@ -245,7 +245,7 @@ public interface Grammar
 
         public Builder production( String name, Term first, Term... alternatives )
         {
-        	return production(name, null, first, alternatives);
+            return production(name, null, first, alternatives);
         }
 
         public Builder production( String name, String description, Term first, Term... alternatives )
@@ -253,7 +253,7 @@ public interface Grammar
             ProductionNode production = new ProductionNode( this );
             production.name = requireNonNull( name, "name" );
             if (description != null) {
-            	production.description = description;
+                production.description = description;
             }
             Grammar.oneOf( first, alternatives ).addTo( production );
             add( production );

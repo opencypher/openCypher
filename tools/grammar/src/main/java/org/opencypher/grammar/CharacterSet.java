@@ -560,7 +560,7 @@ public interface CharacterSet
          */
         public boolean isSingleCharacter()
         {
-        	return set.isSingleCharacter();
+            return set.isSingleCharacter();
         }
     }
 

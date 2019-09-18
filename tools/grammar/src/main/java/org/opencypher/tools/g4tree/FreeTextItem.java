@@ -36,48 +36,48 @@ import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 
 public class FreeTextItem implements GrammarItem
 {
-	private final String content;
-	
-	public FreeTextItem(String content) {
-		this.content = content;
-	}
-	
-	public String getContent() {
-		return content;
-	}
-	@Override
-	public ItemType getType() {
-		return ItemType.TEXT;
-	}
+    private final String content;
+    
+    public FreeTextItem(String content) {
+        this.content = content;
+    }
+    
+    public String getContent() {
+        return content;
+    }
+    @Override
+    public ItemType getType() {
+        return ItemType.TEXT;
+    }
 
-	@Override
-	public List<GrammarItem> getChildren() {
-		return Collections.emptyList();
-	}
+    @Override
+    public List<GrammarItem> getChildren() {
+        return Collections.emptyList();
+    }
 
-	
-	@Override
-	public boolean isPlural()
-	{
-		return false;
-	}
+    
+    @Override
+    public boolean isPlural()
+    {
+        return false;
+    }
 
-	@Override
-	public String getStructure(String indent)
-	{
-		return "!! " + content;
-	}
+    @Override
+    public String getStructure(String indent)
+    {
+        return "!! " + content;
+    }
 
 
-	@Override
-	public GrammarItem reachThrough()
-	{
-		return this;
-	}
-	
+    @Override
+    public GrammarItem reachThrough()
+    {
+        return this;
+    }
+    
 
-	@Override
-	public boolean isKeywordPart() {
-		return false;
-	}
+    @Override
+    public boolean isKeywordPart() {
+        return false;
+    }
 }

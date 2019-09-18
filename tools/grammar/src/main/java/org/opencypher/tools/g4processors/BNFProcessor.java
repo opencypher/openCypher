@@ -51,58 +51,58 @@ import org.slf4j.LoggerFactory;
  */
 public class BNFProcessor
 {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(BNFProcessor.class.getName());
-	
-	public Grammar processString(String inString) {
-		return processStream(new ByteArrayInputStream((inString).getBytes()) );
-	}
-	
-	public Grammar processStream(InputStream inStream)
-	{
-		try
-		{
-			return processAntrlStream(new ANTLRInputStream(inStream));
-		} catch (IOException e)
-		{
-			throw new RuntimeException("Failed to read or convert java.io.InputStream", e);
-		}
-	}
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(BNFProcessor.class.getName());
+    
+    public Grammar processString(String inString) {
+        return processStream(new ByteArrayInputStream((inString).getBytes()) );
+    }
+    
+    public Grammar processStream(InputStream inStream)
+    {
+        try
+        {
+            return processAntrlStream(new ANTLRInputStream(inStream));
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Failed to read or convert java.io.InputStream", e);
+        }
+    }
 
-	public Grammar processFile(String fileName)
-	{
-		try
-		{
-			// when back on antrl 4.7.1, use CharStreams.fromFileName(scriptFile)
-			return processAntrlStream(new ANTLRFileStream(fileName));
-		} catch (IOException e)
-		{
-			throw new RuntimeException("Failed to find or read " + fileName, e);
-		}
+    public Grammar processFile(String fileName)
+    {
+        try
+        {
+            // when back on antrl 4.7.1, use CharStreams.fromFileName(scriptFile)
+            return processAntrlStream(new ANTLRFileStream(fileName));
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Failed to find or read " + fileName, e);
+        }
 
-	}
+    }
 
-	private Grammar processAntrlStream(CharStream inStream)
-	{
-		BNFLexer lexer = new BNFLexer(inStream);
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		BNFParser parser = new BNFParser(tokens);
-		// leaving the old listeners in gives a nice error messsage
-		// parser.removeErrorListeners();
-		// lexer.removeErrorListeners();
-		lexer.addErrorListener(new FailingErrorListener());
-		parser.addErrorListener(new FailingErrorListener());
+    private Grammar processAntrlStream(CharStream inStream)
+    {
+        BNFLexer lexer = new BNFLexer(inStream);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        BNFParser parser = new BNFParser(tokens);
+        // leaving the old listeners in gives a nice error messsage
+        // parser.removeErrorListeners();
+        // lexer.removeErrorListeners();
+        lexer.addErrorListener(new FailingErrorListener());
+        parser.addErrorListener(new FailingErrorListener());
 
-		ParseTree tree = parser.rulelist();
+        ParseTree tree = parser.rulelist();
 
-		ParseTreeWalker walker = new ParseTreeWalker();
-		BNFListener listener = new BNFListener(tokens);
-		walker.walk(listener, tree);
+        ParseTreeWalker walker = new ParseTreeWalker();
+        BNFListener listener = new BNFListener(tokens);
+        walker.walk(listener, tree);
 
-		GrammarTop itemTree = listener.getTreeTop();
-//		LOGGER.warn("bnf gave {}", itemTree.getStructure(""));
-		// convert to openCypher grammar
-		GrammarConverter converter = new GrammarConverter(itemTree);
-		return converter.convert();
-	}
+        GrammarTop itemTree = listener.getTreeTop();
+//        LOGGER.warn("bnf gave {}", itemTree.getStructure(""));
+        // convert to openCypher grammar
+        GrammarConverter converter = new GrammarConverter(itemTree);
+        return converter.convert();
+    }
 }

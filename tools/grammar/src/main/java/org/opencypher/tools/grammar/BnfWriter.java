@@ -119,8 +119,8 @@ abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVis
         String description = production.description();
         if ( description != null )
         {
-        	// standardise description (i think this should be done on the read
-        	description = description.replaceAll("\r", "").trim() + "\n";
+            // standardise description (i think this should be done on the read
+            description = description.replaceAll("\r", "").trim() + "\n";
             productionCommentPrefix();
             for ( int pos = 0, line; pos < description.length(); pos = line )
             {

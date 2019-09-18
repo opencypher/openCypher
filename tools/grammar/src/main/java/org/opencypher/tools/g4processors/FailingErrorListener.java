@@ -39,46 +39,46 @@ import org.slf4j.LoggerFactory;
 public class FailingErrorListener extends BaseErrorListener
 {
 
-	@SuppressWarnings("unused")
-	private static final Logger LOGGER = LoggerFactory.getLogger(FailingErrorListener.class.getName());
+    @SuppressWarnings("unused")
+    private static final Logger LOGGER = LoggerFactory.getLogger(FailingErrorListener.class.getName());
 
-	@Override
-	public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
-			String msg, RecognitionException e)
-	{
-		super.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
-//		 existing error message will tell us what's wrong
-		 LOGGER.warn("Syntax error at line {}:{} with '" + offendingSymbol + "'",
-		 line, charPositionInLine);
-		 LOGGER.warn("msg: {}", msg);
-		throw new IllegalArgumentException("Syntax error:", e);
-	}
+    @Override
+    public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
+            String msg, RecognitionException e)
+    {
+        super.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
+//         existing error message will tell us what's wrong
+         LOGGER.warn("Syntax error at line {}:{} with '" + offendingSymbol + "'",
+         line, charPositionInLine);
+         LOGGER.warn("msg: {}", msg);
+        throw new IllegalArgumentException("Syntax error:", e);
+    }
 
-	// @Override
-	// public void reportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int
-	// stopIndex, boolean exact,
-	// BitSet ambigAlts, ATNConfigSet configs) {
-	// super.reportAmbiguity(recognizer, dfa, startIndex, stopIndex, exact,
-	// ambigAlts, configs);
-	// LOGGER.warn("ambiguity");
-	// }
-	//
-	// @Override
-	// public void reportAttemptingFullContext(Parser recognizer, DFA dfa, int
-	// startIndex, int stopIndex,
-	// BitSet conflictingAlts, ATNConfigSet configs) {
-	// super.reportAttemptingFullContext(recognizer, dfa, startIndex, stopIndex,
-	// conflictingAlts, configs);
-	// LOGGER.warn("attemptingFullContext");
-	// }
-	//
-	// @Override
-	// public void reportContextSensitivity(Parser recognizer, DFA dfa, int
-	// startIndex, int stopIndex, int prediction,
-	// ATNConfigSet configs) {
-	// super.reportContextSensitivity(recognizer, dfa, startIndex, stopIndex,
-	// prediction, configs);
-	// LOGGER.warn("contextSensitivity");
-	// }
+    // @Override
+    // public void reportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int
+    // stopIndex, boolean exact,
+    // BitSet ambigAlts, ATNConfigSet configs) {
+    // super.reportAmbiguity(recognizer, dfa, startIndex, stopIndex, exact,
+    // ambigAlts, configs);
+    // LOGGER.warn("ambiguity");
+    // }
+    //
+    // @Override
+    // public void reportAttemptingFullContext(Parser recognizer, DFA dfa, int
+    // startIndex, int stopIndex,
+    // BitSet conflictingAlts, ATNConfigSet configs) {
+    // super.reportAttemptingFullContext(recognizer, dfa, startIndex, stopIndex,
+    // conflictingAlts, configs);
+    // LOGGER.warn("attemptingFullContext");
+    // }
+    //
+    // @Override
+    // public void reportContextSensitivity(Parser recognizer, DFA dfa, int
+    // startIndex, int stopIndex, int prediction,
+    // ATNConfigSet configs) {
+    // super.reportContextSensitivity(recognizer, dfa, startIndex, stopIndex,
+    // prediction, configs);
+    // LOGGER.warn("contextSensitivity");
+    // }
 
 }

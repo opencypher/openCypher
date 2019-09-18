@@ -34,18 +34,18 @@ import org.slf4j.LoggerFactory;
 public class InAlternatives extends GrammarItemList
 {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(InAlternatives.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(InAlternatives.class.getName());
 
 
-	@Override
-	public ItemType getType() {
-		return ItemType.ALTERNATIVES;
-	}
-	
-	@Override
-	public String getStructure(String indent)
-	{
-		
-		return indent + "Alternatives (" + (isPlural() ? "*" : "1") + ")\n" + getContentStructure(indent + INDENT);
-	}
+    @Override
+    public ItemType getType() {
+        return ItemType.ALTERNATIVES;
+    }
+    
+    @Override
+    public String getStructure(String indent)
+    {
+        
+        return indent + "Alternatives (" + (isPlural() ? "*" : "1") + ")\n" + getContentStructure(indent + INDENT);
+    }
 }

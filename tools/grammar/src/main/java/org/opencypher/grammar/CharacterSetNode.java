@@ -123,11 +123,11 @@ class CharacterSetNode extends Node implements CharacterSet
     }
 
     @Override
-	public boolean isControlCharacter() {
-		return set.isSingleCharacter();
-	}
+    public boolean isControlCharacter() {
+        return set.isSingleCharacter();
+    }
 
-	@Override
+    @Override
     boolean isEligibleForGeneration()
     {
         return set != null && super.isEligibleForGeneration();
@@ -210,11 +210,11 @@ class CharacterSetNode extends Node implements CharacterSet
 
     
     @Override
-	public boolean hasExclusions() {
-		return set != null && set.hasExclusions();
-	}
+    public boolean hasExclusions() {
+        return set != null && set.hasExclusions();
+    }
 
-	static boolean isReserved( String name )
+    static boolean isReserved( String name )
     {
         if ( ANY.equals( name ) || EOI.equals( name ) || EOF.equals( name ) )
         {

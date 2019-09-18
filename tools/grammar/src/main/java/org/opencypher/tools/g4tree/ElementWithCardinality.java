@@ -35,62 +35,62 @@ import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 abstract public class ElementWithCardinality implements Element
 {
 
-	private GrammarItem content;
-	
-	public ElementWithCardinality(GrammarItem content)
-	{
-		super();
-		this.content = content;
-	}
+    private GrammarItem content;
+    
+    public ElementWithCardinality(GrammarItem content)
+    {
+        super();
+        this.content = content;
+    }
 
-	
-	@Override
-	public ItemType getType() {
-		return ItemType.CARDINALITY;
-	}
-	
+    
+    @Override
+    public ItemType getType() {
+        return ItemType.CARDINALITY;
+    }
+    
 
-	@Override
-	public List<GrammarItem> getChildren() {
-		return Collections.singletonList(content);
-	}
+    @Override
+    public List<GrammarItem> getChildren() {
+        return Collections.singletonList(content);
+    }
 
-	public abstract int getMin();
+    public abstract int getMin();
 
-	// bnf and g4 only have 1 and unbounded as maxima
-	public abstract boolean isUnbounded();
-	
-	@Override
-	public boolean isPlural()
-	{
-		return content.isPlural();
-	}
+    // bnf and g4 only have 1 and unbounded as maxima
+    public abstract boolean isUnbounded();
+    
+    @Override
+    public boolean isPlural()
+    {
+        return content.isPlural();
+    }
 
-	
-	@Override
-	public boolean isKeywordPart() {
-		return content.isKeywordPart();
-	}
-	
-	@Override
-	public String toString() {
-		return "[" + content.getStructure(" ") + "]" ;
-	}
-	
-	protected String getContentStructure(String indent)
-	{
-		return content.getStructure(indent);
-	}
-	public GrammarItem extractContent()
-	{
-		return content;
-	}
+    
+    @Override
+    public boolean isKeywordPart() {
+        return content.isKeywordPart();
+    }
+    
+    @Override
+    public String toString() {
+        return "[" + content.getStructure(" ") + "]" ;
+    }
+    
+    protected String getContentStructure(String indent)
+    {
+        return content.getStructure(indent);
+    }
+    public GrammarItem extractContent()
+    {
+        return content;
+    }
 
-	@Override
-	public GrammarItem reachThrough()
-	{
-		return this;
-	}
-	
-	
+    @Override
+    public GrammarItem reachThrough()
+    {
+        return this;
+    }
+    
+    
 }

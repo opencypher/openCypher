@@ -48,105 +48,105 @@ import org.xml.sax.SAXException;
 /** translate between supported grammar serialisations, via the Grammar object model */
 public class TranslateGrammar {
 
-	public static void main(String[] args) throws Exception
-	{
-		List<String> argList =  new ArrayList<>(Arrays.asList(args));
-		String inXml  = getArg("x", argList);
-		String inG4   = getArg("g", argList);
-		String inBnf  = getArg("b", argList);
-		String outXml = getArg("X", argList);
-		String outG4  = getArg("G", argList);
-		String outBnf = getArg("B", argList);
-		boolean includeLegacy = getBooleanArg("legacy", argList);
-		
-		if (argList.size() != 0) {
-			usage(args);
-			System.exit(1);
-		}
-		if (includeLegacy) {
-			 System.setProperty( INCLUDE_LEGACY.name(), "true" );
-		}
-		// ought to check for duplicates - just take the first if they're silly
-		Grammar grammar = null;
+    public static void main(String[] args) throws Exception
+    {
+        List<String> argList =  new ArrayList<>(Arrays.asList(args));
+        String inXml  = getArg("x", argList);
+        String inG4   = getArg("g", argList);
+        String inBnf  = getArg("b", argList);
+        String outXml = getArg("X", argList);
+        String outG4  = getArg("G", argList);
+        String outBnf = getArg("B", argList);
+        boolean includeLegacy = getBooleanArg("legacy", argList);
+        
+        if (argList.size() != 0) {
+            usage(args);
+            System.exit(1);
+        }
+        if (includeLegacy) {
+             System.setProperty( INCLUDE_LEGACY.name(), "true" );
+        }
+        // ought to check for duplicates - just take the first if they're silly
+        Grammar grammar = null;
         Grammar.ParserOption[] parserOptions = Grammar.ParserOption.from( System.getProperties() );
         int inputOptions = 0;
-		if (inXml != null) {
-			inputOptions++;
+        if (inXml != null) {
+            inputOptions++;
             grammar = Grammar.parseXML( Paths.get( inXml ), parserOptions );
-		} else if ( inG4 != null) {
-			inputOptions++;
-			G4Processor g4Processor = new G4Processor();
-			grammar = g4Processor.processFile(inG4);
-		} else if (  inBnf != null) {
-			inputOptions++;
-			BNFProcessor bnfProcessor = new BNFProcessor();
-			grammar = bnfProcessor.processFile(inBnf);
-		}
-		if (inputOptions != 1) {
-			System.err.println("Exactly one input grammar must be specified");
-			usage(args);
-			System.exit(1);
-		}
-		boolean written = false;
-		if (outXml != null) {
-			OutputStream outStream = outXml.equals("-") ? System.out : new FileOutputStream(outXml);
-			Xml.write(grammar,  outStream);
-			outStream.close();
-			written = true;
-		} 
-		if (outG4 != null) {
-			OutputStream outStream = outG4.equals("-") ? System.out :new FileOutputStream(outG4);
-			Antlr4.setPrefix("");
-			Antlr4.write(grammar,  outStream);
-			outStream.close();
-			written = true;
-			
-		}
-		if (outBnf != null) {
-			OutputStream outStream = outBnf.equals("-") ? System.out :new FileOutputStream(outBnf);
-			SQLBNF.write(grammar,  outStream);
-			outStream.close();
-			written = true;
-			
-		}
-		if (!written) {
-			Xml.write(grammar,  System.out);
-		}
+        } else if ( inG4 != null) {
+            inputOptions++;
+            G4Processor g4Processor = new G4Processor();
+            grammar = g4Processor.processFile(inG4);
+        } else if (  inBnf != null) {
+            inputOptions++;
+            BNFProcessor bnfProcessor = new BNFProcessor();
+            grammar = bnfProcessor.processFile(inBnf);
+        }
+        if (inputOptions != 1) {
+            System.err.println("Exactly one input grammar must be specified");
+            usage(args);
+            System.exit(1);
+        }
+        boolean written = false;
+        if (outXml != null) {
+            OutputStream outStream = outXml.equals("-") ? System.out : new FileOutputStream(outXml);
+            Xml.write(grammar,  outStream);
+            outStream.close();
+            written = true;
+        } 
+        if (outG4 != null) {
+            OutputStream outStream = outG4.equals("-") ? System.out :new FileOutputStream(outG4);
+            Antlr4.setPrefix("");
+            Antlr4.write(grammar,  outStream);
+            outStream.close();
+            written = true;
+            
+        }
+        if (outBnf != null) {
+            OutputStream outStream = outBnf.equals("-") ? System.out :new FileOutputStream(outBnf);
+            SQLBNF.write(grammar,  outStream);
+            outStream.close();
+            written = true;
+            
+        }
+        if (!written) {
+            Xml.write(grammar,  System.out);
+        }
 
-	}
+    }
 
-	static String getArg(String key, List<String> argList) {
-	   	int index = argList.indexOf("-" + key);
-    	if (index >= 0) {
-    		argList.remove(index);
-    		return argList.remove(index);
-    	} else {
-    		return null;
-    	}
-	}
+    static String getArg(String key, List<String> argList) {
+           int index = argList.indexOf("-" + key);
+        if (index >= 0) {
+            argList.remove(index);
+            return argList.remove(index);
+        } else {
+            return null;
+        }
+    }
 
-	static boolean getBooleanArg(String key, List<String> argList) {
-	   	int index = argList.indexOf("-" + key);
-    	if (index >= 0) {
-    		argList.remove(index);
-    		return true;
-    	} else {
-    		return false;
-    	}
-	}
+    static boolean getBooleanArg(String key, List<String> argList) {
+           int index = argList.indexOf("-" + key);
+        if (index >= 0) {
+            argList.remove(index);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	static void usage(String [] args) {
+    static void usage(String [] args) {
         System.err.println( "Arguments:\n" +
-        		"      -x <path> : input xml file path\n" +
-        		"      -g <path> : input antlr G4 file path\n" +
-        		"      -b <path> : input SQL BNF file path\n" +
-        		"      -X <path>: output xml file path\n" +
-        		"      -G <path or .> : output antlr G4 file path or . for sysout\n" +
-        		"      -B <path or .> : output SQL BNF file path or . for sysout\n" +
-        		"      -legacy : output SQL BNF file path or . for sysout\n" +
-        		" One input file path must be given\n" +
-        		" Zero or more output file paths may be given\n" +
-        		" If no output file path is given, the output will go to sysout.");
+                "      -x <path> : input xml file path\n" +
+                "      -g <path> : input antlr G4 file path\n" +
+                "      -b <path> : input SQL BNF file path\n" +
+                "      -X <path>: output xml file path\n" +
+                "      -G <path or .> : output antlr G4 file path or . for sysout\n" +
+                "      -B <path or .> : output SQL BNF file path or . for sysout\n" +
+                "      -legacy : output SQL BNF file path or . for sysout\n" +
+                " One input file path must be given\n" +
+                " Zero or more output file paths may be given\n" +
+                " If no output file path is given, the output will go to sysout.");
         
-	}
+    }
 }

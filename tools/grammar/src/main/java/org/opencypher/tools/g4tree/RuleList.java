@@ -37,25 +37,25 @@ import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 public class RuleList extends GrammarItemList
 {
 
-	public List<Rule> getRules() {
-		return getChildren().stream().map(r -> (Rule) r).collect(Collectors.toList());
-	}
-	
-	@Override
-	public ItemType getType() {
-		return ItemType.OTHER;
-	}
-	
-	@Override
-	public String getStructure(String indent)
-	{
-		
-		return indent + "RuleList:\n" + getContentStructure(indent + INDENT);
-	}
-	
-	@Override
-	public GrammarItem reachThrough()
-	{
-		return this;
-	}
+    public List<Rule> getRules() {
+        return getChildren().stream().map(r -> (Rule) r).collect(Collectors.toList());
+    }
+    
+    @Override
+    public ItemType getType() {
+        return ItemType.OTHER;
+    }
+    
+    @Override
+    public String getStructure(String indent)
+    {
+        
+        return indent + "RuleList:\n" + getContentStructure(indent + INDENT);
+    }
+    
+    @Override
+    public GrammarItem reachThrough()
+    {
+        return this;
+    }
 }

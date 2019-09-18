@@ -91,11 +91,11 @@ class Root implements Iterable<ProductionNode>
     // special
     void markAsBnfSymbols(String productionName)
     {
-    	ProductionNode production = productions.get(productionName.toLowerCase());
-    	if (production == null) {
-    		throw new IllegalStateException("Can't find production " + productionName); 
-    	}
-    	production.bnfsymbols = true;
+        ProductionNode production = productions.get(productionName.toLowerCase());
+        if (production == null) {
+            throw new IllegalStateException("Can't find production " + productionName); 
+        }
+        production.bnfsymbols = true;
     }
 
     @Child

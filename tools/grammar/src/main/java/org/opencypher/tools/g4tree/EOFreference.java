@@ -34,38 +34,38 @@ import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 
 public class EOFreference implements GrammarItem {
 
-	public static final Object BNF_NAME = "end of data";
+    public static final Object BNF_NAME = "end of data";
 
 
-	@Override
-	public ItemType getType() {
-		return ItemType.EOI;
-	}
-	
+    @Override
+    public ItemType getType() {
+        return ItemType.EOI;
+    }
+    
 
-	@Override
-	public List<GrammarItem> getChildren() {
-		return Collections.emptyList();
-	}
+    @Override
+    public List<GrammarItem> getChildren() {
+        return Collections.emptyList();
+    }
 
-	@Override
-	public String getStructure(String indent) {
-		return indent + "end-of-information";
-	}
+    @Override
+    public String getStructure(String indent) {
+        return indent + "end-of-information";
+    }
 
-	
-	@Override
-	public boolean isPlural() {
-		return false;
-	}
+    
+    @Override
+    public boolean isPlural() {
+        return false;
+    }
 
-	@Override
-	public GrammarItem reachThrough() {
-		return this;
-	}
+    @Override
+    public GrammarItem reachThrough() {
+        return this;
+    }
 
-	@Override
-	public boolean isKeywordPart() {
-		return false;
-	}
+    @Override
+    public boolean isKeywordPart() {
+        return false;
+    }
 }

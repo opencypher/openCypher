@@ -37,57 +37,57 @@ import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 
 public class GrammarTop implements GrammarItem {
 
-	private final GrammarName name; 
-	private final RuleList rules;
-	private final String header;
-	
-	public GrammarTop(GrammarName name, RuleList rules, String header) {
-		this.name = name;
-		this.rules = rules;
-		this.header = header;
-	}
+    private final GrammarName name; 
+    private final RuleList rules;
+    private final String header;
+    
+    public GrammarTop(GrammarName name, RuleList rules, String header) {
+        this.name = name;
+        this.rules = rules;
+        this.header = header;
+    }
 
-	@Override
-	public ItemType getType() {
-		return ItemType.OTHER;
-	}
-	
+    @Override
+    public ItemType getType() {
+        return ItemType.OTHER;
+    }
+    
 
-	@Override
-	public List<GrammarItem> getChildren() {
-		return Collections.singletonList(rules);
-	}
+    @Override
+    public List<GrammarItem> getChildren() {
+        return Collections.singletonList(rules);
+    }
 
-	public String getName() {
-		return name.getName();
-	}
-	
-	public RuleList getRuleList() {
-		return rules;
-	}
+    public String getName() {
+        return name.getName();
+    }
+    
+    public RuleList getRuleList() {
+        return rules;
+    }
 
-	public String getHeader() {
-		return header;
-	}
+    public String getHeader() {
+        return header;
+    }
 
-	@Override
-	public String getStructure(String indent) {
-		return "Grammar " + name.getStructure("") + "\n" + rules.getStructure(indent);
-	}
+    @Override
+    public String getStructure(String indent) {
+        return "Grammar " + name.getStructure("") + "\n" + rules.getStructure(indent);
+    }
 
-	@Override
-	public boolean isPlural() {
-		return false;
-	}
+    @Override
+    public boolean isPlural() {
+        return false;
+    }
 
-	@Override
-	public GrammarItem reachThrough() {
-		return this;
-	}
+    @Override
+    public GrammarItem reachThrough() {
+        return this;
+    }
 
-	@Override
-	public boolean isKeywordPart() {
-		return false;
-	}
+    @Override
+    public boolean isKeywordPart() {
+        return false;
+    }
 
 }

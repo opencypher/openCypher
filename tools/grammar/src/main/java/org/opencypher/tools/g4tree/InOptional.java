@@ -32,24 +32,24 @@ import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 public class InOptional extends ElementWithCardinality
 {
 
-	public InOptional(GrammarItem content)
-	{
-		super(content);
-	}
-	
-	@Override
-	public int getMin() {
-		return 0;
-	}
+    public InOptional(GrammarItem content)
+    {
+        super(content);
+    }
+    
+    @Override
+    public int getMin() {
+        return 0;
+    }
 
-	@Override
-	public boolean isUnbounded() {
-		return false;
-	}
-	
-	@Override
-	public String getStructure(String indent)
-	{
-		return indent + "Optional\n" + getContentStructure(indent + INDENT);
-	}
+    @Override
+    public boolean isUnbounded() {
+        return false;
+    }
+    
+    @Override
+    public String getStructure(String indent)
+    {
+        return indent + "Optional\n" + getContentStructure(indent + INDENT);
+    }
 }

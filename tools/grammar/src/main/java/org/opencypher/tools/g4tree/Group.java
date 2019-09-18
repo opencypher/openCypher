@@ -32,32 +32,32 @@ import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 public class Group extends ElementWithCardinality
 {
 
-	public Group(GrammarItem content)
-	{
-		super(content);
-	}
+    public Group(GrammarItem content)
+    {
+        super(content);
+    }
 
-	
-//	@Override
-//	public boolean isPlural() {
-//		// TODO not sure about this - needed for xml but wrong for sqlbnf, i think
-//		return false;
-//	}
+    
+//    @Override
+//    public boolean isPlural() {
+//        // TODO not sure about this - needed for xml but wrong for sqlbnf, i think
+//        return false;
+//    }
 
 
-	@Override
-	public String getStructure(String indent)
-	{
-		return indent + "Group\n" + getContentStructure(indent + INDENT);
-	}
+    @Override
+    public String getStructure(String indent)
+    {
+        return indent + "Group\n" + getContentStructure(indent + INDENT);
+    }
 
-	@Override
-	public int getMin() {
-		return 1;
-	}
+    @Override
+    public int getMin() {
+        return 1;
+    }
 
-	@Override
-	public boolean isUnbounded() {
-		return false;
-	}
+    @Override
+    public boolean isUnbounded() {
+        return false;
+    }
 }

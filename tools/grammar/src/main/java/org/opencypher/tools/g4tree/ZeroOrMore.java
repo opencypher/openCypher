@@ -32,24 +32,24 @@ import org.opencypher.tools.g4tree.GrammarItem.ItemType;
 public class ZeroOrMore extends ElementWithCardinality
 {
 
-	public ZeroOrMore(GrammarItem content)
-	{
-		super(content);
-	}
-	@Override
-	public int getMin() {
-		return 0;
-	}
+    public ZeroOrMore(GrammarItem content)
+    {
+        super(content);
+    }
+    @Override
+    public int getMin() {
+        return 0;
+    }
 
-	@Override
-	public boolean isUnbounded() {
-		return true;
-	}
-	
-	@Override
-	public String getStructure(String indent)
-	{
-		return indent + "ZeroOrMore\n" + getContentStructure(indent + INDENT);
-	}
+    @Override
+    public boolean isUnbounded() {
+        return true;
+    }
+    
+    @Override
+    public String getStructure(String indent)
+    {
+        return indent + "ZeroOrMore\n" + getContentStructure(indent + INDENT);
+    }
 
 }

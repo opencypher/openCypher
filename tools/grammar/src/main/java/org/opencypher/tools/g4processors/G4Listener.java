@@ -87,371 +87,371 @@ import org.slf4j.LoggerFactory;
 
 public class G4Listener extends Gee4BaseListener
 {
-	private final ParseTreeProperty<GrammarItem> items = new ParseTreeProperty<>();
-	private GrammarTop treeTop = null;
-	private final CommonTokenStream tokens;
-	// nasty stateful field
-	private boolean lexerRule = false;
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(G4Listener.class.getName());
+    private final ParseTreeProperty<GrammarItem> items = new ParseTreeProperty<>();
+    private GrammarTop treeTop = null;
+    private final CommonTokenStream tokens;
+    // nasty stateful field
+    private boolean lexerRule = false;
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(G4Listener.class.getName());
 
-	public G4Listener(CommonTokenStream tokens)
-	{
-		super();
-		this.tokens = tokens;
-	}
+    public G4Listener(CommonTokenStream tokens)
+    {
+        super();
+        this.tokens = tokens;
+    }
 
-	public GrammarTop getTreeTop()
-	{
-		return treeTop;
-	}
+    public GrammarTop getTreeTop()
+    {
+        return treeTop;
+    }
 
-	@Override
-	public void exitWholegrammar(WholegrammarContext ctx) {
-		GrammarName name = (GrammarName) getItem(ctx.grammardef());
-		String headerText = cleanQuasiComment(ctx.header());
-		RuleList rules = (RuleList) getItem(ctx.rulelist());
+    @Override
+    public void exitWholegrammar(WholegrammarContext ctx) {
+        GrammarName name = (GrammarName) getItem(ctx.grammardef());
+        String headerText = cleanQuasiComment(ctx.header());
+        RuleList rules = (RuleList) getItem(ctx.rulelist());
 
-		treeTop = new GrammarTop(name, rules, headerText);
-		
-	}
+        treeTop = new GrammarTop(name, rules, headerText);
+        
+    }
 
-	// convert the quasi comment to a single string with line breaks
-	private String cleanQuasiComment(ParserRuleContext cmtCtx) {
-		if (cmtCtx != null) {
-			return cmtCtx.getText().replaceFirst("/\\*\\*","").replaceFirst("\\*/","")
-					.replaceAll("\r?\n\\s*\\*","\n").replaceFirst("\r?\n$", "");
-		} else {
-			return null;
-		}
-	}
+    // convert the quasi comment to a single string with line breaks
+    private String cleanQuasiComment(ParserRuleContext cmtCtx) {
+        if (cmtCtx != null) {
+            return cmtCtx.getText().replaceFirst("/\\*\\*","").replaceFirst("\\*/","")
+                    .replaceAll("\r?\n\\s*\\*","\n").replaceFirst("\r?\n$", "");
+        } else {
+            return null;
+        }
+    }
 
-	@Override
-	public void exitGrammardef(GrammardefContext ctx) {
-		String name = ctx.IDENTIFIER().getText();
-		setItem(ctx, new GrammarName(name));
-	}
+    @Override
+    public void exitGrammardef(GrammardefContext ctx) {
+        String name = ctx.IDENTIFIER().getText();
+        setItem(ctx, new GrammarName(name));
+    }
 
-	@Override
-	public void exitRulelist(RulelistContext ctx)
-	{
-		
-		RuleList rules = new RuleList();
-		for (Rule_Context ruleCtx : ctx.rule_())
-		{
-			GrammarItem grammarItem = getItem(ruleCtx);
-			LOGGER.debug("adding an item for {}", ruleCtx.getText());
-			rules.addItem(grammarItem);
-		}
-		for (FragmentRuleContext ruleCtx : ctx.fragmentRule())
-		{
-			GrammarItem grammarItem = getItem(ruleCtx);
-			LOGGER.debug("adding a fragment item for {}", ruleCtx.getText());
-			rules.addItem(grammarItem);
-		}
-		setItem(ctx, rules);
-	}
-	
-	@Override
-	public void exitRule_(Rule_Context ctx)
-	{
-		final Rule rule;
-		GrammarItem item = getItem(ctx.ruleElements());
-		String ruleName = getItem(ctx.ruleName()).toString().replaceFirst("^L_", "");
-		final String description = cleanQuasiComment(ctx.description());
-		// this is juggled in the normaliser
-//		if (lexerRule && ruleName.matches("[A-Z]+") && item.isKeywordPart()) {
-//			rule = new Rule(getItem(ctx.ruleName()), item, true, RuleType.NORMAL);
-//		} else {
-			rule = new Rule(getItem(ctx.ruleName()), item, description);
-//		}
-		setItem(ctx, rule);
-	}
+    @Override
+    public void exitRulelist(RulelistContext ctx)
+    {
+        
+        RuleList rules = new RuleList();
+        for (Rule_Context ruleCtx : ctx.rule_())
+        {
+            GrammarItem grammarItem = getItem(ruleCtx);
+            LOGGER.debug("adding an item for {}", ruleCtx.getText());
+            rules.addItem(grammarItem);
+        }
+        for (FragmentRuleContext ruleCtx : ctx.fragmentRule())
+        {
+            GrammarItem grammarItem = getItem(ruleCtx);
+            LOGGER.debug("adding a fragment item for {}", ruleCtx.getText());
+            rules.addItem(grammarItem);
+        }
+        setItem(ctx, rules);
+    }
+    
+    @Override
+    public void exitRule_(Rule_Context ctx)
+    {
+        final Rule rule;
+        GrammarItem item = getItem(ctx.ruleElements());
+        String ruleName = getItem(ctx.ruleName()).toString().replaceFirst("^L_", "");
+        final String description = cleanQuasiComment(ctx.description());
+        // this is juggled in the normaliser
+//        if (lexerRule && ruleName.matches("[A-Z]+") && item.isKeywordPart()) {
+//            rule = new Rule(getItem(ctx.ruleName()), item, true, RuleType.NORMAL);
+//        } else {
+            rule = new Rule(getItem(ctx.ruleName()), item, description);
+//        }
+        setItem(ctx, rule);
+    }
 
-	@Override
-	public void exitFragmentRule(FragmentRuleContext ctx)
-	{
-		final Rule rule;
-		GrammarItem item = getItem(ctx.literal());
-		String ruleName = getItem(ctx.ruleName()).toString().replaceFirst("^L_", "");
-		if (lexerRule && ruleName.matches("[A-Z]+") && item.isKeywordPart()) {
-			rule = new Rule(getItem(ctx.ruleName()), item, true, RuleType.KEYWORD, null);
-		} else {
-			rule = new Rule(getItem(ctx.ruleName()), item, false, RuleType.FRAGMENT, null);
-		}
-		setItem(ctx, rule);
-	}
-
-
-	@Override
-	public void exitSpecialRule(SpecialRuleContext ctx) {
-
-		LOGGER.warn("Ignoring special rule {}", ctx.getText());
-	}
+    @Override
+    public void exitFragmentRule(FragmentRuleContext ctx)
+    {
+        final Rule rule;
+        GrammarItem item = getItem(ctx.literal());
+        String ruleName = getItem(ctx.ruleName()).toString().replaceFirst("^L_", "");
+        if (lexerRule && ruleName.matches("[A-Z]+") && item.isKeywordPart()) {
+            rule = new Rule(getItem(ctx.ruleName()), item, true, RuleType.KEYWORD, null);
+        } else {
+            rule = new Rule(getItem(ctx.ruleName()), item, false, RuleType.FRAGMENT, null);
+        }
+        setItem(ctx, rule);
+    }
 
 
-	@Override
-	public void exitRuleName(RuleNameContext ctx)
-	{
-		String ruleName = ctx.getText();
-		// flip a flag that will last for the processing of the rule
-		lexerRule = ruleName.equals(ruleName.toUpperCase());
-		// special rule to undo the marking of reserved words
-		setItem(ctx, new RuleId(ruleName.replaceFirst("^L_", "")));
-	}
+    @Override
+    public void exitSpecialRule(SpecialRuleContext ctx) {
 
-	@Override
-	public void exitRuleElements(RuleElementsContext ctx)
-	{
-		InAlternatives alts = new InAlternatives();
-		for (RuleAlternativeContext element : ctx.ruleAlternative())
-		{
-			alts.addItem(getItem(element));
-		}
-		setItem(ctx, alts);
-	}
-
-	@Override
-	public void exitRuleAlternative(RuleAlternativeContext ctx)
-	{
-		InAlternative alt = new InAlternative();
-		for (RuleItemContext element : ctx.ruleItem())
-		{
-			alt.addItem(getItem(element));
-		}
-		FreeTextItem normal = findHiddenText(ctx);
-		if (normal != null) {
-			alt.addItem(normal);
-		}
-		setItem(ctx, alt);
-
-	}
-
-	private FreeTextItem findHiddenText(ParserRuleContext ctx)
-	{
-		// to suppress lexing, !! normal english text is a special comment //!! -> hidden
-		// not sure i need to do that
-		Token endAlt = ctx.getStop();
-		int i = endAlt.getTokenIndex();
-		List<Token> normalTextChannel = tokens.getHiddenTokensToRight(i, Gee4Lexer.HIDDEN);
-		if (normalTextChannel != null) {
-			// there should be only one line now
-			String content = normalTextChannel.stream().map(tk -> tk.getText().replaceFirst("//!!\\s*", ""))
-					.collect(Collectors.joining());
-			return new FreeTextItem(content);
-		}
-		return null;
-	}
-
-	
-	@Override
-	public void exitRuleItem(RuleItemContext ctx)
-	{
-		final ParserRuleContext contentCtx;
-		final boolean singular;
-		if (ctx.ruleComponent() != null) {
-			contentCtx = ctx.ruleComponent();
-			singular = true;
-		} else {
-			contentCtx = ctx.ruleElements();
-			singular = false;
-		}
-		GrammarItem contentItem = getItem(contentCtx);
-		final GrammarItem ourItem;
-		CardinalityContext cardinCtx = ctx.cardinality();
-		if (cardinCtx == null) {
-			if (singular) {
-				ourItem = contentItem;
-			} else {
-				ourItem = new Group(contentItem);
-			}
-		} else if (cardinCtx.QUESTION() != null) {
-			ourItem = new InOptional(contentItem);
-		} else if (cardinCtx.PLUS() != null ) {
-			ourItem = new OneOrMore(contentItem);
-		} else if (cardinCtx.STAR() != null) {
-			ourItem = new ZeroOrMore(contentItem);
-		} else {
-			throw new IllegalStateException("Cannot find content for RuleItem: " + ctx.getText());
-		}
-		setItem(ctx, ourItem);
-		
-	}
-
-	@Override
-	public void exitRuleComponent(RuleComponentContext ctx)
-	{
-		pullUpItem(ctx);
-	}
-
-	
-	@Override
-	public void exitQuotedString(QuotedStringContext ctx) {
-		String text = ctx.getText().replaceFirst("^'","").replaceFirst("'$", "");
-		// does this cope with mixtures ?
-		setItem(ctx, new InLiteral(text));
-	}
-
-	@Override
-	public void exitNegatedQuotedString(NegatedQuotedStringContext ctx) {
-		setItem(ctx, new ExclusionCharacterSet(ctx.getText().replaceFirst("^~'","").replaceFirst("'$", "")));
-	}
-
-	private static final Pattern NAMED_CHARSET_PATT = Pattern.compile("\\\\p\\{(\\w+)\\}");
-	@Override
-	public void exitCharSet(CharSetContext ctx) {
-		String charSetString = ctx.getText().replaceFirst("^\\[","").replaceFirst("\\]$", "");
-		// special case named (better to rework Gee4.g4 and do this in the lexer, parser
-		Matcher namedM = NAMED_CHARSET_PATT.matcher(charSetString);
-		if (namedM.matches()) {
-			setItem(ctx, new NamedCharacterSet(namedM.group(1)));
-			return;
-		}
-		if (charSetString.contains("\\")) {
-			charSetString = interpret(charSetString);
-			if (charSetString.length() == 1) {
-				// possibly a control character
-				int cp = charSetString.codePointAt(0);
-				String name = CharacterSet.controlCharName(cp);
-				if (name != null) {
-					setItem(ctx, new NamedCharacterSet(name));
-					return;
-				}
-			}
-		}
-		setItem(ctx, new ListedCharacterSet(charSetString));
-	}
+        LOGGER.warn("Ignoring special rule {}", ctx.getText());
+    }
 
 
-	private String interpret(String charSetString) {
-		// to cope with punctuation, especially backslash, the syntax has text+,
-		// but we want them together again
-		LOGGER.debug("interpreting {}", charSetString);
-		boolean escaped = false;
-		boolean inRange = false;
-		int previous = 0;
-		StringBuilder b = new StringBuilder();
-		for (int i = 0, end = charSetString.length() ; i < end; i++ ) {
-			int cp = charSetString.codePointAt(i);
-			switch (cp) {
-			case '\\':
-				if (escaped) {
-					b.append(cp);
-					escaped = false;
-				} else {
-					escaped = true;
-				}
-				break;
-			default:
-				if (escaped) {
-					escaped = false;
-					switch (cp) {
-					case 'r':
-						b.append('\r');
-						break;
-					case 'n':
-						b.append("\n");
-						break;
-					case 't':
-						b.append("\t");
-						break;
-					case 'b':
-						b.append("\b");
-						break;
-					case 'f':
-						b.append("\f");
-						break;
-					case '\\':
-						b.append("\\");
-						break;
-					case '-':
-						b.append('-');
-						break;
-					case 'u':
-						if (i + 4 > charSetString.length()) {
-							throw new IllegalArgumentException("unicode escape requires 4 hex digits");
-						}
-						String hexchars = charSetString.substring(i+1, i + 5);
-						LOGGER.debug("at {}, hex {}", i, hexchars);
-						int ch = Integer.parseInt(hexchars, 16);
-						b.append((char) ch);
-						i += 4;
-						break;
-					default:
-						throw new IllegalArgumentException("Don't know how to interpret escaped character " + cp);
-					}
-				} else {
-					b.append(cp);
-				}
+    @Override
+    public void exitRuleName(RuleNameContext ctx)
+    {
+        String ruleName = ctx.getText();
+        // flip a flag that will last for the processing of the rule
+        lexerRule = ruleName.equals(ruleName.toUpperCase());
+        // special rule to undo the marking of reserved words
+        setItem(ctx, new RuleId(ruleName.replaceFirst("^L_", "")));
+    }
 
-			}
-		}
-		String answer = b.toString();
-		LOGGER.debug("became {}, len {}", answer, answer.length());
+    @Override
+    public void exitRuleElements(RuleElementsContext ctx)
+    {
+        InAlternatives alts = new InAlternatives();
+        for (RuleAlternativeContext element : ctx.ruleAlternative())
+        {
+            alts.addItem(getItem(element));
+        }
+        setItem(ctx, alts);
+    }
 
-		return answer;
+    @Override
+    public void exitRuleAlternative(RuleAlternativeContext ctx)
+    {
+        InAlternative alt = new InAlternative();
+        for (RuleItemContext element : ctx.ruleItem())
+        {
+            alt.addItem(getItem(element));
+        }
+        FreeTextItem normal = findHiddenText(ctx);
+        if (normal != null) {
+            alt.addItem(normal);
+        }
+        setItem(ctx, alt);
 
-	}
-	
-	@Override
-	public void exitNegatedCharSet(NegatedCharSetContext ctx) {
-		setItem(ctx, new ExclusionCharacterSet(ctx.getText().replaceFirst("^~\\[","").replaceFirst("\\]$", "")));
-	}
+    }
 
-	@Override
-	public void exitDotPattern(DotPatternContext ctx) {
-		throw new UnsupportedOperationException("Cannot handle lexer dot pattern: " + ctx.getText());
-	}
+    private FreeTextItem findHiddenText(ParserRuleContext ctx)
+    {
+        // to suppress lexing, !! normal english text is a special comment //!! -> hidden
+        // not sure i need to do that
+        Token endAlt = ctx.getStop();
+        int i = endAlt.getTokenIndex();
+        List<Token> normalTextChannel = tokens.getHiddenTokensToRight(i, Gee4Lexer.HIDDEN);
+        if (normalTextChannel != null) {
+            // there should be only one line now
+            String content = normalTextChannel.stream().map(tk -> tk.getText().replaceFirst("//!!\\s*", ""))
+                    .collect(Collectors.joining());
+            return new FreeTextItem(content);
+        }
+        return null;
+    }
 
-	@Override
-	public void exitLiteral(LiteralContext ctx)
-	{
-		pullUpItem(ctx);
-	}
+    
+    @Override
+    public void exitRuleItem(RuleItemContext ctx)
+    {
+        final ParserRuleContext contentCtx;
+        final boolean singular;
+        if (ctx.ruleComponent() != null) {
+            contentCtx = ctx.ruleComponent();
+            singular = true;
+        } else {
+            contentCtx = ctx.ruleElements();
+            singular = false;
+        }
+        GrammarItem contentItem = getItem(contentCtx);
+        final GrammarItem ourItem;
+        CardinalityContext cardinCtx = ctx.cardinality();
+        if (cardinCtx == null) {
+            if (singular) {
+                ourItem = contentItem;
+            } else {
+                ourItem = new Group(contentItem);
+            }
+        } else if (cardinCtx.QUESTION() != null) {
+            ourItem = new InOptional(contentItem);
+        } else if (cardinCtx.PLUS() != null ) {
+            ourItem = new OneOrMore(contentItem);
+        } else if (cardinCtx.STAR() != null) {
+            ourItem = new ZeroOrMore(contentItem);
+        } else {
+            throw new IllegalStateException("Cannot find content for RuleItem: " + ctx.getText());
+        }
+        setItem(ctx, ourItem);
+        
+    }
 
-	
-	
-	private String respaceString(String original) {
-		return original.replaceAll("_", " ");
-	}
-	
-	@Override
-	public void exitRuleReference(RuleReferenceContext ctx)
-	{
-		// special case keywords thata have been escaped by Antlr4 write
-		String ruleName = ctx.getText();
-		if (ruleName.startsWith("L_")) {
-			setItem(ctx, new InLiteral(ruleName.substring(2)));
-//		} else if (ruleName.matches("[A-Z]+")) {
-//			// special case keyword from oC bnf
-//			setItem(ctx, new InLiteral(ruleName));
-		} else if (ruleName.equals("EOF")) {
-			setItem(ctx, new EOFreference());
-		} else {
-			setItem(ctx, new RuleId(ruleName));
-		}
-	}
+    @Override
+    public void exitRuleComponent(RuleComponentContext ctx)
+    {
+        pullUpItem(ctx);
+    }
 
-	@Override
-	public void exitEveryRule(ParserRuleContext ctx)
-	{
-//		LOGGER.debug("   exiting a {} : {}", ctx.getClass().getSimpleName().replaceFirst("Context",""), ctx.getText());
-		super.exitEveryRule(ctx);
-	}
+    
+    @Override
+    public void exitQuotedString(QuotedStringContext ctx) {
+        String text = ctx.getText().replaceFirst("^'","").replaceFirst("'$", "");
+        // does this cope with mixtures ?
+        setItem(ctx, new InLiteral(text));
+    }
 
-	private GrammarItem getItem(ParseTree ctx) {
-		return items.get(ctx);
-	}
-	
-	private void setItem(ParseTree ctx, GrammarItem item) {
-		LOGGER.debug("setting a {} for {}", item.getClass().getSimpleName(), ctx.getText());
-		items.put(ctx, item);
-	}
-	
-	private void pullUpItem(ParseTree ctx) {
-		LOGGER.debug("promoting a {} from {}", ctx.getClass().getSimpleName(),  ctx.getChild(0).getClass().getSimpleName());
-		items.put(ctx,  getItem(ctx.getChild(0)));
-	}
-	
+    @Override
+    public void exitNegatedQuotedString(NegatedQuotedStringContext ctx) {
+        setItem(ctx, new ExclusionCharacterSet(ctx.getText().replaceFirst("^~'","").replaceFirst("'$", "")));
+    }
+
+    private static final Pattern NAMED_CHARSET_PATT = Pattern.compile("\\\\p\\{(\\w+)\\}");
+    @Override
+    public void exitCharSet(CharSetContext ctx) {
+        String charSetString = ctx.getText().replaceFirst("^\\[","").replaceFirst("\\]$", "");
+        // special case named (better to rework Gee4.g4 and do this in the lexer, parser
+        Matcher namedM = NAMED_CHARSET_PATT.matcher(charSetString);
+        if (namedM.matches()) {
+            setItem(ctx, new NamedCharacterSet(namedM.group(1)));
+            return;
+        }
+        if (charSetString.contains("\\")) {
+            charSetString = interpret(charSetString);
+            if (charSetString.length() == 1) {
+                // possibly a control character
+                int cp = charSetString.codePointAt(0);
+                String name = CharacterSet.controlCharName(cp);
+                if (name != null) {
+                    setItem(ctx, new NamedCharacterSet(name));
+                    return;
+                }
+            }
+        }
+        setItem(ctx, new ListedCharacterSet(charSetString));
+    }
+
+
+    private String interpret(String charSetString) {
+        // to cope with punctuation, especially backslash, the syntax has text+,
+        // but we want them together again
+        LOGGER.debug("interpreting {}", charSetString);
+        boolean escaped = false;
+        boolean inRange = false;
+        int previous = 0;
+        StringBuilder b = new StringBuilder();
+        for (int i = 0, end = charSetString.length() ; i < end; i++ ) {
+            int cp = charSetString.codePointAt(i);
+            switch (cp) {
+            case '\\':
+                if (escaped) {
+                    b.append(cp);
+                    escaped = false;
+                } else {
+                    escaped = true;
+                }
+                break;
+            default:
+                if (escaped) {
+                    escaped = false;
+                    switch (cp) {
+                    case 'r':
+                        b.append('\r');
+                        break;
+                    case 'n':
+                        b.append("\n");
+                        break;
+                    case 't':
+                        b.append("\t");
+                        break;
+                    case 'b':
+                        b.append("\b");
+                        break;
+                    case 'f':
+                        b.append("\f");
+                        break;
+                    case '\\':
+                        b.append("\\");
+                        break;
+                    case '-':
+                        b.append('-');
+                        break;
+                    case 'u':
+                        if (i + 4 > charSetString.length()) {
+                            throw new IllegalArgumentException("unicode escape requires 4 hex digits");
+                        }
+                        String hexchars = charSetString.substring(i+1, i + 5);
+                        LOGGER.debug("at {}, hex {}", i, hexchars);
+                        int ch = Integer.parseInt(hexchars, 16);
+                        b.append((char) ch);
+                        i += 4;
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Don't know how to interpret escaped character " + cp);
+                    }
+                } else {
+                    b.append(cp);
+                }
+
+            }
+        }
+        String answer = b.toString();
+        LOGGER.debug("became {}, len {}", answer, answer.length());
+
+        return answer;
+
+    }
+    
+    @Override
+    public void exitNegatedCharSet(NegatedCharSetContext ctx) {
+        setItem(ctx, new ExclusionCharacterSet(ctx.getText().replaceFirst("^~\\[","").replaceFirst("\\]$", "")));
+    }
+
+    @Override
+    public void exitDotPattern(DotPatternContext ctx) {
+        throw new UnsupportedOperationException("Cannot handle lexer dot pattern: " + ctx.getText());
+    }
+
+    @Override
+    public void exitLiteral(LiteralContext ctx)
+    {
+        pullUpItem(ctx);
+    }
+
+    
+    
+    private String respaceString(String original) {
+        return original.replaceAll("_", " ");
+    }
+    
+    @Override
+    public void exitRuleReference(RuleReferenceContext ctx)
+    {
+        // special case keywords thata have been escaped by Antlr4 write
+        String ruleName = ctx.getText();
+        if (ruleName.startsWith("L_")) {
+            setItem(ctx, new InLiteral(ruleName.substring(2)));
+//        } else if (ruleName.matches("[A-Z]+")) {
+//            // special case keyword from oC bnf
+//            setItem(ctx, new InLiteral(ruleName));
+        } else if (ruleName.equals("EOF")) {
+            setItem(ctx, new EOFreference());
+        } else {
+            setItem(ctx, new RuleId(ruleName));
+        }
+    }
+
+    @Override
+    public void exitEveryRule(ParserRuleContext ctx)
+    {
+//        LOGGER.debug("   exiting a {} : {}", ctx.getClass().getSimpleName().replaceFirst("Context",""), ctx.getText());
+        super.exitEveryRule(ctx);
+    }
+
+    private GrammarItem getItem(ParseTree ctx) {
+        return items.get(ctx);
+    }
+    
+    private void setItem(ParseTree ctx, GrammarItem item) {
+        LOGGER.debug("setting a {} for {}", item.getClass().getSimpleName(), ctx.getText());
+        items.put(ctx, item);
+    }
+    
+    private void pullUpItem(ParseTree ctx) {
+        LOGGER.debug("promoting a {} from {}", ctx.getClass().getSimpleName(),  ctx.getChild(0).getClass().getSimpleName());
+        items.put(ctx,  getItem(ctx.getChild(0)));
+    }
+    
 
 }

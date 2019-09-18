@@ -46,55 +46,55 @@ import org.opencypher.tools.g4tree.GrammarTop;
 
 public class G4Processor
 {
-	public Grammar processString(String inString) {
-		return processStream(new ByteArrayInputStream((inString).getBytes()) );
-	}
-	
-	public Grammar processStream(InputStream inStream)
-	{
-		try
-			{
-			return processAntrlStream(new ANTLRInputStream(inStream));
-		} catch (IOException e)
-		{
-			throw new RuntimeException("Failed to read or convert java.io.InputStream", e);
-		}
-	}
+    public Grammar processString(String inString) {
+        return processStream(new ByteArrayInputStream((inString).getBytes()) );
+    }
+    
+    public Grammar processStream(InputStream inStream)
+    {
+        try
+            {
+            return processAntrlStream(new ANTLRInputStream(inStream));
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Failed to read or convert java.io.InputStream", e);
+        }
+    }
 
-	public Grammar processFile(String fileName)
-	{
-		try
-		{
-			// when back on antrl 4.7.1, use CharStreams.fromFileName(scriptFile)
-			return processAntrlStream(new ANTLRFileStream(fileName));
-		} catch (IOException e)
-		{
-			throw new RuntimeException("Failed to find or read " + fileName, e);
-		}
+    public Grammar processFile(String fileName)
+    {
+        try
+        {
+            // when back on antrl 4.7.1, use CharStreams.fromFileName(scriptFile)
+            return processAntrlStream(new ANTLRFileStream(fileName));
+        } catch (IOException e)
+        {
+            throw new RuntimeException("Failed to find or read " + fileName, e);
+        }
 
-	}
+    }
 
-	private Grammar processAntrlStream(CharStream inStream)
-	{
-		Gee4Lexer lexer = new Gee4Lexer(inStream);
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		Gee4Parser parser = new Gee4Parser(tokens);
-		// leaving the old listeners in gives a nice error messsage
-		// parser.removeErrorListeners();
-		// lexer.removeErrorListeners();
-		lexer.addErrorListener(new FailingErrorListener());
-		parser.addErrorListener(new FailingErrorListener());
+    private Grammar processAntrlStream(CharStream inStream)
+    {
+        Gee4Lexer lexer = new Gee4Lexer(inStream);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        Gee4Parser parser = new Gee4Parser(tokens);
+        // leaving the old listeners in gives a nice error messsage
+        // parser.removeErrorListeners();
+        // lexer.removeErrorListeners();
+        lexer.addErrorListener(new FailingErrorListener());
+        parser.addErrorListener(new FailingErrorListener());
 
-		ParseTree tree = parser.wholegrammar();
+        ParseTree tree = parser.wholegrammar();
 
-		ParseTreeWalker walker = new ParseTreeWalker();
-		G4Listener listener = new G4Listener(tokens);
-		walker.walk(listener, tree);
-		
-		GrammarTop itemTree = listener.getTreeTop();
-//		LOGGER.warn("bnf gave {}", itemTree.getStructure(""));
-		// convert to openCypher grammar
-		GrammarConverter converter = new GrammarConverter(itemTree);
-		return converter.convert();
-	}
+        ParseTreeWalker walker = new ParseTreeWalker();
+        G4Listener listener = new G4Listener(tokens);
+        walker.walk(listener, tree);
+        
+        GrammarTop itemTree = listener.getTreeTop();
+//        LOGGER.warn("bnf gave {}", itemTree.getStructure(""));
+        // convert to openCypher grammar
+        GrammarConverter converter = new GrammarConverter(itemTree);
+        return converter.convert();
+    }
 }

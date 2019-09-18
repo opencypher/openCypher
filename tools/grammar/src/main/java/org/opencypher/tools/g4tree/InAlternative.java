@@ -29,16 +29,16 @@
 
 public class InAlternative extends GrammarItemList
 {
-	
-	@Override
-	public String getStructure(String indent)
-	{
-		return indent + "Alternative (" + (isPlural() ? "*" : "") + "):\n" + getContentStructure(indent + INDENT);
-	}
+    
+    @Override
+    public String getStructure(String indent)
+    {
+        return indent + "Alternative (" + (isPlural() ? "*" : "") + "):\n" + getContentStructure(indent + INDENT);
+    }
 
-	@Override
-	public ItemType getType() {
-		return ItemType.ALTERNATIVE;
-	}
+    @Override
+    public ItemType getType() {
+        return ItemType.ALTERNATIVE;
+    }
 
 }

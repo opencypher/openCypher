@@ -32,45 +32,45 @@ import java.util.List;
 
 public class InHeader implements GrammarItem {
 
-	private final String content;
+    private final String content;
 
 
-	public InHeader(String content) {
-		this.content = content;
-	}
-	
-	public String getContent() {
-		return content;
-	}
+    public InHeader(String content) {
+        this.content = content;
+    }
+    
+    public String getContent() {
+        return content;
+    }
 
-	@Override
-	public ItemType getType() {
-		return ItemType.OTHER;
-	}
+    @Override
+    public ItemType getType() {
+        return ItemType.OTHER;
+    }
 
-	@Override
-	public List<GrammarItem> getChildren() {
-		return Collections.emptyList();
-	}
+    @Override
+    public List<GrammarItem> getChildren() {
+        return Collections.emptyList();
+    }
 
-	@Override
-	public boolean isPlural() {
-		return false;
-	}
+    @Override
+    public boolean isPlural() {
+        return false;
+    }
 
-	@Override
-	public GrammarItem reachThrough() {
-		return this;
-	}
+    @Override
+    public GrammarItem reachThrough() {
+        return this;
+    }
 
-	@Override
-	public boolean isKeywordPart() {
-		return false;
-	}
+    @Override
+    public boolean isKeywordPart() {
+        return false;
+    }
 
-	@Override
-	public String getStructure(String indent) {
-		return "header :" + content;
-	}
+    @Override
+    public String getStructure(String indent) {
+        return "header :" + content;
+    }
 
 }
