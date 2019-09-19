@@ -68,11 +68,13 @@ public class TranslateGrammar {
             inputOptions++;
             Grammar.ParserOption[] parserOptions = Grammar.ParserOption.from( System.getProperties() );
             parser = () -> Grammar.parseXML( Paths.get( inXml ), parserOptions );
-        } else if ( inG4 != null) {
+        }
+        if ( inG4 != null) {
             inputOptions++;
             G4Processor g4Processor = new G4Processor();
             parser = () -> g4Processor.processFile(inG4);
-        } else if (  inBnf != null) {
+        }
+        if (  inBnf != null) {
             inputOptions++;
             BNFProcessor bnfProcessor = new BNFProcessor();
             parser = () -> bnfProcessor.processFile(inBnf);
