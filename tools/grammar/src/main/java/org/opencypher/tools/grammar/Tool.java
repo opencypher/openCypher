@@ -64,6 +64,8 @@ import static org.opencypher.tools.grammar.Main.execute;
  */
 abstract class Tool implements Function<Method, Object>
 {
+    private static final String FX_FONT = "javafx.scene.text.Font";
+    private static final Method FX_FONT_METHOD;
     private final String prefix;
     private final Map<?, ?> properties;
 
@@ -71,6 +73,20 @@ abstract class Tool implements Function<Method, Object>
     {
         this.prefix = getClass().getSimpleName() + ".";
         this.properties = properties;
+    }
+
+    static
+    {
+        Method method;
+        try
+        {
+            method = Class.forName( FX_FONT ).getMethod( "font", String.class );
+        }
+        catch ( Throwable e )
+        {
+            method = null;
+        }
+        FX_FONT_METHOD = method;
     }
 
     interface Constructor<T> extends Serializable
@@ -192,7 +208,7 @@ abstract class Tool implements Function<Method, Object>
                 return parseBoolean( param );
             case "java.awt.Font":
                 return awtFont( key, param );
-            case "javafx.scene.text.Font":
+            case FX_FONT:
                 return fxFont( key, param );
             }
         }
@@ -202,7 +218,7 @@ abstract class Tool implements Function<Method, Object>
             {
                 return awtFont( key, lookup( name + ".name" ) );
             }
-            else if ( type == javafx.scene.text.Font.class )
+            else if ( FX_FONT.equals( type.getName() ) )
             {
                 return fxFont( key, lookup( name + ".family" ) );
             }
@@ -258,9 +274,20 @@ abstract class Tool implements Function<Method, Object>
         return new java.awt.Font( font, style, parseInt( size ) );
     }
 
-    private javafx.scene.text.Font fxFont( Method method, String family )
+    private Object fxFont( Method method, String family )
     {
-        return javafx.scene.text.Font.font( family );
+        try
+        {
+            return FX_FONT_METHOD.invoke( null, family );
+        }
+        catch ( RuntimeException e )
+        {
+            throw e;
+        }
+        catch ( Exception e )
+        {
+            throw new UnsupportedOperationException( "Failed to invoke JavaFX font factory", e );
+        }
     }
 
     private static void clearDirectory( final Path output ) throws IOException

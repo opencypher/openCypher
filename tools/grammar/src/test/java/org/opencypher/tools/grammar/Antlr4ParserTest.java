@@ -28,11 +28,9 @@
 package org.opencypher.tools.grammar;
 
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -41,7 +39,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
-import javafx.util.Pair;
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -51,6 +48,7 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
+import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.tool.ast.GrammarRootAST;
 import org.junit.Test;
 
@@ -73,9 +71,9 @@ public class Antlr4ParserTest
 
         results.forEach( r ->
         {
-            if ( !r.getKey() )
+            if ( !r.a )
             {
-                fail( "Expected query to raise syntax error, but it did not: " + r.getValue() );
+                fail( "Expected query to raise syntax error, but it did not: " + r.b );
             }
         } );
     }
