@@ -29,6 +29,7 @@ package org.opencypher.tools.grammar;
 
 import java.io.OutputStream;
 import java.io.Writer;
+
 import javax.xml.transform.TransformerException;
 
 import org.opencypher.grammar.Alternatives;
@@ -53,6 +54,7 @@ import org.xml.sax.SAXException;
  */
 public class Xml extends XmlGenerator implements ProductionVisitor<SAXException>, TermVisitor<SAXException>
 {
+    
     public static void write( Grammar grammar, Writer writer ) throws TransformerException
     {
         generate( new Xml( grammar ), writer );
@@ -85,6 +87,14 @@ public class Xml extends XmlGenerator implements ProductionVisitor<SAXException>
     {
         startDocument();
         startPrefixMapping( "", Grammar.XML_NAMESPACE );
+        String headerText = grammar.header();
+        if (headerText != null) {
+           // format header text with some whitespace
+           headerText = "\n\n    " + headerText.replaceAll("\r","").replaceAll("\n","\n    ")+ "\n";
+           println("");
+           comment(headerText);
+        }
+        
         startElement( "grammar", attribute( "language", grammar.language() ) );
         grammar.accept( this );
         endElement( "grammar" );
@@ -101,7 +111,7 @@ public class Xml extends XmlGenerator implements ProductionVisitor<SAXException>
         {
             startElement( "description" );
             characters( description );
-            endElement( "description" );
+            endElementSameLine( "", "description" );
         }
         production.definition().accept( this );
         endElement( "production" );

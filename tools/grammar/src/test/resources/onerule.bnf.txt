@@ -1,0 +1,17 @@
+!! this is a header
+!! of several lines, then a blank line
+
+<onerule> ::= <verb> <noun>
+
+<verb> ::= BUY | SELL | 
+!! 
+!! INTERSECT binds tighter in SQL; we may need to adjust here
+!! 
+
+// examples to be extended
+
+!! some nouns
+<noun> ::=  STUFF | LAND | CARS
+
+
+

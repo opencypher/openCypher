@@ -287,6 +287,12 @@ abstract class CodePointSet implements Comparable<CodePointSet>
 
     abstract boolean contains( int cp );
 
+    // added to make antlr g4 serialisation feasible
+    boolean hasExclusions()
+    {
+        return false;
+    }
+    
     @Override
     public int compareTo( CodePointSet that )
     {
@@ -294,6 +300,11 @@ abstract class CodePointSet implements Comparable<CodePointSet>
     }
 
     abstract int firstCodePoint();
+    
+    public boolean isSingleCharacter() 
+    {
+        return false;
+    }
 
     @SuppressWarnings("unchecked")
     <EX extends Exception> void accept( CharacterSet.DefinitionVisitor<EX> visitor ) throws EX
@@ -436,6 +447,11 @@ abstract class CodePointSet implements Comparable<CodePointSet>
         {
             this.excluded = excluded;
             this.included = included;
+        }
+
+        @Override
+        boolean hasExclusions() {
+            return true;
         }
 
         @Override
@@ -696,6 +712,11 @@ abstract class CodePointSet implements Comparable<CodePointSet>
         SingleCodePoint( int codePoint )
         {
             this.codePoint = codePoint;
+        }
+
+        @Override
+        public boolean isSingleCharacter() {
+            return true;
         }
 
         @Override

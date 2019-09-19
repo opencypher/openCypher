@@ -27,8 +27,8 @@
  */
 package org.opencypher.tools.grammar;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.opencypher.grammar.Alternatives;
 import org.opencypher.grammar.CharacterSet;
@@ -53,7 +53,7 @@ abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVis
     private int altPrefix;
     private boolean group;
     protected final Output output;
-    private final Set<Integer> caseChars = new HashSet<>();
+    protected final Set<Integer> caseChars = new TreeSet<>();
 
     BnfWriter( Output output )
     {
@@ -119,6 +119,8 @@ abstract class BnfWriter implements ProductionVisitor<RuntimeException>, TermVis
         String description = production.description();
         if ( description != null )
         {
+            // standardise description (i think this should be done on the read
+            description = description.replaceAll("\r", "").trim() + "\n";
             productionCommentPrefix();
             for ( int pos = 0, line; pos < description.length(); pos = line )
             {

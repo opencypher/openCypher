@@ -123,6 +123,11 @@ class CharacterSetNode extends Node implements CharacterSet
     }
 
     @Override
+    public boolean isControlCharacter() {
+        return set.isSingleCharacter();
+    }
+
+    @Override
     boolean isEligibleForGeneration()
     {
         return set != null && super.isEligibleForGeneration();
@@ -201,6 +206,12 @@ class CharacterSetNode extends Node implements CharacterSet
     public boolean contains( int codePoint )
     {
         return set != null && set.contains( codePoint );
+    }
+
+    
+    @Override
+    public boolean hasExclusions() {
+        return set != null && set.hasExclusions();
     }
 
     static boolean isReserved( String name )

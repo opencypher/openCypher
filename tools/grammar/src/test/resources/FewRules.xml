@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE grammar []>
+<grammar language="FewRules" xmlns="http://opencypher.org/grammar" xmlns:oc="http://opencypher.org/opencypher"
+         xmlns:rr="http://opencypher.org/railroad">
+  <!-- A grammar should contain at least one production, with the same name as the grammar -->
+  <production name="FewRules">
+    <repeat>
+      <non-terminal ref="Easy"/>
+      <non-terminal ref="whitespace"/>
+    </repeat>
+  </production>
+
+<production name="Easy" oc:lexer="true">
+    E
+</production>
+ 
+<production name="whitespace" oc:lexer="true">
+    <alt>
+      <!-- some ASCII whitespace characters -->
+      <character set="SPACE"/> <!-- SPACE -->
+      <character set="TAB"/> <!-- (Horisontal) Tab -->
+      <character set="LF"/> <!-- Line Feed -->
+      <character set="VT"/> <!-- Vertical Tab -->
+	</alt>
+</production>  
+</grammar>
+ 

@@ -117,6 +117,7 @@ public interface Grammar
     {
         return Node.epsilon();
     }
+    
 
     static Term caseInsensitive( String value )
     {
@@ -244,8 +245,16 @@ public interface Grammar
 
         public Builder production( String name, Term first, Term... alternatives )
         {
+            return production(name, null, first, alternatives);
+        }
+
+        public Builder production( String name, String description, Term first, Term... alternatives )
+        {
             ProductionNode production = new ProductionNode( this );
             production.name = requireNonNull( name, "name" );
+            if (description != null) {
+                production.description = description;
+            }
             Grammar.oneOf( first, alternatives ).addTo( production );
             add( production );
             return this;

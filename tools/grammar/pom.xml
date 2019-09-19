@@ -66,10 +66,41 @@
       <artifactId>xmlgraphics-commons</artifactId>
     </dependency>
 
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+
   </dependencies>
 
   <build>
+  
     <plugins>
+       <plugin>
+         <groupId>org.antlr</groupId>
+         <artifactId>antlr4-maven-plugin</artifactId>
+         <!--  spark was using 4.5.3, runtime is 4.7, generated 4.5.3  -->
+         <version>${dep.antlr.generator.version}</version> 
+         <executions>
+             <execution>
+                 <id>antlr</id>
+                 <goals>
+                     <goal>antlr4</goal>
+                 </goals>
+             </execution>
+         </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>

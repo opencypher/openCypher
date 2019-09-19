@@ -61,11 +61,14 @@ public class Antlr4Test
                         .build( Grammar.Builder.Option.ALLOW_ROOTLESS ),
                 "grammar foo;",
                 "",
-                "oC_thing1 : '1' ;",
+                "oC_thing1",
+                "      :  '1' ;",
                 "",
-                "oC_thing2 : '2' ;",
+                "oC_thing2",
+                "      :  '2' ;",
                 "",
-                "oC_bar : ( oC_thing1 oC_thing2 )* ;",
+                "oC_bar",
+                "   :  ( oC_thing1 oC_thing2 )* ;",
                 "" );
     }
 
@@ -78,7 +81,8 @@ public class Antlr4Test
                         .build( Grammar.Builder.Option.ALLOW_ROOTLESS ),
                 "grammar foo;",
                 "",
-                "oC_bar : 'LIteR@L' ;",
+                "oC_bar",
+                "   :  'LIteR@L' ;",
                 "" );
     }
 
@@ -92,9 +96,11 @@ public class Antlr4Test
                         .build( Grammar.Builder.Option.ALLOW_ROOTLESS ),
                 "grammar foo;",
                 "",
-                "oC_other : 'abc' ;",
+                "oC_other",
+                "     :  'abc' ;",
                 "",
-                "oC_bar : oC_other",
+                "oC_bar",
+                "   :  oC_other",
                 "       | '=>~`$&@'",
                 "       | oC_other",
                 "       ;",
@@ -110,7 +116,8 @@ public class Antlr4Test
                         .build( Grammar.Builder.Option.ALLOW_ROOTLESS ),
                 "grammar foo;",
                 "",
-                "oC_bar : LITER@L ;",
+                "oC_bar",
+                "   :  LITER@L ;",
                 "",
                 "LITER@L : ( 'L' | 'l' ) ( 'I' | 'i' ) ( 'T' | 't' ) ( 'E' | 'e' ) ( 'R' | 'r' ) ( '@' | '@' ) ( 'L' | 'l' )  ;",
                 "" );
@@ -127,15 +134,19 @@ public class Antlr4Test
                         .production( "beta", literal( "b" ) ),
                 "grammar MyLanguage;",
                 "",
-                "oC_MyLanguage : oC_value ;",
+                "oC_MyLanguage",
+                "          :  oC_value ;",
                 "",
-                "oC_value : oC_alpha",
+                "oC_value",
+                "     :  oC_alpha",
                 "         | oC_beta",
                 "         ;",
                 "",
-                "oC_alpha : 'a' ;",
+                "oC_alpha",
+                "     :  'a' ;",
                 "",
-                "oC_beta : 'b' ;",
+                "oC_beta",
+                "    :  'b' ;",
                 "" );
     }
 
@@ -147,18 +158,24 @@ public class Antlr4Test
                         .production( "FooBar", optional( literal( "foo" ), literal( "bar" ) ) ),
                 "grammar FooBar;",
                 "",
-                "oC_FooBar : ( 'foo' 'bar' )? ;",
+                "oC_FooBar",
+                "      :  ( 'foo' 'bar' )? ;",
                 "" );
     }
 
     @Test
     public void shouldGenerateCharacterSet() throws Exception
     {
-        assertCharset( "White_Space",
-                       "[\\t\\n\\u000B\\f\\r \\u0085\\u00A0\\u1680" +
-                       "\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005" +
-                       "\\u2006\\u2007\\u2008\\u2009\\u200A" +
-                       "\\u2028\\u2029\\u202F\\u205F\\u3000]" );
+        assertCharset( "White_Space", "[\\p{White_Space}]");
+//                "[\\t\\n\\u000B\\f\\r \\u0085\\u00A0\\u1680" +
+//                "\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005" +
+//                "\\u2006\\u2007\\u2008\\u2009\\u200A" +
+//                "\\u2028\\u2029\\u202F\\u205F\\u3000]" );
+//        assertCharset( "White_Space",
+//                       "[\\t\\n\\u000B\\f\\r \\u0085\\u00A0\\u1680" +
+//                       "\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005" +
+//                       "\\u2006\\u2007\\u2008\\u2009\\u200A" +
+//                       "\\u2028\\u2029\\u202F\\u205F\\u3000]" );
     }
 
     @Test
@@ -172,10 +189,17 @@ public class Antlr4Test
                                 '\uFF04', '\uFFE0', '\uFFE1', '\uFFE5', '\uFFE6' ) ),
                 "grammar test;",
                 "",
-                "oC_test : TEST_0 ;",
+                "oC_test",
+                "    :  TEST_0 ;",
                 "",
-                "fragment TEST_0 : [$\\u00A2-\\u00A5\\u20A0-\\u20BA] ;",
+                "fragment TEST_0 : ~[\\u058F\\u060B\\u09F2-\\u09F3\\u09FB\\u0AF1\\u0BF9\\u0E3F\\u17DB\\uA838\\uFDFC\\uFE69\\uFF04\\uFFE0-\\uFFE1\\uFFE5-\\uFFE6] ;",
                 "" );
+//        "grammar test;",
+//        "",
+//        "oC_test : TEST_0 ;",
+//        "",
+//        "fragment TEST_0 : [$\\u00A2-\\u00A5\\u20A0-\\u20BA] ;",
+//        "" );
     }
 
     static void assertCharset( String name, String def )
@@ -185,12 +209,19 @@ public class Antlr4Test
                         .production( "test", charactersOfSet( name ) ),
                 "grammar test;",
                 "",
-                "oC_test : " + name + " ;",
+                "oC_test",
+                "    :  " + name + " ;",
                 "",
                 "fragment " + name + " : " + def + " ;",
                 "" );
     }
 
+    @Test
+    public void shouldGenerateTinyGrammar() throws Exception
+    {
+        assertGeneratesValidParser( "/FewRules.xml" );
+    }
+    
     @Test
     public void shouldGenerateCypherGrammar() throws Exception
     {
@@ -206,6 +237,7 @@ public class Antlr4Test
     {
         Output.Readable result = stringBuilder();
         Antlr4.write( grammar, result );
+        String sres = result.toString();
         assertThat( result, contentsEquals( lines ) );
     }
 

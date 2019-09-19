@@ -37,7 +37,10 @@
 <grammar language="Cypher Basic Grammar"
   xmlns="http://opencypher.org/grammar"
   xmlns:rr="http://opencypher.org/railroad"
-  xmlns:oc="http://opencypher.org/opencypher">
+  xmlns:oc="http://opencypher.org/opencypher"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://opencypher.org/grammar xmlschemas/ocGrammar.xsd "
+  >
 
   <!-- / WHERE \ -->
 
@@ -614,6 +617,7 @@
     </alt>
   </production>
 
+  <!--  this used to have <alt>e E</alt> but that implies alternatives of the same case-insensitive literal  -->
   <production name="ExponentDecimalReal" oc:lexer="true">
     <alt>
       <repeat min="1"><non-terminal ref="Digit"/></repeat>
@@ -622,7 +626,7 @@
       </seq>
       <seq>. <repeat min="1"><non-terminal ref="Digit"/></repeat></seq>
     </alt>
-    <alt>e E</alt>
+    E
     <opt>-</opt>
     <repeat min="1"><non-terminal ref="Digit"/></repeat>
   </production>
