@@ -30,20 +30,16 @@ package org.opencypher.tools.grammar;
 import static org.opencypher.grammar.Grammar.ParserOption.INCLUDE_LEGACY;
 
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
+import java.util.concurrent.Callable;
 
 import org.opencypher.grammar.Grammar;
 import org.opencypher.tools.g4processors.BNFProcessor;
 import org.opencypher.tools.g4processors.G4Processor;
-import org.xml.sax.SAXException;
 
 /** translate between supported grammar serialisations, via the Grammar object model */
 public class TranslateGrammar {
@@ -66,27 +62,27 @@ public class TranslateGrammar {
         if (includeLegacy) {
              System.setProperty( INCLUDE_LEGACY.name(), "true" );
         }
-        // ought to check for duplicates - just take the first if they're silly
-        Grammar grammar = null;
-        Grammar.ParserOption[] parserOptions = Grammar.ParserOption.from( System.getProperties() );
+        Callable<Grammar> parser = null;
         int inputOptions = 0;
         if (inXml != null) {
             inputOptions++;
-            grammar = Grammar.parseXML( Paths.get( inXml ), parserOptions );
+            Grammar.ParserOption[] parserOptions = Grammar.ParserOption.from( System.getProperties() );
+            parser = () -> Grammar.parseXML( Paths.get( inXml ), parserOptions );
         } else if ( inG4 != null) {
             inputOptions++;
             G4Processor g4Processor = new G4Processor();
-            grammar = g4Processor.processFile(inG4);
+            parser = () -> g4Processor.processFile(inG4);
         } else if (  inBnf != null) {
             inputOptions++;
             BNFProcessor bnfProcessor = new BNFProcessor();
-            grammar = bnfProcessor.processFile(inBnf);
+            parser = () -> bnfProcessor.processFile(inBnf);
         }
         if (inputOptions != 1) {
             System.err.println("Exactly one input grammar must be specified");
             usage(args);
             System.exit(1);
         }
+        Grammar grammar = parser.call();
         boolean written = false;
         if (outXml != null) {
             OutputStream outStream = outXml.equals("-") ? System.out : new FileOutputStream(outXml);
@@ -112,7 +108,6 @@ public class TranslateGrammar {
         if (!written) {
             Xml.write(grammar,  System.out);
         }
-
     }
 
     static String getArg(String key, List<String> argList) {
@@ -147,6 +142,5 @@ public class TranslateGrammar {
                 " One input file path must be given\n" +
                 " Zero or more output file paths may be given\n" +
                 " If no output file path is given, the output will go to sysout.");
-        
     }
 }

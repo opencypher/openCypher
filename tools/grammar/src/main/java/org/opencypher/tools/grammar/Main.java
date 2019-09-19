@@ -127,7 +127,7 @@ interface Main extends Serializable
                 if ( resource != null )
                 {
                     URI uri = resource.toURI();
-                    try ( FileSystem ignored = FileSystems.newFileSystem( uri, Collections.emptyMap() ) )
+                    try ( FileSystem ignored = "jar".equalsIgnoreCase( uri.getScheme() ) ? FileSystems.newFileSystem( uri, Collections.emptyMap() ) : null )
                     {
                         grammar = Grammar.parseXML( Paths.get( uri ), options );
                     }
