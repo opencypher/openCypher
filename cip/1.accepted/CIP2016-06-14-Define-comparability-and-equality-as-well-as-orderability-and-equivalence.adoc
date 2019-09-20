@@ -18,6 +18,7 @@ It also gives a brief definition of aggregation and standard aggregation functio
 
 toc::[]
 
+
 == Motivation
 
 There are currently a number of limitations and inconsistencies that this proposal aims to address:
@@ -41,13 +42,16 @@ However working with values of different types can be difficult:
 
 Furthermore, the key concepts comparability, orderability, equality, and equivalence have never been defined properly.  Therefore another motivation for this CIP is to unambiguously and precisely define these 4 concepts.
 
+
 == Background
 
 The reader should be mindful of the Cypher type system when reading this CIP. At the time of this proposal, the latest CIP regarding the Cypher type system is: https://github.com/opencypher/openCypher/blob/master/cip/CIP2015-09-16-public-type-system-type-annotation.adoc[`CIP2015-09-16-public-type-system-type-annotation`].
 
+
 == Proposal
 
 We propose to redefine <<comparability-equality, comparability and equality>>, as well as <<orderability-def>> and <<equivalence-def>> as detailed in this section, and additionally rephrase <<aggregation,aggregation>> in terms of these new concepts.
+
 
 [[concepts]]
 === Concepts
@@ -62,6 +66,7 @@ Equality is also used implicitly by literal maps in node and relationship patter
 [[orderability-con,orderability (concept)]]*Orderability*:: <<orderability-def,Orderability>> is used by the `ORDER BY` clause, and defines the underlying semantics of how to order values.
 [[equivalence-con,equivalence (concept)]]*Equivalence*:: <<equivalence-def,Equivalence>> is used by the `DISTINCT` modifier and by grouping in projection clauses (`WITH`, `RETURN`), and defines the underlying semantics to determine if two values are the same in these contexts.
 
+
 ==== The meaning of `null`
 
 For the following discussion, it is helpful to clarify the meaning of `null`. In Cypher, a `null` value has one of two meanings, depending on the context in which it occurs:
@@ -69,6 +74,7 @@ For the following discussion, it is helpful to clarify the meaning of `null`. In
 [horizontal]
 [[unknown-null,unknown `null`]]*Unknown*:: An "unknown" `null` is taken to be a placeholder for an arbitrary but unknown value. When evaluating predicates, an "unknown" `null` is the `maybe` truth value of ternary logic. For node and relationship properties, an "unknown" `null` is a value that is definite in the real world but has not been stored in the graph. Since in these cases, two "unknown" `null` values stand for arbitrary but definite values in the real world, two "unknown" `null` values should never be treated as certainly being the same value.
 [[missing-null,missing `null`]]*Missing*:: A "missing" `null` is taken to be a marker for the absence of a value. In the context of updating node properties from a map, a "missing" `null` is used to mark properties that are to be removed. In the context of `DISTINCT` and grouping, a "missing" `null` value is used as grouping key for all records that miss a more specific value. Since in these cases, two "missing" `null` values represent the same concept, they should always be treated as the same value.
+
 
 ===== Ternary logic truth tables
 
@@ -118,10 +124,12 @@ The `XOR` in Cypher is defined by these basic operators as `a XOR b = (a AND NOT
 |false|false|false
 |==================
 
+
 [[regular-map]]
 ==== Regular maps
 
 Cypher today has one supertype `MAP` for all map values. This includes nodes (of subtype `NODE`), relationships (of subtype `RELATIONSHIP`), and any other map (not captured by a subtype of `MAP`). For the purpose of this document, we define a regular map to be any value of type `MAP` that is neither a `NODE` nor a `RELATIONSHIP`.
+
 
 [[comparability-equality,comparability and equality]]
 === Comparability and equality
@@ -150,6 +158,7 @@ Equality for values of different types generally evaluates to `false`.
 
 We propose that <<comparability-con,comparability>> and <<equality-con,equality>> should be defined between any pair of values, as specified below.
 
+
 ==== Numbers ====
 
 Numbers of different types, i.e. integers and floats, can be equal and compared to each other.
@@ -164,11 +173,13 @@ This is an exception to the definition of the derived operators.
 * Negative infinity is of type `FLOAT`, equal to itself and less than any other number (excluding `NaN` values).
 * Numbers are <<incomparable>> to any value that is not also a number.
 
+
 ==== Booleans ====
 
 * Intuitively, `true` and `false` are equal only to themselves, respectively.
 * Booleans are compared such that `false` is less than `true`.
 * Booleans are <<incomparable>> to any value that is not also a boolean.
+
 
 ==== Strings ====
 
@@ -177,6 +188,7 @@ Code points "missing" in a shorter string are considered to be less than any oth
 For example, `'a' < 'aa'` evaluates to true.
 * Two strings are equal if and only if all code points in them are equal.
 * Strings are <<incomparable>> to any value that is not also a string.
+
 
 ==== Lists ====
 
@@ -216,9 +228,11 @@ Elements missing in a shorter list are considered to be less than any other valu
   ** On the other hand, `[1, 2] >= [3, null]` evaluates to `false`, because `1 < 3`.
 * Lists are <<incomparable>> to any value that is not also a list.
 
+
 ==== Maps ====
 
 Map equality is the same for all types of maps, i.e. regular maps, nodes, and relationships.
+
 
 ===== Current map equality =====
 For clarity, we also repeat the *current* equality semantics of maps here. Under these current semantics, two maps `m1` and `m2` are considered equal if:
@@ -241,6 +255,7 @@ This becomes more apparent by considering these two examples:
 * `expr1 = expr2` evaluates to `null` if `expr1 IS NULL AND expr2 IS NULL`
 * `{a: expr1} = {a: expr2}` evaluates to `true` if `expr1 IS NULL AND expr2 IS NULL`
 
+
 ===== New map equality =====
 
 To rectify this, we propose instead to define the equality of two maps `m1` and `m2` as:
@@ -252,6 +267,7 @@ As a consequence of these changes, plain equality is not reflexive for all value
 However this was already the case (consider: `null = null` \=> `null`).
 
 Note that <<equality-def>> is reflexive for values that do not involve `null` though.
+
 
 ===== Map comparability =====
 
@@ -266,6 +282,7 @@ For example, `{a: 1} \<= {a: 1, b: null}` evaluates to `null`.
 * Relationships
 ** The comparison order for relationships is based on an implementation specific internal total order of relationship identities.
 ** Relationships are <<incomparable>> to any value that is not also a relationship.
+
 
 ==== Paths ====
 
@@ -287,10 +304,12 @@ Expressed in terms of lists:
 
 Paths are <<incomparable>> to any value that is not also a path.
 
+
 ==== Implementation-specific types ====
 
 * Implementations may choose to define suitable comparability and equality rules for values of additional, non-canonical types.
 * Values of an additional, non-canonical type are expected to be <<incomparable>> to values of a canonical type.
+
 
 ==== Temporal instant types ====
 
@@ -300,6 +319,7 @@ Instant types are `DateTime`, `LocalDateTime`, `Date`, `Time`, and `LocalTime`.
 * Given two instants `a` and `b`, `a < b` is `true` if and only if `a` is _before_ `b`, conversely `a > b` is `true` if and only if `a` is _after_ `b`.
 * Temporal instant values with timezone (`DateTime` and `LocalTime`) are compared on a global timeline, as if the instants were normalized to UTC.
 * Two given instants `a` and `b` are equal if any only if they are of the same type and neither of them is _before_ or _after_ the other.
+
 
 ==== Durations ====
 
@@ -313,6 +333,7 @@ Instant types are `DateTime`, `LocalDateTime`, `Date`, `Time`, and `LocalTime`.
 If and only if `a < b` between two specific values `a` and `b` evaluates to `null`, these values are said to be incomparable with each other.
 `null` is incomparable with any other value (including other `null` values).
 
+
 [[orderability-equivalence]]
 === Orderability and equivalence ===
 
@@ -321,6 +342,7 @@ We propose that <<orderability-def>> and <<equivalence-def>> should be aligned w
 `expr1` is equivalent to `expr2` if and only if they have the same position under orderability (i.e. they would be sorted before (or after respectively) any other non-equivalent value in the same way).
 
 Orderability and equivalence produce <<missing-null,"missing" `null` values>>.
+
 
 [[orderability-def,orderability]]
 ==== Orderability ====
@@ -360,6 +382,7 @@ Furthermore, the values of additional, non-canonical types must not be inserted 
 
 The accompanying descending global sort order is the same order in reverse (i.e. it runs from `VOID` to `MAP`).
 
+
 [[equivalence-def,equivalence]]
 ==== Equivalence ====
 
@@ -372,6 +395,7 @@ Equivalence now can be defined succinctly as being identical to equality except 
 * Equivalence of regular maps is identical to equality of regular maps but uses equivalence for comparing the contained map entries.
 
 Equivalence is reflexive for all values.
+
 
 [[aggregation]]
 === Aggregation ===
@@ -405,6 +429,7 @@ The semantics of a few actual aggregation functions depends on the used notions 
 * `percentile_disc(expr)` computes the inverse distribution function (assuming a discrete distribution model), or `0` if the list of aggregated values is empty.
 * `percentile_cont(expr)` computes the inverse distribution function (assuming a continous distribution model), or `0` if the list of aggregated values is empty.
 
+
 [[conceptual-model]]
 === Summary of the conceptual model ===
 
@@ -422,6 +447,7 @@ This proposal aims to simplify the conceptual model around equality, comparison,
   * <<equivalence-con,Equivalence>> is a form of equality that treats `null` (and `NaN`) values as the same value. Equivalence is used in grouping and `DISTINCT` where `null` commonly is interpreted as a category marker for results with missing values instead of as a wildcard for any possible value.
   * <<orderability-con,Orderability>> follows comparability but additionally defines a <<global-sort-order>> between values of different types and is aligned with equivalence instead of equality, i.e. treats two `null` (respectively `NaN`) values as equivalent.
 - Aggregation functions that rely on notions of sameness and sorting are aligned with equivalence and orderability.
+
 
 [[examples]]
 === Examples
@@ -455,11 +481,13 @@ UNWIND [[null], [null]] AS i
 RETURN DISTINCT i // should return exactly one row
 ----
 
+
 === Interaction with existing features
 
 Changing <<comparability-equality,equality>> to treat lists and maps containing `null` as unequal is going to potentially filter out more rows when used in a predicate.
 
 Redefining the <<global sort order>> as well as making all values <<comparability-equality,comparable>> will change some currently failing queries to pass.
+
 
 === Alternatives
 
@@ -474,11 +502,13 @@ This proposal could be extended with an operator for making equivalence accessib
 
 This CIP introduces the distinction between "unknown" and "missing" `null` values. A future proposal could investigate making this explicit through the introduction of different kinds of `null` values. If such a change would be adopted and <<unknown-null,unknown `null` values>> would track their source, equality could become "more" reflexive as it would become possible to know if two `null` values represent the same "unknown" value. However, this would not remove the need to distinguish between equality and equivalence as grouping would still require `missing = unknown => true` while in general `missing = unknown => missing`.
 
+
 == Benefits to this proposal
 
 A consistent set of rules is defined for <<equality-con,equality>>, <<equivalence-con,equivalence>>, <<comparability-con,comparability>> and <<orderability-con,orderability>>.
 
 Furthermore, aggregation semantics are clarified and this proposal prepares the replacement (or reinterpretation) of `NaN` values as `null` values in the future.
+
 
 == Caveats to this proposal
 
@@ -487,6 +517,7 @@ It should be noted that we expect that most lists used in queries are constructe
 
 This proposal changes path equality in subtle ways, namely loops track the direction in which they are traversed.
 It may be helpful to add a path normalization function or path to entities conversion function in the future that allows to transform a path in a way that removes this semantic distinction.
+
 
 == Appendix: Comparability by Type
 
