@@ -159,7 +159,7 @@ Equality for values of different types generally evaluates to `false`.
 We propose that <<comparability-con,comparability>> and <<equality-con,equality>> should be defined between any pair of values, as specified below.
 
 
-==== Numbers ====
+==== Numbers
 
 Numbers of different types, i.e. integers and floats, can be equal and compared to each other.
 
@@ -174,14 +174,14 @@ This is an exception to the definition of the derived operators.
 * Numbers are <<incomparable>> to any value that is not also a number.
 
 
-==== Booleans ====
+==== Booleans
 
 * Intuitively, `true` and `false` are equal only to themselves, respectively.
 * Booleans are compared such that `false` is less than `true`.
 * Booleans are <<incomparable>> to any value that is not also a boolean.
 
 
-==== Strings ====
+==== Strings
 
 * Strings are compared in order of their Unicode code points from the start of the string to the end.
 Code points "missing" in a shorter string are considered to be less than any other code point.
@@ -190,7 +190,7 @@ For example, `'a' < 'aa'` evaluates to true.
 * Strings are <<incomparable>> to any value that is not also a string.
 
 
-==== Lists ====
+==== Lists
 
 The equality of two lists `a` and `b` is defined as the <<conjunction>> of `size(a) = size(b)` and a pairwise equality comparison of all elements in the list.
 
@@ -229,12 +229,12 @@ Elements missing in a shorter list are considered to be less than any other valu
 * Lists are <<incomparable>> to any value that is not also a list.
 
 
-==== Maps ====
+==== Maps
 
 Map equality is the same for all types of maps, i.e. regular maps, nodes, and relationships.
 
 
-===== Current map equality =====
+===== Current map equality
 For clarity, we also repeat the *current* equality semantics of maps here. Under these current semantics, two maps `m1` and `m2` are considered equal if:
 
 * `m1` and `m2` have the same keys,
@@ -256,7 +256,7 @@ This becomes more apparent by considering these two examples:
 * `{a: expr1} = {a: expr2}` evaluates to `true` if `expr1 IS NULL AND expr2 IS NULL`
 
 
-===== New map equality =====
+===== New map equality
 
 To rectify this, we propose instead to define the equality of two maps `m1` and `m2` as:
 
@@ -269,7 +269,7 @@ However this was already the case (consider: `null = null` \=> `null`).
 Note that <<equality-def>> is reflexive for values that do not involve `null` though.
 
 
-===== Map comparability =====
+===== Map comparability
 
 * [[regular-maps,regular maps]]Regular maps
 ** The comparison order for maps is unspecified and left to implementations.
@@ -284,7 +284,7 @@ For example, `{a: 1} \<= {a: 1, b: null}` evaluates to `null`.
 ** Relationships are <<incomparable>> to any value that is not also a relationship.
 
 
-==== Paths ====
+==== Paths
 
 Paths are tested for equality as if they were a list of alternating nodes and relationships of the path from the start node to the end node.
 Two paths are equal if and only if these lists of nodes and relationships are equal.
@@ -305,13 +305,13 @@ Expressed in terms of lists:
 Paths are <<incomparable>> to any value that is not also a path.
 
 
-==== Implementation-specific types ====
+==== Implementation-specific types
 
 * Implementations may choose to define suitable comparability and equality rules for values of additional, non-canonical types.
 * Values of an additional, non-canonical type are expected to be <<incomparable>> to values of a canonical type.
 
 
-==== Temporal instant types ====
+==== Temporal instant types
 
 Instant types are `DateTime`, `LocalDateTime`, `Date`, `Time`, and `LocalTime`.
 
@@ -321,7 +321,7 @@ Instant types are `DateTime`, `LocalDateTime`, `Date`, `Time`, and `LocalTime`.
 * Two given instants `a` and `b` are equal if any only if they are of the same type and neither of them is _before_ or _after_ the other.
 
 
-==== Durations ====
+==== Durations
 
 * Two durations are equal if their components `months`, `days`, `seconds`, and `nanoseconds` are pairwise equal.
 * Durations are <<incomparable>> to any value including other durations, and can thus only be tested for equality.
@@ -335,7 +335,7 @@ If and only if `a < b` between two specific values `a` and `b` evaluates to `nul
 
 
 [[orderability-equivalence]]
-=== Orderability and equivalence ===
+=== Orderability and equivalence
 
 We propose that <<orderability-def>> and <<equivalence-def>> should be aligned with each other, i.e.
 
@@ -345,7 +345,7 @@ Orderability and equivalence produce <<missing-null,"missing" `null` values>>.
 
 
 [[orderability-def,orderability]]
-==== Orderability ====
+==== Orderability
 
 [[global-sort-order,global sort order]]
 We propose that orderability be defined between any pair of values such that the result is always `true` or `false`.
@@ -384,7 +384,7 @@ The accompanying descending global sort order is the same order in reverse (i.e.
 
 
 [[equivalence-def,equivalence]]
-==== Equivalence ====
+==== Equivalence
 
 Equivalence now can be defined succinctly as being identical to equality except that:
 
@@ -398,7 +398,7 @@ Equivalence is reflexive for all values.
 
 
 [[aggregation]]
-=== Aggregation ===
+=== Aggregation
 
 Generally an aggregation `aggr(expr)` processes all matching rows for each aggregation key found in an incoming record (keys are compared using equivalence).
 
@@ -431,7 +431,7 @@ The semantics of a few actual aggregation functions depends on the used notions 
 
 
 [[conceptual-model]]
-=== Summary of the conceptual model ===
+=== Summary of the conceptual model
 
 This proposal aims to simplify the conceptual model around equality, comparison, order, and grouping:
 
