@@ -138,7 +138,43 @@ Feature: EqualsAcceptance
       | lhs           | rhs           | result |
       | [1, 2]        | [1]           | false  |
       | [null]        | [1]           | null   |
-      | ['a']         | [1]           | null   |
+      | ['a']         | [1]           | false  |
       | [[1]]         | [[1], [null]] | false  |
       | [[1], [2]]    | [[1], [null]] | null   |
       | [[1], [2, 3]] | [[1], [null]] | false  |
+
+  Scenario Outline: Equality and inequality of NaN
+    Given any graph
+    When executing query:
+      """
+      RETURN <lhs> = <rhs> AS isEqual, <lhs> <> <rhs> AS isNotEqual
+      """
+    Then the result should be, in any order:
+      | isEqual | isNotEqual |
+      | false   | true       |
+    And no side effects
+
+    Examples:
+      | lhs       | rhs       |
+      | 0.0 / 0.0 | 1         |
+      | 0.0 / 0.0 | 1.0       |
+      | 0.0 / 0.0 | 0.0 / 0.0 |
+      | 0.0 / 0.0 | 'a'       |
+
+  Scenario Outline: Equality between strings and numbers
+    Given any graph
+    When executing query:
+      """
+      RETURN <lhs> = <rhs> AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | lhs   | rhs | result  |
+      | 1.0   | 1.0 | true    |
+      | 1     | 1.0 | true    |
+      | '1.0' | 1.0 | false   |
+      | '1'   | 1   | false   |
