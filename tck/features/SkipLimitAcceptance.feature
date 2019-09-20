@@ -90,12 +90,12 @@ Feature: SkipLimitAcceptanceTest
              (c:Person {name: 'Craig'})
       """
     And parameters are:
-      | limit | -1 |
+      | _limit | -1 |
     When executing query:
       """
       MATCH (p:Person)
       RETURN p.name AS name
-      LIMIT $limit
+      LIMIT $_limit
       """
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
@@ -106,12 +106,12 @@ Feature: SkipLimitAcceptanceTest
              (c:Person {name: 'Craig'})
       """
     And parameters are:
-      | limit | -1 |
+      | _limit | -1 |
     When executing query:
       """
       MATCH (p:Person)
       RETURN p.name AS name
-      ORDER BY name LIMIT $limit
+      ORDER BY name LIMIT $_limit
       """
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
@@ -136,12 +136,12 @@ Feature: SkipLimitAcceptanceTest
              (c:Person {name: 'Craig'})
       """
     And parameters are:
-      | skip | -1 |
+      | _skip | -1 |
     When executing query:
       """
       MATCH (p:Person)
       RETURN p.name AS name
-      SKIP $skip
+      SKIP $_skip
       """
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
@@ -166,12 +166,12 @@ Feature: SkipLimitAcceptanceTest
              (c:Person {name: 'Craig'})
       """
     And parameters are:
-      | limit | 1.5 |
+      | _limit | 1.5 |
     When executing query:
       """
       MATCH (p:Person)
       RETURN p.name AS name
-      LIMIT $limit
+      LIMIT $_limit
       """
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
@@ -182,12 +182,12 @@ Feature: SkipLimitAcceptanceTest
              (c:Person {name: 'Craig'})
       """
     And parameters are:
-      | limit | 1.5 |
+      | _limit | 1.5 |
     When executing query:
       """
       MATCH (p:Person)
       RETURN p.name AS name
-      ORDER BY name LIMIT $limit
+      ORDER BY name LIMIT $_limit
       """
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
@@ -212,12 +212,12 @@ Feature: SkipLimitAcceptanceTest
              (c:Person {name: 'Craig'})
       """
     And parameters are:
-      | limit | 1.5 |
+      | _limit | 1.5 |
     When executing query:
       """
       MATCH (p:Person)
       RETURN p.name AS name
-      SKIP $limit
+      SKIP $_limit
       """
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
