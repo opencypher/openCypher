@@ -172,10 +172,10 @@ This is an exception to the definition of the derived operators.
 
 ==== Strings ====
 
-* Two strings are equal if and only if all characters in them are equal.
-* Strings are compared in dictionary order, i.e. characters are compared pairwise in numeric order of their Unicode code points from the start of the string to the end.
-Characters missing in a shorter string are considered to be less than any other character.
+* Strings are compared in order of their Unicode code points from the start of the string to the end.
+Code points "missing" in a shorter string are considered to be less than any other code point.
 For example, `'a' < 'aa'` evaluates to true.
+* Two strings are equal if and only if all code points in them are equal.
 * Strings are <<incomparable>> to any value that is not also a string.
 
 ==== Lists ====
