@@ -7,7 +7,7 @@ addons:
   apt:
     packages:
       - oracle-java8-installer
-install: 'if [ "${TRAVIS_SECURE_ENV_VARS}" = "true" ] ; then mvn --settings .build/deploy-settings.xml -DaltDeploymentRepository=snapshots::default::http://m2.neo4j.org/content/repositories/snapshots clean deploy ; else mvn clean verify ; fi'
+install: 'mvn clean verify'
 script:
   - ./tools/grammar/src/main/shell/launch.sh RailRoadDiagramPages -outputDir=grammar/generated/railroad cypher.xml
   - ./tools/grammar/src/main/shell/launch.sh RailRoadDiagramPages --INCLUDE_LEGACY=true -outputDir=grammar/generated/legacy/railroad cypher.xml
