@@ -13,7 +13,7 @@ The TCK consists of a number of https://cucumber.io/[Cucumber] `.feature` files,
 == Installation instructions
 
 For JVM-based implementations, there is a Scala API which parses and provides the TCK as an in-memory object structure, where the implementation simply has to hook in via implementing a small interface.
-For details, see the link:../tools/tck/README.adoc[TCK tools README].
+For details, see the link:../tools/tck-api/README.adoc[TCK tools README].
 
 If this API is unavailable on your platform, you can integrate the TCK via Cucumber, either by depending on the TCK via Maven, or by copying the feature files directly from this repository.
 
@@ -28,7 +28,7 @@ If this API is unavailable on your platform, you can integrate the TCK via Cucum
 
 == Format of a TCK scenario
 
-Each TCK feature file is made up of scenarios (see the https://cucumber.io/docs/reference[Cucumber documentation] for more on this), and these all follow the schematic setup described here.
+Each TCK feature file is made up of scenarios (see the https://cucumber.io/docs/cucumber[Cucumber documentation] for more on this), and these all follow the schematic setup described here.
 
 [source,gherkin]
 .This scenario illustrates the effects of executing a query `Q` which creates a node with one property, where the property value is given by a parameter.
