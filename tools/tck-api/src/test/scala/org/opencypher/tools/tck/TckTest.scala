@@ -27,7 +27,6 @@
  */
 package org.opencypher.tools.tck
 
-import java.io.File
 import java.util
 
 import org.junit.jupiter.api.{DynamicTest, TestFactory}
@@ -59,15 +58,13 @@ object FakeGraph extends Graph with ProcedureSupport {
 
 class TckTest {
 
-  /**
-    * This test does only works in IntelliJ, because it allows to access `Foo.feature` from the filesystem.
-    */
   @TestFactory
   def testCustomFeature(): util.Collection[DynamicTest] = {
     val fooUri = getClass.getResource("Foo.feature").toURI
-    val scenarios = if (!RuntimeDetection.isRunningInsideIntelliJ) List.empty else {
-      CypherTCK.parseFilesystemFeature(new File(fooUri)).scenarios
-    }
+    val scenarios = CypherTCK.parseFeatures(fooUri) match {
+        case feature :: Nil => feature.scenarios
+        case _ => List[Scenario]()
+      }
 
     def createTestGraph(): Graph = FakeGraph
 
