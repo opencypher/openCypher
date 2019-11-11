@@ -33,6 +33,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Rule;
@@ -99,7 +100,7 @@ public class TckReportModelTest {
             3,
             suite0.all());
 
-        assertThat(diff.getPassingPercentage(), equalTo("100%"));
+        assertThat(diff.getPassingPercentage(), equalTo(formatPercentage(1)));
     }
 
     @Test
@@ -110,7 +111,7 @@ public class TckReportModelTest {
             3,
             suite1.all());
 
-        assertThat(diff.getPassingPercentage(), equalTo("66.67%"));
+        assertThat(diff.getPassingPercentage(), equalTo(formatPercentage(2f/3)));
     }
 
     @Test
@@ -146,7 +147,7 @@ public class TckReportModelTest {
     public void testCompareImprove() throws Exception {
         Diff result = suite0.compare(suite1);
 
-        assertThat(result.getPassingPercentage(), equalTo("100%"));
+        assertThat(result.getPassingPercentage(), equalTo(formatPercentage(1)));
         assertThat(result.getNewlyPassingScenarios(), hasSize(1));
         assertThat(result.getNewlyFailedScenarios(), hasSize(0));
         assertThat(result.getAllScenarios(), hasSize(3));
@@ -158,7 +159,7 @@ public class TckReportModelTest {
     public void testCompareNoChange() throws Exception {
         Diff result = suite0.compare(suite0);
 
-        assertThat(result.getPassingPercentage(), equalTo("100%"));
+        assertThat(result.getPassingPercentage(), equalTo(formatPercentage(1)));
         assertThat(result.getNewlyPassingScenarios(), hasSize(0));
         assertThat(result.getNewlyFailedScenarios(), hasSize(0));
         assertThat(result.getAllScenarios(), hasSize(3));
@@ -170,7 +171,7 @@ public class TckReportModelTest {
     public void testCompareDegrade() throws Exception {
         Diff result = suite1.compare(suite0);
 
-        assertThat(result.getPassingPercentage(), equalTo("66.67%"));
+        assertThat(result.getPassingPercentage(), equalTo(formatPercentage(2f/3)));
         assertThat(result.getNewlyPassingScenarios(), hasSize(0));
         assertThat(result.getNewlyFailedScenarios(), hasSize(1));
         assertThat(result.getAllScenarios(), hasSize(3));
@@ -201,7 +202,7 @@ public class TckReportModelTest {
     public void testVerifyImprove() throws Exception {
         Diff result = suite0.verify(suite2);
 
-        assertThat(result.getPassingPercentage(), equalTo("100%"));
+        assertThat(result.getPassingPercentage(), equalTo(formatPercentage(1)));
         assertThat(result.getNewlyPassingScenarios(), hasSize(2));
         assertThat(result.getNewlyFailedScenarios(), hasSize(0));
         assertThat(result.getAllScenarios(), hasSize(3));
@@ -213,7 +214,7 @@ public class TckReportModelTest {
     public void testVerifyNoChange() throws Exception {
         Diff result = suite2.verify(suite2);
 
-        assertThat(result.getPassingPercentage(), equalTo("0%"));
+        assertThat(result.getPassingPercentage(), equalTo(formatPercentage(0)));
         assertThat(result.getNewlyPassingScenarios(), hasSize(0));
         assertThat(result.getNewlyFailedScenarios(), hasSize(0));
         assertThat(result.getAllScenarios(), hasSize(2));
@@ -225,11 +226,15 @@ public class TckReportModelTest {
     public void testVerifyDegrade() throws Exception {
         Diff result = suite3.verify(suite2);
 
-        assertThat(result.getPassingPercentage(), equalTo("0%"));
+        assertThat(result.getPassingPercentage(), equalTo(formatPercentage(0)));
         assertThat(result.getNewlyPassingScenarios(), hasSize(0));
         assertThat(result.getNewlyFailedScenarios(), hasSize(1));
         assertThat(result.getAllScenarios(), hasSize(3));
         assertThat(result.getTotalPassingScenarios(), equalTo(0));
         assertThat(result.getTotalScenarios(), equalTo(3));
+    }
+
+    private String formatPercentage(float percentage) {
+        return new DecimalFormat("#.##%").format(percentage);
     }
 }
