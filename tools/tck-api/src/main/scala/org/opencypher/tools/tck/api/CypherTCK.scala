@@ -80,18 +80,15 @@ object CypherTCK {
       } else None
     val directoryPath: Path = Paths.get(resource)
     try {
-      val featurePaths = Files.walk(directoryPath).filter(new Predicate[Path] {
-        override def test(t: Path): Boolean = Files.isRegularFile(t) && t.toString.endsWith(featureSuffix)
-      })
+      val featurePaths = Files.walk(directoryPath).filter {
+        (t: Path) => Files.isRegularFile(t) && t.toString.endsWith(featureSuffix)
+      }
       // Note that converting to list is necessary to cut off lazy evaluation
       // otherwise evaluation of parsePathFeature will happen after the file system is already closed
       featurePaths.iterator().asScala.toList.map(parsePathFeature)
     } finally {
       try {
-        fs match {
-          case Some(fs) => fs.close()
-          case None => Unit
-        }
+        fs.foreach(_.close())
       } catch {
         case _: UnsupportedOperationException => Unit
       }
