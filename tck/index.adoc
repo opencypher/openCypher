@@ -3,13 +3,13 @@
 The TCK is split into categories based on language constructs.
 The two main groups are clauses and expressions.
 Each group enumerates its members.
-Within each member, there is additional categories.
+Within each member, there are additional categories.
 
-There is also `uncategorized` directory containing uncategorized features.
+There is also an `uncategorized` directory containing uncategorized features.
 
 == Clauses
 
-Each clause has its own directory of Gherkin `.feature` files, or _feature_ for short.
+Each clause has its own directory of Gherkin `.feature` files, or _features_ for short.
 Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 
 === CREATE
@@ -26,7 +26,7 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 
 === MATCH
 
-* `Create1`: ...
+* `Match1`: ...
 
 === UNWIND
 
@@ -37,15 +37,15 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 The expressions are grouped into categories based on their domain.
 Each category consists of a number of features.
 
-=== Aggregation
+=== Aggregations
 
 * `Aggregation1`: ...
 
-=== Function
+=== Functions
 
 * `Function1`: Type conversion functions
 * `Function2`: Negative tests for functions (invalid arguments etc)
 
-=== Literal
+=== Literals
 
-* `Function1`: ...
+* `Literal1`: ...
