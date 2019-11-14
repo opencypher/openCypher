@@ -54,6 +54,7 @@ object TCKEventsTest {
 
   @AfterAll
   def assertEvents(): Unit = {
+    TCKEvents.reset()
     val expected = List[String](
       "Feature 'ListOperations' read",
       "Scenario 'Return list size' started",
