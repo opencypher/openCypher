@@ -254,6 +254,9 @@
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${dep.maven.surefire.plugin.version}</version>
+          <configuration>
+            <trimStackTrace>false</trimStackTrace>
+          </configuration>
           <dependencies>
             <dependency>
               <groupId>org.junit.platform</groupId>
