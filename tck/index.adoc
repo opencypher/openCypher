@@ -5,7 +5,7 @@ The two main groups are clauses and expressions.
 Each group enumerates its members.
 Within each member, there is additional categories.
 
-There is also `uncategorized` directory containing uncategorized features`
+There is also `uncategorized` directory containing uncategorized features.
 
 == Clauses
 
