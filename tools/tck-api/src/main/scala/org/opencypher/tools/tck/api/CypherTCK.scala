@@ -27,10 +27,11 @@
  */
 package org.opencypher.tools.tck.api
 
-import java.io.File
-import java.net.URL
-import java.nio.file.{FileSystems, Files, Paths}
+import java.net.URI
+import java.nio.charset.StandardCharsets
+import java.nio.file._
 import java.util
+import java.util.function.Predicate
 
 import gherkin.ast.GherkinDocument
 import gherkin.pickles.{Compiler, Pickle, PickleRow, PickleStep, PickleString, PickleTable}
@@ -44,7 +45,6 @@ import org.opencypher.tools.tck.constants.{TCKErrorDetails, TCKErrorPhases, TCKE
 import org.opencypher.tools.tck.values.CypherValue
 
 import scala.collection.JavaConverters._
-import scala.io.{Codec, Source}
 import scala.util.{Failure, Success, Try}
 
 object CypherTCK {
@@ -64,40 +64,40 @@ object CypherTCK {
     */
   def allTckScenarios: Seq[Scenario] = parseClasspathFeatures(featuresPath).flatMap(_.scenarios)
 
+  @deprecated("use allTckScenarios instead")
   def allTckScenariosFromFilesystem: Seq[Scenario] = {
-    parseFilesystemFeatures(new File(getClass.getResource(featuresPath).toURI)).flatMap(_.scenarios)
+    allTckScenarios
   }
 
   def parseClasspathFeatures(path: String): Seq[Feature] = {
-    val resource = getClass.getResource(path).toURI
-    val fs = FileSystems.newFileSystem(resource, new util.HashMap[String, String]) // Needed to support `Paths.get` below
+    parseFeatures(getClass.getResource(path).toURI)
+  }
+
+  def parseFeatures(resource: URI): Seq[Feature] = {
+    val fs =
+      if ("jar".equalsIgnoreCase(resource.getScheme)) {
+        Some(FileSystems.newFileSystem(resource, new util.HashMap[String, String]))
+      } else None
+    val directoryPath: Path = Paths.get(resource)
     try {
-      val directoryPath = Paths.get(resource)
-      val paths = Files.newDirectoryStream(directoryPath).asScala.toSeq
-      val featurePathStrings = paths.map(path => path.toString).filter(_.endsWith(featureSuffix))
-      val featureUrls = featurePathStrings.map(getClass.getResource(_))
-      featureUrls.map(parseClasspathFeature)
+      val featurePaths = Files.walk(directoryPath).filter {
+        (t: Path) => Files.isRegularFile(t) && t.toString.endsWith(featureSuffix)
+      }
+      // Note that converting to list is necessary to cut off lazy evaluation
+      // otherwise evaluation of parsePathFeature will happen after the file system is already closed
+      featurePaths.iterator().asScala.toList.map(parsePathFeature)
     } finally {
-      fs.close()
+      try {
+        fs.foreach(_.close())
+      } catch {
+        case _: UnsupportedOperationException => Unit
+      }
     }
   }
 
-  private def withSource[T](s: Source)(f: Source => T) = try { f(s) } finally { s.close() }
-
-  def parseFilesystemFeatures(directory: File): Seq[Feature] = {
-    require(directory.isDirectory)
-    val featureFileNames = directory.listFiles.filter(_.getName.endsWith(featureSuffix))
-    featureFileNames.map(parseFilesystemFeature)
-  }
-
-  def parseFilesystemFeature(file: File): Feature = {
-    val featureString = withSource(Source.fromFile(file)(Codec.UTF8))(_.mkString)
-    parseFeature(file.getAbsolutePath, featureString)
-  }
-
-  def parseClasspathFeature(pathUrl: URL): Feature = {
-    val featureString = withSource(Source.fromURL(pathUrl)(Codec.UTF8))(_.mkString)
-    parseFeature(pathUrl.toString, featureString)
+  def parsePathFeature(featureFile: Path): Feature = {
+    val featureString = new String(Files.readAllBytes(featureFile), StandardCharsets.UTF_8)
+    parseFeature(featureFile.toAbsolutePath.toString, featureString)
   }
 
   def parseFeature(source: String, featureString: String): Feature = {

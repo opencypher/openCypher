@@ -100,4 +100,11 @@ object TCKEvents {
   def setStepFinished(step: StepFinished): Unit = {
     this.stepFinished.send(step)
   }
+
+  def reset(): Unit = {
+    this.feature.removeSubscriptions()
+    this.scenario.removeSubscriptions()
+    this.stepStarted.removeSubscriptions()
+    this.stepFinished.removeSubscriptions()
+  }
 }
