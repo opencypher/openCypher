@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: VarLengthAcceptance
+Feature: Match5
 
   # TODO: Replace this with a named graph (or two)
   Background:

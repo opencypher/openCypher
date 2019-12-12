@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: MatchVariableLength
+Feature: Match4
 
   Scenario: Handling fixed-length variable length pattern
     Given an empty graph
@@ -88,6 +88,26 @@ Feature: MatchVariableLength
       | <({name: 'A'})-[:KNOWS]->({name: 'B'})-[:KNOWS]->({name: 'C'})> |
     And no side effects
 
+  Scenario: Variable length relationship without bounds
+    Given an empty graph
+    And having executed:
+      """
+            CREATE (a {name: 'A'}), (b {name: 'B'}),
+                   (c {name: 'C'})
+            CREATE (a)-[:KNOWS]->(b),
+                   (b)-[:KNOWS]->(c)
+            """
+    When executing query:
+      """
+            MATCH p = ({name: 'A'})-[:KNOWS*..]->()
+            RETURN p
+            """
+    Then the result should be, in any order:
+      | p                                                               |
+      | <({name: 'A'})-[:KNOWS]->({name: 'B'})>                         |
+      | <({name: 'A'})-[:KNOWS]->({name: 'B'})-[:KNOWS]->({name: 'C'})> |
+    And no side effects
+
   Scenario: Zero-length variable length pattern in the middle of the pattern
     Given an empty graph
     And having executed:
@@ -108,26 +128,6 @@ Feature: MatchVariableLength
       | ({name: 'A'}) | ({name: 'A'}) | ({name: 'A'}) |
       | ({name: 'A'}) | ({name: 'B'}) | ({name: 'B'}) |
       | ({name: 'A'}) | ({name: 'B'}) | ({name: 'C'}) |
-    And no side effects
-
-  Scenario: Variable length relationship without bounds
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (a {name: 'A'}), (b {name: 'B'}),
-                   (c {name: 'C'})
-            CREATE (a)-[:KNOWS]->(b),
-                   (b)-[:KNOWS]->(c)
-            """
-    When executing query:
-      """
-            MATCH p = ({name: 'A'})-[:KNOWS*..]->()
-            RETURN p
-            """
-    Then the result should be, in any order:
-      | p                                                               |
-      | <({name: 'A'})-[:KNOWS]->({name: 'B'})>                         |
-      | <({name: 'A'})-[:KNOWS]->({name: 'B'})-[:KNOWS]->({name: 'C'})> |
     And no side effects
 
   Scenario: Matching longer variable length paths
