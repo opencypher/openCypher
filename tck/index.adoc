@@ -39,7 +39,9 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 * `Match4`: Match variable length patterns
 ** This group is about matching variable length patterns.
 * `Match5`: Match variable length patterns over given graphs
-** This group is about matching patterns.
+** This group is about matching patterns over given graphs.
+* `Match6`: Match named paths
+** This group is about matching named paths.
 
 === UNWIND
 
