@@ -30,39 +30,56 @@
 
 Feature: MatchWithFilters
 
-    Scenario: Filter out based on node prop name
-    Given an empty graph
-    And having executed:
-    """
-          CREATE ({name: 'Someone'})<-[:X]-()-[:X]->({name: 'Andres'})
+    Scenario: Simple node property predicate
+      Given an empty graph
+      And having executed:
           """
-    When executing query:
-    """
-          MATCH ()-[rel:X]-(a)
-          WHERE a.name = 'Andres'
-          RETURN a
+          CREATE ({name: 'bar'})
           """
-    Then the result should be, in any order:
-    | a                  |
-    | ({name: 'Andres'}) |
-    And no side effects
+      When executing query:
+          """
+          MATCH (n)
+          WHERE n.name = 'bar'
+          RETURN n
+          """
+      Then the result should be, in any order:
+        | n               |
+        | ({name: 'bar'}) |
+      And no side effects
+
+      Scenario: Filter out based on node prop name
+      Given an empty graph
+      And having executed:
+      """
+            CREATE ({name: 'Someone'})<-[:X]-()-[:X]->({name: 'Andres'})
+            """
+      When executing query:
+      """
+            MATCH ()-[rel:X]-(a)
+            WHERE a.name = 'Andres'
+            RETURN a
+            """
+      Then the result should be, in any order:
+      | a                  |
+      | ({name: 'Andres'}) |
+      And no side effects
 
     Scenario: Filter based on rel prop name
-    Given an empty graph
-    And having executed:
-    """
-          CREATE (:A)<-[:KNOWS {name: 'monkey'}]-()-[:KNOWS {name: 'woot'}]->(:B)
-          """
-    When executing query:
-    """
-          MATCH (node)-[r:KNOWS]->(a)
-          WHERE r.name = 'monkey'
-          RETURN a
-          """
-    Then the result should be, in any order:
-    | a    |
-    | (:A) |
-    And no side effects
+      Given an empty graph
+      And having executed:
+      """
+            CREATE (:A)<-[:KNOWS {name: 'monkey'}]-()-[:KNOWS {name: 'woot'}]->(:B)
+            """
+      When executing query:
+      """
+            MATCH (node)-[r:KNOWS]->(a)
+            WHERE r.name = 'monkey'
+            RETURN a
+            """
+      Then the result should be, in any order:
+      | a    |
+      | (:A) |
+      And no side effects
 
   Scenario: Handle comparison between node properties
     Given an empty graph

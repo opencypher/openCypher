@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: MatchBasic
+Feature: Match1
 
   Scenario: Do not return non-existent nodes
     Given an empty graph
@@ -41,38 +41,52 @@ Feature: MatchBasic
       | n |
     And no side effects
 
-  Scenario: Matching all nodes
+  Scenario: Returning a node property value
     Given an empty graph
     And having executed:
-      """
-      CREATE (:A), (:B)
-      """
+        """
+        CREATE ({num: 1})
+        """
     When executing query:
-      """
-      MATCH (n)
-      RETURN n
-      """
+        """
+        MATCH (a)
+        RETURN a.num
+        """
     Then the result should be, in any order:
-      | n    |
-      | (:A) |
-      | (:B) |
+      | a.num |
+      | 1     |
     And no side effects
 
-  Scenario: Simple node property predicate
+  Scenario: Missing node property should become null
     Given an empty graph
     And having executed:
-      """
-      CREATE ({name: 'bar'})
-      """
+        """
+        CREATE ({num: 1})
+        """
     When executing query:
-      """
-      MATCH (n)
-      WHERE n.name = 'bar'
-      RETURN n
-      """
+        """
+        MATCH (a)
+        RETURN a.name
+        """
     Then the result should be, in any order:
-      | n               |
-      | ({name: 'bar'}) |
+      | a.name |
+      | null    |
+    And no side effects
+
+  Scenario: Returning multiple node property values
+    Given an empty graph
+    And having executed:
+        """
+        CREATE ({name: 'Philip J. Fry', age: 2046, seasons: [1, 2, 3, 4, 5, 6, 7]})
+        """
+    When executing query:
+        """
+        MATCH (a)
+        RETURN a.name, a.age, a.seasons
+        """
+    Then the result should be, in any order:
+      | a.name          | a.age | a.seasons             |
+      | 'Philip J. Fry' | 2046  | [1, 2, 3, 4, 5, 6, 7] |
     And no side effects
 
   Scenario: Adding a property and a literal in projection
@@ -107,36 +121,21 @@ Feature: MatchBasic
       | [4, 5, 1, 2, 3] |
     And no side effects
 
-  Scenario: Returning multiple node property values
+  Scenario: Matching all nodes
     Given an empty graph
     And having executed:
       """
-      CREATE ({name: 'Philip J. Fry', age: 2046, seasons: [1, 2, 3, 4, 5, 6, 7]})
+      CREATE (:A), (:B)
       """
     When executing query:
       """
-      MATCH (a)
-      RETURN a.name, a.age, a.seasons
+      MATCH (n)
+      RETURN n
       """
     Then the result should be, in any order:
-      | a.name          | a.age | a.seasons             |
-      | 'Philip J. Fry' | 2046  | [1, 2, 3, 4, 5, 6, 7] |
-    And no side effects
-
-  Scenario: Missing node property should become null
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({num: 1})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      RETURN a.name
-      """
-    Then the result should be, in any order:
-      | a.name |
-      | null    |
+      | n    |
+      | (:A) |
+      | (:B) |
     And no side effects
 
   Scenario: Matching nodes using multiple labels
@@ -188,24 +187,6 @@ Feature: MatchBasic
       | n  | count |
       | 42 | 1     |
     And no side effects
-
-
-  Scenario: Returning a node property value
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({num: 1})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      RETURN a.num
-      """
-    Then the result should be, in any order:
-      | a.num |
-      | 1     |
-    And no side effects
-
 
   Scenario: Counting an empty graph
     Given an empty graph
