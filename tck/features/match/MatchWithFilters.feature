@@ -30,56 +30,56 @@
 
 Feature: MatchWithFilters
 
-    Scenario: Simple node property predicate
-      Given an empty graph
-      And having executed:
+  Scenario: Simple node property predicate
+    Given an empty graph
+    And having executed:
           """
           CREATE ({name: 'bar'})
           """
-      When executing query:
+    When executing query:
           """
           MATCH (n)
           WHERE n.name = 'bar'
           RETURN n
           """
-      Then the result should be, in any order:
-        | n               |
-        | ({name: 'bar'}) |
-      And no side effects
+    Then the result should be, in any order:
+      | n               |
+      | ({name: 'bar'}) |
+    And no side effects
 
-      Scenario: Filter out based on node prop name
-      Given an empty graph
-      And having executed:
+  Scenario: Filter out based on node prop name
+    Given an empty graph
+    And having executed:
       """
             CREATE ({name: 'Someone'})<-[:X]-()-[:X]->({name: 'Andres'})
             """
-      When executing query:
+    When executing query:
       """
             MATCH ()-[rel:X]-(a)
             WHERE a.name = 'Andres'
             RETURN a
             """
-      Then the result should be, in any order:
+    Then the result should be, in any order:
       | a                  |
       | ({name: 'Andres'}) |
-      And no side effects
+    And no side effects
 
-    Scenario: Filter based on rel prop name
-      Given an empty graph
-      And having executed:
+  Scenario: Filter based on rel prop name
+    Given an empty graph
+    And having executed:
       """
             CREATE (:A)<-[:KNOWS {name: 'monkey'}]-()-[:KNOWS {name: 'woot'}]->(:B)
             """
-      When executing query:
+    When executing query:
       """
             MATCH (node)-[r:KNOWS]->(a)
             WHERE r.name = 'monkey'
             RETURN a
             """
-      Then the result should be, in any order:
+    Then the result should be, in any order:
       | a    |
       | (:A) |
-      And no side effects
+    And no side effects
 
   Scenario: Handle comparison between node properties
     Given an empty graph
@@ -259,4 +259,62 @@ Feature: MatchWithFilters
     Then the result should be, in any order:
       | b                   |
       | (:TheLabel {id: 1}) |
+    And no side effects
+
+  Scenario: Non-optional matches should not return nulls
+    Given an empty graph
+    And having executed:
+      """
+            CREATE (a:A), (b:B {id: 1}), (c:C {id: 2}), (d:D)
+            CREATE (a)-[:T]->(b),
+                   (a)-[:T]->(c),
+                   (a)-[:T]->(d),
+                   (b)-[:T]->(c),
+                   (b)-[:T]->(d),
+                   (c)-[:T]->(d)
+            """
+    When executing query:
+      """
+            MATCH (a)--(b)--(c)--(d)--(a), (b)--(d)
+            WHERE a.id = 1
+              AND c.id = 2
+            RETURN d
+            """
+    Then the result should be, in any order:
+      | d    |
+      | (:A) |
+      | (:D) |
+
+
+  Scenario: Matching using an undirected pattern
+    Given an empty graph
+    And having executed:
+      """
+            CREATE (:A {id: 0})-[:ADMIN]->(:B {id: 1})
+            """
+    When executing query:
+      """
+            MATCH (a)-[:ADMIN]-(b)
+            WHERE a:A
+            RETURN a.id, b.id
+            """
+    Then the result should be, in any order:
+      | a.id | b.id |
+      | 0    | 1    |
+    And no side effects
+
+  Scenario: Multiple anonymous nodes in a pattern
+    Given an empty graph
+    And having executed:
+      """
+            CREATE (:A)
+            """
+    When executing query:
+      """
+            MATCH (a)<--()<--(b)-->()-->(c)
+            WHERE a:A
+            RETURN c
+            """
+    Then the result should be, in any order:
+      | c |
     And no side effects

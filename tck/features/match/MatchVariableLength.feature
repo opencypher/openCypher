@@ -30,25 +30,25 @@
 
 Feature: MatchVariableLength
 
-      Scenario: Handling fixed-length variable length pattern
-      Given an empty graph
-      And having executed:
+  Scenario: Handling fixed-length variable length pattern
+    Given an empty graph
+    And having executed:
       """
             CREATE ()-[:T]->()
             """
-      When executing query:
+    When executing query:
       """
             MATCH (a)-[r*1..1]->(b)
             RETURN r
             """
-      Then the result should be, in any order:
+    Then the result should be, in any order:
       | r      |
       | [[:T]] |
-      And no side effects
+    And no side effects
 
-      Scenario: Simple variable length pattern
-      Given an empty graph
-      And having executed:
+  Scenario: Simple variable length pattern
+    Given an empty graph
+    And having executed:
       """
             CREATE (a {name: 'A'}), (b {name: 'B'}),
                    (c {name: 'C'}), (d {name: 'D'})
@@ -56,41 +56,41 @@ Feature: MatchVariableLength
                    (b)-[:CONTAINS]->(c),
                    (c)-[:CONTAINS]->(d)
             """
-      When executing query:
+    When executing query:
       """
             MATCH (a {name: 'A'})-[*]->(x)
             RETURN x
             """
-      Then the result should be, in any order:
+    Then the result should be, in any order:
       | x             |
       | ({name: 'B'}) |
       | ({name: 'C'}) |
       | ({name: 'D'}) |
-      And no side effects
+    And no side effects
 
-      Scenario: Variable length relationship without lower bound
-      Given an empty graph
-      And having executed:
+  Scenario: Variable length relationship without lower bound
+    Given an empty graph
+    And having executed:
       """
             CREATE (a {name: 'A'}), (b {name: 'B'}),
                    (c {name: 'C'})
             CREATE (a)-[:KNOWS]->(b),
                    (b)-[:KNOWS]->(c)
             """
-      When executing query:
+    When executing query:
       """
             MATCH p = ({name: 'A'})-[:KNOWS*..2]->()
             RETURN p
             """
-      Then the result should be, in any order:
+    Then the result should be, in any order:
       | p                                                               |
       | <({name: 'A'})-[:KNOWS]->({name: 'B'})>                         |
       | <({name: 'A'})-[:KNOWS]->({name: 'B'})-[:KNOWS]->({name: 'C'})> |
-      And no side effects
+    And no side effects
 
-      Scenario: Zero-length variable length pattern in the middle of the pattern
-      Given an empty graph
-      And having executed:
+  Scenario: Zero-length variable length pattern in the middle of the pattern
+    Given an empty graph
+    And having executed:
       """
             CREATE (a {name: 'A'}), (b {name: 'B'}),
                    (c {name: 'C'}), ({name: 'D'}),
@@ -98,41 +98,41 @@ Feature: MatchVariableLength
             CREATE (a)-[:CONTAINS]->(b),
                    (b)-[:FRIEND]->(c)
             """
-      When executing query:
+    When executing query:
       """
             MATCH (a {name: 'A'})-[:CONTAINS*0..1]->(b)-[:FRIEND*0..1]->(c)
             RETURN a, b, c
             """
-      Then the result should be, in any order:
+    Then the result should be, in any order:
       | a             | b             | c             |
       | ({name: 'A'}) | ({name: 'A'}) | ({name: 'A'}) |
       | ({name: 'A'}) | ({name: 'B'}) | ({name: 'B'}) |
       | ({name: 'A'}) | ({name: 'B'}) | ({name: 'C'}) |
-      And no side effects
+    And no side effects
 
-      Scenario: Variable length relationship without bounds
-      Given an empty graph
-      And having executed:
+  Scenario: Variable length relationship without bounds
+    Given an empty graph
+    And having executed:
       """
             CREATE (a {name: 'A'}), (b {name: 'B'}),
                    (c {name: 'C'})
             CREATE (a)-[:KNOWS]->(b),
                    (b)-[:KNOWS]->(c)
             """
-      When executing query:
+    When executing query:
       """
             MATCH p = ({name: 'A'})-[:KNOWS*..]->()
             RETURN p
             """
-      Then the result should be, in any order:
+    Then the result should be, in any order:
       | p                                                               |
       | <({name: 'A'})-[:KNOWS]->({name: 'B'})>                         |
       | <({name: 'A'})-[:KNOWS]->({name: 'B'})-[:KNOWS]->({name: 'C'})> |
-      And no side effects
+    And no side effects
 
-      Scenario: Matching longer variable length paths
-      Given an empty graph
-      And having executed:
+  Scenario: Matching longer variable length paths
+    Given an empty graph
+    And having executed:
       """
             CREATE (a {var: 'start'}), (b {var: 'end'})
             WITH *
@@ -143,49 +143,111 @@ Feature: MatchVariableLength
             WITH nodeList[i] AS n1, nodeList[i+1] AS n2
             CREATE (n1)-[:T]->(n2)
             """
-      When executing query:
+    When executing query:
       """
             MATCH (n {var: 'start'})-[:T*]->(m {var: 'end'})
             RETURN m
             """
-      Then the result should be, in any order:
+    Then the result should be, in any order:
       | m              |
       | ({var: 'end'}) |
-      And no side effects
+    And no side effects
 
-      Scenario: Matching variable length pattern with property predicate
-      Given an empty graph
-      And having executed:
+  Scenario: Matching variable length pattern with property predicate
+    Given an empty graph
+    And having executed:
       """
             CREATE (a:Artist:A), (b:Artist:B), (c:Artist:C)
             CREATE (a)-[:WORKED_WITH {year: 1987}]->(b),
                    (b)-[:WORKED_WITH {year: 1988}]->(c)
             """
-      When executing query:
+    When executing query:
       """
             MATCH (a:Artist)-[:WORKED_WITH* {year: 1988}]->(b:Artist)
             RETURN *
             """
-      Then the result should be, in any order:
+    Then the result should be, in any order:
       | a           | b           |
       | (:Artist:B) | (:Artist:C) |
-      And no side effects
+    And no side effects
 
-      Scenario: Matching variable length patterns from a bound node
-      Given an empty graph
-      And having executed:
+  Scenario: Matching variable length patterns from a bound node
+    Given an empty graph
+    And having executed:
       """
             CREATE (a:A), (b), (c)
             CREATE (a)-[:X]->(b),
                    (b)-[:Y]->(c)
             """
-      When executing query:
+    When executing query:
       """
             MATCH (a:A)
             MATCH (a)-[r*2]->()
             RETURN r
             """
-      Then the result should be (ignoring element order for lists):
+    Then the result should be (ignoring element order for lists):
       | r            |
       | [[:X], [:Y]] |
-      And no side effects
+    And no side effects
+
+  Scenario: Matching relationships into a list and matching variable length using the list
+    Given an empty graph
+    And having executed:
+      """
+            CREATE (a:A), (b:B), (c:C)
+            CREATE (a)-[:Y]->(b),
+                   (b)-[:Y]->(c)
+            """
+    When executing query:
+      """
+            MATCH ()-[r1]->()-[r2]->()
+            WITH [r1, r2] AS rs
+              LIMIT 1
+            MATCH (first)-[rs*]->(second)
+            RETURN first, second
+            """
+    Then the result should be, in any order:
+      | first | second |
+      | (:A)  | (:C)   |
+    And no side effects
+
+  Scenario: Matching relationships into a list and matching variable length using the list, with bound nodes
+    Given an empty graph
+    And having executed:
+      """
+            CREATE (a:A), (b:B), (c:C)
+            CREATE (a)-[:Y]->(b),
+                   (b)-[:Y]->(c)
+            """
+    When executing query:
+      """
+            MATCH (a)-[r1]->()-[r2]->(b)
+            WITH [r1, r2] AS rs, a AS first, b AS second
+              LIMIT 1
+            MATCH (first)-[rs*]->(second)
+            RETURN first, second
+            """
+    Then the result should be, in any order:
+      | first | second |
+      | (:A)  | (:C)   |
+    And no side effects
+
+  Scenario: Matching relationships into a list and matching variable length using the list, with bound nodes, wrong direction
+    Given an empty graph
+    And having executed:
+      """
+            CREATE (a:A), (b:B), (c:C)
+            CREATE (a)-[:Y]->(b),
+                   (b)-[:Y]->(c)
+            """
+    When executing query:
+      """
+            MATCH (a)-[r1]->()-[r2]->(b)
+            WITH [r1, r2] AS rs, a AS second, b AS first
+              LIMIT 1
+            MATCH (first)-[rs*]->(second)
+            RETURN first, second
+            """
+    Then the result should be, in any order:
+      | first | second |
+    And no side effects
