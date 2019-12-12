@@ -42,6 +42,8 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 ** This group is about matching patterns over given graphs.
 * `Match6`: Match named paths
 ** This group is about matching named paths.
+* `Match7`: Optional match
+** This group is about optional matching with all of the above.
 
 === UNWIND
 
