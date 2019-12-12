@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: MatchDeprecated
+Feature: Match9
 
       Scenario: Variable length relationship variables are lists of relationships
       Given an empty graph
