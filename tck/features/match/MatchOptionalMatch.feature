@@ -366,3 +366,22 @@ Feature: MatchOptionalMatch
       | a1   | r    | b2   |
       | (:A) | [:T] | (:B) |
       And no side effects
+
+      Scenario: Return two subgraphs with bound undirected relationship and optional relationship
+            Given an empty graph
+            And having executed:
+      """
+            CREATE (a:A {num: 1})-[:REL {name: 'r1'}]->(b:B {num: 2})-[:REL {name: 'r2'}]->(c:C {num: 3})
+            """
+            When executing query:
+      """
+            MATCH (a)-[r {name: 'r1'}]-(b)
+            OPTIONAL MATCH (b)-[r2]-(c)
+            WHERE r <> r2
+            RETURN a, b, c
+            """
+            Then the result should be, in any order:
+                  | a             | b             | c             |
+                  | (:A {num: 1}) | (:B {num: 2}) | (:C {num: 3}) |
+                  | (:B {num: 2}) | (:A {num: 1}) | null          |
+            And no side effects
