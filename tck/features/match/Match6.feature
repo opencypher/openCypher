@@ -460,3 +460,35 @@ Feature: Match6
       | 32 |
     And no side effects
 
+  Scenario: Pass the path length test
+    Given an empty graph
+    And having executed:
+      """
+            CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
+            """
+    When executing query:
+      """
+            MATCH p = (n)-->(x)
+            WHERE length(p) = 1
+            RETURN x
+            """
+    Then the result should be, in any order:
+      | x                |
+      | (:B {name: 'B'}) |
+    And no side effects
+
+  Scenario: Do not return anything because path length does not match
+    Given an empty graph
+    And having executed:
+      """
+            CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
+            """
+    When executing query:
+      """
+            MATCH p = (n)-->(x)
+            WHERE length(p) = 10
+            RETURN x
+            """
+    Then the result should be, in any order:
+      | x |
+    And no side effects

@@ -742,3 +742,174 @@ Feature: Match3
       | 6        |
     And no side effects
 
+  Scenario: Filter out based on node prop name
+    Given an empty graph
+    And having executed:
+      """
+            CREATE ({name: 'Someone'})<-[:X]-()-[:X]->({name: 'Andres'})
+            """
+    When executing query:
+      """
+            MATCH ()-[rel:X]-(a)
+            WHERE a.name = 'Andres'
+            RETURN a
+            """
+    Then the result should be, in any order:
+      | a                  |
+      | ({name: 'Andres'}) |
+    And no side effects
+
+  Scenario: Matching using a simple pattern with label predicate
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:Person {name: 'Alice'}), (b:Person {name: 'Bob'}),
+             (c), (d)
+      CREATE (a)-[:T]->(c),
+             (b)-[:T]->(d)
+      """
+    When executing query:
+      """
+      MATCH (n:Person)-->()
+      WHERE n.name = 'Bob'
+      RETURN n
+      """
+    Then the result should be, in any order:
+      | n                       |
+      | (:Person {name: 'Bob'}) |
+    And no side effects
+
+  Scenario: Multiple anonymous nodes in a pattern
+    Given an empty graph
+    And having executed:
+      """
+            CREATE (:A)
+            """
+    When executing query:
+      """
+            MATCH (a)<--()<--(b)-->()-->(c)
+            WHERE a:A
+            RETURN c
+            """
+    Then the result should be, in any order:
+      | c |
+    And no side effects
+
+  Scenario: Matching using an undirected pattern
+    Given an empty graph
+    And having executed:
+      """
+            CREATE (:A {id: 0})-[:ADMIN]->(:B {id: 1})
+            """
+    When executing query:
+      """
+            MATCH (a)-[:ADMIN]-(b)
+            WHERE a:A
+            RETURN a.id, b.id
+            """
+    Then the result should be, in any order:
+      | a.id | b.id |
+      | 0    | 1    |
+    And no side effects
+
+  Scenario: Handle comparison between node properties
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A {animal: 'monkey'}),
+        (b:B {animal: 'cow'}),
+        (c:C {animal: 'monkey'}),
+        (d:D {animal: 'cow'}),
+        (a)-[:KNOWS]->(b),
+        (a)-[:KNOWS]->(c),
+        (d)-[:KNOWS]->(b),
+        (d)-[:KNOWS]->(c)
+      """
+    When executing query:
+      """
+      MATCH (n)-[rel]->(x)
+      WHERE n.animal = x.animal
+      RETURN n, x
+      """
+    Then the result should be, in any order:
+      | n                       | x                       |
+      | (:A {animal: 'monkey'}) | (:C {animal: 'monkey'}) |
+      | (:D {animal: 'cow'})    | (:B {animal: 'cow'})    |
+    And no side effects
+
+  Scenario: Rel type function works as expected
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A {name: 'A'}),
+        (b:B {name: 'B'}),
+        (c:C {name: 'C'}),
+        (a)-[:KNOWS]->(b),
+        (a)-[:HATES]->(c)
+      """
+    When executing query:
+      """
+      MATCH (n {name: 'A'})-[r]->(x)
+      WHERE type(r) = 'KNOWS'
+      RETURN x
+      """
+    Then the result should be, in any order:
+      | x                |
+      | (:B {name: 'B'}) |
+    And no side effects
+
+  Scenario: Matching with many predicates and larger pattern
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (advertiser {name: 'advertiser1', id: 0}),
+             (thing {name: 'Color', id: 1}),
+             (red {name: 'red'}),
+             (p1 {name: 'product1'}),
+             (p2 {name: 'product4'})
+      CREATE (advertiser)-[:ADV_HAS_PRODUCT]->(p1),
+             (advertiser)-[:ADV_HAS_PRODUCT]->(p2),
+             (thing)-[:AA_HAS_VALUE]->(red),
+             (p1)-[:AP_HAS_VALUE]->(red),
+             (p2)-[:AP_HAS_VALUE]->(red)
+      """
+    And parameters are:
+      | 1 | 0 |
+      | 2 | 1 |
+    When executing query:
+      """
+      MATCH (advertiser)-[:ADV_HAS_PRODUCT]->(out)-[:AP_HAS_VALUE]->(red)<-[:AA_HAS_VALUE]-(a)
+      WHERE advertiser.id = $1
+        AND a.id = $2
+        AND red.name = 'red'
+        AND out.name = 'product1'
+      RETURN out.name
+      """
+    Then the result should be, in any order:
+      | out.name   |
+      | 'product1' |
+    And no side effects
+
+  Scenario: Non-optional matches should not return nulls
+    Given an empty graph
+    And having executed:
+      """
+            CREATE (a:A), (b:B {id: 1}), (c:C {id: 2}), (d:D)
+            CREATE (a)-[:T]->(b),
+                   (a)-[:T]->(c),
+                   (a)-[:T]->(d),
+                   (b)-[:T]->(c),
+                   (b)-[:T]->(d),
+                   (c)-[:T]->(d)
+            """
+    When executing query:
+      """
+            MATCH (a)--(b)--(c)--(d)--(a), (b)--(d)
+            WHERE a.id = 1
+              AND c.id = 2
+            RETURN d
+            """
+    Then the result should be, in any order:
+      | d    |
+      | (:A) |
+      | (:D) |
