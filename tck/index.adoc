@@ -30,7 +30,8 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 
 === MATCH
 
-* `Match1`: ...
+* `Match1`: Match nodes
+** This group is about matching nodes.
 
 === UNWIND
 
