@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: MatchNegative
+Feature: Match10
 
       Scenario: Fail when using property access on primitive type
       Given an empty graph

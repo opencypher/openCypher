@@ -45,9 +45,11 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 * `Match7`: Optional match
 ** This group is about optional matching with all of the above.
 * `Match8`: Miscellaneous features
-** This group is about miscellaneous match clause features.
+** This group is about miscellaneous `MATCH` clause features.
 * `Match9`: Deprecated features
-** This group is about deprecated match clause features.
+** This group is about deprecated `MATCH` clause features.
+* `Match10`: Negative tests
+** This group is about failure for the `MATCH` clause.
 
 === UNWIND
 
