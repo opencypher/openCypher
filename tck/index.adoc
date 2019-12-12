@@ -44,8 +44,10 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 ** This group is about matching named paths.
 * `Match7`: Optional match
 ** This group is about optional matching with all of the above.
-* `Match8`: Optional match
+* `Match8`: Miscellaneous features
 ** This group is about miscellaneous match clause features.
+* `Match9`: Deprecated features
+** This group is about deprecated match clause features.
 
 === UNWIND
 
