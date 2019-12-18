@@ -135,13 +135,6 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  Scenario: Failing when using variable length relationship in CREATE
-    When executing query:
-      """
-      CREATE ()-[:FOO*2]->()
-      """
-    Then a SyntaxError should be raised at compile time: CreatingVarLength
-
   Scenario: Failing when using variable length relationship in MERGE
     When executing query:
       """
@@ -193,27 +186,11 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  Scenario: Failing when using CREATE on a node that is already bound
-    When executing query:
-      """
-      MATCH (a)
-      CREATE (a)
-      """
-    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
-
   Scenario: Failing when using MERGE on a node that is already bound
     When executing query:
       """
       MATCH (a)
       MERGE (a)
-      """
-    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
-
-  Scenario: Failing when using CREATE on a relationship that is already bound
-    When executing query:
-      """
-      MATCH ()-[r]->()
-      CREATE ()-[r]->()
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
@@ -359,13 +336,6 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  Scenario: Failing when creating relationship without type
-    When executing query:
-      """
-      CREATE ()-->()
-      """
-    Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
-
   Scenario: Failing when merging relationship without type
     When executing query:
       """
@@ -379,13 +349,6 @@ Feature: SemanticErrorAcceptance
       """
       MATCH (a), (b)
       MERGE (a)-[NO_COLON]->(b)
-      """
-    Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
-
-  Scenario: Failing when creating relationship with more than one type
-    When executing query:
-      """
-      CREATE ()-[:A|:B]->()
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
