@@ -28,18 +28,59 @@
 
 #encoding: utf-8
 
-Feature: Match10 - Match clause failure scenarios
+Feature: Match3-2 - Match fixed length patterns WITH clause scenarios
 
-  Scenario: Fail when using property access on primitive type
+  Scenario: Matching with LIMIT, then matching again using a relationship and node that are both already bound along with an additional predicate
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 42})
+      CREATE ()-[:T]->()
       """
     When executing query:
       """
-      MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      MATCH (a1)-[r]->()
+      WITH r, a1
+        LIMIT 1
+      MATCH (a1:X)-[r]->(b2)
+      RETURN a1, r, b2
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then the result should be, in any order:
+      | a1 | r | b2 |
+    And no side effects
+
+  Scenario: Matching with LIMIT and predicates, then matching again using a relationship and node that are both already bound along with a duplicate predicate
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:X:Y)-[:T]->()
+      """
+    When executing query:
+      """
+      MATCH (a1:X:Y)-[r]->()
+      WITH r, a1
+        LIMIT 1
+      MATCH (a1:Y)-[r]->(b2)
+      RETURN a1, r, b2
+      """
+    Then the result should be, in any order:
+      | a1     | r    | b2 |
+      | (:X:Y) | [:T] | () |
+    And no side effects
+
+  Scenario: Matching twice with conflicting relationship types on same relationship
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:T]->()
+      """
+    When executing query:
+      """
+      MATCH (a1)-[r:T]->()
+      WITH r, a1
+        LIMIT 1
+      MATCH (a1)-[r:Y]->(b2)
+      RETURN a1, r, b2
+      """
+    Then the result should be, in any order:
+      | a1 | r | b2 |
+    And no side effects

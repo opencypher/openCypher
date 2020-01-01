@@ -28,18 +28,21 @@
 
 #encoding: utf-8
 
-Feature: Match10 - Match clause failure scenarios
+Feature: Feature: Match7-4 - Optional Match build in functions scenarios
 
-  Scenario: Fail when using property access on primitive type
+  Scenario: `collect()` filtering nulls
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 42})
+      CREATE ()
       """
     When executing query:
       """
       MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      OPTIONAL MATCH (n)-[:NOT_EXIST]->(x)
+      RETURN n, collect(x)
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then the result should be, in any order:
+      | n  | collect(x) |
+      | () | []         |
+    And no side effects

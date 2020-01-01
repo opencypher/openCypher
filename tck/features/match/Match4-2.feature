@@ -28,18 +28,25 @@
 
 #encoding: utf-8
 
-Feature: Match10 - Match clause failure scenarios
+Feature: Match4-4 - Match variable length patterns WHERE clause scenarios
 
-  Scenario: Fail when using property access on primitive type
+  Scenario: Variable length pattern checking labels on endnodes
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 42})
+      CREATE (a:TheLabel {id: 0}), (b:TheLabel {id: 1}), (c:TheLabel {id: 2})
+      CREATE (a)-[:T]->(b),
+             (b)-[:T]->(c)
       """
     When executing query:
       """
-      MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      MATCH (a), (b)
+      WHERE a.id = 0
+        AND (a)-[:T]->(b:TheLabel)
+        OR (a)-[:T*]->(b:MissingLabel)
+      RETURN DISTINCT b
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then the result should be, in any order:
+      | b                   |
+      | (:TheLabel {id: 1}) |
+    And no side effects

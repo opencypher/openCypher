@@ -34,7 +34,7 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 ** This group is about matching nodes.
 * `Match2`: Match relationships
 ** This group is about matching relationships.
-* `Match3`: Match patterns
+* `Match3`: Match fixed length patterns
 ** This group is about matching patterns.
 * `Match4`: Match variable length patterns
 ** This group is about matching variable length patterns.
@@ -44,8 +44,8 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 ** This group is about matching named paths.
 * `Match7`: Optional match
 ** This group is about optional matching with all of the above.
-* `Match8`: Miscellaneous features
-** This group is about miscellaneous `MATCH` clause features.
+* `Match8`: Interoperation with other clauses
+** This group is about Interoperation of `MATCH` clause with other clauses.
 * `Match9`: Deprecated features
 ** This group is about deprecated `MATCH` clause features.
 * `Match10`: Negative tests

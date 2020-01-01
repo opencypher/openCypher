@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Match5
+Feature: Match5 - Match variable length patterns over given graphs scenarios
 
   # TODO: Replace this with a named graph (or two)
   Background:

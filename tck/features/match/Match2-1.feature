@@ -28,106 +28,69 @@
 
 #encoding: utf-8
 
-Feature: Match2 - Match relationships scenarios
+Feature: Match2-1 - Match relationships RETURN clause scenarios
 
-  Scenario: Match non-existent relationships returns empty
-    Given an empty graph
-    When executing query:
-      """
-      MATCH ()-[r]->()
-      RETURN r
-      """
-    Then the result should be, in any order:
-      | r |
-    And no side effects
-
-  Scenario: Matching a relationship pattern using a label predicate on both sides
+  Scenario: Returning a relationship property value
     Given an empty graph
     And having executed:
       """
-      CREATE (:A)-[:T1]->(:B),
-             (:B)-[:T2]->(:A),
-             (:B)-[:T3]->(:B),
-             (:A)-[:T4]->(:A)
-      """
-    When executing query:
-      """
-      MATCH (:A)-[r]->(:B)
-      RETURN r
-      """
-    Then the result should be, in any order:
-      | r     |
-      | [:T1] |
-    And no side effects
-
-  Scenario: Matching a self-loop with an undirected relationship pattern
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a)
-      CREATE (a)-[:T]->(a)
-      """
-    When executing query:
-      """
-      MATCH ()-[r]-()
-      RETURN type(r) AS r
-      """
-    Then the result should be, in any order:
-      | r   |
-      | 'T' |
-    And no side effects
-
-  Scenario: Matching a self-loop with a directed relationship pattern
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a)
-      CREATE (a)-[:T]->(a)
+      CREATE ()-[:T {num: 1}]->()
       """
     When executing query:
       """
       MATCH ()-[r]->()
-      RETURN type(r) AS r
+      RETURN r.num
       """
     Then the result should be, in any order:
-      | r   |
-      | 'T' |
+      | r.num |
+      | 1     |
     And no side effects
 
-  Scenario: Match relationship with inline property value
+  Scenario: Missing relationship property should become null
     Given an empty graph
     And having executed:
       """
-      CREATE (:A)<-[:KNOWS {name: 'monkey'}]-()-[:KNOWS {name: 'woot'}]->(:B)
+      CREATE ()-[:T {name: 1}]->()
       """
     When executing query:
       """
-      MATCH (node)-[r:KNOWS {name:'monkey'}]->(a)
-      RETURN a
+      MATCH ()-[r]->()
+      RETURN r.name2
       """
     Then the result should be, in any order:
-      | a    |
-      | (:A) |
+      | r.name2 |
+      | null    |
     And no side effects
 
-  Scenario: Match relationships with multiple types
+  Scenario: Projecting a list of nodes and relationships
     Given an empty graph
     And having executed:
       """
-      CREATE (a {name: 'A'}),
-        (b {name: 'B'}),
-        (c {name: 'C'}),
-        (a)-[:KNOWS]->(b),
-        (a)-[:HATES]->(c),
-        (a)-[:WONDERS]->(c)
+      CREATE (a:A), (b:B)
+      CREATE (a)-[:T]->(b)
       """
     When executing query:
       """
-      MATCH (n)-[r:KNOWS|:HATES]->(x)
-      RETURN r
+      MATCH (n)-[r]->(m)
+      RETURN [n, r, m] AS r
       """
     Then the result should be, in any order:
-      | r        |
-      | [:KNOWS] |
-      | [:HATES] |
+      | r                  |
+      | [(:A), [:T], (:B)] |
+
+  Scenario: Projecting a map of nodes and relationships
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A), (b:B)
+      CREATE (a)-[:T]->(b)
+      """
+    When executing query:
+      """
+      MATCH (n)-[r]->(m)
+      RETURN {node1: n, rel: r, node2: m} AS m
+      """
+    Then the result should be, in any order:
+      | m                                     |
+      | {node1: (:A), rel: [:T], node2: (:B)} |
     And no side effects

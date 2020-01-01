@@ -28,19 +28,19 @@
 
 #encoding: utf-8
 
-Feature: Match3
+Feature: Match3 - Match fixed length patterns scenarios
 
   Scenario: Get neighbours
     Given an empty graph
     And having executed:
       """
-            CREATE (a:A {num: 1})-[:KNOWS]->(b:B {num: 2})
-            """
+      CREATE (a:A {num: 1})-[:KNOWS]->(b:B {num: 2})
+      """
     When executing query:
       """
-            MATCH (n1)-[rel:KNOWS]->(n2)
-            RETURN n1, n2
-            """
+      MATCH (n1)-[rel:KNOWS]->(n2)
+      RETURN n1, n2
+      """
     Then the result should be, in any order:
       | n1            | n2            |
       | (:A {num: 1}) | (:B {num: 2}) |
@@ -50,13 +50,13 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (:A)-[:LOOP]->(:B)
-            """
+      CREATE (:A)-[:LOOP]->(:B)
+      """
     When executing query:
       """
-            MATCH (a)-[r]->(b)
-            RETURN a, r, b
-            """
+      MATCH (a)-[r]->(b)
+      RETURN a, r, b
+      """
     Then the result should be, in any order:
       | a    | r       | b    |
       | (:A) | [:LOOP] | (:B) |
@@ -66,13 +66,13 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (:A)-[:LOOP]->(:B)
-            """
+      CREATE (:A)-[:LOOP]->(:B)
+      """
     When executing query:
       """
-            MATCH (a)-[r]-(b)
-            RETURN a, r, b
-            """
+      MATCH (a)-[r]-(b)
+      RETURN a, r, b
+      """
     Then the result should be, in any order:
       | a    | r       | b    |
       | (:A) | [:LOOP] | (:B) |
@@ -83,15 +83,15 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a:A {num: 1}),
-              (a)-[:KNOWS]->(b:B {num: 2}),
-              (a)-[:KNOWS]->(c:C {num: 3})
-            """
+      CREATE (a:A {num: 1}),
+        (a)-[:KNOWS]->(b:B {num: 2}),
+        (a)-[:KNOWS]->(c:C {num: 3})
+      """
     When executing query:
       """
-            MATCH ()-[rel:KNOWS]->(x)
-            RETURN x
-            """
+      MATCH ()-[rel:KNOWS]->(x)
+      RETURN x
+      """
     Then the result should be, in any order:
       | x             |
       | (:B {num: 2}) |
@@ -102,13 +102,13 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a:A {num: 1})-[:REL {name: 'r'}]->(b:B {num: 2})
-            """
+      CREATE (a:A {num: 1})-[:REL {name: 'r'}]->(b:B {num: 2})
+      """
     When executing query:
       """
-            MATCH (a)-[r {name: 'r'}]-(b)
-            RETURN a, b
-            """
+      MATCH (a)-[r {name: 'r'}]-(b)
+      RETURN a, b
+      """
     Then the result should be, in any order:
       | a             | b             |
       | (:B {num: 2}) | (:A {num: 1}) |
@@ -119,15 +119,15 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a), (b1:Foo), (b2)
-            CREATE (a)-[:T]->(b1),
-                   (a)-[:T]->(b2)
-            """
+      CREATE (a), (b1:Foo), (b2)
+      CREATE (a)-[:T]->(b1),
+             (a)-[:T]->(b2)
+      """
     When executing query:
       """
-            MATCH (a)-->(b:Foo)
-            RETURN b
-            """
+      MATCH (a)-->(b:Foo)
+      RETURN b
+      """
     Then the result should be, in any order:
       | b      |
       | (:Foo) |
@@ -137,15 +137,15 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a:A:B:C:D:E:F:G:H:I:J:K:L:M),
-                   (b:U:V:W:X:Y:Z)
-            CREATE (a)-[:T]->(b)
-            """
+      CREATE (a:A:B:C:D:E:F:G:H:I:J:K:L:M),
+             (b:U:V:W:X:Y:Z)
+      CREATE (a)-[:T]->(b)
+      """
     When executing query:
       """
-            MATCH (n:A:B:C:D:E:F:G:H:I:J:K:L:M)-[:T]->(m:Z:Y:X:W:V:U)
-            RETURN n, m
-            """
+      MATCH (n:A:B:C:D:E:F:G:H:I:J:K:L:M)-[:T]->(m:Z:Y:X:W:V:U)
+      RETURN n, m
+      """
     Then the result should be, in any order:
       | n                            | m              |
       | (:A:B:C:D:E:F:G:H:I:J:K:L:M) | (:Z:Y:X:W:V:U) |
@@ -155,14 +155,14 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a:A), (b:B)
-            CREATE (a)-[:T]->(b)
-            """
+      CREATE (a:A), (b:B)
+      CREATE (a)-[:T]->(b)
+      """
     When executing query:
       """
-            MATCH (a)-[:T|:T]->(b)
-            RETURN b
-            """
+      MATCH (a)-[:T|:T]->(b)
+      RETURN b
+      """
     Then the result should be, in any order:
       | b    |
       | (:B) |
@@ -172,13 +172,13 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a:A {num: 1})-[:KNOWS]->(b:B {num: 2})-[:FRIEND]->(c:C {num: 3})
-            """
+      CREATE (a:A {num: 1})-[:KNOWS]->(b:B {num: 2})-[:FRIEND]->(c:C {num: 3})
+      """
     When executing query:
       """
-            MATCH (n)-->(a)-->(b)
-            RETURN b
-            """
+      MATCH (n)-->(a)-->(b)
+      RETURN b
+      """
     Then the result should be, in any order:
       | b             |
       | (:C {num: 3}) |
@@ -189,15 +189,15 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a), (b), (c)
-            CREATE (a)-[:T]->(b),
-                   (b)-[:T]->(c)
-            """
+      CREATE (a), (b), (c)
+      CREATE (a)-[:T]->(b),
+             (b)-[:T]->(c)
+      """
     When executing query:
       """
-            MATCH (a)-->(b), (b)-->(b)
-            RETURN b
-            """
+      MATCH (a)-->(b), (b)-->(b)
+      RETURN b
+      """
     Then the result should be, in any order:
       | b |
     And no side effects
@@ -206,13 +206,13 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a:A)-[:LOOP]->(a)
-            """
+      CREATE (a:A)-[:LOOP]->(a)
+      """
     When executing query:
       """
-            MATCH (a)-[r]-(b)
-            RETURN a, r, b
-            """
+      MATCH (a)-[r]-(b)
+      RETURN a, r, b
+      """
     Then the result should be, in any order:
       | a    | r       | b    |
       | (:A) | [:LOOP] | (:A) |
@@ -222,13 +222,13 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a:A)-[:LOOP]->(a)
-            """
+      CREATE (a:A)-[:LOOP]->(a)
+      """
     When executing query:
       """
-            MATCH (n)-[r]-(n)
-            RETURN n, r
-            """
+      MATCH (n)-[r]-(n)
+      RETURN n, r
+      """
     Then the result should be, in any order:
       | n    | r       |
       | (:A) | [:LOOP] |
@@ -238,13 +238,13 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a:A)-[:LOOP]->(a)
-            """
+      CREATE (a:A)-[:LOOP]->(a)
+      """
     When executing query:
       """
-            MATCH (a)-[r]->(b)
-            RETURN a, r, b
-            """
+      MATCH (a)-[r]->(b)
+      RETURN a, r, b
+      """
     Then the result should be, in any order:
       | a    | r       | b    |
       | (:A) | [:LOOP] | (:A) |
@@ -254,13 +254,13 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a:A)-[:LOOP]->(a)
-            """
+      CREATE (a:A)-[:LOOP]->(a)
+      """
     When executing query:
       """
-            MATCH (n)-[r]->(n)
-            RETURN n, r
-            """
+      MATCH (n)-[r]->(n)
+      RETURN n, r
+      """
     Then the result should be, in any order:
       | n    | r       |
       | (:A) | [:LOOP] |
@@ -270,15 +270,15 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (:A)-[:T1]->(l:Looper),
-                   (l)-[:LOOP]->(l),
-                   (l)-[:T2]->(:B)
-            """
+      CREATE (:A)-[:T1]->(l:Looper),
+             (l)-[:LOOP]->(l),
+             (l)-[:T2]->(:B)
+      """
     When executing query:
       """
-            MATCH (x:A)-[r1]->(y)-[r2]-(z)
-            RETURN x, r1, y, r2, z
-            """
+      MATCH (x:A)-[r1]->(y)-[r2]-(z)
+      RETURN x, r1, y, r2, z
+      """
     Then the result should be, in any order:
       | x    | r1    | y         | r2      | z         |
       | (:A) | [:T1] | (:Looper) | [:LOOP] | (:Looper) |
@@ -289,15 +289,15 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (:A)-[:T1]->(l:Looper),
-                   (l)-[:LOOP]->(l),
-                   (l)-[:T2]->(:B)
-            """
+      CREATE (:A)-[:T1]->(l:Looper),
+             (l)-[:LOOP]->(l),
+             (l)-[:T2]->(:B)
+      """
     When executing query:
       """
-            MATCH (x)-[r1]-(y)-[r2]-(z)
-            RETURN x, r1, y, r2, z
-            """
+      MATCH (x)-[r1]-(y)-[r2]-(z)
+      RETURN x, r1, y, r2, z
+      """
     Then the result should be, in any order:
       | x         | r1      | y         | r2      | z         |
       | (:A)      | [:T1]   | (:Looper) | [:LOOP] | (:Looper) |
@@ -312,16 +312,16 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a {name: 'a'}), (b {name: 'b'}), (c {name: 'c'})
-            CREATE (a)-[:A]->(b),
-                   (b)-[:B]->(a),
-                   (b)-[:B]->(c)
-            """
+      CREATE (a {name: 'a'}), (b {name: 'b'}), (c {name: 'c'})
+      CREATE (a)-[:A]->(b),
+             (b)-[:B]->(a),
+             (b)-[:B]->(c)
+      """
     When executing query:
       """
-            MATCH (a)-[:A]->()-[:B]->(a)
-            RETURN a.name
-            """
+      MATCH (a)-[:A]->()-[:B]->(a)
+      RETURN a.name
+      """
     Then the result should be, in any order:
       | a.name |
       | 'a'    |
@@ -331,16 +331,16 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a {name: 'a'}), (b {name: 'b'}), (c {name: 'c'})
-            CREATE (a)-[:A]->(b),
-                   (b)-[:B]->(a),
-                   (b)-[:B]->(c)
-            """
+      CREATE (a {name: 'a'}), (b {name: 'b'}), (c {name: 'c'})
+      CREATE (a)-[:A]->(b),
+             (b)-[:B]->(a),
+             (b)-[:B]->(c)
+      """
     When executing query:
       """
-            MATCH (a)-[:A]->(b), (b)-[:B]->(a)
-            RETURN a.name
-            """
+      MATCH (a)-[:A]->(b), (b)-[:B]->(a)
+      RETURN a.name
+      """
     Then the result should be, in any order:
       | a.name |
       | 'a'    |
@@ -350,19 +350,19 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a {name: 'A'}), (b {name: 'B'}),
-                   (x1 {name: 'x1'}), (x2 {name: 'x2'})
-            CREATE (a)-[:KNOWS]->(x1),
-                   (a)-[:KNOWS]->(x2),
-                   (b)-[:KNOWS]->(x1),
-                   (b)-[:KNOWS]->(x2)
-            """
+      CREATE (a {name: 'A'}), (b {name: 'B'}),
+             (x1 {name: 'x1'}), (x2 {name: 'x2'})
+      CREATE (a)-[:KNOWS]->(x1),
+             (a)-[:KNOWS]->(x2),
+             (b)-[:KNOWS]->(x1),
+             (b)-[:KNOWS]->(x2)
+      """
     When executing query:
       """
-            MATCH (a {name: 'A'}), (b {name: 'B'})
-            MATCH (a)-->(x)<-->(b)
-            RETURN x
-            """
+      MATCH (a {name: 'A'}), (b {name: 'B'})
+      MATCH (a)-->(x)<-->(b)
+      RETURN x
+      """
     Then the result should be, in any order:
       | x              |
       | ({name: 'x1'}) |
@@ -373,21 +373,21 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a {name: 'A'}), (b {name: 'B'}), (c {name: 'C'}),
-                   (x1 {name: 'x1'}), (x2 {name: 'x2'})
-            CREATE (a)-[:KNOWS]->(x1),
-                   (a)-[:KNOWS]->(x2),
-                   (b)-[:KNOWS]->(x1),
-                   (b)-[:KNOWS]->(x2),
-                   (c)-[:KNOWS]->(x1),
-                   (c)-[:KNOWS]->(x2)
-            """
+      CREATE (a {name: 'A'}), (b {name: 'B'}), (c {name: 'C'}),
+             (x1 {name: 'x1'}), (x2 {name: 'x2'})
+      CREATE (a)-[:KNOWS]->(x1),
+             (a)-[:KNOWS]->(x2),
+             (b)-[:KNOWS]->(x1),
+             (b)-[:KNOWS]->(x2),
+             (c)-[:KNOWS]->(x1),
+             (c)-[:KNOWS]->(x2)
+      """
     When executing query:
       """
-            MATCH (a {name: 'A'}), (b {name: 'B'}), (c {name: 'C'})
-            MATCH (a)-->(x), (b)-->(x), (c)-->(x)
-            RETURN x
-            """
+      MATCH (a {name: 'A'}), (b {name: 'B'}), (c {name: 'C'})
+      MATCH (a)-->(x), (b)-->(x), (c)-->(x)
+      RETURN x
+      """
     Then the result should be, in any order:
       | x              |
       | ({name: 'x1'}) |
@@ -398,32 +398,32 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a {name: 'a'}), (b {name: 'b'}), (c {name: 'c'}),
-                   (d {name: 'd'}), (e {name: 'e'}), (f {name: 'f'}),
-                   (g {name: 'g'}), (h {name: 'h'}), (i {name: 'i'}),
-                   (j {name: 'j'}), (k {name: 'k'})
-            CREATE (a)-[:KNOWS]->(d),
-                   (a)-[:KNOWS]->(e),
-                   (a)-[:KNOWS]->(f),
-                   (a)-[:KNOWS]->(g),
-                   (a)-[:KNOWS]->(i),
-                   (b)-[:KNOWS]->(d),
-                   (b)-[:KNOWS]->(e),
-                   (b)-[:KNOWS]->(f),
-                   (b)-[:KNOWS]->(h),
-                   (b)-[:KNOWS]->(k),
-                   (c)-[:KNOWS]->(d),
-                   (c)-[:KNOWS]->(e),
-                   (c)-[:KNOWS]->(h),
-                   (c)-[:KNOWS]->(g),
-                   (c)-[:KNOWS]->(j)
-            """
+      CREATE (a {name: 'a'}), (b {name: 'b'}), (c {name: 'c'}),
+             (d {name: 'd'}), (e {name: 'e'}), (f {name: 'f'}),
+             (g {name: 'g'}), (h {name: 'h'}), (i {name: 'i'}),
+             (j {name: 'j'}), (k {name: 'k'})
+      CREATE (a)-[:KNOWS]->(d),
+             (a)-[:KNOWS]->(e),
+             (a)-[:KNOWS]->(f),
+             (a)-[:KNOWS]->(g),
+             (a)-[:KNOWS]->(i),
+             (b)-[:KNOWS]->(d),
+             (b)-[:KNOWS]->(e),
+             (b)-[:KNOWS]->(f),
+             (b)-[:KNOWS]->(h),
+             (b)-[:KNOWS]->(k),
+             (c)-[:KNOWS]->(d),
+             (c)-[:KNOWS]->(e),
+             (c)-[:KNOWS]->(h),
+             (c)-[:KNOWS]->(g),
+             (c)-[:KNOWS]->(j)
+      """
     When executing query:
       """
-            MATCH (a {name: 'a'}), (b {name: 'b'}), (c {name: 'c'})
-            MATCH (a)-->(x), (b)-->(x), (c)-->(x)
-            RETURN x
-            """
+      MATCH (a {name: 'a'}), (b {name: 'b'}), (c {name: 'c'})
+      MATCH (a)-->(x), (b)-->(x), (c)-->(x)
+      RETURN x
+      """
     Then the result should be, in any order:
       | x             |
       | ({name: 'd'}) |
@@ -434,16 +434,16 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a {name: 'A'}), (b {name: 'B'}),
-                   (c {name: 'C'})
-            CREATE (a)-[:KNOWS]->(b)
-            """
+      CREATE (a {name: 'A'}), (b {name: 'B'}),
+             (c {name: 'C'})
+      CREATE (a)-[:KNOWS]->(b)
+      """
     When executing query:
       """
-            MATCH (a {name: 'A'}), (c {name: 'C'})
-            MATCH (a)-->(b)
-            RETURN a, b, c
-            """
+      MATCH (a {name: 'A'}), (c {name: 'C'})
+      MATCH (a)-->(b)
+      RETURN a, b, c
+      """
     Then the result should be, in any order:
       | a             | b             | c             |
       | ({name: 'A'}) | ({name: 'B'}) | ({name: 'C'}) |
@@ -453,16 +453,16 @@ Feature: Match3
     Given an empty graph
     And having executed:
       """
-            CREATE (a:A), (b:B), (c:C)
-            CREATE (a)-[:T]->(b),
-                   (a)-[:T]->(c)
-            """
+      CREATE (a:A), (b:B), (c:C)
+      CREATE (a)-[:T]->(b),
+             (a)-[:T]->(c)
+      """
     When executing query:
       """
-            MATCH (a)-->(b)
-            MATCH (c)-->(d)
-            RETURN a, b, c, d
-            """
+      MATCH (a)-->(b)
+      MATCH (c)-->(d)
+      RETURN a, b, c, d
+      """
     Then the result should be, in any order:
       | a    | b    | c    | d    |
       | (:A) | (:B) | (:A) | (:B) |
@@ -471,445 +471,50 @@ Feature: Match3
       | (:A) | (:C) | (:A) | (:C) |
     And no side effects
 
-  Scenario: Projecting nodes and relationships
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (a:A), (b:B)
-            CREATE (a)-[:T]->(b)
-            """
-    When executing query:
-      """
-            MATCH (a)-[r]->()
-            RETURN a AS foo, r AS bar
-            """
-    Then the result should be, in any order:
-      | foo  | bar  |
-      | (:A) | [:T] |
-    And no side effects
-
-  Scenario: Matching with LIMIT, then matching again using a relationship and node that are both already bound along with an additional predicate
-    Given an empty graph
-    And having executed:
-      """
-            CREATE ()-[:T]->()
-            """
-    When executing query:
-      """
-            MATCH (a1)-[r]->()
-            WITH r, a1
-              LIMIT 1
-            MATCH (a1:X)-[r]->(b2)
-            RETURN a1, r, b2
-            """
-    Then the result should be, in any order:
-      | a1 | r | b2 |
-    And no side effects
-
-  Scenario: Matching with LIMIT and predicates, then matching again using a relationship and node that are both already bound along with a duplicate predicate
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (:X:Y)-[:T]->()
-            """
-    When executing query:
-      """
-            MATCH (a1:X:Y)-[r]->()
-            WITH r, a1
-              LIMIT 1
-            MATCH (a1:Y)-[r]->(b2)
-            RETURN a1, r, b2
-            """
-    Then the result should be, in any order:
-      | a1     | r    | b2 |
-      | (:X:Y) | [:T] | () |
-    And no side effects
-
-  Scenario: Matching twice with conflicting relationship types on same relationship
-    Given an empty graph
-    And having executed:
-      """
-            CREATE ()-[:T]->()
-            """
-    When executing query:
-      """
-            MATCH (a1)-[r:T]->()
-            WITH r, a1
-              LIMIT 1
-            MATCH (a1)-[r:Y]->(b2)
-            RETURN a1, r, b2
-            """
-    Then the result should be, in any order:
-      | a1 | r | b2 |
-    And no side effects
-
   Scenario: Matching twice with duplicate relationship types on same relationship
     Given an empty graph
     And having executed:
       """
-            CREATE (:A)-[:T]->(:B)
-            """
+      CREATE (:A)-[:T]->(:B)
+      """
     When executing query:
       """
-            MATCH (a1)-[r:T]->() WITH r, a1
-            LIMIT 1
-            MATCH (a1)-[r:T]->(b2)
-            RETURN a1, r, b2
-            """
+      MATCH (a1)-[r:T]->() WITH r, a1
+      LIMIT 1
+      MATCH (a1)-[r:T]->(b2)
+      RETURN a1, r, b2
+      """
     Then the result should be, in any order:
       | a1   | r    | b2   |
       | (:A) | [:T] | (:B) |
     And no side effects
 
-  Scenario: Undirected match in self-relationship graph, count
+  Scenario: Matching from null nodes should return no results owing to finding no matches
     Given an empty graph
-    And having executed:
-      """
-            CREATE (a:A)-[:LOOP]->(a)
-            """
     When executing query:
       """
-            MATCH ()--()
-            RETURN count(*)
-            """
+      OPTIONAL MATCH (a)
+      WITH a
+      MATCH (a)-->(b)
+      RETURN b
+      """
     Then the result should be, in any order:
-      | count(*) |
-      | 1        |
+      | b |
     And no side effects
 
-  Scenario: Undirected match of self-relationship in self-relationship graph, count
+  Scenario: Matching from null nodes should return no results owing to matches being filtered out
     Given an empty graph
     And having executed:
       """
-            CREATE (a:A)-[:LOOP]->(a)
-            """
+      CREATE ()-[:T]->()
+      """
     When executing query:
       """
-            MATCH (n)--(n)
-            RETURN count(*)
-            """
+      OPTIONAL MATCH (a:TheLabel)
+      WITH a
+      MATCH (a)-->(b)
+      RETURN b
+      """
     Then the result should be, in any order:
-      | count(*) |
-      | 1        |
+      | b |
     And no side effects
-
-  Scenario: Undirected match on simple relationship graph, count
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (:A)-[:LOOP]->(:B)
-            """
-    When executing query:
-      """
-            MATCH ()--()
-            RETURN count(*)
-            """
-    Then the result should be, in any order:
-      | count(*) |
-      | 2        |
-    And no side effects
-
-  Scenario: Directed match on self-relationship graph, count
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (a:A)-[:LOOP]->(a)
-            """
-    When executing query:
-      """
-            MATCH ()-->()
-            RETURN count(*)
-            """
-    Then the result should be, in any order:
-      | count(*) |
-      | 1        |
-    And no side effects
-
-  Scenario: Directed match of self-relationship on self-relationship graph, count
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (a:A)-[:LOOP]->(a)
-            """
-    When executing query:
-      """
-            MATCH (n)-->(n)
-            RETURN count(*)
-            """
-    Then the result should be, in any order:
-      | count(*) |
-      | 1        |
-    And no side effects
-
-  Scenario: Counting undirected self-relationships in self-relationship graph
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (a:A)-[:LOOP]->(a)
-            """
-    When executing query:
-      """
-            MATCH (n)-[r]-(n)
-            RETURN count(r)
-            """
-    Then the result should be, in any order:
-      | count(r) |
-      | 1        |
-    And no side effects
-
-  Scenario: Counting distinct undirected self-relationships in self-relationship graph
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (a:A)-[:LOOP]->(a)
-            """
-    When executing query:
-      """
-            MATCH (n)-[r]-(n)
-            RETURN count(DISTINCT r)
-            """
-    Then the result should be, in any order:
-      | count(DISTINCT r) |
-      | 1                 |
-    And no side effects
-
-  Scenario: Directed match of a simple relationship, count
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (:A)-[:LOOP]->(:B)
-            """
-    When executing query:
-      """
-            MATCH ()-->()
-            RETURN count(*)
-            """
-    Then the result should be, in any order:
-      | count(*) |
-      | 1        |
-    And no side effects
-
-  Scenario: Counting directed self-relationships
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (a:A)-[:LOOP]->(a),
-                   ()-[:T]->()
-            """
-    When executing query:
-      """
-            MATCH (n)-[r]->(n)
-            RETURN count(r)
-            """
-    Then the result should be, in any order:
-      | count(r) |
-      | 1        |
-    And no side effects
-
-  Scenario: Mixing directed and undirected pattern parts with self-relationship, count
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (:A)-[:T1]->(l:Looper),
-                   (l)-[:LOOP]->(l),
-                   (l)-[:T2]->(:B)
-            """
-    When executing query:
-      """
-            MATCH (:A)-->()--()
-            RETURN count(*)
-            """
-    Then the result should be, in any order:
-      | count(*) |
-      | 2        |
-    And no side effects
-
-  Scenario: Mixing directed and undirected pattern parts with self-relationship, undirected count
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (:A)-[:T1]->(l:Looper),
-                   (l)-[:LOOP]->(l),
-                   (l)-[:T2]->(:B)
-            """
-    When executing query:
-      """
-            MATCH ()-[]-()-[]-()
-            RETURN count(*)
-            """
-    Then the result should be, in any order:
-      | count(*) |
-      | 6        |
-    And no side effects
-
-  Scenario: Filter out based on node prop name
-    Given an empty graph
-    And having executed:
-      """
-            CREATE ({name: 'Someone'})<-[:X]-()-[:X]->({name: 'Andres'})
-            """
-    When executing query:
-      """
-            MATCH ()-[rel:X]-(a)
-            WHERE a.name = 'Andres'
-            RETURN a
-            """
-    Then the result should be, in any order:
-      | a                  |
-      | ({name: 'Andres'}) |
-    And no side effects
-
-  Scenario: Matching using a simple pattern with label predicate
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:Person {name: 'Alice'}), (b:Person {name: 'Bob'}),
-             (c), (d)
-      CREATE (a)-[:T]->(c),
-             (b)-[:T]->(d)
-      """
-    When executing query:
-      """
-      MATCH (n:Person)-->()
-      WHERE n.name = 'Bob'
-      RETURN n
-      """
-    Then the result should be, in any order:
-      | n                       |
-      | (:Person {name: 'Bob'}) |
-    And no side effects
-
-  Scenario: Multiple anonymous nodes in a pattern
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (:A)
-            """
-    When executing query:
-      """
-            MATCH (a)<--()<--(b)-->()-->(c)
-            WHERE a:A
-            RETURN c
-            """
-    Then the result should be, in any order:
-      | c |
-    And no side effects
-
-  Scenario: Matching using an undirected pattern
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (:A {id: 0})-[:ADMIN]->(:B {id: 1})
-            """
-    When executing query:
-      """
-            MATCH (a)-[:ADMIN]-(b)
-            WHERE a:A
-            RETURN a.id, b.id
-            """
-    Then the result should be, in any order:
-      | a.id | b.id |
-      | 0    | 1    |
-    And no side effects
-
-  Scenario: Handle comparison between node properties
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A {animal: 'monkey'}),
-        (b:B {animal: 'cow'}),
-        (c:C {animal: 'monkey'}),
-        (d:D {animal: 'cow'}),
-        (a)-[:KNOWS]->(b),
-        (a)-[:KNOWS]->(c),
-        (d)-[:KNOWS]->(b),
-        (d)-[:KNOWS]->(c)
-      """
-    When executing query:
-      """
-      MATCH (n)-[rel]->(x)
-      WHERE n.animal = x.animal
-      RETURN n, x
-      """
-    Then the result should be, in any order:
-      | n                       | x                       |
-      | (:A {animal: 'monkey'}) | (:C {animal: 'monkey'}) |
-      | (:D {animal: 'cow'})    | (:B {animal: 'cow'})    |
-    And no side effects
-
-  Scenario: Rel type function works as expected
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A {name: 'A'}),
-        (b:B {name: 'B'}),
-        (c:C {name: 'C'}),
-        (a)-[:KNOWS]->(b),
-        (a)-[:HATES]->(c)
-      """
-    When executing query:
-      """
-      MATCH (n {name: 'A'})-[r]->(x)
-      WHERE type(r) = 'KNOWS'
-      RETURN x
-      """
-    Then the result should be, in any order:
-      | x                |
-      | (:B {name: 'B'}) |
-    And no side effects
-
-  Scenario: Matching with many predicates and larger pattern
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (advertiser {name: 'advertiser1', id: 0}),
-             (thing {name: 'Color', id: 1}),
-             (red {name: 'red'}),
-             (p1 {name: 'product1'}),
-             (p2 {name: 'product4'})
-      CREATE (advertiser)-[:ADV_HAS_PRODUCT]->(p1),
-             (advertiser)-[:ADV_HAS_PRODUCT]->(p2),
-             (thing)-[:AA_HAS_VALUE]->(red),
-             (p1)-[:AP_HAS_VALUE]->(red),
-             (p2)-[:AP_HAS_VALUE]->(red)
-      """
-    And parameters are:
-      | 1 | 0 |
-      | 2 | 1 |
-    When executing query:
-      """
-      MATCH (advertiser)-[:ADV_HAS_PRODUCT]->(out)-[:AP_HAS_VALUE]->(red)<-[:AA_HAS_VALUE]-(a)
-      WHERE advertiser.id = $1
-        AND a.id = $2
-        AND red.name = 'red'
-        AND out.name = 'product1'
-      RETURN out.name
-      """
-    Then the result should be, in any order:
-      | out.name   |
-      | 'product1' |
-    And no side effects
-
-  Scenario: Non-optional matches should not return nulls
-    Given an empty graph
-    And having executed:
-      """
-            CREATE (a:A), (b:B {id: 1}), (c:C {id: 2}), (d:D)
-            CREATE (a)-[:T]->(b),
-                   (a)-[:T]->(c),
-                   (a)-[:T]->(d),
-                   (b)-[:T]->(c),
-                   (b)-[:T]->(d),
-                   (c)-[:T]->(d)
-            """
-    When executing query:
-      """
-            MATCH (a)--(b)--(c)--(d)--(a), (b)--(d)
-            WHERE a.id = 1
-              AND c.id = 2
-            RETURN d
-            """
-    Then the result should be, in any order:
-      | d    |
-      | (:A) |
-      | (:D) |

@@ -28,18 +28,23 @@
 
 #encoding: utf-8
 
-Feature: Match10 - Match clause failure scenarios
+Feature: ￿Match 1-3 - Match nodes WITH clause scenarios
 
-  Scenario: Fail when using property access on primitive type
+  Scenario: Return bounded node property
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 42})
+      CREATE ({num: 1, name: 'King Kong'}),
+        ({num: 2, name: 'Ann Darrow'})
       """
     When executing query:
       """
       MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      WITH n.name AS n
+      RETURN n
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then the result should be, in any order:
+      | n            |
+      | 'Ann Darrow' |
+      | 'King Kong'  |
+    And no side effects

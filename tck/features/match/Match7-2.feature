@@ -28,18 +28,43 @@
 
 #encoding: utf-8
 
-Feature: Match10 - Match clause failure scenarios
+Feature: Match7 - Optional match RETURN clause scenarios
 
-  Scenario: Fail when using property access on primitive type
+  Scenario: Do not fail when predicates on optionally matched and missed nodes are invalid
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 42})
+      CREATE (a), (b {name: 'Mark'})
+      CREATE (a)-[:T]->(b)
       """
     When executing query:
       """
-      MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      MATCH (n)-->(x0)
+      OPTIONAL MATCH (x0)-->(x1)
+      WHERE x1.name = 'bar'
+      RETURN x0.name
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then the result should be, in any order:
+      | x0.name |
+      | 'Mark'  |
+    And no side effects
+
+  Scenario: Matching and optionally matching with unbound nodes and equality predicate in reverse direction
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A)-[:T]->(:B)
+      """
+    When executing query:
+      """
+      MATCH (a1)-[r]->()
+      WITH r, a1
+        LIMIT 1
+      OPTIONAL MATCH (a2)<-[r]-(b2)
+      WHERE a1 = a2
+      RETURN a1, r, b2, a2
+      """
+    Then the result should be, in any order:
+      | a1   | r    | b2   | a2   |
+      | (:A) | [:T] | null | null |
+    And no side effects

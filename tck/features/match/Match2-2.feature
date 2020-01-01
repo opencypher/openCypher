@@ -28,18 +28,44 @@
 
 #encoding: utf-8
 
-Feature: Match10 - Match clause failure scenarios
+Feature: Match2-1 - Match relationships WHERE clause scenarios
 
-  Scenario: Fail when using property access on primitive type
+  Scenario: Filter based on rel prop name
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 42})
+      CREATE (:A)<-[:KNOWS {name: 'monkey'}]-()-[:KNOWS {name: 'woot'}]->(:B)
       """
     When executing query:
       """
-      MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      MATCH (node)-[r:KNOWS]->(a)
+      WHERE r.name = 'monkey'
+      RETURN a
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then the result should be, in any order:
+      | a    |
+      | (:A) |
+    And no side effects
+
+  Scenario: Walk alternative relationships
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a {name: 'A'}),
+      (b {name: 'B'}),
+      (c {name: 'C'}),
+      (a)-[:KNOWS]->(b),
+      (a)-[:HATES]->(c),
+      (a)-[:WONDERS]->(c)
+      """
+    When executing query:
+      """
+      MATCH (n)-[r]->(x)
+      WHERE type(r) = 'KNOWS' OR type(r) = 'HATES'
+      RETURN r
+      """
+    Then the result should be, in any order:
+      | r        |
+      | [:KNOWS] |
+      | [:HATES] |
+    And no side effects
