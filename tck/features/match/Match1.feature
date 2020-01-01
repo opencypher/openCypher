@@ -28,9 +28,9 @@
 
 #encoding: utf-8
 
-Feature: Match1
+Feature: Match1 - Match Nodes scenarios
 
-  Scenario: Do not return non-existent nodes
+  Scenario: Match non-existent nodes returns empty
     Given an empty graph
     When executing query:
       """
@@ -41,85 +41,7 @@ Feature: Match1
       | n |
     And no side effects
 
-  Scenario: Returning a node property value
-    Given an empty graph
-    And having executed:
-        """
-        CREATE ({num: 1})
-        """
-    When executing query:
-        """
-        MATCH (a)
-        RETURN a.num
-        """
-    Then the result should be, in any order:
-      | a.num |
-      | 1     |
-    And no side effects
 
-  Scenario: Missing node property should become null
-    Given an empty graph
-    And having executed:
-        """
-        CREATE ({num: 1})
-        """
-    When executing query:
-        """
-        MATCH (a)
-        RETURN a.name
-        """
-    Then the result should be, in any order:
-      | a.name |
-      | null    |
-    And no side effects
-
-  Scenario: Returning multiple node property values
-    Given an empty graph
-    And having executed:
-        """
-        CREATE ({name: 'Philip J. Fry', age: 2046, seasons: [1, 2, 3, 4, 5, 6, 7]})
-        """
-    When executing query:
-        """
-        MATCH (a)
-        RETURN a.name, a.age, a.seasons
-        """
-    Then the result should be, in any order:
-      | a.name          | a.age | a.seasons             |
-      | 'Philip J. Fry' | 2046  | [1, 2, 3, 4, 5, 6, 7] |
-    And no side effects
-
-  Scenario: Adding a property and a literal in projection
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({num: 1})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      RETURN a.num + 1 AS foo
-      """
-    Then the result should be, in any order:
-      | foo |
-      | 2   |
-    And no side effects
-
-  Scenario: Adding list properties in projection
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({list1: [1, 2, 3], list2: [4, 5]})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      RETURN a.list2 + a.list1 AS foo
-      """
-    Then the result should be, in any order:
-      | foo             |
-      | [4, 5, 1, 2, 3] |
-    And no side effects
 
   Scenario: Matching all nodes
     Given an empty graph
@@ -155,123 +77,44 @@ Feature: Match1
       | (:A:B:C) |
     And no side effects
 
-  Scenario: Returning label predicate expression
+  Scenario: Simple node inline property predicate
     Given an empty graph
     And having executed:
       """
-      CREATE (), (:Foo)
+      CREATE ({name: 'bar'})
       """
     When executing query:
       """
-      MATCH (n)
-      RETURN (n:Foo)
-      """
-    Then the result should be, in any order:
-      | (n:Foo) |
-      | true    |
-      | false   |
-    And no side effects
-
-  Scenario: Matching with aggregation
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({num: 42})
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n.num AS n, count(n) AS count
-      """
-    Then the result should be, in any order:
-      | n  | count |
-      | 42 | 1     |
-    And no side effects
-
-  Scenario: Counting an empty graph
-    Given an empty graph
-    When executing query:
-      """
-      MATCH (a)
-      RETURN count(a) > 0
-      """
-    Then the result should be, in any order:
-      | count(a) > 0 |
-      | false        |
-    And no side effects
-
-
-  Scenario: Matching and returning ordered results, with LIMIT
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({num: 1}), ({num: 3}), ({num: 2})
-      """
-    When executing query:
-      """
-      MATCH (foo)
-      RETURN foo.num AS x
-        ORDER BY x DESC
-        LIMIT 4
-      """
-    Then the result should be, in order:
-      | x |
-      | 3 |
-      | 2 |
-      | 1 |
-    And no side effects
-
-  Scenario: Simple node property predicate
-    Given an empty graph
-    And having executed:
-          """
-          CREATE ({name: 'bar'})
-          """
-    When executing query:
-          """
-          MATCH (n)
-          WHERE n.name = 'bar'
-          RETURN n
+      MATCH (n {name:'bar'})
+      RETURN n
           """
     Then the result should be, in any order:
       | n               |
       | ({name: 'bar'}) |
     And no side effects
 
-  Scenario: Handle OR in the WHERE clause
+  Scenario: Use multiple MATCH clauses to do a Cartesian product
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A {p1: 12}),
-        (b:B {p2: 13}),
-        (c:C)
+      CREATE ({num: 1}),
+        ({num: 2}),
+        ({num: 3})
       """
     When executing query:
       """
-      MATCH (n)
-      WHERE n.p1 = 12 OR n.p2 = 13
-      RETURN n
+      MATCH (n), (m)
+      RETURN n.num AS n, m.num AS m
       """
     Then the result should be, in any order:
-      | n             |
-      | (:A {p1: 12}) |
-      | (:B {p2: 13}) |
-    And no side effects
-
-  Scenario: Comparing nodes for equality
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A), (:B)
-      """
-    When executing query:
-      """
-      MATCH (a), (b)
-      WHERE a <> b
-      RETURN a, b
-      """
-    Then the result should be, in any order:
-      | a    | b    |
-      | (:A) | (:B) |
-      | (:B) | (:A) |
+      | n | m |
+      | 1 | 1 |
+      | 1 | 2 |
+      | 1 | 3 |
+      | 2 | 1 |
+      | 2 | 2 |
+      | 2 | 3 |
+      | 3 | 3 |
+      | 3 | 1 |
+      | 3 | 2 |
     And no side effects

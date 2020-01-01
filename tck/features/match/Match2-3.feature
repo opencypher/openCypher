@@ -28,18 +28,67 @@
 
 #encoding: utf-8
 
-Feature: Match10 - Match clause failure scenarios
+Feature: Match2-3 - Match relationships WITH clause scenarios
 
-  Scenario: Fail when using property access on primitive type
+  Scenario: Matching using a relationship that is already bound
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 42})
+      CREATE ()-[:T1]->(),
+             ()-[:T2]->()
       """
     When executing query:
       """
-      MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      MATCH ()-[r1]->()
+      WITH r1 AS r2
+      MATCH ()-[r2]->()
+      RETURN r2 AS rel
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then the result should be, in any order:
+      | rel   |
+      | [:T1] |
+      | [:T2] |
+    And no side effects
+
+  Scenario: Matching using a relationship that is already bound, in conjunction with aggregation
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:T1]->(),
+             ()-[:T2]->()
+      """
+    When executing query:
+      """
+      MATCH ()-[r1]->()
+      WITH r1 AS r2, count(*) AS c
+        ORDER BY c
+      MATCH ()-[r2]->()
+      RETURN r2 AS rel
+      """
+    Then the result should be, in any order:
+      | rel   |
+      | [:T1] |
+      | [:T2] |
+    And no side effects
+
+  Scenario: Matching using a relationship that is already bound, in conjunction with aggregation and ORDER BY
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:T1 {id: 0}]->(),
+             ()-[:T2 {id: 1}]->()
+      """
+    When executing query:
+      """
+      MATCH (a)-[r]->(b)
+      WITH a, r, b, count(*) AS c
+        ORDER BY c
+      MATCH (a)-[r]->(b)
+      RETURN r AS rel
+        ORDER BY rel.id
+      """
+    Then the result should be, in order:
+      | rel           |
+      | [:T1 {id: 0}] |
+      | [:T2 {id: 1}] |
+    And no side effects

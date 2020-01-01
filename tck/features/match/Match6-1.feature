@@ -28,18 +28,27 @@
 
 #encoding: utf-8
 
-Feature: Match10 - Match clause failure scenarios
+Feature: Match6-1 - Match named paths RETURN clause scenarios
 
-  Scenario: Fail when using property access on primitive type
+  Scenario: Handling relationships that are already bound in variable length paths
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 42})
+      CREATE (n0:Node),
+             (n1:Node),
+             (n2:Node),
+             (n3:Node),
+             (n0)-[:EDGE]->(n1),
+             (n1)-[:EDGE]->(n2),
+             (n2)-[:EDGE]->(n3)
       """
     When executing query:
       """
-      MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      MATCH ()-[r:EDGE]-()
+      MATCH p = (n)-[*0..1]-()-[r]-()-[*0..1]-(m)
+      RETURN count(p) AS c
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then the result should be, in any order:
+      | c  |
+      | 32 |
+    And no side effects

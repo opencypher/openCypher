@@ -28,18 +28,37 @@
 
 #encoding: utf-8
 
-Feature: Match10 - Match clause failure scenarios
+Feature: Feature: Match6-2 - Match named paths WHERE clause scenarios
 
-  Scenario: Fail when using property access on primitive type
+  Scenario: Pass the path length test
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 42})
+      CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
       """
     When executing query:
       """
-      MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      MATCH p = (n)-->(x)
+      WHERE length(p) = 1
+      RETURN x
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then the result should be, in any order:
+      | x                |
+      | (:B {name: 'B'}) |
+    And no side effects
+
+  Scenario: Do not return anything because path length does not match
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
+      """
+    When executing query:
+      """
+      MATCH p = (n)-->(x)
+      WHERE length(p) = 10
+      RETURN x
+      """
+    Then the result should be, in any order:
+      | x |
+    And no side effects

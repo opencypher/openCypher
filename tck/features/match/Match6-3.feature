@@ -28,18 +28,43 @@
 
 #encoding: utf-8
 
-Feature: Match10 - Match clause failure scenarios
+Feature: Match6-3 - Match named paths WITH clause scenarios
 
-  Scenario: Fail when using property access on primitive type
+  Scenario: Named path with WITH
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 42})
+      CREATE ()
       """
     When executing query:
       """
-      MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      MATCH p = (a)
+      WITH p
+      RETURN p
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then the result should be, in any order:
+      | p    |
+      | <()> |
+    And no side effects
+
+  Scenario: Aggregation with named paths
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (n1 {num: 1}), (n2 {num: 2}),
+             (n3 {num: 3}), (n4 {num: 4})
+      CREATE (n1)-[:T]->(n2),
+             (n3)-[:T]->(n4)
+      """
+    When executing query:
+      """
+      MATCH p = ()-[*]->()
+      WITH count(*) AS count, p AS p
+      WITH nodes(p) AS nodes
+      RETURN *
+      """
+    Then the result should be, in any order:
+      | nodes                    |
+      | [({num: 1}), ({num: 2})] |
+      | [({num: 3}), ({num: 4})] |
+    And no side effects

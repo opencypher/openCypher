@@ -28,18 +28,54 @@
 
 #encoding: utf-8
 
-Feature: Match10 - Match clause failure scenarios
+Feature: Feature: Match6-4 - Match named paths built in functions scenarios
 
-  Scenario: Fail when using property access on primitive type
+  Scenario: Return a var length path of length zero
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 42})
+      CREATE (a:A)-[:REL]->(b:B)
       """
     When executing query:
       """
-      MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      MATCH p = (a)-[*0..1]->(b)
+      RETURN a, b, length(p) AS l
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then the result should be, in any order:
+      | a    | b    | l |
+      | (:A) | (:A) | 0 |
+      | (:B) | (:B) | 0 |
+      | (:A) | (:B) | 1 |
+    And no side effects
+
+  Scenario: Return relationships by fetching them from the path
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Start)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(c:C)
+      """
+    When executing query:
+      """
+      MATCH p = (a:Start)-[:REL*2..2]->(b)
+      RETURN relationships(p)
+      """
+    Then the result should be, in any order:
+      | relationships(p)                   |
+      | [[:REL {num: 1}], [:REL {num: 2}]] |
+    And no side effects
+
+  Scenario: Return relationships by fetching them from the path - starting from the end
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(e:End)
+      """
+    When executing query:
+      """
+      MATCH p = (a)-[:REL*2..2]->(b:End)
+      RETURN relationships(p)
+      """
+    Then the result should be, in any order:
+      | relationships(p)                   |
+      | [[:REL {num: 1}], [:REL {num: 2}]] |
+    And no side effects
