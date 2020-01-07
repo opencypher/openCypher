@@ -59,7 +59,7 @@ public class CucumberReportAdapterTest {
     public Stream<DynamicTest> runFeatures() throws Exception {
         String content = getResource("Foo.feature");
 
-        Seq<Scenario> scenariosSeq = CypherTCK.parseFeature("Foo.feature", content).scenarios();
+        Seq<Scenario> scenariosSeq = CypherTCK.parseFeature("Foo.feature", content, JavaConverters.asScalaBuffer(new java.util.ArrayList<String>())).scenarios();
         java.util.List<Scenario> scenarios = JavaConverters.seqAsJavaList(scenariosSeq);
 
         AbstractFunction0<Graph> graph = graph();

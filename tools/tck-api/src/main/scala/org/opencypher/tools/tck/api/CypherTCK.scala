@@ -105,7 +105,7 @@ object CypherTCK {
     parseFeature(featureFile.toAbsolutePath.toString, featureString, category)
   }
 
-  def parseFeature(source: String, featureString: String, category: List[String]): Feature = {
+  def parseFeature(source: String, featureString: String, category: Seq[String]): Feature = {
     val gherkinDocument = Try(parser.parse(featureString, matcher)) match {
       case Success(doc) => doc
       case Failure(error) =>
@@ -121,7 +121,7 @@ object CypherTCK {
     Feature(scenarios)
   }
 
-  private def toScenario(featureName: String, pickle: Pickle, category: List[String]): Scenario = {
+  private def toScenario(featureName: String, pickle: Pickle, category: Seq[String]): Scenario = {
 
     val tags = tagNames(pickle)
     val shouldValidate = !tags.contains("@allowCustomErrors")
@@ -213,7 +213,7 @@ object CypherTCK {
       }
       scenarioSteps
     }.toList
-    Scenario(featureName, pickle.getName, category, tags, steps, pickle)
+    Scenario(featureName, pickle.getName, category.toList, tags, steps, pickle)
   }
 
   private def tagNames(pickle: Pickle): Set[String] = pickle.getTags.asScala.map(_.getName).toSet
