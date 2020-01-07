@@ -85,7 +85,7 @@ object CypherTCK {
       }
       // Note that converting to list is necessary to cut off lazy evaluation
       // otherwise evaluation of parsePathFeature will happen after the file system is already closed
-      featurePaths.iterator().asScala.toList.map(parsePathFeature)
+      featurePaths.iterator().asScala.toList.map(fp => parsePathFeature(fp, directoryPath))
     } finally {
       try {
         fs.foreach(_.close())
@@ -95,12 +95,17 @@ object CypherTCK {
     }
   }
 
-  def parsePathFeature(featureFile: Path): Feature = {
+  def parsePathFeature(featureFile: Path, directoryPath: Path): Feature = {
     val featureString = new String(Files.readAllBytes(featureFile), StandardCharsets.UTF_8)
-    parseFeature(featureFile.toAbsolutePath.toString, featureString)
+    val relativeFeaturePath = directoryPath.relativize(featureFile.getParent)
+    val category = (0 until relativeFeaturePath.getNameCount)
+      .map(index => relativeFeaturePath.getName(index).toString)
+      .filter(_ != "")
+      .toList
+    parseFeature(featureFile.toAbsolutePath.toString, featureString, category)
   }
 
-  def parseFeature(source: String, featureString: String): Feature = {
+  def parseFeature(source: String, featureString: String, category: List[String]): Feature = {
     val gherkinDocument = Try(parser.parse(featureString, matcher)) match {
       case Success(doc) => doc
       case Failure(error) =>
@@ -111,12 +116,12 @@ object CypherTCK {
     // filters out scenarios with @ignore
     val included = pickles.filterNot(tagNames(_) contains "@ignore")
     val featureName = gherkinDocument.getFeature.getName
-    val scenarios = included.map(toScenario(featureName, _))
+    val scenarios = included.map(toScenario(featureName, _, category))
     TCKEvents.setFeature(FeatureRead(featureName, source, featureString))
     Feature(scenarios)
   }
 
-  private def toScenario(featureName: String, pickle: Pickle): Scenario = {
+  private def toScenario(featureName: String, pickle: Pickle, category: List[String]): Scenario = {
 
     val tags = tagNames(pickle)
     val shouldValidate = !tags.contains("@allowCustomErrors")
@@ -208,7 +213,7 @@ object CypherTCK {
       }
       scenarioSteps
     }.toList
-    Scenario(featureName, pickle.getName, tags, steps, pickle)
+    Scenario(featureName, pickle.getName, category, tags, steps, pickle)
   }
 
   private def tagNames(pickle: Pickle): Set[String] = pickle.getTags.asScala.map(_.getName).toSet
