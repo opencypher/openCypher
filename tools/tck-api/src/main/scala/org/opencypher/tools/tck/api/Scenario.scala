@@ -40,11 +40,11 @@ import scala.compat.Platform.EOL
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
-case class Scenario(featureName: String, name: String, tags: Set[String], steps: List[Step], source: Pickle) {
+case class Scenario(featureName: String, name: String, category: List[String], tags: Set[String], steps: List[Step], source: Pickle) {
 
   self =>
 
-  override def toString = s"""Feature "$featureName": Scenario "$name""""
+  override def toString = s"""Feature "$featureName": Scenario "$name" (Category: "${ category.mkString("::") }", Tags: "${ if (tags.size > 0) tags.mkString(", ") else "-" }")"""
 
   def apply(graph: => Graph): Executable = new Executable {
     override def execute(): Unit = {
