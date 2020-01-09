@@ -30,7 +30,7 @@
 
 Feature: Create6 - Negative tests
 
-  Scenario: [1] Failing when creating a relationship without a type
+  Scenario: [1] Fail when creating a relationship without a type
     Given any graph
     When executing query:
       """
@@ -38,7 +38,7 @@ Feature: Create6 - Negative tests
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
-  Scenario: [2] Failing when creating a relationship without a direction
+  Scenario: [2] Fail when creating a relationship without a direction
     Given any graph
     When executing query:
       """
@@ -47,21 +47,21 @@ Feature: Create6 - Negative tests
       """
     Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
 
-  Scenario: [3] Failing when creating a relationship with more than one type
+  Scenario: [3] Fail when creating a relationship with more than one type
     When executing query:
       """
       CREATE ()-[:A|:B]->()
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
-  Scenario: [4] Failing when creating a variable-length relationship
+  Scenario: [4] Fail when creating a variable-length relationship
     When executing query:
       """
       CREATE ()-[:FOO*2]->()
       """
     Then a SyntaxError should be raised at compile time: CreatingVarLength
 
-  Scenario: [5] Failing when creating a node that is already bound
+  Scenario: [5] Fail when creating a node that is already bound
     When executing query:
       """
       MATCH (a)
@@ -69,7 +69,7 @@ Feature: Create6 - Negative tests
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
-  Scenario: [6] Failing when creating a relationship that is already bound
+  Scenario: [6] Fail when creating a relationship that is already bound
     When executing query:
       """
       MATCH ()-[r]->()
