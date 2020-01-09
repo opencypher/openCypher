@@ -83,7 +83,7 @@ Feature: Create1 - Creating nodes
       | +nodes      | 1 |
       | +properties | 1 |
 
-  Scenario: [6] Create a single node with a property and returning it
+  Scenario: [6] Create a single node with a property and return it
     Given any graph
     When executing query:
       """
@@ -108,7 +108,7 @@ Feature: Create1 - Creating nodes
       | +nodes      | 1 |
       | +properties | 2 |
 
-  Scenario: [8] Create a single node with two properties and returning them
+  Scenario: [8] Create a single node with two properties and return them
     Given any graph
     When executing query:
       """

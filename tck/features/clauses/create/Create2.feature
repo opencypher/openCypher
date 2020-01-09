@@ -238,7 +238,7 @@ Feature: Create2 - Creating relationships
       | +relationships | 1 |
       | +properties    | 1 |
 
-  Scenario: [14] Create a single relationship with a property and returning it
+  Scenario: [14] Create a single relationship with a property and return it
     Given any graph
     When executing query:
       """
@@ -265,7 +265,7 @@ Feature: Create2 - Creating relationships
       | +relationships | 1 |
       | +properties    | 2 |
 
-  Scenario: [16] Create a single relationship with two properties and returning them
+  Scenario: [16] Create a single relationship with two properties and return them
     Given any graph
     When executing query:
       """
