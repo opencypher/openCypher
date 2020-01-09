@@ -127,11 +127,11 @@ Feature: Create1 - Creating nodes
     When executing query:
       """
       CREATE (n {id: 12, name: null})
-      RETURN n.id AS id
+      RETURN n.id AS id, n.name AS p
       """
     Then the result should be, in any order:
-      | id |
-      | 12 |
+      | id | p    |
+      | 12 | null |
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 1 |
