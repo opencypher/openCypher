@@ -18,9 +18,13 @@ Each feature follows a naming convention of `<clause-name><group-id>.feature`.
 ** This group is about the creation of nodes.
 * `Create2`: Creating relationships
 ** This group is about the creation of relationships.
-* `Create3`: ...
-** ...
-* `Create`_N_: Negative tests
+* `Create3`: Interoperation with other clauses
+** This group is about the interplay of the `CREATE` clause with other clauses.
+* `Create4`: Large Create Query
+** This group is about scenarios with that create a larger number of nodes and relationships.
+* `Create5`: Multiple hops create patterns
+** This group is about create patterns larger than a single node or a single relationship.
+* `Create6`: Negative tests
 ** This group is about failure cases for the `CREATE` clause; invalid queries.
 
 

@@ -28,9 +28,9 @@
 
 #encoding: utf-8
 
-Feature: LargeCreateQuery
+Feature: Create4 - Large Create Query
 
-  Scenario: Generate the movie graph correctly
+  Scenario: [1] Generate the movie graph
     Given an empty graph
     When executing query:
       """
@@ -576,7 +576,7 @@ Feature: LargeCreateQuery
       | +properties    | 564 |
       | +labels        | 2   |
 
-  Scenario: Many CREATE clauses
+  Scenario: [2] Many CREATE clauses
     Given an empty graph
     When executing query:
       """
