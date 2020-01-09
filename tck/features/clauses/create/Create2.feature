@@ -126,7 +126,7 @@ Feature: Create2 - Creating relationships
       | x    |  y   |
       | (:X) | (:Y) |
 
-  Scenario: [7] Create a single nodes and a single self loop in a single pattern
+  Scenario: [7] Create a single node and a single self loop in a single pattern
     Given any graph
     When executing query:
       """
@@ -137,7 +137,7 @@ Feature: Create2 - Creating relationships
       | +nodes         | 1 |
       | +relationships | 1 |
 
-  Scenario: [8] Create a single nodes and a single self loop in separate patterns
+  Scenario: [8] Create a single node and a single self loop in separate patterns
     Given any graph
     When executing query:
       """
@@ -149,7 +149,7 @@ Feature: Create2 - Creating relationships
       | +nodes         | 1 |
       | +relationships | 1 |
 
-  Scenario: [9] Create a single nodes and a single self loop in separate clauses
+  Scenario: [9] Create a single node and a single self loop in separate clauses
     Given any graph
     When executing query:
       """
