@@ -30,7 +30,7 @@
 
 Feature: Create2 - Creating relationships
 
-  Scenario: [1] Creating two nodes and a single relationship in a single pattern
+  Scenario: [1] Create two nodes and a single relationship in a single pattern
     Given any graph
     When executing query:
       """
@@ -41,7 +41,7 @@ Feature: Create2 - Creating relationships
       | +nodes         | 2 |
       | +relationships | 1 |
 
-  Scenario: [2] Creating two nodes and a single relationship in separate patterns
+  Scenario: [2] Create two nodes and a single relationship in separate patterns
     Given any graph
     When executing query:
       """
@@ -53,7 +53,7 @@ Feature: Create2 - Creating relationships
       | +nodes         | 2 |
       | +relationships | 1 |
 
-  Scenario: [3] Creating two nodes and a single relationship in separate clauses
+  Scenario: [3] Create two nodes and a single relationship in separate clauses
     Given any graph
     When executing query:
       """
@@ -66,7 +66,7 @@ Feature: Create2 - Creating relationships
       | +nodes         | 2 |
       | +relationships | 1 |
 
-  Scenario: [4] Creating two nodes and a single relationship in reversed direction
+  Scenario: [4] Create two nodes and a single relationship in reversed direction
     Given an empty graph
     When executing query:
       """
@@ -86,7 +86,7 @@ Feature: Create2 - Creating relationships
       | a    | b    |
       | (:A) | (:B) |
 
-  Scenario: [5] Creating a single relationship between two existing nodes
+  Scenario: [5] Create a single relationship between two existing nodes
     Given an empty graph
     And having executed:
       """
@@ -102,7 +102,7 @@ Feature: Create2 - Creating relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  Scenario: [6] Creating a single relationship between two existing nodes in reversed direction
+  Scenario: [6] Create a single relationship between two existing nodes in reversed direction
     Given an empty graph
     And having executed:
       """
@@ -126,7 +126,7 @@ Feature: Create2 - Creating relationships
       | x    |  y   |
       | (:X) | (:Y) |
 
-  Scenario: [7] Creating a single nodes and a single self loop in a single pattern
+  Scenario: [7] Create a single nodes and a single self loop in a single pattern
     Given any graph
     When executing query:
       """
@@ -137,7 +137,7 @@ Feature: Create2 - Creating relationships
       | +nodes         | 1 |
       | +relationships | 1 |
 
-  Scenario: [8] Creating a single nodes and a single self loop in separate patterns
+  Scenario: [8] Create a single nodes and a single self loop in separate patterns
     Given any graph
     When executing query:
       """
@@ -149,7 +149,7 @@ Feature: Create2 - Creating relationships
       | +nodes         | 1 |
       | +relationships | 1 |
 
-  Scenario: [9] Creating a single nodes and a single self loop in separate clauses
+  Scenario: [9] Create a single nodes and a single self loop in separate clauses
     Given any graph
     When executing query:
       """
@@ -161,7 +161,7 @@ Feature: Create2 - Creating relationships
       | +nodes         | 1 |
       | +relationships | 1 |
 
-  Scenario: [10] Creating a single self loop on a existing node
+  Scenario: [10] Create a single self loop on a existing node
     Given an empty graph
     And having executed:
       """
@@ -176,7 +176,7 @@ Feature: Create2 - Creating relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  Scenario: [11] Creating a single relationship and an end node on a existing starting node
+  Scenario: [11] Create a single relationship and an end node on a existing starting node
     Given an empty graph
     And having executed:
       """
@@ -201,7 +201,7 @@ Feature: Create2 - Creating relationships
       | x        | y      |
       | (:Begin) | (:End) |
 
-  Scenario: [12] Creating a single relationship and an starting node on a existing end node
+  Scenario: [12] Create a single relationship and an starting node on a existing end node
     Given an empty graph
     And having executed:
       """
@@ -226,7 +226,7 @@ Feature: Create2 - Creating relationships
       | x        | y      |
       | (:Begin) | (:End) |
 
-  Scenario: [13] Creating a single relationship with a property
+  Scenario: [13] Create a single relationship with a property
     Given any graph
     When executing query:
       """
@@ -238,7 +238,7 @@ Feature: Create2 - Creating relationships
       | +relationships | 1 |
       | +properties    | 1 |
 
-  Scenario: [14] Creating a single relationship with a property and returning it
+  Scenario: [14] Create a single relationship with a property and returning it
     Given any graph
     When executing query:
       """
@@ -253,7 +253,7 @@ Feature: Create2 - Creating relationships
       | +relationships | 1 |
       | +properties    | 1 |
 
-  Scenario: [15] Creating a single relationship with two properties
+  Scenario: [15] Create a single relationship with two properties
     Given any graph
     When executing query:
       """
@@ -265,7 +265,7 @@ Feature: Create2 - Creating relationships
       | +relationships | 1 |
       | +properties    | 2 |
 
-  Scenario: [16] Creating a single relationship with two properties and returning them
+  Scenario: [16] Create a single relationship with two properties and returning them
     Given any graph
     When executing query:
       """
@@ -280,7 +280,7 @@ Feature: Create2 - Creating relationships
       | +relationships | 1 |
       | +properties    | 2 |
 
-  Scenario: [17] Creating a single relationship with null properties should not return those properties
+  Scenario: [17] Create a single relationship with null properties should not return those properties
     Given any graph
     When executing query:
       """

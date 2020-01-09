@@ -30,7 +30,7 @@
 
 Feature: Create1 - Creating nodes
 
-  Scenario: [1] Creating a single node
+  Scenario: [1] Create a single node
     Given any graph
     When executing query:
       """
@@ -40,7 +40,7 @@ Feature: Create1 - Creating nodes
     And the side effects should be:
       | +nodes | 1 |
 
-  Scenario: [2] Creating two nodes
+  Scenario: [2] Create two nodes
     Given any graph
     When executing query:
       """
@@ -50,7 +50,7 @@ Feature: Create1 - Creating nodes
     And the side effects should be:
       | +nodes | 2 |
 
-  Scenario: [3] Creating a single node with a label
+  Scenario: [3] Create a single node with a label
     Given an empty graph
     When executing query:
       """
@@ -61,7 +61,7 @@ Feature: Create1 - Creating nodes
       | +nodes  | 1 |
       | +labels | 1 |
 
-  Scenario: [4] Creating a single node with multiple labels
+  Scenario: [4] Create a single node with multiple labels
     Given an empty graph
     When executing query:
       """
@@ -72,7 +72,7 @@ Feature: Create1 - Creating nodes
       | +nodes  | 1 |
       | +labels | 4 |
 
-  Scenario: [5] Creating a single node with a property
+  Scenario: [5] Create a single node with a property
     Given any graph
     When executing query:
       """
@@ -83,7 +83,7 @@ Feature: Create1 - Creating nodes
       | +nodes      | 1 |
       | +properties | 1 |
 
-  Scenario: [6] Creating a single node with a property and returning it
+  Scenario: [6] Create a single node with a property and returning it
     Given any graph
     When executing query:
       """
@@ -97,7 +97,7 @@ Feature: Create1 - Creating nodes
       | +nodes      | 1 |
       | +properties | 1 |
 
-  Scenario: [7] Creating a single node with two properties
+  Scenario: [7] Create a single node with two properties
     Given any graph
     When executing query:
       """
@@ -108,7 +108,7 @@ Feature: Create1 - Creating nodes
       | +nodes      | 1 |
       | +properties | 2 |
 
-  Scenario: [8] Creating a single node with two properties and returning them
+  Scenario: [8] Create a single node with two properties and returning them
     Given any graph
     When executing query:
       """
@@ -122,7 +122,7 @@ Feature: Create1 - Creating nodes
       | +nodes      | 1 |
       | +properties | 2 |
 
-  Scenario: [9] Creating a single node with null properties should not return those properties
+  Scenario: [9] Create a single node with null properties should not return those properties
     Given any graph
     When executing query:
       """

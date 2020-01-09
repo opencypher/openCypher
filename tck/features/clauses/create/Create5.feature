@@ -109,7 +109,7 @@ Feature: Create5 - Multiple hops create patterns
       | r1    | r2    | r3    |
       | [:R1] | [:R2] | [:R3] |
 
-  Scenario: [5] Creating a pattern with multiple hops and changing directions
+  Scenario: [5] Create a pattern with multiple hops and changing directions
     Given an empty graph
     When executing query:
       """
