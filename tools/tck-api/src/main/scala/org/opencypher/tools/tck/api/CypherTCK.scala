@@ -85,7 +85,7 @@ object CypherTCK {
       }
       // Note that converting to list is necessary to cut off lazy evaluation
       // otherwise evaluation of parsePathFeature will happen after the file system is already closed
-      featurePaths.iterator().asScala.toList.map(fp => parsePathFeature(fp, directoryPath))
+      featurePaths.iterator().asScala.toList.map(parsePathFeature(_, directoryPath))
     } finally {
       try {
         fs.foreach(_.close())
