@@ -285,11 +285,11 @@ Feature: Create2 - Creating relationships
     When executing query:
       """
       CREATE ()-[r:X {id: 12, name: null}]->()
-      RETURN r.id
+      RETURN r.id, r.name AS name
       """
     Then the result should be, in any order:
-      | r.id |
-      | 12   |
+      | r.id | name |
+      | 12   | null |
     And the side effects should be:
       | +nodes         | 2 |
       | +relationships | 1 |
