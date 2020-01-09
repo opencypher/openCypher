@@ -66,7 +66,7 @@ Feature: Create2 - Creating relationships
       | +nodes         | 2 |
       | +relationships | 1 |
 
-  Scenario: [4] Create two nodes and a single relationship in reversed direction
+  Scenario: [4] Create two nodes and a single relationship in the reverse direction
     Given an empty graph
     When executing query:
       """
@@ -102,7 +102,7 @@ Feature: Create2 - Creating relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  Scenario: [6] Create a single relationship between two existing nodes in reversed direction
+  Scenario: [6] Create a single relationship between two existing nodes in the reverse direction
     Given an empty graph
     And having executed:
       """
