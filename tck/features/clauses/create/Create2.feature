@@ -161,7 +161,7 @@ Feature: Create2 - Creating relationships
       | +nodes         | 1 |
       | +relationships | 1 |
 
-  Scenario: [10] Create a single self loop on a existing node
+  Scenario: [10] Create a single self loop on an existing node
     Given an empty graph
     And having executed:
       """
@@ -176,7 +176,7 @@ Feature: Create2 - Creating relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  Scenario: [11] Create a single relationship and an end node on a existing starting node
+  Scenario: [11] Create a single relationship and an end node on an existing starting node
     Given an empty graph
     And having executed:
       """
@@ -201,7 +201,7 @@ Feature: Create2 - Creating relationships
       | x        | y      |
       | (:Begin) | (:End) |
 
-  Scenario: [12] Create a single relationship and an starting node on a existing end node
+  Scenario: [12] Create a single relationship and a starting node on an existing end node
     Given an empty graph
     And having executed:
       """
