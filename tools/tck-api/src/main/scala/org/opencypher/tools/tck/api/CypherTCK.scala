@@ -100,7 +100,7 @@ object CypherTCK {
     val relativeFeaturePath = directoryPath.relativize(featureFile.getParent)
     val category = (0 until relativeFeaturePath.getNameCount)
       .map(index => relativeFeaturePath.getName(index).toString)
-      .filter(_ != "")
+      .filter(_.nonEmpty)
       .toList
     parseFeature(featureFile.toAbsolutePath.toString, featureString, category)
   }
