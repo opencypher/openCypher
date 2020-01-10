@@ -36,11 +36,11 @@ class CategoriesTest extends FunSuite with Matchers {
 
   test("category of top-level scenarios") {
     val topLevelScenarios = scenarios.filter(_.featureName == "Foo")
-    topLevelScenarios.foreach(_.category should equal(List[String]()))
+    topLevelScenarios.foreach(_.categories should equal(List[String]()))
   }
 
   test("category of some-level scenarios") {
     val someLevelScenarios = scenarios.filter(_.featureName == "Test")
-    someLevelScenarios.foreach(_.category should equal(List("foo", "bar", "boo")))
+    someLevelScenarios.foreach(_.categories should equal(List("foo", "bar", "boo")))
   }
 }
