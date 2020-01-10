@@ -98,14 +98,14 @@ object CypherTCK {
   def parsePathFeature(featureFile: Path, directoryPath: Path): Feature = {
     val featureString = new String(Files.readAllBytes(featureFile), StandardCharsets.UTF_8)
     val relativeFeaturePath = directoryPath.relativize(featureFile.getParent)
-    val category = (0 until relativeFeaturePath.getNameCount)
+    val categories = (0 until relativeFeaturePath.getNameCount)
       .map(index => relativeFeaturePath.getName(index).toString)
       .filter(_.nonEmpty)
       .toList
-    parseFeature(featureFile.toAbsolutePath.toString, featureString, category)
+    parseFeature(featureFile.toAbsolutePath.toString, featureString, categories)
   }
 
-  def parseFeature(source: String, featureString: String, category: Seq[String]): Feature = {
+  def parseFeature(source: String, featureString: String, categories: Seq[String]): Feature = {
     val gherkinDocument = Try(parser.parse(featureString, matcher)) match {
       case Success(doc) => doc
       case Failure(error) =>
@@ -116,12 +116,12 @@ object CypherTCK {
     // filters out scenarios with @ignore
     val included = pickles.filterNot(tagNames(_) contains "@ignore")
     val featureName = gherkinDocument.getFeature.getName
-    val scenarios = included.map(toScenario(featureName, _, category))
+    val scenarios = included.map(toScenario(featureName, _, categories))
     TCKEvents.setFeature(FeatureRead(featureName, source, featureString))
     Feature(scenarios)
   }
 
-  private def toScenario(featureName: String, pickle: Pickle, category: Seq[String]): Scenario = {
+  private def toScenario(featureName: String, pickle: Pickle, categories: Seq[String]): Scenario = {
 
     val tags = tagNames(pickle)
     val shouldValidate = !tags.contains("@allowCustomErrors")
@@ -213,7 +213,7 @@ object CypherTCK {
       }
       scenarioSteps
     }.toList
-    Scenario(featureName, pickle.getName, category.toList, tags, steps, pickle)
+    Scenario(featureName, pickle.getName, categories.toList, tags, steps, pickle)
   }
 
   private def tagNames(pickle: Pickle): Set[String] = pickle.getTags.asScala.map(_.getName).toSet
