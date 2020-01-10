@@ -90,8 +90,7 @@
        <plugin>
          <groupId>org.antlr</groupId>
          <artifactId>antlr4-maven-plugin</artifactId>
-         <!--  spark was using 4.5.3, runtime is 4.7, generated 4.5.3  -->
-         <version>${dep.antlr.generator.version}</version> 
+         <version>${dep.antlr4.version}</version>
          <executions>
              <execution>
                  <id>antlr</id>

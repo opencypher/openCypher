@@ -28,8 +28,6 @@
 
   <properties>
     <dep.antlr4.version>4.7.2</dep.antlr4.version>
-    <dep.antlr.generator.version>${dep.antlr4.version}</dep.antlr.generator.version>
-    <dep.antlr.runtime.version>${dep.antlr4.version}</dep.antlr.runtime.version>
     <dep.apiguardian.version>1.0.0</dep.apiguardian.version>
     <dep.batik.version>1.8</dep.batik.version>
     <dep.cucumber.version>4.2.0</dep.cucumber.version>
@@ -85,13 +83,13 @@
       <dependency>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-runtime</artifactId>
-        <version>${dep.antlr.runtime.version}</version>
+        <version>${dep.antlr4.version}</version>
       </dependency>
 
       <dependency>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4</artifactId>
-        <version>${dep.antlr.generator.version}</version>
+        <version>${dep.antlr4.version}</version>
       </dependency>
 
       <dependency>
