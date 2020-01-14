@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019 "Neo Technology,"
+ * Copyright (c) 2015-2020 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,6 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-   
 package org.opencypher.tools.g4tree;
 
 import java.util.Collections;
