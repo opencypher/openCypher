@@ -84,7 +84,11 @@ case object CountScenarios {
       val countCategories = mapToCountCategories(s.categories, Total)
       val categoryMap = countCategories.map(countCategory => countCategory -> 1).toMap[CountCategory,Int]
       // feature
-      val featureMap = Map[CountCategory,Int](Feature(s.featureName, countCategories.last.indent + 1, Some(countCategories.last)) -> 1)
+      val featureMap = {
+        val indent = countCategories.lastOption.map(_.indent).getOrElse(0) + 1
+        val feature = Feature(s.featureName, indent, Some(countCategories.lastOption.getOrElse(Total)))
+        Map[CountCategory,Int](feature -> 1)
+      }
       // tags
       val tagsMap = s.tags.map(tag => Tag(tag) -> 1).toMap[CountCategory,Int]
 
