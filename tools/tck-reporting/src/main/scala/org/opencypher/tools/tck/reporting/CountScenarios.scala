@@ -34,30 +34,26 @@ trait CountCategory {
   def name: String
   def indent: Int
   def parent: Option[CountCategory]
+
+  override def toString: String = name
 }
 
 case object Total extends CountCategory {
   val name = "Total"
   val indent = 0
   val parent: Option[CountCategory] = None
-
-  override def toString: String = name
 }
 
 case class Tag(name: String) extends CountCategory {
   val indent = 1
   val parent: Option[CountCategory] = Some(Total)
-
-  override def toString: String = "@" + name
 }
 
-case class Feature(name: String, indent: Int, parent: Option[CountCategory]) extends CountCategory{
+case class Feature(name: String, indent: Int, parent: Option[CountCategory]) extends CountCategory {
   override def toString: String = "Feature: " + name
 }
 
-case class ScenarioCategory(name: String, indent: Int, parent: Option[CountCategory]) extends CountCategory {
-  override def toString: String = name
-}
+case class ScenarioCategory(name: String, indent: Int, parent: Option[CountCategory]) extends CountCategory
 
 /*
  * This is a tiny tool to count TCK scenarios in the list returned by `CypherTCK.allTckScenarios`.
