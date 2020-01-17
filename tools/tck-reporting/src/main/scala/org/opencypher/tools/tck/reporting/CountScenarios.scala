@@ -105,7 +105,7 @@ case object CountScenarios {
     // print counts to stdout as a count category tree in dept first order
     def printDepthFirst(currentCategory: CountCategory): List[String] = {
       val thisOutput = outputs(currentCategory)
-      val thisOutputLine = thisOutput + (" " * (maxOutputLength-thisOutput.length)) + "   " + totalCounts.getOrElse(currentCategory, 0)
+      val thisOutputLine = thisOutput + (" " * (maxOutputLength-thisOutput.length)) + "   %5d".format(totalCounts.getOrElse(currentCategory, 0))
       // on each level ordered in groups of Total, ScenarioCategories, Features, Tags
       val groupedCountSubCategories = countCategoriesByParent.getOrElse(Some(currentCategory), Iterable[CountCategory]()).groupBy{
         case Total => 0
