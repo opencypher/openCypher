@@ -32,13 +32,32 @@ import org.opencypher.tools.tck.api.Scenario
 
 trait CountCategory {
   def name: String
+  def indent: Int
+  def parent: Option[CountCategory]
 }
 
-case object Total extends CountCategory { val name = "Total" }
+case object Total extends CountCategory {
+  val name = "Total"
+  val indent = 0
+  val parent: Option[CountCategory] = None
 
-case class Tag(name: String) extends CountCategory
+  override def toString: String = name
+}
 
-case class Feature(name: String) extends CountCategory
+case class Tag(name: String) extends CountCategory {
+  val indent = 1
+  val parent: Option[CountCategory] = Some(Total)
+
+  override def toString: String = "@" + name
+}
+
+case class Feature(name: String, indent: Int, parent: Option[CountCategory]) extends CountCategory{
+  override def toString: String = "Feature: " + name
+}
+
+case class ScenarioCategory(name: String, indent: Int, parent: Option[CountCategory]) extends CountCategory {
+  override def toString: String = name
+}
 
 /*
  * This is a tiny tool to count TCK scenarios in the list returned by `CypherTCK.allTckScenarios`.
@@ -47,27 +66,61 @@ case class Feature(name: String) extends CountCategory
  */
 case object CountScenarios {
   def main(args: Array[String]): Unit = {
-    val scenarios = CypherTCK.allTckScenarios
+    report(CypherTCK.allTckScenarios)
+  }
+
+  def report(scenarios: Seq[Scenario]): Unit = {
     // create individual counts to each scenario
     val individualCounts = scenarios.map(s => {
-        // total
-        val totalMap = Map[CountCategory,Int](Total -> 1)
-        // feature
-        val featureMap = Map[CountCategory,Int](Feature(s.featureName) -> 1)
-        // tags
-        val tagsMap = s.tags.map(tag => (Tag(tag) -> 1)).toMap[CountCategory,Int]
+      // total
+      val totalMap = Map[CountCategory,Int](Total -> 1)
+      // category
+      def mapToCountCategories(categories: List[String], parent: CountCategory): List[CountCategory] = categories match {
+        case Nil => List[ScenarioCategory]()
+        case category :: remainingCategories =>
+          val countCategory = ScenarioCategory(category, parent.indent + 1, Some(parent))
+          countCategory :: mapToCountCategories(remainingCategories, countCategory)
+      }
+      val countCategories = mapToCountCategories(s.categories, Total)
+      val categoryMap = countCategories.map(countCategory => countCategory -> 1).toMap[CountCategory,Int]
+      // feature
+      val featureMap = Map[CountCategory,Int](Feature(s.featureName, countCategories.last.indent + 1, Some(countCategories.last)) -> 1)
+      // tags
+      val tagsMap = s.tags.map(tag => Tag(tag) -> 1).toMap[CountCategory,Int]
 
-        totalMap ++ featureMap ++ tagsMap
-      })
+      totalMap ++ featureMap ++ categoryMap ++ tagsMap
+    })
     // total up the counts over all scenarios
     val totalCounts = individualCounts.foldLeft(Map[CountCategory,Int]()){
-      case (cnt, cnts) => {
-        (cnts.keySet ++ cnt.keySet).map {
-          case key => key -> (cnts.getOrElse(key, 0) + cnt.getOrElse(key, 0))
-        }.toMap
-      }
+      case (count, counts) =>
+        (counts.keySet ++ count.keySet).map(key => key -> (counts.getOrElse(key, 0) + count.getOrElse(key, 0))).toMap
     }
-    // print counts to stdout
-    println(totalCounts.map{ case (cat, count) => "" + cat + "\t" + count}.mkString(System.lineSeparator))
+    val countCategoriesByParent = totalCounts.keys.groupBy(countCategory => countCategory.parent)
+    val outputs = totalCounts.keys.map(cat => cat -> {
+      ("| " * cat.indent) + cat
+    }).toMap
+    // maxOutputLength is needed to align the counts
+    val maxOutputLength = outputs.values.map(_.length).max
+
+    // print counts to stdout as a count category tree in dept first order
+    def printDepthFirst(currentCategory: CountCategory): Unit = {
+      val thisOutput = outputs(currentCategory)
+      println(thisOutput + (" " * (maxOutputLength-thisOutput.length)) + "   " + totalCounts.getOrElse(currentCategory, 0))
+      // on each level ordered in groups of Total, ScenarioCategories, Features, Tags
+      val groupedCountSubCategories = countCategoriesByParent.getOrElse(Some(currentCategory), Iterable[CountCategory]()).groupBy{
+        case Total => 0
+        case _:ScenarioCategory => 1
+        case _:Feature => 2
+        case _:Tag => 3
+      }
+      // within each group ordered alphabetically by name
+      val groupedAndOrderedCountSubCategories = groupedCountSubCategories.toSeq.sortBy(_._1).flatMap {
+        case (_, countCategories) => countCategories.toSeq.sortBy(_.name)
+      }
+
+      groupedAndOrderedCountSubCategories.foreach(printDepthFirst)
+    }
+
+    printDepthFirst(Total)
   }
 }
