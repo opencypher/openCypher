@@ -66,10 +66,10 @@ case class ScenarioCategory(name: String, indent: Int, parent: Option[CountCateg
  */
 case object CountScenarios {
   def main(args: Array[String]): Unit = {
-    report(CypherTCK.allTckScenarios)
+    report(CypherTCK.allTckScenarios).foreach(println)
   }
 
-  def report(scenarios: Seq[Scenario]): Unit = {
+  def report(scenarios: Seq[Scenario]): List[String] = {
     // create individual counts to each scenario
     val individualCounts = scenarios.map(s => {
       // total
@@ -107,9 +107,9 @@ case object CountScenarios {
     val maxOutputLength = outputs.values.map(_.length).max
 
     // print counts to stdout as a count category tree in dept first order
-    def printDepthFirst(currentCategory: CountCategory): Unit = {
+    def printDepthFirst(currentCategory: CountCategory): List[String] = {
       val thisOutput = outputs(currentCategory)
-      println(thisOutput + (" " * (maxOutputLength-thisOutput.length)) + "   " + totalCounts.getOrElse(currentCategory, 0))
+      val thisOutputLine = thisOutput + (" " * (maxOutputLength-thisOutput.length)) + "   " + totalCounts.getOrElse(currentCategory, 0)
       // on each level ordered in groups of Total, ScenarioCategories, Features, Tags
       val groupedCountSubCategories = countCategoriesByParent.getOrElse(Some(currentCategory), Iterable[CountCategory]()).groupBy{
         case Total => 0
@@ -122,7 +122,7 @@ case object CountScenarios {
         case (_, countCategories) => countCategories.toSeq.sortBy(_.name)
       }
 
-      groupedAndOrderedCountSubCategories.foreach(printDepthFirst)
+      thisOutputLine :: groupedAndOrderedCountSubCategories.flatMap(printDepthFirst).toList
     }
 
     printDepthFirst(Total)
