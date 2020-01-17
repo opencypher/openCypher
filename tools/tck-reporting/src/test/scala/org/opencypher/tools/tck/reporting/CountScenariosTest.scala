@@ -14,10 +14,10 @@ import org.scalatest.FunSuite
 import org.scalatest.Matchers
 
 class CountScenariosTest extends FunSuite with Matchers {
-  val dummyPickel = new Pickle("", "", new util.ArrayList[PickleStep](), new util.ArrayList[PickleTag](), new util.ArrayList[PickleLocation]())
+  val dummyPickle = new Pickle("", "", new util.ArrayList[PickleStep](), new util.ArrayList[PickleTag](), new util.ArrayList[PickleLocation]())
 
   test("Count single top-level scenario without tags") {
-    val scenarios: Seq[Scenario] = Seq(Scenario("ftr1", "scr1", List[String](), Set[String](), List[Step](), dummyPickel))
+    val scenarios: Seq[Scenario] = Seq(Scenario("ftr1", "scr1", List[String](), Set[String](), List[Step](), dummyPickle))
     val expectedCountOutput =
       """Total                 1
         || Feature: ftr1       1""".stripMargin
@@ -25,7 +25,7 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Count single top-level scenario with tag") {
-    val scenarios: Seq[Scenario] = Seq(Scenario("ftr1", "scr1", List[String](), Set[String]("A", "@B", "C"), List[Step](), dummyPickel))
+    val scenarios: Seq[Scenario] = Seq(Scenario("ftr1", "scr1", List[String](), Set[String]("A", "@B", "C"), List[Step](), dummyPickle))
     val expectedCountOutput =
       """Total                 1
         || Feature: ftr1       1
@@ -36,7 +36,7 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Count single sub-level scenario without tags") {
-    val scenarios: Seq[Scenario] = Seq(Scenario("ftr1", "scr1", List[String]("A", "B", "C"), Set[String](), List[Step](), dummyPickel))
+    val scenarios: Seq[Scenario] = Seq(Scenario("ftr1", "scr1", List[String]("A", "B", "C"), Set[String](), List[Step](), dummyPickle))
     val expectedCountOutput =
       """Total                       1
         || A                         1
@@ -48,8 +48,8 @@ class CountScenariosTest extends FunSuite with Matchers {
 
   test("Count two top-level scenarios in same feature without tags") {
     val scenarios: Seq[Scenario] = Seq(
-      Scenario("ftr1", "scrA", List[String](), Set[String](), List[Step](), dummyPickel),
-      Scenario("ftr1", "scrB", List[String](), Set[String](), List[Step](), dummyPickel))
+      Scenario("ftr1", "scrA", List[String](), Set[String](), List[Step](), dummyPickle),
+      Scenario("ftr1", "scrB", List[String](), Set[String](), List[Step](), dummyPickle))
     val expectedCountOutput =
       """Total                 2
         || Feature: ftr1       2""".stripMargin
@@ -58,9 +58,9 @@ class CountScenariosTest extends FunSuite with Matchers {
 
   test("Count three top-level scenarios in two features without tags") {
     val scenarios: Seq[Scenario] = Seq(
-      Scenario("ftr1", "scrA", List[String](), Set[String](), List[Step](), dummyPickel),
-      Scenario("ftr2", "scrB", List[String](), Set[String](), List[Step](), dummyPickel),
-      Scenario("ftr1", "scrC", List[String](), Set[String](), List[Step](), dummyPickel))
+      Scenario("ftr1", "scrA", List[String](), Set[String](), List[Step](), dummyPickle),
+      Scenario("ftr2", "scrB", List[String](), Set[String](), List[Step](), dummyPickle),
+      Scenario("ftr1", "scrC", List[String](), Set[String](), List[Step](), dummyPickle))
     val expectedCountOutput =
       """Total                 3
         || Feature: ftr1       2
@@ -70,9 +70,9 @@ class CountScenariosTest extends FunSuite with Matchers {
 
   test("Count three top-level scenarios in two features with tags") {
     val scenarios: Seq[Scenario] = Seq(
-      Scenario("ftr1", "scrA", List[String](), Set[String]("C", "B"), List[Step](), dummyPickel),
-      Scenario("ftr2", "scrB", List[String](), Set[String]("C", "D", "A"), List[Step](), dummyPickel),
-      Scenario("ftr1", "scrC", List[String](), Set[String]("A", "C"), List[Step](), dummyPickel))
+      Scenario("ftr1", "scrA", List[String](), Set[String]("C", "B"), List[Step](), dummyPickle),
+      Scenario("ftr2", "scrB", List[String](), Set[String]("C", "D", "A"), List[Step](), dummyPickle),
+      Scenario("ftr1", "scrC", List[String](), Set[String]("A", "C"), List[Step](), dummyPickle))
     val expectedCountOutput =
       """Total                 3
         || Feature: ftr1       2
@@ -86,9 +86,9 @@ class CountScenariosTest extends FunSuite with Matchers {
 
   test("Count three mixed-level scenarios without tags") {
     val scenarios: Seq[Scenario] = Seq(
-      Scenario("ftr1", "scrA", List[String](), Set[String](), List[Step](), dummyPickel),
-      Scenario("ftr2", "scrB", List[String]("T", "C", "K"), Set[String](), List[Step](), dummyPickel),
-      Scenario("ftr1", "scrC", List[String]("T", "A", "K"), Set[String](), List[Step](), dummyPickel))
+      Scenario("ftr1", "scrA", List[String](), Set[String](), List[Step](), dummyPickle),
+      Scenario("ftr2", "scrB", List[String]("T", "C", "K"), Set[String](), List[Step](), dummyPickle),
+      Scenario("ftr1", "scrC", List[String]("T", "A", "K"), Set[String](), List[Step](), dummyPickle))
     val expectedCountOutput =
       """Total                       3
         || T                         2
@@ -104,11 +104,11 @@ class CountScenariosTest extends FunSuite with Matchers {
 
   test("Count five mixed-level scenarios with tags") {
     val scenarios: Seq[Scenario] = Seq(
-      Scenario("ftr1", "scrA", List[String](), Set[String]("C", "B"), List[Step](), dummyPickel),
-      Scenario("ftr2", "scrB", List[String]("T", "C", "K"), Set[String]("C", "D", "A"), List[Step](), dummyPickel),
-      Scenario("ftr1", "scrC", List[String]("T", "A", "K"), Set[String]("A", "C"), List[Step](), dummyPickel),
-      Scenario("ftr2", "scrD", List[String]("T", "C", "K"), Set[String](), List[Step](), dummyPickel),
-      Scenario("ftr3", "scrE", List[String]("T"), Set[String]("B", "A", "C"), List[Step](), dummyPickel))
+      Scenario("ftr1", "scrA", List[String](), Set[String]("C", "B"), List[Step](), dummyPickle),
+      Scenario("ftr2", "scrB", List[String]("T", "C", "K"), Set[String]("C", "D", "A"), List[Step](), dummyPickle),
+      Scenario("ftr1", "scrC", List[String]("T", "A", "K"), Set[String]("A", "C"), List[Step](), dummyPickle),
+      Scenario("ftr2", "scrD", List[String]("T", "C", "K"), Set[String](), List[Step](), dummyPickle),
+      Scenario("ftr3", "scrE", List[String]("T"), Set[String]("B", "A", "C"), List[Step](), dummyPickle))
     val expectedCountOutput =
       """Total                       5
         || T                         4
