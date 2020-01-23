@@ -62,10 +62,10 @@ case class ScenarioCategory(name: String, indent: Int, parent: Option[CountCateg
  */
 case object CountScenarios {
   def main(args: Array[String]): Unit = {
-    report(CypherTCK.allTckScenarios).foreach(println)
+    println(reportPrettyPrint(CypherTCK.allTckScenarios))
   }
 
-  def report(scenarios: Seq[Scenario]): List[String] = {
+  def count(scenarios: Seq[Scenario]): Map[CountCategory, Int] = {
     // create individual counts to each scenario
     val individualCounts = scenarios.map(s => {
       // total
@@ -95,6 +95,11 @@ case object CountScenarios {
       case (count, counts) =>
         (counts.keySet ++ count.keySet).map(key => key -> (counts.getOrElse(key, 0) + count.getOrElse(key, 0))).toMap
     }
+    totalCounts
+  }
+
+  def reportPrettyPrint(scenarios: Seq[Scenario]): String = {
+    val totalCounts = count(scenarios)
     val countCategoriesByParent = totalCounts.keys.groupBy(countCategory => countCategory.parent)
     val outputs = totalCounts.keys.map(cat => cat -> {
       ("| " * cat.indent) + cat
@@ -121,6 +126,6 @@ case object CountScenarios {
       thisOutputLine :: groupedAndOrderedCountSubCategories.flatMap(printDepthFirst).toList
     }
 
-    printDepthFirst(Total)
+    printDepthFirst(Total).mkString(System.lineSeparator)
   }
 }
