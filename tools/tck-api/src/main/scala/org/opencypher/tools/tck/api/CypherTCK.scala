@@ -31,21 +31,31 @@ import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.nio.file._
 import java.util
-import java.util.function.Predicate
 
+import gherkin.AstBuilder
+import gherkin.Parser
+import gherkin.TokenMatcher
 import gherkin.ast.GherkinDocument
-import gherkin.pickles.{Compiler, Pickle, PickleRow, PickleStep, PickleString, PickleTable}
-import gherkin.{AstBuilder, Parser, TokenMatcher}
+import gherkin.pickles.Compiler
+import gherkin.pickles.Pickle
+import gherkin.pickles.PickleRow
+import gherkin.pickles.PickleStep
+import gherkin.pickles.PickleString
+import gherkin.pickles.PickleTable
 import org.opencypher.tools.tck.SideEffectOps.Diff
 import org.opencypher.tools.tck._
 import org.opencypher.tools.tck.api.events.TCKEvents
 import org.opencypher.tools.tck.api.events.TCKEvents.FeatureRead
+import org.opencypher.tools.tck.constants.TCKErrorDetails
+import org.opencypher.tools.tck.constants.TCKErrorPhases
+import org.opencypher.tools.tck.constants.TCKErrorTypes
 import org.opencypher.tools.tck.constants.TCKStepDefinitions._
-import org.opencypher.tools.tck.constants.{TCKErrorDetails, TCKErrorPhases, TCKErrorTypes}
 import org.opencypher.tools.tck.values.CypherValue
 
 import scala.collection.JavaConverters._
-import scala.util.{Failure, Success, Try}
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
 object CypherTCK {
 
@@ -69,8 +79,20 @@ object CypherTCK {
     allTckScenarios
   }
 
+  def allTckScenariosFromClasspath(path: String): Seq[Scenario] = {
+    parseClasspathFeatures(path).flatMap(_.scenarios)
+  }
+
+  def allTckScenariosFromFilesystem(path: String): Seq[Scenario] = {
+    parseFilesystemFeatures(path).flatMap(_.scenarios)
+  }
+
   def parseClasspathFeatures(path: String): Seq[Feature] = {
     parseFeatures(getClass.getResource(path).toURI)
+  }
+
+  def parseFilesystemFeatures(path: String): Seq[Feature] = {
+    parseFeatures(new java.io.File(path).toURI)
   }
 
   def parseFeatures(resource: URI): Seq[Feature] = {
