@@ -174,4 +174,75 @@ class CountScenariosTest extends FunSuite with Matchers {
         || @TestC                    3""".stripMargin
     CountScenarios.reportPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
   }
+
+  test("Diff with one scenario added from a top-level same feature without tags") {
+    val scrA = Scenario("ftr1", "scrA", List[String](), Set[String](), List[Step](), dummyPickle)
+    val scrB = Scenario("ftr1", "scrB", List[String](), Set[String](), List[Step](), dummyPickle)
+    val scenariosBefore: Seq[Scenario] = Seq(scrB)
+    val scenariosAfter: Seq[Scenario] = Seq(scrA, scrB)
+    val collectBefore = CountScenarios.collect(scenariosBefore)
+    val collectAfter = CountScenarios.collect(scenariosAfter)
+
+    val expectedResult = Map[CountCategory, GroupDiff](
+      Total -> GroupDiff(Set(scrB), Set(), Set(scrA), Set()),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(scrA), Set())
+    )
+
+    CountScenarios.diff(collectBefore, collectAfter) should equal(expectedResult)
+  }
+
+  test("Diff with one scenario removed from a top-level same feature without tags") {
+    val scrA = Scenario("ftr1", "scrA", List[String](), Set[String](), List[Step](), dummyPickle)
+    val scrB = Scenario("ftr1", "scrB", List[String](), Set[String](), List[Step](), dummyPickle)
+    val scenariosBefore: Seq[Scenario] = Seq(scrA, scrB)
+    val scenariosAfter: Seq[Scenario] = Seq(scrB)
+    val collectBefore = CountScenarios.collect(scenariosBefore)
+    val collectAfter = CountScenarios.collect(scenariosAfter)
+
+    val expectedResult = Map[CountCategory, GroupDiff](
+      Total -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA)),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA))
+    )
+
+    CountScenarios.diff(collectBefore, collectAfter) should equal(expectedResult)
+  }
+
+  test("Diff with one scenario moved to another top-level feature without tags") {
+    val scrA1 = Scenario("ftr1", "scrA", List[String](), Set[String](), List[Step](), dummyPickle)
+    val scrA2 = Scenario("ftr2", "scrA", List[String](), Set[String](), List[Step](), dummyPickle)
+    val scrB = Scenario("ftr1", "scrB", List[String](), Set[String](), List[Step](), dummyPickle)
+    val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
+    val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
+    val collectBefore = CountScenarios.collect(scenariosBefore)
+    val collectAfter = CountScenarios.collect(scenariosAfter)
+
+    val expectedResult = Map[CountCategory, GroupDiff](
+      Total -> GroupDiff(Set(scrB), Set((Set(scrA1),Set(scrA2))), Set(), Set()),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA1)),
+      Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(scrA2), Set())
+    )
+
+    CountScenarios.diff(collectBefore, collectAfter) should equal(expectedResult)
+  }
+
+  test("Diff with one scenario moved to another top-level feature and a changed tag") {
+    val scrA1 = Scenario("ftr1", "scrA", List[String](), Set[String](), List[Step](), dummyPickle)
+    val scrA2 = Scenario("ftr2", "scrA", List[String](), Set[String](), List[Step](), dummyPickle)
+    val scrB1 = Scenario("ftr1", "scrB", List[String](), Set[String]("A"), List[Step](), dummyPickle)
+    val scrB2 = Scenario("ftr1", "scrB", List[String](), Set[String]("B"), List[Step](), dummyPickle)
+    val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB1)
+    val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB2)
+    val collectBefore = CountScenarios.collect(scenariosBefore)
+    val collectAfter = CountScenarios.collect(scenariosAfter)
+
+    val expectedResult = Map[CountCategory, GroupDiff](
+      Total -> GroupDiff(Set(), Set((Set(scrA1),Set(scrA2)),(Set(scrB1),Set(scrB2))), Set(), Set()),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(), Set((Set(scrB1),Set(scrB2))), Set(), Set(scrA1)),
+      Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(scrA2), Set()),
+      Tag("A") -> GroupDiff(Set(), Set(), Set(), Set(scrB1)),
+      Tag("B") -> GroupDiff(Set(), Set(), Set(scrB2), Set())
+    )
+
+    CountScenarios.diff(collectBefore, collectAfter) should equal(expectedResult)
+  }
 }

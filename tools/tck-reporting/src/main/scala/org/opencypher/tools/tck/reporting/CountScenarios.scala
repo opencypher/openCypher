@@ -55,6 +55,8 @@ case class Feature(name: String, indent: Int, parent: Option[CountCategory]) ext
 
 case class ScenarioCategory(name: String, indent: Int, parent: Option[CountCategory]) extends CountCategory
 
+case class GroupDiff(unchanged: Set[Scenario], changed: Set[(Set[Scenario], Set[Scenario])], added: Set[Scenario], removed: Set[Scenario])
+
 /*
  * This is a tiny tool to count TCK scenarios in the list returned by `CypherTCK.allTckScenarios`.
  * At the moment it count scenarios by total, feature, and tags and outputs the counts to stdout.
@@ -99,7 +101,31 @@ case object CountScenarios {
     allGroups
   }
 
-  //def diff(before: Map[CountCategory, Seq[Scenario]], after: Map[CountCategory, Seq[Scenario]])
+  def diff(before: Map[CountCategory, Seq[Scenario]],
+           after: Map[CountCategory, Seq[Scenario]]): Map[CountCategory, GroupDiff] = {
+    val allGroups = before.keySet ++ after.keySet
+    allGroups.map(group => {
+      val scenariosBefore = before.getOrElse(group, Seq[Scenario]()).toSet
+      val scenariosAfter = after.getOrElse(group, Seq[Scenario]()).toSet
+      val unchangedScenarios = scenariosAfter intersect scenariosBefore
+
+      val addedOrChangedScenarios = scenariosAfter -- unchangedScenarios
+      val removedOrChangedScenarios = scenariosBefore -- unchangedScenarios
+      val namesOfAddedOrChangedScenarios = addedOrChangedScenarios.groupBy(_.name).keySet
+      val namesOfRemovedOrChangedScenarios = removedOrChangedScenarios.groupBy(_.name).keySet
+
+      val addedScenarios = addedOrChangedScenarios.filterNot(s => namesOfRemovedOrChangedScenarios contains s.name)
+      val removeScenarios = removedOrChangedScenarios.filterNot(s => namesOfAddedOrChangedScenarios contains s.name)
+
+      val namesOfChangedScenarios = namesOfAddedOrChangedScenarios intersect namesOfRemovedOrChangedScenarios
+      val changedScenarios = namesOfChangedScenarios.map(name => {
+        (removedOrChangedScenarios.filter(_.name == name), addedOrChangedScenarios.filter(_.name == name))
+      })
+
+      val diff = GroupDiff(unchangedScenarios, changedScenarios, addedScenarios, removeScenarios)
+      (group, diff)
+    }).toMap
+  }
 
   def reportPrettyPrint(totalCounts: Map[CountCategory, Seq[Scenario]]): String = {
     val countCategoriesByParent = totalCounts.keys.groupBy(countCategory => countCategory.parent)
