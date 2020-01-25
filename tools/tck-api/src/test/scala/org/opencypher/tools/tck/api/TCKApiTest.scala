@@ -47,12 +47,12 @@ class TCKApiTest extends FunSuite with Matchers {
   }
 
   test("example index of non-outline scenarios") {
-    val nonOutlineScenarios = scenarios.filterNot(s => s.featureName == "Foo" && s.name == "Outline Test")
+    val nonOutlineScenarios = scenarios.filterNot(s => s.featureName == "Outline" && s.name == "Outline Test")
     all (nonOutlineScenarios) should have ('exampleIndex (0))
   }
 
   test("example index of outline scenarios") {
-    val outlineScenarios = scenarios.filter(s => s.featureName == "Foo" && s.name == "Outline Test")
+    val outlineScenarios = scenarios.filter(s => s.featureName == "Outline" && s.name == "Outline Test")
     outlineScenarios.map(_.exampleIndex) should equal(Seq(0, 1, 2))
     outlineScenarios.foreach(s => {
       outlineScenarios.filter(_.exampleIndex > s.exampleIndex).foreach(s2 => {
