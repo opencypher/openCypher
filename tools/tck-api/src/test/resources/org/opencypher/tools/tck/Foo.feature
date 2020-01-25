@@ -54,3 +54,20 @@ Feature: Foo
       """
       not really a query
       """
+
+  Scenario Outline: Outline Test
+    Given an empty graph
+    When executing query:
+      """
+      RETURN <sample>
+      """
+    Then the result should be, in any order:
+      | <column> |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | sample | column | result |
+      | 1      | 1      | 1      |
+      | 2      | 2      | 2      |
+      | 3      | 3      | 3      |
