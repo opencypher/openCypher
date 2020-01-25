@@ -49,7 +49,7 @@ case class Scenario(categories: List[String], featureName: String, name: String,
 
   self =>
 
-  override def toString = s"""Feature "$featureName": Scenario "$name" (Categories: "${ categories.mkString("/") }", Tags: "${ if (tags.nonEmpty) tags.mkString(" ") else "-" }")"""
+  override def toString = s"""Feature "$featureName": Scenario "$name" (Example: "${exampleIndex}", Categories: "${ categories.mkString("/") }", Tags: "${ if (tags.nonEmpty) tags.mkString(" ") else "-" }")"""
 
   def apply(graph: => Graph): Executable = new Executable {
     override def execute(): Unit = {
