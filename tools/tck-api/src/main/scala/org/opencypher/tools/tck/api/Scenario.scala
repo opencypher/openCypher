@@ -33,14 +33,19 @@ import org.opencypher.tools.tck.SideEffectOps
 import org.opencypher.tools.tck.SideEffectOps._
 import org.opencypher.tools.tck.api.Graph.Result
 import org.opencypher.tools.tck.api.events.TCKEvents
-import org.opencypher.tools.tck.api.events.TCKEvents.{StepFinished, StepStarted, setStepFinished, setStepStarted}
+import org.opencypher.tools.tck.api.events.TCKEvents.StepFinished
+import org.opencypher.tools.tck.api.events.TCKEvents.StepStarted
+import org.opencypher.tools.tck.api.events.TCKEvents.setStepFinished
+import org.opencypher.tools.tck.api.events.TCKEvents.setStepStarted
 import org.opencypher.tools.tck.values.CypherValue
 
 import scala.compat.Platform.EOL
 import scala.language.implicitConversions
-import scala.util.{Failure, Success, Try}
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
-case class Scenario(featureName: String, name: String, categories: List[String], tags: Set[String], steps: List[Step], source: Pickle) {
+case class Scenario(categories: List[String], featureName: String, name: String, exampleIndex: Int, tags: Set[String], steps: List[Step], source: Pickle) {
 
   self =>
 
@@ -150,7 +155,7 @@ case class Scenario(featureName: String, name: String, categories: List[String],
     }
   }
 
-  def validate() = {
+  def validate(): Unit = {
     // TODO:
     // validate similar to FeatureFormatValidator
     // there should be at least one Execute(_, ExecQuery)
