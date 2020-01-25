@@ -27,12 +27,14 @@
  */
 package org.opencypher.tools.tck.api
 
-import org.junit.jupiter.api.Test
-import org.scalatest.{FunSuite, Matchers}
+import java.net.URI
 
-class CategoriesTest extends FunSuite with Matchers {
-  val fooUri = getClass.getResource("..").toURI
-  val scenarios = CypherTCK.parseFeatures(fooUri).flatMap(_.scenarios)
+import org.scalatest.FunSuite
+import org.scalatest.Matchers
+
+class TCKApiTest extends FunSuite with Matchers {
+  private val fooUri: URI = getClass.getResource("..").toURI
+  private val scenarios: Seq[Scenario] = CypherTCK.parseFeatures(fooUri).flatMap(_.scenarios)
 
   test("category of top-level scenarios") {
     val topLevelScenarios = scenarios.filter(_.featureName == "Foo")
@@ -42,5 +44,20 @@ class CategoriesTest extends FunSuite with Matchers {
   test("category of some-level scenarios") {
     val someLevelScenarios = scenarios.filter(_.featureName == "Test")
     someLevelScenarios.foreach(_.categories should equal(List("foo", "bar", "boo")))
+  }
+
+  test("example index of non-outline scenarios") {
+    val nonOutlineScenarios = scenarios.filterNot(s => s.featureName == "Foo" && s.name == "Outline Test")
+    all (nonOutlineScenarios) should have ('exampleIndex (0))
+  }
+
+  test("example index of outline scenarios") {
+    val outlineScenarios = scenarios.filter(s => s.featureName == "Foo" && s.name == "Outline Test")
+    outlineScenarios.map(_.exampleIndex) should equal(Seq(0, 1, 2))
+    outlineScenarios.foreach(s => {
+      outlineScenarios.filter(_.exampleIndex > s.exampleIndex).foreach(s2 => {
+        s2.source.getLocations.get(0).getLine > s.source.getLocations.get(0).getLine
+      })
+    })
   }
 }
