@@ -26,31 +26,21 @@
 # Cypher that are not yet approved by the openCypher community".
 #
 
-Feature: Foo
+Feature: Outline
 
-  Scenario: Return literal
+  Scenario Outline: Outline Test
     Given an empty graph
     When executing query:
       """
-      RETURN 1
+      RETURN <sample>
       """
     Then the result should be, in any order:
-      | 1 |
-      | 1 |
+      | <column> |
+      | <result> |
     And no side effects
 
-  Scenario: Fail
-    Given an empty graph
-    When executing query:
-      """
-      RETURN foo()
-      """
-    Then a SyntaxError should be raised at compile time: UnknownFunction
-
-  @ignore
-  Scenario: Ignored
-    Given an unsupported step
-    When executing query:
-      """
-      not really a query
-      """
+    Examples:
+      | sample | column | result |
+      | 1      | 1      | 1      |
+      | 2      | 2      | 2      |
+      | 3      | 3      | 3      |
