@@ -30,16 +30,11 @@
 
 Feature: Match10 - Match clause failure scenarios
 
-  Scenario: [1] Fail when using property access on primitive type
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({num: 42})
-      """
+  Scenario: [1] Fail when asterisk operator is missing
     When executing query:
       """
-      MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      MATCH (a:A)
+      MATCH (a)-[:LIKES..]->(c)
+      RETURN c.name
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then a SyntaxError should be raised at compile time: InvalidRelationshipPattern
