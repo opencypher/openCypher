@@ -48,7 +48,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val expectedCountOutput =
       """Total                 1
         || Feature: ftr1       1""".stripMargin
-    CountScenarios.reportPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count single top-level scenario with tag") {
@@ -59,7 +59,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         || @B                  1
         || A                   1
         || C                   1""".stripMargin
-    CountScenarios.reportPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count single sub-level scenario without tags") {
@@ -70,7 +70,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         || | B                       1
         || | | C                     1
         || | | | Feature: ftr1       1""".stripMargin
-    CountScenarios.reportPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count two top-level scenarios in same feature without tags") {
@@ -80,7 +80,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val expectedCountOutput =
       """Total                 2
         || Feature: ftr1       2""".stripMargin
-    CountScenarios.reportPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count three top-level scenarios in two features without tags") {
@@ -92,7 +92,7 @@ class CountScenariosTest extends FunSuite with Matchers {
       """Total                 3
         || Feature: ftr1       2
         || Feature: ftr2       1""".stripMargin
-    CountScenarios.reportPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count three top-level scenarios in two features with tags") {
@@ -108,7 +108,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         || B                   1
         || C                   3
         || D                   1""".stripMargin
-    CountScenarios.reportPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count three mixed-level scenarios without tags") {
@@ -126,7 +126,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         || | | K                     1
         || | | | Feature: ftr2       1
         || Feature: ftr1             1""".stripMargin
-    CountScenarios.reportPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count five mixed-level scenarios with tags") {
@@ -151,7 +151,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         || B                         2
         || C                         4
         || D                         1""".stripMargin
-    CountScenarios.reportPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count scenarios through TCK API") {
@@ -172,7 +172,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         || @TestA                    2
         || @TestB                    1
         || @TestC                    3""".stripMargin
-    CountScenarios.reportPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Diff with one scenario added from a top-level same feature without tags") {

@@ -65,11 +65,11 @@ case class GroupDiff(unchanged: Set[Scenario], changed: Set[(Scenario, Scenario)
 case object CountScenarios {
   def main(args: Array[String]): Unit = {
     if(args.length == 0) {
-      println(reportPrettyPrint(collect(CypherTCK.allTckScenarios)))
+      println(reportCountsInPrettyPrint(collect(CypherTCK.allTckScenarios)))
     } else if(args.length == 1) {
-      println(reportPrettyPrint(collect(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
+      println(reportCountsInPrettyPrint(collect(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
     } else if(args.length == 2) {
-      println(reportPrettyPrint(collect(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
+      println(reportCountsInPrettyPrint(collect(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
     }
   }
 
@@ -130,7 +130,7 @@ case object CountScenarios {
     }).toMap
   }
 
-  def reportPrettyPrint(totalCounts: Map[CountCategory, Seq[Scenario]]): String = {
+  def reportCountsInPrettyPrint(totalCounts: Map[CountCategory, Seq[Scenario]]): String = {
     val countCategoriesByParent = totalCounts.keys.groupBy(countCategory => countCategory.parent)
     val outputs = totalCounts.keys.map(cat => cat -> {
       ("| " * cat.indent) + cat
