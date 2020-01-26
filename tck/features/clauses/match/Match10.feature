@@ -31,10 +31,21 @@
 Feature: Match10 - Match clause failure scenarios
 
   Scenario: [1] Fail when asterisk operator is missing
+    Given an empty graph
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES..]->(c)
+      RETURN c.name
+      """
+    Then a SyntaxError should be raised at compile time: InvalidRelationshipPattern
+
+  Scenario: [2] Fail on negative bound
+    Given an empty graph
+    When executing query:
+      """
+      MATCH (a:A)
+      MATCH (a)-[:LIKES*-2]->(c)
       RETURN c.name
       """
     Then a SyntaxError should be raised at compile time: InvalidRelationshipPattern
