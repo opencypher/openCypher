@@ -141,7 +141,11 @@ case object CountScenarios {
     // print counts to stdout as a count category tree in dept first order
     def printDepthFirst(currentCategory: CountCategory): List[String] = {
       val thisOutput = outputs(currentCategory)
-      val thisOutputLine = thisOutput + (" " * (maxOutputLength-thisOutput.length)) + "   %5d".format(totalCounts.getOrElse(currentCategory, Seq()).size)
+      val thisOutputLine = "%s%s%8d".format(
+        thisOutput,
+        " " * (maxOutputLength-thisOutput.length),
+        totalCounts.getOrElse(currentCategory, Seq()).size
+      )
       // on each level ordered in groups of Total, ScenarioCategories, Features, Tags
       val groupedCountSubCategories = countCategoriesByParent.getOrElse(Some(currentCategory), Iterable[CountCategory]()).groupBy{
         case Total => 0
@@ -158,5 +162,46 @@ case object CountScenarios {
     }
 
     printDepthFirst(Total).mkString(System.lineSeparator)
+  }
+
+  def reportDiffCountsInPrettyPrint(diffs: Map[CountCategory, GroupDiff]): String = {
+    val countCategoriesByParent = diffs.keys.groupBy(countCategory => countCategory.parent)
+    val outputs = diffs.keys.map(cat => cat -> {
+      ("  " * (cat.indent - 1)) + ("- " * (if (cat.indent > 0) 1 else 0)) + cat
+    }).toMap
+    // maxOutputLength is needed to align the counts
+    val maxOutputLength = outputs.values.map(_.length).max
+
+    // print counts to stdout as a count group tree in dept first order
+    def printDepthFirst(currentCategory: CountCategory): List[String] = {
+      val thisOutput = outputs(currentCategory)
+      val thisOutputLine = "%s%s%10d%8d%8d%8d".format(
+        thisOutput,
+        " " * (maxOutputLength - thisOutput.length),
+        diffs.get(currentCategory).map(_.unchanged.size).getOrElse(0),
+        diffs.get(currentCategory).map(_.changed.size).getOrElse(0),
+        diffs.get(currentCategory).map(_.added.size).getOrElse(0),
+        diffs.get(currentCategory).map(_.removed.size).getOrElse(0)
+      )
+      // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
+      val groupedCountSubCategories = countCategoriesByParent.getOrElse(Some(currentCategory), Iterable[CountCategory]()).groupBy{
+        case Total => 0
+        case _:ScenarioCategory => 1
+        case _:Feature => 2
+        case _:Tag => 3
+      }
+      // within each class ordered alphabetically by name
+      val groupedAndOrderedCountSubCategories = groupedCountSubCategories.toSeq.sortBy(_._1).flatMap {
+        case (_, countCategories) => countCategories.toSeq.sortBy(_.name)
+      }
+      thisOutputLine :: groupedAndOrderedCountSubCategories.flatMap(printDepthFirst).toList
+    }
+
+    //output header
+    val columnNames = "Group" + (" " * (maxOutputLength-"Group".length)) +
+      " unchanged" + " changed" + "   added" + " removed"
+    val header = columnNames + System.lineSeparator + ("–" * columnNames.length) + System.lineSeparator
+
+    header + printDepthFirst(Total).mkString(System.lineSeparator)
   }
 }
