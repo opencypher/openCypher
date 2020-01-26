@@ -83,9 +83,9 @@ Feature: Match1 - Match Nodes scenarios
       """
     When executing query:
       """
-      MATCH (n {name:'bar'})
+      MATCH (n {name: 'bar'})
       RETURN n
-          """
+      """
     Then the result should be, in any order:
       | n               |
       | ({name: 'bar'}) |
