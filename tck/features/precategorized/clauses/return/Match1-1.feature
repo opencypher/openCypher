@@ -204,3 +204,17 @@ Feature: Match 1-1 - Match nodes RETURN clause scenarios
     Then the result should be, in any order:
       | n |
     And no side effects
+
+  Scenario: Fail when using property access on primitive type
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({num: 42})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      WITH n.num AS n2
+      RETURN n2.num
+      """
+    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
