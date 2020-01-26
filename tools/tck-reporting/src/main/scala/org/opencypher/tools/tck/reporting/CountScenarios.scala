@@ -30,30 +30,30 @@ package org.opencypher.tools.tck.reporting
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
 
-trait CountCategory {
+trait Group {
   def name: String
   def indent: Int
-  def parent: Option[CountCategory]
+  def parent: Option[Group]
 
   override def toString: String = name
 }
 
-case object Total extends CountCategory {
+case object Total extends Group {
   val name = "Total"
   val indent = 0
-  val parent: Option[CountCategory] = None
+  val parent: Option[Group] = None
 }
 
-case class Tag(name: String) extends CountCategory {
+case class Tag(name: String) extends Group {
   val indent = 1
-  val parent: Option[CountCategory] = Some(Total)
+  val parent: Option[Group] = Some(Total)
 }
 
-case class Feature(name: String, indent: Int, parent: Option[CountCategory]) extends CountCategory {
+case class Feature(name: String, indent: Int, parent: Option[Group]) extends Group {
   override def toString: String = "Feature: " + name
 }
 
-case class ScenarioCategory(name: String, indent: Int, parent: Option[CountCategory]) extends CountCategory
+case class ScenarioCategory(name: String, indent: Int, parent: Option[Group]) extends Group
 
 case class GroupDiff(unchanged: Set[Scenario], changed: Set[(Scenario, Scenario)], added: Set[Scenario], removed: Set[Scenario])
 
@@ -73,26 +73,26 @@ case object CountScenarios {
     }
   }
 
-  def collect(scenarios: Seq[Scenario]): Map[CountCategory, Seq[Scenario]] = {
+  def collect(scenarios: Seq[Scenario]): Map[Group, Seq[Scenario]] = {
     // collect individual group for each scenario as 2-tuples of (Scenario,CountCategory)
-    val individualCounts: Seq[(Scenario,CountCategory)] = scenarios.flatMap(scenario => {
+    val individualCounts: Seq[(Scenario,Group)] = scenarios.flatMap(scenario => {
       // category
-      def mapToCountCategories(categories: List[String], parent: CountCategory): Seq[(Scenario, CountCategory)] = {
+      def mapToGroups(categories: List[String], parent: Group): Seq[(Scenario, Group)] = {
         categories match {
-          case Nil => Seq[(Scenario, CountCategory)]()
+          case Nil => Seq[(Scenario, Group)]()
           case category :: remainingCategories =>
             val categoryGroup = (scenario, ScenarioCategory(category, parent.indent + 1, Some(parent)))
-            categoryGroup +: mapToCountCategories(remainingCategories, categoryGroup._2)
+            categoryGroup +: mapToGroups(remainingCategories, categoryGroup._2)
         }
       }
-      val categoryGroups: Seq[(Scenario, CountCategory)] = mapToCountCategories(scenario.categories, Total)
+      val categoryGroups: Seq[(Scenario, Group)] = mapToGroups(scenario.categories, Total)
       // feature
       val feature: Feature = {
         val indent = categoryGroups.lastOption.map(_._2.indent).getOrElse(0) + 1
         Feature(scenario.featureName, indent, Some(categoryGroups.lastOption.getOrElse((scenario, Total))._2))
       }
       // tags
-      val tagGroups: Seq[(Scenario, CountCategory)] = scenario.tags.map(tag => (scenario, Tag(tag))).toSeq
+      val tagGroups: Seq[(Scenario, Group)] = scenario.tags.map(tag => (scenario, Tag(tag))).toSeq
 
       (scenario, Total) +: (scenario, feature) +: (categoryGroups ++ tagGroups)
     })
@@ -101,8 +101,8 @@ case object CountScenarios {
     allGroups
   }
 
-  def diff(before: Map[CountCategory, Seq[Scenario]],
-           after: Map[CountCategory, Seq[Scenario]]): Map[CountCategory, GroupDiff] = {
+  def diff(before: Map[Group, Seq[Scenario]],
+           after: Map[Group, Seq[Scenario]]): Map[Group, GroupDiff] = {
     val allGroups = before.keySet ++ after.keySet
     allGroups.map(group => {
       val scenariosBefore = before.getOrElse(group, Seq[Scenario]()).toSet
@@ -130,42 +130,42 @@ case object CountScenarios {
     }).toMap
   }
 
-  def reportCountsInPrettyPrint(totalCounts: Map[CountCategory, Seq[Scenario]]): String = {
-    val countCategoriesByParent = totalCounts.keys.groupBy(countCategory => countCategory.parent)
-    val outputs = totalCounts.keys.map(cat => cat -> {
+  def reportCountsInPrettyPrint(groups: Map[Group, Seq[Scenario]]): String = {
+    val groupsByParent = groups.keys.groupBy(countCategory => countCategory.parent)
+    val outputs = groups.keys.map(cat => cat -> {
       ("| " * cat.indent) + cat
     }).toMap
     // maxOutputLength is needed to align the counts
     val maxOutputLength = outputs.values.map(_.length).max
 
-    // print counts to stdout as a count category tree in dept first order
-    def printDepthFirst(currentCategory: CountCategory): List[String] = {
-      val thisOutput = outputs(currentCategory)
+    // print counts to stdout as a count group tree in dept first order
+    def printDepthFirst(currentGroup: Group): List[String] = {
+      val thisOutput = outputs(currentGroup)
       val thisOutputLine = "%s%s%8d".format(
         thisOutput,
         " " * (maxOutputLength-thisOutput.length),
-        totalCounts.getOrElse(currentCategory, Seq()).size
+        groups.getOrElse(currentGroup, Seq()).size
       )
-      // on each level ordered in groups of Total, ScenarioCategories, Features, Tags
-      val groupedCountSubCategories = countCategoriesByParent.getOrElse(Some(currentCategory), Iterable[CountCategory]()).groupBy{
+      // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
+      val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{
         case Total => 0
         case _:ScenarioCategory => 1
         case _:Feature => 2
         case _:Tag => 3
       }
       // within each group ordered alphabetically by name
-      val groupedAndOrderedCountSubCategories = groupedCountSubCategories.toSeq.sortBy(_._1).flatMap {
+      val groupsOrdered = groupsByClasses.toSeq.sortBy(_._1).flatMap {
         case (_, countCategories) => countCategories.toSeq.sortBy(_.name)
       }
 
-      thisOutputLine :: groupedAndOrderedCountSubCategories.flatMap(printDepthFirst).toList
+      thisOutputLine :: groupsOrdered.flatMap(printDepthFirst).toList
     }
 
     printDepthFirst(Total).mkString(System.lineSeparator)
   }
 
-  def reportDiffCountsInPrettyPrint(diffs: Map[CountCategory, GroupDiff]): String = {
-    val countCategoriesByParent = diffs.keys.groupBy(countCategory => countCategory.parent)
+  def reportDiffCountsInPrettyPrint(diffs: Map[Group, GroupDiff]): String = {
+    val groupsByParent = diffs.keys.groupBy(countCategory => countCategory.parent)
     val outputs = diffs.keys.map(cat => cat -> {
       ("  " * (cat.indent - 1)) + ("- " * (if (cat.indent > 0) 1 else 0)) + cat
     }).toMap
@@ -173,28 +173,28 @@ case object CountScenarios {
     val maxOutputLength = outputs.values.map(_.length).max
 
     // print counts to stdout as a count group tree in dept first order
-    def printDepthFirst(currentCategory: CountCategory): List[String] = {
-      val thisOutput = outputs(currentCategory)
+    def printDepthFirst(currentGroup: Group): List[String] = {
+      val thisOutput = outputs(currentGroup)
       val thisOutputLine = "%s%s%10d%8d%8d%8d".format(
         thisOutput,
         " " * (maxOutputLength - thisOutput.length),
-        diffs.get(currentCategory).map(_.unchanged.size).getOrElse(0),
-        diffs.get(currentCategory).map(_.changed.size).getOrElse(0),
-        diffs.get(currentCategory).map(_.added.size).getOrElse(0),
-        diffs.get(currentCategory).map(_.removed.size).getOrElse(0)
+        diffs.get(currentGroup).map(_.unchanged.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.changed.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.added.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.removed.size).getOrElse(0)
       )
       // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
-      val groupedCountSubCategories = countCategoriesByParent.getOrElse(Some(currentCategory), Iterable[CountCategory]()).groupBy{
+      val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{
         case Total => 0
         case _:ScenarioCategory => 1
         case _:Feature => 2
         case _:Tag => 3
       }
       // within each class ordered alphabetically by name
-      val groupedAndOrderedCountSubCategories = groupedCountSubCategories.toSeq.sortBy(_._1).flatMap {
+      val groupsOrdered = groupsByClasses.toSeq.sortBy(_._1).flatMap {
         case (_, countCategories) => countCategories.toSeq.sortBy(_.name)
       }
-      thisOutputLine :: groupedAndOrderedCountSubCategories.flatMap(printDepthFirst).toList
+      thisOutputLine :: groupsOrdered.flatMap(printDepthFirst).toList
     }
 
     //output header

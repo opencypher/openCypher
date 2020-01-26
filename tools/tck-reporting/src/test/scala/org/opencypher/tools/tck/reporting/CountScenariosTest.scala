@@ -183,7 +183,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectBefore = CountScenarios.collect(scenariosBefore)
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
-    val expectedResult = Map[CountCategory, GroupDiff](
+    val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Set(scrB), Set(), Set(scrA), Set()),
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(scrA), Set())
     )
@@ -216,7 +216,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectBefore = CountScenarios.collect(scenariosBefore)
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
-    val expectedResult = Map[CountCategory, GroupDiff](
+    val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA)),
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA))
     )
@@ -250,7 +250,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectBefore = CountScenarios.collect(scenariosBefore)
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
-    val expectedResult = Map[CountCategory, GroupDiff](
+    val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Set(scrB), Set((scrA1,scrA2)), Set(), Set()),
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA1)),
       Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(scrA2), Set())
@@ -288,7 +288,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
     val catX = ScenarioCategory("X", 1, Some(Total))
-    val expectedResult = Map[CountCategory, GroupDiff](
+    val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Set(scrB), Set((scrA1,scrA2)), Set(), Set()),
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA1)),
       catX -> GroupDiff(Set(), Set(), Set(scrA2), Set()),
@@ -328,7 +328,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectBefore = CountScenarios.collect(scenariosBefore)
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
-    val expectedResult = Map[CountCategory, GroupDiff](
+    val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Set(), Set((scrA1,scrA2),(scrB1,scrB2)), Set(), Set()),
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(), Set((scrB1,scrB2)), Set(), Set(scrA1)),
       Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(scrA2), Set()),
@@ -372,7 +372,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectBefore = CountScenarios.collect(scenariosBefore)
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
-    val expectedResult = Map[CountCategory, GroupDiff](
+    val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Set(scrA, scrB0, scrB2), Set((scrB1,scrB1x)), Set(), Set()),
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrA, scrB0, scrB2), Set((scrB1, scrB1x)), Set(), Set()),
       Tag("A") -> GroupDiff(Set(scrB0, scrB2), Set(), Set(), Set(scrB1)),
