@@ -30,7 +30,7 @@
 
 Feature: Match1 - Match Nodes scenarios
 
-  Scenario: Match non-existent nodes returns empty
+  Scenario: [1] Match non-existent nodes returns empty
     Given an empty graph
     When executing query:
       """
@@ -41,7 +41,7 @@ Feature: Match1 - Match Nodes scenarios
       | n |
     And no side effects
 
-  Scenario: Matching all nodes
+  Scenario: [2] Matching all nodes
     Given an empty graph
     And having executed:
       """
@@ -58,7 +58,7 @@ Feature: Match1 - Match Nodes scenarios
       | (:B) |
     And no side effects
 
-  Scenario: Matching nodes using multiple labels
+  Scenario: [3] Matching nodes using multiple labels
     Given an empty graph
     And having executed:
       """
@@ -75,7 +75,7 @@ Feature: Match1 - Match Nodes scenarios
       | (:A:B:C) |
     And no side effects
 
-  Scenario: Simple node inline property predicate
+  Scenario: [4] Simple node inline property predicate
     Given an empty graph
     And having executed:
       """
@@ -91,7 +91,7 @@ Feature: Match1 - Match Nodes scenarios
       | ({name: 'bar'}) |
     And no side effects
 
-  Scenario: Use multiple MATCH clauses to do a Cartesian product
+  Scenario: [5] Use multiple MATCH clauses to do a Cartesian product
     Given an empty graph
     And having executed:
       """

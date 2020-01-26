@@ -30,7 +30,7 @@
 
 Feature: Match7 - Optional match scenarios
 
-  Scenario: Simple OPTIONAL MATCH on empty graph
+  Scenario: [1] Simple OPTIONAL MATCH on empty graph
     Given an empty graph
     When executing query:
       """
@@ -42,7 +42,7 @@ Feature: Match7 - Optional match scenarios
       | null |
     And no side effects
 
-  Scenario: OPTIONAL MATCH with previously bound nodes
+  Scenario: [2] OPTIONAL MATCH with previously bound nodes
     Given an empty graph
     And having executed:
       """
@@ -59,7 +59,7 @@ Feature: Match7 - Optional match scenarios
       | () | null |
     And no side effects
 
-  Scenario: OPTIONAL MATCH and bound nodes
+  Scenario: [3] OPTIONAL MATCH and bound nodes
     Given an empty graph
     And having executed:
       """
@@ -81,7 +81,7 @@ Feature: Match7 - Optional match scenarios
       | (:A {num: 42}) |
     And no side effects
 
-  Scenario: MATCH with OPTIONAL MATCH in longer pattern
+  Scenario: [4] MATCH with OPTIONAL MATCH in longer pattern
     Given an empty graph
     And having executed:
       """
@@ -100,7 +100,7 @@ Feature: Match7 - Optional match scenarios
       | ({name: 'C'}) |
     And no side effects
 
-  Scenario: Longer pattern with bound nodes without matches
+  Scenario: [5] Longer pattern with bound nodes without matches
     Given an empty graph
     And having executed:
       """
@@ -122,7 +122,7 @@ Feature: Match7 - Optional match scenarios
       | null |
     And no side effects
 
-  Scenario: Longer pattern with bound nodes
+  Scenario: [6] Longer pattern with bound nodes
     Given an empty graph
     And having executed:
       """
@@ -144,7 +144,7 @@ Feature: Match7 - Optional match scenarios
       | (:A {num: 42}) |
     And no side effects
 
-  Scenario: Optionally matching from null nodes should return null
+  Scenario: [7] Optionally matching from null nodes should return null
     Given an empty graph
     When executing query:
       """
@@ -158,7 +158,7 @@ Feature: Match7 - Optional match scenarios
       | null |
     And no side effects
 
-  Scenario: Return two subgraphs with bound undirected relationship and optional relationship
+  Scenario: [8] Return two subgraphs with bound undirected relationship and optional relationship
     Given an empty graph
     And having executed:
       """
@@ -177,7 +177,7 @@ Feature: Match7 - Optional match scenarios
       | (:B {num: 2}) | (:A {num: 1}) | null          |
     And no side effects
 
-  Scenario: Variable length optional relationships
+  Scenario: [9] Variable length optional relationships
     Given an empty graph
     And having executed:
       """
@@ -202,7 +202,7 @@ Feature: Match7 - Optional match scenarios
       | (:C)           |
     And no side effects
 
-  Scenario: Variable length optional relationships with bound nodes
+  Scenario: [10] Variable length optional relationships with bound nodes
     Given an empty graph
     And having executed:
       """
@@ -224,7 +224,7 @@ Feature: Match7 - Optional match scenarios
       | (:C) |
     And no side effects
 
-  Scenario: Variable length optional relationships with length predicates
+  Scenario: [11] Variable length optional relationships with length predicates
     Given an empty graph
     And having executed:
       """
@@ -246,7 +246,7 @@ Feature: Match7 - Optional match scenarios
       | null |
     And no side effects
 
-  Scenario: Variable length patterns and nulls
+  Scenario: [12] Variable length patterns and nulls
     Given an empty graph
     And having executed:
       """
@@ -264,7 +264,7 @@ Feature: Match7 - Optional match scenarios
       | (:A) | null | null |
     And no side effects
 
-  Scenario: Optionally matching named paths - null result
+  Scenario: [13] Optionally matching named paths - null result
     Given an empty graph
     And having executed:
       """
@@ -286,7 +286,7 @@ Feature: Match7 - Optional match scenarios
       | null |
     And no side effects
 
-  Scenario: Optionally matching named paths - existing result
+  Scenario: [14] Optionally matching named paths - existing result
     Given an empty graph
     And having executed:
       """
@@ -306,7 +306,7 @@ Feature: Match7 - Optional match scenarios
       | ({name: 'C'}) | null                                |
     And no side effects
 
-  Scenario: Named paths inside optional matches with node predicates
+  Scenario: [15] Named paths inside optional matches with node predicates
     Given an empty graph
     And having executed:
       """
@@ -328,7 +328,7 @@ Feature: Match7 - Optional match scenarios
       | null |
     And no side effects
 
-  Scenario: Optionally matching named paths with single and variable length patterns
+  Scenario: [16] Optionally matching named paths with single and variable length patterns
     Given an empty graph
     And having executed:
       """
@@ -346,7 +346,7 @@ Feature: Match7 - Optional match scenarios
       | null |
     And no side effects
 
-  Scenario: Variable length optional relationships with bound nodes, no matches
+  Scenario: [17] Variable length optional relationships with bound nodes, no matches
     Given an empty graph
     And having executed:
       """
@@ -368,7 +368,7 @@ Feature: Match7 - Optional match scenarios
       | null |
     And no side effects
 
-  Scenario: Handling optional matches between nulls
+  Scenario: [18] Handling optional matches between nulls
     Given an empty graph
     And having executed:
       """
@@ -392,7 +392,7 @@ Feature: Match7 - Optional match scenarios
       | null | null | null |
     And no side effects
 
-  Scenario: MATCH after OPTIONAL MATCH
+  Scenario: [19] MATCH after OPTIONAL MATCH
     Given an empty graph
     And having executed:
       """
@@ -416,7 +416,7 @@ Feature: Match7 - Optional match scenarios
       | d |
     And no side effects
 
-  Scenario: OPTIONAL MATCH with labels on the optional end node
+  Scenario: [20] OPTIONAL MATCH with labels on the optional end node
     Given an empty graph
     And having executed:
       """
@@ -437,7 +437,7 @@ Feature: Match7 - Optional match scenarios
       | (:Y:Z) |
     And no side effects
 
-  Scenario: Optionally matching self-loops
+  Scenario: [21] Optionally matching self-loops
     Given an empty graph
     And having executed:
       """
@@ -459,7 +459,7 @@ Feature: Match7 - Optional match scenarios
       | [:LOOP] |
     And no side effects
 
-  Scenario: Optionally matching self-loops without matches
+  Scenario: [22] Optionally matching self-loops without matches
     Given an empty graph
     And having executed:
       """
@@ -484,9 +484,7 @@ Feature: Match7 - Optional match scenarios
       | null |
     And no side effects
 
-
-
-  Scenario: Handling correlated optional matches; first does not match implies second does not match
+  Scenario: [23] Handling correlated optional matches; first does not match implies second does not match
     Given an empty graph
     And having executed:
       """
@@ -509,7 +507,7 @@ Feature: Match7 - Optional match scenarios
       | (:C) | null |
     And no side effects
 
-  Scenario: Handling optional matches between optionally matched entities
+  Scenario: [24] Handling optional matches between optionally matched entities
     Given an empty graph
     And having executed:
       """

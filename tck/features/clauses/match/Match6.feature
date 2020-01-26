@@ -30,7 +30,7 @@
 
 Feature: Match6 - Match named paths scenarios
 
-  Scenario: Zero-length named path
+  Scenario: [1] Zero-length named path
     Given an empty graph
     And having executed:
       """
@@ -46,7 +46,7 @@ Feature: Match6 - Match named paths scenarios
       | <()> |
     And no side effects
 
-  Scenario: Return a simple path
+  Scenario: [2] Return a simple path
     Given an empty graph
     And having executed:
       """
@@ -63,7 +63,7 @@ Feature: Match6 - Match named paths scenarios
     And no side effects
 
 
-  Scenario: Return a three node path
+  Scenario: [3] Return a three node path
     Given an empty graph
     And having executed:
       """
@@ -79,7 +79,7 @@ Feature: Match6 - Match named paths scenarios
       | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})-[:KNOWS]->(:C {name: 'C'})> |
     And no side effects
 
-  Scenario: Respecting direction when matching non-existent path
+  Scenario: [4] Respecting direction when matching non-existent path
     Given an empty graph
     And having executed:
       """
@@ -95,7 +95,7 @@ Feature: Match6 - Match named paths scenarios
       | p |
     And no side effects
 
-  Scenario: Path query should return results in written order
+  Scenario: [5] Path query should return results in written order
     Given an empty graph
     And having executed:
       """
@@ -111,7 +111,7 @@ Feature: Match6 - Match named paths scenarios
       | <(:Label1)<-[:TYPE]-(:Label2)> |
     And no side effects
 
-  Scenario: Handling direction of named paths
+  Scenario: [6] Handling direction of named paths
     Given an empty graph
     And having executed:
       """
@@ -127,7 +127,7 @@ Feature: Match6 - Match named paths scenarios
       | <(:B)<-[:T]-(:A)> |
     And no side effects
 
-  Scenario: Respecting direction when matching existing path
+  Scenario: [7] Respecting direction when matching existing path
     Given an empty graph
     And having executed:
       """
@@ -144,7 +144,7 @@ Feature: Match6 - Match named paths scenarios
       | <({name: 'a'})-[:T]->({name: 'b'})> |
     And no side effects
 
-  Scenario: Respecting direction when matching non-existent path with multiple directions
+  Scenario: [8] Respecting direction when matching non-existent path with multiple directions
     Given an empty graph
     And having executed:
       """
@@ -161,7 +161,7 @@ Feature: Match6 - Match named paths scenarios
       | p |
     And no side effects
 
-  Scenario: Longer path query should return results in written order
+  Scenario: [9] Longer path query should return results in written order
     Given an empty graph
     And having executed:
       """
@@ -177,8 +177,7 @@ Feature: Match6 - Match named paths scenarios
       | <(:Label1)<-[:T1]-(:Label2)-[:T2]->(:Label3)> |
     And no side effects
 
-
-  Scenario: Named path with alternating directed/undirected relationships
+  Scenario: [10] Named path with alternating directed/undirected relationships
     Given an empty graph
     And having executed:
       """
@@ -196,7 +195,7 @@ Feature: Match6 - Match named paths scenarios
       | <(:C)-[:T]->(:B)-[:T]->(:A)> |
     And no side effects
 
-  Scenario: Named path with multiple alternating directed/undirected relationships
+  Scenario: [11] Named path with multiple alternating directed/undirected relationships
     Given an empty graph
     And having executed:
       """
@@ -215,7 +214,7 @@ Feature: Match6 - Match named paths scenarios
       | <(:D)-[:T]->(:C)-[:T]->(:B)-[:T]->(:A)> |
     And no side effects
 
-  Scenario: Matching path with multiple bidirectional relationships
+  Scenario: [12] Matching path with multiple bidirectional relationships
     Given an empty graph
     And having executed:
       """
@@ -236,7 +235,7 @@ Feature: Match6 - Match named paths scenarios
       | <(:B)-[:T2]->(:A)-[:T1]->(:B)> |
     And no side effects
 
-  Scenario: Matching path with both directions should respect other directions
+  Scenario: [13] Matching path with both directions should respect other directions
     Given an empty graph
     And having executed:
       """
@@ -255,7 +254,7 @@ Feature: Match6 - Match named paths scenarios
       | <(:B)<-[:T1]-(:A)<-[:T2]-(:B)> |
     And no side effects
 
-  Scenario: Named path with undirected fixed variable length pattern
+  Scenario: [14] Named path with undirected fixed variable length pattern
     Given an empty graph
     And having executed:
       """
@@ -279,7 +278,7 @@ Feature: Match6 - Match named paths scenarios
       | <(:Start)<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->()<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->(:End)> |
     And no side effects
 
-  Scenario: Variable-length named path
+  Scenario: [15] Variable-length named path
     Given an empty graph
     And having executed:
       """
@@ -295,7 +294,7 @@ Feature: Match6 - Match named paths scenarios
       | <()> |
     And no side effects
 
-  Scenario: Return a var length path
+  Scenario: [16] Return a var length path
     Given an empty graph
     And having executed:
       """
@@ -312,7 +311,7 @@ Feature: Match6 - Match named paths scenarios
       | <(:A {name: 'A'})-[:KNOWS {num: 1}]->(:B {name: 'B'})-[:KNOWS {num: 2}]->(:C {name: 'C'})> |
     And no side effects
 
-  Scenario: Return a named var length path of length zero
+  Scenario: [17] Return a named var length path of length zero
     Given an empty graph
     And having executed:
       """
@@ -330,7 +329,7 @@ Feature: Match6 - Match named paths scenarios
       | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})-[:FRIEND]->(:C {name: 'C'})> |
     And no side effects
 
-  Scenario: Undirected named path
+  Scenario: [18] Undirected named path
     Given an empty graph
     And having executed:
       """
@@ -348,7 +347,7 @@ Feature: Match6 - Match named paths scenarios
       | <(:Movie)<-[:T]-()> |
     And no side effects
 
-  Scenario: Variable length relationship without lower bound
+  Scenario: [19] Variable length relationship without lower bound
     Given an empty graph
     And having executed:
       """
@@ -368,7 +367,7 @@ Feature: Match6 - Match named paths scenarios
       | <({name: 'A'})-[:KNOWS]->({name: 'B'})-[:KNOWS]->({name: 'C'})> |
     And no side effects
 
-  Scenario: Variable length relationship without bounds
+  Scenario: [20] Variable length relationship without bounds
     Given an empty graph
     And having executed:
       """
