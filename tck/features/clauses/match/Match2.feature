@@ -102,7 +102,7 @@ Feature: Match2 - Match relationships scenarios
       """
     When executing query:
       """
-      MATCH (node)-[r:KNOWS {name:'monkey'}]->(a)
+      MATCH (node)-[r:KNOWS {name: 'monkey'}]->(a)
       RETURN a
       """
     Then the result should be, in any order:

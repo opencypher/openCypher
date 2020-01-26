@@ -77,6 +77,7 @@ Feature: Match2-1 - Match relationships RETURN clause scenarios
     Then the result should be, in any order:
       | r                  |
       | [(:A), [:T], (:B)] |
+    And no side effects
 
   Scenario: Projecting a map of nodes and relationships
     Given an empty graph

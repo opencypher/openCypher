@@ -201,6 +201,7 @@ Feature: Match3-2 - Match fixed length patterns WHERE clause scenarios
       | d    |
       | (:A) |
       | (:D) |
+    And no side effects
 
   Scenario: Do not fail when evaluating predicates with illegal operations if the AND'ed predicate evaluates to false
     Given an empty graph
