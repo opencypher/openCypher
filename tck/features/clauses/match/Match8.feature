@@ -30,7 +30,7 @@
 
 Feature: Match8 - Match clause Interoperation with other clauses
 
-  Scenario: Counting rows after MATCH, MERGE, OPTIONAL MATCH
+  Scenario: [1] Counting rows after MATCH, MERGE, OPTIONAL MATCH
     Given an empty graph
     And having executed:
       """

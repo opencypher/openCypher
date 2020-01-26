@@ -30,7 +30,7 @@
 
 Feature: Match2 - Match relationships scenarios
 
-  Scenario: Match non-existent relationships returns empty
+  Scenario: [1] Match non-existent relationships returns empty
     Given an empty graph
     When executing query:
       """
@@ -41,7 +41,7 @@ Feature: Match2 - Match relationships scenarios
       | r |
     And no side effects
 
-  Scenario: Matching a relationship pattern using a label predicate on both sides
+  Scenario: [2] Matching a relationship pattern using a label predicate on both sides
     Given an empty graph
     And having executed:
       """
@@ -60,7 +60,7 @@ Feature: Match2 - Match relationships scenarios
       | [:T1] |
     And no side effects
 
-  Scenario: Matching a self-loop with an undirected relationship pattern
+  Scenario: [3] Matching a self-loop with an undirected relationship pattern
     Given an empty graph
     And having executed:
       """
@@ -77,7 +77,7 @@ Feature: Match2 - Match relationships scenarios
       | 'T' |
     And no side effects
 
-  Scenario: Matching a self-loop with a directed relationship pattern
+  Scenario: [4] Matching a self-loop with a directed relationship pattern
     Given an empty graph
     And having executed:
       """
@@ -94,7 +94,7 @@ Feature: Match2 - Match relationships scenarios
       | 'T' |
     And no side effects
 
-  Scenario: Match relationship with inline property value
+  Scenario: [5] Match relationship with inline property value
     Given an empty graph
     And having executed:
       """
@@ -110,7 +110,7 @@ Feature: Match2 - Match relationships scenarios
       | (:A) |
     And no side effects
 
-  Scenario: Match relationships with multiple types
+  Scenario: [6] Match relationships with multiple types
     Given an empty graph
     And having executed:
       """

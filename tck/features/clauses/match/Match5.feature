@@ -66,7 +66,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
              (n011)-[:LIKES]->(n0111)
       """
 
-  Scenario: Handling unbounded variable length match
+  Scenario: [1] Handling unbounded variable length match
     When executing query:
       """
       MATCH (a:A)
@@ -91,7 +91,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
-  Scenario: Handling explicitly unbounded variable length match
+  Scenario: [2] Handling explicitly unbounded variable length match
     When executing query:
       """
       MATCH (a:A)
@@ -116,7 +116,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
-  Scenario: Fail when asterisk operator is missing
+  Scenario: [3] Fail when asterisk operator is missing
     When executing query:
       """
       MATCH (a:A)
@@ -125,7 +125,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       """
     Then a SyntaxError should be raised at compile time: InvalidRelationshipPattern
 
-  Scenario: Handling single bounded variable length match 1
+  Scenario: [4] Handling single bounded variable length match 1
     When executing query:
       """
       MATCH (a:A)
@@ -137,7 +137,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0'   |
     And no side effects
 
-  Scenario: Handling single bounded variable length match 2
+  Scenario: [5] Handling single bounded variable length match 2
     When executing query:
       """
       MATCH (a:A)
@@ -150,7 +150,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01'  |
     And no side effects
 
-  Scenario: Handling single bounded variable length match 3
+  Scenario: [6] Handling single bounded variable length match 3
     When executing query:
       """
       MATCH (a:A)
@@ -165,7 +165,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n011' |
     And no side effects
 
-  Scenario: Handling upper and lower bounded variable length match 1
+  Scenario: [7] Handling upper and lower bounded variable length match 1
     When executing query:
       """
       MATCH (a:A)
@@ -183,7 +183,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n011' |
     And no side effects
 
-  Scenario: Handling upper and lower bounded variable length match 2
+  Scenario: [8] Handling upper and lower bounded variable length match 2
     When executing query:
       """
       MATCH (a:A)
@@ -200,7 +200,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n011' |
     And no side effects
 
-  Scenario: Handling symmetrically bounded variable length match, bounds are zero
+  Scenario: [9] Handling symmetrically bounded variable length match, bounds are zero
     When executing query:
       """
       MATCH (a:A)
@@ -212,7 +212,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0'   |
     And no side effects
 
-  Scenario: Handling symmetrically bounded variable length match, bounds are one
+  Scenario: [10] Handling symmetrically bounded variable length match, bounds are one
     When executing query:
       """
       MATCH (a:A)
@@ -225,7 +225,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01'  |
     And no side effects
 
-  Scenario: Handling symmetrically bounded variable length match, bounds are two
+  Scenario: [11] Handling symmetrically bounded variable length match, bounds are two
     When executing query:
       """
       MATCH (a:A)
@@ -240,7 +240,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n011' |
     And no side effects
 
-  Scenario: Fail on negative bound
+  Scenario: [12] Fail on negative bound
     When executing query:
       """
       MATCH (a:A)
@@ -249,7 +249,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       """
     Then a SyntaxError should be raised at compile time: InvalidRelationshipPattern
 
-  Scenario: Handling upper and lower bounded variable length match, empty interval 1
+  Scenario: [13] Handling upper and lower bounded variable length match, empty interval 1
     When executing query:
       """
       MATCH (a:A)
@@ -260,7 +260,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | c.name |
     And no side effects
 
-  Scenario: Handling upper and lower bounded variable length match, empty interval 2
+  Scenario: [14] Handling upper and lower bounded variable length match, empty interval 2
     When executing query:
       """
       MATCH (a:A)
@@ -271,7 +271,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | c.name |
     And no side effects
 
-  Scenario: Handling upper bounded variable length match, empty interval
+  Scenario: [15] Handling upper bounded variable length match, empty interval
     When executing query:
       """
       MATCH (a:A)
@@ -282,7 +282,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | c.name |
     And no side effects
 
-  Scenario: Handling upper bounded variable length match 1
+  Scenario: [16] Handling upper bounded variable length match 1
     When executing query:
       """
       MATCH (a:A)
@@ -295,7 +295,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01'  |
     And no side effects
 
-  Scenario: Handling upper bounded variable length match 2
+  Scenario: [17] Handling upper bounded variable length match 2
     When executing query:
       """
       MATCH (a:A)
@@ -312,7 +312,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n011' |
     And no side effects
 
-  Scenario: Handling lower bounded variable length match 1
+  Scenario: [18] Handling lower bounded variable length match 1
     When executing query:
       """
       MATCH (a:A)
@@ -338,7 +338,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
-  Scenario: Handling lower bounded variable length match 2
+  Scenario: [19] Handling lower bounded variable length match 2
     When executing query:
       """
       MATCH (a:A)
@@ -363,7 +363,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
-  Scenario: Handling lower bounded variable length match 3
+  Scenario: [20] Handling lower bounded variable length match 3
     When executing query:
       """
       MATCH (a:A)
@@ -386,7 +386,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
-  Scenario: Handling a variable length relationship and a standard relationship in chain, zero length 1
+  Scenario: [21] Handling a variable length relationship and a standard relationship in chain, zero length 1
     When executing query:
       """
       MATCH (a:A)
@@ -399,7 +399,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01'  |
     And no side effects
 
-  Scenario: Handling a variable length relationship and a standard relationship in chain, zero length 2
+  Scenario: [22] Handling a variable length relationship and a standard relationship in chain, zero length 2
     When executing query:
       """
       MATCH (a:A)
@@ -412,7 +412,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01'  |
     And no side effects
 
-  Scenario: Handling a variable length relationship and a standard relationship in chain, single length 1
+  Scenario: [23] Handling a variable length relationship and a standard relationship in chain, single length 1
     When executing query:
       """
       MATCH (a:A)
@@ -427,7 +427,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n011' |
     And no side effects
 
-  Scenario: Handling a variable length relationship and a standard relationship in chain, single length 2
+  Scenario: [24] Handling a variable length relationship and a standard relationship in chain, single length 2
     When executing query:
       """
       MATCH (a:A)
@@ -442,7 +442,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n011' |
     And no side effects
 
-  Scenario: Handling a variable length relationship and a standard relationship in chain, longer 1
+  Scenario: [25] Handling a variable length relationship and a standard relationship in chain, longer 1
     When executing query:
       """
       MATCH (a:A)
@@ -461,7 +461,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
-  Scenario: Handling a variable length relationship and a standard relationship in chain, longer 2
+  Scenario: [26] Handling a variable length relationship and a standard relationship in chain, longer 2
     When executing query:
       """
       MATCH (a:A)
@@ -480,7 +480,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
-  Scenario: Handling a variable length relationship and a standard relationship in chain, longer 3
+  Scenario: [27] Handling a variable length relationship and a standard relationship in chain, longer 3
     And having executed:
       """
       MATCH (d:D)
@@ -515,7 +515,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01111' |
     And no side effects
 
-  Scenario: Handling mixed relationship patterns and directions 1
+  Scenario: [28] Handling mixed relationship patterns and directions 1
     And having executed:
       """
       MATCH (a:A)-[r]->(b)
@@ -556,7 +556,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01111' |
     And no side effects
 
-  Scenario: Handling mixed relationship patterns and directions 2
+  Scenario: [29] Handling mixed relationship patterns and directions 2
     # This gets hard to follow for a human mind. The answer is named graphs, but it's not crucial to fix.
     And having executed:
       """
@@ -599,7 +599,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01111' |
     And no side effects
 
-  Scenario: Handling mixed relationship patterns 1
+  Scenario: [30] Handling mixed relationship patterns 1
     And having executed:
       """
       MATCH (d:D)
@@ -634,7 +634,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01111' |
     And no side effects
 
-  Scenario: Handling mixed relationship patterns 2
+  Scenario: [31] Handling mixed relationship patterns 2
     And having executed:
       """
       MATCH (d:D)

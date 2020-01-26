@@ -30,7 +30,7 @@
 
 Feature: Match10 - Match clause failure scenarios
 
-  Scenario: Fail when using property access on primitive type
+  Scenario: [1] Fail when using property access on primitive type
     Given an empty graph
     And having executed:
       """
