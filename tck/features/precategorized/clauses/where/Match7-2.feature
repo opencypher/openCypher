@@ -28,7 +28,96 @@
 
 #encoding: utf-8
 
-Feature: Match7-2 - Optional match RETURN clause scenarios
+Feature: Match7-2 - Optional match WHERE clause scenarios
+
+  Scenario: MATCH and OPTIONAL MATCH on same pattern
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a {name: 'A'}), (b:B {name: 'B'}), (c:C {name: 'C'})
+      CREATE (a)-[:T]->(b),
+             (a)-[:T]->(c)
+      """
+    When executing query:
+      """
+      MATCH (a)-->(b)
+      WHERE b:B
+      OPTIONAL MATCH (a)-->(c)
+      WHERE c:C
+      RETURN a.name
+      """
+    Then the result should be, in any order:
+      | a.name |
+      | 'A'    |
+    And no side effects
+
+  Scenario: Return null when no matches due to inline label predicate
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (n:Single)
+      OPTIONAL MATCH (n)-[r]-(m:NonExistent)
+      RETURN r
+      """
+    Then the result should be, in any order:
+      | r    |
+      | null |
+    And no side effects
+
+  Scenario: Return null when no matches due to label predicate in WHERE
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (n:Single)
+      OPTIONAL MATCH (n)-[r]-(m)
+      WHERE m:NonExistent
+      RETURN r
+      """
+    Then the result should be, in any order:
+      | r    |
+      | null |
+    And no side effects
+
+  Scenario: Respect predicates on the OPTIONAL MATCH
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (n:Single)
+      OPTIONAL MATCH (n)-[r]-(m)
+      WHERE m.num = 42
+      RETURN m
+      """
+    Then the result should be, in any order:
+      | m              |
+      | (:A {num: 42}) |
+    And no side effects
 
   Scenario: Do not fail when predicates on optionally matched and missed nodes are invalid
     Given an empty graph
@@ -68,3 +157,93 @@ Feature: Match7-2 - Optional match RETURN clause scenarios
       | a1   | r    | b2   | a2   |
       | (:A) | [:T] | null | null |
     And no side effects
+
+  Scenario: OPTIONAL MATCH and WHERE
+    Given an empty graph
+    And having executed:
+      """
+      CREATE
+        (:X {val: 1})-[:E1]->(:Y {val: 2})-[:E2]->(:Z {val: 3}),
+        (:X {val: 4})-[:E1]->(:Y {val: 5}),
+        (:X {val: 6})
+      """
+    When executing query:
+      """
+      MATCH (x:X)
+      OPTIONAL MATCH (x)-[:E1]->(y:Y)
+      WHERE x.val < y.val
+      RETURN x, y
+      """
+    Then the result should be, in any order:
+      | x             | y             |
+      | (:X {val: 1}) | (:Y {val: 2}) |
+      | (:X {val: 4}) | (:Y {val: 5}) |
+      | (:X {val: 6}) | null          |
+    And no side effects
+
+  Scenario: OPTIONAL MATCH on two relationships and WHERE
+    Given an empty graph
+    And having executed:
+      """
+      CREATE
+        (:X {val: 1})-[:E1]->(:Y {val: 2})-[:E2]->(:Z {val: 3}),
+        (:X {val: 4})-[:E1]->(:Y {val: 5}),
+        (:X {val: 6})
+      """
+    When executing query:
+      """
+      MATCH (x:X)
+      OPTIONAL MATCH (x)-[:E1]->(y:Y)-[:E2]->(z:Z)
+      WHERE x.val < z.val
+      RETURN x, y, z
+      """
+    Then the result should be, in any order:
+      | x             | y             | z             |
+      | (:X {val: 1}) | (:Y {val: 2}) | (:Z {val: 3}) |
+      | (:X {val: 4}) | null          | null          |
+      | (:X {val: 6}) | null          | null          |
+    And no side effects
+
+  Scenario: Two OPTIONAL MATCH clauses and WHERE
+    Given an empty graph
+    And having executed:
+      """
+      CREATE
+        (:X {val: 1})-[:E1]->(:Y {val: 2})-[:E2]->(:Z {val: 3}),
+        (:X {val: 4})-[:E1]->(:Y {val: 5}),
+        (:X {val: 6})
+      """
+    When executing query:
+      """
+      MATCH (x:X)
+      OPTIONAL MATCH (x)-[:E1]->(y:Y)
+      OPTIONAL MATCH (y)-[:E2]->(z:Z)
+      WHERE x.val < z.val
+      RETURN x, y, z
+      """
+    Then the result should be, in any order:
+      | x             | y             | z             |
+      | (:X {val: 1}) | (:Y {val: 2}) | (:Z {val: 3}) |
+      | (:X {val: 4}) | (:Y {val: 5}) | null          |
+      | (:X {val: 6}) | null          | null          |
+    And no side effects
+
+  Scenario: Excluding connected nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A), (b:B {id: 1}), (:B {id: 2})
+      CREATE (a)-[:T]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:A), (other:B)
+      OPTIONAL MATCH (a)-[r]->(other)
+      WITH other WHERE r IS NULL
+      RETURN other
+      """
+    Then the result should be, in any order:
+      | other        |
+      | (:B {id: 2}) |
+    And no side effects
+
