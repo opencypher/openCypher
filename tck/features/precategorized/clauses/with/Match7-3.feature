@@ -28,60 +28,84 @@
 
 #encoding: utf-8
 
-Feature: OptionalMatch
+Feature: Match7-3 - Optional match WITH clause scenarios
 
-  Scenario: Satisfies the open world assumption, relationships between same nodes
+  Scenario: WITH after OPTIONAL MATCH
     Given an empty graph
     And having executed:
       """
-      CREATE (a:Player), (b:Team)
-      CREATE (a)-[:PLAYS_FOR]->(b),
-             (a)-[:SUPPORTS]->(b)
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
       """
     When executing query:
       """
-      MATCH (p:Player)-[:PLAYS_FOR]->(team:Team)
-      OPTIONAL MATCH (p)-[s:SUPPORTS]->(team)
-      RETURN count(*) AS matches, s IS NULL AS optMatch
+      OPTIONAL MATCH (a:A)
+      WITH a AS a
+      MATCH (b:B)
+      RETURN a, b
       """
     Then the result should be, in any order:
-      | matches | optMatch |
-      | 1       | false    |
+      | a              | b              |
+      | (:A {num: 42}) | (:B {num: 46}) |
     And no side effects
 
-  Scenario: Satisfies the open world assumption, single relationship
+  Scenario: Matching and optionally matching with bound nodes in reverse direction
     Given an empty graph
     And having executed:
       """
-      CREATE (a:Player), (b:Team)
-      CREATE (a)-[:PLAYS_FOR]->(b)
+      CREATE (:A)-[:T]->(:B)
       """
     When executing query:
       """
-      MATCH (p:Player)-[:PLAYS_FOR]->(team:Team)
-      OPTIONAL MATCH (p)-[s:SUPPORTS]->(team)
-      RETURN count(*) AS matches, s IS NULL AS optMatch
+      MATCH (a1)-[r]->()
+      WITH r, a1
+        LIMIT 1
+      OPTIONAL MATCH (a1)<-[r]-(b2)
+      RETURN a1, r, b2
       """
     Then the result should be, in any order:
-      | matches | optMatch |
-      | 1       | true     |
+      | a1   | r    | b2   |
+      | (:A) | [:T] | null |
     And no side effects
 
-  Scenario: Satisfies the open world assumption, relationships between different nodes
+  Scenario: Matching with LIMIT and optionally matching using a relationship that is already bound
     Given an empty graph
     And having executed:
       """
-      CREATE (a:Player), (b:Team), (c:Team)
-      CREATE (a)-[:PLAYS_FOR]->(b),
-             (a)-[:SUPPORTS]->(c)
+      CREATE (:A)-[:T]->(:B)
       """
     When executing query:
       """
-      MATCH (p:Player)-[:PLAYS_FOR]->(team:Team)
-      OPTIONAL MATCH (p)-[s:SUPPORTS]->(team)
-      RETURN count(*) AS matches, s IS NULL AS optMatch
+      MATCH ()-[r]->()
+      WITH r
+        LIMIT 1
+      OPTIONAL MATCH (a2)-[r]->(b2)
+      RETURN a2, r, b2
       """
     Then the result should be, in any order:
-      | matches | optMatch |
-      | 1       | true     |
+      | a2   | r    | b2   |
+      | (:A) | [:T] | (:B) |
+    And no side effects
+
+  Scenario: Matching with LIMIT and optionally matching using a relationship and node that are both already bound
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A)-[:T]->(:B)
+      """
+    When executing query:
+      """
+      MATCH (a1)-[r]->()
+      WITH r, a1
+        LIMIT 1
+      OPTIONAL MATCH (a1)-[r]->(b2)
+      RETURN a1, r, b2
+      """
+    Then the result should be, in any order:
+      | a1   | r    | b2   |
+      | (:A) | [:T] | (:B) |
     And no side effects

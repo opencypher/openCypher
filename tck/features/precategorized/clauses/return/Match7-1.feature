@@ -28,40 +28,26 @@
 
 #encoding: utf-8
 
-Feature: Feature: Match7-4 - Optional Match build in functions scenarios
+Feature: Match7-1 - Optional match RETURN clause scenarios
 
-  Scenario: `collect()` filtering nulls
+  Scenario: Returning label predicate on null node
     Given an empty graph
     And having executed:
       """
-      CREATE ()
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
       """
     When executing query:
       """
-      MATCH (n)
-      OPTIONAL MATCH (n)-[:NOT_EXIST]->(x)
-      RETURN n, collect(x)
+      MATCH (n:Single)
+      OPTIONAL MATCH (n)-[r:TYPE]-(m)
+      RETURN m:TYPE
       """
     Then the result should be, in any order:
-      | n  | collect(x) |
-      | () | []         |
-    And no side effects
-
-  Scenario: OPTIONAL MATCH and `collect() on node property`
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:DoesExist {num: 42})
-      CREATE (:DoesExist {num: 43})
-      CREATE (:DoesExist {num: 44})
-      """
-    When executing query:
-      """
-      OPTIONAL MATCH (f:DoesExist)
-      OPTIONAL MATCH (n:DoesNotExist)
-      RETURN collect(DISTINCT n.num) AS a, collect(DISTINCT f.num) AS b
-      """
-    Then the result should be, in any order:
-      | a  | b            |
-      | [] | [42, 43, 44] |
+      | m:TYPE |
+      | null   |
     And no side effects

@@ -59,6 +59,28 @@ Feature: Match7 - Optional match scenarios
       | () | null |
     And no side effects
 
+  Scenario: OPTIONAL MATCH and bound nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:A), (b:C)
+      OPTIONAL MATCH (x)-->(b)
+      RETURN x
+      """
+    Then the result should be, in any order:
+      | x              |
+      | (:A {num: 42}) |
+    And no side effects
+
   Scenario: MATCH with OPTIONAL MATCH in longer pattern
     Given an empty graph
     And having executed:
@@ -78,25 +100,48 @@ Feature: Match7 - Optional match scenarios
       | ({name: 'C'}) |
     And no side effects
 
-  Scenario: MATCH and OPTIONAL MATCH on same pattern
+  Scenario: Longer pattern with bound nodes without matches
     Given an empty graph
     And having executed:
       """
-      CREATE (a {name: 'A'}), (b:B {name: 'B'}), (c:C {name: 'C'})
-      CREATE (a)-[:T]->(b),
-             (a)-[:T]->(c)
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
       """
     When executing query:
       """
-      MATCH (a)-->(b)
-      WHERE b:B
-      OPTIONAL MATCH (a)-->(c)
-      WHERE c:C
-      RETURN a.name
+      MATCH (a:A), (c:C)
+      OPTIONAL MATCH (a)-->(b)-->(c)
+      RETURN b
       """
     Then the result should be, in any order:
-      | a.name |
-      | 'A'    |
+      | b    |
+      | null |
+    And no side effects
+
+  Scenario: Longer pattern with bound nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:Single), (c:C)
+      OPTIONAL MATCH (a)-->(b)-->(c)
+      RETURN b
+      """
+    Then the result should be, in any order:
+      | b              |
+      | (:A {num: 42}) |
     And no side effects
 
   Scenario: Optionally matching from null nodes should return null
@@ -111,83 +156,6 @@ Feature: Match7 - Optional match scenarios
     Then the result should be, in any order:
       | b    |
       | null |
-    And no side effects
-
-
-  Scenario: Matching and optionally matching with bound nodes in reverse direction
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A)-[:T]->(:B)
-      """
-    When executing query:
-      """
-      MATCH (a1)-[r]->()
-      WITH r, a1
-        LIMIT 1
-      OPTIONAL MATCH (a1)<-[r]-(b2)
-      RETURN a1, r, b2
-      """
-    Then the result should be, in any order:
-      | a1   | r    | b2   |
-      | (:A) | [:T] | null |
-    And no side effects
-
-  Scenario: Excluding connected nodes
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A), (b:B {id: 1}), (:B {id: 2})
-      CREATE (a)-[:T]->(b)
-      """
-    When executing query:
-      """
-      MATCH (a:A), (other:B)
-      OPTIONAL MATCH (a)-[r]->(other)
-      WITH other WHERE r IS NULL
-      RETURN other
-      """
-    Then the result should be, in any order:
-      | other        |
-      | (:B {id: 2}) |
-    And no side effects
-
-  Scenario: Matching with LIMIT and optionally matching using a relationship that is already bound
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A)-[:T]->(:B)
-      """
-    When executing query:
-      """
-      MATCH ()-[r]->()
-      WITH r
-        LIMIT 1
-      OPTIONAL MATCH (a2)-[r]->(b2)
-      RETURN a2, r, b2
-      """
-    Then the result should be, in any order:
-      | a2   | r    | b2   |
-      | (:A) | [:T] | (:B) |
-    And no side effects
-
-  Scenario: Matching with LIMIT and optionally matching using a relationship and node that are both already bound
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A)-[:T]->(:B)
-      """
-    When executing query:
-      """
-      MATCH (a1)-[r]->()
-      WITH r, a1
-        LIMIT 1
-      OPTIONAL MATCH (a1)-[r]->(b2)
-      RETURN a1, r, b2
-      """
-    Then the result should be, in any order:
-      | a1   | r    | b2   |
-      | (:A) | [:T] | (:B) |
     And no side effects
 
   Scenario: Return two subgraphs with bound undirected relationship and optional relationship
@@ -209,6 +177,75 @@ Feature: Match7 - Optional match scenarios
       | (:B {num: 2}) | (:A {num: 1}) | null          |
     And no side effects
 
+  Scenario: Variable length optional relationships
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:Single)
+      OPTIONAL MATCH (a)-[*]->(b)
+      RETURN b
+      """
+    Then the result should be, in any order:
+      | b              |
+      | (:A {num: 42}) |
+      | (:B {num: 46}) |
+      | (:B {num: 46}) |
+      | (:C)           |
+    And no side effects
+
+  Scenario: Variable length optional relationships with bound nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:Single), (x:C)
+      OPTIONAL MATCH (a)-[*]->(x)
+      RETURN x
+      """
+    Then the result should be, in any order:
+      | x    |
+      | (:C) |
+    And no side effects
+
+  Scenario: Variable length optional relationships with length predicates
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:Single)
+      OPTIONAL MATCH (a)-[*3..]-(b)
+      RETURN b
+      """
+    Then the result should be, in any order:
+      | b    |
+      | null |
+    And no side effects
+
   Scenario: Variable length patterns and nulls
     Given an empty graph
     And having executed:
@@ -227,7 +264,29 @@ Feature: Match7 - Optional match scenarios
       | (:A) | null | null |
     And no side effects
 
-  Scenario: Optionally matching named paths
+  Scenario: Optionally matching named paths - null result
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      OPTIONAL MATCH p = (a)-[:X]->(b)
+      RETURN p
+      """
+    Then the result should be, in any order:
+      | p    |
+      | null |
+    And no side effects
+
+  Scenario: Optionally matching named paths - existing result
     Given an empty graph
     And having executed:
       """
@@ -247,6 +306,28 @@ Feature: Match7 - Optional match scenarios
       | ({name: 'C'}) | null                                |
     And no side effects
 
+  Scenario: Named paths inside optional matches with node predicates
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:A), (b:B)
+      OPTIONAL MATCH p = (a)-[:X]->(b)
+      RETURN p
+      """
+    Then the result should be, in any order:
+      | p    |
+      | null |
+    And no side effects
+
   Scenario: Optionally matching named paths with single and variable length patterns
     Given an empty graph
     And having executed:
@@ -263,4 +344,192 @@ Feature: Match7 - Optional match scenarios
     Then the result should be, in any order:
       | p    |
       | null |
+    And no side effects
+
+  Scenario: Variable length optional relationships with bound nodes, no matches
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:A), (b:B)
+      OPTIONAL MATCH p = (a)-[*]->(b)
+      RETURN p
+      """
+    Then the result should be, in any order:
+      | p    |
+      | null |
+    And no side effects
+
+  Scenario: Handling optional matches between nulls
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      OPTIONAL MATCH (a:NotThere)
+      OPTIONAL MATCH (b:NotThere)
+      WITH a, b
+      OPTIONAL MATCH (b)-[r:NOR_THIS]->(a)
+      RETURN a, b, r
+      """
+    Then the result should be, in any order:
+      | a    | b    | r    |
+      | null | null | null |
+    And no side effects
+
+  Scenario: MATCH after OPTIONAL MATCH
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:Single)
+      OPTIONAL MATCH (a)-->(b:NonExistent)
+      OPTIONAL MATCH (a)-->(c:NonExistent)
+      WITH coalesce(b, c) AS x
+      MATCH (x)-->(d)
+      RETURN d
+      """
+    Then the result should be, in any order:
+      | d |
+    And no side effects
+
+  Scenario: OPTIONAL MATCH with labels on the optional end node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:X), (x:X), (y1:Y), (y2:Y:Z)
+      CREATE (x)-[:REL]->(y1),
+             (x)-[:REL]->(y2)
+      """
+    When executing query:
+      """
+      MATCH (a:X)
+      OPTIONAL MATCH (a)-->(b:Y)
+      RETURN b
+      """
+    Then the result should be, in any order:
+      | b      |
+      | null   |
+      | (:Y)   |
+      | (:Y:Z) |
+    And no side effects
+
+  Scenario: Optionally matching self-loops
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:B)
+      OPTIONAL MATCH (a)-[r]-(a)
+      RETURN r
+      """
+    Then the result should be, in any order:
+      | r       |
+      | [:LOOP] |
+    And no side effects
+
+  Scenario: Optionally matching self-loops without matches
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE NOT (a:B)
+      OPTIONAL MATCH (a)-[r]->(a)
+      RETURN r
+      """
+    Then the result should be, in any order:
+      | r    |
+      | null |
+      | null |
+      | null |
+    And no side effects
+
+
+
+  Scenario: Handling correlated optional matches; first does not match implies second does not match
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:A), (b:B)
+      OPTIONAL MATCH (a)-->(x)
+      OPTIONAL MATCH (x)-[r]->(b)
+      RETURN x, r
+      """
+    Then the result should be, in any order:
+      | x    | r    |
+      | (:C) | null |
+    And no side effects
+
+  Scenario: Handling optional matches between optionally matched entities
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      OPTIONAL MATCH (a:NotThere)
+      WITH a
+      MATCH (b:B)
+      WITH a, b
+      OPTIONAL MATCH (b)-[r:NOR_THIS]->(a)
+      RETURN a, b, r
+      """
+    Then the result should be, in any order:
+      | a    | b              | r    |
+      | null | (:B {num: 46}) | null |
     And no side effects
