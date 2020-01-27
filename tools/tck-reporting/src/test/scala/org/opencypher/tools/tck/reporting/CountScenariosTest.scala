@@ -207,10 +207,10 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
     val expectedResult =
-      """Group           unchanged changed   added removed
-        |–––––––––––––––––––––––––––––––––––––––––––––––––
-        |Total                   1       0       1       0
-        |- Feature: ftr1         1       0       1       0""".stripMargin
+      """Group           unchanged  moved only  changed more  added  removed
+        |–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+        |Total                   1           0             0      1        0
+        |- Feature: ftr1         1           0             0      1        0""".stripMargin
 
     CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
   }
@@ -240,10 +240,10 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
     val expectedResult =
-      """Group           unchanged changed   added removed
-        |–––––––––––––––––––––––––––––––––––––––––––––––––
-        |Total                   1       0       0       1
-        |- Feature: ftr1         1       0       0       1""".stripMargin
+      """Group           unchanged  moved only  changed more  added  removed
+        |–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+        |Total                   1           0             0      0        1
+        |- Feature: ftr1         1           0             0      0        1""".stripMargin
 
     CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
   }
@@ -276,11 +276,11 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
     val expectedResult =
-      """Group           unchanged changed   added removed
-        |–––––––––––––––––––––––––––––––––––––––––––––––––
-        |Total                   1       1       0       0
-        |- Feature: ftr1         1       0       0       1
-        |- Feature: ftr2         0       0       1       0""".stripMargin
+      """Group           unchanged  moved only  changed more  added  removed
+        |–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+        |Total                   1           1             0      0        0
+        |- Feature: ftr1         1           0             0      0        1
+        |- Feature: ftr2         0           0             0      1        0""".stripMargin
 
     CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
   }
@@ -315,12 +315,12 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
     val expectedResult =
-      """Group             unchanged changed   added removed
-        |–––––––––––––––––––––––––––––––––––––––––––––––––––
-        |Total                     1       1       0       0
-        |- X                       0       0       1       0
-        |  - Feature: ftr2         0       0       1       0
-        |- Feature: ftr1           1       0       0       1""".stripMargin
+      """Group             unchanged  moved only  changed more  added  removed
+        |–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+        |Total                     1           1             0      0        0
+        |- X                       0           0             0      1        0
+        |  - Feature: ftr2         0           0             0      1        0
+        |- Feature: ftr1           1           0             0      0        1""".stripMargin
 
     CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
   }
@@ -357,13 +357,13 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
     val expectedResult =
-      """Group           unchanged changed   added removed
-        |–––––––––––––––––––––––––––––––––––––––––––––––––
-        |Total                   0       2       0       0
-        |- Feature: ftr1         0       1       0       1
-        |- Feature: ftr2         0       0       1       0
-        |- A                     0       0       0       1
-        |- B                     0       0       1       0""".stripMargin
+      """Group           unchanged  moved only  changed more  added  removed
+        |–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+        |Total                   0           1             1      0        0
+        |- Feature: ftr1         0           0             1      0        1
+        |- Feature: ftr2         0           0             0      1        0
+        |- A                     0           0             0      0        1
+        |- B                     0           0             0      1        0""".stripMargin
 
     CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
   }
@@ -401,12 +401,12 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
     val expectedResult =
-      """Group           unchanged changed   added removed
-        |–––––––––––––––––––––––––––––––––––––––––––––––––
-        |Total                   3       1       0       0
-        |- Feature: ftr1         3       1       0       0
-        |- A                     2       0       0       1
-        |- B                     0       0       1       0""".stripMargin
+      """Group           unchanged  moved only  changed more  added  removed
+        |–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+        |Total                   3           0             1      0        0
+        |- Feature: ftr1         3           0             1      0        0
+        |- A                     2           0             0      0        1
+        |- B                     0           0             0      1        0""".stripMargin
 
     CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
   }
@@ -445,13 +445,13 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
     val expectedResult =
-      """Group           unchanged changed   added removed
-        |–––––––––––––––––––––––––––––––––––––––––––––––––
-        |Total                   1       1       0       0
-        |- Feature: ftr1         1       0       0       1
-        |- Feature: ftr2         0       0       1       0
-        |- T                     0       0       0       1
-        |- X                     0       0       1       0""".stripMargin
+      """Group           unchanged  moved only  changed more  added  removed
+        |–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+        |Total                   1           0             1      0        0
+        |- Feature: ftr1         1           0             0      0        1
+        |- Feature: ftr2         0           0             0      1        0
+        |- T                     0           0             0      0        1
+        |- X                     0           0             0      1        0""".stripMargin
 
     CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
   }
@@ -462,24 +462,24 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scenariosBefore: Seq[Scenario] = CypherTCK.parseFeatures(fooUriBefore).flatMap(_.scenarios)
     val scenariosAfter: Seq[Scenario] = CypherTCK.parseFeatures(fooUriAfter).flatMap(_.scenarios)
     val expectedResult =
-      """Group                   unchanged changed   added removed
-        |–––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-        |Total                          12       1       0       0
-        |- foo                           7       1       0       0
-        |  - bar                         5       0       0       1
-        |    - boo                       3       0       0       1
-        |      - Feature: Boo            0       0       0       1
-        |      - Feature: Test 2         3       0       0       0
-        |    - Feature: Test 1           2       0       0       0
-        |  - dummy                       2       0       0       0
-        |    - Feature: Dummy            2       0       0       0
-        |  - new                         0       0       1       0
-        |    - Feature: New              0       0       1       0
-        |- Feature: Foo                  5       0       0       0
-        |- @Fail                         3       0       0       0
-        |- @TestA                        2       0       0       0
-        |- @TestB                        1       0       0       0
-        |- @TestC                        2       1       0       0""".stripMargin
+      """Group                   unchanged  moved only  changed more  added  removed
+        |–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+        |Total                          12           1             0      0        0
+        |- foo                           7           1             0      0        0
+        |  - bar                         5           0             0      0        1
+        |    - boo                       3           0             0      0        1
+        |      - Feature: Boo            0           0             0      0        1
+        |      - Feature: Test 2         3           0             0      0        0
+        |    - Feature: Test 1           2           0             0      0        0
+        |  - dummy                       2           0             0      0        0
+        |    - Feature: Dummy            2           0             0      0        0
+        |  - new                         0           0             0      1        0
+        |    - Feature: New              0           0             0      1        0
+        |- Feature: Foo                  5           0             0      0        0
+        |- @Fail                         3           0             0      0        0
+        |- @TestA                        2           0             0      0        0
+        |- @TestB                        1           0             0      0        0
+        |- @TestC                        2           1             0      0        0""".stripMargin
     CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(
       CountScenarios.collect(scenariosBefore),
       CountScenarios.collect(scenariosAfter)
