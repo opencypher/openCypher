@@ -29,7 +29,7 @@
 Feature: Boo
 
   @TestC
-  Scenario: Return literal
+  Scenario: Return literal Boo
     Given an empty graph
     When executing query:
       """

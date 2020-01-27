@@ -28,7 +28,7 @@
 
 Feature: Dummy
 
-  Scenario: Return literal
+  Scenario: Return literal Dummy
     Given an empty graph
     When executing query:
       """
@@ -40,7 +40,7 @@ Feature: Dummy
     And no side effects
 
   @Fail @TestB @TestC
-  Scenario: Fail
+  Scenario: Fail Dummy
     Given an empty graph
     When executing query:
       """
