@@ -69,7 +69,12 @@ case object CountScenarios {
     } else if(args.length == 1) {
       println(reportCountsInPrettyPrint(collect(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
     } else if(args.length == 2) {
-      println(reportCountsInPrettyPrint(collect(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
+      println(reportDiffCountsInPrettyPrint(
+        diff(
+          collect(CypherTCK.allTckScenariosFromFilesystem(args(0))),
+          collect(CypherTCK.allTckScenariosFromFilesystem(args(1))))
+        )
+      )
     }
   }
 
