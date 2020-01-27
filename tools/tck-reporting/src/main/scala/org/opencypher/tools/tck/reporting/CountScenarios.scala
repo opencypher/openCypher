@@ -188,7 +188,7 @@ case object CountScenarios {
         " " * (maxOutputLength - thisOutput.length),
         diffs.get(currentGroup).map(_.unchanged.size).getOrElse(0),
         diffs.get(currentGroup).map(_.changed.count(_._3 == Set(Moved))).getOrElse(0),
-        diffs.get(currentGroup).map(_.changed.filterNot(_._3 == Set(Moved)).size).getOrElse(0),
+        diffs.get(currentGroup).map(_.changed.count(_._3 != Set(Moved))).getOrElse(0),
         diffs.get(currentGroup).map(_.added.size).getOrElse(0),
         diffs.get(currentGroup).map(_.removed.size).getOrElse(0)
       )
