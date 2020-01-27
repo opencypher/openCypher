@@ -27,7 +27,6 @@
  */
 package org.opencypher.tools.tck.api
 
-import gherkin.pickles.Pickle
 import org.junit.jupiter.api.function.Executable
 import org.opencypher.tools.tck.SideEffectOps
 import org.opencypher.tools.tck.SideEffectOps._
@@ -45,11 +44,31 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-case class Scenario(categories: List[String], featureName: String, name: String, exampleIndex: Int, tags: Set[String], steps: List[Step], source: Pickle) {
+case class Scenario(categories: List[String], featureName: String, name: String, exampleIndex: Int, tags: Set[String], steps: List[Step], source: gherkin.pickles.Pickle) {
 
   self =>
 
-  override def toString = s"""Feature "$featureName": Scenario "$name" (Example: "${exampleIndex}", Categories: "${ categories.mkString("/") }", Tags: "${ if (tags.nonEmpty) tags.mkString(" ") else "-" }")"""
+  override def toString = s"""Feature "$featureName": Scenario "$name" (Example: "$exampleIndex", Categories: "${ categories.mkString("/") }", Tags: "${ if (tags.nonEmpty) tags.mkString(" ") else "-" }")"""
+
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case Scenario(thatCategories, thatFeatureName, thatName, thatExampleIndex, thatTags, thatSteps, thatSource) =>
+        thatCategories == categories &&
+        thatFeatureName == featureName &&
+        thatName == name &&
+        thatExampleIndex == exampleIndex &&
+        thatTags == tags &&
+        thatSteps == steps &&
+        Pickle(thatSource) == Pickle(source)
+      case _ => false
+    }
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(categories, featureName, name, exampleIndex, tags, steps, Pickle(source))
+    val hash = state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+    hash
+  }
 
   def apply(graph: => Graph): Executable = new Executable {
     override def execute(): Unit = {

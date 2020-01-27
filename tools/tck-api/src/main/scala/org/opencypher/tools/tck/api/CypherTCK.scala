@@ -37,11 +37,6 @@ import gherkin.Parser
 import gherkin.TokenMatcher
 import gherkin.ast.GherkinDocument
 import gherkin.pickles.Compiler
-import gherkin.pickles.Pickle
-import gherkin.pickles.PickleRow
-import gherkin.pickles.PickleStep
-import gherkin.pickles.PickleString
-import gherkin.pickles.PickleTable
 import org.opencypher.tools.tck.SideEffectOps.Diff
 import org.opencypher.tools.tck._
 import org.opencypher.tools.tck.api.events.TCKEvents
@@ -154,7 +149,7 @@ object CypherTCK {
     Feature(scenarios)
   }
 
-  private def toScenario(categories: Seq[String], featureName: String, pickle: Pickle, exampleIndex: Int): Scenario = {
+  private def toScenario(categories: Seq[String], featureName: String, pickle: gherkin.pickles.Pickle, exampleIndex: Int): Scenario = {
 
     val tags = tagNames(pickle)
     val shouldValidate = !tags.contains("@allowCustomErrors")
@@ -164,12 +159,12 @@ object CypherTCK {
 
       def queryFromStep: String = {
         require(stepArguments.size == 1)
-        stepArguments.head.asInstanceOf[PickleString].getContent
+        stepArguments.head.asInstanceOf[gherkin.pickles.PickleString].getContent
       }
 
       def parseTable(orderedLists: Boolean = true): CypherValueRecords = {
         require(step.getArgument.size == 1)
-        val rows = stepArguments.head.asInstanceOf[PickleTable].getRows.asScala
+        val rows = stepArguments.head.asInstanceOf[gherkin.pickles.PickleTable].getRows.asScala
         val header = cellValues(rows.head)
         val values = rows.tail
         val expectedRows = values.map { row =>
@@ -180,7 +175,7 @@ object CypherTCK {
         CypherValueRecords.fromRows(header, expectedRows, orderedLists)
       }
 
-      def cellValues(row: PickleRow): List[String] =
+      def cellValues(row: gherkin.pickles.PickleRow): List[String] =
         row.getCells.asScala.map(_.getValue).toList
 
       def parseSideEffectsTable: Diff = {
@@ -193,7 +188,7 @@ object CypherTCK {
 
       def parseMap[V](parseValue: String => V): Map[String, V] = {
         require(step.getArgument.size == 1)
-        val rows = stepArguments.head.asInstanceOf[PickleTable].getRows.asScala
+        val rows = stepArguments.head.asInstanceOf[gherkin.pickles.PickleTable].getRows.asScala
         rows.map { row =>
           val sideEffect = cellValues(row)
           require(sideEffect.length == 2)
@@ -249,33 +244,124 @@ object CypherTCK {
     Scenario(categories.toList, featureName, pickle.getName, exampleIndex, tags, steps, pickle)
   }
 
-  private def tagNames(pickle: Pickle): Set[String] = pickle.getTags.asScala.map(_.getName).toSet
+  private def tagNames(pickle: gherkin.pickles.Pickle): Set[String] = pickle.getTags.asScala.map(_.getName).toSet
 
 }
 
 case class Feature(scenarios: Seq[Scenario])
 
 sealed trait Step {
-  val source: PickleStep
+  val source: gherkin.pickles.PickleStep
 }
 
-case class SideEffects(expected: Diff = Diff(), source: PickleStep) extends Step {
+case class SideEffects(expected: Diff = Diff(), source: gherkin.pickles.PickleStep) extends Step {
   def fillInZeros: SideEffects = copy(expected = expected.fillInZeros)
+
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case SideEffects(thatExpected, thatSource) =>
+        thatExpected == expected &&
+        PickleStep(thatSource) == PickleStep(source)
+      case _ => false
+    }
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(expected, PickleStep(source))
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }
 
-case class Measure(source: PickleStep) extends Step
+case class Measure(source: gherkin.pickles.PickleStep) extends Step {
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case Measure(thatSource) => PickleStep(thatSource) == PickleStep(source)
+      case _ => false
+    }
+  }
 
-case class Dummy(source: PickleStep) extends Step
+  override def hashCode(): Int = PickleStep(source).hashCode()
+}
 
-case class RegisterProcedure(signature: String, values: CypherValueRecords, source: PickleStep) extends Step
+case class Dummy(source: gherkin.pickles.PickleStep) extends Step {
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case Dummy(thatSource) => PickleStep(thatSource) == PickleStep(source)
+      case _ => false
+    }
+  }
 
-case class Parameters(values: Map[String, CypherValue], source: PickleStep) extends Step
+  override def hashCode(): Int = PickleStep(source).hashCode()
+}
 
-case class Execute(query: String, qt: QueryType, source: PickleStep) extends Step
+case class RegisterProcedure(signature: String, values: CypherValueRecords, source: gherkin.pickles.PickleStep) extends Step {
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case RegisterProcedure(thatSignature, thatValues, thatSource) =>
+        thatSignature == signature &&
+        thatValues == values &&
+        PickleStep(thatSource) == PickleStep(source)
+      case _ => false
+    }
+  }
 
-case class ExpectResult(expectedResult: CypherValueRecords, source: PickleStep, sorted: Boolean = false) extends Step
+  override def hashCode(): Int = {
+    val state = Seq(signature, values, PickleStep(source))
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
+}
 
-case class ExpectError(errorType: String, phase: String, detail: String, source: PickleStep) extends Step {
+case class Parameters(values: Map[String, CypherValue], source: gherkin.pickles.PickleStep) extends Step {
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case Parameters(thatValues, thatSource) =>
+          thatValues == values &&
+          PickleStep(thatSource) == PickleStep(source)
+      case _ => false
+    }
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(values, PickleStep(source))
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
+}
+
+case class Execute(query: String, qt: QueryType, source: gherkin.pickles.PickleStep) extends Step {
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case Execute(thatQuery, thatQt, thatSource) =>
+        thatQuery == query &&
+        thatQt == qt &&
+        PickleStep(thatSource) == PickleStep(source)
+      case _ => false
+    }
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(query, qt, PickleStep(source))
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
+}
+
+case class ExpectResult(expectedResult: CypherValueRecords, source: gherkin.pickles.PickleStep, sorted: Boolean = false) extends Step {
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case ExpectResult(thatExpectedResult, thatSource, thatSorted) =>
+        thatExpectedResult == expectedResult &&
+        PickleStep(thatSource) == PickleStep(source) &&
+        thatSorted == sorted
+      case _ => false
+    }
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(expectedResult, PickleStep(source), sorted)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
+}
+
+case class ExpectError(errorType: String, phase: String, detail: String, source: gherkin.pickles.PickleStep) extends Step {
   // Returns None if valid and Some("error message") otherwise.
   def validate(): Option[String] = {
     if (!TCKErrorTypes.ALL.contains(errorType)) {
@@ -287,6 +373,22 @@ case class ExpectError(errorType: String, phase: String, detail: String, source:
     } else {
       None
     }
+  }
+
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case ExpectError(thatErrorType, thatPhase, thatDetail, thatSource) =>
+        thatErrorType == errorType &&
+        thatPhase == phase &&
+        thatDetail == detail &&
+        PickleStep(thatSource) == PickleStep(source)
+      case _ => false
+    }
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(errorType, phase, detail, PickleStep(source))
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
 }
 
