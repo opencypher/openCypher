@@ -29,6 +29,7 @@ package org.opencypher.tools.tck.reporting
 
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Different
+import org.opencypher.tools.tck.api.Moved
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.ScenarioDiff
 
@@ -182,11 +183,12 @@ case object CountScenarios {
     // print counts to stdout as a count group tree in dept first order
     def printDepthFirst(currentGroup: Group): List[String] = {
       val thisOutput = outputs(currentGroup)
-      val thisOutputLine = "%s%s%10d%8d%8d%8d".format(
+      val thisOutputLine = "%s%s%10d%12d%14d%7d%9d".format(
         thisOutput,
         " " * (maxOutputLength - thisOutput.length),
         diffs.get(currentGroup).map(_.unchanged.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.changed.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.changed.count(_._3 == Set(Moved))).getOrElse(0),
+        diffs.get(currentGroup).map(_.changed.filterNot(_._3 == Set(Moved)).size).getOrElse(0),
         diffs.get(currentGroup).map(_.added.size).getOrElse(0),
         diffs.get(currentGroup).map(_.removed.size).getOrElse(0)
       )
@@ -206,7 +208,7 @@ case object CountScenarios {
 
     //output header
     val columnNames = "Group" + (" " * (maxOutputLength-"Group".length)) +
-      " unchanged" + " changed" + "   added" + " removed"
+      " unchanged" + "  moved only" + "  changed more" + "  added" + "  removed"
     val header = columnNames + System.lineSeparator + ("–" * columnNames.length) + System.lineSeparator
 
     header + printDepthFirst(Total).mkString(System.lineSeparator)
