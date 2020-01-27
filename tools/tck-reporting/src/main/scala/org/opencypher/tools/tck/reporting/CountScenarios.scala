@@ -28,7 +28,9 @@
 package org.opencypher.tools.tck.reporting
 
 import org.opencypher.tools.tck.api.CypherTCK
+import org.opencypher.tools.tck.api.Different
 import org.opencypher.tools.tck.api.Scenario
+import org.opencypher.tools.tck.api.ScenarioDiff
 
 trait Group {
   def name: String
@@ -55,7 +57,7 @@ case class Feature(name: String, indent: Int, parent: Option[Group]) extends Gro
 
 case class ScenarioCategory(name: String, indent: Int, parent: Option[Group]) extends Group
 
-case class GroupDiff(unchanged: Set[Scenario], changed: Set[(Scenario, Scenario)], added: Set[Scenario], removed: Set[Scenario])
+case class GroupDiff(unchanged: Set[Scenario], changed: Set[(Scenario, Scenario, Set[ScenarioDiff])], added: Set[Scenario], removed: Set[Scenario])
 
 /*
  * This is a tiny tool to count TCK scenarios in the list returned by `CypherTCK.allTckScenarios`.
@@ -109,26 +111,26 @@ case object CountScenarios {
   def diff(before: Map[Group, Seq[Scenario]],
            after: Map[Group, Seq[Scenario]]): Map[Group, GroupDiff] = {
     val allGroups = before.keySet ++ after.keySet
-    allGroups.map(group => {
-      val scenariosBefore = before.getOrElse(group, Seq[Scenario]()).toSet
-      val scenariosAfter = after.getOrElse(group, Seq[Scenario]()).toSet
+    allGroups.map(f = group => {
+      val scenariosBefore: Set[Scenario] = before.getOrElse(group, Seq[Scenario]()).toSet
+      val scenariosAfter: Set[Scenario] = after.getOrElse(group, Seq[Scenario]()).toSet
       val unchangedScenarios = scenariosAfter intersect scenariosBefore
 
-      val addedOrChangedScenarios = scenariosAfter -- unchangedScenarios
-      val removedOrChangedScenarios = scenariosBefore -- unchangedScenarios
-      val namesOfAddedOrChangedScenarios = addedOrChangedScenarios.groupBy(s => (s.name, s.exampleIndex)).keySet
-      val namesOfRemovedOrChangedScenarios = removedOrChangedScenarios.groupBy(s => (s.name, s.exampleIndex)).keySet
+      val removedOrChangedScenarios: Set[Scenario] = scenariosBefore -- unchangedScenarios
+      val addedOrChangedScenarios: Set[Scenario] = scenariosAfter -- unchangedScenarios
 
-      val addedScenarios = addedOrChangedScenarios.filterNot(s => namesOfRemovedOrChangedScenarios contains (s.name, s.exampleIndex))
-      val removeScenarios = removedOrChangedScenarios.filterNot(s => namesOfAddedOrChangedScenarios contains (s.name, s.exampleIndex))
+      val removeScenarios = removedOrChangedScenarios.filter(b => addedOrChangedScenarios.forall(_.diff(b) contains Different))
+      val addedScenarios = addedOrChangedScenarios.filter(a => removedOrChangedScenarios.forall(_.diff(a) contains Different))
 
-      val namesOfChangedScenarios = namesOfAddedOrChangedScenarios intersect namesOfRemovedOrChangedScenarios
-      val changedScenarios = namesOfChangedScenarios.map {
-        case (name, exampleIndex) =>
-          val scenarioBefore = removedOrChangedScenarios.find(s => s.name == name && s.exampleIndex == exampleIndex).get
-          val scenarioAfter = addedOrChangedScenarios.find(s => s.name == name && s.exampleIndex == exampleIndex).get
-          (scenarioBefore, scenarioAfter)
-      }
+      val changedScenariosBefore = removedOrChangedScenarios -- removeScenarios
+      val changedScenariosAfter = addedOrChangedScenarios -- addedScenarios
+
+      val changedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiff])] = changedScenariosBefore.flatMap(
+        b => changedScenariosAfter.map(a => (b, a, b.diff(a))).filter {
+          case (_, _, d) if d contains Different => false
+          case _ => true
+        }
+      )
 
       val diff = GroupDiff(unchangedScenarios, changedScenarios, addedScenarios, removeScenarios)
       (group, diff)
