@@ -26,9 +26,10 @@
 # Cypher that are not yet approved by the openCypher community".
 #
 
-Feature: Test
+Feature: Test 2
 
-  Scenario: Return literal
+  @TestA @TestC @TestC
+  Scenario: Return literal 2
     Given an empty graph
     When executing query:
       """
@@ -39,8 +40,19 @@ Feature: Test
       | 1 |
     And no side effects
 
-  @Fail @TestA
-  Scenario: Fail
+  Scenario: Return literal 2 again
+    Given an empty graph
+    When executing query:
+      """
+      RETURN 1
+      """
+    Then the result should be, in any order:
+      | 1 |
+      | 1 |
+    And no side effects
+
+  @Fail
+  Scenario: Fail 2
     Given an empty graph
     When executing query:
       """
@@ -48,8 +60,8 @@ Feature: Test
       """
     Then a SyntaxError should be raised at compile time: UnknownFunction
 
-  @ignore @TestB
-  Scenario: Ignored
+  @ignore
+  Scenario: Ignored 2
     Given an unsupported step
     When executing query:
       """

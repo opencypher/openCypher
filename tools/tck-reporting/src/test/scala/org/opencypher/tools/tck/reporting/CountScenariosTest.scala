@@ -158,20 +158,20 @@ class CountScenariosTest extends FunSuite with Matchers {
     val fooUri: URI = getClass.getResource("cucumber").toURI
     val scenarios: Seq[Scenario] = CypherTCK.parseFeatures(fooUri).flatMap(_.scenarios)
     val expectedCountOutput =
-      """Total                      13
-        || foo                       8
-        || | bar                     6
-        || | | boo                   4
-        || | | | Feature: Boo        1
-        || | | | Feature: Test       3
-        || | | Feature: Test         2
-        || | dummy                   2
-        || | | Feature: Dummy        2
-        || Feature: Foo              5
-        || @Fail                     3
-        || @TestA                    2
-        || @TestB                    1
-        || @TestC                    3""".stripMargin
+      """Total                        13
+        || foo                         8
+        || | bar                       6
+        || | | boo                     4
+        || | | | Feature: Boo          1
+        || | | | Feature: Test 2       3
+        || | | Feature: Test 1         2
+        || | dummy                     2
+        || | | Feature: Dummy          2
+        || Feature: Foo                5
+        || @Fail                       3
+        || @TestA                      2
+        || @TestB                      1
+        || @TestC                      3""".stripMargin
     CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
   }
 
@@ -402,5 +402,35 @@ class CountScenariosTest extends FunSuite with Matchers {
         |- B                     0       0       1       0""".stripMargin
 
     CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
+  }
+
+  test("Diff scenarios through TCK API") {
+    val fooUriBefore: URI = getClass.getResource("cucumber").toURI
+    val fooUriAfter: URI = getClass.getResource("cucumberDiff").toURI
+    val scenariosBefore: Seq[Scenario] = CypherTCK.parseFeatures(fooUriBefore).flatMap(_.scenarios)
+    val scenariosAfter: Seq[Scenario] = CypherTCK.parseFeatures(fooUriAfter).flatMap(_.scenarios)
+    val expectedResult =
+      """Group                   unchanged changed   added removed
+        |–––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+        |Total                          12       1       0       0
+        |- foo                           7       1       0       0
+        |  - bar                         5       0       0       1
+        |    - boo                       3       0       0       1
+        |      - Feature: Boo            0       0       0       1
+        |      - Feature: Test 2         3       0       0       0
+        |    - Feature: Test 1           2       0       0       0
+        |  - dummy                       2       0       0       0
+        |    - Feature: Dummy            2       0       0       0
+        |  - new                         0       0       1       0
+        |    - Feature: New              0       0       1       0
+        |- Feature: Foo                  5       0       0       0
+        |- @Fail                         3       0       0       0
+        |- @TestA                        2       0       0       0
+        |- @TestB                        1       0       0       0
+        |- @TestC                        2       1       0       0""".stripMargin
+    CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(
+      CountScenarios.collect(scenariosBefore),
+      CountScenarios.collect(scenariosAfter)
+    )) should equal(expectedResult)
   }
 }
