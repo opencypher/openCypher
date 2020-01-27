@@ -30,18 +30,25 @@ package org.opencypher.tools.tck.reporting
 import java.net.URI
 import java.util
 
+import gherkin.pickles.Argument
 import gherkin.pickles.Pickle
 import gherkin.pickles.PickleLocation
 import gherkin.pickles.PickleStep
 import gherkin.pickles.PickleTag
 import org.opencypher.tools.tck.api.CypherTCK
+import org.opencypher.tools.tck.api.Dummy
+import org.opencypher.tools.tck.api.Measure
+import org.opencypher.tools.tck.api.Moved
+import org.opencypher.tools.tck.api.Retagged
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
+import org.opencypher.tools.tck.api.StepsChanged
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
 
 class CountScenariosTest extends FunSuite with Matchers {
   val dummyPickle = new Pickle("", "", new util.ArrayList[PickleStep](), new util.ArrayList[PickleTag](), new util.ArrayList[PickleLocation]())
+  val dummyPickleStep = new PickleStep("", new util.ArrayList[Argument](), new util.ArrayList[PickleLocation]())
 
   test("Count single top-level scenario without tags") {
     val scenarios: Seq[Scenario] = Seq(Scenario(List[String](), "ftr1", "scr1", 0, Set[String](), List[Step](), dummyPickle))
@@ -251,7 +258,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(scrB), Set((scrA1,scrA2)), Set(), Set()),
+      Total -> GroupDiff(Set(scrB), Set((scrA1, scrA2, Set(Moved))), Set(), Set()),
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA1)),
       Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(scrA2), Set())
     )
@@ -289,7 +296,7 @@ class CountScenariosTest extends FunSuite with Matchers {
 
     val catX = ScenarioCategory("X", 1, Some(Total))
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(scrB), Set((scrA1,scrA2)), Set(), Set()),
+      Total -> GroupDiff(Set(scrB), Set((scrA1, scrA2, Set(Moved))), Set(), Set()),
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA1)),
       catX -> GroupDiff(Set(), Set(), Set(scrA2), Set()),
       Feature("ftr2", 2, Some(catX)) -> GroupDiff(Set(), Set(), Set(scrA2), Set())
@@ -329,8 +336,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(), Set((scrA1,scrA2),(scrB1,scrB2)), Set(), Set()),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(), Set((scrB1,scrB2)), Set(), Set(scrA1)),
+      Total -> GroupDiff(Set(), Set((scrA1, scrA2, Set(Moved)),(scrB1, scrB2, Set(Retagged))), Set(), Set()),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(), Set((scrB1, scrB2, Set(Retagged))), Set(), Set(scrA1)),
       Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(scrA2), Set()),
       Tag("A") -> GroupDiff(Set(), Set(), Set(), Set(scrB1)),
       Tag("B") -> GroupDiff(Set(), Set(), Set(scrB2), Set())
@@ -373,8 +380,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectAfter = CountScenarios.collect(scenariosAfter)
 
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(scrA, scrB0, scrB2), Set((scrB1,scrB1x)), Set(), Set()),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrA, scrB0, scrB2), Set((scrB1, scrB1x)), Set(), Set()),
+      Total -> GroupDiff(Set(scrA, scrB0, scrB2), Set((scrB1, scrB1x, Set(Retagged))), Set(), Set()),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrA, scrB0, scrB2), Set((scrB1, scrB1x, Set(Retagged))), Set(), Set()),
       Tag("A") -> GroupDiff(Set(scrB0, scrB2), Set(), Set(), Set(scrB1)),
       Tag("B") -> GroupDiff(Set(), Set(), Set(scrB1x), Set())
     )
@@ -400,6 +407,51 @@ class CountScenariosTest extends FunSuite with Matchers {
         |- Feature: ftr1         3       1       0       0
         |- A                     2       0       0       1
         |- B                     0       0       1       0""".stripMargin
+
+    CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
+  }
+
+  test("Diff with one scenario changed in categories, tags, and content of steps") {
+    val stepsA1 = List[Step](Dummy(dummyPickleStep), Measure(dummyPickleStep))
+    val stepsA2 = List[Step](Measure(dummyPickleStep), Dummy(dummyPickleStep))
+    val scrA1 = Scenario(List[String](), "ftr1", "scrA", 0, Set[String]("T"), stepsA1, dummyPickle)
+    val scrA2 = Scenario(List[String](), "ftr2", "scrA", 0, Set[String]("X"), stepsA2, dummyPickle)
+    val scrB = Scenario(List[String](), "ftr1", "scrB", 0, Set[String](), List[Step](), dummyPickle)
+    val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
+    val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
+    val collectBefore = CountScenarios.collect(scenariosBefore)
+    val collectAfter = CountScenarios.collect(scenariosAfter)
+
+    val expectedResult = Map[Group, GroupDiff](
+      Total -> GroupDiff(Set(scrB), Set((scrA1, scrA2, Set(Moved, Retagged, StepsChanged))), Set(), Set()),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA1)),
+      Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(scrA2), Set()),
+      Tag("T") -> GroupDiff(Set(), Set(), Set(), Set(scrA1)),
+      Tag("X") -> GroupDiff(Set(), Set(), Set(scrA2), Set())
+    )
+
+    CountScenarios.diff(collectBefore, collectAfter) should equal(expectedResult)
+  }
+
+  test("Report pretty diff counts with one scenario changed in categories, tags, and content of steps") {
+    val stepsA1 = List[Step](Dummy(dummyPickleStep), Measure(dummyPickleStep))
+    val stepsA2 = List[Step](Measure(dummyPickleStep), Dummy(dummyPickleStep))
+    val scrA1 = Scenario(List[String](), "ftr1", "scrA", 0, Set[String]("T"), stepsA1, dummyPickle)
+    val scrA2 = Scenario(List[String](), "ftr2", "scrA", 0, Set[String]("X"), stepsA2, dummyPickle)
+    val scrB = Scenario(List[String](), "ftr1", "scrB", 0, Set[String](), List[Step](), dummyPickle)
+    val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
+    val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
+    val collectBefore = CountScenarios.collect(scenariosBefore)
+    val collectAfter = CountScenarios.collect(scenariosAfter)
+
+    val expectedResult =
+      """Group           unchanged changed   added removed
+        |–––––––––––––––––––––––––––––––––––––––––––––––––
+        |Total                   1       1       0       0
+        |- Feature: ftr1         1       0       0       1
+        |- Feature: ftr2         0       0       1       0
+        |- T                     0       0       0       1
+        |- X                     0       0       1       0""".stripMargin
 
     CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
   }
