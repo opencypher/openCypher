@@ -204,7 +204,7 @@ class ScenarioTest extends FunSuite with Matchers {
     scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](ExampleIndexChanged))
   }
 
-  test("Diff scenarios differing in categories, tages, and content of steps only") {
+  test("Diff scenarios differing in categories, tags, and content of steps only") {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
