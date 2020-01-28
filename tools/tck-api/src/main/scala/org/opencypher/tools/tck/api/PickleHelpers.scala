@@ -53,7 +53,11 @@ case object PickleArgument {
           cell => PickleCell(cell.getValue, PickleLocation(cell.getLocation, withLocation))
         ).toList
       ).toList,
-      PickleLocation(pt.getLocation, withLocation)
+      pt.getRows.asScala.headOption.flatMap(
+        _.getCells.asScala.headOption.flatMap(
+          c => PickleLocation(c.getLocation, withLocation)
+        )
+      )
     )
   }
 }
