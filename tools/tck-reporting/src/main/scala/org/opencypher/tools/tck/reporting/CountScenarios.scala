@@ -120,8 +120,8 @@ case object CountScenarios {
       val removedOrChangedScenarios: Set[Scenario] = scenariosBefore -- unchangedScenarios
       val addedOrChangedScenarios: Set[Scenario] = scenariosAfter -- unchangedScenarios
 
-      val removeScenarios = removedOrChangedScenarios.filter(b => addedOrChangedScenarios.forall(_.diff(b) contains Different))
-      val addedScenarios = addedOrChangedScenarios.filter(a => removedOrChangedScenarios.forall(_.diff(a) contains Different))
+      val removeScenarios = removedOrChangedScenarios.filter(b => addedOrChangedScenarios.forall(_.diff(b) == Set(Different)))
+      val addedScenarios = addedOrChangedScenarios.filter(a => removedOrChangedScenarios.forall(_.diff(a) == Set(Different)))
 
       val changedScenariosBefore = removedOrChangedScenarios -- removeScenarios
       val changedScenariosAfter = addedOrChangedScenarios -- addedScenarios
