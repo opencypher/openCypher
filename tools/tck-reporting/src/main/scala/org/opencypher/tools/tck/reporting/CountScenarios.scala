@@ -30,6 +30,7 @@ package org.opencypher.tools.tck.reporting
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Different
 import org.opencypher.tools.tck.api.Moved
+import org.opencypher.tools.tck.api.PotentiallyDuplicated
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.ScenarioDiff
 
@@ -127,7 +128,7 @@ case object CountScenarios {
       val changedScenariosAfter = addedOrChangedScenarios -- addedScenarios
 
       val changedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiff])] = changedScenariosBefore.flatMap(
-        b => changedScenariosAfter.map(a => (b, a, b.diff(a))).filter {
+        b => changedScenariosAfter.map(a => (b, a, b.diff(a) - PotentiallyDuplicated)).filter {
           case (_, _, d) if d contains Different => false
           case _ => true
         }
@@ -136,6 +137,16 @@ case object CountScenarios {
       val diff = GroupDiff(unchangedScenarios, changedScenarios, addedScenarios, removeScenarios)
       (group, diff)
     }).toMap
+  }
+
+  def potentialDuplicates(scenarios: Seq[Scenario]): Seq[(Scenario, Scenario, Set[ScenarioDiff])] = {
+    val duplicates = scenarios.zipWithIndex.flatMap {
+      case (a, i) =>
+        scenarios.slice(i + 1, scenarios.size).map(b => (a, b, a.diff(b))).filter {
+          case (_, _, ds) => ds contains PotentiallyDuplicated
+        }
+    }
+    duplicates
   }
 
   def reportCountsInPrettyPrint(groups: Map[Group, Seq[Scenario]]): String = {
