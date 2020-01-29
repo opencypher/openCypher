@@ -58,7 +58,7 @@ case class Scenario(categories: List[String], featureName: String, name: String,
 
   self =>
 
-  override def toString = s"""Feature "$featureName": Scenario "$name" (Example: "$exampleIndex", Categories: "${ categories.mkString("/") }", Tags: "${ if (tags.nonEmpty) tags.mkString(" ") else "-" }")"""
+  override def toString = s"""${ categories.mkString("/") } :: "$featureName" :: "$name" :: $exampleIndex${ if (tags.nonEmpty) tags.mkString(" (", " ", ")") else "" }")"""
 
   override def equals(obj: Any): Boolean = {
     obj match {
