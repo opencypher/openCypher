@@ -141,15 +141,19 @@ object CypherTCK {
 
     val featureName = gherkinDocument.getFeature.getName
     val scenarios = includedGroupedAndSorted.flatMap {
-      case (_, pickles) => pickles.zipWithIndex.map {
-        case (pickle, exampleIndex) => toScenario(categories, featureName, pickle, exampleIndex)
-      }
+      case (_, pickles) =>
+        if(pickles.size > 1)
+          pickles.zipWithIndex.map {
+            case (pickle, exampleIndex) => toScenario(categories, featureName, pickle, Some(exampleIndex))
+          }
+        else
+          pickles.map(pickle => toScenario(categories, featureName, pickle, None))
     }.toSeq
     TCKEvents.setFeature(FeatureRead(featureName, source, featureString))
     Feature(scenarios)
   }
 
-  private def toScenario(categories: Seq[String], featureName: String, pickle: gherkin.pickles.Pickle, exampleIndex: Int): Scenario = {
+  private def toScenario(categories: Seq[String], featureName: String, pickle: gherkin.pickles.Pickle, exampleIndex: Option[Int]): Scenario = {
 
     val tags = tagNames(pickle)
     val shouldValidate = !tags.contains("@allowCustomErrors")

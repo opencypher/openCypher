@@ -56,7 +56,7 @@ case object PotentiallyDuplicated extends ScenarioDiff
 case object PotentiallyRenamed extends ScenarioDiff
 case object Different extends ScenarioDiff
 
-case class Scenario(categories: List[String], featureName: String, name: String, exampleIndex: Int, tags: Set[String], steps: List[Step], source: gherkin.pickles.Pickle) {
+case class Scenario(categories: List[String], featureName: String, name: String, exampleIndex: Option[Int], tags: Set[String], steps: List[Step], source: gherkin.pickles.Pickle) {
 
   self =>
 
@@ -117,10 +117,10 @@ case class Scenario(categories: List[String], featureName: String, name: String,
             thatSteps == steps
         case _ => false
       }
-      if(diff.exists(d => Set[ScenarioDiff](Moved, Retagged, ExampleIndexChanged, PotentiallyRenamed) contains d))
-        diff + PotentiallyDuplicated
-      else if(diff.isEmpty)
+      if(diff.isEmpty)
         Set[ScenarioDiff](Different)
+      else if(diff subsetOf Set[ScenarioDiff](Moved, Retagged, ExampleIndexChanged, StepsChanged, PotentiallyRenamed))
+        diff + PotentiallyDuplicated
       else
         diff
   }
