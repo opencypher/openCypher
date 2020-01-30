@@ -224,4 +224,45 @@ case object CountScenarios {
 
     header + printDepthFirst(Total).mkString(System.lineSeparator)
   }
+
+  def reportDiffCountsInGFMPrint(diffs: Map[Group, GroupDiff]): String = {
+    val groupsByParent = diffs.keys.groupBy(countCategory => countCategory.parent)
+    val outputs = diffs.keys.map(cat => cat -> {
+      "`/" + (" /" * (cat.indent - 1)) + (" /" * (if (cat.indent > 0) 1 else 0)) + "` " + cat
+    }).toMap
+    // maxOutputLength is needed to align the counts
+    val maxOutputLength = outputs.values.map(_.length).max
+
+    // print counts to stdout as a count group tree in dept first order
+    def printDepthFirst(currentGroup: Group): List[String] = {
+      val thisOutput = outputs(currentGroup)
+      val thisOutputLine = "%s | %d | %d | %d | %d | %d".format(
+        thisOutput,
+        diffs.get(currentGroup).map(_.unchanged.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.changed.count(_._3 == Set(Moved))).getOrElse(0),
+        diffs.get(currentGroup).map(_.changed.count(_._3 != Set(Moved))).getOrElse(0),
+        diffs.get(currentGroup).map(_.added.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.removed.size).getOrElse(0)
+      )
+      // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
+      val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{
+        case Total => 0
+        case _:ScenarioCategory => 1
+        case _:Feature => 2
+        case _:Tag => 3
+      }
+      // within each class ordered alphabetically by name
+      val groupsOrdered = groupsByClasses.toSeq.sortBy(_._1).flatMap {
+        case (_, countCategories) => countCategories.toSeq.sortBy(_.name)
+      }
+      thisOutputLine :: groupsOrdered.flatMap(printDepthFirst).toList
+    }
+
+    //output header
+    val header =
+      """Group | unchanged | moved only | changed more | added | removed
+        |------|-----------|------------|--------------|-------|--------""".stripMargin
+
+    (header :: printDepthFirst(Total)).mkString(System.lineSeparator)
+  }
 }
