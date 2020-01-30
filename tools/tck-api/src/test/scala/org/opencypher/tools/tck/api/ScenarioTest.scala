@@ -71,12 +71,12 @@ class ScenarioTest extends FunSuite with Matchers {
 
   test("Check equality of equal scenarios differing in source") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(0)), Measure(pickle("s", 2).getSteps.get(1))),
       pickle("s", 2)
     )
@@ -86,12 +86,12 @@ class ScenarioTest extends FunSuite with Matchers {
 
   test("Check equality of equal scenarios not differing in source") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
@@ -101,12 +101,12 @@ class ScenarioTest extends FunSuite with Matchers {
 
   test("Diff equal scenarios not differing in source") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
@@ -116,12 +116,12 @@ class ScenarioTest extends FunSuite with Matchers {
 
   test("Diff equal scenarios differing in source") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(0)), Measure(pickle("s", 2).getSteps.get(1))),
       pickle("s", 2)
     )
@@ -131,103 +131,103 @@ class ScenarioTest extends FunSuite with Matchers {
 
   test("Diff scenarios differing in category only") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("XX", "A"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("XX", "A"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(0)), Measure(pickle("s", 2).getSteps.get(1))),
       pickle("s", 2)
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Moved))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Moved, PotentiallyDuplicated))
   }
 
   test("Diff scenarios differing in tags only") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("exec", 1).getSteps.get(0)), Measure(pickle("result", 1).getSteps.get(1))),
       pickle("s", 1)
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "XX"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "XX"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(0)), Measure(pickle("s", 2).getSteps.get(1))),
       pickle("s", 2)
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Retagged))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Retagged, PotentiallyDuplicated))
   }
 
   test("Diff scenarios differing in kind of steps only") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Measure(pickle("s", 2).getSteps.get(0)), Dummy(pickle("s", 2).getSteps.get(1))),
       pickle("s", 2)
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](StepsChanged))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](StepsChanged, PotentiallyDuplicated))
   }
 
   test("Diff scenarios differing in content of steps only") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(1)), Measure(pickle("s", 2).getSteps.get(0))),
       pickle("s", 2)
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](StepsChanged))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](StepsChanged, PotentiallyDuplicated))
   }
 
   test("Diff equal scenarios differing in example index only") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", Some(0), Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 1, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", Some(1), Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(0)), Measure(pickle("s", 2).getSteps.get(1))),
       pickle("s", 2)
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](ExampleIndexChanged))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](ExampleIndexChanged, PotentiallyDuplicated))
   }
 
   test("Diff scenarios differing in categories, tags, and content of steps only") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("XX", "B"), "f", "s", 0, Set[String]("S", "XX"),
+      List[String]("XX", "B"), "f", "s", None, Set[String]("S", "XX"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(1)), Measure(pickle("s", 2).getSteps.get(0))),
       pickle("s", 2)
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Moved, Retagged, StepsChanged))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Moved, Retagged, StepsChanged, PotentiallyDuplicated))
   }
 
   test("Diff different scenarios with different name") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "XX", 0, Set[String]("S", "XX"),
-      List[Step](Dummy(pickle("XX", 2).getSteps.get(0)), Measure(pickle("XX", 2).getSteps.get(1))),
+      List[String]("A", "B"), "f", "XX", None, Set[String]("S", "XX"),
+      List[Step](Measure(pickle("XX", 2).getSteps.get(0)), Dummy(pickle("XX", 2).getSteps.get(1))),
       pickle("XX", 2)
     )
 
@@ -236,14 +236,14 @@ class ScenarioTest extends FunSuite with Matchers {
 
   test("Diff different scenarios with different example number") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", Some(0), Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 1, Set[String]("S", "XX"),
-      List[Step](Dummy(pickle("s", 2).getSteps.get(0)), Measure(pickle("s", 2).getSteps.get(1))),
-      pickle("s", 2)
+      List[String]("A", "B"), "f", "s", Some(1), Set[String]("S", "XX"),
+      List[Step](Measure(pickle("XX", 2).getSteps.get(0)), Dummy(pickle("XX", 2).getSteps.get(1))),
+      pickle("XX", 2)
     )
 
     scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Different))
@@ -251,13 +251,13 @@ class ScenarioTest extends FunSuite with Matchers {
 
   test("Diff different scenarios with different name and example number") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", 0, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", "s", Some(0), Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
       pickle("s", 1)
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "XX", 1, Set[String]("S", "XX"),
-      List[Step](Dummy(pickle("XX", 2).getSteps.get(0)), Measure(pickle("XX", 2).getSteps.get(1))),
+      List[String]("A", "B"), "f", "XX", Some(1), Set[String]("S", "XX"),
+      List[Step](Measure(pickle("XX", 2).getSteps.get(0)), Dummy(pickle("XX", 2).getSteps.get(1))),
       pickle("XX", 2)
     )
 
