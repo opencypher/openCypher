@@ -1,0 +1,4 @@
+= TCK Inspection
+
+link:../tck-api[TCK Scala API] adapter to enable inspection of TCK scenarios.
+
