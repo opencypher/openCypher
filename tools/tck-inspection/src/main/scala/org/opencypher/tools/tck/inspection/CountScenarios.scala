@@ -228,7 +228,7 @@ case object CountScenarios {
   def reportDiffCountsInGFMPrint(diffs: Map[Group, GroupDiff]): String = {
     val groupsByParent = diffs.keys.groupBy(countCategory => countCategory.parent)
     val outputs = diffs.keys.map(cat => cat -> {
-      "`/" + (" /" * (cat.indent - 1)) + (" /" * (if (cat.indent > 0) 1 else 0)) + "` " + cat
+      "`/" + ("…/" * (cat.indent - 1)) + ("…/" * (if (cat.indent > 0) 1 else 0)) + "` " + cat
     }).toMap
     // maxOutputLength is needed to align the counts
     val maxOutputLength = outputs.values.map(_.length).max
