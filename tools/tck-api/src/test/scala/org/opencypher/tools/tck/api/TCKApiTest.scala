@@ -60,4 +60,16 @@ class TCKApiTest extends FunSuite with Matchers {
       })
     })
   }
+
+  test("sourceFile of top-level scenarios") {
+    val someLevelScenarios = scenarios.filter(_.featureName == "Foo")
+    someLevelScenarios.foreach(_.sourceFile should
+      equal(java.nio.file.Paths.get(fooUri).resolve("Foo.feature")))
+  }
+
+  test("sourceFile of some-level scenarios") {
+    val someLevelScenarios = scenarios.filter(_.featureName == "Test")
+    someLevelScenarios.foreach(_.sourceFile should
+      equal(java.nio.file.Paths.get(fooUri).resolve("foo/bar/boo/Test.feature")))
+  }
 }

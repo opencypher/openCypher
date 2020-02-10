@@ -27,10 +27,6 @@
  */
 package org.opencypher.tools.tck.reporting.cucumber;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Scanner;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,13 +49,22 @@ import scala.util.Either;
 import scala.util.Left;
 import scala.util.Right;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Scanner;
+import java.util.stream.Stream;
+
 @ExtendWith({ReportValidator.class, CucumberReportAdapter.class})
 public class CucumberReportAdapterTest {
     @TestFactory
     public Stream<DynamicTest> runFeatures() throws Exception {
+        Path featuresPath = Paths.get(CucumberReportAdapterTest.class.getResource( ".").toURI());
+        Path featureFile = featuresPath.relativize(featuresPath.resolve("Foo.feature"));
         String content = getResource("Foo.feature");
 
-        Seq<Scenario> scenariosSeq = CypherTCK.parseFeature("Foo.feature", content, JavaConverters.asScalaBuffer(new java.util.ArrayList<String>())).scenarios();
+        Seq<Scenario> scenariosSeq = CypherTCK.parseFeature(featureFile, content, JavaConverters.asScalaBuffer(new java.util.ArrayList<String>())).scenarios();
         java.util.List<Scenario> scenarios = JavaConverters.seqAsJavaList(scenariosSeq);
 
         AbstractFunction0<Graph> graph = graph();

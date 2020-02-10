@@ -27,6 +27,8 @@
  */
 package org.opencypher.tools.tck.api
 
+import java.nio.file.Path
+
 import org.junit.jupiter.api.function.Executable
 import org.opencypher.tools.tck.SideEffectOps
 import org.opencypher.tools.tck.SideEffectOps._
@@ -56,7 +58,7 @@ case object PotentiallyDuplicated extends ScenarioDiff
 case object PotentiallyRenamed extends ScenarioDiff
 case object Different extends ScenarioDiff
 
-case class Scenario(categories: List[String], featureName: String, name: String, exampleIndex: Option[Int], tags: Set[String], steps: List[Step], source: gherkin.pickles.Pickle) {
+case class Scenario(categories: List[String], featureName: String, name: String, exampleIndex: Option[Int], tags: Set[String], steps: List[Step], source: gherkin.pickles.Pickle, sourceFile: Path) {
 
   self =>
 
@@ -64,7 +66,7 @@ case class Scenario(categories: List[String], featureName: String, name: String,
 
   override def equals(obj: Any): Boolean = {
     obj match {
-      case Scenario(thatCategories, thatFeatureName, thatName, thatExampleIndex, thatTags, thatSteps, thatSource) =>
+      case Scenario(thatCategories, thatFeatureName, thatName, thatExampleIndex, thatTags, thatSteps, thatSource, _) =>
         thatCategories == categories &&
         thatFeatureName == featureName &&
         thatName == name &&
@@ -83,7 +85,7 @@ case class Scenario(categories: List[String], featureName: String, name: String,
   }
 
   def diff(that: Scenario): Set[ScenarioDiff] = that match {
-    case Scenario(thatCategories, thatFeatureName, thatName, thatExampleIndex, thatTags, thatSteps, thatSource) =>
+    case Scenario(thatCategories, thatFeatureName, thatName, thatExampleIndex, thatTags, thatSteps, thatSource, _) =>
       val diff = Set[ScenarioDiff](Unchanged, SourceUnchanged, SourceChanged, Moved, Retagged, StepsChanged, ExampleIndexChanged, PotentiallyRenamed).filter {
         case Unchanged => equals(that)
         case SourceUnchanged =>

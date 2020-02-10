@@ -73,12 +73,12 @@ class ScenarioTest extends FunSuite with Matchers {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(0)), Measure(pickle("s", 2).getSteps.get(1))),
-      pickle("s", 2)
+      pickle("s", 2), new java.io.File("A/B/f.feature").toPath
     )
 
     scenarioBefore should equal(scenarioAfter)
@@ -88,12 +88,12 @@ class ScenarioTest extends FunSuite with Matchers {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
 
     scenarioBefore should equal(scenarioAfter)
@@ -103,12 +103,12 @@ class ScenarioTest extends FunSuite with Matchers {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
 
     scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Unchanged, SourceUnchanged))
@@ -118,12 +118,12 @@ class ScenarioTest extends FunSuite with Matchers {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(0)), Measure(pickle("s", 2).getSteps.get(1))),
-      pickle("s", 2)
+      pickle("s", 2), new java.io.File("A/B/f.feature").toPath
     )
 
     scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Unchanged, SourceChanged))
@@ -133,12 +133,12 @@ class ScenarioTest extends FunSuite with Matchers {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
       List[String]("XX", "A"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(0)), Measure(pickle("s", 2).getSteps.get(1))),
-      pickle("s", 2)
+      pickle("s", 2), new java.io.File("XX/A/f.feature").toPath
     )
 
     scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Moved, PotentiallyDuplicated))
@@ -148,12 +148,12 @@ class ScenarioTest extends FunSuite with Matchers {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("exec", 1).getSteps.get(0)), Measure(pickle("result", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "XX"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(0)), Measure(pickle("s", 2).getSteps.get(1))),
-      pickle("s", 2)
+      pickle("s", 2), new java.io.File("A/B/f.feature").toPath
     )
 
     scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Retagged, PotentiallyDuplicated))
@@ -163,12 +163,12 @@ class ScenarioTest extends FunSuite with Matchers {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Measure(pickle("s", 2).getSteps.get(0)), Dummy(pickle("s", 2).getSteps.get(1))),
-      pickle("s", 2)
+      pickle("s", 2), new java.io.File("A/B/f.feature").toPath
     )
 
     scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](StepsChanged, PotentiallyDuplicated))
@@ -178,12 +178,12 @@ class ScenarioTest extends FunSuite with Matchers {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(1)), Measure(pickle("s", 2).getSteps.get(0))),
-      pickle("s", 2)
+      pickle("s", 2), new java.io.File("A/B/f.feature").toPath
     )
 
     scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](StepsChanged, PotentiallyDuplicated))
@@ -193,12 +193,12 @@ class ScenarioTest extends FunSuite with Matchers {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", Some(0), Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", Some(1), Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(0)), Measure(pickle("s", 2).getSteps.get(1))),
-      pickle("s", 2)
+      pickle("s", 2), new java.io.File("A/B/f.feature").toPath
     )
 
     scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](ExampleIndexChanged, PotentiallyDuplicated))
@@ -208,12 +208,12 @@ class ScenarioTest extends FunSuite with Matchers {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
       List[String]("XX", "B"), "f", "s", None, Set[String]("S", "XX"),
       List[Step](Dummy(pickle("s", 2).getSteps.get(1)), Measure(pickle("s", 2).getSteps.get(0))),
-      pickle("s", 2)
+      pickle("s", 2), new java.io.File("XX/B/f.feature").toPath
     )
 
     scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Moved, Retagged, StepsChanged, PotentiallyDuplicated))
@@ -223,12 +223,12 @@ class ScenarioTest extends FunSuite with Matchers {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
       List[String]("A", "B"), "f", "XX", None, Set[String]("S", "XX"),
       List[Step](Measure(pickle("XX", 2).getSteps.get(0)), Dummy(pickle("XX", 2).getSteps.get(1))),
-      pickle("XX", 2)
+      pickle("XX", 2), new java.io.File("A/B/f.feature").toPath
     )
 
     scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Different))
@@ -238,12 +238,12 @@ class ScenarioTest extends FunSuite with Matchers {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", Some(0), Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", Some(1), Set[String]("S", "XX"),
       List[Step](Measure(pickle("XX", 2).getSteps.get(0)), Dummy(pickle("XX", 2).getSteps.get(1))),
-      pickle("XX", 2)
+      pickle("XX", 2), new java.io.File("A/B/f.feature").toPath
     )
 
     scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Different))
@@ -253,12 +253,12 @@ class ScenarioTest extends FunSuite with Matchers {
     val scenarioBefore: Scenario = Scenario(
       List[String]("A", "B"), "f", "s", Some(0), Set[String]("S", "T"),
       List[Step](Dummy(pickle("s", 1).getSteps.get(0)), Measure(pickle("s", 1).getSteps.get(1))),
-      pickle("s", 1)
+      pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
       List[String]("A", "B"), "f", "XX", Some(1), Set[String]("S", "XX"),
       List[Step](Measure(pickle("XX", 2).getSteps.get(0)), Dummy(pickle("XX", 2).getSteps.get(1))),
-      pickle("XX", 2)
+      pickle("XX", 2), new java.io.File("A/B/f.feature").toPath
     )
 
     scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Different))
