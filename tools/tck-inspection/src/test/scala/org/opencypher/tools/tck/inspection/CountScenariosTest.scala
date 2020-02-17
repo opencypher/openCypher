@@ -51,9 +51,10 @@ class CountScenariosTest extends FunSuite with Matchers {
   val dummyPickleStep = new PickleStep("", new util.ArrayList[Argument](), new util.ArrayList[PickleLocation]())
   def namedDummyPickleStep(name: String) = new PickleStep(name, new util.ArrayList[Argument](), new util.ArrayList[PickleLocation]())
   def dummyStep(name: String): Step = Dummy(namedDummyPickleStep(name))
+  def dummyPath(path: String): java.nio.file.Path = new java.io.File("ftr1.feature").toPath
 
   test("Count single top-level scenario without tags") {
-    val scenarios: Seq[Scenario] = Seq(Scenario(List[String](), "ftr1", "scr1", None, Set[String](), List[Step](), dummyPickle))
+    val scenarios: Seq[Scenario] = Seq(Scenario(List[String](), "ftr1", "scr1", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature")))
     val expectedCountOutput =
       """Total                 1
         || Feature: ftr1       1""".stripMargin
@@ -61,7 +62,7 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Count single top-level scenario with tag") {
-    val scenarios: Seq[Scenario] = Seq(Scenario(List[String](), "ftr1", "scr1", None, Set[String]("A", "@B", "C"), List[Step](), dummyPickle))
+    val scenarios: Seq[Scenario] = Seq(Scenario(List[String](), "ftr1", "scr1", None, Set[String]("A", "@B", "C"), List[Step](), dummyPickle, dummyPath("ftr1.feature")))
     val expectedCountOutput =
       """Total                 1
         || Feature: ftr1       1
@@ -72,7 +73,7 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Count single sub-level scenario without tags") {
-    val scenarios: Seq[Scenario] = Seq(Scenario(List[String]("A", "B", "C"), "ftr1", "scr1", None, Set[String](), List[Step](), dummyPickle))
+    val scenarios: Seq[Scenario] = Seq(Scenario(List[String]("A", "B", "C"), "ftr1", "scr1", None, Set[String](), List[Step](), dummyPickle, dummyPath("A/B/C/ftr1.feature")))
     val expectedCountOutput =
       """Total                       1
         || A                         1
@@ -84,8 +85,8 @@ class CountScenariosTest extends FunSuite with Matchers {
 
   test("Count two top-level scenarios in same feature without tags") {
     val scenarios: Seq[Scenario] = Seq(
-      Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle),
-      Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle))
+      Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature")),
+      Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature")))
     val expectedCountOutput =
       """Total                 2
         || Feature: ftr1       2""".stripMargin
@@ -94,9 +95,9 @@ class CountScenariosTest extends FunSuite with Matchers {
 
   test("Count three top-level scenarios in two features without tags") {
     val scenarios: Seq[Scenario] = Seq(
-      Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle),
-      Scenario(List[String](), "ftr2", "scrB", None, Set[String](), List[Step](), dummyPickle),
-      Scenario(List[String](), "ftr1", "scrC", None, Set[String](), List[Step](), dummyPickle))
+      Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature")),
+      Scenario(List[String](), "ftr2", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr2.feature")),
+      Scenario(List[String](), "ftr1", "scrC", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature")))
     val expectedCountOutput =
       """Total                 3
         || Feature: ftr1       2
@@ -106,9 +107,9 @@ class CountScenariosTest extends FunSuite with Matchers {
 
   test("Count three top-level scenarios in two features with tags") {
     val scenarios: Seq[Scenario] = Seq(
-      Scenario(List[String](), "ftr1", "scrA", None, Set[String]("C", "B"), List[Step](), dummyPickle),
-      Scenario(List[String](), "ftr2", "scrB", None, Set[String]("C", "D", "A"), List[Step](), dummyPickle),
-      Scenario(List[String](), "ftr1", "scrC", None, Set[String]("A", "C"), List[Step](), dummyPickle))
+      Scenario(List[String](), "ftr1", "scrA", None, Set[String]("C", "B"), List[Step](), dummyPickle, dummyPath("ftr1.feature")),
+      Scenario(List[String](), "ftr2", "scrB", None, Set[String]("C", "D", "A"), List[Step](), dummyPickle, dummyPath("ftr2.feature")),
+      Scenario(List[String](), "ftr1", "scrC", None, Set[String]("A", "C"), List[Step](), dummyPickle, dummyPath("ftr1.feature")))
     val expectedCountOutput =
       """Total                 3
         || Feature: ftr1       2
@@ -122,9 +123,9 @@ class CountScenariosTest extends FunSuite with Matchers {
 
   test("Count three mixed-level scenarios without tags") {
     val scenarios: Seq[Scenario] = Seq(
-      Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle),
-      Scenario(List[String]("T", "C", "K"), "ftr2", "scrB", None, Set[String](), List[Step](), dummyPickle),
-      Scenario(List[String]("T", "A", "K"), "ftr1", "scrC", None, Set[String](), List[Step](), dummyPickle))
+      Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature")),
+      Scenario(List[String]("T", "C", "K"), "ftr2", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("T/C/K/ftr2.feature")),
+      Scenario(List[String]("T", "A", "K"), "ftr1", "scrC", None, Set[String](), List[Step](), dummyPickle, dummyPath("T/C/A/ftr1.feature")))
     val expectedCountOutput =
       """Total                       3
         || T                         2
@@ -140,11 +141,11 @@ class CountScenariosTest extends FunSuite with Matchers {
 
   test("Count five mixed-level scenarios with tags") {
     val scenarios: Seq[Scenario] = Seq(
-      Scenario(List[String](), "ftr1", "scrA", None, Set[String]("C", "B"), List[Step](), dummyPickle),
-      Scenario(List[String]("T", "C", "K"), "ftr2", "scrB", None, Set[String]("C", "D", "A"), List[Step](), dummyPickle),
-      Scenario(List[String]("T", "A", "K"), "ftr1", "scrC", None, Set[String]("A", "C"), List[Step](), dummyPickle),
-      Scenario(List[String]("T", "C", "K"), "ftr2", "scrD", None, Set[String](), List[Step](), dummyPickle),
-      Scenario(List[String]("T"), "ftr3", "scrE", None, Set[String]("B", "A", "C"), List[Step](), dummyPickle))
+      Scenario(List[String](), "ftr1", "scrA", None, Set[String]("C", "B"), List[Step](), dummyPickle, dummyPath("ftr1.feature")),
+      Scenario(List[String]("T", "C", "K"), "ftr2", "scrB", None, Set[String]("C", "D", "A"), List[Step](), dummyPickle, dummyPath("T/C/K/ftr2.feature")),
+      Scenario(List[String]("T", "A", "K"), "ftr1", "scrC", None, Set[String]("A", "C"), List[Step](), dummyPickle, dummyPath("T/A/K/ftr1.feature")),
+      Scenario(List[String]("T", "C", "K"), "ftr2", "scrD", None, Set[String](), List[Step](), dummyPickle, dummyPath("T/C/K/ftr2.feature")),
+      Scenario(List[String]("T"), "ftr3", "scrE", None, Set[String]("B", "A", "C"), List[Step](), dummyPickle, dummyPath("T/ftr3.feature")))
     val expectedCountOutput =
       """Total                       5
         || T                         4
@@ -185,8 +186,8 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Diff with one scenario added from a top-level same feature without tags") {
-    val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle)
+    val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA, scrB)
     val collectBefore = CountScenarios.collect(scenariosBefore)
@@ -201,8 +202,8 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Report pretty diff counts with one scenario added from a top-level same feature without tags") {
-    val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle)
+    val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA, scrB)
     val collectBefore = CountScenarios.collect(scenariosBefore)
@@ -218,8 +219,8 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Diff with one scenario removed from a top-level same feature without tags") {
-    val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle)
+    val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrB)
     val collectBefore = CountScenarios.collect(scenariosBefore)
@@ -234,8 +235,8 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Report pretty diff counts with one scenario removed from a top-level same feature without tags") {
-    val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle)
+    val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrB)
     val collectBefore = CountScenarios.collect(scenariosBefore)
@@ -251,9 +252,9 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Diff with one scenario moved to another top-level feature without tags") {
-    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle)
+    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr2.feature"))
+    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
     val collectBefore = CountScenarios.collect(scenariosBefore)
@@ -269,9 +270,9 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Report pretty diff counts with one scenario moved to another top-level feature without tags") {
-    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle)
+    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr2.feature"))
+    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
     val collectBefore = CountScenarios.collect(scenariosBefore)
@@ -288,9 +289,9 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Diff with one scenario moved to another sub-level feature without tags") {
-    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrA2 = Scenario(List[String]("X"), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle)
+    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrA2 = Scenario(List[String]("X"), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("X/ftr2.feature"))
+    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
     val collectBefore = CountScenarios.collect(scenariosBefore)
@@ -308,9 +309,9 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Report pretty diff counts with one scenario moved to another sub-level feature without tags") {
-    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrA2 = Scenario(List[String]("X"), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle)
+    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrA2 = Scenario(List[String]("X"), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("X/ftr2.feature"))
+    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
     val collectBefore = CountScenarios.collect(scenariosBefore)
@@ -328,10 +329,10 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Diff with one scenario moved to another top-level feature and a changed tag") {
-    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](dummyStep("A")), dummyPickle)
-    val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String](), List[Step](dummyStep("A")), dummyPickle)
-    val scrB1 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("A"), List[Step](dummyStep("B")), dummyPickle)
-    val scrB2 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("B"), List[Step](dummyStep("B")), dummyPickle)
+    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](dummyStep("A")), dummyPickle, dummyPath("ftr1.feature"))
+    val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String](), List[Step](dummyStep("A")), dummyPickle, dummyPath("ftr2.feature"))
+    val scrB1 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("A"), List[Step](dummyStep("B")), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB2 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("B"), List[Step](dummyStep("B")), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB1)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB2)
     val collectBefore = CountScenarios.collect(scenariosBefore)
@@ -349,10 +350,10 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Report pretty diff counts with one scenario moved to another top-level feature and a changed tag") {
-    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](dummyStep("A")), dummyPickle)
-    val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String](), List[Step](dummyStep("A")), dummyPickle)
-    val scrB1 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("A"), List[Step](dummyStep("B")), dummyPickle)
-    val scrB2 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("B"), List[Step](dummyStep("B")), dummyPickle)
+    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](dummyStep("A")), dummyPickle, dummyPath("ftr1.feature"))
+    val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String](), List[Step](dummyStep("A")), dummyPickle, dummyPath("ftr2.feature"))
+    val scrB1 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("A"), List[Step](dummyStep("B")), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB2 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("B"), List[Step](dummyStep("B")), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB1)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB2)
     val collectBefore = CountScenarios.collect(scenariosBefore)
@@ -371,11 +372,11 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Diff with one scenario from a outline in a top-level feature has a changed tags") {
-    val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrB0 = Scenario(List[String](), "ftr1", "scrB", Some(0), Set[String]("A"), List[Step](), dummyPickle)
-    val scrB1 = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("A"), List[Step](), dummyPickle)
-    val scrB2 = Scenario(List[String](), "ftr1", "scrB", Some(2), Set[String]("A"), List[Step](), dummyPickle)
-    val scrB1x = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("B"), List[Step](), dummyPickle)
+    val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB0 = Scenario(List[String](), "ftr1", "scrB", Some(0), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB1 = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB2 = Scenario(List[String](), "ftr1", "scrB", Some(2), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB1x = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("B"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA, scrB0, scrB1, scrB2)
     val scenariosAfter: Seq[Scenario] = Seq(scrA, scrB0, scrB1x, scrB2)
     val collectBefore = CountScenarios.collect(scenariosBefore)
@@ -392,11 +393,11 @@ class CountScenariosTest extends FunSuite with Matchers {
   }
 
   test("Report pretty diff counts with one scenario from a outline in a top-level feature has a changed tags") {
-    val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle)
-    val scrB0 = Scenario(List[String](), "ftr1", "scrB", Some(0), Set[String]("A"), List[Step](), dummyPickle)
-    val scrB1 = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("A"), List[Step](), dummyPickle)
-    val scrB2 = Scenario(List[String](), "ftr1", "scrB", Some(2), Set[String]("A"), List[Step](), dummyPickle)
-    val scrB1x = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("B"), List[Step](), dummyPickle)
+    val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB0 = Scenario(List[String](), "ftr1", "scrB", Some(0), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB1 = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB2 = Scenario(List[String](), "ftr1", "scrB", Some(2), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB1x = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("B"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA, scrB0, scrB1, scrB2)
     val scenariosAfter: Seq[Scenario] = Seq(scrA, scrB0, scrB1x, scrB2)
     val collectBefore = CountScenarios.collect(scenariosBefore)
@@ -416,9 +417,9 @@ class CountScenariosTest extends FunSuite with Matchers {
   test("Diff with one scenario changed in categories, tags, and content of steps") {
     val stepsA1 = List[Step](Dummy(dummyPickleStep), Measure(dummyPickleStep))
     val stepsA2 = List[Step](Measure(dummyPickleStep), Dummy(dummyPickleStep))
-    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String]("T"), stepsA1, dummyPickle)
-    val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String]("X"), stepsA2, dummyPickle)
-    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle)
+    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String]("T"), stepsA1, dummyPickle, dummyPath("ftr1.feature"))
+    val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String]("X"), stepsA2, dummyPickle, dummyPath("ftr2.feature"))
+    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
     val collectBefore = CountScenarios.collect(scenariosBefore)
@@ -438,9 +439,9 @@ class CountScenariosTest extends FunSuite with Matchers {
   test("Report pretty diff counts with one scenario changed in categories, tags, and content of steps") {
     val stepsA1 = List[Step](Dummy(dummyPickleStep), Measure(dummyPickleStep))
     val stepsA2 = List[Step](Measure(dummyPickleStep), Dummy(dummyPickleStep))
-    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String]("T"), stepsA1, dummyPickle)
-    val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String]("X"), stepsA2, dummyPickle)
-    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle)
+    val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String]("T"), stepsA1, dummyPickle, dummyPath("ftr1.feature"))
+    val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String]("X"), stepsA2, dummyPickle, dummyPath("ftr2.feature"))
+    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
     val collectBefore = CountScenarios.collect(scenariosBefore)
