@@ -531,3 +531,59 @@ Feature: Match7 - Optional match scenarios
       | a    | b              | r    |
       | null | (:B {num: 46}) | null |
     And no side effects
+
+  Scenario: [25] Satisfies the open world assumption, relationships between same nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:Player), (b:Team)
+      CREATE (a)-[:PLAYS_FOR]->(b),
+             (a)-[:SUPPORTS]->(b)
+      """
+    When executing query:
+      """
+      MATCH (p:Player)-[:PLAYS_FOR]->(team:Team)
+      OPTIONAL MATCH (p)-[s:SUPPORTS]->(team)
+      RETURN count(*) AS matches, s IS NULL AS optMatch
+      """
+    Then the result should be, in any order:
+      | matches | optMatch |
+      | 1       | false    |
+    And no side effects
+
+  Scenario: [26] Satisfies the open world assumption, single relationship
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:Player), (b:Team)
+      CREATE (a)-[:PLAYS_FOR]->(b)
+      """
+    When executing query:
+      """
+      MATCH (p:Player)-[:PLAYS_FOR]->(team:Team)
+      OPTIONAL MATCH (p)-[s:SUPPORTS]->(team)
+      RETURN count(*) AS matches, s IS NULL AS optMatch
+      """
+    Then the result should be, in any order:
+      | matches | optMatch |
+      | 1       | true     |
+    And no side effects
+
+  Scenario: [27] Satisfies the open world assumption, relationships between different nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:Player), (b:Team), (c:Team)
+      CREATE (a)-[:PLAYS_FOR]->(b),
+             (a)-[:SUPPORTS]->(c)
+      """
+    When executing query:
+      """
+      MATCH (p:Player)-[:PLAYS_FOR]->(team:Team)
+      OPTIONAL MATCH (p)-[s:SUPPORTS]->(team)
+      RETURN count(*) AS matches, s IS NULL AS optMatch
+      """
+    Then the result should be, in any order:
+      | matches | optMatch |
+      | 1       | true     |
+    And no side effects

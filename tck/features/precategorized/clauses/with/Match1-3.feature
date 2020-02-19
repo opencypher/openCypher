@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Match 1-3 - Match nodes WITH clause scenarios
+Feature: Match1-3 - Match nodes WITH clause scenarios
 
   Scenario: Return bounded node property
     Given an empty graph

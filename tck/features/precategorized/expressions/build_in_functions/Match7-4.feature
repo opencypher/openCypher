@@ -47,7 +47,7 @@ Feature: Feature: Match7-4 - Optional Match build in functions scenarios
       | () | []         |
     And no side effects
 
-  Scenario: OPTIONAL MATCH and `collect() on node property`
+  Scenario: OPTIONAL MATCH and `collect()` on node property
     Given an empty graph
     And having executed:
       """
