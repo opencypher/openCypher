@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Match 1-2 - Match nodes WHERE clause scenarios
+Feature: Match1-2 - Match nodes WHERE clause scenarios
 
   Scenario: Simple node property predicate
     Given an empty graph

@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Match 1-1 - Match nodes RETURN clause scenarios
+Feature: Match1-1 - Match nodes RETURN clause scenarios
 
   Scenario: Returning a node property value
     Given an empty graph
