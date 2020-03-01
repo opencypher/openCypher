@@ -110,14 +110,6 @@ Feature: MiscellaneousErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
-  Scenario: Failing when using undefined variable in DELETE
-    When executing query:
-      """
-      MATCH (a)
-      DELETE x
-      """
-    Then a SyntaxError should be raised at compile time: UndefinedVariable
-
   Scenario: Failing when using a variable that is already bound in CREATE
     When executing query:
       """
@@ -190,14 +182,6 @@ Feature: MiscellaneousErrorAcceptance
       CREATE (a)<-[:FOO]->(b)
       """
     Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
-
-  Scenario: Failing when deleting a label
-    When executing query:
-      """
-      MATCH (n)
-      DELETE n:Person
-      """
-    Then a SyntaxError should be raised at compile time: InvalidDelete
 
   Scenario: Failing when setting a list of maps as a property
     When executing query:

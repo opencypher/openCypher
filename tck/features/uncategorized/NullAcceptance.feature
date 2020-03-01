@@ -153,29 +153,3 @@ Feature: NullAcceptance
       | a    |
       | null |
     And no side effects
-
-  Scenario: Ignore null when deleting node
-    Given an empty graph
-    When executing query:
-      """
-      OPTIONAL MATCH (a:DoesNotExist)
-      DELETE a
-      RETURN a
-      """
-    Then the result should be, in any order:
-      | a    |
-      | null |
-    And no side effects
-
-  Scenario: Ignore null when deleting relationship
-    Given an empty graph
-    When executing query:
-      """
-      OPTIONAL MATCH ()-[r:DoesNotExist]-()
-      DELETE r
-      RETURN r
-      """
-    Then the result should be, in any order:
-      | r    |
-      | null |
-    And no side effects

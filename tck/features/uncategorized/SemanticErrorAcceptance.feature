@@ -178,14 +178,6 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
-  Scenario: Failing when deleting an integer expression
-    When executing query:
-      """
-      MATCH ()
-      DELETE 1 + 1
-      """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentType
-
   Scenario: Failing when using MERGE on a node that is already bound
     When executing query:
       """
