@@ -47,6 +47,7 @@
       Then a ConstraintVerificationFailed should be raised at runtime: DeleteConnectedNode
 
     Scenario: Failing when using undefined variable in DELETE
+      Given an empty graph
       When executing query:
       """
       MATCH (a)
@@ -55,6 +56,7 @@
       Then a SyntaxError should be raised at compile time: UndefinedVariable
 
     Scenario: Failing when deleting a label
+      Given an empty graph
       When executing query:
       """
       MATCH (n)
@@ -63,6 +65,7 @@
       Then a SyntaxError should be raised at compile time: InvalidDelete
 
     Scenario: Failing when deleting an integer expression
+      Given an empty graph
       When executing query:
       """
       MATCH ()
