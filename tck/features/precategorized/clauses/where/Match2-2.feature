@@ -52,11 +52,11 @@ Feature: Match2-2 - Match relationships WHERE clause scenarios
     And having executed:
       """
       CREATE (a {name: 'A'}),
-      (b {name: 'B'}),
-      (c {name: 'C'}),
-      (a)-[:KNOWS]->(b),
-      (a)-[:HATES]->(c),
-      (a)-[:WONDERS]->(c)
+        (b {name: 'B'}),
+        (c {name: 'C'}),
+        (a)-[:KNOWS]->(b),
+        (a)-[:HATES]->(c),
+        (a)-[:WONDERS]->(c)
       """
     When executing query:
       """

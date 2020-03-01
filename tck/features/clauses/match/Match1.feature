@@ -79,7 +79,7 @@ Feature: Match1 - Match Nodes scenarios
     Given an empty graph
     And having executed:
       """
-      CREATE ({name: 'bar'})
+      CREATE ({name: 'bar'}), ({name: 'monkey'}), ({firstname: 'bar'})
       """
     When executing query:
       """
