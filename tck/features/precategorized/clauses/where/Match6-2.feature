@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Feature: Match6-2 - Match named paths WHERE clause scenarios
+Feature: Match6-2 - Match named paths WHERE clause scenarios
 
   Scenario: Pass the path length test
     Given an empty graph

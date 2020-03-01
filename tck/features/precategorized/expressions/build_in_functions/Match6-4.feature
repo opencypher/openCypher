@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Feature: Match6-4 - Match named paths built in functions scenarios
+Feature: Match6-4 - Match named paths built in functions scenarios
 
   Scenario: Return a var length path of length zero
     Given an empty graph
