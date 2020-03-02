@@ -83,23 +83,6 @@ case class InspectPages(inspectModel: InspectModel, inspectRoutes: InspectRoutes
     table(header +: printDepthFirst(Total))
   }
 
-  def listScenariosInGroup(group: Group): Text.TypedTag[String] = {
-    val scenarios = inspectModel.counts.getOrElse(group, Set.empty[Scenario])
-    page(
-      pageTitle(scenarios.size, " scenario(s) in group ", i(group.toString)),
-      ul(
-        for(s <- scenarios.toSeq.sortBy(s => (s.categories.mkString("/"), s.featureName, s.name, s.exampleIndex))) yield
-          li(
-            scenarioLocationFrag(s),
-            inlineSpacer(),
-            link(inspectRoutes.showSingleScenarioURL(this, s), scenarioTitle(s)),
-            inlineSpacer(),
-            blankLink(inspectRoutes.openScenarioInEditorURL(this, s), "[code]"),
-          )
-      )
-    )
-  }
-
   def scenarioPage(scenario: Scenario, withLocation: Boolean = true): Text.TypedTag[String] = {
     page(
       // location

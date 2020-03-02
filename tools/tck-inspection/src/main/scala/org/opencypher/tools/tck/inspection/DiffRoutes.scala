@@ -74,7 +74,16 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   def listUnchangedScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): String = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
-    pageFrag = diffPages => securedGroupPage(diffPages, groupId, group => diffPages.listScenariosInGroup(group, "unchanged", _.unchanged))
+    pageFrag = diffPages =>
+      securedGroupPage(diffPages, groupId, group =>
+        listScenariosPage(
+          scenarios = group => diffPages.diffModel.diffs.get(group).map(_.unchanged).getOrElse(Set.empty[Scenario]),
+          group = group,
+          kind = Some("unchanged"),
+          showSingleScenarioURL = scenario => showSingleScenarioURL(diffPages, scenario),
+          openScenarioInEditorURL = scenario => openScenarioInEditorURL(diffPages, scenario),
+        )
+      )
   )
 
   def listAddedScenariosURL(diffPages: DiffPages, group: Group): String = {
@@ -85,7 +94,16 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   def listAddedScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): String = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
-    pageFrag = diffPages => securedGroupPage(diffPages, groupId, group => diffPages.listScenariosInGroup(group, "added", _.added))
+    pageFrag = diffPages =>
+      securedGroupPage(diffPages, groupId, group =>
+        listScenariosPage(
+          scenarios = group => diffPages.diffModel.diffs.get(group).map(_.added).getOrElse(Set.empty[Scenario]),
+          group = group,
+          kind = Some("added"),
+          showSingleScenarioURL = scenario => showSingleScenarioURL(diffPages, scenario),
+          openScenarioInEditorURL = scenario => openScenarioInEditorURL(diffPages, scenario),
+        )
+      )
   )
 
   def listRemovedScenariosURL(diffPages: DiffPages, group: Group): String = {
@@ -96,7 +114,16 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   def listRemovedScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): String = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
-    pageFrag = diffPages => securedGroupPage(diffPages, groupId, group => diffPages.listScenariosInGroup(group, "removed", _.removed))
+    pageFrag = diffPages =>
+      securedGroupPage(diffPages, groupId, group =>
+        listScenariosPage(
+          scenarios = group => diffPages.diffModel.diffs.get(group).map(_.removed).getOrElse(Set.empty[Scenario]),
+          group = group,
+          kind = Some("removed"),
+          showSingleScenarioURL = scenario => showSingleScenarioURL(diffPages, scenario),
+          openScenarioInEditorURL = scenario => openScenarioInEditorURL(diffPages, scenario),
+        )
+      )
   )
 
   def listMovedScenariosURL(diffPages: DiffPages, group: Group): String = {
