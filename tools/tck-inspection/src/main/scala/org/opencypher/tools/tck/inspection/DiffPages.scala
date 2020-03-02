@@ -60,45 +60,55 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           ),
           td(),
           td(textAlign.right)(
-            a(href:=diffRoutes.listBeforeScenariosURL(this, currentGroup))(
-              before.get(currentGroup).map(_.size).getOrElse(0).toString
-            )
+            before.get(currentGroup).map(col =>
+              a(href:=diffRoutes.listBeforeScenariosURL(this, currentGroup))(col.size)
+            ).getOrElse("-")
           ),
           td(),
-          td(textAlign.right)(
-            a(href:=diffRoutes.listUnchangedScenariosURL(this, currentGroup))(
-              diffs.get(currentGroup).map(_.unchanged.size).getOrElse(0).toString
-            )
-          ),
+          td(textAlign.right)({
+            val size = diffs.get(currentGroup).map(_.unchanged.size).getOrElse(0)
+            if(size > 0)
+              a(href:=diffRoutes.listUnchangedScenariosURL(this, currentGroup))(size)
+            else
+              "-"
+          }),
+          td(),
+          td(textAlign.right)({
+            val size = diffs.get(currentGroup).map(_.changed.count(_._3 == Set(Moved))).getOrElse(0)
+            if(size > 0)
+              a(href:=diffRoutes.listMovedScenariosURL(this, currentGroup))(size)
+            else
+              "-"
+          }),
+          td(),
+          td(textAlign.right)({
+            val size = diffs.get(currentGroup).map(_.changed.count(_._3 != Set(Moved))).getOrElse(0)
+            if (size > 0)
+              a(href := diffRoutes.listChangedScenariosURL(this, currentGroup))(size)
+            else
+              "-"
+          }),
+          td(),
+          td(textAlign.right)({
+            val size = diffs.get(currentGroup).map(_.added.size).getOrElse(0)
+            if (size > 0)
+              a(href:=diffRoutes.listAddedScenariosURL(this, currentGroup))(size)
+            else
+              "-"
+          }),
+          td(),
+          td(textAlign.right)({
+            val size = diffs.get(currentGroup).map(_.removed.size).getOrElse(0)
+            if (size > 0)
+              a(href:=diffRoutes.listRemovedScenariosURL(this, currentGroup))(size)
+            else
+              "-"
+          }),
           td(),
           td(textAlign.right)(
-            a(href:=diffRoutes.listMovedScenariosURL(this, currentGroup))(
-              diffs.get(currentGroup).map(_.changed.count(_._3 == Set(Moved))).getOrElse(0).toString
-            )
-          ),
-          td(),
-          td(textAlign.right)(
-            a(href:=diffRoutes.listChangedScenariosURL(this, currentGroup))(
-              diffs.get(currentGroup).map(_.changed.count(_._3 != Set(Moved))).getOrElse(0).toString
-            )
-          ),
-          td(),
-          td(textAlign.right)(
-            a(href:=diffRoutes.listAddedScenariosURL(this, currentGroup))(
-              diffs.get(currentGroup).map(_.added.size).getOrElse(0).toString
-            )
-          ),
-          td(),
-          td(textAlign.right)(
-            a(href:=diffRoutes.listRemovedScenariosURL(this, currentGroup))(
-              diffs.get(currentGroup).map(_.removed.size).getOrElse(0).toString
-            )
-          ),
-          td(),
-          td(textAlign.right)(
-            a(href:=diffRoutes.listAfterScenariosURL(this, currentGroup))(
-              after.get(currentGroup).map(_.size).getOrElse(0).toString
-            )
+            after.get(currentGroup).map(col =>
+              a(href:=diffRoutes.listAfterScenariosURL(this, currentGroup))(col.size)
+            ).getOrElse("-")
           ),
           td(),
         )
