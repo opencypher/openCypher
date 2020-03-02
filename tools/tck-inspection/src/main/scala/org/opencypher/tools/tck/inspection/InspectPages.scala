@@ -80,7 +80,7 @@ case class InspectPages(inspectModel: InspectModel, inspectRoutes: InspectRoutes
         th("Count"),
       )
 
-    table(header +: printDepthFirst(Total))
+    table(CSS.hoverTable)(header +: printDepthFirst(Total))
   }
 
   def scenarioPage(scenario: Scenario, withLocation: Boolean = true): Text.TypedTag[String] = {

@@ -59,9 +59,9 @@ case class DiffModel(beforePath: String, afterPath: String) {
     s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
   )
 
-  val diffs: Map[Group, GroupDiff] = CountScenarios.diff(
-    CountScenarios.collect(scenariosBefore), CountScenarios.collect(scenariosAfter)
-  )
+  val (before, after) = (CountScenarios.collect(scenariosBefore), CountScenarios.collect(scenariosAfter))
+
+  val diffs: Map[Group, GroupDiff] = CountScenarios.diff(before, after)
 
   val changed: Set[(Scenario, Scenario, Set[ScenarioDiff])] = diffs(Total).changed.filterNot(_._3 == Set(Moved))
 
