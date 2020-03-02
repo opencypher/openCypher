@@ -76,14 +76,14 @@ trait PageBasic {
     body(content)
   )
 
-  def listScenariosPage(scenarios: Group => Set[Scenario], group: Group, kind: Option[String], showSingleScenarioURL: Scenario => String, openScenarioInEditorURL: Scenario => String ): Text.TypedTag[String] = {
-    val scenarioSeq = scenarios(group).toSeq.sortBy(s => (s.categories.mkString("/"), s.featureName, s.name, s.exampleIndex))
+  def listScenariosPage(scenarios: Group => Option[Seq[Scenario]], group: Group, kind: Option[Frag], showSingleScenarioURL: Scenario => String, openScenarioInEditorURL: Scenario => String ): Text.TypedTag[String] = {
+    val scenarioSeq = scenarios(group).map(_.sortBy(s => (s.categories.mkString("/"), s.featureName, s.name, s.exampleIndex))).getOrElse(Seq.empty[Scenario])
     val kindStr = kind match {
-      case None => ""
-      case Some(k) => " " + k
+      case None => frag()
+      case Some(k) => frag(" ", k)
     }
     page(
-      pageTitle(scenarioSeq.size, " scenario(s)", kindStr, " in group ", i(group.toString)),
+      pageTitle(scenarioSeq.size, kindStr, " scenario(s) in group ", i(group.toString)),
       ul(
         for(s <- scenarioSeq) yield
           li(

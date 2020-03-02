@@ -44,11 +44,11 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
         div(span(CSS.tckCollection)(AfterCollection.toString), code(diffModel.afterPath))
       ),
       sectionTitle("Counts"),
-      diffCountsFrag(diffModel.diffs)
+      diffCountsFrag(diffModel.diffs, diffModel.before, diffModel.after)
     )
   }
 
-  def diffCountsFrag(diffs: Map[Group, GroupDiff]): Text.TypedTag[String] = {
+  def diffCountsFrag(diffs: Map[Group, GroupDiff], before: Map[Group, Seq[Scenario]], after: Map[Group, Seq[Scenario]]): Text.TypedTag[String] = {
     val groupsByParent = diffs.keys.groupBy(countCategory => countCategory.parent)
 
     // print counts to html table rows as a count group tree in dept first order
@@ -58,31 +58,49 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           td(textIndent:=currentGroup.indent.em)(
             currentGroup.toString
           ),
+          td(),
+          td(textAlign.right)(
+            a(href:=diffRoutes.listBeforeScenariosURL(this, currentGroup))(
+              before.get(currentGroup).map(_.size).getOrElse(0).toString
+            )
+          ),
+          td(),
           td(textAlign.right)(
             a(href:=diffRoutes.listUnchangedScenariosURL(this, currentGroup))(
               diffs.get(currentGroup).map(_.unchanged.size).getOrElse(0).toString
             )
           ),
+          td(),
           td(textAlign.right)(
             a(href:=diffRoutes.listMovedScenariosURL(this, currentGroup))(
               diffs.get(currentGroup).map(_.changed.count(_._3 == Set(Moved))).getOrElse(0).toString
             )
           ),
+          td(),
           td(textAlign.right)(
             a(href:=diffRoutes.listChangedScenariosURL(this, currentGroup))(
               diffs.get(currentGroup).map(_.changed.count(_._3 != Set(Moved))).getOrElse(0).toString
             )
           ),
+          td(),
           td(textAlign.right)(
             a(href:=diffRoutes.listAddedScenariosURL(this, currentGroup))(
               diffs.get(currentGroup).map(_.added.size).getOrElse(0).toString
             )
           ),
+          td(),
           td(textAlign.right)(
             a(href:=diffRoutes.listRemovedScenariosURL(this, currentGroup))(
               diffs.get(currentGroup).map(_.removed.size).getOrElse(0).toString
             )
-          )
+          ),
+          td(),
+          td(textAlign.right)(
+            a(href:=diffRoutes.listAfterScenariosURL(this, currentGroup))(
+              after.get(currentGroup).map(_.size).getOrElse(0).toString
+            )
+          ),
+          td(),
         )
       // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
       val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{
@@ -102,14 +120,24 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
     val header =
       tr(
         th("Group"),
+        th(code("(:")),
+        th(CSS.tckCollection)(BeforeCollection.toString),
+        th(code(")-[:")),
         th("unchanged"),
+        th(code("|")),
         th("moved only"),
+        th(code("|")),
         th("changed more"),
+        th(code("|")),
         th("added"),
+        th(code("|")),
         th("removed"),
+        th(code("]->(:")),
+        th(CSS.tckCollection)(AfterCollection.toString),
+        th(code(")")),
       )
 
-    table(header +: printDepthFirst(Total))
+    table(CSS.hoverTable)(header +: printDepthFirst(Total))
   }
 
   def listMovedScenarios(group: Group): Text.TypedTag[String] = {

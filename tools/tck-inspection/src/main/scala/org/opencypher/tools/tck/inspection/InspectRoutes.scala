@@ -71,7 +71,7 @@ case class InspectRoutes()(implicit val log: cask.Logger) extends cask.Routes wi
   def listScenarios(pathEnc: String, groupId: Int): String = secureInspectPage(
     pathEnc = pathEnc,
     pageFrag = inspectPages => securedGroupPage(inspectPages, groupId, group => inspectPages.listScenariosPage(
-      scenarios = group => inspectPages.inspectModel.counts.getOrElse(group, Set.empty[Scenario]).toSet,
+      scenarios = group => inspectPages.inspectModel.counts.get(group),
       group = group,
       kind = None,
       showSingleScenarioURL = scenario => showSingleScenarioURL(inspectPages, scenario),

@@ -28,10 +28,10 @@
 package org.opencypher.tools.tck.inspection
 
 import scalatags.Text.all._
+import scalatags.stylesheet.CascadingStyleSheet
 import scalatags.stylesheet.Cls
-import scalatags.stylesheet.StyleSheet
 
-object CSS extends StyleSheet {
+object CSS extends CascadingStyleSheet {
   initStyleSheet()
 
   val pageTitle: Cls = cls(
@@ -49,10 +49,18 @@ object CSS extends StyleSheet {
     fontFamily:="sans-serif",
   )
 
+  val hoverTable: Cls = cls(
+    borderCollapse.collapse,
+    tr.hover(
+      backgroundColor := "#abd9f9",
+    ),
+    td(
+      backgroundClip.`padding-box`,
+    )
+  )
+
   val locationLine: Cls = cls(
     backgroundColor:="#abd9f9",
-    //display.flex,
-    //flexDirection.row
   )
 
   val tckCollection: Cls = cls(
