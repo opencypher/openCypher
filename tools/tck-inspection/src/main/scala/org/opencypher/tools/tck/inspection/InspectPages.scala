@@ -54,9 +54,9 @@ case class InspectPages(inspectModel: InspectModel, inspectRoutes: InspectRoutes
             currentGroup.toString
           ),
           td(textAlign.right)(
-            a(href:=inspectRoutes.listScenariosURL(this, currentGroup))(
-              counts.get(currentGroup).map(_.size).getOrElse(0).toString
-            )
+            counts.get(currentGroup).map(col =>
+              a(href:=inspectRoutes.listScenariosURL(this, currentGroup))(col.size)
+            ).getOrElse("-")
           ),
         )
       // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
