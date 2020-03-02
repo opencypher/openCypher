@@ -56,6 +56,15 @@ import scalatags.generic
 import scalatags.text.Builder
 
 trait PageBasic {
+  class FragOption[T](option: Option[T]) {
+    def mapToFrag(f: T => Frag): Frag = option match {
+      case None => frag()
+      case Some(value) => f(value)
+    }
+  }
+
+  implicit def optionToFragOption[T](option: Option[T]): FragOption[T] = new FragOption[T](option)
+
   def categorySeparator = "⟩"
 
   def inlineSpacer(): Text.TypedTag[String] = span(width:=1.em, display.`inline-block`)(" ")
@@ -78,12 +87,8 @@ trait PageBasic {
 
   def listScenariosPage(scenarios: Group => Option[Seq[Scenario]], group: Group, kind: Option[Frag], showSingleScenarioURL: Scenario => String, openScenarioInEditorURL: Scenario => String ): Text.TypedTag[String] = {
     val scenarioSeq = scenarios(group).map(_.sortBy(s => (s.categories.mkString("/"), s.featureName, s.name, s.exampleIndex))).getOrElse(Seq.empty[Scenario])
-    val kindStr = kind match {
-      case None => frag()
-      case Some(k) => frag(" ", k)
-    }
     page(
-      pageTitle(scenarioSeq.size, kindStr, " scenario(s) in group ", i(group.toString)),
+      pageTitle(scenarioSeq.size, kind.mapToFrag(k => frag(" ", k)), " scenario(s) in group ", i(group.toString)),
       ul(
         for(s <- scenarioSeq) yield
           li(
@@ -105,20 +110,19 @@ trait PageBasic {
                            showUrl: Option[String] = None,
                            sourceUrl: Option[String] = None): generic.Frag[Builder, String] =
     frag(
-      collection match {
-        case None => frag()
-        case Some(col) => span(CSS.tckCollection)(col)
-      },
-      scenario.categories.flatMap(c => Seq(span(CSS.categorySepInLocationLine)(categorySeparator), span(CSS.categoryNameInLocationLine)(c))),
+      collection.mapToFrag(col =>
+        span(CSS.tckCollection)(col)
+      ),
+      scenario.categories.flatMap(c =>
+        Seq(span(CSS.categorySepInLocationLine)(categorySeparator), span(CSS.categoryNameInLocationLine)(c))
+      ),
       span(CSS.featureIntroInLocationLine)(categorySeparator, categorySeparator), span(CSS.featureNameInLocationLine)(scenario.featureName),
-      showUrl match {
-        case None => frag()
-        case Some(url) => span(CSS.scenarioLinkInLocationLine)(link(url, "[show]"))
-      },
-      sourceUrl match {
-        case None => frag()
-        case Some(url) => span(CSS.scenarioLinkInLocationLine)(blankLink(url,"[code]"))
-      },
+      showUrl.mapToFrag(url =>
+        span(CSS.scenarioLinkInLocationLine)(link(url, "[show]"))
+      ),
+      sourceUrl.mapToFrag(url =>
+        span(CSS.scenarioLinkInLocationLine)(blankLink(url,"[code]"))
+      ),
     )
 
   def link(url: String, linkContent: Frag*): Text.TypedTag[String] =
@@ -128,7 +132,7 @@ trait PageBasic {
     a(href:=url, target:="_blank")(linkContent)
 
   def stepFrag(step: Step): Text.TypedTag[String] = {
-    def stepFrag(name: String, content: Frag*) =
+    def stepFrag(name: String, content: Frag*): Text.TypedTag[String] =
       div(CSS.step)(
         div(if (content.isEmpty) CSS.emptyStepName else CSS.stepName)(name),
         if(content.nonEmpty) div(CSS.stepContent)(content) else frag()
