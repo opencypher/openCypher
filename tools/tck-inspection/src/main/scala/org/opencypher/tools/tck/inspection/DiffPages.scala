@@ -119,11 +119,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
       ul(
         for(s <- scenarios.toSeq.sortBy(s => (s.categories.mkString("/"), s.featureName, s.featureName, s.exampleIndex))) yield
           li(
-            scenarioLocationFrag(
-              scenario = s,
-              showUrl = Some(diffRoutes.showSingleScenarioURL(this, s)),
-              sourceUrl = Some(diffRoutes.openScenarioInEditorURL(this, s)),
-            ),
+            scenarioLocationFrag(s),
             inlineSpacer(),
             showSingleScenarioLink(s, scenarioTitle(s)),
             inlineSpacer(),
