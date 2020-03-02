@@ -112,23 +112,6 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
     table(header +: printDepthFirst(Total))
   }
 
-  def listScenariosInGroup(group: Group, kind: String, get: GroupDiff => Set[Scenario]): Text.TypedTag[String] = {
-    val scenarios = diffModel.diffs.get(group).map(get).getOrElse(Set.empty[Scenario])
-    page(
-      pageTitle(scenarios.size, " scenario(s) ", kind, " in group ", i(group.toString)),
-      ul(
-        for(s <- scenarios.toSeq.sortBy(s => (s.categories.mkString("/"), s.featureName, s.name, s.exampleIndex))) yield
-          li(
-            scenarioLocationFrag(s),
-            inlineSpacer(),
-            showSingleScenarioLink(s, scenarioTitle(s)),
-            inlineSpacer(),
-            openScenarioInEditorLink(s, "[code]"),
-          )
-      )
-    )
-  }
-
   def listMovedScenarios(group: Group): Text.TypedTag[String] = {
     val triples =
       diffModel.diffs.get(group).map(
