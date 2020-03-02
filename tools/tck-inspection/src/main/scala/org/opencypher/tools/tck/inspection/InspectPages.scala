@@ -88,7 +88,7 @@ case class InspectPages(inspectModel: InspectModel, inspectRoutes: InspectRoutes
     page(
       pageTitle(scenarios.size, " scenario(s) in group ", i(group.toString)),
       ul(
-        for(s <- scenarios.toSeq.sortBy(s => (s.categories.mkString("/"), s.featureName, s.featureName, s.exampleIndex))) yield
+        for(s <- scenarios.toSeq.sortBy(s => (s.categories.mkString("/"), s.featureName, s.name, s.exampleIndex))) yield
           li(
             scenarioLocationFrag(s),
             inlineSpacer(),

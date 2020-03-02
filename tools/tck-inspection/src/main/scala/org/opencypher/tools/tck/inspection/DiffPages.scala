@@ -117,7 +117,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
     page(
       pageTitle(scenarios.size, " scenario(s) ", kind, " in group ", i(group.toString)),
       ul(
-        for(s <- scenarios.toSeq.sortBy(s => (s.categories.mkString("/"), s.featureName, s.featureName, s.exampleIndex))) yield
+        for(s <- scenarios.toSeq.sortBy(s => (s.categories.mkString("/"), s.featureName, s.name, s.exampleIndex))) yield
           li(
             scenarioLocationFrag(s),
             inlineSpacer(),
