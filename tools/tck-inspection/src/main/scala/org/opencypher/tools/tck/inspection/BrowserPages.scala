@@ -32,18 +32,18 @@ import org.opencypher.tools.tck.api.Scenario
 import scalatags.Text
 import scalatags.Text.all._
 
-case class InspectPages(inspectModel: InspectModel, inspectRoutes: InspectRoutes) extends PageBasic {
+case class BrowserPages(browserModel: BrowserModel, browserRoutes: BrowserRoutes) extends PageBasic {
 
-  def inspectReportPage(): Text.TypedTag[String] = {
+  def browserReportPage(): Text.TypedTag[String] = {
     page(
-      pageTitle("Inspect report"),
-      div(code(inspectModel.path)),
+      pageTitle("Browse"),
+      div(code(browserModel.path)),
       sectionTitle("Counts"),
-      inspectCountsFrag(inspectModel.counts)
+      browserCountsFrag(browserModel.counts)
     )
   }
 
-  def inspectCountsFrag(counts: Map[Group, Seq[Scenario]]): Text.TypedTag[String] = {
+  def browserCountsFrag(counts: Map[Group, Seq[Scenario]]): Text.TypedTag[String] = {
     val groupsByParent = counts.keys.groupBy(countCategory => countCategory.parent)
 
     // print counts to html table rows as a count group tree in dept first order
@@ -55,7 +55,7 @@ case class InspectPages(inspectModel: InspectModel, inspectRoutes: InspectRoutes
           ),
           td(textAlign.right)(
             counts.get(currentGroup).map(col =>
-              a(href:=inspectRoutes.listScenariosURL(this, currentGroup))(col.size)
+              a(href:=browserRoutes.listScenariosURL(this, currentGroup))(col.size)
             ).getOrElse("-")
           ),
         )
@@ -88,11 +88,8 @@ case class InspectPages(inspectModel: InspectModel, inspectRoutes: InspectRoutes
       // location
       if(withLocation)
         frag(
-          div(CSS.locationLine)(scenarioLocationFrag(
-            scenario = scenario,
-            showUrl = Some(inspectRoutes.showSingleScenarioURL(this, scenario)),
-          )),
-          blankLink(inspectRoutes.openScenarioInEditorURL(this, scenario),
+          div(CSS.locationLine)(scenarioLocationFrag(scenario)),
+          blankLink(browserRoutes.openScenarioInEditorURL(this, scenario),
             div(CSS.fileLocation)(
               scenario.sourceFile.toAbsolutePath.toString + ":" + Pickle(scenario.source, withLocation = true).location.map(_.head.line).getOrElse(0)
             )
