@@ -160,8 +160,15 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
       case (before, after, _) => before.categories.mkString("/")+"/"+before.featureName+">>>"+after.categories.mkString("/")+"/"+after.featureName
     }.toSeq.sortBy(_._1)
 
+    case object ByScenario extends Anchor
+    case object ByLocation extends Anchor
     page(
       pageTitle(triples.size, " scenario(s) moved in group ", i(group.toString)),
+      ol(
+        li(link2LocalAnchor(ByScenario, "By scenario")),
+        li(link2LocalAnchor(ByLocation, "By location")),
+      ),
+      anchor(ByScenario),
       sectionTitle("By scenario"),
       dl(CSS.movedScenariosList)(
         for((before, after, _) <- byScenario) yield frag(
@@ -181,6 +188,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           )
         )
       ),
+      anchor(ByLocation),
       sectionTitle("By location"),
       table(width:=100.pct)(
         tr(

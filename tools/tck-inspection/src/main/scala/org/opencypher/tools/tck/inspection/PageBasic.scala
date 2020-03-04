@@ -125,6 +125,13 @@ trait PageBasic {
       ),
     )
 
+  trait Anchor
+
+  def anchor(anchor: Anchor): Text.TypedTag[String] = a(name:=anchor.toString)
+
+  def link2LocalAnchor(anchor: Anchor, linkContent: Frag*): Text.TypedTag[String] =
+    a(href:="#"+anchor.toString)(linkContent)
+
   def link(url: String, linkContent: Frag*): Text.TypedTag[String] =
     a(href:=url)(linkContent)
 
