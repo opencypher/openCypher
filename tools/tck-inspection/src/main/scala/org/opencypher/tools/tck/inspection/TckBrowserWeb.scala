@@ -54,9 +54,36 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   @cask.get("/")
   def main(): String = {
     page(
-      pageTitle("TCK Inspector"),
+      pageTitle("TCK Browser"),
+      sectionTitle("Browse"),
+      subSectionTitle("Git repository commit"),
+      form(action:="/browserRepositoryCommit", method:="get")(
+        table(
+          tr(
+            td("Repository"),
+            td("Commit"),
+            td("Subdirectory"),
+            td(),
+          ),
+          tr(
+            td(input(width:=25.em, `type`:="text", name:="repo", value:="https://github.com/openCypher/openCypher")),
+            td(input(width:=10.em, `type`:="text", name:="commit", value:="HEAD")),
+            td(input(width:=15.em, `type`:="text", name:="subPath", value:="tck/features")),
+            td(input(`type`:="submit", value:="Show")),
+          )
+        )
+      ),
+      subSectionTitle("Local directory"),
+      form(action:="/browserPath", method:="get")(
+        table(
+          tr(
+            td(input(width:=50.em, `type`:="text", name:="path")),
+            td(input(`type`:="submit", value:="Show")),
+          )
+        )
+      ),
       sectionTitle("Diff"),
-      subSectionTitle("From git repository commits"),
+      subSectionTitle("Git repository commits"),
       form(action:="/diffRepositoryCommits", method:="get")(
         table(
           tr(
@@ -82,7 +109,7 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
           )
         )
       ),
-      subSectionTitle("From local directories"),
+      subSectionTitle("Local directories"),
       form(action:="/diffPaths", method:="get")(
         table(
           tr(
@@ -93,33 +120,6 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
           tr(
             td(CSS.tckCollection)(AfterCollection.toString),
             td(input(width:=50.em, `type`:="text", name:="after")),
-            td(input(`type`:="submit", value:="Show")),
-          )
-        )
-      ),
-      sectionTitle("Inspect"),
-      subSectionTitle("From git repository commit"),
-      form(action:="/inspectRepositoryCommit", method:="get")(
-        table(
-          tr(
-            td("Repository"),
-            td("Commit"),
-            td("Subdirectory"),
-            td(),
-          ),
-          tr(
-            td(input(width:=25.em, `type`:="text", name:="repo", value:="https://github.com/openCypher/openCypher")),
-            td(input(width:=10.em, `type`:="text", name:="commit", value:="HEAD")),
-            td(input(width:=15.em, `type`:="text", name:="subPath", value:="tck/features")),
-            td(input(`type`:="submit", value:="Show")),
-          )
-        )
-      ),
-      subSectionTitle("From local directory"),
-      form(action:="/inspectPath", method:="get")(
-        table(
-          tr(
-            td(input(width:=50.em, `type`:="text", name:="path")),
             td(input(`type`:="submit", value:="Show")),
           )
         )
@@ -175,15 +175,15 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     val afterPathEnc = URLEncoder.encode(after, StandardCharsets.UTF_8.toString)
     cask.Redirect(s"/diff/$beforePathEnc/$afterPathEnc")
   }
-  @cask.get("/inspectRepositoryCommit")
-  def inspectRepositoryCommit(repo: String, commit: String, subPath: String): Response[String] = {
-    val repoDir = Files.createTempDirectory("inspectRepositoryCommit")
+  @cask.get("/browserRepositoryCommit")
+  def browserRepositoryCommit(repo: String, commit: String, subPath: String): Response[String] = {
+    val repoDir = Files.createTempDirectory("browserRepositoryCommit")
     val checkoutResult = checkoutRepoCommit(repo, commit, repoDir.toString)
     val tckDir = repoDir.resolve(subPath).toAbsolutePath
     val pathEnc = URLEncoder.encode(tckDir.toString, StandardCharsets.UTF_8.toString)
 
     checkoutResult match {
-      case None => cask.Redirect(s"/inspect/$pathEnc")
+      case None => cask.Redirect(s"/browser/$pathEnc")
       case Some(frag) => cask.Response(
         error(
           p("Cannot checkout repo"),
@@ -193,15 +193,15 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     }
   }
 
-  @cask.get("/inspectPath")
-  def inspectPath(path: String): Response[String] = {
+  @cask.get("/browserPath")
+  def browserPath(path: String): Response[String] = {
     val pathEnc = URLEncoder.encode(path, StandardCharsets.UTF_8.toString)
-    cask.Redirect(s"/inspect/$pathEnc")
+    cask.Redirect(s"/browser/$pathEnc")
   }
 
   initialize()
 }
 
-object TckInspectorWeb extends cask.Main {
-  val allRoutes = Seq(MainRoutes(), InspectRoutes(), DiffRoutes())
+object TckBrowserWeb extends cask.Main {
+  val allRoutes = Seq(MainRoutes(), BrowserRoutes(), DiffRoutes())
 }

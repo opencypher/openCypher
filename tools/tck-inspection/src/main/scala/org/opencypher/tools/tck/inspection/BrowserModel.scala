@@ -32,7 +32,7 @@ import org.opencypher.tools.tck.api.Scenario
 
 import scala.util.matching.Regex
 
-case class InspectModel(path: String) {
+case class BrowserModel(path: String) {
 
   private val regexLeadingNumber: Regex = """[\[][0-9]+[\]][ ]""".r
 
