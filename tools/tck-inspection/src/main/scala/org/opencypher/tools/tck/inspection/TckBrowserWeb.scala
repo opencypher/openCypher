@@ -35,21 +35,6 @@ import cask.model.Response
 import scalatags.Text.all._
 
 case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with PageBasic {
-  //  val beforeDuplicates = CountScenarios.potentialDuplicates(scenariosBefore).filterNot {
-//    case (a, b, _) => a.categories.head == "uncategorized" && b.categories.head == "uncategorized"
-//  }
-//
-//  val afterDuplicates = CountScenarios.potentialDuplicates(scenariosAfter).filterNot {
-//    case (a, b, _) => a.categories.head == "uncategorized" && b.categories.head == "uncategorized"
-//  }
-//
-//  val missing = diffs(Total).removed.filterNot(s => beforeDuplicates.exists{
-//    case (a, b, _) => s == a || s == b
-//  })
-//
-//  val extra = diffs(Total).added.filterNot(s => afterDuplicates.exists{
-//    case (a, b, _) => s == a || s == b
-//  })
 
   @cask.get("/")
   def main(): String = {
