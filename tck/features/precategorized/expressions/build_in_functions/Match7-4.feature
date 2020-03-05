@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Feature: Match7-4 - Optional Match build in functions scenarios
+Feature: Match7-4 - Optional Match build in functions scenarios
 
   Scenario: `collect()` filtering nulls
     Given an empty graph
