@@ -30,7 +30,7 @@
 
 Feature: Delete4 - Delete clause interoperation with other clauses
 
-  Scenario: Undirected expand followed by delete and count
+  Scenario: [1] Undirected expand followed by delete and count
     Given an empty graph
     And having executed:
       """
@@ -49,7 +49,7 @@ Feature: Delete4 - Delete clause interoperation with other clauses
       | -nodes         | 2 |
       | -relationships | 1 |
 
-  Scenario: Undirected variable length expand followed by delete and count
+  Scenario: [2] Undirected variable length expand followed by delete and count
     Given an empty graph
     And having executed:
       """
@@ -70,7 +70,7 @@ Feature: Delete4 - Delete clause interoperation with other clauses
       | -nodes         | 3 |
       | -relationships | 2 |
 
-  Scenario: Create and delete in same query
+  Scenario: [3] Create and delete in same query
     Given an empty graph
     And having executed:
       """

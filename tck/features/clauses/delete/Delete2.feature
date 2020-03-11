@@ -30,7 +30,7 @@
 
 Feature: Delete2 - Deleting relationships
 
-  Scenario: Delete relationships
+  Scenario: [1] Delete relationships
     Given an empty graph
     And having executed:
       """
@@ -46,7 +46,7 @@ Feature: Delete2 - Deleting relationships
     And the side effects should be:
       | -relationships | 3 |
 
-  Scenario: Delete optionally matched relationship
+  Scenario: [2] Delete optionally matched relationship
     Given an empty graph
     And having executed:
       """
@@ -62,7 +62,7 @@ Feature: Delete2 - Deleting relationships
     And the side effects should be:
       | -nodes | 1 |
 
-  Scenario: Delete relationship with bidirectional matching
+  Scenario: [3] Delete relationship with bidirectional matching
     Given an empty graph
     And having executed:
       """
@@ -80,7 +80,7 @@ Feature: Delete2 - Deleting relationships
       | -properties    | 1 |
 
 
-  Scenario: Ignore null when deleting relationship
+  Scenario: [4] Ignore null when deleting relationship
     Given an empty graph
     When executing query:
       """

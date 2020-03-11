@@ -30,7 +30,7 @@
 
 Feature: Delete6 - Negative scenarios
 
-  Scenario: Failing when deleting connected nodes
+  Scenario: [1] Failing when deleting connected nodes
     Given an empty graph
     And having executed:
       """
@@ -46,7 +46,7 @@ Feature: Delete6 - Negative scenarios
       """
     Then a ConstraintVerificationFailed should be raised at runtime: DeleteConnectedNode
 
-  Scenario: Failing when using undefined variable in DELETE
+  Scenario: [2] Failing when using undefined variable in DELETE
     Given any graph
     When executing query:
       """
@@ -55,7 +55,7 @@ Feature: Delete6 - Negative scenarios
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
-  Scenario: Failing when deleting a label
+  Scenario: [3] Failing when deleting a label
     Given any graph
     When executing query:
       """
@@ -64,7 +64,7 @@ Feature: Delete6 - Negative scenarios
       """
     Then a SyntaxError should be raised at compile time: InvalidDelete
 
-  Scenario: Failing when deleting an integer expression
+  Scenario: [4] Failing when deleting an integer expression
     Given any graph
     When executing query:
       """
