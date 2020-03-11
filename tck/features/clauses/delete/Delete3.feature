@@ -30,7 +30,7 @@
 
 Feature: Delete3 - Deleting named paths
 
-  Scenario: Detach deleting paths
+  Scenario: [1] Detach deleting paths
     Given an empty graph
     And having executed:
       """
@@ -50,7 +50,7 @@ Feature: Delete3 - Deleting named paths
       | -relationships | 3 |
       | -labels        | 1 |
 
-  Scenario: Delete on null path
+  Scenario: [2] Delete on null path
     Given an empty graph
     When executing query:
       """

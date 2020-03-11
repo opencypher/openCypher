@@ -30,7 +30,7 @@
 
 Feature: Delete1 - Deleting nodes
 
-  Scenario: Delete nodes
+  Scenario: [1] Delete nodes
     Given an empty graph
     And having executed:
       """
@@ -45,7 +45,7 @@ Feature: Delete1 - Deleting nodes
     And the side effects should be:
       | -nodes | 1 |
 
-  Scenario: Detach delete node
+  Scenario: [2] Detach delete node
     Given an empty graph
     And having executed:
       """
@@ -60,7 +60,7 @@ Feature: Delete1 - Deleting nodes
     And the side effects should be:
       | -nodes | 1 |
 
-  Scenario: Detach deleting connected nodes and relationships
+  Scenario: [3] Detach deleting connected nodes and relationships
     Given an empty graph
     And having executed:
       """
@@ -80,7 +80,7 @@ Feature: Delete1 - Deleting nodes
       | -relationships | 3 |
       | -labels        | 1 |
 
-  Scenario: Delete on null node
+  Scenario: [4] Delete on null node
     Given an empty graph
     When executing query:
       """
@@ -90,7 +90,7 @@ Feature: Delete1 - Deleting nodes
     Then the result should be empty
     And no side effects
 
-  Scenario: Ignore null when deleting node
+  Scenario: [5] Ignore null when deleting node
     Given an empty graph
     When executing query:
       """
@@ -103,7 +103,7 @@ Feature: Delete1 - Deleting nodes
       | null |
     And no side effects
 
-  Scenario: Detach delete on null node
+  Scenario: [6] Detach delete on null node
     Given an empty graph
     When executing query:
       """

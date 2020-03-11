@@ -30,7 +30,7 @@
 
 Feature: Delete5 - Delete clause interoperation with built-in data types
 
-  Scenario: Delete node from a list
+  Scenario: [1] Delete node from a list
     Given an empty graph
     And having executed:
       """
@@ -53,7 +53,7 @@ Feature: Delete5 - Delete clause interoperation with built-in data types
       | -nodes         | 1 |
       | -relationships | 1 |
 
-  Scenario: Delete relationship from a list
+  Scenario: [2] Delete relationship from a list
     Given an empty graph
     And having executed:
       """
@@ -75,7 +75,7 @@ Feature: Delete5 - Delete clause interoperation with built-in data types
     And the side effects should be:
       | -relationships | 1 |
 
-  Scenario: Delete nodes from a map
+  Scenario: [3] Delete nodes from a map
     Given an empty graph
     And having executed:
       """
@@ -92,7 +92,7 @@ Feature: Delete5 - Delete clause interoperation with built-in data types
       | -nodes  | 2 |
       | -labels | 1 |
 
-  Scenario: Delete relationships from a map
+  Scenario: [4] Delete relationships from a map
     Given an empty graph
     And having executed:
       """
@@ -110,7 +110,7 @@ Feature: Delete5 - Delete clause interoperation with built-in data types
     And the side effects should be:
       | -relationships | 2 |
 
-  Scenario: Detach delete nodes from nested map/list
+  Scenario: [5] Detach delete nodes from nested map/list
     Given an empty graph
     And having executed:
       """
@@ -129,7 +129,7 @@ Feature: Delete5 - Delete clause interoperation with built-in data types
       | -nodes         | 1 |
       | -relationships | 2 |
 
-  Scenario: Delete relationships from nested map/list
+  Scenario: [6] Delete relationships from nested map/list
     Given an empty graph
     And having executed:
       """
@@ -147,7 +147,7 @@ Feature: Delete5 - Delete clause interoperation with built-in data types
     And the side effects should be:
       | -relationships | 1 |
 
-  Scenario: Delete paths from nested map/list
+  Scenario: [7] Delete paths from nested map/list
     Given an empty graph
     And having executed:
       """
