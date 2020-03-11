@@ -99,7 +99,7 @@ case object DetailedScenarioDiff {
     }
 
     val lcsPairs = lcsSteps(before, after, (b, a) => b == a)
-    val lcsPairWindows = ((0, 0), lcsPairs.head) :: lcsPairs.zip(lcsPairs drop 1)
+    val lcsPairWindows = ((-1, -1), lcsPairs.head) :: lcsPairs.zip(lcsPairs drop 1)
     val paired = lcsPairWindows.flatMap {
       case ((bIxPrec, aIxPrec), (bIx, aIx)) =>
         val paired = diffStepsSimple(before.slice(bIxPrec + 1, bIx), after.slice(aIxPrec + 1, aIx))
