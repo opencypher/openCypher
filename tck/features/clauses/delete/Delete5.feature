@@ -28,11 +28,11 @@
 
 #encoding: utf-8
 
-  Feature: Delete5 - Delete clause interoperation with built-in data types
+Feature: Delete5 - Delete clause interoperation with built-in data types
 
-    Scenario: Delete node from a list
-      Given an empty graph
-      And having executed:
+  Scenario: Delete node from a list
+    Given an empty graph
+    And having executed:
       """
       CREATE (u:User)
       CREATE (u)-[:FRIEND]->()
@@ -40,22 +40,22 @@
       CREATE (u)-[:FRIEND]->()
       CREATE (u)-[:FRIEND]->()
       """
-      And parameters are:
-        | friendIndex | 1 |
-      When executing query:
+    And parameters are:
+      | friendIndex | 1 |
+    When executing query:
       """
       MATCH (:User)-[:FRIEND]->(n)
       WITH collect(n) AS friends
       DETACH DELETE friends[$friendIndex]
       """
-      Then the result should be empty
-      And the side effects should be:
-        | -nodes         | 1 |
-        | -relationships | 1 |
+    Then the result should be empty
+    And the side effects should be:
+      | -nodes         | 1 |
+      | -relationships | 1 |
 
-    Scenario: Delete relationship from a list
-      Given an empty graph
-      And having executed:
+  Scenario: Delete relationship from a list
+    Given an empty graph
+    And having executed:
       """
       CREATE (u:User)
       CREATE (u)-[:FRIEND]->()
@@ -63,106 +63,106 @@
       CREATE (u)-[:FRIEND]->()
       CREATE (u)-[:FRIEND]->()
       """
-      And parameters are:
-        | friendIndex | 1 |
-      When executing query:
+    And parameters are:
+      | friendIndex | 1 |
+    When executing query:
       """
       MATCH (:User)-[r:FRIEND]->()
       WITH collect(r) AS friendships
       DETACH DELETE friendships[$friendIndex]
       """
-      Then the result should be empty
-      And the side effects should be:
-        | -relationships | 1 |
+    Then the result should be empty
+    And the side effects should be:
+      | -relationships | 1 |
 
-    Scenario: Delete nodes from a map
-      Given an empty graph
-      And having executed:
+  Scenario: Delete nodes from a map
+    Given an empty graph
+    And having executed:
       """
       CREATE (:User), (:User)
       """
-      When executing query:
+    When executing query:
       """
       MATCH (u:User)
       WITH {key: u} AS nodes
       DELETE nodes.key
       """
-      Then the result should be empty
-      And the side effects should be:
-        | -nodes  | 2 |
-        | -labels | 1 |
+    Then the result should be empty
+    And the side effects should be:
+      | -nodes  | 2 |
+      | -labels | 1 |
 
-    Scenario: Delete relationships from a map
-      Given an empty graph
-      And having executed:
+  Scenario: Delete relationships from a map
+    Given an empty graph
+    And having executed:
       """
       CREATE (a:User), (b:User)
       CREATE (a)-[:R]->(b)
       CREATE (b)-[:R]->(a)
       """
-      When executing query:
+    When executing query:
       """
       MATCH (:User)-[r]->(:User)
       WITH {key: r} AS rels
       DELETE rels.key
       """
-      Then the result should be empty
-      And the side effects should be:
-        | -relationships | 2 |
+    Then the result should be empty
+    And the side effects should be:
+      | -relationships | 2 |
 
-    Scenario: Detach delete nodes from nested map/list
-      Given an empty graph
-      And having executed:
+  Scenario: Detach delete nodes from nested map/list
+    Given an empty graph
+    And having executed:
       """
       CREATE (a:User), (b:User)
       CREATE (a)-[:R]->(b)
       CREATE (b)-[:R]->(a)
       """
-      When executing query:
+    When executing query:
       """
       MATCH (u:User)
       WITH {key: collect(u)} AS nodeMap
       DETACH DELETE nodeMap.key[0]
       """
-      Then the result should be empty
-      And the side effects should be:
-        | -nodes         | 1 |
-        | -relationships | 2 |
+    Then the result should be empty
+    And the side effects should be:
+      | -nodes         | 1 |
+      | -relationships | 2 |
 
-    Scenario: Delete relationships from nested map/list
-      Given an empty graph
-      And having executed:
+  Scenario: Delete relationships from nested map/list
+    Given an empty graph
+    And having executed:
       """
       CREATE (a:User), (b:User)
       CREATE (a)-[:R]->(b)
       CREATE (b)-[:R]->(a)
       """
-      When executing query:
+    When executing query:
       """
       MATCH (:User)-[r]->(:User)
       WITH {key: {key: collect(r)}} AS rels
       DELETE rels.key.key[0]
       """
-      Then the result should be empty
-      And the side effects should be:
-        | -relationships | 1 |
+    Then the result should be empty
+    And the side effects should be:
+      | -relationships | 1 |
 
-    Scenario: Delete paths from nested map/list
-      Given an empty graph
-      And having executed:
+  Scenario: Delete paths from nested map/list
+    Given an empty graph
+    And having executed:
       """
       CREATE (a:User), (b:User)
       CREATE (a)-[:R]->(b)
       CREATE (b)-[:R]->(a)
       """
-      When executing query:
+    When executing query:
       """
       MATCH p = (:User)-[r]->(:User)
       WITH {key: collect(p)} AS pathColls
       DELETE pathColls.key[0], pathColls.key[1]
       """
-      Then the result should be empty
-      And the side effects should be:
-        | -nodes         | 2 |
-        | -relationships | 2 |
-        | -labels        | 1 |
+    Then the result should be empty
+    And the side effects should be:
+      | -nodes         | 2 |
+      | -relationships | 2 |
+      | -labels        | 1 |
