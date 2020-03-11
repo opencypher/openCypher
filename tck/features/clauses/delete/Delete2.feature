@@ -28,67 +28,67 @@
 
 #encoding: utf-8
 
-  Feature: Delete2 - Deleting relationships
+Feature: Delete2 - Deleting relationships
 
-    Scenario: Delete relationships
-      Given an empty graph
-      And having executed:
+  Scenario: Delete relationships
+    Given an empty graph
+    And having executed:
       """
       UNWIND range(0, 2) AS i
       CREATE ()-[:R]->()
       """
-      When executing query:
+    When executing query:
       """
       MATCH ()-[r]-()
       DELETE r
       """
-      Then the result should be empty
-      And the side effects should be:
-        | -relationships | 3 |
+    Then the result should be empty
+    And the side effects should be:
+      | -relationships | 3 |
 
-    Scenario: Delete optionally matched relationship
-      Given an empty graph
-      And having executed:
+  Scenario: Delete optionally matched relationship
+    Given an empty graph
+    And having executed:
       """
       CREATE ()
       """
-      When executing query:
+    When executing query:
       """
       MATCH (n)
       OPTIONAL MATCH (n)-[r]-()
       DELETE n, r
       """
-      Then the result should be empty
-      And the side effects should be:
-        | -nodes | 1 |
+    Then the result should be empty
+    And the side effects should be:
+      | -nodes | 1 |
 
-    Scenario: Delete relationship with bidirectional matching
-      Given an empty graph
-      And having executed:
+  Scenario: Delete relationship with bidirectional matching
+    Given an empty graph
+    And having executed:
       """
       CREATE ()-[:T {id: 42}]->()
       """
-      When executing query:
+    When executing query:
       """
       MATCH p = ()-[r:T]-()
       WHERE r.id = 42
       DELETE r
       """
-      Then the result should be empty
-      And the side effects should be:
-        | -relationships | 1 |
-        | -properties    | 1 |
+    Then the result should be empty
+    And the side effects should be:
+      | -relationships | 1 |
+      | -properties    | 1 |
 
 
-    Scenario: Ignore null when deleting relationship
-      Given an empty graph
-      When executing query:
+  Scenario: Ignore null when deleting relationship
+    Given an empty graph
+    When executing query:
       """
       OPTIONAL MATCH ()-[r:DoesNotExist]-()
       DELETE r
       RETURN r
       """
-      Then the result should be, in any order:
-        | r    |
-        | null |
-      And no side effects
+    Then the result should be, in any order:
+      | r    |
+      | null |
+    And no side effects

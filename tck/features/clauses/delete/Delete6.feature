@@ -28,47 +28,47 @@
 
 #encoding: utf-8
 
-  Feature: Delete6 - Negative scenarios
+Feature: Delete6 - Negative scenarios
 
-    Scenario: Deleting connected nodes
-      Given an empty graph
-      And having executed:
+  Scenario: Deleting connected nodes
+    Given an empty graph
+    And having executed:
       """
       CREATE (x:X)
       CREATE (x)-[:R]->()
       CREATE (x)-[:R]->()
       CREATE (x)-[:R]->()
       """
-      When executing query:
+    When executing query:
       """
       MATCH (n:X)
       DELETE n
       """
-      Then a ConstraintVerificationFailed should be raised at runtime: DeleteConnectedNode
+    Then a ConstraintVerificationFailed should be raised at runtime: DeleteConnectedNode
 
-    Scenario: Failing when using undefined variable in DELETE
-      Given an empty graph
-      When executing query:
+  Scenario: Failing when using undefined variable in DELETE
+    Given an empty graph
+    When executing query:
       """
       MATCH (a)
       DELETE x
       """
-      Then a SyntaxError should be raised at compile time: UndefinedVariable
+    Then a SyntaxError should be raised at compile time: UndefinedVariable
 
-    Scenario: Failing when deleting a label
-      Given an empty graph
-      When executing query:
+  Scenario: Failing when deleting a label
+    Given an empty graph
+    When executing query:
       """
       MATCH (n)
       DELETE n:Person
       """
-      Then a SyntaxError should be raised at compile time: InvalidDelete
+    Then a SyntaxError should be raised at compile time: InvalidDelete
 
-    Scenario: Failing when deleting an integer expression
-      Given an empty graph
-      When executing query:
+  Scenario: Failing when deleting an integer expression
+    Given an empty graph
+    When executing query:
       """
       MATCH ()
       DELETE 1 + 1
       """
-      Then a SyntaxError should be raised at compile time: InvalidArgumentType
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType

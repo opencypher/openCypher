@@ -28,87 +28,87 @@
 
 #encoding: utf-8
 
-  Feature: Delete1 - Deleting nodes
+Feature: Delete1 - Deleting nodes
 
-    Scenario: Delete nodes
-      Given an empty graph
-      And having executed:
+  Scenario: Delete nodes
+    Given an empty graph
+    And having executed:
       """
       CREATE ()
       """
-      When executing query:
+    When executing query:
       """
       MATCH (n)
       DELETE n
       """
-      Then the result should be empty
-      And the side effects should be:
-        | -nodes | 1 |
+    Then the result should be empty
+    And the side effects should be:
+      | -nodes | 1 |
 
-    Scenario: Detach delete node
-      Given an empty graph
-      And having executed:
+  Scenario: Detach delete node
+    Given an empty graph
+    And having executed:
       """
       CREATE ()
       """
-      When executing query:
+    When executing query:
       """
       MATCH (n)
       DETACH DELETE n
       """
-      Then the result should be empty
-      And the side effects should be:
-        | -nodes | 1 |
+    Then the result should be empty
+    And the side effects should be:
+      | -nodes | 1 |
 
-    Scenario: Detach deleting connected nodes and relationships
-      Given an empty graph
-      And having executed:
+  Scenario: Detach deleting connected nodes and relationships
+    Given an empty graph
+    And having executed:
       """
       CREATE (x:X)
       CREATE (x)-[:R]->()
       CREATE (x)-[:R]->()
       CREATE (x)-[:R]->()
       """
-      When executing query:
+    When executing query:
       """
       MATCH (n:X)
       DETACH DELETE n
       """
-      Then the result should be empty
-      And the side effects should be:
-        | -nodes         | 1 |
-        | -relationships | 3 |
-        | -labels        | 1 |
+    Then the result should be empty
+    And the side effects should be:
+      | -nodes         | 1 |
+      | -relationships | 3 |
+      | -labels        | 1 |
 
-    Scenario: Delete on null node
-      Given an empty graph
-      When executing query:
+  Scenario: Delete on null node
+    Given an empty graph
+    When executing query:
       """
       OPTIONAL MATCH (n)
       DELETE n
       """
-      Then the result should be empty
-      And no side effects
+    Then the result should be empty
+    And no side effects
 
-    Scenario: Ignore null when deleting node
-      Given an empty graph
-      When executing query:
+  Scenario: Ignore null when deleting node
+    Given an empty graph
+    When executing query:
       """
       OPTIONAL MATCH (a:DoesNotExist)
       DELETE a
       RETURN a
       """
-      Then the result should be, in any order:
-        | a    |
-        | null |
-      And no side effects
+    Then the result should be, in any order:
+      | a    |
+      | null |
+    And no side effects
 
-    Scenario: Detach delete on null node
-      Given an empty graph
-      When executing query:
+  Scenario: Detach delete on null node
+    Given an empty graph
+    When executing query:
       """
       OPTIONAL MATCH (n)
       DETACH DELETE n
       """
-      Then the result should be empty
-      And no side effects
+    Then the result should be empty
+    And no side effects
