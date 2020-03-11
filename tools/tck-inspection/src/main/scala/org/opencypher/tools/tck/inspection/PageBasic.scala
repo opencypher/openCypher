@@ -156,8 +156,9 @@ trait PageBasic {
           div(table()(
             for((k,v) <- values.toSeq) yield
               tr(
-                td()(k),
-                td()(v.toString)
+                td()(code(k)),
+                td()("="),
+                td()(code(v.toString))
               )
           ))
         )
