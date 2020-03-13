@@ -123,7 +123,7 @@ Feature: Match2 - Match relationships scenarios
       """
     When executing query:
       """
-      MATCH (n)-[r:KNOWS|:HATES]->(x)
+      MATCH (n)-[r:KNOWS|HATES]->(x)
       RETURN r
       """
     Then the result should be, in any order:
