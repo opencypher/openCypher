@@ -31,7 +31,7 @@ import scala.collection.JavaConverters._
 
 /**
   * This function will validate whether a TCK scenario an unambiguous name. The scenario name is required to be unique within a feature file,
-  * except for scenario resulting from a Scenario Outline. If a scenario name is found to be ambiguous a message will be returned providing the
+  * except for scenarios resulting from a Scenario Outline. If a scenario name is found to be ambiguous a message will be returned providing the
   * name and the scenarios causing it's ambiguity, otherwise None will be returned.
   */
 object validateDuplicateNames extends (cucumber.api.Scenario => Option[String]) {
