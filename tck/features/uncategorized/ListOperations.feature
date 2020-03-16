@@ -661,7 +661,7 @@ Feature: ListOperations
       | [1, 10, 100, 4, 5] |
     And no side effects
 
-  Scenario: Concatenating lists of same type
+  Scenario: Concatenating a list with a scalar of same type
     Given any graph
     When executing query:
       """
