@@ -33,7 +33,9 @@ import io.cucumber.datatable.DataTable
 import org.opencypher.tools.tck.api.InvalidFeatureFormatException
 import org.opencypher.tools.tck.constants.TCKStepDefinitions._
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
 class FeatureFormatChecker extends TCKCucumberTemplate {
 
@@ -133,6 +135,7 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   }
 
   Before { (scenario: cucumber.api.Scenario) =>
+    validateDuplicateNames(scenario).map(msg => throw InvalidFeatureFormatException(msg))
     currentScenarioName = scenario.getName
   }
 
