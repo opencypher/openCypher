@@ -30,15 +30,15 @@ package org.opencypher.tools.tck.inspection
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
 
-case class DetailedScenarioDiff(categories: Option[Int],
-                                featureName: Boolean,
-                                name: Boolean,
-                                exampleIndex: Boolean,
-                                tags: Map[String, ElementaryDiff],
-                                steps: List[(Option[Step], ElementaryDiff, Option[Step])])
+case class ScenarioDiff(categories: Option[Int],
+                        featureName: Boolean,
+                        name: Boolean,
+                        exampleIndex: Boolean,
+                        tags: Map[String, ElementaryDiff],
+                        steps: List[(Option[Step], ElementaryDiff, Option[Step])])
 
-case object DetailedScenarioDiff {
-  def apply(before: Scenario, after: Scenario): DetailedScenarioDiff = {
+case object ScenarioDiff {
+  def apply(before: Scenario, after: Scenario): ScenarioDiff = {
     def diffSets[A](before: Set[A], after: Set[A]): Map[A, ElementaryDiff] = {
       val unchanged: Map[A, ElementaryDiff] = (before intersect after).map(a => a -> Unchanged).toMap
       val removed: Map[A, ElementaryDiff] = (before diff after).map(a => a -> Removed).toMap
@@ -59,7 +59,7 @@ case object DetailedScenarioDiff {
     val steps = diffStepsAdvanced(before.steps, after.steps).map(
       p => (p._1, ElementaryDiff(p), p._2)
     )
-    DetailedScenarioDiff(categories, featureName, name, exampleIndex, tags, steps)
+    ScenarioDiff(categories, featureName, name, exampleIndex, tags, steps)
   }
 
   private def diffStepsSimple(before: List[Step], after: List[Step]): List[(Option[Step], Option[Step])] = {
