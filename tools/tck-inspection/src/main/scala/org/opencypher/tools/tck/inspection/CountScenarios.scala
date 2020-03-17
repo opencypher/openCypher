@@ -34,31 +34,6 @@ import org.opencypher.tools.tck.api.PotentiallyDuplicated
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.ScenarioDiff
 
-trait Group {
-  def name: String
-  def indent: Int
-  def parent: Option[Group]
-
-  override def toString: String = name
-}
-
-case object Total extends Group {
-  val name = "Total"
-  val indent = 0
-  val parent: Option[Group] = None
-}
-
-case class Tag(name: String) extends Group {
-  val indent = 1
-  val parent: Option[Group] = Some(Total)
-}
-
-case class Feature(name: String, indent: Int, parent: Option[Group]) extends Group {
-  override def toString: String = "Feature: " + name
-}
-
-case class ScenarioCategory(name: String, indent: Int, parent: Option[Group]) extends Group
-
 case class GroupDiff(unchanged: Set[Scenario], changed: Set[(Scenario, Scenario, Set[ScenarioDiff])], added: Set[Scenario], removed: Set[Scenario])
 
 /*
