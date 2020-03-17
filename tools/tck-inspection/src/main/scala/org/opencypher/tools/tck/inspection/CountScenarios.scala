@@ -46,7 +46,7 @@ case object CountScenarios {
       println(reportCountsInPrettyPrint(collectScenarioGroups(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
     } else if(args.length == 2) {
       println(reportDiffCountsInPrettyPrint(
-        scenarioGroupDiff(
+        ScenarioGroupsCollectionDiff(
           collectScenarioGroups(CypherTCK.allTckScenariosFromFilesystem(args(0))),
           collectScenarioGroups(CypherTCK.allTckScenariosFromFilesystem(args(1))))
         )
