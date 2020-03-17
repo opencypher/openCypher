@@ -30,7 +30,7 @@ package org.opencypher.tools.tck.inspection
 import org.opencypher.tools.tck.api.Moved
 import org.opencypher.tools.tck.api.Pickle
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.ScenarioDiff
+import org.opencypher.tools.tck.api.ScenarioDiffTag
 import scalatags.Text
 import scalatags.Text.all._
 
@@ -152,7 +152,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
 
   def listMovedScenarios(group: Group): Text.TypedTag[String] = {
     val triples =
-      diffModel.diffs.get(group).map(_.moved).getOrElse(Set.empty[(Scenario, Scenario, Set[ScenarioDiff])])
+      diffModel.diffs.get(group).map(_.moved).getOrElse(Set.empty[(Scenario, Scenario, Set[ScenarioDiffTag])])
     val byScenario = triples.toSeq.sortBy(t => t._1.toString + t._2.toString)
     val byLocation = triples.groupBy {
       case (before, after, _) => before.categories.mkString("/")+"/"+before.featureName+">>>"+after.categories.mkString("/")+"/"+after.featureName
@@ -222,7 +222,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
       diffModel.diffs.get(group).map(
         _.changed.filter(_._3 != Set(Moved))
       ).getOrElse(
-        Set.empty[(Scenario, Scenario, Set[ScenarioDiff])]
+        Set.empty[(Scenario, Scenario, Set[ScenarioDiffTag])]
       ).toSeq.sortBy(t => t._1.toString + t._2.toString)
     page(
       pageTitle(triples.size, " scenario(s) changed in group ", i(group.toString)),

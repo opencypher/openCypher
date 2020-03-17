@@ -31,9 +31,9 @@ import org.opencypher.tools.tck.api.Different
 import org.opencypher.tools.tck.api.Moved
 import org.opencypher.tools.tck.api.PotentiallyDuplicated
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.ScenarioDiff
+import org.opencypher.tools.tck.api.ScenarioDiffTag
 
-case class GroupDiff(unchanged: Set[Scenario], moved: Set[(Scenario, Scenario, Set[ScenarioDiff])], changed: Set[(Scenario, Scenario, Set[ScenarioDiff])], added: Set[Scenario], removed: Set[Scenario])
+case class GroupDiff(unchanged: Set[Scenario], moved: Set[(Scenario, Scenario, Set[ScenarioDiffTag])], changed: Set[(Scenario, Scenario, Set[ScenarioDiffTag])], added: Set[Scenario], removed: Set[Scenario])
 
 case object GroupDiff {
   def apply(scenariosBefore: Option[Seq[Scenario]], scenariosAfter: Option[Seq[Scenario]]): GroupDiff = {
@@ -56,14 +56,14 @@ case object GroupDiff {
     val changedScenariosBefore = removedOrChangedScenarios -- removeScenarios
     val changedScenariosAfter = addedOrChangedScenarios -- addedScenarios
 
-    val allChangedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiff])] = changedScenariosBefore.flatMap(
+    val allChangedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiffTag])] = changedScenariosBefore.flatMap(
       b => changedScenariosAfter.map(a => (b, a, b.diff(a) - PotentiallyDuplicated)).filter {
         case (_, _, d) if d contains Different => false
         case _ => true
       }
     )
 
-    val (movedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiff])], changedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiff])]) = allChangedScenarios.partition(_._3 == Set(Moved))
+    val (movedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiffTag])], changedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiffTag])]) = allChangedScenarios.partition(_._3 == Set(Moved))
 
     GroupDiff(unchangedScenarios, movedScenarios, changedScenarios, addedScenarios, removeScenarios)
   }
