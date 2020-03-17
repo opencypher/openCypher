@@ -111,7 +111,7 @@ class ScenarioTest extends FunSuite with Matchers {
       pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Unchanged, SourceUnchanged))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiffTag](Unchanged, SourceUnchanged))
   }
 
   test("Diff equal scenarios differing in source") {
@@ -126,7 +126,7 @@ class ScenarioTest extends FunSuite with Matchers {
       pickle("s", 2), new java.io.File("A/B/f.feature").toPath
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Unchanged, SourceChanged))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiffTag](Unchanged, SourceChanged))
   }
 
   test("Diff scenarios differing in category only") {
@@ -141,7 +141,7 @@ class ScenarioTest extends FunSuite with Matchers {
       pickle("s", 2), new java.io.File("XX/A/f.feature").toPath
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Moved, PotentiallyDuplicated))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiffTag](Moved, PotentiallyDuplicated))
   }
 
   test("Diff scenarios differing in tags only") {
@@ -156,7 +156,7 @@ class ScenarioTest extends FunSuite with Matchers {
       pickle("s", 2), new java.io.File("A/B/f.feature").toPath
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Retagged, PotentiallyDuplicated))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiffTag](Retagged, PotentiallyDuplicated))
   }
 
   test("Diff scenarios differing in kind of steps only") {
@@ -171,7 +171,7 @@ class ScenarioTest extends FunSuite with Matchers {
       pickle("s", 2), new java.io.File("A/B/f.feature").toPath
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](StepsChanged, PotentiallyDuplicated))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiffTag](StepsChanged, PotentiallyDuplicated))
   }
 
   test("Diff scenarios differing in content of steps only") {
@@ -186,7 +186,7 @@ class ScenarioTest extends FunSuite with Matchers {
       pickle("s", 2), new java.io.File("A/B/f.feature").toPath
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](StepsChanged, PotentiallyDuplicated))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiffTag](StepsChanged, PotentiallyDuplicated))
   }
 
   test("Diff equal scenarios differing in example index only") {
@@ -201,7 +201,7 @@ class ScenarioTest extends FunSuite with Matchers {
       pickle("s", 2), new java.io.File("A/B/f.feature").toPath
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](ExampleIndexChanged, PotentiallyDuplicated))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiffTag](ExampleIndexChanged, PotentiallyDuplicated))
   }
 
   test("Diff scenarios differing in categories, tags, and content of steps only") {
@@ -216,7 +216,7 @@ class ScenarioTest extends FunSuite with Matchers {
       pickle("s", 2), new java.io.File("XX/B/f.feature").toPath
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Moved, Retagged, StepsChanged, PotentiallyDuplicated))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiffTag](Moved, Retagged, StepsChanged, PotentiallyDuplicated))
   }
 
   test("Diff different scenarios with different name") {
@@ -231,7 +231,7 @@ class ScenarioTest extends FunSuite with Matchers {
       pickle("XX", 2), new java.io.File("A/B/f.feature").toPath
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Different))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiffTag](Different))
   }
 
   test("Diff different scenarios with different example number") {
@@ -246,7 +246,7 @@ class ScenarioTest extends FunSuite with Matchers {
       pickle("XX", 2), new java.io.File("A/B/f.feature").toPath
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Different))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiffTag](Different))
   }
 
   test("Diff different scenarios with different name and example number") {
@@ -261,6 +261,6 @@ class ScenarioTest extends FunSuite with Matchers {
       pickle("XX", 2), new java.io.File("A/B/f.feature").toPath
     )
 
-    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiff](Different))
+    scenarioBefore.diff(scenarioAfter) should equal(Set[ScenarioDiffTag](Different))
   }
 }

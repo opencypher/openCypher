@@ -46,17 +46,17 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-sealed trait ScenarioDiff
-case object SourceUnchanged extends ScenarioDiff
-case object Unchanged extends ScenarioDiff
-case object Moved extends ScenarioDiff
-case object Retagged extends ScenarioDiff
-case object StepsChanged extends ScenarioDiff
-case object SourceChanged extends ScenarioDiff
-case object ExampleIndexChanged extends ScenarioDiff
-case object PotentiallyDuplicated extends ScenarioDiff
-case object PotentiallyRenamed extends ScenarioDiff
-case object Different extends ScenarioDiff
+sealed trait ScenarioDiffTag
+case object SourceUnchanged extends ScenarioDiffTag
+case object Unchanged extends ScenarioDiffTag
+case object Moved extends ScenarioDiffTag
+case object Retagged extends ScenarioDiffTag
+case object StepsChanged extends ScenarioDiffTag
+case object SourceChanged extends ScenarioDiffTag
+case object ExampleIndexChanged extends ScenarioDiffTag
+case object PotentiallyDuplicated extends ScenarioDiffTag
+case object PotentiallyRenamed extends ScenarioDiffTag
+case object Different extends ScenarioDiffTag
 
 case class Scenario(categories: List[String], featureName: String, name: String, exampleIndex: Option[Int], tags: Set[String], steps: List[Step], source: gherkin.pickles.Pickle, sourceFile: Path) {
 
@@ -84,9 +84,9 @@ case class Scenario(categories: List[String], featureName: String, name: String,
     hash
   }
 
-  def diff(that: Scenario): Set[ScenarioDiff] = that match {
+  def diff(that: Scenario): Set[ScenarioDiffTag] = that match {
     case Scenario(thatCategories, thatFeatureName, thatName, thatExampleIndex, thatTags, thatSteps, thatSource, _) =>
-      val diff = Set[ScenarioDiff](Unchanged, SourceUnchanged, SourceChanged, Moved, Retagged, StepsChanged, ExampleIndexChanged, PotentiallyRenamed).filter {
+      val diff = Set[ScenarioDiffTag](Unchanged, SourceUnchanged, SourceChanged, Moved, Retagged, StepsChanged, ExampleIndexChanged, PotentiallyRenamed).filter {
         case Unchanged => equals(that)
         case SourceUnchanged =>
           equals(that) &&
@@ -120,8 +120,8 @@ case class Scenario(categories: List[String], featureName: String, name: String,
         case _ => false
       }
       if(diff.isEmpty)
-        Set[ScenarioDiff](Different)
-      else if(diff subsetOf Set[ScenarioDiff](Moved, Retagged, ExampleIndexChanged, StepsChanged, PotentiallyRenamed))
+        Set[ScenarioDiffTag](Different)
+      else if(diff subsetOf Set[ScenarioDiffTag](Moved, Retagged, ExampleIndexChanged, StepsChanged, PotentiallyRenamed))
         diff + PotentiallyDuplicated
       else
         diff
