@@ -290,7 +290,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
     link(diffRoutes.showDetailedScenarioDiffURL(this, before, after), linkContent)
 
   def detailedScenarioDiffPage(before: Scenario, after: Scenario): Text.TypedTag[String] = {
-    val scenarioDiff = DetailedScenarioDiff(before, after)
+    val scenarioDiff = ScenarioDiff(before, after)
 
     def diffLineFrag(before: Frag, diff: ElementaryDiff, after: Frag) =
       div(CSS.scenarioDiffLine)(
