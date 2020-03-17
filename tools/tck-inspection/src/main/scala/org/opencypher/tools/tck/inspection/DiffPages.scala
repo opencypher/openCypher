@@ -74,7 +74,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           }),
           td(),
           td(textAlign.right)({
-            val size = diffs.get(currentGroup).map(_.changed.count(_._3 == Set(Moved))).getOrElse(0)
+            val size = diffs.get(currentGroup).map(_.moved.size).getOrElse(0)
             if(size > 0)
               a(href:=diffRoutes.listMovedScenariosURL(this, currentGroup))(size)
             else
@@ -82,7 +82,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           }),
           td(),
           td(textAlign.right)({
-            val size = diffs.get(currentGroup).map(_.changed.count(_._3 != Set(Moved))).getOrElse(0)
+            val size = diffs.get(currentGroup).map(_.changed.size).getOrElse(0)
             if (size > 0)
               a(href := diffRoutes.listChangedScenariosURL(this, currentGroup))(size)
             else
@@ -152,9 +152,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
 
   def listMovedScenarios(group: Group): Text.TypedTag[String] = {
     val triples =
-      diffModel.diffs.get(group).map(
-        _.changed.filter(_._3 == Set(Moved))
-      ).getOrElse(Set.empty[(Scenario, Scenario, Set[ScenarioDiff])])
+      diffModel.diffs.get(group).map(_.moved).getOrElse(Set.empty[(Scenario, Scenario, Set[ScenarioDiff])])
     val byScenario = triples.toSeq.sortBy(t => t._1.toString + t._2.toString)
     val byLocation = triples.groupBy {
       case (before, after, _) => before.categories.mkString("/")+"/"+before.featureName+">>>"+after.categories.mkString("/")+"/"+after.featureName

@@ -28,9 +28,7 @@
 package org.opencypher.tools.tck.inspection
 
 import org.opencypher.tools.tck.api.CypherTCK
-import org.opencypher.tools.tck.api.Moved
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.ScenarioDiff
 
 import scala.util.matching.Regex
 
@@ -63,12 +61,9 @@ case class DiffModel(beforePath: String, afterPath: String) {
 
   val diffs: Map[Group, GroupDiff] = ScenarioGroupsCollectionDiff(before, after)
 
-  val changed: Set[(Scenario, Scenario, Set[ScenarioDiff])] = diffs(Total).changed.filterNot(_._3 == Set(Moved))
-
-  val moved: Set[(Scenario, Scenario, Set[ScenarioDiff])] = diffs(Total).changed.filter(_._3 == Set(Moved))
-
   val scenario2Collection: Map[Scenario, TckCollection] =
     diffs(Total).unchanged.map(_ -> BothCollections).toMap ++
+      diffs(Total).moved.flatMap { case (b, a, _) => Map(b -> BeforeCollection, a -> AfterCollection) } ++
       diffs(Total).changed.flatMap { case (b, a, _) => Map(b -> BeforeCollection, a -> AfterCollection) } ++
       diffs(Total).added.map(_ -> AfterCollection).toMap ++
       diffs(Total).removed.map(_ -> BeforeCollection).toMap
