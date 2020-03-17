@@ -29,32 +29,10 @@ package org.opencypher.tools.tck.inspection
 
 import org.opencypher.tools.tck.api.Scenario
 
-object collectScenarioGroups extends (Seq[Scenario] => Map[Group, Seq[Scenario]]) {
-  def apply(scenarios: Seq[Scenario]): Map[Group, Seq[Scenario]] = {
-    // collect individual group for each scenario as 2-tuples of (Scenario,CountCategory)
-    val individualCounts: Seq[(Scenario,Group)] = scenarios.flatMap(scenario => {
-      // category
-      def mapToGroups(categories: List[String], parent: Group): Seq[(Scenario, Group)] = {
-        categories match {
-          case Nil => Seq[(Scenario, Group)]()
-          case category :: remainingCategories =>
-            val categoryGroup = (scenario, ScenarioCategory(category, parent.indent + 1, Some(parent)))
-            categoryGroup +: mapToGroups(remainingCategories, categoryGroup._2)
-        }
-      }
-      val categoryGroups: Seq[(Scenario, Group)] = mapToGroups(scenario.categories, Total)
-      // feature
-      val feature: Feature = {
-        val indent = categoryGroups.lastOption.map(_._2.indent).getOrElse(0) + 1
-        Feature(scenario.featureName, indent, Some(categoryGroups.lastOption.getOrElse((scenario, Total))._2))
-      }
-      // tags
-      val tagGroups: Seq[(Scenario, Group)] = scenario.tags.map(tag => (scenario, Tag(tag))).toSeq
-
-      (scenario, Total) +: (scenario, feature) +: (categoryGroups ++ tagGroups)
-    })
-    // group pairs by group
-    val allGroups = individualCounts.groupBy(_._2).mapValues(_.map(_._1))
-    allGroups
+case object GroupCollectionDiff extends ((Map[Group, Seq[Scenario]], Map[Group, Seq[Scenario]]) => Map[Group, GroupDiff]) {
+  def apply(before: Map[Group, Seq[Scenario]],
+           after: Map[Group, Seq[Scenario]]): Map[Group, GroupDiff] = {
+    val allGroups = before.keySet ++ after.keySet
+    allGroups.map(group => (group, GroupDiff(before.get(group), after.get(group)))).toMap
   }
 }

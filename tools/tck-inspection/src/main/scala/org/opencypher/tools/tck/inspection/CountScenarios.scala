@@ -41,14 +41,14 @@ import org.opencypher.tools.tck.api.ScenarioDiff
 case object CountScenarios {
   def main(args: Array[String]): Unit = {
     if(args.length == 0) {
-      println(reportCountsInPrettyPrint(collectScenarioGroups(CypherTCK.allTckScenarios)))
+      println(reportCountsInPrettyPrint(GroupCollection(CypherTCK.allTckScenarios)))
     } else if(args.length == 1) {
-      println(reportCountsInPrettyPrint(collectScenarioGroups(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
+      println(reportCountsInPrettyPrint(GroupCollection(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
     } else if(args.length == 2) {
       println(reportDiffCountsInPrettyPrint(
-        ScenarioGroupsCollectionDiff(
-          collectScenarioGroups(CypherTCK.allTckScenariosFromFilesystem(args(0))),
-          collectScenarioGroups(CypherTCK.allTckScenariosFromFilesystem(args(1))))
+        GroupCollectionDiff(
+          GroupCollection(CypherTCK.allTckScenariosFromFilesystem(args(0))),
+          GroupCollection(CypherTCK.allTckScenariosFromFilesystem(args(1))))
         )
       )
     }

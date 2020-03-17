@@ -57,9 +57,9 @@ case class DiffModel(beforePath: String, afterPath: String) {
     s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
   )
 
-  val (before, after) = (collectScenarioGroups(scenariosBefore), collectScenarioGroups(scenariosAfter))
+  val (before, after) = (GroupCollection(scenariosBefore), GroupCollection(scenariosAfter))
 
-  val diffs: Map[Group, GroupDiff] = ScenarioGroupsCollectionDiff(before, after)
+  val diffs: Map[Group, GroupDiff] = GroupCollectionDiff(before, after)
 
   val scenario2Collection: Map[Scenario, TckCollection] =
     diffs(Total).unchanged.map(_ -> BothCollections).toMap ++
