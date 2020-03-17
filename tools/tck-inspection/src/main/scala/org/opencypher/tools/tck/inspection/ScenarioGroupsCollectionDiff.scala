@@ -66,7 +66,7 @@ case object GroupDiff {
   }
 }
 
-object scenarioGroupDiff extends ((Map[Group, Seq[Scenario]], Map[Group, Seq[Scenario]]) => Map[Group, GroupDiff]) {
+case object ScenarioGroupsCollectionDiff extends ((Map[Group, Seq[Scenario]], Map[Group, Seq[Scenario]]) => Map[Group, GroupDiff]) {
   def apply(before: Map[Group, Seq[Scenario]],
            after: Map[Group, Seq[Scenario]]): Map[Group, GroupDiff] = {
     val allGroups = before.keySet ++ after.keySet
