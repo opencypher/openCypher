@@ -28,11 +28,12 @@
 package org.opencypher.tools.tck.inspection
 
 import org.opencypher.tools.tck.api.Different
+import org.opencypher.tools.tck.api.Moved
 import org.opencypher.tools.tck.api.PotentiallyDuplicated
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.ScenarioDiff
 
-case class GroupDiff(unchanged: Set[Scenario], changed: Set[(Scenario, Scenario, Set[ScenarioDiff])], added: Set[Scenario], removed: Set[Scenario])
+case class GroupDiff(unchanged: Set[Scenario], moved: Set[(Scenario, Scenario, Set[ScenarioDiff])], changed: Set[(Scenario, Scenario, Set[ScenarioDiff])], added: Set[Scenario], removed: Set[Scenario])
 
 case object GroupDiff {
   def apply(scenariosBefore: Option[Seq[Scenario]], scenariosAfter: Option[Seq[Scenario]]): GroupDiff = {
@@ -55,14 +56,16 @@ case object GroupDiff {
     val changedScenariosBefore = removedOrChangedScenarios -- removeScenarios
     val changedScenariosAfter = addedOrChangedScenarios -- addedScenarios
 
-    val changedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiff])] = changedScenariosBefore.flatMap(
+    val allChangedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiff])] = changedScenariosBefore.flatMap(
       b => changedScenariosAfter.map(a => (b, a, b.diff(a) - PotentiallyDuplicated)).filter {
         case (_, _, d) if d contains Different => false
         case _ => true
       }
     )
 
-    GroupDiff(unchangedScenarios, changedScenarios, addedScenarios, removeScenarios)
+    val (movedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiff])], changedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiff])]) = allChangedScenarios.partition(_._3 == Set(Moved))
+
+    GroupDiff(unchangedScenarios, movedScenarios, changedScenarios, addedScenarios, removeScenarios)
   }
 }
 
@@ -70,6 +73,6 @@ case object ScenarioGroupsCollectionDiff extends ((Map[Group, Seq[Scenario]], Ma
   def apply(before: Map[Group, Seq[Scenario]],
            after: Map[Group, Seq[Scenario]]): Map[Group, GroupDiff] = {
     val allGroups = before.keySet ++ after.keySet
-    allGroups.map(f = group => (group, GroupDiff(before.get(group), after.get(group)))).toMap
+    allGroups.map(group => (group, GroupDiff(before.get(group), after.get(group)))).toMap
   }
 }
