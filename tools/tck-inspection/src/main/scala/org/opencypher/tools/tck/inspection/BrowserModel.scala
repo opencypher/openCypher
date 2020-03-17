@@ -41,7 +41,7 @@ case class BrowserModel(path: String) {
     s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
   )
 
-  val counts: Map[Group, Seq[Scenario]] = collectScenarioGroups(scenarios)
+  val counts: Map[Group, Seq[Scenario]] = GroupCollection(scenarios)
 
   val (groupId2Group, group2GroupId) = {
     val groupList = counts.keySet.toIndexedSeq
