@@ -61,7 +61,7 @@ case class DiffModel(beforePath: String, afterPath: String) {
 
   val (before, after) = (collectScenarioGroups(scenariosBefore), collectScenarioGroups(scenariosAfter))
 
-  val diffs: Map[Group, GroupDiff] = CountScenarios.diff(before, after)
+  val diffs: Map[Group, GroupDiff] = scenarioGroupDiff(before, after)
 
   val changed: Set[(Scenario, Scenario, Set[ScenarioDiff])] = diffs(Total).changed.filterNot(_._3 == Set(Moved))
 

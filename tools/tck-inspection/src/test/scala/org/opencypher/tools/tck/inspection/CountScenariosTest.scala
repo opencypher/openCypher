@@ -198,7 +198,7 @@ class CountScenariosTest extends FunSuite with Matchers {
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(scrA), Set())
     )
 
-    CountScenarios.diff(collectBefore, collectAfter) should equal(expectedResult)
+    scenarioGroupDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
   test("Report pretty diff counts with one scenario added from a top-level same feature without tags") {
@@ -215,7 +215,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         |Total                   1           0             0      1        0
         |- Feature: ftr1         1           0             0      1        0""".stripMargin
 
-    CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
+    CountScenarios.reportDiffCountsInPrettyPrint(scenarioGroupDiff(collectBefore, collectAfter)) should equal(expectedResult)
   }
 
   test("Diff with one scenario removed from a top-level same feature without tags") {
@@ -231,7 +231,7 @@ class CountScenariosTest extends FunSuite with Matchers {
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA))
     )
 
-    CountScenarios.diff(collectBefore, collectAfter) should equal(expectedResult)
+    scenarioGroupDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
   test("Report pretty diff counts with one scenario removed from a top-level same feature without tags") {
@@ -248,7 +248,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         |Total                   1           0             0      0        1
         |- Feature: ftr1         1           0             0      0        1""".stripMargin
 
-    CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
+    CountScenarios.reportDiffCountsInPrettyPrint(scenarioGroupDiff(collectBefore, collectAfter)) should equal(expectedResult)
   }
 
   test("Diff with one scenario moved to another top-level feature without tags") {
@@ -266,7 +266,7 @@ class CountScenariosTest extends FunSuite with Matchers {
       Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(scrA2), Set())
     )
 
-    CountScenarios.diff(collectBefore, collectAfter) should equal(expectedResult)
+    scenarioGroupDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
   test("Report pretty diff counts with one scenario moved to another top-level feature without tags") {
@@ -285,7 +285,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         |- Feature: ftr1         1           0             0      0        1
         |- Feature: ftr2         0           0             0      1        0""".stripMargin
 
-    CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
+    CountScenarios.reportDiffCountsInPrettyPrint(scenarioGroupDiff(collectBefore, collectAfter)) should equal(expectedResult)
   }
 
   test("Diff with one scenario moved to another sub-level feature without tags") {
@@ -305,7 +305,7 @@ class CountScenariosTest extends FunSuite with Matchers {
       Feature("ftr2", 2, Some(catX)) -> GroupDiff(Set(), Set(), Set(scrA2), Set())
     )
 
-    CountScenarios.diff(collectBefore, collectAfter) should equal(expectedResult)
+    scenarioGroupDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
   test("Report pretty diff counts with one scenario moved to another sub-level feature without tags") {
@@ -325,7 +325,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         |  - Feature: ftr2         0           0             0      1        0
         |- Feature: ftr1           1           0             0      0        1""".stripMargin
 
-    CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
+    CountScenarios.reportDiffCountsInPrettyPrint(scenarioGroupDiff(collectBefore, collectAfter)) should equal(expectedResult)
   }
 
   test("Diff with one scenario moved to another top-level feature and a changed tag") {
@@ -346,7 +346,7 @@ class CountScenariosTest extends FunSuite with Matchers {
       Tag("B") -> GroupDiff(Set(), Set(), Set(scrB2), Set())
     )
 
-    CountScenarios.diff(collectBefore, collectAfter) should equal(expectedResult)
+    scenarioGroupDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
   test("Report pretty diff counts with one scenario moved to another top-level feature and a changed tag") {
@@ -368,7 +368,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         |- A                     0           0             0      0        1
         |- B                     0           0             0      1        0""".stripMargin
 
-    CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
+    CountScenarios.reportDiffCountsInPrettyPrint(scenarioGroupDiff(collectBefore, collectAfter)) should equal(expectedResult)
   }
 
   test("Diff with one scenario from a outline in a top-level feature has a changed tags") {
@@ -389,7 +389,7 @@ class CountScenariosTest extends FunSuite with Matchers {
       Tag("B") -> GroupDiff(Set(), Set(), Set(scrB1x), Set())
     )
 
-    CountScenarios.diff(collectBefore, collectAfter) should equal(expectedResult)
+    scenarioGroupDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
   test("Report pretty diff counts with one scenario from a outline in a top-level feature has a changed tags") {
@@ -411,7 +411,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         |- A                     2           0             0      0        1
         |- B                     0           0             0      1        0""".stripMargin
 
-    CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
+    CountScenarios.reportDiffCountsInPrettyPrint(scenarioGroupDiff(collectBefore, collectAfter)) should equal(expectedResult)
   }
 
   test("Diff with one scenario changed in categories, tags, and content of steps") {
@@ -433,7 +433,7 @@ class CountScenariosTest extends FunSuite with Matchers {
       Tag("X") -> GroupDiff(Set(), Set(), Set(scrA2), Set())
     )
 
-    CountScenarios.diff(collectBefore, collectAfter) should equal(expectedResult)
+    scenarioGroupDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
   test("Report pretty diff counts with one scenario changed in categories, tags, and content of steps") {
@@ -456,7 +456,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         |- T                     0           0             0      0        1
         |- X                     0           0             0      1        0""".stripMargin
 
-    CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(collectBefore, collectAfter)) should equal(expectedResult)
+    CountScenarios.reportDiffCountsInPrettyPrint(scenarioGroupDiff(collectBefore, collectAfter)) should equal(expectedResult)
   }
 
   test("Diff scenarios through TCK API") {
@@ -483,7 +483,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         |- @TestA                        2           0             0      0        0
         |- @TestB                        1           0             0      0        0
         |- @TestC                        2           1             0      0        0""".stripMargin
-    CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(
+    CountScenarios.reportDiffCountsInPrettyPrint(scenarioGroupDiff(
       collectScenarioGroups(scenariosBefore),
       collectScenarioGroups(scenariosAfter)
     )) should equal(expectedResult)
