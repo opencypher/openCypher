@@ -59,7 +59,7 @@ case class DiffModel(beforePath: String, afterPath: String) {
     s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
   )
 
-  val (before, after) = (CountScenarios.collect(scenariosBefore), CountScenarios.collect(scenariosAfter))
+  val (before, after) = (collectScenarioGroups(scenariosBefore), collectScenarioGroups(scenariosAfter))
 
   val diffs: Map[Group, GroupDiff] = CountScenarios.diff(before, after)
 

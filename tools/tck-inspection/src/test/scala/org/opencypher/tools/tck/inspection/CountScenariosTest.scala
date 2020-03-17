@@ -58,7 +58,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val expectedCountOutput =
       """Total                 1
         || Feature: ftr1       1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(collectScenarioGroups(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count single top-level scenario with tag") {
@@ -69,7 +69,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         || @B                  1
         || A                   1
         || C                   1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(collectScenarioGroups(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count single sub-level scenario without tags") {
@@ -80,7 +80,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         || | B                       1
         || | | C                     1
         || | | | Feature: ftr1       1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(collectScenarioGroups(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count two top-level scenarios in same feature without tags") {
@@ -90,7 +90,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val expectedCountOutput =
       """Total                 2
         || Feature: ftr1       2""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(collectScenarioGroups(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count three top-level scenarios in two features without tags") {
@@ -102,7 +102,7 @@ class CountScenariosTest extends FunSuite with Matchers {
       """Total                 3
         || Feature: ftr1       2
         || Feature: ftr2       1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(collectScenarioGroups(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count three top-level scenarios in two features with tags") {
@@ -118,7 +118,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         || B                   1
         || C                   3
         || D                   1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(collectScenarioGroups(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count three mixed-level scenarios without tags") {
@@ -136,7 +136,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         || | | K                     1
         || | | | Feature: ftr2       1
         || Feature: ftr1             1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(collectScenarioGroups(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count five mixed-level scenarios with tags") {
@@ -161,7 +161,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         || B                         2
         || C                         4
         || D                         1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(collectScenarioGroups(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count scenarios through TCK API") {
@@ -182,7 +182,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         || @TestA                      2
         || @TestB                      1
         || @TestC                      3""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CountScenarios.collect(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(collectScenarioGroups(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Diff with one scenario added from a top-level same feature without tags") {
@@ -190,8 +190,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA, scrB)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Set(scrB), Set(), Set(scrA), Set()),
@@ -206,8 +206,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA, scrB)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val expectedResult =
       """Group           unchanged  moved only  changed more  added  removed
@@ -223,8 +223,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrB)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA)),
@@ -239,8 +239,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrB)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val expectedResult =
       """Group           unchanged  moved only  changed more  added  removed
@@ -257,8 +257,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Set(scrB), Set((scrA1, scrA2, Set(Moved))), Set(), Set()),
@@ -275,8 +275,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val expectedResult =
       """Group           unchanged  moved only  changed more  added  removed
@@ -294,8 +294,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val catX = ScenarioCategory("X", 1, Some(Total))
     val expectedResult = Map[Group, GroupDiff](
@@ -314,8 +314,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val expectedResult =
       """Group             unchanged  moved only  changed more  added  removed
@@ -335,8 +335,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB2 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("B"), List[Step](dummyStep("B")), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB1)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB2)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Set(), Set((scrA1, scrA2, Set(Moved)),(scrB1, scrB2, Set(Retagged))), Set(), Set()),
@@ -356,8 +356,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB2 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("B"), List[Step](dummyStep("B")), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB1)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB2)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val expectedResult =
       """Group           unchanged  moved only  changed more  added  removed
@@ -379,8 +379,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB1x = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("B"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA, scrB0, scrB1, scrB2)
     val scenariosAfter: Seq[Scenario] = Seq(scrA, scrB0, scrB1x, scrB2)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Set(scrA, scrB0, scrB2), Set((scrB1, scrB1x, Set(Retagged))), Set(), Set()),
@@ -400,8 +400,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB1x = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("B"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA, scrB0, scrB1, scrB2)
     val scenariosAfter: Seq[Scenario] = Seq(scrA, scrB0, scrB1x, scrB2)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val expectedResult =
       """Group           unchanged  moved only  changed more  added  removed
@@ -422,8 +422,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Set(scrB), Set((scrA1, scrA2, Set(Moved, Retagged, StepsChanged))), Set(), Set()),
@@ -444,8 +444,8 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
-    val collectBefore = CountScenarios.collect(scenariosBefore)
-    val collectAfter = CountScenarios.collect(scenariosAfter)
+    val collectBefore = collectScenarioGroups(scenariosBefore)
+    val collectAfter = collectScenarioGroups(scenariosAfter)
 
     val expectedResult =
       """Group           unchanged  moved only  changed more  added  removed
@@ -484,8 +484,8 @@ class CountScenariosTest extends FunSuite with Matchers {
         |- @TestB                        1           0             0      0        0
         |- @TestC                        2           1             0      0        0""".stripMargin
     CountScenarios.reportDiffCountsInPrettyPrint(CountScenarios.diff(
-      CountScenarios.collect(scenariosBefore),
-      CountScenarios.collect(scenariosAfter)
+      collectScenarioGroups(scenariosBefore),
+      collectScenarioGroups(scenariosAfter)
     )) should equal(expectedResult)
   }
 }

@@ -44,45 +44,17 @@ case class GroupDiff(unchanged: Set[Scenario], changed: Set[(Scenario, Scenario,
 case object CountScenarios {
   def main(args: Array[String]): Unit = {
     if(args.length == 0) {
-      println(reportCountsInPrettyPrint(collect(CypherTCK.allTckScenarios)))
+      println(reportCountsInPrettyPrint(collectScenarioGroups(CypherTCK.allTckScenarios)))
     } else if(args.length == 1) {
-      println(reportCountsInPrettyPrint(collect(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
+      println(reportCountsInPrettyPrint(collectScenarioGroups(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
     } else if(args.length == 2) {
       println(reportDiffCountsInPrettyPrint(
         diff(
-          collect(CypherTCK.allTckScenariosFromFilesystem(args(0))),
-          collect(CypherTCK.allTckScenariosFromFilesystem(args(1))))
+          collectScenarioGroups(CypherTCK.allTckScenariosFromFilesystem(args(0))),
+          collectScenarioGroups(CypherTCK.allTckScenariosFromFilesystem(args(1))))
         )
       )
     }
-  }
-
-  def collect(scenarios: Seq[Scenario]): Map[Group, Seq[Scenario]] = {
-    // collect individual group for each scenario as 2-tuples of (Scenario,CountCategory)
-    val individualCounts: Seq[(Scenario,Group)] = scenarios.flatMap(scenario => {
-      // category
-      def mapToGroups(categories: List[String], parent: Group): Seq[(Scenario, Group)] = {
-        categories match {
-          case Nil => Seq[(Scenario, Group)]()
-          case category :: remainingCategories =>
-            val categoryGroup = (scenario, ScenarioCategory(category, parent.indent + 1, Some(parent)))
-            categoryGroup +: mapToGroups(remainingCategories, categoryGroup._2)
-        }
-      }
-      val categoryGroups: Seq[(Scenario, Group)] = mapToGroups(scenario.categories, Total)
-      // feature
-      val feature: Feature = {
-        val indent = categoryGroups.lastOption.map(_._2.indent).getOrElse(0) + 1
-        Feature(scenario.featureName, indent, Some(categoryGroups.lastOption.getOrElse((scenario, Total))._2))
-      }
-      // tags
-      val tagGroups: Seq[(Scenario, Group)] = scenario.tags.map(tag => (scenario, Tag(tag))).toSeq
-
-      (scenario, Total) +: (scenario, feature) +: (categoryGroups ++ tagGroups)
-    })
-    // group pairs by group
-    val allGroups = individualCounts.groupBy(_._2).mapValues(_.map(_._1))
-    allGroups
   }
 
   def diff(before: Map[Group, Seq[Scenario]],
