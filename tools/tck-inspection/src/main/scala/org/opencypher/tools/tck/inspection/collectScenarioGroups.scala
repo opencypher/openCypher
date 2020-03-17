@@ -27,29 +27,34 @@
  */
 package org.opencypher.tools.tck.inspection
 
-import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
 
-import scala.util.matching.Regex
+object collectScenarioGroups extends (Seq[Scenario] => Map[Group, Seq[Scenario]]) {
+  def apply(scenarios: Seq[Scenario]): Map[Group, Seq[Scenario]] = {
+    // collect individual group for each scenario as 2-tuples of (Scenario,CountCategory)
+    val individualCounts: Seq[(Scenario,Group)] = scenarios.flatMap(scenario => {
+      // category
+      def mapToGroups(categories: List[String], parent: Group): Seq[(Scenario, Group)] = {
+        categories match {
+          case Nil => Seq[(Scenario, Group)]()
+          case category :: remainingCategories =>
+            val categoryGroup = (scenario, ScenarioCategory(category, parent.indent + 1, Some(parent)))
+            categoryGroup +: mapToGroups(remainingCategories, categoryGroup._2)
+        }
+      }
+      val categoryGroups: Seq[(Scenario, Group)] = mapToGroups(scenario.categories, Total)
+      // feature
+      val feature: Feature = {
+        val indent = categoryGroups.lastOption.map(_._2.indent).getOrElse(0) + 1
+        Feature(scenario.featureName, indent, Some(categoryGroups.lastOption.getOrElse((scenario, Total))._2))
+      }
+      // tags
+      val tagGroups: Seq[(Scenario, Group)] = scenario.tags.map(tag => (scenario, Tag(tag))).toSeq
 
-case class BrowserModel(path: String) {
-
-  private val regexLeadingNumber: Regex = """[\[][0-9]+[\]][ ]""".r
-
-  private val scenariosRaw = CypherTCK.allTckScenariosFromFilesystem(path)
-  private val scenarios = scenariosRaw.map(
-    s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
-  )
-
-  val counts: Map[Group, Seq[Scenario]] = collectScenarioGroups(scenarios)
-
-  val (groupId2Group, group2GroupId) = {
-    val groupList = counts.keySet.toIndexedSeq
-    (groupList, groupList.zipWithIndex.map(p => (p._1, p._2)).toMap)
-  }
-
-  val (scenarioId2Scenario, scenario2ScenarioId) = {
-    val scenarioList = counts(Total).toList.toIndexedSeq
-    (scenarioList, scenarioList.zipWithIndex.map(p => (p._1, p._2)).toMap)
+      (scenario, Total) +: (scenario, feature) +: (categoryGroups ++ tagGroups)
+    })
+    // group pairs by group
+    val allGroups = individualCounts.groupBy(_._2).mapValues(_.map(_._1))
+    allGroups
   }
 }
