@@ -27,40 +27,56 @@
  */
 package org.opencypher.tools.tck.inspection
 
+import org.opencypher.tools.tck.api.Pickle
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
 
-case class ScenarioDiff(categories: Option[Int],
-                        featureName: Boolean,
-                        name: Boolean,
-                        exampleIndex: Boolean,
-                        tags: Map[String, ElementaryDiff],
-                        steps: List[(Option[Step], ElementaryDiff, Option[Step])])
+sealed trait ScenarioDiffTag
+case object SourceUnchanged extends ScenarioDiffTag
+case object Unchanged extends ScenarioDiffTag
+case object Moved extends ScenarioDiffTag
+case object Retagged extends ScenarioDiffTag
+case object StepsChanged extends ScenarioDiffTag
+case object SourceChanged extends ScenarioDiffTag
+case object ExampleIndexChanged extends ScenarioDiffTag
+case object PotentiallyRenamed extends ScenarioDiffTag
+case object Different extends ScenarioDiffTag
 
-case object ScenarioDiff {
-  def apply(before: Scenario, after: Scenario): ScenarioDiff = {
-    def diffSets[A](before: Set[A], after: Set[A]): Map[A, ElementaryDiff] = {
-      val unchanged: Map[A, ElementaryDiff] = (before intersect after).map(a => a -> Unchanged).toMap
-      val removed: Map[A, ElementaryDiff] = (before diff after).map(a => a -> Removed).toMap
-      val added: Map[A, ElementaryDiff] = (after diff before).map(a => a -> Added).toMap
-      unchanged ++ removed ++ added
-    }
-
-    val categories = before.categories.zip(after.categories).
-      map(p => p._1 != p._2).
-      indexWhere(b => b) match {
-      case ix if ix < 0 => None
-      case ix => Some(ix)
-    }
-    val featureName = before.featureName != after.featureName
-    val name = before.name != after.name
-    val exampleIndex = before.exampleIndex != after.exampleIndex
-    val tags = diffSets(before.tags, after.tags)
-    val steps = diffStepsAdvanced(before.steps, after.steps).map(
-      p => (p._1, ElementaryDiff(p), p._2)
-    )
-    ScenarioDiff(categories, featureName, name, exampleIndex, tags, steps)
+case class ScenarioDiff(before: Scenario,
+                        after: Scenario) {
+  def diffSets[A](before: Set[A], after: Set[A]): (Boolean, Map[A, ElementaryDiff]) = {
+    val unchanged: Map[A, ElementaryDiff] = (before intersect after).map(a => a -> ElementUnchanged).toMap
+    val removed: Map[A, ElementaryDiff] = (before diff after).map(a => a -> ElementRemoved).toMap
+    val added: Map[A, ElementaryDiff] = (after diff before).map(a => a -> ElementAdded).toMap
+    (removed.nonEmpty || added.nonEmpty, unchanged ++ removed ++ added)
   }
+
+  lazy val categories: Option[Int] = before.categories.zip(after.categories).
+    map(p => p._1 != p._2).
+    indexWhere(b => b) match {
+    case ix if ix < 0 => None
+    case ix => Some(ix)
+  }
+
+  def categoriesHaveChanged: Boolean = categories.nonEmpty
+
+  lazy val featureNameHasChanged: Boolean = before.featureName != after.featureName
+
+  lazy val nameHasChanged: Boolean = before.name != after.name
+
+  lazy val exampleIndexHasChanged: Boolean = before.exampleIndex != after.exampleIndex
+
+  lazy val (tagsHaveChanged: Boolean, tags: Map[String, ElementaryDiff]) = diffSets(before.tags, after.tags)
+
+  lazy val steps: List[(Option[Step], ElementaryDiff, Option[Step])] = diffStepsAdvanced(before.steps, after.steps).map(
+    p => (p._1, ElementaryDiff(p), p._2)
+  )
+
+  lazy val stepsHaveChanged: Boolean = after.steps != before.steps
+
+  lazy val diffTags: Set[ScenarioDiffTag] = diffTags(before, after)
+
+  lazy val potentialDuplicate: Boolean = diffTags subsetOf Set[ScenarioDiffTag](Moved, Retagged, ExampleIndexChanged, StepsChanged, PotentiallyRenamed)
 
   private def diffStepsSimple(before: List[Step], after: List[Step]): List[(Option[Step], Option[Step])] = {
     val beforeSome = before.map(Some(_))
@@ -106,5 +122,45 @@ case object ScenarioDiff {
         paired :+ (Some(before(bIx)), Some(after(aIx)))
     }
     paired
+  }
+
+  private def diffTags(before: Scenario, after: Scenario): Set[ScenarioDiffTag] = {
+    val diff = Set[ScenarioDiffTag](Unchanged, SourceUnchanged, SourceChanged, Moved, Retagged, StepsChanged, ExampleIndexChanged, PotentiallyRenamed).filter {
+      case Unchanged => equals(after)
+      case SourceUnchanged =>
+        before.equals(after) &&
+          Pickle(after.source, withLocation = true) == Pickle(before.source, withLocation = true)
+      case SourceChanged =>
+        before.equals(after) &&
+          Pickle(after.source, withLocation = true) != Pickle(before.source, withLocation = true)
+      case Moved =>
+        (categoriesHaveChanged || featureNameHasChanged) &&
+          !nameHasChanged &&
+          !exampleIndexHasChanged
+      case Retagged =>
+        !nameHasChanged &&
+          !exampleIndexHasChanged &&
+          tagsHaveChanged
+      case StepsChanged =>
+        !nameHasChanged &&
+          !exampleIndexHasChanged &&
+          stepsHaveChanged
+      case ExampleIndexChanged =>
+        !categoriesHaveChanged &&
+          !featureNameHasChanged &&
+          !nameHasChanged &&
+          exampleIndexHasChanged &&
+          !tagsHaveChanged &&
+          !stepsHaveChanged &&
+          Pickle(after.source) == Pickle(before.source)
+      case PotentiallyRenamed =>
+        nameHasChanged &&
+          !stepsHaveChanged
+      case _ => false
+    }
+    if(diff.isEmpty)
+      Set[ScenarioDiffTag](Different)
+    else
+      diff
   }
 }

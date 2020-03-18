@@ -27,10 +27,8 @@
  */
 package org.opencypher.tools.tck.inspection
 
-import org.opencypher.tools.tck.api.Moved
 import org.opencypher.tools.tck.api.Pickle
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.ScenarioDiffTag
 import scalatags.Text
 import scalatags.Text.all._
 
@@ -152,7 +150,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
 
   def listMovedScenarios(group: Group): Text.TypedTag[String] = {
     val triples =
-      diffModel.diffs.get(group).map(_.moved).getOrElse(Set.empty[(Scenario, Scenario, Set[ScenarioDiffTag])])
+      diffModel.diffs.get(group).map(_.moved).getOrElse(Set.empty[(Scenario, Scenario, ScenarioDiff)])
     val byScenario = triples.toSeq.sortBy(t => t._1.toString + t._2.toString)
     val byLocation = triples.groupBy {
       case (before, after, _) => before.categories.mkString("/")+"/"+before.featureName+">>>"+after.categories.mkString("/")+"/"+after.featureName
@@ -219,10 +217,8 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
 
   def listChangedScenarios(group: Group): Text.TypedTag[String] = {
     val triples =
-      diffModel.diffs.get(group).map(
-        _.changed.filter(_._3 != Set(Moved))
-      ).getOrElse(
-        Set.empty[(Scenario, Scenario, Set[ScenarioDiffTag])]
+      diffModel.diffs.get(group).map(_.changed).getOrElse(
+        Set.empty[(Scenario, Scenario, ScenarioDiff)]
       ).toSeq.sortBy(t => t._1.toString + t._2.toString)
     page(
       pageTitle(triples.size, " scenario(s) changed in group ", i(group.toString)),
@@ -240,7 +236,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           inlineSpacer(),
           openScenarioInEditorLink(after, "[code]"),
           br,
-          diff.map(_.toString).toSeq.sorted.mkString(", "),
+          diff.diffTags.map(_.toString).toSeq.sorted.mkString(", "),
           inlineSpacer(),
           showDetailedScenarioDiffLink(before, after, "[Details]")
         )
@@ -295,10 +291,10 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
     def diffLineFrag(before: Frag, diff: ElementaryDiff, after: Frag) =
       div(CSS.scenarioDiffLine)(
         div(CSS.scenarioDiffBefore)(before),
-        div(if(diff == Unchanged) CSS.scenarioDiffIndicatorUnchanged else CSS.scenarioDiffIndicatorChanged)(
+        div(if(diff == ElementUnchanged) CSS.scenarioDiffIndicatorUnchanged else CSS.scenarioDiffIndicatorChanged)(
           diff match {
-            case Added => "+"
-            case Removed => "-"
+            case ElementAdded => "+"
+            case ElementRemoved => "-"
             case _ => frag()
           }
         ),
@@ -316,7 +312,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
             )
           )
         ),
-        ElementaryDiff(scenarioDiff.categories.isDefined || scenarioDiff.featureName),
+        ElementaryDiff(scenarioDiff.categories.isDefined || scenarioDiff.featureNameHasChanged),
         frag(
           div(CSS.locationLine)(scenarioLocationFrag(scenario = after, collection = Some(AfterCollection.toString))),
           openScenarioInEditorLink(after,
@@ -329,7 +325,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
       // scenario title
       diffLineFrag(
         div(CSS.scenarioTitleBox, CSS.scenarioTitleBig)(scenarioTitle(before)),
-        ElementaryDiff(scenarioDiff.name || scenarioDiff.exampleIndex),
+        ElementaryDiff(scenarioDiff.nameHasChanged || scenarioDiff.exampleIndexHasChanged),
         div(CSS.scenarioTitleBox, CSS.scenarioTitleBig)(scenarioTitle(after)),
       ),
       // tags
@@ -337,8 +333,8 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
         frag()
       } else {
         def tagCss(tag: String) = scenarioDiff.tags(tag) match {
-          case Added => CSS.tagAdded
-          case Removed => CSS.tagRemoved
+          case ElementAdded => CSS.tagAdded
+          case ElementRemoved => CSS.tagRemoved
           case _ => CSS.tag
         }
         diffLineFrag(
@@ -346,7 +342,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
             div("Tags:"),
             before.tags.toSeq.sorted.map(tag => div(tagCss(tag))(tag))
           ),
-          ElementaryDiff(scenarioDiff.tags.values.toSet != Set[ElementaryDiff](Unchanged)),
+          ElementaryDiff(scenarioDiff.tags.values.toSet != Set[ElementaryDiff](ElementUnchanged)),
           div(CSS.tagLine)(
             div("Tags:"),
             after.tags.toSeq.sorted.map(tag => div(tagCss(tag))(tag))

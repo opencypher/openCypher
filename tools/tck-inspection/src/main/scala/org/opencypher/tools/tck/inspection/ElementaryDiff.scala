@@ -29,18 +29,18 @@ package org.opencypher.tools.tck.inspection
 
 sealed trait ElementaryDiff
 
-case object Added extends ElementaryDiff
-case object Removed extends ElementaryDiff
-case object Unchanged extends ElementaryDiff
-case object Changed extends ElementaryDiff
+case object ElementAdded extends ElementaryDiff
+case object ElementRemoved extends ElementaryDiff
+case object ElementUnchanged extends ElementaryDiff
+case object ElementChanged extends ElementaryDiff
 
 case object ElementaryDiff {
-  def apply(changed: Boolean): ElementaryDiff = if(changed) Changed else Unchanged
+  def apply(changed: Boolean): ElementaryDiff = if(changed) ElementChanged else ElementUnchanged
 
   def apply[E](pair: (E, E)): ElementaryDiff = pair match {
-    case (Some(_), None) => Removed
-    case (None, Some(_)) => Added
-    case (b, a) if b == a => Unchanged
-    case (b, a) if b != a => Changed
+    case (Some(_), None) => ElementRemoved
+    case (None, Some(_)) => ElementAdded
+    case (b, a) if b == a => ElementUnchanged
+    case (b, a) if b != a => ElementChanged
   }
 }

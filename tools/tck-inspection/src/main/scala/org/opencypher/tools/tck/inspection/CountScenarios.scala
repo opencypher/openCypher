@@ -28,10 +28,7 @@
 package org.opencypher.tools.tck.inspection
 
 import org.opencypher.tools.tck.api.CypherTCK
-import org.opencypher.tools.tck.api.Moved
-import org.opencypher.tools.tck.api.PotentiallyDuplicated
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.ScenarioDiffTag
 
 /*
  * This is a tiny tool to count TCK scenarios in the list returned by `CypherTCK.allTckScenarios`.
@@ -54,11 +51,11 @@ case object CountScenarios {
     }
   }
 
-  def potentialDuplicates(scenarios: Seq[Scenario]): Seq[(Scenario, Scenario, Set[ScenarioDiffTag])] = {
+  def potentialDuplicates(scenarios: Seq[Scenario]): Seq[(Scenario, Scenario, ScenarioDiff)] = {
     val duplicates = scenarios.zipWithIndex.flatMap {
       case (a, i) =>
-        scenarios.slice(i + 1, scenarios.size).map(b => (a, b, a.diff(b))).filter {
-          case (_, _, ds) => ds contains PotentiallyDuplicated
+        scenarios.slice(i + 1, scenarios.size).map(b => (a, b, ScenarioDiff(a, b))).filter {
+          case (_, _, ds) => ds.potentialDuplicate
         }
     }
     duplicates

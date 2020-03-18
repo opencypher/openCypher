@@ -38,11 +38,8 @@ import gherkin.pickles.PickleTag
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Dummy
 import org.opencypher.tools.tck.api.Measure
-import org.opencypher.tools.tck.api.Moved
-import org.opencypher.tools.tck.api.Retagged
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
-import org.opencypher.tools.tck.api.StepsChanged
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
 
@@ -260,8 +257,11 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectBefore = GroupCollection(scenariosBefore)
     val collectAfter = GroupCollection(scenariosAfter)
 
+    val scrA1scrA2Diff = ScenarioDiff(scrA1, scrA2)
+    scrA1scrA2Diff.diffTags should equal(Set(Moved))
+
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(scrB), Set((scrA1, scrA2, Set(Moved))), Set(), Set(), Set()),
+      Total -> GroupDiff(Set(scrB), Set((scrA1, scrA2, scrA1scrA2Diff)), Set(), Set(), Set()),
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA1)),
       Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set())
     )
@@ -297,9 +297,12 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectBefore = GroupCollection(scenariosBefore)
     val collectAfter = GroupCollection(scenariosAfter)
 
+    val scrA1scrA2Diff = ScenarioDiff(scrA1, scrA2)
+    scrA1scrA2Diff.diffTags should equal(Set(Moved))
+
     val catX = ScenarioCategory("X", 1, Some(Total))
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(scrB), Set((scrA1, scrA2, Set(Moved))), Set(), Set(), Set()),
+      Total -> GroupDiff(Set(scrB), Set((scrA1, scrA2, scrA1scrA2Diff)), Set(), Set(), Set()),
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA1)),
       catX -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set()),
       Feature("ftr2", 2, Some(catX)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set())
@@ -338,9 +341,14 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectBefore = GroupCollection(scenariosBefore)
     val collectAfter = GroupCollection(scenariosAfter)
 
+    val scrA1scrA2Diff = ScenarioDiff(scrA1, scrA2)
+    scrA1scrA2Diff.diffTags should equal(Set(Moved))
+    val scrB1scrB2Diff = ScenarioDiff(scrB1, scrB2)
+    scrB1scrB2Diff.diffTags should equal(Set(Retagged))
+
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(), Set((scrA1, scrA2, Set(Moved))), Set((scrB1, scrB2, Set(Retagged))), Set(), Set()),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set((scrB1, scrB2, Set(Retagged))), Set(), Set(scrA1)),
+      Total -> GroupDiff(Set(), Set((scrA1, scrA2, scrA1scrA2Diff)), Set((scrB1, scrB2, scrB1scrB2Diff)), Set(), Set()),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set((scrB1, scrB2, scrB1scrB2Diff)), Set(), Set(scrA1)),
       Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set()),
       Tag("A") -> GroupDiff(Set(), Set(), Set(), Set(), Set(scrB1)),
       Tag("B") -> GroupDiff(Set(), Set(), Set(), Set(scrB2), Set())
@@ -382,9 +390,12 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectBefore = GroupCollection(scenariosBefore)
     val collectAfter = GroupCollection(scenariosAfter)
 
+    val scrB1scrB1xDiff = ScenarioDiff(scrB1, scrB1x)
+    scrB1scrB1xDiff.diffTags should equal(Set(Retagged))
+
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(scrA, scrB0, scrB2), Set(), Set((scrB1, scrB1x, Set(Retagged))), Set(), Set()),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrA, scrB0, scrB2), Set(), Set((scrB1, scrB1x, Set(Retagged))), Set(), Set()),
+      Total -> GroupDiff(Set(scrA, scrB0, scrB2), Set(), Set((scrB1, scrB1x, scrB1scrB1xDiff)), Set(), Set()),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrA, scrB0, scrB2), Set(), Set((scrB1, scrB1x, scrB1scrB1xDiff)), Set(), Set()),
       Tag("A") -> GroupDiff(Set(scrB0, scrB2), Set(), Set(), Set(), Set(scrB1)),
       Tag("B") -> GroupDiff(Set(), Set(), Set(), Set(scrB1x), Set())
     )
@@ -425,8 +436,11 @@ class CountScenariosTest extends FunSuite with Matchers {
     val collectBefore = GroupCollection(scenariosBefore)
     val collectAfter = GroupCollection(scenariosAfter)
 
+    val scrA1scrA2Diff = ScenarioDiff(scrA1, scrA2)
+    scrA1scrA2Diff.diffTags should equal(Set(Moved, Retagged, StepsChanged))
+
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(scrB), Set(), Set((scrA1, scrA2, Set(Moved, Retagged, StepsChanged))), Set(), Set()),
+      Total -> GroupDiff(Set(scrB), Set(), Set((scrA1, scrA2, scrA1scrA2Diff)), Set(), Set()),
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA1)),
       Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set()),
       Tag("T") -> GroupDiff(Set(), Set(), Set(), Set(), Set(scrA1)),
