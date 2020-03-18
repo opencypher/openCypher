@@ -25,22 +25,15 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.inspection
+package org.opencypher.tools.tck.inspection.diff
 
-sealed trait ElementaryDiff
+import org.opencypher.tools.tck.api.Scenario
+import org.opencypher.tools.tck.inspection.collect.Group
 
-case object ElementAdded extends ElementaryDiff
-case object ElementRemoved extends ElementaryDiff
-case object ElementUnchanged extends ElementaryDiff
-case object ElementChanged extends ElementaryDiff
-
-case object ElementaryDiff {
-  def apply(changed: Boolean): ElementaryDiff = if(changed) ElementChanged else ElementUnchanged
-
-  def apply[E](pair: (E, E)): ElementaryDiff = pair match {
-    case (Some(_), None) => ElementRemoved
-    case (None, Some(_)) => ElementAdded
-    case (b, a) if b == a => ElementUnchanged
-    case (b, a) if b != a => ElementChanged
+case object GroupCollectionDiff extends ((Map[Group, Seq[Scenario]], Map[Group, Seq[Scenario]]) => Map[Group, GroupDiff]) {
+  def apply(before: Map[Group, Seq[Scenario]],
+           after: Map[Group, Seq[Scenario]]): Map[Group, GroupDiff] = {
+    val allGroups = before.keySet ++ after.keySet
+    allGroups.map(group => (group, GroupDiff(before.get(group), after.get(group)))).toMap
   }
 }

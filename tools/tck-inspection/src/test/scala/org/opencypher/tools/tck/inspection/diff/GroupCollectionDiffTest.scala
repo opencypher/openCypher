@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.inspection
+package org.opencypher.tools.tck.inspection.diff
 
 import java.util
 
@@ -38,6 +38,13 @@ import org.opencypher.tools.tck.api.Dummy
 import org.opencypher.tools.tck.api.Measure
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
+import org.opencypher.tools.tck.inspection.collect.Feature
+import org.opencypher.tools.tck.inspection.collect.Group
+import org.opencypher.tools.tck.inspection.collect.GroupCollection
+import org.opencypher.tools.tck.inspection.collect.ScenarioCategory
+import org.opencypher.tools.tck.inspection.collect.Tag
+import org.opencypher.tools.tck.inspection.collect.Total
+import org.opencypher.tools.tck.inspection.diff
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
 
@@ -77,7 +84,7 @@ class GroupCollectionDiffTest extends FunSuite with Matchers {
       Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA))
     )
 
-    GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
   test("Diff with one scenario moved to another top-level feature without tags") {
@@ -98,7 +105,7 @@ class GroupCollectionDiffTest extends FunSuite with Matchers {
       Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set())
     )
 
-    GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
   test("Diff with one scenario moved to another sub-level feature without tags") {
@@ -121,7 +128,7 @@ class GroupCollectionDiffTest extends FunSuite with Matchers {
       Feature("ftr2", 2, Some(catX)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set())
     )
 
-    GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
   test("Diff with one scenario moved to another top-level feature and a changed tag") {
@@ -147,7 +154,7 @@ class GroupCollectionDiffTest extends FunSuite with Matchers {
       Tag("B") -> GroupDiff(Set(), Set(), Set(), Set(scrB2), Set())
     )
 
-    GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
   test("Diff with one scenario from a outline in a top-level feature has a changed tags") {
@@ -171,7 +178,7 @@ class GroupCollectionDiffTest extends FunSuite with Matchers {
       Tag("B") -> GroupDiff(Set(), Set(), Set(), Set(scrB1x), Set())
     )
 
-    GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
   test("Diff with one scenario changed in categories, tags, and content of steps") {
@@ -196,7 +203,7 @@ class GroupCollectionDiffTest extends FunSuite with Matchers {
       Tag("X") -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set())
     )
 
-    GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
 }

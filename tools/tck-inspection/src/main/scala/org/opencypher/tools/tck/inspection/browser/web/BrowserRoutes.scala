@@ -25,13 +25,16 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.inspection
+package org.opencypher.tools.tck.inspection.browser.web
 
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 import org.opencypher.tools.tck.api.Scenario
+import org.opencypher.tools.tck.inspection.collect.Group
+import org.opencypher.tools.tck.inspection.util.CallingSystemProcesses
+import org.opencypher.tools.tck.inspection.util.ProcessReturn
 import scalatags.Text.all._
 
 case class BrowserRoutes()(implicit val log: cask.Logger) extends cask.Routes with PageBasic {

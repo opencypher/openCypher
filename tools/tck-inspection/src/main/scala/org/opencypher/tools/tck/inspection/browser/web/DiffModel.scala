@@ -25,10 +25,15 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.inspection
+package org.opencypher.tools.tck.inspection.browser.web
 
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
+import org.opencypher.tools.tck.inspection.collect.Group
+import org.opencypher.tools.tck.inspection.collect.GroupCollection
+import org.opencypher.tools.tck.inspection.collect.Total
+import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
+import org.opencypher.tools.tck.inspection.diff.GroupDiff
 
 import scala.util.matching.Regex
 

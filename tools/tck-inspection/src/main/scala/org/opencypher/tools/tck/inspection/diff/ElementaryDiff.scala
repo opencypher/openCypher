@@ -25,31 +25,22 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.inspection
+package org.opencypher.tools.tck.inspection.diff
 
-import org.opencypher.tools.tck.api.CypherTCK
-import org.opencypher.tools.tck.api.Scenario
+sealed trait ElementaryDiff
 
-import scala.util.matching.Regex
+case object ElementAdded extends ElementaryDiff
+case object ElementRemoved extends ElementaryDiff
+case object ElementUnchanged extends ElementaryDiff
+case object ElementChanged extends ElementaryDiff
 
-case class BrowserModel(path: String) {
+case object ElementaryDiff {
+  def apply(changed: Boolean): ElementaryDiff = if(changed) ElementChanged else ElementUnchanged
 
-  private val regexLeadingNumber: Regex = """[\[][0-9]+[\]][ ]""".r
-
-  private val scenariosRaw = CypherTCK.allTckScenariosFromFilesystem(path)
-  private val scenarios = scenariosRaw.map(
-    s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
-  )
-
-  val counts: Map[Group, Seq[Scenario]] = GroupCollection(scenarios)
-
-  val (groupId2Group, group2GroupId) = {
-    val groupList = counts.keySet.toIndexedSeq
-    (groupList, groupList.zipWithIndex.map(p => (p._1, p._2)).toMap)
-  }
-
-  val (scenarioId2Scenario, scenario2ScenarioId) = {
-    val scenarioList = counts(Total).toList.toIndexedSeq
-    (scenarioList, scenarioList.zipWithIndex.map(p => (p._1, p._2)).toMap)
+  def apply[E](pair: (E, E)): ElementaryDiff = pair match {
+    case (Some(_), None) => ElementRemoved
+    case (None, Some(_)) => ElementAdded
+    case (b, a) if b == a => ElementUnchanged
+    case (b, a) if b != a => ElementChanged
   }
 }

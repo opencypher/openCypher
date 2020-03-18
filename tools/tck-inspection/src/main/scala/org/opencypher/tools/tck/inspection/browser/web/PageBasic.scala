@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.inspection
+package org.opencypher.tools.tck.inspection.browser.web
 
 import org.opencypher.tools.tck.api.CypherValueRecords
 import org.opencypher.tools.tck.api.Dummy
@@ -49,6 +49,7 @@ import org.opencypher.tools.tck.constants.TCKSideEffects.DELETED_LABELS
 import org.opencypher.tools.tck.constants.TCKSideEffects.DELETED_NODES
 import org.opencypher.tools.tck.constants.TCKSideEffects.DELETED_PROPERTIES
 import org.opencypher.tools.tck.constants.TCKSideEffects.DELETED_RELATIONSHIPS
+import org.opencypher.tools.tck.inspection.collect.Group
 import scalatags.Text
 import scalatags.Text.all._
 import scalatags.Text.tags2
