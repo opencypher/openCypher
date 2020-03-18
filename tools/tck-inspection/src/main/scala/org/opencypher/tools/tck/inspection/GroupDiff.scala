@@ -27,13 +27,9 @@
  */
 package org.opencypher.tools.tck.inspection
 
-import org.opencypher.tools.tck.api.Different
-import org.opencypher.tools.tck.api.Moved
-import org.opencypher.tools.tck.api.PotentiallyDuplicated
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.ScenarioDiffTag
 
-case class GroupDiff(unchanged: Set[Scenario], moved: Set[(Scenario, Scenario, Set[ScenarioDiffTag])], changed: Set[(Scenario, Scenario, Set[ScenarioDiffTag])], added: Set[Scenario], removed: Set[Scenario])
+case class GroupDiff(unchanged: Set[Scenario], moved: Set[(Scenario, Scenario, ScenarioDiff)], changed: Set[(Scenario, Scenario, ScenarioDiff)], added: Set[Scenario], removed: Set[Scenario])
 
 case object GroupDiff {
   def apply(scenariosBefore: Option[Seq[Scenario]], scenariosAfter: Option[Seq[Scenario]]): GroupDiff = {
@@ -50,20 +46,20 @@ case object GroupDiff {
     val removedOrChangedScenarios: Set[Scenario] = scenariosBefore -- unchangedScenarios
     val addedOrChangedScenarios: Set[Scenario] = scenariosAfter -- unchangedScenarios
 
-    val removeScenarios = removedOrChangedScenarios.filter(b => addedOrChangedScenarios.forall(_.diff(b) == Set(Different)))
-    val addedScenarios = addedOrChangedScenarios.filter(a => removedOrChangedScenarios.forall(_.diff(a) == Set(Different)))
+    val removeScenarios = removedOrChangedScenarios.filter(b => addedOrChangedScenarios.forall(a => ScenarioDiff(b, a).diffTags == Set(Different)))
+    val addedScenarios = addedOrChangedScenarios.filter(a => removedOrChangedScenarios.forall(b => ScenarioDiff(b, a).diffTags == Set(Different)))
 
     val changedScenariosBefore = removedOrChangedScenarios -- removeScenarios
     val changedScenariosAfter = addedOrChangedScenarios -- addedScenarios
 
-    val allChangedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiffTag])] = changedScenariosBefore.flatMap(
-      b => changedScenariosAfter.map(a => (b, a, b.diff(a) - PotentiallyDuplicated)).filter {
-        case (_, _, d) if d contains Different => false
+    val allChangedScenarios: Set[(Scenario, Scenario, ScenarioDiff)] = changedScenariosBefore.flatMap(
+      b => changedScenariosAfter.map(a => (b, a, ScenarioDiff(b, a))).filter {
+        case (_, _, d) if d.diffTags contains Different => false
         case _ => true
       }
     )
 
-    val (movedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiffTag])], changedScenarios: Set[(Scenario, Scenario, Set[ScenarioDiffTag])]) = allChangedScenarios.partition(_._3 == Set(Moved))
+    val (movedScenarios: Set[(Scenario, Scenario, ScenarioDiff)], changedScenarios: Set[(Scenario, Scenario, ScenarioDiff)]) = allChangedScenarios.partition(_._3.diffTags == Set(Moved))
 
     GroupDiff(unchangedScenarios, movedScenarios, changedScenarios, addedScenarios, removeScenarios)
   }

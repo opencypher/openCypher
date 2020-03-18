@@ -46,18 +46,6 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-sealed trait ScenarioDiffTag
-case object SourceUnchanged extends ScenarioDiffTag
-case object Unchanged extends ScenarioDiffTag
-case object Moved extends ScenarioDiffTag
-case object Retagged extends ScenarioDiffTag
-case object StepsChanged extends ScenarioDiffTag
-case object SourceChanged extends ScenarioDiffTag
-case object ExampleIndexChanged extends ScenarioDiffTag
-case object PotentiallyDuplicated extends ScenarioDiffTag
-case object PotentiallyRenamed extends ScenarioDiffTag
-case object Different extends ScenarioDiffTag
-
 case class Scenario(categories: List[String], featureName: String, name: String, exampleIndex: Option[Int], tags: Set[String], steps: List[Step], source: gherkin.pickles.Pickle, sourceFile: Path) {
 
   self =>
@@ -82,49 +70,6 @@ case class Scenario(categories: List[String], featureName: String, name: String,
     val state = Seq(categories, featureName, name, exampleIndex, tags, steps, Pickle(source))
     val hash = state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
     hash
-  }
-
-  def diff(that: Scenario): Set[ScenarioDiffTag] = that match {
-    case Scenario(thatCategories, thatFeatureName, thatName, thatExampleIndex, thatTags, thatSteps, thatSource, _) =>
-      val diff = Set[ScenarioDiffTag](Unchanged, SourceUnchanged, SourceChanged, Moved, Retagged, StepsChanged, ExampleIndexChanged, PotentiallyRenamed).filter {
-        case Unchanged => equals(that)
-        case SourceUnchanged =>
-          equals(that) &&
-            Pickle(thatSource, withLocation = true) == Pickle(source, withLocation = true)
-        case SourceChanged =>
-          equals(that) &&
-            Pickle(thatSource, withLocation = true) != Pickle(source, withLocation = true)
-        case Moved =>
-          (thatCategories != categories || thatFeatureName != featureName) &&
-            thatName == name &&
-            thatExampleIndex == exampleIndex
-        case Retagged =>
-          thatName == name &&
-            thatExampleIndex == exampleIndex &&
-            thatTags != tags
-        case StepsChanged =>
-          thatName == name &&
-            thatExampleIndex == exampleIndex &&
-            thatSteps != steps
-        case ExampleIndexChanged =>
-          thatCategories == categories &&
-            thatFeatureName == featureName &&
-            thatName == name &&
-            thatExampleIndex != exampleIndex &&
-            thatTags == tags &&
-            thatSteps == steps &&
-            Pickle(thatSource) == Pickle(source)
-        case PotentiallyRenamed =>
-          thatName != name &&
-            thatSteps == steps
-        case _ => false
-      }
-      if(diff.isEmpty)
-        Set[ScenarioDiffTag](Different)
-      else if(diff subsetOf Set[ScenarioDiffTag](Moved, Retagged, ExampleIndexChanged, StepsChanged, PotentiallyRenamed))
-        diff + PotentiallyDuplicated
-      else
-        diff
   }
 
   def apply(graph: => Graph): Executable = new Executable {
