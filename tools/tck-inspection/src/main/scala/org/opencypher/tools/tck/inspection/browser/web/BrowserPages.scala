@@ -25,10 +25,15 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.inspection
+package org.opencypher.tools.tck.inspection.browser.web
 
 import org.opencypher.tools.tck.api.Pickle
 import org.opencypher.tools.tck.api.Scenario
+import org.opencypher.tools.tck.inspection.collect
+import org.opencypher.tools.tck.inspection.collect.Feature
+import org.opencypher.tools.tck.inspection.collect.Group
+import org.opencypher.tools.tck.inspection.collect.ScenarioCategory
+import org.opencypher.tools.tck.inspection.collect.Total
 import scalatags.Text
 import scalatags.Text.all._
 
@@ -64,7 +69,7 @@ case class BrowserPages(browserModel: BrowserModel, browserRoutes: BrowserRoutes
         case Total => 0
         case _:ScenarioCategory => 1
         case _:Feature => 2
-        case _:Tag => 3
+        case _:collect.Tag => 3
       }
       // within each class ordered alphabetically by name
       val groupsOrdered = groupsByClasses.toSeq.sortBy(_._1).flatMap {

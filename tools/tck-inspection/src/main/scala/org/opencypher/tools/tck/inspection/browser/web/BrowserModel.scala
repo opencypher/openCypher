@@ -25,14 +25,34 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.inspection
+package org.opencypher.tools.tck.inspection.browser.web
 
+import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
+import org.opencypher.tools.tck.inspection.collect.Group
+import org.opencypher.tools.tck.inspection.collect.GroupCollection
+import org.opencypher.tools.tck.inspection.collect.Total
 
-case object GroupCollectionDiff extends ((Map[Group, Seq[Scenario]], Map[Group, Seq[Scenario]]) => Map[Group, GroupDiff]) {
-  def apply(before: Map[Group, Seq[Scenario]],
-           after: Map[Group, Seq[Scenario]]): Map[Group, GroupDiff] = {
-    val allGroups = before.keySet ++ after.keySet
-    allGroups.map(group => (group, GroupDiff(before.get(group), after.get(group)))).toMap
+import scala.util.matching.Regex
+
+case class BrowserModel(path: String) {
+
+  private val regexLeadingNumber: Regex = """[\[][0-9]+[\]][ ]""".r
+
+  private val scenariosRaw = CypherTCK.allTckScenariosFromFilesystem(path)
+  private val scenarios = scenariosRaw.map(
+    s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
+  )
+
+  val counts: Map[Group, Seq[Scenario]] = GroupCollection(scenarios)
+
+  val (groupId2Group, group2GroupId) = {
+    val groupList = counts.keySet.toIndexedSeq
+    (groupList, groupList.zipWithIndex.map(p => (p._1, p._2)).toMap)
+  }
+
+  val (scenarioId2Scenario, scenario2ScenarioId) = {
+    val scenarioList = counts(Total).toList.toIndexedSeq
+    (scenarioList, scenarioList.zipWithIndex.map(p => (p._1, p._2)).toMap)
   }
 }

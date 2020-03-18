@@ -25,10 +25,20 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.inspection
+package org.opencypher.tools.tck.inspection.browser.cli
 
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
+import org.opencypher.tools.tck.inspection.collect.Feature
+import org.opencypher.tools.tck.inspection.collect.Group
+import org.opencypher.tools.tck.inspection.collect.GroupCollection
+import org.opencypher.tools.tck.inspection.collect.ScenarioCategory
+import org.opencypher.tools.tck.inspection.collect.Tag
+import org.opencypher.tools.tck.inspection.collect.Total
+import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
+import org.opencypher.tools.tck.inspection.diff.GroupDiff
+import org.opencypher.tools.tck.inspection.diff.Moved
+import org.opencypher.tools.tck.inspection.diff.ScenarioDiff
 
 /*
  * This is a tiny tool to count TCK scenarios in the list returned by `CypherTCK.allTckScenarios`.

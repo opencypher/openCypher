@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.inspection
+package org.opencypher.tools.tck.inspection.browser.cli
 
 import java.net.URI
 import java.util
@@ -40,6 +40,11 @@ import org.opencypher.tools.tck.api.Dummy
 import org.opencypher.tools.tck.api.Measure
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
+import org.opencypher.tools.tck.inspection.collect.Group
+import org.opencypher.tools.tck.inspection.collect.GroupCollection
+import org.opencypher.tools.tck.inspection.diff
+import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
+import org.opencypher.tools.tck.inspection.diff.GroupDiff
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
 
@@ -202,7 +207,7 @@ class CountScenariosTest extends FunSuite with Matchers {
   test("Report pretty diff counts with one scenario removed from a top-level same feature without tags") {
     val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
-    val groupCollectionDiff: Map[Group, GroupDiff] = GroupCollectionDiff(
+    val groupCollectionDiff: Map[Group, GroupDiff] = diff.GroupCollectionDiff(
       GroupCollection(Seq(scrA, scrB)),
       GroupCollection(Seq(scrB))
     )
@@ -220,7 +225,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr2.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
-    val groupCollectionDiff: Map[Group, GroupDiff] = GroupCollectionDiff(
+    val groupCollectionDiff: Map[Group, GroupDiff] = diff.GroupCollectionDiff(
       GroupCollection(Seq(scrA1, scrB)),
       GroupCollection(Seq(scrA2, scrB))
     )
@@ -239,7 +244,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrA2 = Scenario(List[String]("X"), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("X/ftr2.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
-    val groupCollectionDiff: Map[Group, GroupDiff] = GroupCollectionDiff(
+    val groupCollectionDiff: Map[Group, GroupDiff] = diff.GroupCollectionDiff(
       GroupCollection(Seq(scrA1, scrB)),
       GroupCollection(Seq(scrA2, scrB))
     )
@@ -260,7 +265,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String](), List[Step](dummyStep("A")), dummyPickle, dummyPath("ftr2.feature"))
     val scrB1 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("A"), List[Step](dummyStep("B")), dummyPickle, dummyPath("ftr1.feature"))
     val scrB2 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("B"), List[Step](dummyStep("B")), dummyPickle, dummyPath("ftr1.feature"))
-    val groupCollectionDiff: Map[Group, GroupDiff] = GroupCollectionDiff(
+    val groupCollectionDiff: Map[Group, GroupDiff] = diff.GroupCollectionDiff(
       GroupCollection(Seq(scrA1, scrB1)),
       GroupCollection(Seq(scrA2, scrB2))
     )
@@ -283,7 +288,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrB1 = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB2 = Scenario(List[String](), "ftr1", "scrB", Some(2), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB1x = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("B"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
-    val groupCollectionDiff: Map[Group, GroupDiff] = GroupCollectionDiff(
+    val groupCollectionDiff: Map[Group, GroupDiff] = diff.GroupCollectionDiff(
       GroupCollection(Seq(scrA, scrB0, scrB1, scrB2)),
       GroupCollection(Seq(scrA, scrB0, scrB1x, scrB2))
     )
@@ -305,7 +310,7 @@ class CountScenariosTest extends FunSuite with Matchers {
     val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String]("T"), stepsA1, dummyPickle, dummyPath("ftr1.feature"))
     val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String]("X"), stepsA2, dummyPickle, dummyPath("ftr2.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
-    val groupCollectionDiff: Map[Group, GroupDiff] = GroupCollectionDiff(
+    val groupCollectionDiff: Map[Group, GroupDiff] = diff.GroupCollectionDiff(
       GroupCollection(Seq(scrA1, scrB)),
       GroupCollection(Seq(scrA2, scrB))
     )
@@ -346,7 +351,7 @@ class CountScenariosTest extends FunSuite with Matchers {
         |- @TestA                        2           0             0      0        0
         |- @TestB                        1           0             0      0        0
         |- @TestC                        2           1             0      0        0""".stripMargin
-    CountScenarios.reportDiffCountsInPrettyPrint(GroupCollectionDiff(
+    CountScenarios.reportDiffCountsInPrettyPrint(diff.GroupCollectionDiff(
       GroupCollection(scenariosBefore),
       GroupCollection(scenariosAfter)
     )) should equal(expectedResult)
