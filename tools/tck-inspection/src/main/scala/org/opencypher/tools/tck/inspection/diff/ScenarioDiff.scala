@@ -49,10 +49,10 @@ object ScenarioDiffTag {
 
 case class ScenarioDiff(before: Scenario,
                         after: Scenario) {
-  def diffSets[A](before: Set[A], after: Set[A]): (Boolean, Map[A, ElementaryDiff]) = {
-    val unchanged: Map[A, ElementaryDiff] = (before intersect after).map(a => a -> ElementUnchanged).toMap
-    val removed: Map[A, ElementaryDiff] = (before diff after).map(a => a -> ElementRemoved).toMap
-    val added: Map[A, ElementaryDiff] = (after diff before).map(a => a -> ElementAdded).toMap
+  def diffSets[A](before: Set[A], after: Set[A]): (Boolean, Map[A, ElementaryDiffTag]) = {
+    val unchanged: Map[A, ElementaryDiffTag] = (before intersect after).map(a => a -> ElementaryDiffTag.Unchanged).toMap
+    val removed: Map[A, ElementaryDiffTag] = (before diff after).map(a => a -> ElementaryDiffTag.Removed).toMap
+    val added: Map[A, ElementaryDiffTag] = (after diff before).map(a => a -> ElementaryDiffTag.Added).toMap
     (removed.nonEmpty || added.nonEmpty, unchanged ++ removed ++ added)
   }
 
@@ -71,10 +71,10 @@ case class ScenarioDiff(before: Scenario,
 
   lazy val exampleIndexHasChanged: Boolean = before.exampleIndex != after.exampleIndex
 
-  lazy val (tagsHaveChanged: Boolean, tags: Map[String, ElementaryDiff]) = diffSets(before.tags, after.tags)
+  lazy val (tagsHaveChanged: Boolean, tags: Map[String, ElementaryDiffTag]) = diffSets(before.tags, after.tags)
 
-  lazy val steps: List[(Option[Step], ElementaryDiff, Option[Step])] = diffStepsAdvanced(before.steps, after.steps).map(
-    p => (p._1, ElementaryDiff(p), p._2)
+  lazy val steps: List[(Option[Step], ElementaryDiffTag, Option[Step])] = diffStepsAdvanced(before.steps, after.steps).map(
+    p => (p._1, ElementaryDiffTag(p), p._2)
   )
 
   lazy val stepsHaveChanged: Boolean = after.steps != before.steps
