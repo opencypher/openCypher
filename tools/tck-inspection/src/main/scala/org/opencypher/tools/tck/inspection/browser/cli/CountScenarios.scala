@@ -37,8 +37,8 @@ import org.opencypher.tools.tck.inspection.collect.Tag
 import org.opencypher.tools.tck.inspection.collect.Total
 import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
 import org.opencypher.tools.tck.inspection.diff.GroupDiff
-import org.opencypher.tools.tck.inspection.diff.Moved
 import org.opencypher.tools.tck.inspection.diff.ScenarioDiff
+import org.opencypher.tools.tck.inspection.diff.ScenarioDiffTag._
 
 /*
  * This is a tiny tool to count TCK scenarios in the list returned by `CypherTCK.allTckScenarios`.

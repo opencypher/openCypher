@@ -45,6 +45,7 @@ import org.opencypher.tools.tck.inspection.collect.ScenarioCategory
 import org.opencypher.tools.tck.inspection.collect.Tag
 import org.opencypher.tools.tck.inspection.collect.Total
 import org.opencypher.tools.tck.inspection.diff
+import org.opencypher.tools.tck.inspection.diff.ScenarioDiffTag._
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
 

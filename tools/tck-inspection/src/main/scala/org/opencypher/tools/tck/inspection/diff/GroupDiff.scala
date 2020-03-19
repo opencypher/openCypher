@@ -28,6 +28,7 @@
 package org.opencypher.tools.tck.inspection.diff
 
 import org.opencypher.tools.tck.api.Scenario
+import org.opencypher.tools.tck.inspection.diff.ScenarioDiffTag._
 
 case class GroupDiff(unchanged: Set[Scenario], moved: Set[(Scenario, Scenario, ScenarioDiff)], changed: Set[(Scenario, Scenario, ScenarioDiff)], added: Set[Scenario], removed: Set[Scenario])
 

@@ -30,17 +30,22 @@ package org.opencypher.tools.tck.inspection.diff
 import org.opencypher.tools.tck.api.Pickle
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
+import org.opencypher.tools.tck.inspection.diff.ScenarioDiffTag._
+
 
 sealed trait ScenarioDiffTag
-case object SourceUnchanged extends ScenarioDiffTag
-case object Unchanged extends ScenarioDiffTag
-case object Moved extends ScenarioDiffTag
-case object Retagged extends ScenarioDiffTag
-case object StepsChanged extends ScenarioDiffTag
-case object SourceChanged extends ScenarioDiffTag
-case object ExampleIndexChanged extends ScenarioDiffTag
-case object PotentiallyRenamed extends ScenarioDiffTag
-case object Different extends ScenarioDiffTag
+
+object ScenarioDiffTag {
+  case object SourceUnchanged extends ScenarioDiffTag
+  case object Unchanged extends ScenarioDiffTag
+  case object Moved extends ScenarioDiffTag
+  case object Retagged extends ScenarioDiffTag
+  case object StepsChanged extends ScenarioDiffTag
+  case object SourceChanged extends ScenarioDiffTag
+  case object ExampleIndexChanged extends ScenarioDiffTag
+  case object PotentiallyRenamed extends ScenarioDiffTag
+  case object Different extends ScenarioDiffTag
+}
 
 case class ScenarioDiff(before: Scenario,
                         after: Scenario) {
@@ -126,7 +131,7 @@ case class ScenarioDiff(before: Scenario,
 
   private def diffTags(before: Scenario, after: Scenario): Set[ScenarioDiffTag] = {
     val diff = Set[ScenarioDiffTag](Unchanged, SourceUnchanged, SourceChanged, Moved, Retagged, StepsChanged, ExampleIndexChanged, PotentiallyRenamed).filter {
-      case Unchanged => equals(after)
+      case Unchanged => before.equals(after)
       case SourceUnchanged =>
         before.equals(after) &&
           Pickle(after.source, withLocation = true) == Pickle(before.source, withLocation = true)
