@@ -27,7 +27,11 @@
  */
 package org.opencypher.tools.tck.inspection.diff
 
-sealed trait ElementaryDiffTag
+import org.opencypher.tools.tck.inspection.diff.ElementaryDiffTag.Unchanged
+
+sealed trait ElementaryDiffTag {
+  def changed: Boolean = this != Unchanged
+}
 
 object ElementaryDiffTag {
   case object Added extends ElementaryDiffTag
@@ -42,5 +46,117 @@ object ElementaryDiffTag {
     case (None, Some(_)) => Added
     case (b, a) if b == a => Unchanged
     case (b, a) if b != a => Changed
+  }
+}
+
+case class SetDiff[A](before: Set[A], after: Set[A]) {
+  lazy val unchangedElements: Set[A] = before intersect after
+  lazy val removedElements: Set[A] = before diff unchangedElements
+  lazy val addedElements: Set[A] = after diff unchangedElements
+
+  lazy val elementTags: Map[A, ElementaryDiffTag] = (
+      unchangedElements.map(_ -> ElementaryDiffTag.Unchanged).toMap ++
+      removedElements.map(_ -> ElementaryDiffTag.Removed).toMap ++
+      addedElements.map(_ -> ElementaryDiffTag.Added).toMap
+    )
+  lazy val tag = ElementaryDiffTag(changed)
+  def changed: Boolean = removedElements.nonEmpty || addedElements.nonEmpty
+}
+
+case class DeepSetDiff[A, B](before: Set[A], after: Set[A],
+                      elementDiff: (A, A) => B,
+                      different: B => Boolean) {
+  lazy val unchangedElements: Set[A] = before intersect after
+  lazy val removedOrChangedElements: Set[A] = before diff unchangedElements
+  lazy val addedOrChangedElements: Set[A] = after diff unchangedElements
+
+  lazy val removedElements: Set[A] = removedOrChangedElements.filter(b => addedOrChangedElements.forall(a => different(elementDiff(b, a))))
+  lazy val addedElements: Set[A] = addedOrChangedElements.filter(b => removedOrChangedElements.forall(a => different(elementDiff(b, a))))
+
+  lazy val changedElementsInBefore: Set[A] = removedOrChangedElements -- removedElements
+  lazy val changedElementsInAfter: Set[A] = addedOrChangedElements -- addedElements
+
+  lazy val allChangedElements: Set[(A, A, B)] = changedElementsInBefore.flatMap(
+    b => changedElementsInAfter.map(a => (b, a, elementDiff(b, a))).filter {
+      case (_, _, d) if different(d) => false
+      case _ => true
+    }
+  )
+
+  lazy val elementTags: Map[A, ElementaryDiffTag] = (
+    unchangedElements.map(_ -> ElementaryDiffTag.Unchanged).toMap ++
+      removedElements.map(_ -> ElementaryDiffTag.Removed).toMap ++
+      addedElements.map(_ -> ElementaryDiffTag.Added).toMap ++
+      changedElementsInBefore.map(_ -> ElementaryDiffTag.Changed).toMap ++
+      changedElementsInAfter.map(_ -> ElementaryDiffTag.Changed).toMap
+    )
+  lazy val tag = ElementaryDiffTag(changed)
+  def changed: Boolean = removedElements.nonEmpty || addedElements.nonEmpty || changedElementsInBefore.nonEmpty || changedElementsInAfter.nonEmpty
+}
+
+case class TreePathDiff[A](before: List[A], after: List[A]) {
+  lazy val changeHead: Option[Int] = before.zip(after).map(p => p._1 != p._2).
+    indexWhere(b => b) match {
+      case ix if ix < 0 => None
+      case ix => Some(ix)
+    }
+  lazy val tag = ElementaryDiffTag(changed)
+  def changed: Boolean = changeHead.nonEmpty
+}
+
+trait ListDiff[A] {
+  def before: List[A]
+  def after: List[A]
+  def paired: List[(Option[A], ElementaryDiffTag, Option[A])]
+  lazy val tag = ElementaryDiffTag(changed)
+  def changed: Boolean = before != after
+}
+
+case class SimpleListTopDownDiff[A](before: List[A], after: List[A]) extends ListDiff[A] {
+  private def beforeSome: List[Some[A]] = before.map(Some(_))
+  private def afterSome: List[Some[A]] = after.map(Some(_))
+  lazy val paired: List[(Option[A], ElementaryDiffTag, Option[A])] = beforeSome.zipAll(afterSome, None, None).map(
+    p => (p._1, ElementaryDiffTag(p), p._2)
+  )
+}
+
+case class LCSbasedListDiff[A](before: List[A], after: List[A]) extends ListDiff[A] {
+  private def lcsSteps(before: List[A], after: List[A], eq: (A, A) => Boolean): List[(Int, Int)] = {
+    /**
+     * Generic way to create memoized functions
+     * @see https://stackoverflow.com/questions/25129721
+     */
+    case class Memo[I, K, O](f: I => O)(implicit ev: I => K) extends (I => O) {
+      import scala.collection.mutable
+      val cache: mutable.Map[K, O] = mutable.Map.empty[K, O]
+      override def apply(x: I): O = cache.getOrElseUpdate(x, f(x))
+    }
+
+    def lcs[A](a: List[(A, Int)], b: List[(A, Int)], eq: (A, A) => Boolean): List[(Int, Int)] = {
+      type DP = Memo[(List[(A, Int)], List[(A, Int)]), (Int, Int), List[(Int, Int)]]
+      implicit def encode(key: (List[(A, Int)], List[(A, Int)])): (Int, Int) = (key._1.length, key._2.length)
+
+      implicit val o: Ordering[List[(Int, Int)]] = Ordering.by(_.length)
+
+      lazy val f: DP = Memo {
+        case (Nil, _) | (_, Nil) => Nil
+        case (x :: xs, y :: ys) if eq(x._1, y._1) => (x._2, y._2) :: f(xs, ys)
+        case (x, y) => o.max(f(x.tail, y), f(x, y.tail))
+      }
+
+      f(a, b)
+    }
+    lcs(before.zipWithIndex, after.zipWithIndex, eq)
+  }
+
+  lazy val paired: List[(Option[A], ElementaryDiffTag, Option[A])] = {
+    val lcsPairs = lcsSteps(before, after, (b, a) => b == a)
+    val lcsPairWindows = ((-1, -1), lcsPairs.head) :: lcsPairs.zip(lcsPairs drop 1)
+    lcsPairWindows.flatMap {
+      case ((bIxPrec, aIxPrec), (bIx, aIx)) =>
+        val paired = SimpleListTopDownDiff(before.slice(bIxPrec + 1, bIx), after.slice(aIxPrec + 1, aIx)).paired
+        val p: (Option[A], Option[A]) = (Some(before(bIx)), Some(after(aIx)))
+        paired :+ (p._1, ElementaryDiffTag(p), p._2)
+    }
   }
 }
