@@ -47,23 +47,9 @@ object ScenarioDiffTag {
   case object Different extends ScenarioDiffTag
 }
 
-case class ScenarioDiff(before: Scenario,
-                        after: Scenario) {
-  def diffSets[A](before: Set[A], after: Set[A]): (Boolean, Map[A, ElementaryDiffTag]) = {
-    val unchanged: Map[A, ElementaryDiffTag] = (before intersect after).map(a => a -> ElementaryDiffTag.Unchanged).toMap
-    val removed: Map[A, ElementaryDiffTag] = (before diff after).map(a => a -> ElementaryDiffTag.Removed).toMap
-    val added: Map[A, ElementaryDiffTag] = (after diff before).map(a => a -> ElementaryDiffTag.Added).toMap
-    (removed.nonEmpty || added.nonEmpty, unchanged ++ removed ++ added)
-  }
+case class ScenarioDiff(before: Scenario, after: Scenario) {
 
-  lazy val categories: Option[Int] = before.categories.zip(after.categories).
-    map(p => p._1 != p._2).
-    indexWhere(b => b) match {
-    case ix if ix < 0 => None
-    case ix => Some(ix)
-  }
-
-  def categoriesHaveChanged: Boolean = categories.nonEmpty
+  lazy val categories: TreePathDiff[String] = TreePathDiff(before.categories, after.categories)
 
   lazy val featureNameHasChanged: Boolean = before.featureName != after.featureName
 
@@ -71,63 +57,13 @@ case class ScenarioDiff(before: Scenario,
 
   lazy val exampleIndexHasChanged: Boolean = before.exampleIndex != after.exampleIndex
 
-  lazy val (tagsHaveChanged: Boolean, tags: Map[String, ElementaryDiffTag]) = diffSets(before.tags, after.tags)
+  lazy val tags: SetDiff[String] = SetDiff(before.tags, after.tags)
 
-  lazy val steps: List[(Option[Step], ElementaryDiffTag, Option[Step])] = diffStepsAdvanced(before.steps, after.steps).map(
-    p => (p._1, ElementaryDiffTag(p), p._2)
-  )
-
-  lazy val stepsHaveChanged: Boolean = after.steps != before.steps
+  lazy val steps: LCSbasedListDiff[Step] = LCSbasedListDiff(before.steps, after.steps)
 
   lazy val diffTags: Set[ScenarioDiffTag] = diffTags(before, after)
 
   lazy val potentialDuplicate: Boolean = diffTags subsetOf Set[ScenarioDiffTag](Moved, Retagged, ExampleIndexChanged, StepsChanged, PotentiallyRenamed)
-
-  private def diffStepsSimple(before: List[Step], after: List[Step]): List[(Option[Step], Option[Step])] = {
-    val beforeSome = before.map(Some(_))
-    val afterSome = after.map(Some(_))
-    val paired = beforeSome.zipAll(afterSome, None, None)
-    paired
-  }
-
-  private def diffStepsAdvanced(before: List[Step], after: List[Step]): List[(Option[Step], Option[Step])] = {
-    def lcsSteps(before: List[Step], after: List[Step], eq: (Step, Step) => Boolean): List[(Int, Int)] = {
-      /**
-       * Generic way to create memoized functions
-       * @see https://stackoverflow.com/questions/25129721
-       */
-      case class Memo[I, K, O](f: I => O)(implicit ev: I => K) extends (I => O) {
-        import scala.collection.mutable
-        val cache: mutable.Map[K, O] = mutable.Map.empty[K, O]
-        override def apply(x: I): O = cache.getOrElseUpdate(x, f(x))
-      }
-
-      def lcs[A](a: List[(A, Int)], b: List[(A, Int)], eq: (A, A) => Boolean): List[(Int, Int)] = {
-        type DP = Memo[(List[(A, Int)], List[(A, Int)]), (Int, Int), List[(Int, Int)]]
-        implicit def encode(key: (List[(A, Int)], List[(A, Int)])): (Int, Int) = (key._1.length, key._2.length)
-
-        implicit val o: Ordering[List[(Int, Int)]] = Ordering.by(_.length)
-
-        lazy val f: DP = Memo {
-          case (Nil, _) | (_, Nil) => Nil
-          case (x :: xs, y :: ys) if eq(x._1, y._1) => (x._2, y._2) :: f(xs, ys)
-          case (x, y) => o.max(f(x.tail, y), f(x, y.tail))
-        }
-
-        f(a, b)
-      }
-      lcs(before.zipWithIndex, after.zipWithIndex, eq)
-    }
-
-    val lcsPairs = lcsSteps(before, after, (b, a) => b == a)
-    val lcsPairWindows = ((-1, -1), lcsPairs.head) :: lcsPairs.zip(lcsPairs drop 1)
-    val paired = lcsPairWindows.flatMap {
-      case ((bIxPrec, aIxPrec), (bIx, aIx)) =>
-        val paired = diffStepsSimple(before.slice(bIxPrec + 1, bIx), after.slice(aIxPrec + 1, aIx))
-        paired :+ (Some(before(bIx)), Some(after(aIx)))
-    }
-    paired
-  }
 
   private def diffTags(before: Scenario, after: Scenario): Set[ScenarioDiffTag] = {
     val diff = Set[ScenarioDiffTag](Unchanged, SourceUnchanged, SourceChanged, Moved, Retagged, StepsChanged, ExampleIndexChanged, PotentiallyRenamed).filter {
@@ -139,28 +75,28 @@ case class ScenarioDiff(before: Scenario,
         before.equals(after) &&
           Pickle(after.source, withLocation = true) != Pickle(before.source, withLocation = true)
       case Moved =>
-        (categoriesHaveChanged || featureNameHasChanged) &&
+        (categories.changed || featureNameHasChanged) &&
           !nameHasChanged &&
           !exampleIndexHasChanged
       case Retagged =>
         !nameHasChanged &&
           !exampleIndexHasChanged &&
-          tagsHaveChanged
+          tags.changed
       case StepsChanged =>
         !nameHasChanged &&
           !exampleIndexHasChanged &&
-          stepsHaveChanged
+          steps.changed
       case ExampleIndexChanged =>
-        !categoriesHaveChanged &&
+        !categories.changed &&
           !featureNameHasChanged &&
           !nameHasChanged &&
           exampleIndexHasChanged &&
-          !tagsHaveChanged &&
-          !stepsHaveChanged &&
+          !tags.changed &&
+          !steps.changed &&
           Pickle(after.source) == Pickle(before.source)
       case PotentiallyRenamed =>
         nameHasChanged &&
-          !stepsHaveChanged
+          !steps.changed
       case _ => false
     }
     if(diff.isEmpty)

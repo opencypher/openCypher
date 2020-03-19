@@ -321,7 +321,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
             )
           )
         ),
-        ElementaryDiffTag(scenarioDiff.categories.isDefined || scenarioDiff.featureNameHasChanged),
+        ElementaryDiffTag(scenarioDiff.categories.changed || scenarioDiff.featureNameHasChanged),
         frag(
           div(CSS.locationLine)(scenarioLocationFrag(scenario = after, collection = Some(AfterCollection.toString))),
           openScenarioInEditorLink(after,
@@ -341,7 +341,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
       if(before.tags.isEmpty && after.tags.isEmpty) {
         frag()
       } else {
-        def tagCss(tag: String) = scenarioDiff.tags(tag) match {
+        def tagCss(tag: String) = scenarioDiff.tags.elementTags(tag) match {
           case Added => CSS.tagAdded
           case Removed => CSS.tagRemoved
           case _ => CSS.tag
@@ -351,7 +351,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
             div("Tags:"),
             before.tags.toSeq.sorted.map(tag => div(tagCss(tag))(tag))
           ),
-          ElementaryDiffTag(scenarioDiff.tags.values.toSet != Set[ElementaryDiffTag](Unchanged)),
+          scenarioDiff.tags.tag,
           div(CSS.tagLine)(
             div("Tags:"),
             after.tags.toSeq.sorted.map(tag => div(tagCss(tag))(tag))
@@ -359,7 +359,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
         )
       },
       // steps
-      scenarioDiff.steps.map {
+      scenarioDiff.steps.paired.map {
         case (before, changed, after) =>
           diffLineFrag(
             if(before.isDefined) stepFrag(before.get) else frag(),

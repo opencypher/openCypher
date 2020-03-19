@@ -42,26 +42,15 @@ case object GroupDiff {
   }
 
   def apply(scenariosBefore: Set[Scenario], scenariosAfter: Set[Scenario]): GroupDiff = {
-    val unchangedScenarios = scenariosAfter intersect scenariosBefore
+    val setDiff: DeepSetDiff[Scenario, ScenarioDiff] = DeepSetDiff[Scenario, ScenarioDiff](
+      before = scenariosBefore,
+      after = scenariosAfter,
+      elementDiff = (b, a) => ScenarioDiff(b, a),
+      different = _.diffTags == Set(Different))
 
-    val removedOrChangedScenarios: Set[Scenario] = scenariosBefore -- unchangedScenarios
-    val addedOrChangedScenarios: Set[Scenario] = scenariosAfter -- unchangedScenarios
+    val (movedScenarios: Set[(Scenario, Scenario, ScenarioDiff)], changedScenarios: Set[(Scenario, Scenario, ScenarioDiff)]) =
+      setDiff.allChangedElements.partition(_._3.diffTags == Set(Moved))
 
-    val removeScenarios = removedOrChangedScenarios.filter(b => addedOrChangedScenarios.forall(a => ScenarioDiff(b, a).diffTags == Set(Different)))
-    val addedScenarios = addedOrChangedScenarios.filter(a => removedOrChangedScenarios.forall(b => ScenarioDiff(b, a).diffTags == Set(Different)))
-
-    val changedScenariosBefore = removedOrChangedScenarios -- removeScenarios
-    val changedScenariosAfter = addedOrChangedScenarios -- addedScenarios
-
-    val allChangedScenarios: Set[(Scenario, Scenario, ScenarioDiff)] = changedScenariosBefore.flatMap(
-      b => changedScenariosAfter.map(a => (b, a, ScenarioDiff(b, a))).filter {
-        case (_, _, d) if d.diffTags contains Different => false
-        case _ => true
-      }
-    )
-
-    val (movedScenarios: Set[(Scenario, Scenario, ScenarioDiff)], changedScenarios: Set[(Scenario, Scenario, ScenarioDiff)]) = allChangedScenarios.partition(_._3.diffTags == Set(Moved))
-
-    GroupDiff(unchangedScenarios, movedScenarios, changedScenarios, addedScenarios, removeScenarios)
+    GroupDiff(setDiff.unchangedElements, movedScenarios, changedScenarios, setDiff.addedElements, setDiff.removedElements)
   }
 }
