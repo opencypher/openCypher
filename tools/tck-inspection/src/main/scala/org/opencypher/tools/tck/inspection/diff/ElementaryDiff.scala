@@ -27,20 +27,20 @@
  */
 package org.opencypher.tools.tck.inspection.diff
 
-sealed trait ElementaryDiff
+sealed trait ElementaryDiffTag
 
-case object ElementAdded extends ElementaryDiff
-case object ElementRemoved extends ElementaryDiff
-case object ElementUnchanged extends ElementaryDiff
-case object ElementChanged extends ElementaryDiff
+object ElementaryDiffTag {
+  case object Added extends ElementaryDiffTag
+  case object Removed extends ElementaryDiffTag
+  case object Unchanged extends ElementaryDiffTag
+  case object Changed extends ElementaryDiffTag
 
-case object ElementaryDiff {
-  def apply(changed: Boolean): ElementaryDiff = if(changed) ElementChanged else ElementUnchanged
+  def apply(changed: Boolean): ElementaryDiffTag = if(changed) Changed else Unchanged
 
-  def apply[E](pair: (E, E)): ElementaryDiff = pair match {
-    case (Some(_), None) => ElementRemoved
-    case (None, Some(_)) => ElementAdded
-    case (b, a) if b == a => ElementUnchanged
-    case (b, a) if b != a => ElementChanged
+  def apply[E](pair: (E, E)): ElementaryDiffTag = pair match {
+    case (Some(_), None) => Removed
+    case (None, Some(_)) => Added
+    case (b, a) if b == a => Unchanged
+    case (b, a) if b != a => Changed
   }
 }
