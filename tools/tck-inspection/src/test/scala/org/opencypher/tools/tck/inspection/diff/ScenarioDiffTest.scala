@@ -34,6 +34,7 @@ import org.opencypher.tools.tck.api.Dummy
 import org.opencypher.tools.tck.api.Measure
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
+import org.opencypher.tools.tck.inspection.diff.ScenarioDiffTag._
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
 
@@ -85,7 +86,7 @@ class ScenarioDiffTest extends FunSuite with Matchers {
       pickle("s", 1), new java.io.File("A/B/f.feature").toPath
     )
 
-    ScenarioDiff(scenarioBefore, scenarioAfter) should equal(Set[ScenarioDiffTag](Unchanged, SourceUnchanged))
+    ScenarioDiff(scenarioBefore, scenarioAfter).diffTags should equal(Set[ScenarioDiffTag](Unchanged, SourceUnchanged))
   }
 
   test("Diff equal scenarios differing in source") {
