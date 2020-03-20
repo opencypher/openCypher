@@ -65,8 +65,10 @@ class GroupCollectionDiffTest extends FunSuite with Matchers {
     val collectAfter = GroupCollection(scenariosAfter)
 
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA), Set()),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA), Set())
+      //Total -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA), Set()),
+      Total -> GroupDiff(Seq(scrB), Seq(scrA, scrB)),
+      //Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(scrA), Set()),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrB), Seq(scrA, scrB)),
     )
 
     GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
@@ -81,8 +83,10 @@ class GroupCollectionDiffTest extends FunSuite with Matchers {
     val collectAfter = GroupCollection(scenariosAfter)
 
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA)),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA))
+      //Total -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA)),
+      Total -> GroupDiff(Seq(scrA, scrB), Seq(scrB)),
+      //Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA)),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrA, scrB), Seq(scrB)),
     )
 
     diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
@@ -101,9 +105,12 @@ class GroupCollectionDiffTest extends FunSuite with Matchers {
     scrA1scrA2Diff.diffTags should equal(Set(Moved))
 
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(scrB), Set((scrA1, scrA2, scrA1scrA2Diff)), Set(), Set(), Set()),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA1)),
-      Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set())
+      //Total -> GroupDiff(Set(scrB), Set(scrA1scrA2Diff), Set(), Set(), Set()),
+      Total -> GroupDiff(Seq(scrA1, scrB), Seq(scrA2, scrB)),
+      //Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA1)),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrA1, scrB), Seq(scrB)),
+      //Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set()),
+      Feature("ftr2", 1, Some(Total)) -> GroupDiff(Seq(), Seq(scrA2)),
     )
 
     diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
@@ -123,12 +130,15 @@ class GroupCollectionDiffTest extends FunSuite with Matchers {
 
     val catX = ScenarioCategory("X", 1, Some(Total))
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(scrB), Set((scrA1, scrA2, scrA1scrA2Diff)), Set(), Set(), Set()),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA1)),
-      catX -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set()),
-      Feature("ftr2", 2, Some(catX)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set())
+      //Total -> GroupDiff(Set(scrB), Set(scrA1scrA2Diff), Set(), Set(), Set()),
+      Total -> GroupDiff(Seq(scrA1, scrB), Seq(scrA2, scrB)),
+      //Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA1)),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrA1, scrB), Seq(scrB)),
+      //catX -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set()),
+      catX -> GroupDiff(Seq(), Seq(scrA2)),
+      //Feature("ftr2", 2, Some(catX)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set()),
+      Feature("ftr2", 2, Some(catX)) -> GroupDiff(Seq(), Seq(scrA2)),
     )
-
     diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
   }
 
@@ -148,11 +158,16 @@ class GroupCollectionDiffTest extends FunSuite with Matchers {
     scrB1scrB2Diff.diffTags should equal(Set(Retagged))
 
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(), Set((scrA1, scrA2, scrA1scrA2Diff)), Set((scrB1, scrB2, scrB1scrB2Diff)), Set(), Set()),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set((scrB1, scrB2, scrB1scrB2Diff)), Set(), Set(scrA1)),
-      Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set()),
-      Tag("A") -> GroupDiff(Set(), Set(), Set(), Set(), Set(scrB1)),
-      Tag("B") -> GroupDiff(Set(), Set(), Set(), Set(scrB2), Set())
+      //Total -> GroupDiff(Set(), Set(scrA1scrA2Diff), Set(scrB1scrB2Diff), Set(), Set()),
+      Total -> GroupDiff(Seq(scrA1, scrB1), Seq(scrA2, scrB2)),
+      //Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(scrB1scrB2Diff), Set(), Set(scrA1)),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrA1, scrB1), Seq(scrB2)),
+      //Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set()),
+      Feature("ftr2", 1, Some(Total)) -> GroupDiff(Seq(), Seq(scrA2)),
+      //Tag("A") -> GroupDiff(Set(), Set(), Set(), Set(), Set(scrB1)),
+      Tag("A") -> GroupDiff(Seq(scrB1), Seq()),
+      //Tag("B") -> GroupDiff(Set(), Set(), Set(), Set(scrB2), Set()),
+      Tag("B") -> GroupDiff(Seq(), Seq(scrB2)),
     )
 
     diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
@@ -173,10 +188,14 @@ class GroupCollectionDiffTest extends FunSuite with Matchers {
     scrB1scrB1xDiff.diffTags should equal(Set(Retagged))
 
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(scrA, scrB0, scrB2), Set(), Set((scrB1, scrB1x, scrB1scrB1xDiff)), Set(), Set()),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrA, scrB0, scrB2), Set(), Set((scrB1, scrB1x, scrB1scrB1xDiff)), Set(), Set()),
-      Tag("A") -> GroupDiff(Set(scrB0, scrB2), Set(), Set(), Set(), Set(scrB1)),
-      Tag("B") -> GroupDiff(Set(), Set(), Set(), Set(scrB1x), Set())
+      //Total -> GroupDiff(Set(scrA, scrB0, scrB2), Set(), Set((scrB1, scrB1x, scrB1scrB1xDiff)), Set(), Set()),
+      Total -> GroupDiff(Seq(scrA, scrB0, scrB1, scrB2), Seq(scrA, scrB0, scrB1x, scrB2)),
+      //Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrA, scrB0, scrB2), Set(), Set((scrB1, scrB1x, scrB1scrB1xDiff)), Set(), Set()),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrA, scrB0, scrB1, scrB2), Seq(scrA, scrB0, scrB1x, scrB2)),
+      //Tag("A") -> GroupDiff(Set(scrB0, scrB2), Set(), Set(), Set(), Set(scrB1)),
+      Tag("A") -> GroupDiff(Seq(scrB0, scrB2, scrB1), Seq(scrB0, scrB2)),
+      //Tag("B") -> GroupDiff(Set(), Set(), Set(), Set(scrB1x), Set()),
+      Tag("B") -> GroupDiff(Seq(), Seq(scrB1x)),
     )
 
     diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
@@ -197,11 +216,16 @@ class GroupCollectionDiffTest extends FunSuite with Matchers {
     scrA1scrA2Diff.diffTags should equal(Set(Moved, Retagged, StepsChanged))
 
     val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Set(scrB), Set(), Set((scrA1, scrA2, scrA1scrA2Diff)), Set(), Set()),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA1)),
-      Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set()),
-      Tag("T") -> GroupDiff(Set(), Set(), Set(), Set(), Set(scrA1)),
-      Tag("X") -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set())
+      //Total -> GroupDiff(Set(scrB), Set(), Set((scrA1, scrA2, scrA1scrA2Diff)), Set(), Set()),
+      Total -> GroupDiff(Seq(scrA1, scrB), Seq(scrA2, scrB)),
+      //Feature("ftr1", 1, Some(Total)) -> GroupDiff(Set(scrB), Set(), Set(), Set(), Set(scrA1)),
+      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrA1, scrB), Seq(scrB)),
+      //Feature("ftr2", 1, Some(Total)) -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set()),
+      Feature("ftr2", 1, Some(Total)) -> GroupDiff(Seq(), Seq(scrA2)),
+      //Tag("T") -> GroupDiff(Set(), Set(), Set(), Set(), Set(scrA1)),
+      Tag("T") -> GroupDiff(Seq(scrA1), Seq()),
+      //Tag("X") -> GroupDiff(Set(), Set(), Set(), Set(scrA2), Set()),
+      Tag("X") -> GroupDiff(Seq(), Seq(scrA2)),
     )
 
     diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)

@@ -30,7 +30,19 @@ package org.opencypher.tools.tck.inspection.diff
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.inspection.diff.ScenarioDiffTag._
 
-case class GroupDiff(unchanged: Set[Scenario], moved: Set[(Scenario, Scenario, ScenarioDiff)], changed: Set[(Scenario, Scenario, ScenarioDiff)], added: Set[Scenario], removed: Set[Scenario])
+case class GroupDiff(before: Set[Scenario], after: Set[Scenario]) extends Diff[Set[Scenario]] {
+  private lazy val setDiff: DeepSetDiff[Scenario, ScenarioDiff] =
+    DeepSetDiff[Scenario, ScenarioDiff](before, after, elementDiff = (b, a) => ScenarioDiff(b, a))
+
+  lazy val (movedScenarios: Set[ScenarioDiff], changedScenarios: Set[ScenarioDiff]) =
+    setDiff.allChangedElements.partition(_.diffTags == Set(Moved))
+
+  def unchangedScenarios: Set[Scenario] = setDiff.unchangedElements
+  def addedScenarios: Set[Scenario] = setDiff.addedElements
+  def removedScenarios: Set[Scenario] = setDiff.removedElements
+
+  override def tag: ElementaryDiffTag = setDiff.tag
+}
 
 case object GroupDiff {
   def apply(scenariosBefore: Option[Seq[Scenario]], scenariosAfter: Option[Seq[Scenario]]): GroupDiff = {
@@ -39,18 +51,5 @@ case object GroupDiff {
 
   def apply(scenariosBefore: Seq[Scenario], scenariosAfter: Seq[Scenario]): GroupDiff = {
     GroupDiff(scenariosBefore.toSet, scenariosAfter.toSet)
-  }
-
-  def apply(scenariosBefore: Set[Scenario], scenariosAfter: Set[Scenario]): GroupDiff = {
-    val setDiff: DeepSetDiff[Scenario, ScenarioDiff] = DeepSetDiff[Scenario, ScenarioDiff](
-      before = scenariosBefore,
-      after = scenariosAfter,
-      elementDiff = (b, a) => ScenarioDiff(b, a),
-      different = _.diffTags == Set(Different))
-
-    val (movedScenarios: Set[(Scenario, Scenario, ScenarioDiff)], changedScenarios: Set[(Scenario, Scenario, ScenarioDiff)]) =
-      setDiff.allChangedElements.partition(_._3.diffTags == Set(Moved))
-
-    GroupDiff(setDiff.unchangedElements, movedScenarios, changedScenarios, setDiff.addedElements, setDiff.removedElements)
   }
 }

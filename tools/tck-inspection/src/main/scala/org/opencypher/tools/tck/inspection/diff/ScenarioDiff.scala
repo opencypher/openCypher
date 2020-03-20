@@ -47,15 +47,15 @@ object ScenarioDiffTag {
   case object Different extends ScenarioDiffTag
 }
 
-case class ScenarioDiff(before: Scenario, after: Scenario) {
+case class ScenarioDiff(before: Scenario, after: Scenario) extends Diff[Scenario] {
 
   lazy val categories: TreePathDiff[String] = TreePathDiff(before.categories, after.categories)
 
-  lazy val featureNameHasChanged: Boolean = before.featureName != after.featureName
+  lazy val featureName: ElementDiff[String] = ElementDiff(before.featureName, after.featureName)
 
-  lazy val nameHasChanged: Boolean = before.name != after.name
+  lazy val name: ElementDiff[String] = ElementDiff(before.name, after.name)
 
-  lazy val exampleIndexHasChanged: Boolean = before.exampleIndex != after.exampleIndex
+  lazy val exampleIndex: ElementDiff[Option[Int]] = ElementDiff(before.exampleIndex, after.exampleIndex)
 
   lazy val tags: SetDiff[String] = SetDiff(before.tags, after.tags)
 
@@ -75,27 +75,27 @@ case class ScenarioDiff(before: Scenario, after: Scenario) {
         before.equals(after) &&
           Pickle(after.source, withLocation = true) != Pickle(before.source, withLocation = true)
       case Moved =>
-        (categories.changed || featureNameHasChanged) &&
-          !nameHasChanged &&
-          !exampleIndexHasChanged
+        (categories.changed || featureName.changed) &&
+          !name.changed &&
+          !exampleIndex.changed
       case Retagged =>
-        !nameHasChanged &&
-          !exampleIndexHasChanged &&
+        !name.changed &&
+          !exampleIndex.changed &&
           tags.changed
       case StepsChanged =>
-        !nameHasChanged &&
-          !exampleIndexHasChanged &&
+        !name.changed &&
+          !exampleIndex.changed &&
           steps.changed
       case ExampleIndexChanged =>
         !categories.changed &&
-          !featureNameHasChanged &&
-          !nameHasChanged &&
-          exampleIndexHasChanged &&
+          !featureName.changed &&
+          !name.changed &&
+          exampleIndex.changed &&
           !tags.changed &&
           !steps.changed &&
           Pickle(after.source) == Pickle(before.source)
       case PotentiallyRenamed =>
-        nameHasChanged &&
+        name.changed &&
           !steps.changed
       case _ => false
     }
@@ -104,4 +104,13 @@ case class ScenarioDiff(before: Scenario, after: Scenario) {
     else
       diff
   }
+
+  override def tag: ElementaryDiffTag =
+    if(diffTags == Set(Unchanged)) {
+      ElementaryDiffTag.Unchanged
+    } else if(diffTags == Set(Different)) {
+      ElementaryDiffTag.Different
+    } else {
+      ElementaryDiffTag.Changed
+    }
 }

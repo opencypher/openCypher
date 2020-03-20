@@ -34,10 +34,12 @@ import org.opencypher.tools.tck.inspection.collect.Feature
 import org.opencypher.tools.tck.inspection.collect.Group
 import org.opencypher.tools.tck.inspection.collect.ScenarioCategory
 import org.opencypher.tools.tck.inspection.collect.Total
-import org.opencypher.tools.tck.inspection.diff.ElementaryDiffTag
+import org.opencypher.tools.tck.inspection.diff.Diff
+import org.opencypher.tools.tck.inspection.diff.ElementDiff
 import org.opencypher.tools.tck.inspection.diff.ElementaryDiffTag._
 import org.opencypher.tools.tck.inspection.diff.GroupDiff
 import org.opencypher.tools.tck.inspection.diff.ScenarioDiff
+import org.opencypher.tools.tck.inspection.diff.Tuple2Diff
 import scalatags.Text
 import scalatags.Text.all._
 
@@ -60,7 +62,8 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
 
     // print counts to html table rows as a count group tree in dept first order
     def printDepthFirst(currentGroup: Group): Seq[scalatags.Text.TypedTag[String]] = {
-      val thisRow =
+      val thisRow = {
+        val currentDiff = diffs.get(currentGroup)
         tr(
           td(textIndent:=currentGroup.indent.em)(
             currentGroup.toString
@@ -73,7 +76,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           ),
           td(),
           td(textAlign.right)({
-            val size = diffs.get(currentGroup).map(_.unchanged.size).getOrElse(0)
+            val size = currentDiff.map(_.unchangedScenarios.size).getOrElse(0)
             if(size > 0)
               a(href:=diffRoutes.listUnchangedScenariosURL(this, currentGroup))(size)
             else
@@ -81,7 +84,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           }),
           td(),
           td(textAlign.right)({
-            val size = diffs.get(currentGroup).map(_.moved.size).getOrElse(0)
+            val size = currentDiff.map(_.movedScenarios.size).getOrElse(0)
             if(size > 0)
               a(href:=diffRoutes.listMovedScenariosURL(this, currentGroup))(size)
             else
@@ -89,7 +92,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           }),
           td(),
           td(textAlign.right)({
-            val size = diffs.get(currentGroup).map(_.changed.size).getOrElse(0)
+            val size = currentDiff.map(_.changedScenarios.size).getOrElse(0)
             if (size > 0)
               a(href := diffRoutes.listChangedScenariosURL(this, currentGroup))(size)
             else
@@ -97,7 +100,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           }),
           td(),
           td(textAlign.right)({
-            val size = diffs.get(currentGroup).map(_.added.size).getOrElse(0)
+            val size = currentDiff.map(_.addedScenarios.size).getOrElse(0)
             if (size > 0)
               a(href:=diffRoutes.listAddedScenariosURL(this, currentGroup))(size)
             else
@@ -105,7 +108,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           }),
           td(),
           td(textAlign.right)({
-            val size = diffs.get(currentGroup).map(_.removed.size).getOrElse(0)
+            val size = currentDiff.map(_.removedScenarios.size).getOrElse(0)
             if (size > 0)
               a(href:=diffRoutes.listRemovedScenariosURL(this, currentGroup))(size)
             else
@@ -119,6 +122,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           ),
           td(),
         )
+      }
       // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
       val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{
         case Total => 0
@@ -158,17 +162,17 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
   }
 
   def listMovedScenarios(group: Group): Text.TypedTag[String] = {
-    val triples =
-      diffModel.diffs.get(group).map(_.moved).getOrElse(Set.empty[(Scenario, Scenario, ScenarioDiff)])
-    val byScenario = triples.toSeq.sortBy(t => t._1.toString + t._2.toString)
-    val byLocation = triples.groupBy {
-      case (before, after, _) => before.categories.mkString("/")+"/"+before.featureName+">>>"+after.categories.mkString("/")+"/"+after.featureName
+    val diffs =
+      diffModel.diffs.get(group).map(_.movedScenarios).getOrElse(Set.empty[ScenarioDiff])
+    val byScenario = diffs.toSeq.sortBy(d => d.before.toString + d.after.toString)
+    val byLocation = diffs.groupBy {
+      case ScenarioDiff(before, after) => before.categories.mkString("/")+"/"+before.featureName+">>>"+after.categories.mkString("/")+"/"+after.featureName
     }.toSeq.sortBy(_._1)
 
     case object ByScenario extends Anchor
     case object ByLocation extends Anchor
     page(
-      pageTitle(triples.size, " scenario(s) moved in group ", i(group.toString)),
+      pageTitle(diffs.size, " scenario(s) moved in group ", i(group.toString)),
       ol(
         li(link2LocalAnchor(ByScenario, "By scenario")),
         li(link2LocalAnchor(ByLocation, "By location")),
@@ -176,7 +180,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
       anchor(ByScenario),
       sectionTitle("By scenario"),
       dl(CSS.movedScenariosList)(
-        for((before, after, _) <- byScenario) yield frag(
+        for(ScenarioDiff(before, after) <- byScenario) yield frag(
           dt(CSS.movedScenariosName)(
             div(CSS.scenarioTitleSmall)(scenarioTitle(before))),
           dd(CSS.movedScenariosMove)(
@@ -201,22 +205,22 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           th("Scenarios"),
           th(CSS.tckCollection, colspan:=2)(AfterCollection.toString),
         ),
-        for( (_, scenarios) <- byLocation ) yield frag(
+        for( (_, scenarioDiffs) <- byLocation ) yield frag(
           tr(verticalAlign.top)(
-            td(colspan:=2, CSS.locationLine)(scenarioLocationFrag(scenario = scenarios.head._1)),
-            td(textAlign.center)("--- " + scenarios.size.toString + " -->"),
-            td(colspan:=2, CSS.locationLine)(scenarioLocationFrag(scenario = scenarios.head._2)),
+            td(colspan:=2, CSS.locationLine)(scenarioLocationFrag(scenario = scenarioDiffs.head.before)),
+            td(textAlign.center)("--- " + scenarioDiffs.size.toString + " -->"),
+            td(colspan:=2, CSS.locationLine)(scenarioLocationFrag(scenario = scenarioDiffs.head.after)),
           ),
-          for( triples <- scenarios.toSeq.sortBy(t => (t._1.name, t._1.exampleIndex)) ) yield
+          for( diff <- scenarioDiffs.toSeq.sortBy(d => (d.before.name, d.after.exampleIndex)) ) yield
             tr(
               td(textAlign.right)(
-                showSingleScenarioLink(triples._1, "[show]"),
-                openScenarioInEditorLink(triples._1, "[code]"),
+                showSingleScenarioLink(diff.before, "[show]"),
+                openScenarioInEditorLink(diff.before, "[code]"),
               ),
-              td(colspan:=3, textAlign.center)(scenarioTitle(triples._1)),
+              td(colspan:=3, textAlign.center)(scenarioTitle(diff.before)),
               td(
-                showSingleScenarioLink(triples._2, "[show]"),
-                openScenarioInEditorLink(triples._2, "[code]"),
+                showSingleScenarioLink(diff.after, "[show]"),
+                openScenarioInEditorLink(diff.after, "[code]"),
               ),
             )
         )
@@ -225,14 +229,14 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
   }
 
   def listChangedScenarios(group: Group): Text.TypedTag[String] = {
-    val triples =
-      diffModel.diffs.get(group).map(_.changed).getOrElse(
-        Set.empty[(Scenario, Scenario, ScenarioDiff)]
-      ).toSeq.sortBy(t => t._1.toString + t._2.toString)
+    val diffs =
+      diffModel.diffs.get(group).map(_.changedScenarios).getOrElse(
+        Set.empty[ScenarioDiff]
+      ).toSeq.sortBy(d => d.before.toString + d.after.toString)
     page(
-      pageTitle(triples.size, " scenario(s) changed in group ", i(group.toString)),
+      pageTitle(diffs.size, " scenario(s) changed in group ", i(group.toString)),
       ul(
-        for((before, after, diff) <- triples) yield li(
+        for(diff@ScenarioDiff(before, after) <- diffs) yield li(
           scenarioLocationFrag(scenario = before, collection = Some(BeforeCollection.toString)),
           inlineSpacer(),
           showSingleScenarioLink(before, scenarioTitle(before)),
@@ -297,11 +301,11 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
   def detailedScenarioDiffPage(before: Scenario, after: Scenario): Text.TypedTag[String] = {
     val scenarioDiff = ScenarioDiff(before, after)
 
-    def diffLineFrag(before: Frag, diff: ElementaryDiffTag, after: Frag) =
+    def diffLineFrag[A](before: Frag, diff: Diff[A], after: Frag) =
       div(CSS.scenarioDiffLine)(
         div(CSS.scenarioDiffBefore)(before),
-        div(if(diff == Unchanged) CSS.scenarioDiffIndicatorUnchanged else CSS.scenarioDiffIndicatorChanged)(
-          diff match {
+        div(if(diff.tag == Unchanged) CSS.scenarioDiffIndicatorUnchanged else CSS.scenarioDiffIndicatorChanged)(
+          diff.tag match {
             case Added => "+"
             case Removed => "-"
             case _ => frag()
@@ -321,7 +325,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
             )
           )
         ),
-        ElementaryDiffTag(scenarioDiff.categories.changed || scenarioDiff.featureNameHasChanged),
+        Tuple2Diff(scenarioDiff.categories, scenarioDiff.featureName),
         frag(
           div(CSS.locationLine)(scenarioLocationFrag(scenario = after, collection = Some(AfterCollection.toString))),
           openScenarioInEditorLink(after,
@@ -334,7 +338,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
       // scenario title
       diffLineFrag(
         div(CSS.scenarioTitleBox, CSS.scenarioTitleBig)(scenarioTitle(before)),
-        ElementaryDiffTag(scenarioDiff.nameHasChanged || scenarioDiff.exampleIndexHasChanged),
+        Tuple2Diff(scenarioDiff.name, scenarioDiff.exampleIndex),
         div(CSS.scenarioTitleBox, CSS.scenarioTitleBig)(scenarioTitle(after)),
       ),
       // tags
@@ -351,7 +355,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
             div("Tags:"),
             before.tags.toSeq.sorted.map(tag => div(tagCss(tag))(tag))
           ),
-          scenarioDiff.tags.tag,
+          scenarioDiff.tags,
           div(CSS.tagLine)(
             div("Tags:"),
             after.tags.toSeq.sorted.map(tag => div(tagCss(tag))(tag))
@@ -360,10 +364,10 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
       },
       // steps
       scenarioDiff.steps.paired.map {
-        case (before, changed, after) =>
+        case diff@ElementDiff(before, after) =>
           diffLineFrag(
             if(before.isDefined) stepFrag(before.get) else frag(),
-            changed,
+            diff,
             if(after.isDefined) stepFrag(after.get) else frag(),
           )
       }

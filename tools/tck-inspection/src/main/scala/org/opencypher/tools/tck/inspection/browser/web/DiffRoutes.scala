@@ -120,7 +120,7 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     pageFrag = diffPages =>
       securedGroupPage(diffPages, groupId, group =>
         listScenariosPage(
-          scenarios = group => diffPages.diffModel.diffs.get(group).map(_.unchanged.toSeq),
+          scenarios = group => diffPages.diffModel.diffs.get(group).map(_.unchangedScenarios.toSeq),
           group = group,
           kind = Some("unchanged"),
           showSingleScenarioURL = scenario => showSingleScenarioURL(diffPages, scenario),
@@ -140,7 +140,7 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     pageFrag = diffPages =>
       securedGroupPage(diffPages, groupId, group =>
         listScenariosPage(
-          scenarios = group => diffPages.diffModel.diffs.get(group).map(_.added.toSeq),
+          scenarios = group => diffPages.diffModel.diffs.get(group).map(_.addedScenarios.toSeq),
           group = group,
           kind = Some("added"),
           showSingleScenarioURL = scenario => showSingleScenarioURL(diffPages, scenario),
@@ -160,7 +160,7 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     pageFrag = diffPages =>
       securedGroupPage(diffPages, groupId, group =>
         listScenariosPage(
-          scenarios = group => diffPages.diffModel.diffs.get(group).map(_.removed.toSeq),
+          scenarios = group => diffPages.diffModel.diffs.get(group).map(_.removedScenarios.toSeq),
           group = group,
           kind = Some("removed"),
           showSingleScenarioURL = scenario => showSingleScenarioURL(diffPages, scenario),
