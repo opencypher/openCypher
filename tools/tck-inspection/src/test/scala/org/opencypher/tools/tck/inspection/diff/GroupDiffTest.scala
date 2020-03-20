@@ -38,172 +38,148 @@ import org.opencypher.tools.tck.api.Dummy
 import org.opencypher.tools.tck.api.Measure
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
-import org.opencypher.tools.tck.inspection.collect.Feature
-import org.opencypher.tools.tck.inspection.collect.Group
-import org.opencypher.tools.tck.inspection.collect.GroupCollection
-import org.opencypher.tools.tck.inspection.collect.ScenarioCategory
-import org.opencypher.tools.tck.inspection.collect.Tag
-import org.opencypher.tools.tck.inspection.collect.Total
-import org.opencypher.tools.tck.inspection.diff
 import org.opencypher.tools.tck.inspection.diff.ScenarioDiffTag._
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
 
-class GroupCollectionDiffTest extends FunSuite with Matchers {
+class GroupDiffTest extends FunSuite with Matchers {
   private val dummyPickle = new Pickle("", "", new util.ArrayList[PickleStep](), new util.ArrayList[PickleTag](), new util.ArrayList[PickleLocation]())
   private val dummyPickleStep = new PickleStep("", new util.ArrayList[Argument](), new util.ArrayList[PickleLocation]())
   private def namedDummyPickleStep(name: String) = new PickleStep(name, new util.ArrayList[Argument](), new util.ArrayList[PickleLocation]())
   private def dummyStep(name: String): Step = Dummy(namedDummyPickleStep(name))
   private def dummyPath(path: String): java.nio.file.Path = new java.io.File("ftr1.feature").toPath
 
-  test("Diff with one scenario added to the same top-level feature without tags") {
+  test("Diff a group with one scenario added") {
     val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
-    val scenariosBefore: Seq[Scenario] = Seq(scrB)
-    val scenariosAfter: Seq[Scenario] = Seq(scrA, scrB)
-    val collectBefore = GroupCollection(scenariosBefore)
-    val collectAfter = GroupCollection(scenariosAfter)
+    val result = GroupDiff(Seq(scrB), Seq(scrA, scrB))
 
-    val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Seq(scrB), Seq(scrA, scrB)),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrB), Seq(scrA, scrB)),
-    )
-
-    GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    result.unchangedScenarios should equal(Set(scrB))
+    result.movedScenarios should equal(Set())
+    result.changedScenarios should equal(Set())
+    result.addedScenarios should equal(Set(scrA))
+    result.removedScenarios should equal(Set())
   }
 
-  test("Diff with one scenario removed from the same top-level feature without tags") {
+  test("Diff a group with one scenario removed") {
     val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
-    val scenariosBefore: Seq[Scenario] = Seq(scrA, scrB)
-    val scenariosAfter: Seq[Scenario] = Seq(scrB)
-    val collectBefore = GroupCollection(scenariosBefore)
-    val collectAfter = GroupCollection(scenariosAfter)
+    val result = GroupDiff(Seq(scrA, scrB), Seq(scrB))
 
-    val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Seq(scrA, scrB), Seq(scrB)),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrA, scrB), Seq(scrB)),
-    )
-
-    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    result.unchangedScenarios should equal(Set(scrB))
+    result.movedScenarios should equal(Set())
+    result.changedScenarios should equal(Set())
+    result.addedScenarios should equal(Set())
+    result.removedScenarios should equal(Set(scrA))
   }
 
-  test("Diff with one scenario moved to another top-level feature without tags") {
+  test("Diff a group with one scenario moved to another feature") {
     val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr2.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
-    val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
-    val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
-    val collectBefore = GroupCollection(scenariosBefore)
-    val collectAfter = GroupCollection(scenariosAfter)
+    val result = GroupDiff(Seq(scrA1, scrB), Seq(scrA2, scrB))
 
     val scrA1scrA2Diff = ScenarioDiff(scrA1, scrA2)
     scrA1scrA2Diff.diffTags should equal(Set(Moved))
 
-    val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Seq(scrA1, scrB), Seq(scrA2, scrB)),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrA1, scrB), Seq(scrB)),
-      Feature("ftr2", 1, Some(Total)) -> GroupDiff(Seq(), Seq(scrA2)),
-    )
-
-    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    result.unchangedScenarios should equal(Set(scrB))
+    result.movedScenarios should equal(Set(scrA1scrA2Diff))
+    result.changedScenarios should equal(Set())
+    result.addedScenarios should equal(Set())
+    result.removedScenarios should equal(Set())
   }
 
-  test("Diff with one scenario moved to another sub-level feature without tags") {
+  test("Diff a group with one scenario moved to another sub-feature") {
     val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrA2 = Scenario(List[String]("X"), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("X/ftr2.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
-    val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
-    val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
-    val collectBefore = GroupCollection(scenariosBefore)
-    val collectAfter = GroupCollection(scenariosAfter)
+    val result = GroupDiff(Seq(scrA1, scrB), Seq(scrA2, scrB))
 
     val scrA1scrA2Diff = ScenarioDiff(scrA1, scrA2)
     scrA1scrA2Diff.diffTags should equal(Set(Moved))
 
-    val catX = ScenarioCategory("X", 1, Some(Total))
-    val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Seq(scrA1, scrB), Seq(scrA2, scrB)),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrA1, scrB), Seq(scrB)),
-      catX -> GroupDiff(Seq(), Seq(scrA2)),
-      Feature("ftr2", 2, Some(catX)) -> GroupDiff(Seq(), Seq(scrA2)),
-    )
-    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    result.unchangedScenarios should equal(Set(scrB))
+    result.movedScenarios should equal(Set(scrA1scrA2Diff))
+    result.changedScenarios should equal(Set())
+    result.addedScenarios should equal(Set())
+    result.removedScenarios should equal(Set())
   }
 
-  test("Diff with one scenario moved to another top-level feature and a changed tag") {
+  test("Diff a group with one scenario moved to another feature and one with a changed tag") {
     val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](dummyStep("A")), dummyPickle, dummyPath("ftr1.feature"))
     val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String](), List[Step](dummyStep("A")), dummyPickle, dummyPath("ftr2.feature"))
     val scrB1 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("A"), List[Step](dummyStep("B")), dummyPickle, dummyPath("ftr1.feature"))
     val scrB2 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("B"), List[Step](dummyStep("B")), dummyPickle, dummyPath("ftr1.feature"))
-    val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB1)
-    val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB2)
-    val collectBefore = GroupCollection(scenariosBefore)
-    val collectAfter = GroupCollection(scenariosAfter)
+    val result = GroupDiff(Seq(scrA1, scrB1), Seq(scrA2, scrB2))
 
     val scrA1scrA2Diff = ScenarioDiff(scrA1, scrA2)
     scrA1scrA2Diff.diffTags should equal(Set(Moved))
     val scrB1scrB2Diff = ScenarioDiff(scrB1, scrB2)
     scrB1scrB2Diff.diffTags should equal(Set(Retagged))
 
-    val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Seq(scrA1, scrB1), Seq(scrA2, scrB2)),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrA1, scrB1), Seq(scrB2)),
-      Feature("ftr2", 1, Some(Total)) -> GroupDiff(Seq(), Seq(scrA2)),
-      Tag("A") -> GroupDiff(Seq(scrB1), Seq()),
-      Tag("B") -> GroupDiff(Seq(), Seq(scrB2)),
-    )
-
-    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    result.unchangedScenarios should equal(Set())
+    result.movedScenarios should equal(Set(scrA1scrA2Diff))
+    result.changedScenarios should equal(Set(scrB1scrB2Diff))
+    result.addedScenarios should equal(Set())
+    result.removedScenarios should equal(Set())
   }
 
-  test("Diff with one scenario from a outline in a top-level feature has a changed tags") {
+  test("Diff a group with one scenario from an outline in a feature has a changed tags") {
     val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB0 = Scenario(List[String](), "ftr1", "scrB", Some(0), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB1 = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB2 = Scenario(List[String](), "ftr1", "scrB", Some(2), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB1x = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("B"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
-    val scenariosBefore: Seq[Scenario] = Seq(scrA, scrB0, scrB1, scrB2)
-    val scenariosAfter: Seq[Scenario] = Seq(scrA, scrB0, scrB1x, scrB2)
-    val collectBefore = GroupCollection(scenariosBefore)
-    val collectAfter = GroupCollection(scenariosAfter)
+    val result = GroupDiff(Seq(scrA, scrB0, scrB1, scrB2), Seq(scrA, scrB0, scrB1x, scrB2))
 
     val scrB1scrB1xDiff = ScenarioDiff(scrB1, scrB1x)
     scrB1scrB1xDiff.diffTags should equal(Set(Retagged))
 
-    val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Seq(scrA, scrB0, scrB1, scrB2), Seq(scrA, scrB0, scrB1x, scrB2)),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrA, scrB0, scrB1, scrB2), Seq(scrA, scrB0, scrB1x, scrB2)),
-      Tag("A") -> GroupDiff(Seq(scrB0, scrB2, scrB1), Seq(scrB0, scrB2)),
-      Tag("B") -> GroupDiff(Seq(), Seq(scrB1x)),
-    )
-
-    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    result.unchangedScenarios should equal(Set(scrA, scrB0, scrB2))
+    result.movedScenarios should equal(Set())
+    result.changedScenarios should equal(Set(scrB1scrB1xDiff))
+    result.addedScenarios should equal(Set())
+    result.removedScenarios should equal(Set())
   }
 
-  test("Diff with one scenario changed in categories, tags, and content of steps") {
+  test("Diff a group with one scenario has changed tags, one is added, one is removed") {
+    val stepsA = List[Step](Dummy(dummyPickleStep))
+    val stepsB = List[Step](Dummy(dummyPickleStep), Measure(dummyPickleStep))
+    val stepsC = List[Step](Measure(dummyPickleStep), Dummy(dummyPickleStep))
+    val stepsD = List[Step](Measure(dummyPickleStep))
+    val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), stepsA, dummyPickle, dummyPath("ftr1.feature"))
+    val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("A"), stepsB, dummyPickle, dummyPath("ftr1.feature"))
+    val scrC1 = Scenario(List[String](), "ftr1", "scrC", None, Set[String]("A"), stepsC, dummyPickle, dummyPath("ftr1.feature"))
+    val scrC2 = Scenario(List[String](), "ftr1", "scrC", None, Set[String]("B"), stepsC, dummyPickle, dummyPath("ftr1.feature"))
+    val scrD = Scenario(List[String](), "ftr1", "scrD", None, Set[String]("B"), stepsD, dummyPickle, dummyPath("ftr1.feature"))
+    val result = GroupDiff(Seq(scrA, scrB, scrC1), Seq(scrA, scrC2, scrD))
+
+    val scrC1scrC2Diff = ScenarioDiff(scrC1, scrC2)
+    scrC1scrC2Diff.diffTags should equal(Set(Retagged))
+
+    result.unchangedScenarios should equal(Set(scrA))
+    result.movedScenarios should equal(Set())
+    result.changedScenarios should equal(Set(scrC1scrC2Diff))
+    result.addedScenarios should equal(Set(scrD))
+    result.removedScenarios should equal(Set(scrB))
+  }
+
+  test("Diff a group with one scenario changed in categories, tags, and content of steps") {
     val stepsA1 = List[Step](Dummy(dummyPickleStep), Measure(dummyPickleStep))
     val stepsA2 = List[Step](Measure(dummyPickleStep), Dummy(dummyPickleStep))
     val scrA1 = Scenario(List[String](), "ftr1", "scrA", None, Set[String]("T"), stepsA1, dummyPickle, dummyPath("ftr1.feature"))
     val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String]("X"), stepsA2, dummyPickle, dummyPath("ftr2.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
-    val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
-    val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
-    val collectBefore = GroupCollection(scenariosBefore)
-    val collectAfter = GroupCollection(scenariosAfter)
+    val result = GroupDiff(Seq(scrA1, scrB), Seq(scrA2, scrB))
 
     val scrA1scrA2Diff = ScenarioDiff(scrA1, scrA2)
     scrA1scrA2Diff.diffTags should equal(Set(Moved, Retagged, StepsChanged))
 
-    val expectedResult = Map[Group, GroupDiff](
-      Total -> GroupDiff(Seq(scrA1, scrB), Seq(scrA2, scrB)),
-      Feature("ftr1", 1, Some(Total)) -> GroupDiff(Seq(scrA1, scrB), Seq(scrB)),
-      Feature("ftr2", 1, Some(Total)) -> GroupDiff(Seq(), Seq(scrA2)),
-      Tag("T") -> GroupDiff(Seq(scrA1), Seq()),
-      Tag("X") -> GroupDiff(Seq(), Seq(scrA2)),
-    )
-
-    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    result.unchangedScenarios should equal(Set(scrB))
+    result.movedScenarios should equal(Set())
+    result.changedScenarios should equal(Set(scrA1scrA2Diff))
+    result.addedScenarios should equal(Set())
+    result.removedScenarios should equal(Set())
   }
 
 }
