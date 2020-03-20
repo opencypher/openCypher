@@ -27,17 +27,18 @@
  */
 package org.opencypher.tools.tck.inspection.diff
 
+import org.opencypher.tools.tck.inspection.diff.ElementaryDiffTag.Changed
+import org.opencypher.tools.tck.inspection.diff.ElementaryDiffTag.Different
 import org.opencypher.tools.tck.inspection.diff.ElementaryDiffTag.Unchanged
 
-sealed trait ElementaryDiffTag {
-  def changed: Boolean = this != Unchanged
-}
+sealed trait ElementaryDiffTag
 
 object ElementaryDiffTag {
   case object Added extends ElementaryDiffTag
   case object Removed extends ElementaryDiffTag
   case object Unchanged extends ElementaryDiffTag
   case object Changed extends ElementaryDiffTag
+  case object Different extends ElementaryDiffTag
 
   def apply(changed: Boolean): ElementaryDiffTag = if(changed) Changed else Unchanged
 
@@ -49,7 +50,47 @@ object ElementaryDiffTag {
   }
 }
 
-case class SetDiff[A](before: Set[A], after: Set[A]) {
+trait Diff[A] {
+  def before: A
+  def after: A
+  def tag: ElementaryDiffTag
+  def changed: Boolean = tag != Unchanged
+  def different: Boolean = tag == Different
+}
+
+case class ElementDiff[A](before: A, after: A) extends Diff[A] {
+  lazy val tag: ElementaryDiffTag = ElementaryDiffTag(before, after)
+}
+
+case class Tuple2Diff[A1, A2](diff1: Diff[A1], diff2: Diff[A2]) extends Diff[(A1, A2)] {
+  override def before: (A1, A2) = (diff1.before, diff2.before)
+  override def after: (A1, A2) = (diff1.after, diff2.after)
+
+  lazy val tag: ElementaryDiffTag = (diff1.tag, diff2.tag) match {
+    case (tag1, tag2) if tag1 == tag2 => tag1
+    case (tag1, Unchanged) => tag1
+    case (Unchanged, tag2) => tag2
+    case _ => Changed
+  }
+}
+
+case class Tuple3Diff[A1, A2, A3](diff1: Diff[A1], diff2: Diff[A2], diff3: Diff[A3]) extends Diff[(A1, A2, A3)] {
+  override def before: (A1, A2, A3) = (diff1.before, diff2.before, diff3.before)
+  override def after: (A1, A2, A3) = (diff1.after, diff2.after, diff3.after)
+
+  lazy val tag: ElementaryDiffTag = (diff1.tag, diff2.tag, diff3.tag) match {
+    case (tag1, tag2, tag3) if tag1 == tag2 && tag2 == tag3 => tag1
+    case (tag1, tag2, Unchanged) if tag1 == tag2 => tag1
+    case (tag1, Unchanged, tag3) if tag1 == tag3 => tag1
+    case (Unchanged, tag2, tag3) if tag2 == tag3 => tag2
+    case (tag1, Unchanged, Unchanged) => tag1
+    case (Unchanged, tag2, Unchanged) => tag2
+    case (Unchanged, Unchanged, tag3) => tag3
+    case _ => Changed
+  }
+}
+
+case class SetDiff[A](before: Set[A], after: Set[A]) extends Diff[Set[A]] {
   lazy val unchangedElements: Set[A] = before intersect after
   lazy val removedElements: Set[A] = before diff unchangedElements
   lazy val addedElements: Set[A] = after diff unchangedElements
@@ -59,28 +100,22 @@ case class SetDiff[A](before: Set[A], after: Set[A]) {
       removedElements.map(_ -> ElementaryDiffTag.Removed).toMap ++
       addedElements.map(_ -> ElementaryDiffTag.Added).toMap
     )
-  lazy val tag = ElementaryDiffTag(changed)
-  def changed: Boolean = removedElements.nonEmpty || addedElements.nonEmpty
+  lazy val tag = ElementaryDiffTag(removedElements.nonEmpty || addedElements.nonEmpty)
 }
 
-case class DeepSetDiff[A, B](before: Set[A], after: Set[A],
-                      elementDiff: (A, A) => B,
-                      different: B => Boolean) {
+case class DeepSetDiff[A, B <: Diff[A]](before: Set[A], after: Set[A], elementDiff: (A, A) => B) extends Diff[Set[A]] {
   lazy val unchangedElements: Set[A] = before intersect after
   lazy val removedOrChangedElements: Set[A] = before diff unchangedElements
   lazy val addedOrChangedElements: Set[A] = after diff unchangedElements
 
-  lazy val removedElements: Set[A] = removedOrChangedElements.filter(b => addedOrChangedElements.forall(a => different(elementDiff(b, a))))
-  lazy val addedElements: Set[A] = addedOrChangedElements.filter(b => removedOrChangedElements.forall(a => different(elementDiff(b, a))))
+  lazy val removedElements: Set[A] = removedOrChangedElements.filter(b => addedOrChangedElements.forall(a => elementDiff(b, a).different))
+  lazy val addedElements: Set[A] = addedOrChangedElements.filter(b => removedOrChangedElements.forall(a => elementDiff(b, a).different))
 
   lazy val changedElementsInBefore: Set[A] = removedOrChangedElements -- removedElements
   lazy val changedElementsInAfter: Set[A] = addedOrChangedElements -- addedElements
 
-  lazy val allChangedElements: Set[(A, A, B)] = changedElementsInBefore.flatMap(
-    b => changedElementsInAfter.map(a => (b, a, elementDiff(b, a))).filter {
-      case (_, _, d) if different(d) => false
-      case _ => true
-    }
+  lazy val allChangedElements: Set[B] = changedElementsInBefore.flatMap(
+    b => changedElementsInAfter.map(a => elementDiff(b, a)).filterNot(_.different)
   )
 
   lazy val elementTags: Map[A, ElementaryDiffTag] = (
@@ -90,33 +125,34 @@ case class DeepSetDiff[A, B](before: Set[A], after: Set[A],
       changedElementsInBefore.map(_ -> ElementaryDiffTag.Changed).toMap ++
       changedElementsInAfter.map(_ -> ElementaryDiffTag.Changed).toMap
     )
-  lazy val tag = ElementaryDiffTag(changed)
-  def changed: Boolean = removedElements.nonEmpty || addedElements.nonEmpty || changedElementsInBefore.nonEmpty || changedElementsInAfter.nonEmpty
+  lazy val tag =
+    if(removedElements == before && addedElements == after)
+      ElementaryDiffTag.Different
+    else
+      ElementaryDiffTag(removedElements.nonEmpty || addedElements.nonEmpty || changedElementsInBefore.nonEmpty || changedElementsInAfter.nonEmpty)
 }
 
-case class TreePathDiff[A](before: List[A], after: List[A]) {
+case class TreePathDiff[A](before: List[A], after: List[A]) extends Diff[List[A]] {
   lazy val changeHead: Option[Int] = before.zip(after).map(p => p._1 != p._2).
     indexWhere(b => b) match {
       case ix if ix < 0 => None
       case ix => Some(ix)
     }
-  lazy val tag = ElementaryDiffTag(changed)
-  def changed: Boolean = changeHead.nonEmpty
+  lazy val tag = ElementaryDiffTag(changeHead.nonEmpty)
 }
 
-trait ListDiff[A] {
+trait ListDiff[A] extends Diff[List[A]] {
   def before: List[A]
   def after: List[A]
-  def paired: List[(Option[A], ElementaryDiffTag, Option[A])]
-  lazy val tag = ElementaryDiffTag(changed)
-  def changed: Boolean = before != after
+  def paired: List[ElementDiff[Option[A]]]
+  lazy val tag = ElementaryDiffTag(before != after)
 }
 
 case class SimpleListTopDownDiff[A](before: List[A], after: List[A]) extends ListDiff[A] {
   private def beforeSome: List[Some[A]] = before.map(Some(_))
   private def afterSome: List[Some[A]] = after.map(Some(_))
-  lazy val paired: List[(Option[A], ElementaryDiffTag, Option[A])] = beforeSome.zipAll(afterSome, None, None).map(
-    p => (p._1, ElementaryDiffTag(p), p._2)
+  lazy val paired: List[ElementDiff[Option[A]]] = beforeSome.zipAll(afterSome, None, None).map(
+    p => ElementDiff(p._1, p._2)
   )
 }
 
@@ -149,14 +185,13 @@ case class LCSbasedListDiff[A](before: List[A], after: List[A]) extends ListDiff
     lcs(before.zipWithIndex, after.zipWithIndex, eq)
   }
 
-  lazy val paired: List[(Option[A], ElementaryDiffTag, Option[A])] = {
+  lazy val paired: List[ElementDiff[Option[A]]] = {
     val lcsPairs = lcsSteps(before, after, (b, a) => b == a)
     val lcsPairWindows = ((-1, -1), lcsPairs.head) :: lcsPairs.zip(lcsPairs drop 1)
     lcsPairWindows.flatMap {
       case ((bIxPrec, aIxPrec), (bIx, aIx)) =>
         val paired = SimpleListTopDownDiff(before.slice(bIxPrec + 1, bIx), after.slice(aIxPrec + 1, aIx)).paired
-        val p: (Option[A], Option[A]) = (Some(before(bIx)), Some(after(aIx)))
-        paired :+ (p._1, ElementaryDiffTag(p), p._2)
+        paired :+ ElementDiff[Option[A]](Some(before(bIx)), Some(after(aIx)))
     }
   }
 }

@@ -38,7 +38,6 @@ import org.opencypher.tools.tck.inspection.collect.Total
 import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
 import org.opencypher.tools.tck.inspection.diff.GroupDiff
 import org.opencypher.tools.tck.inspection.diff.ScenarioDiff
-import org.opencypher.tools.tck.inspection.diff.ScenarioDiffTag._
 
 /*
  * This is a tiny tool to count TCK scenarios in the list returned by `CypherTCK.allTckScenarios`.
@@ -119,11 +118,11 @@ case object CountScenarios {
       val thisOutputLine = "%s%s%10d%12d%14d%7d%9d".format(
         thisOutput,
         " " * (maxOutputLength - thisOutput.length),
-        diffs.get(currentGroup).map(_.unchanged.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.moved.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.changed.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.added.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.removed.size).getOrElse(0)
+        diffs.get(currentGroup).map(_.unchangedScenarios.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.movedScenarios.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.changedScenarios.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.addedScenarios.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.removedScenarios.size).getOrElse(0)
       )
       // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
       val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{
@@ -160,11 +159,11 @@ case object CountScenarios {
       val thisOutput = outputs(currentGroup)
       val thisOutputLine = "%s | %d | %d | %d | %d | %d".format(
         thisOutput,
-        diffs.get(currentGroup).map(_.unchanged.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.changed.count(_._3 == Set(Moved))).getOrElse(0),
-        diffs.get(currentGroup).map(_.changed.count(_._3 != Set(Moved))).getOrElse(0),
-        diffs.get(currentGroup).map(_.added.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.removed.size).getOrElse(0)
+        diffs.get(currentGroup).map(_.unchangedScenarios.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.movedScenarios.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.changedScenarios.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.addedScenarios.size).getOrElse(0),
+        diffs.get(currentGroup).map(_.removedScenarios.size).getOrElse(0)
       )
       // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
       val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{

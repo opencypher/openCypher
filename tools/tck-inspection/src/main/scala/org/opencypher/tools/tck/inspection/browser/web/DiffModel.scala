@@ -67,11 +67,11 @@ case class DiffModel(beforePath: String, afterPath: String) {
   val diffs: Map[Group, GroupDiff] = GroupCollectionDiff(before, after)
 
   val scenario2Collection: Map[Scenario, TckCollection] =
-    diffs(Total).unchanged.map(_ -> BothCollections).toMap ++
-      diffs(Total).moved.flatMap { case (b, a, _) => Map(b -> BeforeCollection, a -> AfterCollection) } ++
-      diffs(Total).changed.flatMap { case (b, a, _) => Map(b -> BeforeCollection, a -> AfterCollection) } ++
-      diffs(Total).added.map(_ -> AfterCollection).toMap ++
-      diffs(Total).removed.map(_ -> BeforeCollection).toMap
+    diffs(Total).unchangedScenarios.map(_ -> BothCollections).toMap ++
+      diffs(Total).movedScenarios.flatMap { case d => Map(d.before -> BeforeCollection, d.after -> AfterCollection) } ++
+      diffs(Total).changedScenarios.flatMap { case d => Map(d.before -> BeforeCollection, d.after -> AfterCollection) } ++
+      diffs(Total).addedScenarios.map(_ -> AfterCollection).toMap ++
+      diffs(Total).removedScenarios.map(_ -> BeforeCollection).toMap
 
   val (groupId2Group, group2GroupId) = {
     val groupList = diffs.keySet.toIndexedSeq
