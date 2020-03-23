@@ -127,7 +127,7 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     val afterPathEnc = URLEncoder.encode(afterTckDir.toString, StandardCharsets.UTF_8.toString)
 
     (beforeCheckoutResult, afterCheckoutResult) match {
-      case (None, None) => cask.Redirect(s"/diff/$beforePathEnc/$afterPathEnc")
+      case (None, None) => redirect(s"/diff/$beforePathEnc/$afterPathEnc")
       case (beforeCheckoutResult, afterCheckoutResult) => cask.Response(
         error(
           p("Cannot checkout repos"),
@@ -160,7 +160,7 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   def diffPaths(before: String, after: String): Response[String] = {
     val beforePathEnc = URLEncoder.encode(before, StandardCharsets.UTF_8.toString)
     val afterPathEnc = URLEncoder.encode(after, StandardCharsets.UTF_8.toString)
-    cask.Redirect(s"/diff/$beforePathEnc/$afterPathEnc")
+    redirect(s"/diff/$beforePathEnc/$afterPathEnc")
   }
   @cask.get("/browserRepositoryCommit")
   def browserRepositoryCommit(repo: String, commit: String, subPath: String): Response[String] = {
@@ -170,7 +170,7 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     val pathEnc = URLEncoder.encode(tckDir.toString, StandardCharsets.UTF_8.toString)
 
     checkoutResult match {
-      case None => cask.Redirect(s"/browser/$pathEnc")
+      case None => redirect(s"/browser/$pathEnc")
       case Some(frag) => cask.Response(
         error(
           p("Cannot checkout repo"),
@@ -183,12 +183,19 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   @cask.get("/browserPath")
   def browserPath(path: String): Response[String] = {
     val pathEnc = URLEncoder.encode(path, StandardCharsets.UTF_8.toString)
-    cask.Redirect(s"/browser/$pathEnc")
+    redirect(s"/browser/$pathEnc")
   }
+
+  private def redirect(url: String): Response[String] = cask.Response("", statusCode = 307, Seq("Location" -> url), Nil)
 
   initialize()
 }
 
 object TckBrowserWeb extends cask.Main {
   val allRoutes = Seq(MainRoutes(), BrowserRoutes(), DiffRoutes())
+
+  override def main(args: Array[String]): Unit = {
+    super.main(args)
+    println("Open your browser at http://localhost:8080")
+  }
 }
