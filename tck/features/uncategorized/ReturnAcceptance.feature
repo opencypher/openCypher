@@ -30,23 +30,6 @@
 
 Feature: ReturnAcceptanceTest
 
-  Scenario: Allow addition
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({id: 1337, version: 99})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      WHERE a.id = 1337
-      RETURN a.version + 5
-      """
-    Then the result should be, in any order:
-      | a.version + 5 |
-      | 104           |
-    And no side effects
-
   Scenario: Limit to two hits
     Given an empty graph
     When executing query:
@@ -261,28 +244,6 @@ Feature: ReturnAcceptanceTest
       | (:B) |
     And no side effects
 
-  Scenario: Arithmetic precedence test
-    Given any graph
-    When executing query:
-      """
-      RETURN 12 / 4 * 3 - 2 * 4
-      """
-    Then the result should be, in any order:
-      | 12 / 4 * 3 - 2 * 4 |
-      | 1                  |
-    And no side effects
-
-  Scenario: Arithmetic precedence with parenthesis test
-    Given any graph
-    When executing query:
-      """
-      RETURN 12 / 4 * (3 - 2 * 4)
-      """
-    Then the result should be, in any order:
-      | 12 / 4 * (3 - 2 * 4) |
-      | -15                  |
-    And no side effects
-
   Scenario: Count star should count everything in scope
     Given an empty graph
     And having executed:
@@ -302,13 +263,3 @@ Feature: ReturnAcceptanceTest
       | (:L3) | 1        |
     And no side effects
 
-  Scenario: Absolute function
-    Given any graph
-    When executing query:
-      """
-      RETURN abs(-1)
-      """
-    Then the result should be, in any order:
-      | abs(-1) |
-      | 1       |
-    And no side effects
