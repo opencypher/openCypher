@@ -181,17 +181,6 @@ Feature: ReturnAcceptance2
       | (:Start) | () | <(:Start)-[:T]->()> |
     And no side effects
 
-  Scenario: `sqrt()` returning float values
-    Given any graph
-    When executing query:
-      """
-      RETURN sqrt(12.96)
-      """
-    Then the result should be, in any order:
-      | sqrt(12.96) |
-      | 3.6         |
-    And no side effects
-
   Scenario: Arithmetic expressions inside aggregation
     Given an empty graph
     And having executed:

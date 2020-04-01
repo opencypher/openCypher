@@ -29,3 +29,14 @@
 #encoding: utf-8
 
 Feature: SignedNumbersFunctions
+
+  Scenario: Absolute function
+    Given any graph
+    When executing query:
+      """
+      RETURN abs(-1)
+      """
+    Then the result should be, in any order:
+      | abs(-1) |
+      | 1       |
+    And no side effects
