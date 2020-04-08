@@ -36,7 +36,7 @@ Feature: Literals3 - Float
       """
       RETURN 1.0 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 1.0     |
     And no side effects
@@ -47,7 +47,7 @@ Feature: Literals3 - Float
       """
       RETURN .1 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 0.1     |
     And no side effects
@@ -58,7 +58,7 @@ Feature: Literals3 - Float
       """
       RETURN 3985764.3405892687 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal            |
       | 3985764.3405892686 |
     And no side effects
@@ -69,7 +69,7 @@ Feature: Literals3 - Float
       """
       RETURN .3405892687 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal      |
       | 0.3405892687 |
     And no side effects
@@ -80,7 +80,7 @@ Feature: Literals3 - Float
       """
       RETURN 126354186523812635418263552340512384016094862983471987543918591348961093487896783409268730945879405123840160948812635418265234051238401609486298347198754391859134896109348789678340926873094587962983471812635265234051238401609486298348126354182652340512384016094862983471987543918591348961093487896783409218.0 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal                   |
       | 1.2635418652381264e+305.0 |
     And no side effects
@@ -91,7 +91,7 @@ Feature: Literals3 - Float
       """
       RETURN .00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 1e-305  |
     And no side effects
@@ -102,7 +102,7 @@ Feature: Literals3 - Float
       """
       RETURN 0.0 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 0.0     |
     And no side effects
@@ -113,7 +113,7 @@ Feature: Literals3 - Float
       """
       RETURN .0 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 0.0     |
     And no side effects
@@ -124,7 +124,7 @@ Feature: Literals3 - Float
       """
       RETURN -0.0 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 0.0     |
     And no side effects
@@ -135,7 +135,7 @@ Feature: Literals3 - Float
       """
       RETURN -.0 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 0.0     |
     And no side effects
@@ -146,7 +146,7 @@ Feature: Literals3 - Float
       """
       RETURN -126354186523812635418263552340512384016094862983471987543918591348961093487896783409268730945879405123840160948812635418265234051238401609486298347198754391859134896109348789678340926873094587962983471812635265234051238401609486298348126354182652340512384016094862983471987543918591348961093487896783409218.0 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal                    |
       | -1.2635418652381264e+305.0 |
     And no side effects
@@ -157,7 +157,7 @@ Feature: Literals3 - Float
       """
       RETURN -.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | -1e-305 |
     And no side effects
@@ -168,7 +168,7 @@ Feature: Literals3 - Float
       """
       RETURN 1e9 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal      |
       | 1000000000.0 |
     And no side effects
@@ -179,7 +179,7 @@ Feature: Literals3 - Float
       """
       RETURN 1E9 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal      |
       | 1000000000.0 |
     And no side effects
@@ -190,7 +190,7 @@ Feature: Literals3 - Float
       """
       RETURN .1e9 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal     |
       | 100000000.0 |
     And no side effects
@@ -201,7 +201,7 @@ Feature: Literals3 - Float
       """
       RETURN 1e-5 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 0.00001 |
     And no side effects
@@ -212,7 +212,7 @@ Feature: Literals3 - Float
       """
       RETURN .1e-5 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal  |
       | 0.000001 |
     And no side effects
@@ -223,7 +223,7 @@ Feature: Literals3 - Float
       """
       RETURN .1E-5 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal  |
       | 0.000001 |
     And no side effects
@@ -234,7 +234,7 @@ Feature: Literals3 - Float
       """
       RETURN -1e9 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal       |
       | -1000000000.0 |
     And no side effects
@@ -245,7 +245,7 @@ Feature: Literals3 - Float
       """
       RETURN -1E9 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal       |
       | -1000000000.0 |
     And no side effects
@@ -256,7 +256,7 @@ Feature: Literals3 - Float
       """
       RETURN -.1e9 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal      |
       | -100000000.0 |
     And no side effects
@@ -267,7 +267,7 @@ Feature: Literals3 - Float
       """
       RETURN -1e-5 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal  |
       | -0.00001 |
     And no side effects
@@ -278,7 +278,7 @@ Feature: Literals3 - Float
       """
       RETURN -.1e-5 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal   |
       | -0.000001 |
     And no side effects
@@ -289,7 +289,7 @@ Feature: Literals3 - Float
       """
       RETURN -.1E-5 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal   |
       | -0.000001 |
     And no side effects
@@ -300,7 +300,7 @@ Feature: Literals3 - Float
       """
       RETURN 1e308 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal  |
       | 1e+308.0 |
     And no side effects
@@ -311,7 +311,7 @@ Feature: Literals3 - Float
       """
       RETURN 123456789e300 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal           |
       | 1.23456789e+308.0 |
     And no side effects
