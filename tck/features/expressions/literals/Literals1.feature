@@ -36,7 +36,7 @@ Feature: Literals1 - Boolean and Null
       """
       RETURN true AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | true    |
     And no side effects
@@ -47,7 +47,7 @@ Feature: Literals1 - Boolean and Null
 #      """
 #      RETURN TRUE AS literal
 #      """
-#    Then the result should be:
+#    Then the result should be, in any order:
 #      | literal |
 #      | true    |
 #    And no side effects
@@ -58,7 +58,7 @@ Feature: Literals1 - Boolean and Null
       """
       RETURN false AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | false    |
     And no side effects
@@ -69,7 +69,7 @@ Feature: Literals1 - Boolean and Null
 #      """
 #      RETURN FALSE AS literal
 #      """
-#    Then the result should be:
+#    Then the result should be, in any order:
 #      | literal |
 #      | false    |
 #    And no side effects
@@ -80,7 +80,7 @@ Feature: Literals1 - Boolean and Null
       """
       RETURN null AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | null    |
     And no side effects
@@ -91,7 +91,7 @@ Feature: Literals1 - Boolean and Null
 #      """
 #      RETURN NULL AS literal
 #      """
-#    Then the result should be:
+#    Then the result should be, in any order:
 #      | literal |
 #      | null    |
 #    And no side effects
