@@ -36,7 +36,7 @@ Feature: Literals2 - Integer
       """
       RETURN 1 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 1       |
     And no side effects
@@ -47,7 +47,7 @@ Feature: Literals2 - Integer
       """
       RETURN 372036854 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal    |
       | 372036854  |
     And no side effects
@@ -58,7 +58,7 @@ Feature: Literals2 - Integer
       """
       RETURN 9223372036854775807 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal              |
       | 9223372036854775807  |
     And no side effects
@@ -69,7 +69,7 @@ Feature: Literals2 - Integer
       """
       RETURN 0 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 0       |
     And no side effects
@@ -80,7 +80,7 @@ Feature: Literals2 - Integer
       """
       RETURN -0 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 0       |
     And no side effects
@@ -91,7 +91,7 @@ Feature: Literals2 - Integer
       """
       RETURN -1 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | -1      |
     And no side effects
@@ -102,7 +102,7 @@ Feature: Literals2 - Integer
       """
       RETURN -372036854 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal    |
       | -372036854 |
     And no side effects
@@ -113,7 +113,7 @@ Feature: Literals2 - Integer
       """
       RETURN -9223372036854775808 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal              |
       | -9223372036854775808 |
     And no side effects
@@ -124,7 +124,7 @@ Feature: Literals2 - Integer
       """
       RETURN 0x1 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 1       |
     And no side effects
@@ -135,7 +135,7 @@ Feature: Literals2 - Integer
       """
       RETURN 0x162CD4F6 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal    |
       | 372036854  |
     And no side effects
@@ -146,7 +146,7 @@ Feature: Literals2 - Integer
       """
       RETURN 0x7FFFFFFFFFFFFFFF AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal              |
       | 9223372036854775807  |
     And no side effects
@@ -157,7 +157,7 @@ Feature: Literals2 - Integer
       """
       RETURN 0x0 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 0       |
     And no side effects
@@ -168,7 +168,7 @@ Feature: Literals2 - Integer
       """
       RETURN -0x0 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 0       |
     And no side effects
@@ -179,7 +179,7 @@ Feature: Literals2 - Integer
       """
       RETURN -0x1 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | -1      |
     And no side effects
@@ -190,7 +190,7 @@ Feature: Literals2 - Integer
       """
       RETURN -0x162CD4F6 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal    |
       | -372036854 |
     And no side effects
@@ -201,7 +201,7 @@ Feature: Literals2 - Integer
       """
       RETURN -0x8000000000000000 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal              |
       | -9223372036854775808 |
     And no side effects
@@ -212,7 +212,7 @@ Feature: Literals2 - Integer
       """
       RETURN 0x1a2b3c4d5e6f7 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal         |
       | 460367961908983 |
     And no side effects
@@ -223,7 +223,7 @@ Feature: Literals2 - Integer
       """
       RETURN 0x1A2B3C4D5E6F7 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal         |
       | 460367961908983 |
     And no side effects
@@ -234,7 +234,7 @@ Feature: Literals2 - Integer
       """
       RETURN 0x1A2b3c4D5E6f7 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal         |
       | 460367961908983 |
     And no side effects
@@ -245,7 +245,7 @@ Feature: Literals2 - Integer
       """
       RETURN 01 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 1       |
     And no side effects
@@ -256,7 +256,7 @@ Feature: Literals2 - Integer
       """
       RETURN 02613152366 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal    |
       | 372036854  |
     And no side effects
@@ -267,7 +267,7 @@ Feature: Literals2 - Integer
       """
       RETURN 0777777777777777777777 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal              |
       | 9223372036854775807  |
     And no side effects
@@ -278,7 +278,7 @@ Feature: Literals2 - Integer
       """
       RETURN 00 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 0       |
     And no side effects
@@ -289,7 +289,7 @@ Feature: Literals2 - Integer
       """
       RETURN -00 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | 0       |
     And no side effects
@@ -300,7 +300,7 @@ Feature: Literals2 - Integer
       """
       RETURN -01 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal |
       | -1      |
     And no side effects
@@ -311,7 +311,7 @@ Feature: Literals2 - Integer
       """
       RETURN -02613152366 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal    |
       | -372036854 |
     And no side effects
@@ -322,7 +322,7 @@ Feature: Literals2 - Integer
       """
       RETURN -01000000000000000000000 AS literal
       """
-    Then the result should be:
+    Then the result should be, in any order:
       | literal              |
       | -9223372036854775808 |
     And no side effects
