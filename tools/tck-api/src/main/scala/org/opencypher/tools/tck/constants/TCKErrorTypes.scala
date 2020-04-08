@@ -98,6 +98,7 @@ object TCKErrorDetails {
   val MISSING_PARAMETER = "MissingParameter"
   val PROCEDURE_NOT_FOUND = "ProcedureNotFound"
   val UNEXPECTED_SYNTAX = "UnexpectedSyntax"
+  val INTEGER_OVERFLOW = "IntegerOverflow"
 
   val ALL = Set(INVALID_ELEMENT_ACCESS,
                 MAP_ELEMENT_ACCESS_BY_NON_STRING,
@@ -139,5 +140,6 @@ object TCKErrorDetails {
                 MISSING_PARAMETER,
                 PROCEDURE_NOT_FOUND,
                 DELETED_ENTITY_ACCESS,
-                UNEXPECTED_SYNTAX)
+                UNEXPECTED_SYNTAX,
+                INTEGER_OVERFLOW)
 }
