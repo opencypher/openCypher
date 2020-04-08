@@ -58,6 +58,7 @@ Feature: ColumnNameAcceptance
       | nOdEs( p ) |
     And no side effects
 
+  @withIntentionalStyleViolation
   Scenario: Keeping used expression 3
     When executing query:
       """
