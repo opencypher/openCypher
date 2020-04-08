@@ -218,6 +218,7 @@ Feature: Literals5 - List
       | [null, [' a ', ' '], ' [ a ', ' [ ], ] ', ' [ ', [' '], ' ] '] |
     And no side effects
 
+  @withIntentionalStyleViolation
   Scenario: [18] Return a complex list containing multiple mixed and nested values
     Given any graph
     When executing query:

@@ -163,7 +163,7 @@ Feature: Literals7 - Negative tests
     Given any graph
     When executing query:
       """
-      RETURN {k1#k:1} AS literal
+      RETURN {k1#k: 1} AS literal
       """
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
@@ -171,7 +171,7 @@ Feature: Literals7 - Negative tests
     Given any graph
     When executing query:
       """
-      RETURN {k1.k:1} AS literal
+      RETURN {k1.k: 1} AS literal
       """
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
@@ -179,7 +179,7 @@ Feature: Literals7 - Negative tests
     Given any graph
     When executing query:
       """
-      RETURN {k1:k2} AS literal
+      RETURN {k1: k2} AS literal
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
@@ -219,6 +219,6 @@ Feature: Literals7 - Negative tests
     Given any graph
     When executing query:
       """
-      RETURN {k:{k:{}} AS literal
+      RETURN {k: {k: {}} AS literal
       """
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
