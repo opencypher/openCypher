@@ -45,165 +45,165 @@ Feature: Literals6 - Maps
     Given any graph
     When executing query:
       """
-      RETURN {abc:1} AS literal
+      RETURN {abc: 1} AS literal
       """
     Then the result should be, in any order:
       | literal |
-      | {abc:1} |
+      | {abc: 1} |
     And no side effects
 
   Scenario: [3] Return a map containing one value with alphabetic upper case key
     Given any graph
     When executing query:
       """
-      RETURN {ABC:1} AS literal
+      RETURN {ABC: 1} AS literal
       """
     Then the result should be, in any order:
       | literal |
-      | {ABC:1} |
+      | {ABC: 1} |
     And no side effects
 
   Scenario: [4] Return a map containing one value with alphabetic mixed case key
     Given any graph
     When executing query:
       """
-      RETURN {aBCdeF:1} AS literal
+      RETURN {aBCdeF: 1} AS literal
       """
     Then the result should be, in any order:
       | literal    |
-      | {aBCdeF:1} |
+      | {aBCdeF: 1} |
     And no side effects
 
   Scenario: [5] Return a map containing one value with alphanumeric mixed case key
     Given any graph
     When executing query:
       """
-      RETURN {a1B2c3e67:1} AS literal
+      RETURN {a1B2c3e67: 1} AS literal
       """
     Then the result should be, in any order:
       | literal       |
-      | {a1B2c3e67:1} |
+      | {a1B2c3e67: 1} |
     And no side effects
 
   Scenario: [6] Return a map containing a boolean
     Given any graph
     When executing query:
       """
-      RETURN {k:false} AS literal
+      RETURN {k: false} AS literal
       """
     Then the result should be, in any order:
       | literal   |
-      | {k:false} |
+      | {k: false} |
     And no side effects
 
   Scenario: [7] Return a map containing a null
     Given any graph
     When executing query:
       """
-      RETURN {k:null} AS literal
+      RETURN {k: null} AS literal
       """
     Then the result should be, in any order:
       | literal  |
-      | {k:null} |
+      | {k: null} |
     And no side effects
 
   Scenario: [8] Return a map containing a integer
     Given any graph
     When executing query:
       """
-      RETURN {k:1} AS literal
+      RETURN {k: 1} AS literal
       """
     Then the result should be, in any order:
       | literal |
-      | {k:1}   |
+      | {k: 1}   |
     And no side effects
 
   Scenario: [9] Return a map containing a hexadecimal integer
     Given any graph
     When executing query:
       """
-      RETURN {F:-0x162CD4F6} AS literal
+      RETURN {F: -0x162CD4F6} AS literal
       """
     Then the result should be, in any order:
       | literal        |
-      | {F:-372036854} |
+      | {F: -372036854} |
     And no side effects
 
   Scenario: [10] Return a map containing a octal integer
     Given any graph
     When executing query:
       """
-      RETURN {k:02613152366} AS literal
+      RETURN {k: 02613152366} AS literal
       """
     Then the result should be, in any order:
       | literal       |
-      | {k:372036854} |
+      | {k: 372036854} |
     And no side effects
 
   Scenario: [11] Return a map containing a float
     Given any graph
     When executing query:
       """
-      RETURN {k:-.1e-5} AS literal
+      RETURN {k: -.1e-5} AS literal
       """
     Then the result should be, in any order:
       | literal       |
-      | {k:-0.000001} |
+      | {k: -0.000001} |
     And no side effects
 
   Scenario: [12] Return a map containing a string
     Given any graph
     When executing query:
       """
-      RETURN {k:'ab:c, as#?lßdj '} AS literal
+      RETURN {k: 'ab: c, as#?lßdj '} AS literal
       """
     Then the result should be, in any order:
       | literal               |
-      | {k:'ab:c, as#?lßdj '} |
+      | {k: 'ab: c, as#?lßdj '} |
     And no side effects
 
   Scenario: [13] Return a map containing an empty map
     Given any graph
     When executing query:
       """
-      RETURN {a:{}} AS literal
+      RETURN {a: {}} AS literal
       """
     Then the result should be, in any order:
       | literal |
-      | {a:{}}  |
+      | {a: {}}  |
     And no side effects
 
   Scenario: [14] Return seven-deep nested maps
     Given any graph
     When executing query:
       """
-      RETURN {a1:{a2:{a3:{a4:{a5:{a6:{}}}}}}} AS literal
+      RETURN {a1: {a2: {a3: {a4: {a5: {a6: {}}}}}}} AS literal
       """
     Then the result should be, in any order:
       | literal                          |
-      | {a1:{a2:{a3:{a4:{a5:{a6:{}}}}}}} |
+      | {a1: {a2: {a3: {a4: {a5: {a6: {}}}}}}} |
     And no side effects
 
   Scenario: [15] Return 20-deep nested maps
     Given any graph
     When executing query:
       """
-      RETURN {a1:{a2:{a3:{a4:{a5:{a6:{a7:{a8:{a9:{a10:{a11:{a12:{a13:{a14:{a15:{a16:{a17:{a18:{a19:{}}}}}}}}}}}}}}}}}}}} AS literal
+      RETURN {a1: {a2: {a3: {a4: {a5: {a6: {a7: {a8: {a9: {a10: {a11: {a12: {a13: {a14: {a15: {a16: {a17: {a18: {a19: {}}}}}}}}}}}}}}}}}}}} AS literal
       """
     Then the result should be, in any order:
       | literal                                                                                                     |
-      | {a1:{a2:{a3:{a4:{a5:{a6:{a7:{a8:{a9:{a10:{a11:{a12:{a13:{a14:{a15:{a16:{a17:{a18:{a19:{}}}}}}}}}}}}}}}}}}}} |
+      | {a1: {a2: {a3: {a4: {a5: {a6: {a7: {a8: {a9: {a10: {a11: {a12: {a13: {a14: {a15: {a16: {a17: {a18: {a19: {}}}}}}}}}}}}}}}}}}}} |
     And no side effects
 
   Scenario: [16] Return 40-deep nested maps
     Given any graph
     When executing query:
       """
-      RETURN {a1:{a2:{a3:{a4:{a5:{a6:{a7:{a8:{a9:{a10:{a11:{a12:{a13:{a14:{a15:{a16:{a17:{a18:{a19:{a20:{a21:{a22:{a23:{a24:{a25:{a26:{a27:{a28:{a29:{a30:{a31:{a32:{a33:{a34:{a35:{a36:{a37:{a38:{a39:{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} AS literal
+      RETURN {a1: {a2: {a3: {a4: {a5: {a6: {a7: {a8: {a9: {a10: {a11: {a12: {a13: {a14: {a15: {a16: {a17: {a18: {a19: {a20: {a21: {a22: {a23: {a24: {a25: {a26: {a27: {a28: {a29: {a30: {a31: {a32: {a33: {a34: {a35: {a36: {a37: {a38: {a39: {}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} AS literal
       """
     Then the result should be, in any order:
       | literal                                                                                                                                                                                                                             |
-      | {a1:{a2:{a3:{a4:{a5:{a6:{a7:{a8:{a9:{a10:{a11:{a12:{a13:{a14:{a15:{a16:{a17:{a18:{a19:{a20:{a21:{a22:{a23:{a24:{a25:{a26:{a27:{a28:{a29:{a30:{a31:{a32:{a33:{a34:{a35:{a36:{a37:{a38:{a39:{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} |
+      | {a1: {a2: {a3: {a4: {a5: {a6: {a7: {a8: {a9: {a10: {a11: {a12: {a13: {a14: {a15: {a16: {a17: {a18: {a19: {a20: {a21: {a22: {a23: {a24: {a25: {a26: {a27: {a28: {a29: {a30: {a31: {a32: {a33: {a34: {a35: {a36: {a37: {a38: {a39: {}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} |
     And no side effects
 
   Scenario: [17] Return a map containing real and fake nested maps
@@ -214,9 +214,10 @@ Feature: Literals6 - Maps
       """
     Then the result should be, in any order:
       | literal                           |
-      | {a:' { b : ', c:{d:' '}, d:' } '} |
+      | {a:' { b : ', c: {d:' '}, d:' } '} |
     And no side effects
 
+  @withIntentionalStyleViolation
   Scenario: [18] Return a complex map containing multiple mixed and nested values
     Given any graph
     When executing query:
