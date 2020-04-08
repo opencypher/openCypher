@@ -82,7 +82,7 @@ Feature: Literals3 - Float
       """
     Then the result should be, in any order:
       | literal                   |
-      | 1.2635418652381264e+305.0 |
+      | 1.2635418652381264e305 |
     And no side effects
 
   Scenario: [6] Return a very long positive float without integer digits
@@ -148,7 +148,7 @@ Feature: Literals3 - Float
       """
     Then the result should be, in any order:
       | literal                    |
-      | -1.2635418652381264e+305.0 |
+      | -1.2635418652381264e305 |
     And no side effects
 
   Scenario: [12] Return a very long negative float without integer digits
@@ -301,8 +301,8 @@ Feature: Literals3 - Float
       RETURN 1e308 AS literal
       """
     Then the result should be, in any order:
-      | literal  |
-      | 1e+308.0 |
+      | literal |
+      | 1e308   |
     And no side effects
 
   Scenario: [26] Return a positive float with nine integer digit and maximum positive exponent
@@ -312,6 +312,6 @@ Feature: Literals3 - Float
       RETURN 123456789e300 AS literal
       """
     Then the result should be, in any order:
-      | literal           |
-      | 1.23456789e+308.0 |
+      | literal        |
+      | 1.23456789e308 |
     And no side effects
