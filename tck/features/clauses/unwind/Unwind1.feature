@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: UnwindAcceptance
+Feature: Unwind1
 
   Scenario: Unwinding a list
     Given any graph
