@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tck-inspection</artifactId>
+    <artifactId>tck-inspection_2.12</artifactId>
     <name>openCypher TCK Inspection</name>
     <url>http://opencypher.org</url>
     <description>Tools for inspecting openCypher TCK scenarios</description>
