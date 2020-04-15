@@ -30,7 +30,7 @@
 
 Feature: List9 - List Tail
 
-  Scenario: Returning nested expressions based on list property
+  Scenario: [1] Returning nested expressions based on list property
     Given an empty graph
     And having executed:
       """

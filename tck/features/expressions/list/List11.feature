@@ -30,7 +30,7 @@
 
 Feature: List11 - List Comprehension
 
-  Scenario: Collect and extract using a list comprehension
+  Scenario: [1] Collect and extract using a list comprehension
     Given an empty graph
     And having executed:
       """
@@ -52,7 +52,7 @@ Feature: List11 - List Comprehension
       | +properties | 1 |
       | -properties | 1 |
 
-  Scenario: Collect and filter using a list comprehension
+  Scenario: [2] Collect and filter using a list comprehension
     Given an empty graph
     And having executed:
       """
@@ -74,7 +74,7 @@ Feature: List11 - List Comprehension
       | +properties | 1 |
       | -properties | 1 |
 
-  Scenario: Size of list comprehension
+  Scenario: [3] Size of list comprehension
     Given an empty graph
     When executing query:
       """

@@ -30,7 +30,7 @@
 
 Feature: List5 - List Membership Validation - IN Operator
 
-  Scenario: IN should work with nested list subscripting
+  Scenario: [1] IN should work with nested list subscripting
     Given any graph
     When executing query:
       """
@@ -42,7 +42,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should work with nested literal list subscripting
+  Scenario: [2] IN should work with nested literal list subscripting
     Given any graph
     When executing query:
       """
@@ -53,7 +53,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should work with list slices
+  Scenario: [3] IN should work with list slices
     Given any graph
     When executing query:
       """
@@ -65,7 +65,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should work with literal list slices
+  Scenario: [4] IN should work with literal list slices
     Given any graph
     When executing query:
       """
@@ -76,7 +76,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should return false when matching a number with a string
+  Scenario: [5] IN should return false when matching a number with a string
     Given any graph
     When executing query:
       """
@@ -87,7 +87,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should return false when matching a number with a string - list version
+  Scenario: [6] IN should return false when matching a number with a string - list version
     Given any graph
     When executing query:
       """
@@ -98,7 +98,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should return false when types of LHS and RHS don't match - singleton list
+  Scenario: [7] IN should return false when types of LHS and RHS don't match - singleton list
     Given any graph
     When executing query:
       """
@@ -109,7 +109,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should return false when types of LHS and RHS don't match - list
+  Scenario: [8] IN should return false when types of LHS and RHS don't match - list
     Given any graph
     When executing query:
       """
@@ -120,7 +120,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should return true when types of LHS and RHS match - singleton list
+  Scenario: [9] IN should return true when types of LHS and RHS match - singleton list
     Given any graph
     When executing query:
       """
@@ -131,7 +131,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should return true when types of LHS and RHS match - list
+  Scenario: [10] IN should return true when types of LHS and RHS match - list
     Given any graph
     When executing query:
       """
@@ -142,7 +142,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should return false when order of elements in LHS list and RHS list don't match
+  Scenario: [11] IN should return false when order of elements in LHS list and RHS list don't match
     Given any graph
     When executing query:
       """
@@ -153,7 +153,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN with different length lists should return false
+  Scenario: [12] IN with different length lists should return false
     Given any graph
     When executing query:
       """
@@ -164,7 +164,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should return false when matching a list with a nested list with same elements
+  Scenario: [13] IN should return false when matching a list with a nested list with same elements
     Given any graph
     When executing query:
       """
@@ -175,7 +175,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should return true when both LHS and RHS contain nested lists
+  Scenario: [14] IN should return true when both LHS and RHS contain nested lists
     Given any graph
     When executing query:
       """
@@ -186,7 +186,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should return true when both LHS and RHS contain a nested list alongside a scalar element
+  Scenario: [15] IN should return true when both LHS and RHS contain a nested list alongside a scalar element
     Given any graph
     When executing query:
       """
@@ -197,7 +197,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should return true when LHS and RHS contain a nested list - singleton version
+  Scenario: [16] IN should return true when LHS and RHS contain a nested list - singleton version
     Given any graph
     When executing query:
       """
@@ -208,7 +208,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should return true when LHS and RHS contain a nested list
+  Scenario: [17] IN should return true when LHS and RHS contain a nested list
     Given any graph
     When executing query:
       """
@@ -219,7 +219,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should return false when LHS contains a nested list and type mismatch on RHS - singleton version
+  Scenario: [18] IN should return false when LHS contains a nested list and type mismatch on RHS - singleton version
     Given any graph
     When executing query:
       """
@@ -230,7 +230,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should return false when LHS contains a nested list and type mismatch on RHS
+  Scenario: [19] IN should return false when LHS contains a nested list and type mismatch on RHS
     Given any graph
     When executing query:
       """
@@ -243,7 +243,7 @@ Feature: List5 - List Membership Validation - IN Operator
 
   # IN operator - null
 
-  Scenario: IN should return null if LHS and RHS are null
+  Scenario: [20] IN should return null if LHS and RHS are null
     Given any graph
     When executing query:
       """
@@ -254,7 +254,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | null |
     And no side effects
 
-  Scenario: IN should return null if LHS and RHS are null - list version
+  Scenario: [21] IN should return null if LHS and RHS are null - list version
     Given any graph
     When executing query:
       """
@@ -265,7 +265,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | null |
     And no side effects
 
-  Scenario: IN should return null when LHS and RHS both ultimately contain null, even if LHS and RHS are of different types (nested list and flat list)
+  Scenario: [22] IN should return null when LHS and RHS both ultimately contain null, even if LHS and RHS are of different types (nested list and flat list)
     Given any graph
     When executing query:
       """
@@ -276,7 +276,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | null |
     And no side effects
 
-  Scenario: IN with different length lists should return false despite nulls
+  Scenario: [23] IN with different length lists should return false despite nulls
     Given any graph
     When executing query:
       """
@@ -287,7 +287,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should return true if match despite nulls
+  Scenario: [24] IN should return true if match despite nulls
     Given any graph
     When executing query:
       """
@@ -298,7 +298,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should return null if comparison with null is required
+  Scenario: [25] IN should return null if comparison with null is required
     Given any graph
     When executing query:
       """
@@ -309,7 +309,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | null |
     And no side effects
 
-  Scenario: IN should return true if correct list found despite other lists having nulls
+  Scenario: [26] IN should return true if correct list found despite other lists having nulls
     Given any graph
     When executing query:
       """
@@ -320,7 +320,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should return true if correct list found despite null being another element within containing list
+  Scenario: [27] IN should return true if correct list found despite null being another element within containing list
     Given any graph
     When executing query:
       """
@@ -331,7 +331,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should return false if no match can be found, despite nulls
+  Scenario: [28] IN should return false if no match can be found, despite nulls
     Given any graph
     When executing query:
       """
@@ -342,7 +342,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should return null if comparison with null is required, list version
+  Scenario: [29] IN should return null if comparison with null is required, list version
     Given any graph
     When executing query:
       """
@@ -353,7 +353,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | null |
     And no side effects
 
-  Scenario: IN should return false if different length lists compared, even if the extra element is null
+  Scenario: [30] IN should return false if different length lists compared, even if the extra element is null
     Given any graph
     When executing query:
       """
@@ -364,7 +364,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should return null when comparing two so-called identical lists where one element is null
+  Scenario: [31] IN should return null when comparing two so-called identical lists where one element is null
     Given any graph
     When executing query:
       """
@@ -375,7 +375,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | null |
     And no side effects
 
-  Scenario: IN should return true with previous null match, list version
+  Scenario: [32] IN should return true with previous null match, list version
     Given any graph
     When executing query:
       """
@@ -386,7 +386,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should return false if different length lists with nested elements compared, even if the extra element is null
+  Scenario: [33] IN should return false if different length lists with nested elements compared, even if the extra element is null
     Given any graph
     When executing query:
       """
@@ -397,7 +397,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should return null if comparison with null is required, list version 2
+  Scenario: [34] IN should return null if comparison with null is required, list version 2
     Given any graph
     When executing query:
       """
@@ -410,7 +410,7 @@ Feature: List5 - List Membership Validation - IN Operator
 
   # IN operator - empty list
 
-  Scenario: IN should work with an empty list
+  Scenario: [35] IN should work with an empty list
     Given any graph
     When executing query:
       """
@@ -421,7 +421,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should return false for the empty list if the LHS and RHS types differ
+  Scenario: [36] IN should return false for the empty list if the LHS and RHS types differ
     Given any graph
     When executing query:
       """
@@ -432,7 +432,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should work with an empty list in the presence of other list elements: matching
+  Scenario: [37] IN should work with an empty list in the presence of other list elements: matching
     Given any graph
     When executing query:
       """
@@ -443,7 +443,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should work with an empty list in the presence of other list elements: not matching
+  Scenario: [38] IN should work with an empty list in the presence of other list elements: not matching
     Given any graph
     When executing query:
       """
@@ -454,7 +454,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  Scenario: IN should work with an empty list when comparing nested lists
+  Scenario: [39] IN should work with an empty list when comparing nested lists
     Given any graph
     When executing query:
       """
@@ -465,7 +465,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  Scenario: IN should return null if comparison with null is required for empty list
+  Scenario: [40] IN should return null if comparison with null is required for empty list
     Given any graph
     When executing query:
       """
@@ -476,7 +476,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | null |
     And no side effects
 
-  Scenario: IN should return true when LHS and RHS contain nested list with multiple empty lists
+  Scenario: [41] IN should return true when LHS and RHS contain nested list with multiple empty lists
     Given any graph
     When executing query:
       """

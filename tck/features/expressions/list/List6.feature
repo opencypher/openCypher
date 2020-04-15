@@ -30,7 +30,7 @@
 
 Feature: List6 - List Size
 
-  Scenario: Return list size
+  Scenario: [1] Return list size
     Given any graph
     When executing query:
       """
@@ -41,7 +41,7 @@ Feature: List6 - List Size
       | 3 |
     And no side effects
 
-  Scenario: Setting and returning the size of a list property
+  Scenario: [2] Setting and returning the size of a list property
     Given an empty graph
     And having executed:
       """
@@ -59,7 +59,7 @@ Feature: List6 - List Size
     And the side effects should be:
       | +properties | 1 |
 
-  Scenario: Concatenating and returning the size of literal lists
+  Scenario: [3] Concatenating and returning the size of literal lists
     Given any graph
     When executing query:
       """
