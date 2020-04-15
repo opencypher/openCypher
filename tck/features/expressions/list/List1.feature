@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: List1 - Dynamic Element Access
+Feature: List1 - Element Access
 
   Scenario: Indexing into literal list
     Given any graph
