@@ -41,16 +41,17 @@ Feature: Literals1 - Boolean and Null
       | true    |
     And no side effects
 
-#  Scenario: [2] Return a boolean true upper case
-#    Given any graph
-#    When executing query:
-#      """
-#      RETURN TRUE AS literal
-#      """
-#    Then the result should be, in any order:
-#      | literal |
-#      | true    |
-#    And no side effects
+  @withIntentionalStyleViolation
+  Scenario: [2] Return a boolean true upper case
+    Given any graph
+    When executing query:
+      """
+      RETURN TRUE AS literal
+      """
+    Then the result should be, in any order:
+      | literal |
+      | true    |
+    And no side effects
 
   Scenario: [3] Return a boolean false lower case
     Given any graph
@@ -60,19 +61,20 @@ Feature: Literals1 - Boolean and Null
       """
     Then the result should be, in any order:
       | literal |
-      | false    |
+      | false   |
     And no side effects
 
-#  Scenario: [4] Return a boolean false upper case
-#    Given any graph
-#    When executing query:
-#      """
-#      RETURN FALSE AS literal
-#      """
-#    Then the result should be, in any order:
-#      | literal |
-#      | false    |
-#    And no side effects
+  @withIntentionalStyleViolation
+  Scenario: [4] Return a boolean false upper case
+    Given any graph
+    When executing query:
+      """
+      RETURN FALSE AS literal
+      """
+    Then the result should be, in any order:
+      | literal |
+      | false    |
+    And no side effects
 
   Scenario: [5] Return null lower case
     Given any graph
@@ -85,13 +87,14 @@ Feature: Literals1 - Boolean and Null
       | null    |
     And no side effects
 
-#  Scenario: [6] Return null upper case
-#    Given any graph
-#    When executing query:
-#      """
-#      RETURN NULL AS literal
-#      """
-#    Then the result should be, in any order:
-#      | literal |
-#      | null    |
-#    And no side effects
+  @withIntentionalStyleViolation
+  Scenario: [6] Return null upper case
+    Given any graph
+    When executing query:
+      """
+      RETURN NULL AS literal
+      """
+    Then the result should be, in any order:
+      | literal |
+      | null    |
+    And no side effects

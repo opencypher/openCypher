@@ -52,39 +52,40 @@ Feature: Literals4 - String
       | 'a'     |
     And no side effects
 
-### Needs more capable tck-api
-#  Scenario: [3] Return a single-quoted string with uft-8 characters
-#    Given any graph
-#    When executing query:
-#      """
-#      RETURN '🧐🍌❖⋙⚐' AS literal
-#      """
-#    Then the result should be, in any order:
-#      | literal    |
-#      | '🧐🍌❖⋙⚐' |
-#    And no side effects
-#
-#  Scenario: [4] Return a single-quoted string with escaped single-quoted
-#    Given any graph
-#    When executing query:
-#      """
-#      RETURN '\'' AS literal
-#      """
-#    Then the result should be, in any order:
-#      | literal |
-#      | '\''    |
-#    And no side effects
-#
-#  Scenario: [5] Return a single-quoted string with escaped characters
-#    Given any graph
-#    When executing query:
-#      """
-#      RETURN 'a\tb\bc\nn\r5t\f\'\"\\//\\\"\'' AS literal
-#      """
-#    Then the result should be, in any order:
-#      | literal                          |
-#      | 'a\tb\bc\nn\r5t\f\'\"\\//\\\"\'' |
-#    And no side effects
+  Scenario: [3] Return a single-quoted string with uft-8 characters
+    Given any graph
+    When executing query:
+      """
+      RETURN '🧐🍌❖⋙⚐' AS literal
+      """
+    Then the result should be, in any order:
+      | literal    |
+      | '🧐🍌❖⋙⚐' |
+    And no side effects
+
+  Scenario: [4] Return a single-quoted string with escaped single-quoted
+    Given any graph
+    When executing query:
+      """
+      RETURN '\'' AS literal
+      """
+    Then the result should be, in any order:
+      | literal |
+      | '\''    |
+    And no side effects
+
+  @withIntentionalStyleViolation
+  Scenario: [5] Return a single-quoted string with escaped characters
+    Given any graph
+    When executing query:
+      """
+      RETURN 'a\\bcn5t\'"\\//\\"\'' AS literal
+      """
+    # Note that backslashes are an escape character for vertical bar and need to be escaped themselves, i.e. \\\\ for \\
+    Then the result should be, in any order:
+      | literal                      |
+      | 'a\\\\bcn5t\'"\\\\//\\\\"\'' |
+    And no side effects
 
   Scenario: [6] Return a single-quoted string with 100 characters
     Given any graph
@@ -130,24 +131,26 @@ Feature: Literals4 - String
       | ''      |
     And no side effects
 
-#  Scenario: [10] Return a double-quoted string with one character
-#    Given any graph
-#    When executing query:
-#      """
-#      RETURN "a" AS literal
-#      """
-#    Then the result should be, in any order:
-#      | literal |
-#      | 'a'     |
-#    And no side effects
+  @withIntentionalStyleViolation
+  Scenario: [10] Return a double-quoted string with one character
+    Given any graph
+    When executing query:
+      """
+      RETURN "a" AS literal
+      """
+    Then the result should be, in any order:
+      | literal |
+      | 'a'     |
+    And no side effects
 
-#  Scenario: [11] Return a double-quoted string with uft-8 characters
-#    Given any graph
-#    When executing query:
-#      """
-#      RETURN "🧐🍌❖⋙⚐" AS literal
-#      """
-#    Then the result should be, in any order:
-#      | literal    |
-#      | '🧐🍌❖⋙⚐' |
-#    And no side effects
+  @withIntentionalStyleViolation
+  Scenario: [11] Return a double-quoted string with uft-8 characters
+    Given any graph
+    When executing query:
+      """
+      RETURN "🧐🍌❖⋙⚐" AS literal
+      """
+    Then the result should be, in any order:
+      | literal    |
+      | '🧐🍌❖⋙⚐' |
+    And no side effects
