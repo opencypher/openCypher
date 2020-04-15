@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: List 4 - List Concatenation
+Feature: List4 - List Concatenation
 
   Scenario: Concatenating lists of same type
     Given any graph
