@@ -30,7 +30,7 @@
 
 Feature: List2 - List Slicing
 
-  Scenario: List slice
+  Scenario: [1] List slice
     Given any graph
     When executing query:
       """
@@ -42,7 +42,7 @@ Feature: List2 - List Slicing
       | [2, 3] |
     And no side effects
 
-  Scenario: List slice with implicit end
+  Scenario: [2] List slice with implicit end
     Given any graph
     When executing query:
       """
@@ -54,7 +54,7 @@ Feature: List2 - List Slicing
       | [2, 3] |
     And no side effects
 
-  Scenario: List slice with implicit start
+  Scenario: [3] List slice with implicit start
     Given any graph
     When executing query:
       """
@@ -66,7 +66,7 @@ Feature: List2 - List Slicing
       | [1, 2] |
     And no side effects
 
-  Scenario: List slice with singleton range
+  Scenario: [4] List slice with singleton range
     Given any graph
     When executing query:
       """
@@ -78,7 +78,7 @@ Feature: List2 - List Slicing
       | [1] |
     And no side effects
 
-  Scenario: List slice with empty range
+  Scenario: [5] List slice with empty range
     Given any graph
     When executing query:
       """
@@ -90,7 +90,7 @@ Feature: List2 - List Slicing
       | [] |
     And no side effects
 
-  Scenario: List slice with negative range
+  Scenario: [6] List slice with negative range
     Given any graph
     When executing query:
       """
@@ -102,7 +102,7 @@ Feature: List2 - List Slicing
       | [1, 2] |
     And no side effects
 
-  Scenario: List slice with invalid range
+  Scenario: [7] List slice with invalid range
     Given any graph
     When executing query:
       """
@@ -114,7 +114,7 @@ Feature: List2 - List Slicing
       | [] |
     And no side effects
 
-  Scenario: List slice with exceeding range
+  Scenario: [8] List slice with exceeding range
     Given any graph
     When executing query:
       """
@@ -126,7 +126,7 @@ Feature: List2 - List Slicing
       | [1, 2, 3] |
     And no side effects
 
-  Scenario Outline: List slice with null range
+  Scenario Outline: [9] List slice with null range
     Given any graph
     When executing query:
       """
@@ -146,7 +146,7 @@ Feature: List2 - List Slicing
       |       | null  |
       | null  |       |
 
-  Scenario: List slice with parameterised range
+  Scenario: [10] List slice with parameterised range
     Given any graph
     And parameters are:
       | from | 1 |
@@ -161,7 +161,7 @@ Feature: List2 - List Slicing
       | [2, 3] |
     And no side effects
 
-  Scenario: List slice with parameterised invalid range
+  Scenario: [11] List slice with parameterised invalid range
     Given any graph
     And parameters are:
       | from | 3 |

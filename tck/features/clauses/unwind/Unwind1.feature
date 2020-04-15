@@ -30,7 +30,7 @@
 
 Feature: Unwind1
 
-  Scenario: Unwinding a list
+  Scenario: [1] Unwinding a list
     Given any graph
     When executing query:
       """
@@ -44,7 +44,7 @@ Feature: Unwind1
       | 3 |
     And no side effects
 
-  Scenario: Unwinding a range
+  Scenario: [2] Unwinding a range
     Given any graph
     When executing query:
       """
@@ -58,7 +58,7 @@ Feature: Unwind1
       | 3 |
     And no side effects
 
-  Scenario: Unwinding a concatenation of lists
+  Scenario: [3] Unwinding a concatenation of lists
     Given any graph
     When executing query:
       """
@@ -76,7 +76,7 @@ Feature: Unwind1
       | 6 |
     And no side effects
 
-  Scenario: Unwinding a collected unwound expression
+  Scenario: [4] Unwinding a collected unwound expression
     Given any graph
     When executing query:
       """
@@ -91,7 +91,7 @@ Feature: Unwind1
       | 2 |
     And no side effects
 
-  Scenario: Unwinding a collected expression
+  Scenario: [5] Unwinding a collected expression
     Given an empty graph
     And having executed:
       """
@@ -110,7 +110,7 @@ Feature: Unwind1
       | 2       |
     And no side effects
 
-  Scenario: Creating nodes from an unwound parameter list
+  Scenario: [6] Creating nodes from an unwound parameter list
     Given an empty graph
     And having executed:
       """
@@ -137,7 +137,7 @@ Feature: Unwind1
       | +labels        | 1 |
       | +properties    | 2 |
 
-  Scenario: Double unwinding a list of lists
+  Scenario: [7] Double unwinding a list of lists
     Given any graph
     When executing query:
       """
@@ -156,7 +156,7 @@ Feature: Unwind1
       | 6 |
     And no side effects
 
-  Scenario: Unwinding the empty list
+  Scenario: [8] Unwinding the empty list
     Given any graph
     When executing query:
       """
@@ -167,7 +167,7 @@ Feature: Unwind1
       | empty |
     And no side effects
 
-  Scenario: Unwinding null
+  Scenario: [9] Unwinding null
     Given any graph
     When executing query:
       """
@@ -178,7 +178,7 @@ Feature: Unwind1
       | nil |
     And no side effects
 
-  Scenario: Unwinding list with duplicates
+  Scenario: [10] Unwinding list with duplicates
     Given any graph
     When executing query:
       """
@@ -199,7 +199,7 @@ Feature: Unwind1
       | 5         |
     And no side effects
 
-  Scenario: Unwind does not prune context
+  Scenario: [11] Unwind does not prune context
     Given any graph
     When executing query:
       """
@@ -214,7 +214,7 @@ Feature: Unwind1
       | [1, 2, 3] | 3 |
     And no side effects
 
-  Scenario: Unwind does not remove variables from scope
+  Scenario: [12] Unwind does not remove variables from scope
     Given an empty graph
     And having executed:
       """
@@ -238,7 +238,7 @@ Feature: Unwind1
       | (:S) | (:E) |
     And no side effects
 
-  Scenario: Multiple unwinds after each other
+  Scenario: [13] Multiple unwinds after each other
     Given any graph
     When executing query:
       """
@@ -260,7 +260,7 @@ Feature: Unwind1
       | 2 | [1, 2] | 4 | [3, 4] | 6 | [5, 6] |
     And no side effects
 
-  Scenario: Unwind with merge
+  Scenario: [14] Unwind with merge
     Given an empty graph
     And parameters are:
       | props | [{login: 'login1', name: 'name1'}, {login: 'login2', name: 'name2'}] |

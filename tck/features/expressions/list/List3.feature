@@ -30,7 +30,7 @@
 
 Feature: List3 - List Equality
 
-  Scenario: Equality between list and literal should return false
+  Scenario: [1] Equality between list and literal should return false
     Given any graph
     When executing query:
       """
@@ -41,7 +41,7 @@ Feature: List3 - List Equality
       | false |
     And no side effects
 
-  Scenario: Equality of lists of different length should return false despite nulls
+  Scenario: [2] Equality of lists of different length should return false despite nulls
     Given any graph
     When executing query:
       """
@@ -52,7 +52,7 @@ Feature: List3 - List Equality
       | false |
     And no side effects
 
-  Scenario: Equality between different lists with null should return false
+  Scenario: [3] Equality between different lists with null should return false
     Given any graph
     When executing query:
       """
@@ -63,7 +63,7 @@ Feature: List3 - List Equality
       | false |
     And no side effects
 
-  Scenario: Equality between almost equal lists with null should return null
+  Scenario: [4] Equality between almost equal lists with null should return null
     Given any graph
     When executing query:
       """
@@ -74,7 +74,7 @@ Feature: List3 - List Equality
       | null |
     And no side effects
 
-  Scenario: Equality of nested lists of different length should return false despite nulls
+  Scenario: [5] Equality of nested lists of different length should return false despite nulls
     Given any graph
     When executing query:
       """
@@ -85,7 +85,7 @@ Feature: List3 - List Equality
       | false |
     And no side effects
 
-  Scenario: Equality between different nested lists with null should return false
+  Scenario: [6] Equality between different nested lists with null should return false
     Given any graph
     When executing query:
       """
@@ -96,7 +96,7 @@ Feature: List3 - List Equality
       | false |
     And no side effects
 
-  Scenario: Equality between almost equal nested lists with null should return null
+  Scenario: [7] Equality between almost equal nested lists with null should return null
     Given any graph
     When executing query:
       """

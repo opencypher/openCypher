@@ -30,7 +30,7 @@
 
 Feature: List1 - Element Access
 
-  Scenario: Indexing into literal list
+  Scenario: [1] Indexing into literal list
     Given any graph
     When executing query:
       """
@@ -41,7 +41,7 @@ Feature: List1 - Element Access
       | 1     |
     And no side effects
 
-  Scenario: Indexing into nested literal lists
+  Scenario: [2] Indexing into nested literal lists
     Given any graph
     When executing query:
       """
@@ -52,7 +52,7 @@ Feature: List1 - Element Access
       | 1           |
     And no side effects
 
-  Scenario: Use list lookup based on parameters when there is no type information
+  Scenario: [3] Use list lookup based on parameters when there is no type information
     Given any graph
     And parameters are:
       | expr | ['Apa'] |
@@ -67,7 +67,7 @@ Feature: List1 - Element Access
       | 'Apa' |
     And no side effects
 
-  Scenario: Use list lookup based on parameters when there is lhs type information
+  Scenario: [4] Use list lookup based on parameters when there is lhs type information
     Given any graph
     And parameters are:
       | idx | 0 |
@@ -81,7 +81,7 @@ Feature: List1 - Element Access
       | 'Apa' |
     And no side effects
 
-  Scenario: Use list lookup based on parameters when there is rhs type information
+  Scenario: [5] Use list lookup based on parameters when there is rhs type information
     Given any graph
     And parameters are:
       | expr | ['Apa'] |

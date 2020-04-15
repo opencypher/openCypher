@@ -30,7 +30,7 @@
 
 Feature: List12 - List Operations Failure
 
-  Scenario: Fail at runtime when attempting to index with a String into a List
+  Scenario: [1] Fail at runtime when attempting to index with a String into a List
     Given any graph
     And parameters are:
       | expr | ['Apa'] |
@@ -42,7 +42,7 @@ Feature: List12 - List Operations Failure
       """
     Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
 
-  Scenario: Fail at runtime when trying to index into a list with a list
+  Scenario: [2] Fail at runtime when trying to index into a list with a list
     Given any graph
     And parameters are:
       | expr | ['Apa'] |
@@ -54,7 +54,7 @@ Feature: List12 - List Operations Failure
       """
     Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
 
-  Scenario: Fail at compile time when attempting to index with a non-integer into a list
+  Scenario: [3] Fail at compile time when attempting to index with a non-integer into a list
     Given any graph
     When executing query:
       """
