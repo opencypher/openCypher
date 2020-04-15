@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: List 5 - List Membership Validation - IN Operator
+Feature: List5 - List Membership Validation - IN Operator
 
   Scenario: IN should work with nested list subscripting
     Given any graph
