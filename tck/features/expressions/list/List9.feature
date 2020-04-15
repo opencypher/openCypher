@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: List 9 - List Tail
+Feature: List9 - List Tail
 
   Scenario: Returning nested expressions based on list property
     Given an empty graph
