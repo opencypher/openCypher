@@ -57,7 +57,7 @@ object TCKEventsTest {
     TCKEvents.reset()
     val expected = List[String](
       "Feature 'List6 - List Size' read",
-      "Scenario 'Return list size' started",
+      "Scenario '[1] Return list size' started",
       "Step 'Execute -> any graph' started",
       "Step 'Execute' finished. Result: <empty result>",
       "Step 'Measure -> executing query:' started",
@@ -77,7 +77,7 @@ class TCKEventsTest {
 
   @TestFactory
   def testSingleScenario(): util.Collection[DynamicTest] = {
-    val scenarios = CypherTCK.allTckScenarios.filter(s => s.name == "Return list size")
+    val scenarios = CypherTCK.allTckScenarios.filter(s => s.name == "[1] Return list size")
 
     def createTestGraph(): Graph = FakeGraph
 
