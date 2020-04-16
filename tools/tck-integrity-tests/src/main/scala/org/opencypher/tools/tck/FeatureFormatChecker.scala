@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import io.cucumber.datatable.DataTable
 import org.opencypher.tools.tck.api.InvalidFeatureFormatException
 import org.opencypher.tools.tck.constants.TCKStepDefinitions._
+import org.opencypher.tools.tck.constants.TCKTags
 
 import scala.util.Failure
 import scala.util.Success
@@ -40,12 +41,12 @@ import scala.util.Try
 class FeatureFormatChecker extends TCKCucumberTemplate {
 
   private var currentScenarioName = ""
-  private var withIntentionalStyleViolation: Boolean = false
+  private var skipStyleCheck: Boolean = false
 
   Before { (scenario: cucumber.api.Scenario) =>
     validateDuplicateNames(scenario).map(msg => throw InvalidFeatureFormatException(msg))
     currentScenarioName = scenario.getName
-    withIntentionalStyleViolation = scenario.getSourceTagNames.contains("@withIntentionalStyleViolation")
+    skipStyleCheck = scenario.getSourceTagNames.contains(TCKTags.SKIP_STYLE_CHECK)
   }
 
   private var lastSeenQuery = ""
@@ -145,7 +146,7 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   After(_ => stepValidator.checkRequiredSteps())
 
   private def codeStyle(query: String): Option[String] = {
-    if (withIntentionalStyleViolation) None
+    if (skipStyleCheck) None
     else validateCodeStyle(query)
   }
 
