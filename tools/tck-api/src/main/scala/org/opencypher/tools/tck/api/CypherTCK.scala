@@ -45,6 +45,7 @@ import org.opencypher.tools.tck.constants.TCKErrorDetails
 import org.opencypher.tools.tck.constants.TCKErrorPhases
 import org.opencypher.tools.tck.constants.TCKErrorTypes
 import org.opencypher.tools.tck.constants.TCKStepDefinitions._
+import org.opencypher.tools.tck.constants.TCKTags
 import org.opencypher.tools.tck.values.CypherValue
 
 import scala.collection.JavaConverters._
@@ -130,8 +131,8 @@ object CypherTCK {
     }
     val compiler = new Compiler
     val pickles = compiler.compile(gherkinDocument).asScala
-    // filters out scenarios with @ignore
-    val included = pickles.filterNot(tagNames(_) contains "@ignore")
+    // filters out scenarios with TCKTags.IGNORE
+    val included = pickles.filterNot(tagNames(_) contains TCKTags.IGNORE)
 
     val includedGroupedByName = included.groupBy(_.getName)
     val includedGroupedAndSorted = includedGroupedByName.
@@ -156,7 +157,7 @@ object CypherTCK {
   private def toScenario(categories: Seq[String], featureName: String, pickle: gherkin.pickles.Pickle, exampleIndex: Option[Int], sourceFile: Path): Scenario = {
 
     val tags = tagNames(pickle)
-    val shouldValidate = !tags.contains("@allowCustomErrors")
+    val shouldValidate = !tags.contains(TCKTags.ALLOW_CUSTOM_ERRORS)
 
     val steps = pickle.getSteps.asScala.flatMap { step =>
       def stepArguments = step.getArgument.asScala
@@ -229,7 +230,7 @@ object CypherTCK {
                 throw InvalidFeatureFormatException(
                   s"""Invalid error format in scenario "${pickle.getName}" from feature "$featureName":
                     $errorMessage
-                    If this is a custom error, then disable this validation with tag "@allowCustomErrors"""")
+                    If this is a custom error, then disable this validation with tag "${TCKTags.ALLOW_CUSTOM_ERRORS}"""")
             }
           }
           List(expectedError, SideEffects(source = step).fillInZeros)
