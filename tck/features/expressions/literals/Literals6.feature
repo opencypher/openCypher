@@ -217,7 +217,7 @@ Feature: Literals6 - Maps
       | {a:' { b : ', c: {d:' '}, d:' } '} |
     And no side effects
 
-  @withIntentionalStyleViolation
+  @skipStyleCheck
   Scenario: [18] Return a complex map containing multiple mixed and nested values
     Given any graph
     When executing query:

@@ -74,7 +74,7 @@ Feature: Literals4 - String
       | '\''    |
     And no side effects
 
-  @withIntentionalStyleViolation
+  @skipStyleCheck
   Scenario: [5] Return a single-quoted string with escaped characters
     Given any graph
     When executing query:
@@ -131,7 +131,7 @@ Feature: Literals4 - String
       | ''      |
     And no side effects
 
-  @withIntentionalStyleViolation
+  @skipStyleCheck
   Scenario: [10] Return a double-quoted string with one character
     Given any graph
     When executing query:
@@ -143,7 +143,7 @@ Feature: Literals4 - String
       | 'a'     |
     And no side effects
 
-  @withIntentionalStyleViolation
+  @skipStyleCheck
   Scenario: [11] Return a double-quoted string with uft-8 characters
     Given any graph
     When executing query:
