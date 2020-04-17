@@ -72,8 +72,8 @@ public class CucumberReportAdapterTest {
         return scenarios.stream()
             .map(scenario -> {
                 String name = scenario.toString();
-                Executable executable = scenario.apply(graph);
-                return DynamicTest.dynamicTest(name, executable);
+                Runnable runnable = scenario.apply(graph);
+                return DynamicTest.dynamicTest(name, runnable::run);
             });
     }
 
