@@ -29,7 +29,6 @@ package org.opencypher.tools.tck.api
 
 import java.nio.file.Path
 
-import org.junit.jupiter.api.function.Executable
 import org.opencypher.tools.tck.SideEffectOps
 import org.opencypher.tools.tck.SideEffectOps._
 import org.opencypher.tools.tck.api.Graph.Result
@@ -72,15 +71,14 @@ case class Scenario(categories: List[String], featureName: String, name: String,
     hash
   }
 
-  def apply(graph: => Graph): Executable = new Executable {
-    override def execute(): Unit = {
+  def apply(graph: => Graph): Runnable =
+    () => {
       val g = graph // ensure that lazy parameter is only evaluated once
       try {
         TCKEvents.setScenario(self)
         executeOnGraph(g)
       } finally g.close()
     }
-  }
 
   def executeOnGraph(empty: Graph): Unit = {
     steps.foldLeft(ScenarioExecutionContext(empty)) { (context, step) =>

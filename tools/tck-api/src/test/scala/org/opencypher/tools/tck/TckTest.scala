@@ -70,8 +70,8 @@ class TckTest {
 
     val dynamicTests = scenarios.map { scenario =>
       val name = scenario.toString()
-      val executable = scenario(createTestGraph())
-      DynamicTest.dynamicTest(name, executable)
+      val runnable = scenario(createTestGraph())
+      DynamicTest.dynamicTest(name, () => runnable.run())
     }
     dynamicTests.asJavaCollection
   }
