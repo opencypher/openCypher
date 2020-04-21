@@ -28,12 +28,10 @@
 
 #encoding: utf-8
 
-Feature: ExpressionAcceptance
-
-  Background:
-    Given any graph
+Feature: Map2 - Dynamic Value Access
 
   Scenario: Execute n['name'] in read queries
+    Given any graph
     And having executed:
       """
       CREATE ({name: 'Apa'})
@@ -49,6 +47,7 @@ Feature: ExpressionAcceptance
     And no side effects
 
   Scenario: Execute n['name'] in update queries
+    Given any graph
     When executing query:
       """
       CREATE (n {name: 'Apa'})
@@ -62,6 +61,7 @@ Feature: ExpressionAcceptance
       | +properties | 1 |
 
   Scenario: Use dynamic property lookup based on parameters when there is no type information
+    Given any graph
     And parameters are:
       | expr | {name: 'Apa'} |
       | idx  | 'name'        |
@@ -76,6 +76,7 @@ Feature: ExpressionAcceptance
     And no side effects
 
   Scenario: Use dynamic property lookup based on parameters when there is lhs type information
+    Given any graph
     And parameters are:
       | idx | 'name' |
     When executing query:
@@ -91,6 +92,7 @@ Feature: ExpressionAcceptance
       | +properties | 1 |
 
   Scenario: Use dynamic property lookup based on parameters when there is rhs type information
+    Given any graph
     And parameters are:
       | expr | {name: 'Apa'} |
       | idx  | 'name'        |
@@ -103,36 +105,3 @@ Feature: ExpressionAcceptance
       | value |
       | 'Apa' |
     And no side effects
-
-  Scenario: Fail at runtime when attempting to index with an Int into a Map
-    And parameters are:
-      | expr | {name: 'Apa'} |
-      | idx  | 0             |
-    When executing query:
-      """
-      WITH $expr AS expr, $idx AS idx
-      RETURN expr[idx]
-      """
-    Then a TypeError should be raised at runtime: MapElementAccessByNonString
-
-  Scenario: Fail at runtime when trying to index into a map with a non-string
-    And parameters are:
-      | expr | {name: 'Apa'} |
-      | idx  | 12.3          |
-    When executing query:
-      """
-      WITH $expr AS expr, $idx AS idx
-      RETURN expr[idx]
-      """
-    Then a TypeError should be raised at runtime: MapElementAccessByNonString
-
-  Scenario: Fail at runtime when trying to index something which is not a map or list
-    And parameters are:
-      | expr | 100 |
-      | idx  | 0   |
-    When executing query:
-      """
-      WITH $expr AS expr, $idx AS idx
-      RETURN expr[idx]
-      """
-    Then a TypeError should be raised at runtime: InvalidElementAccess

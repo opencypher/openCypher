@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: KeysAcceptance
+Feature: Map3 - Keys Function
 
   Scenario: Using `keys()` on a single node, non-empty result
     Given an empty graph
