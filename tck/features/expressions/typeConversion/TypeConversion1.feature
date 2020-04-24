@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: TypeConversionFunctions1 - To Boolean
+Feature: TypeConversion1 - To Boolean
 
   Scenario: [1] `toBoolean()` on booleans
     Given any graph
