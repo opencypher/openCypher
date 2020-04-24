@@ -91,7 +91,7 @@ Feature: Union2 - Union All
       """
       MATCH (a:A)
       RETURN a AS a
-      UNION
+      UNION ALL
       MATCH (b:B)
       RETURN b AS a
       """
