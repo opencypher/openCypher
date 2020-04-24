@@ -81,7 +81,7 @@ Feature: Union2 - Union All
       | 4 |
     And no side effects
 
-  Scenario: [4] Should be able to create text output from union queries
+  Scenario: [4] Should be able to create text output from union all queries
     Given an empty graph
     And having executed:
       """
