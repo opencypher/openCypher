@@ -102,7 +102,7 @@ Feature: Set3 - Set a Label
     And the side effects should be:
       | +labels | 2 |
 
-  Scenario: [5] Ignore whitespace before colon
+  Scenario: [5] Ignore whitespace before colon 1
     Given an empty graph
     And having executed:
       """
