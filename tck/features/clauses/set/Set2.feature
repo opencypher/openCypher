@@ -28,76 +28,59 @@
 
 #encoding: utf-8
 
-Feature: NullAcceptance
+Feature: Set2 - Set a Property to Null
 
-  Scenario: Property existence check on non-null node
+  Scenario: [1] Setting a node property to null removes the existing property
     Given an empty graph
     And having executed:
       """
-      CREATE ({exists: 42})
+      CREATE (:A {property1: 23, property2: 46})
+      """
+    When executing query:
+      """
+      MATCH (n:A)
+      SET n.property1 = null
+      RETURN n
+      """
+    Then the result should be, in any order:
+      | n                    |
+      | (:A {property2: 46}) |
+    And the side effects should be:
+      | -properties | 1 |
+
+  Scenario: [2] Setting a node property to null removes the existing property, but not before SET
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {name: 'Michael', age: 35})
       """
     When executing query:
       """
       MATCH (n)
-      RETURN exists(n.missing),
-             exists(n.exists)
+      WHERE n.name = 'Michael'
+      SET n.name = null
+      RETURN n
       """
     Then the result should be, in any order:
-      | exists(n.missing) | exists(n.exists) |
-      | false             | true             |
-    And no side effects
+      | n              |
+      | (:A {age: 35}) |
+    And the side effects should be:
+      | -properties | 1 |
 
-  Scenario: Property existence check on optional non-null node
+  Scenario: [3] Setting a relationship property to null removes the existing property
     Given an empty graph
     And having executed:
       """
-      CREATE ({exists: 42})
+      CREATE ()-[:REL {property1: 12, property2: 24}]->()
       """
     When executing query:
       """
-      OPTIONAL MATCH (n)
-      RETURN exists(n.missing),
-             exists(n.exists)
+      MATCH ()-[r]->()
+      SET r.property1 = null
+      RETURN r
       """
     Then the result should be, in any order:
-      | exists(n.missing) | exists(n.exists) |
-      | false             | true             |
-    And no side effects
-
-  Scenario: Property existence check on null node
-    Given an empty graph
-    When executing query:
-      """
-      OPTIONAL MATCH (n)
-      RETURN exists(n.missing)
-      """
-    Then the result should be, in any order:
-      | exists(n.missing) |
-      | null              |
-    And no side effects
-
-  Scenario: Ignore null when removing property
-    Given an empty graph
-    When executing query:
-      """
-      OPTIONAL MATCH (a:DoesNotExist)
-      REMOVE a.num
-      RETURN a
-      """
-    Then the result should be, in any order:
-      | a    |
-      | null |
-    And no side effects
-
-  Scenario: Ignore null when removing label
-    Given an empty graph
-    When executing query:
-      """
-      OPTIONAL MATCH (a:DoesNotExist)
-      REMOVE a:L
-      RETURN a
-      """
-    Then the result should be, in any order:
-      | a    |
-      | null |
-    And no side effects
+      | r                      |
+      | [:REL {property2: 24}] |
+    And the side effects should be:
+      | -properties | 1 |

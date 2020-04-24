@@ -101,15 +101,6 @@ Feature: MiscellaneousErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
-  Scenario: Failing when using undefined variable in SET
-    When executing query:
-      """
-      MATCH (a)
-      SET a.name = missing
-      RETURN a
-      """
-    Then a SyntaxError should be raised at compile time: UndefinedVariable
-
   Scenario: Failing when using a variable that is already bound in CREATE
     When executing query:
       """
@@ -182,14 +173,6 @@ Feature: MiscellaneousErrorAcceptance
       CREATE (a)<-[:FOO]->(b)
       """
     Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
-
-  Scenario: Failing when setting a list of maps as a property
-    When executing query:
-      """
-      CREATE (a)
-      SET a.maplist = [{num: 1}]
-      """
-    Then a TypeError should be raised at compile time: InvalidPropertyType
 
   Scenario: Failing when multiple columns have the same name
     When executing query:

@@ -33,91 +33,7 @@ Feature: LabelsAcceptance
   Background:
     Given an empty graph
 
-  Scenario: Adding a single label
-    And having executed:
-      """
-      CREATE ()
-      """
-    When executing query:
-      """
-      MATCH (n)
-      SET n:Foo
-      RETURN labels(n)
-      """
-    Then the result should be, in any order:
-      | labels(n) |
-      | ['Foo']   |
-    And the side effects should be:
-      | +labels | 1 |
-
-  Scenario: Ignore space before colon
-    And having executed:
-      """
-      CREATE ()
-      """
-    When executing query:
-      """
-      MATCH (n)
-      SET n :Foo
-      RETURN labels(n)
-      """
-    Then the result should be, in any order:
-      | labels(n) |
-      | ['Foo']   |
-    And the side effects should be:
-      | +labels | 1 |
-
-  Scenario: Adding multiple labels
-    And having executed:
-      """
-      CREATE ()
-      """
-    When executing query:
-      """
-      MATCH (n)
-      SET n:Foo:Bar
-      RETURN labels(n)
-      """
-    Then the result should be, in any order:
-      | labels(n)      |
-      | ['Foo', 'Bar'] |
-    And the side effects should be:
-      | +labels | 2 |
-
-  Scenario: Ignoring intermediate whitespace 1
-    And having executed:
-      """
-      CREATE ()
-      """
-    When executing query:
-      """
-      MATCH (n)
-      SET n :Foo :Bar
-      RETURN labels(n)
-      """
-    Then the result should be, in any order:
-      | labels(n)      |
-      | ['Foo', 'Bar'] |
-    And the side effects should be:
-      | +labels | 2 |
-
-  Scenario: Ignoring intermediate whitespace 2
-    And having executed:
-      """
-      CREATE ()
-      """
-    When executing query:
-      """
-      MATCH (n)
-      SET n :Foo:Bar
-      RETURN labels(n)
-      """
-    Then the result should be, in any order:
-      | labels(n)      |
-      | ['Foo', 'Bar'] |
-    And the side effects should be:
-      | +labels | 2 |
-
+  # similar to Create1.[1] => rename to make clear labels() is tested
   Scenario: Creating node without label
     When executing query:
       """
@@ -130,6 +46,7 @@ Feature: LabelsAcceptance
     And the side effects should be:
       | +nodes | 1 |
 
+  # similar to Create1.[3]/[4] => rename to make clear labels() is tested
   Scenario: Creating node with two labels
     When executing query:
       """
@@ -144,6 +61,7 @@ Feature: LabelsAcceptance
       | +labels     | 2 |
       | +properties | 1 |
 
+  # consider adding to Create1
   Scenario: Ignore space when creating node with labels
     When executing query:
       """
@@ -157,6 +75,7 @@ Feature: LabelsAcceptance
       | +nodes  | 1 |
       | +labels | 2 |
 
+  # consider adding to Create1
   Scenario: Create node with label in pattern
     When executing query:
       """
@@ -171,6 +90,7 @@ Feature: LabelsAcceptance
       | +relationships | 1 |
       | +labels        | 2 |
 
+  # consider adding to Create6
   Scenario: Fail when adding a new label predicate on a node that is already bound 1
     When executing query:
       """
@@ -179,6 +99,7 @@ Feature: LabelsAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
+  # consider adding to Create6
   Scenario: Fail when adding new label predicate on a node that is already bound 2
     When executing query:
       """
@@ -187,6 +108,7 @@ Feature: LabelsAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
+  # consider adding to Create6
   Scenario: Fail when adding new label predicate on a node that is already bound 3
     When executing query:
       """
@@ -195,6 +117,7 @@ Feature: LabelsAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
+  # consider adding to Create6
   Scenario: Fail when adding new label predicate on a node that is already bound 4
     When executing query:
       """
@@ -203,6 +126,7 @@ Feature: LabelsAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
+  # consider adding to Create6
   Scenario: Fail when adding new label predicate on a node that is already bound 5
     When executing query:
       """
