@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: TypeConversionFunctions3 - To Float
+Feature: TypeConversion3 - To Float
 
   Scenario: [1] `toFloat()` on mixed number types
     Given any graph

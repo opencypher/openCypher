@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: TypeConversionFunctions2 - To Integer
+Feature: TypeConversion2 - To Integer
 
   Scenario: [1] `toInteger()` on float
     Given any graph
