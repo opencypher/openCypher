@@ -149,26 +149,6 @@ Feature: MiscellaneousErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  Scenario: Failing when UNION has different columns
-    When executing query:
-      """
-      RETURN 1 AS a
-      UNION
-      RETURN 2 AS b
-      """
-    Then a SyntaxError should be raised at compile time: DifferentColumnsInUnion
-
-  Scenario: Failing when mixing UNION and UNION ALL
-    When executing query:
-      """
-      RETURN 1 AS a
-      UNION
-      RETURN 2 AS a
-      UNION ALL
-      RETURN 3 AS a
-      """
-    Then a SyntaxError should be raised at compile time: InvalidClauseComposition
-
   Scenario: Failing when creating without direction
     When executing query:
       """
