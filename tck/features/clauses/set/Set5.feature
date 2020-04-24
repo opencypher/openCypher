@@ -166,8 +166,8 @@ Feature: Set5 - Set Multiple Properties with a Map
       RETURN n
       """
     Then the result should be, in any order:
-      | n    |
-      | (:X) |
+      | n                            |
+      | (:X {name: 'A', name2: 'B'}) |
     And no side effects
 
   Scenario: [9] Ignore null when setting properties using an overriding map
