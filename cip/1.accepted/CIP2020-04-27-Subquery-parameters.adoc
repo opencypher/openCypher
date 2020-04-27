@@ -1,0 +1,246 @@
+= CIP2020-04-27 Subquery Parameters
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Mats Rydberg, <mats@neo4j.org>
+
+[abstract]
+.Abstract
+--
+This CIP describes the syntax and semantics for subquery parameters, or correlated subqueries.
+--
+
+toc::[]
+
+
+== Motivation
+
+Subquery syntax has already been accepted into Cypher with special rules around how it is allowed to target the preceding scope of variables in the super-query.
+The adopted model has a number of shortcomings which this CIP aims to overcome.
+
+
+== Background
+
+`CALL` subqueries have entered the Cypher language with a few restrictions.
+In this CIP we will focus on one, which is:
+
+* `CALL` subqueries can only target the preceding scope of variables with a so-called _importing WITH_
+
+An _importing WITH_ is a `WITH` clause positioned at the very start of the subquery, which only allows variable expressions.
+The mentioned variables are then available to the subsequent clause(s) in the subquery, subject to the standard scoping rules.
+When the subquery returns, all of its return items are made available to the next clause in the superquery.
+
+.Example of subquery scoping, including importing WITH:
+[source, cypher]
+----
+MATCH (a:A)
+WITH a.prop1 AS p, a.prop2 AS q
+CALL {
+  WITH p          // p is imported into the subquery
+  RETURN p AS p2  // can not return p as it is already bound in other scope
+}
+RETURN p, q, p2   // final scope is everything prior to CALL + what CALL returns
+----
+
+A `CALL` subquery will consume one row from the preceding binding table and produce zero or more rows of output.
+All variables in the consumed row are thus _constant_ throughout the execution of the subquery.
+As constants, these variables are more like _parameters_ than variables.
+However, due to scoping rules, the imported variables in the subquery may go out of scope.
+This is especially prevalent when the subquery is aggregating.
+
+.Example of imported variables going out of scope:
+[source, cypher]
+----
+MATCH (a:A)
+WITH a.prop1 AS p, a.prop2 AS q
+CALL {
+  WITH p                                  // p is imported into the subquery
+  MATCH (b:B)
+    WHERE b.prop > p
+  WITH b.prop AS bProp, count(*) AS count // p is lost from scope due to grouping
+  RETURN bProp, count, p AS predicate     // semantic error!! p not in scope
+}
+RETURN p, q, bProp, predicate
+----
+
+In summary, the issues with this model are:
+
+* The correlated variables are constant, but are not handled as constants
+** They can go out of scope
+** They share syntax with 'real' variables
+* The importing `WITH` does not work like a normal `WITH` would
+
+
+== Proposal
+
+To resolve the enumerated issues, we propose an explicit signature model for `CALL` subqueries.
+
+
+=== Syntax
+
+.Syntax specification:
+[source, ebnf]
+----
+call-subquery        = "CALL", [ argument-list ], "{", query, "} ;
+query                = // current definition of query
+argument-list        = "(", argument, { ",", argument }, ")" ;
+argument             = param-declaration
+                     | variable-declaration
+                     ;
+param-declaration    = variable, [ "AS", parameter ] ;
+varaible-declaration = variable, [ "AS", variable ] ;
+variable             = // current definition of variable
+parameter            = "$", variable ;
+----
+
+.Omitted signature imports nothing:
+[source, cypher]
+----
+// parameters to the query are $x, $y
+WITH 1 AS a, 2 AS b
+CALL (a AS $a, b AS b) {
+  WITH $x AS x, $y AS y, $a AS a_2, b AS b_2 // inner scope of parameters and variables
+  WITH x, count(*) AS agg
+  RETURN x, $y AS y, $a AS a_2               // $a visible past horizon, b is lost
+}
+RETURN a, b, x, y, a_2
+----
+
+
+==== Syntactic sugar
+
+The input signature could omit the `AS` keyword, in which case a variable would be imported as a subquery variable:
+
+[source, cypher]
+----
+WITH 1 AS a, 2 AS b
+CALL (a, b) {
+  WITH a, b
+  ...
+}
+...
+----
+
+is interpreted as
+
+[source, cypher]
+----
+WITH 1 AS a, 2 AS b
+CALL (a AS a, b AS b) {
+  WITH a, b
+  ...
+}
+...
+----
+
+
+=== Semantics
+
+The `CALL` clause is extended to allow an optional input signature which declares the arguments to the subquery.
+The argument list consists of two types of entries:
+
+* parameters
+** uses parameter syntax
+** is constant and visible throughout subquery
+** is not part of subquery binding table
+** are added to the query parameters of the superquery
+* variables
+** uses variable syntax
+** may vary by row and may go out of scope
+** is part of subquery binding table
+
+
+==== Omitted signature
+
+If the input signature is omitted, this is interpreted as declaring the subquery _uncorrelated_.
+That is, the input binding table is the unit table and the input parameters are the parameters of the superquery.
+
+.Omitted signature imports nothing:
+[source, cypher]
+----
+WITH 1 AS a, 2 AS b
+CALL {
+  RETURN a, $b       // semantic error!! a, $b not in scope
+}
+RETURN a, b
+----
+
+
+==== Import as parameter
+
+* parameters
+** uses parameter syntax
+** is constant and visible throughout subquery
+** is not part of subquery binding table
+** are added to the query parameters of the superquery
+
+.Import as parameter:
+[source, cypher]
+----
+WITH 1 AS a, 2 AS b
+CALL (a AS $a) {
+  WITH 1 AS foo, count(*) AS c
+  RETURN $a AS stillInScope
+}
+RETURN a, b
+----
+
+
+==== Import as variable
+
+* variables
+** uses variable syntax
+** may vary by row and may go out of scope
+** is part of subquery binding table
+
+
+.Import as variable:
+[source, cypher]
+----
+WITH 1 AS a, 2 AS b
+CALL (a AS a) {
+  WITH 1 AS foo, count(*) AS c
+  RETURN $a AS stillInScope
+}
+RETURN a, b
+----
+
+
+=== Examples
+
+
+=== Interaction with existing features
+
+The importing `WITH` would not be supported by the explicit signatures given that an omission of the signature is meant to indicate no correlation.
+Whenever an explicit signature is given, any `WITH` that begins the subquery would be interpreted as a standard `WITH`.
+
+
+=== Alternatives
+
+Omitting the signature could instead be defined as implicitly importing _all_ variables as variables to the subquery.
+
+.Omitted signature imports everything as variables:
+[source, cypher]
+----
+WITH 1 AS a, 2 AS b
+CALL {
+  WITH a, b
+  ...
+}
+...
+----
+.Interpreted as:
+[source, cypher]
+----
+WITH 1 AS a, 2 AS b
+CALL (a AS a, b AS b) {
+  WITH a, b
+  ...
+}
+...
+----
+
+This could lead to removing the definition of the importing `WITH` and redefine it as a standard `WITH` in a backwards-compatible way.
+
