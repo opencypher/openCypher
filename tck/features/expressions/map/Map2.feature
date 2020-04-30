@@ -29,6 +29,7 @@
 #encoding: utf-8
 
 Feature: Map2 - Dynamic Value Access
+# Dynamic value access refers to the bracket-operator – <expression resulting in a map>'['<expression resulting in a string>']' – irrespectively of whether the map key – i.e. <expression resulting in a string> – could be evaluated statically in a given scenario.
 
   Scenario: Execute n['name'] in read queries
     Given any graph
