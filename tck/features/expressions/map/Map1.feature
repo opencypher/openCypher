@@ -29,3 +29,4 @@
 #encoding: utf-8
 
 Feature: Map1 - Static Value Access
+# Static value access refers to the dot-operator – <expression resulting in a map>.<identify> – which does not allow any dynamic computation of the map key – i.e. <identify>.
