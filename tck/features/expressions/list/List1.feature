@@ -28,7 +28,8 @@
 
 #encoding: utf-8
 
-Feature: List1 - Element Access
+Feature: List1 - Dynamic Element Access
+# Dynamic element access refers to the bracket-operator – <expression resulting in a list>[<expression resulting in an integer>] – irrespectively of whether the list index – i.e. <expression resulting in an integer> – could be evaluated statically in a given scenario.
 
   Scenario: [1] Indexing into literal list
     Given any graph
