@@ -28,9 +28,9 @@
 
 #encoding: utf-8
 
-Feature: Set4 - Set Multiple Properties
+Feature: Set4 - Set All Properties with a Map
 
-  Scenario: [1] Set multiple properties
+  Scenario: [1] Set multiple properties with a property map
     Given an empty graph
     And having executed:
       """
@@ -39,7 +39,7 @@ Feature: Set4 - Set Multiple Properties
     When executing query:
       """
       MATCH (n:X)
-      SET n.name = 'A', n.name2 = 'B', n.num = 5
+      SET n = {name: 'A', name2: 'B', num: 5}
       RETURN n
       """
     Then the result should be, in any order:
@@ -47,3 +47,53 @@ Feature: Set4 - Set Multiple Properties
       | (:X {name: 'A', name2: 'B', num: 5}) |
     And the side effects should be:
       | +properties | 3 |
+
+  Scenario: [2] Non-existent values in a property map are removed with SET =
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:X {name: 'A', name2: 'B'})
+      """
+    When executing query:
+      """
+      MATCH (n:X {name: 'A'})
+      SET n = {name: 'B', baz: 'C'}
+      RETURN n
+      """
+    Then the result should be, in any order:
+      | n                           |
+      | (:X {name: 'B', baz: 'C'}) |
+    And the side effects should be:
+      | +properties | 2 |
+      | -properties | 2 |
+
+  Scenario: [3] All properties are removed if node is set to empty property map
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:X {name: 'A', name2: 'B'})
+      """
+    When executing query:
+      """
+      MATCH (n:X {name: 'A'})
+      SET n = { }
+      RETURN n
+      """
+    Then the result should be, in any order:
+      | n    |
+      | (:X) |
+    And the side effects should be:
+      | -properties | 2 |
+
+  Scenario: [4] Ignore null when setting properties using an overriding map
+    Given an empty graph
+    When executing query:
+      """
+      OPTIONAL MATCH (a:DoesNotExist)
+      SET a = {num: 42}
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a    |
+      | null |
+    And no side effects

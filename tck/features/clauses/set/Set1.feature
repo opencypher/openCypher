@@ -187,3 +187,21 @@ Feature: Set1 - Set a Property
       SET a.maplist = [{num: 1}]
       """
     Then a TypeError should be raised at compile time: InvalidPropertyType
+
+  Scenario: [11] Set multiple node properties
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:X)
+      """
+    When executing query:
+      """
+      MATCH (n:X)
+      SET n.name = 'A', n.name2 = 'B', n.num = 5
+      RETURN n
+      """
+    Then the result should be, in any order:
+      | n                                    |
+      | (:X {name: 'A', name2: 'B', num: 5}) |
+    And the side effects should be:
+      | +properties | 3 |
