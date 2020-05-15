@@ -30,62 +30,7 @@
 
 Feature: Set5 - Set Multiple Properties with a Map
 
-  Scenario: [1] Set multiple properties with a property map
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:X)
-      """
-    When executing query:
-      """
-      MATCH (n:X)
-      SET n = {name: 'A', name2: 'B', num: 5}
-      RETURN n
-      """
-    Then the result should be, in any order:
-      | n                                    |
-      | (:X {name: 'A', name2: 'B', num: 5}) |
-    And the side effects should be:
-      | +properties | 3 |
-
-  Scenario: [2] Non-existent values in a property map are removed with SET =
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:X {name: 'A', name2: 'B'})
-      """
-    When executing query:
-      """
-      MATCH (n:X {name: 'A'})
-      SET n = {name: 'B', baz: 'C'}
-      RETURN n
-      """
-    Then the result should be, in any order:
-      | n                           |
-      | (:X {name: 'B', baz: 'C'}) |
-    And the side effects should be:
-      | +properties | 2 |
-      | -properties | 2 |
-
-  Scenario: [3] All properties are removed if node is set to empty property map
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:X {name: 'A', name2: 'B'})
-      """
-    When executing query:
-      """
-      MATCH (n:X {name: 'A'})
-      SET n = { }
-      RETURN n
-      """
-    Then the result should be, in any order:
-      | n    |
-      | (:X) |
-    And the side effects should be:
-      | -properties | 2 |
-
-  Scenario: [4] Ignore null when setting properties using an appending map
+  Scenario: [1] Ignore null when setting properties using an appending map
     Given an empty graph
     When executing query:
       """
@@ -98,7 +43,7 @@ Feature: Set5 - Set Multiple Properties with a Map
       | null |
     And no side effects
 
-  Scenario: [5] Overwrite values when using +=
+  Scenario: [2] Overwrite values when using +=
     Given an empty graph
     And having executed:
       """
@@ -117,7 +62,7 @@ Feature: Set5 - Set Multiple Properties with a Map
       | +properties | 1 |
       | -properties | 1 |
 
-  Scenario: [6] Retain old values when using +=
+  Scenario: [3] Retain old values when using +=
     Given an empty graph
     And having executed:
       """
@@ -135,7 +80,7 @@ Feature: Set5 - Set Multiple Properties with a Map
     And the side effects should be:
       | +properties | 1 |
 
-  Scenario: [7] Explicit null values in a map remove old values
+  Scenario: [4] Explicit null values in a map remove old values
     Given an empty graph
     And having executed:
       """
@@ -153,7 +98,7 @@ Feature: Set5 - Set Multiple Properties with a Map
     And the side effects should be:
       | -properties | 1 |
 
-  Scenario: [8] Set an empty map when using += has no effect
+  Scenario: [5] Set an empty map when using += has no effect
     Given an empty graph
     And having executed:
       """
@@ -168,17 +113,4 @@ Feature: Set5 - Set Multiple Properties with a Map
     Then the result should be, in any order:
       | n                            |
       | (:X {name: 'A', name2: 'B'}) |
-    And no side effects
-
-  Scenario: [9] Ignore null when setting properties using an overriding map
-    Given an empty graph
-    When executing query:
-      """
-      OPTIONAL MATCH (a:DoesNotExist)
-      SET a = {num: 42}
-      RETURN a
-      """
-    Then the result should be, in any order:
-      | a    |
-      | null |
     And no side effects
