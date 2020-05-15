@@ -49,6 +49,7 @@ Feature: Remove2 - Remove a Label
       | -labels | 1 |
 
   Scenario: [2] Remove a single label from a node with two labels
+    Given an empty graph
     And having executed:
       """
       CREATE (:Foo:Bar)
@@ -84,6 +85,7 @@ Feature: Remove2 - Remove a Label
       | -labels | 2 |
 
   Scenario: [4] Remove a non-existent node label
+    Given an empty graph
     And having executed:
       """
       CREATE (:Foo)
