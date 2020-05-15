@@ -28,27 +28,9 @@
 
 #encoding: utf-8
 
-Feature: RemoveAcceptance
+Feature: Remove2 - Remove a Label
 
-  Scenario: Should ignore nulls
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({num: 42})
-      """
-    When executing query:
-      """
-      MATCH (n)
-      OPTIONAL MATCH (n)-[r]->()
-      REMOVE r.num
-      RETURN n
-      """
-    Then the result should be, in any order:
-      | n           |
-      | ({num: 42}) |
-    And no side effects
-
-  Scenario: Remove a single label
+  Scenario: [1] Remove a single label from a node with a single label
     Given an empty graph
     And having executed:
       """
@@ -66,7 +48,24 @@ Feature: RemoveAcceptance
     And the side effects should be:
       | -labels | 1 |
 
-  Scenario: Remove multiple labels
+  Scenario: [2] Remove a single label from a node with two labels
+    And having executed:
+      """
+      CREATE (:Foo:Bar)
+      """
+    When executing query:
+      """
+      MATCH (n)
+      REMOVE n:Foo
+      RETURN labels(n)
+      """
+    Then the result should be, in any order:
+      | labels(n) |
+      | ['Bar']   |
+    And the side effects should be:
+      | -labels | 1 |
+
+  Scenario: [3] Remove two labels from a node with three labels
     Given an empty graph
     And having executed:
       """
@@ -84,91 +83,31 @@ Feature: RemoveAcceptance
     And the side effects should be:
       | -labels | 2 |
 
-  Scenario: Remove a single node property
-    Given an empty graph
+  Scenario: [4] Remove a non-existent node label
     And having executed:
       """
-      CREATE (:L {num: 42})
+      CREATE (:Foo)
       """
     When executing query:
       """
       MATCH (n)
-      REMOVE n.num
-      RETURN exists(n.num) AS still_there
+      REMOVE n:Bar
+      RETURN labels(n)
       """
     Then the result should be, in any order:
-      | still_there |
-      | false       |
-    And the side effects should be:
-      | -properties | 1 |
+      | labels(n) |
+      | ['Foo']   |
+    And no side effects
 
-  Scenario: Remove multiple node properties
+  Scenario: [5] Ignore null when removing a node label
     Given an empty graph
-    And having executed:
-      """
-      CREATE (:L {num: 42, name: 'a', name2: 'B'})
-      """
     When executing query:
       """
-      MATCH (n)
-      REMOVE n.num, n.name
-      RETURN size(keys(n)) AS props
+      OPTIONAL MATCH (a:DoesNotExist)
+      REMOVE a:L
+      RETURN a
       """
     Then the result should be, in any order:
-      | props |
-      | 1     |
-    And the side effects should be:
-      | -properties | 2 |
-
-  Scenario: Remove a single relationship property
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a), (b), (a)-[:X {num: 42}]->(b)
-      """
-    When executing query:
-      """
-      MATCH ()-[r]->()
-      REMOVE r.num
-      RETURN exists(r.num) AS still_there
-      """
-    Then the result should be, in any order:
-      | still_there |
-      | false       |
-    And the side effects should be:
-      | -properties | 1 |
-
-  Scenario: Remove multiple relationship properties
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a), (b), (a)-[:X {num: 42, a: 'a', b: 'B'}]->(b)
-      """
-    When executing query:
-      """
-      MATCH ()-[r]->()
-      REMOVE r.num, r.a
-      RETURN size(keys(r)) AS props
-      """
-    Then the result should be, in any order:
-      | props |
-      | 1     |
-    And the side effects should be:
-      | -properties | 2 |
-
-  Scenario: Remove a missing property should be a valid operation
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (), (), ()
-      """
-    When executing query:
-      """
-      MATCH (n)
-      REMOVE n.num
-      RETURN sum(size(keys(n))) AS totalNumberOfProps
-      """
-    Then the result should be, in any order:
-      | totalNumberOfProps |
-      | 0                  |
+      | a    |
+      | null |
     And no side effects

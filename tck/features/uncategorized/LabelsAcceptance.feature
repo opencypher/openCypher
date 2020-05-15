@@ -149,36 +149,3 @@ Feature: LabelsAcceptance
       | labels(n) |
       | []        |
     And no side effects
-
-  Scenario: Removing a label
-    And having executed:
-      """
-      CREATE (:Foo:Bar)
-      """
-    When executing query:
-      """
-      MATCH (n)
-      REMOVE n:Foo
-      RETURN labels(n)
-      """
-    Then the result should be, in any order:
-      | labels(n) |
-      | ['Bar']   |
-    And the side effects should be:
-      | -labels | 1 |
-
-  Scenario: Removing a non-existent label
-    And having executed:
-      """
-      CREATE (:Foo)
-      """
-    When executing query:
-      """
-      MATCH (n)
-      REMOVE n:Bar
-      RETURN labels(n)
-      """
-    Then the result should be, in any order:
-      | labels(n) |
-      | ['Foo']   |
-    And no side effects

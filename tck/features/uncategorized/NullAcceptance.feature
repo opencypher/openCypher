@@ -75,29 +75,3 @@ Feature: NullAcceptance
       | exists(n.missing) |
       | null              |
     And no side effects
-
-  Scenario: Ignore null when removing property
-    Given an empty graph
-    When executing query:
-      """
-      OPTIONAL MATCH (a:DoesNotExist)
-      REMOVE a.num
-      RETURN a
-      """
-    Then the result should be, in any order:
-      | a    |
-      | null |
-    And no side effects
-
-  Scenario: Ignore null when removing label
-    Given an empty graph
-    When executing query:
-      """
-      OPTIONAL MATCH (a:DoesNotExist)
-      REMOVE a:L
-      RETURN a
-      """
-    Then the result should be, in any order:
-      | a    |
-      | null |
-    And no side effects
