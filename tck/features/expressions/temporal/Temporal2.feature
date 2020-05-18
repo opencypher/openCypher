@@ -28,12 +28,10 @@
 
 #encoding: utf-8
 
-Feature: TemporalParseAcceptance
+Feature: Temporal2 - Create Temporal Values from a String
 
-  Background:
+  Scenario Outline: [1] Should parse date from string
     Given any graph
-
-  Scenario Outline: Should parse date from string
     When executing query:
       """
       RETURN date(<str>) AS result
@@ -57,7 +55,8 @@ Feature: TemporalParseAcceptance
       | '2015202'    | '2015-07-21' |
       | '2015'       | '2015-01-01' |
 
-  Scenario Outline: Should parse local time from string
+  Scenario Outline: [2] Should parse local time from string
+    Given any graph
     When executing query:
       """
       RETURN localtime(<str>) AS result
@@ -77,7 +76,8 @@ Feature: TemporalParseAcceptance
       | '2140'         | '21:40'        |
       | '21'           | '21:00'        |
 
-  Scenario Outline: Should parse time from string
+  Scenario Outline: [3] Should parse time from string
+    Given any graph
     When executing query:
       """
       RETURN time(<str>) AS result
@@ -98,7 +98,8 @@ Feature: TemporalParseAcceptance
       | '2140-02'           | '21:40-02:00'        |
       | '22+18:00'          | '22:00+18:00'        |
 
-  Scenario Outline: Should parse local date time from string
+  Scenario Outline: [4] Should parse local date time from string
+    Given any graph
     When executing query:
       """
       RETURN localdatetime(<str>) AS result
@@ -118,7 +119,8 @@ Feature: TemporalParseAcceptance
       | '2015-W30T2140'           | '2015-07-20T21:40'        |
       | '2015202T21'              | '2015-07-21T21:00'        |
 
-  Scenario Outline: Should parse date time from string
+  Scenario Outline: [5] Should parse date time from string
+    Given any graph
     When executing query:
       """
       RETURN datetime(<str>) AS result
@@ -139,7 +141,8 @@ Feature: TemporalParseAcceptance
       | '2015-W30T2140-02'             | '2015-07-20T21:40-02:00'        |
       | '2015202T21+18:00'             | '2015-07-21T21:00+18:00'        |
 
-  Scenario Outline: Should parse date time with named time zone from string
+  Scenario Outline: [6] Should parse date time with named time zone from string
+    Given any graph
     When executing query:
       """
       RETURN datetime(<str>) AS result
@@ -157,7 +160,8 @@ Feature: TemporalParseAcceptance
       | '2015-07-21T21:40:32.142[Europe/London]'          | '2015-07-21T21:40:32.142+01:00[Europe/London]'       |
       | '1818-07-21T21:40:32.142[Europe/Stockholm]'       | '1818-07-21T21:40:32.142+01:12:12[Europe/Stockholm]' |
 
-  Scenario Outline: Should parse duration from string
+  Scenario Outline: [7] Should parse duration from string
+    Given any graph
     When executing query:
       """
       RETURN duration(<str>) AS result

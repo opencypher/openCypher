@@ -28,12 +28,10 @@
 
 #encoding: utf-8
 
-Feature: TemporalComparisonAcceptance
+Feature: Temporal7 - Compare Temporal Values
 
-  Background:
+  Scenario Outline: [1] Should compare dates
     Given any graph
-
-  Scenario Outline: Should compare dates
     When executing query:
       """
       WITH date(<map>) AS x, date(<map2>) AS d
@@ -49,7 +47,8 @@ Feature: TemporalComparisonAcceptance
       | {year: 1980, month: 12, day: 24} | {year: 1984, month: 10, day: 11} | false | true  | false | true | false |
       | {year: 1984, month: 10, day: 11} | {year: 1984, month: 10, day: 11} | false | false | true  | true | true  |
 
-  Scenario Outline: Should compare local times
+  Scenario Outline: [2] Should compare local times
+    Given any graph
     When executing query:
       """
       WITH localtime(<map>) AS x, localtime(<map2>) AS d
@@ -65,7 +64,8 @@ Feature: TemporalComparisonAcceptance
       | {hour: 10, minute: 35}                                    | {hour: 12, minute: 31, second: 14, nanosecond: 645876123} | false | true  | false | true | false |
       | {hour: 12, minute: 31, second: 14, nanosecond: 645876123} | {hour: 12, minute: 31, second: 14, nanosecond: 645876123} | false | false | true  | true | true  |
 
-  Scenario Outline: Should compare times
+  Scenario Outline: [3] Should compare times
+    Given any graph
     When executing query:
       """
       WITH time(<map>) AS x, time(<map2>) AS d
@@ -81,7 +81,8 @@ Feature: TemporalComparisonAcceptance
       | {hour: 10, minute: 0, timezone: '+01:00'}                                    | {hour: 9, minute: 35, second: 14, nanosecond: 645876123, timezone: '+00:00'} | false | true  | false | true | false |
       | {hour: 9, minute: 35, second: 14, nanosecond: 645876123, timezone: '+00:00'} | {hour: 9, minute: 35, second: 14, nanosecond: 645876123, timezone: '+00:00'} | false | false | true  | true | true  |
 
-  Scenario Outline: Should compare local date times
+  Scenario Outline: [4] Should compare local date times
+    Given any graph
     When executing query:
       """
       WITH localdatetime(<map>) AS x, localdatetime(<map2>) AS d
@@ -97,7 +98,8 @@ Feature: TemporalComparisonAcceptance
       | {year: 1980, month: 12, day: 11, hour: 12, minute: 31, second: 14}                        | {year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123} | false | true  | false | true | false |
       | {year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123} | {year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123} | false | false | true  | true | true  |
 
-  Scenario Outline: Should compare date times
+  Scenario Outline: [5] Should compare date times
+    Given any graph
     When executing query:
       """
       WITH datetime(<map>) AS x, datetime(<map2>) AS d
@@ -113,7 +115,8 @@ Feature: TemporalComparisonAcceptance
       | {year: 1980, month: 12, day: 11, hour: 12, minute: 31, second: 14, timezone: '+00:00'} | {year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, timezone: '+05:00'} | false | true  | false | true | false |
       | {year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, timezone: '+05:00'} | {year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, timezone: '+05:00'} | false | false | true  | true | true  |
 
-  Scenario Outline: Should compare durations for equality
+  Scenario Outline: [6] Should compare durations for equality
+    Given any graph
     When executing query:
       """
       WITH duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70}) AS x, <other> AS d
