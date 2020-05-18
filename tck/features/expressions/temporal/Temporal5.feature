@@ -28,12 +28,10 @@
 
 #encoding: utf-8
 
-Feature: TemporalAccessorAcceptance
+Feature: Temporal5 - Access Parts of Temporal Values
 
-  Background:
+  Scenario: [1] Should provide accessors for date
     Given an empty graph
-
-  Scenario: Should provide accessors for date
     And having executed:
       """
       CREATE (:Val {date: date({year: 1984, month: 10, day: 11})})
@@ -49,7 +47,8 @@ Feature: TemporalAccessorAcceptance
       | 1984   | 4         | 10      | 41     | 1984       | 11    | 285          | 4         | 11             |
     And no side effects
 
-  Scenario: Should provide accessors for date in last weekYear
+  Scenario: [2] Should provide accessors for date in last weekYear
+    Given an empty graph
     And having executed:
       """
       CREATE (:Val {date: date({year: 1984, month: 01, day: 01})})
@@ -65,7 +64,8 @@ Feature: TemporalAccessorAcceptance
       | 1984   | 1983       | 52     | 7         |
     And no side effects
 
-  Scenario: Should provide accessors for local time
+  Scenario: [3] Should provide accessors for local time
+    Given an empty graph
     And having executed:
       """
       CREATE (:Val {date: localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})})
@@ -81,7 +81,8 @@ Feature: TemporalAccessorAcceptance
       | 12     | 31       | 14       | 645           | 645876        | 645876123    |
     And no side effects
 
-  Scenario: Should provide accessors for time
+  Scenario: [4] Should provide accessors for time
+    Given an empty graph
     And having executed:
       """
       CREATE (:Val {date: time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})})
@@ -97,7 +98,8 @@ Feature: TemporalAccessorAcceptance
       | 12     | 31       | 14       | 645           | 645876        | 645876123    | '+01:00'   | '+01:00' | 60              | 3600            |
     And no side effects
 
-  Scenario: Should provide accessors for local date time
+  Scenario: [5] Should provide accessors for local date time
+    Given an empty graph
     And having executed:
       """
       CREATE (:Val {date: localdatetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123})})
@@ -114,7 +116,8 @@ Feature: TemporalAccessorAcceptance
       | 1984   | 4         | 11      | 45     | 1984       | 11    | 316          | 7         | 42             | 12     | 31       | 14       | 645           | 645876        | 645876123    |
     And no side effects
 
-  Scenario: Should provide accessors for date time
+  Scenario: [6] Should provide accessors for date time
+    Given an empty graph
     And having executed:
       """
       CREATE (:Val {date: datetime({year: 1984, month: 11, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: 'Europe/Stockholm'})})
@@ -132,7 +135,8 @@ Feature: TemporalAccessorAcceptance
       | 1984   | 4         | 11      | 45     | 1984       | 11    | 316          | 7         | 42             | 12     | 31       | 14       | 645           | 645876        | 645876123    | 'Europe/Stockholm' | '+01:00' | 60              | 3600            | 469020674      | 469020674645  |
     And no side effects
 
-  Scenario: Should provide accessors for duration
+  Scenario: [7] Should provide accessors for duration
+    Given an empty graph
     And having executed:
       """
       CREATE (:Val {date: duration({years: 1, months: 4, days: 10, hours: 1, minutes: 1, seconds: 1, nanoseconds: 111111111})})

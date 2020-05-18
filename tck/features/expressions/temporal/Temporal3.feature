@@ -27,12 +27,10 @@
 #
 
 #encoding: utf-8
-Feature: TemporalSelectAcceptance
+Feature: Temporal3 - Create Temporal Values from other Temporal Values
 
-  Background:
+  Scenario Outline: [1] Should select date
     Given any graph
-
-  Scenario Outline: Should select date
     When executing query:
       """
       WITH <other> AS other
@@ -67,7 +65,8 @@ Feature: TemporalSelectAcceptance
       | datetime({year: 1984, month: 11, day: 11, hour: 12, timezone: '+01:00'})                                 | {date: other, ordinalDay: 28} | '1984-01-28' |
       | datetime({year: 1984, month: 11, day: 11, hour: 12, timezone: '+01:00'})                                 | {date: other, quarter: 3}     | '1984-08-11' |
 
-  Scenario Outline: Should select local time
+  Scenario Outline: [2] Should select local time
+    Given any graph
     When executing query:
       """
       WITH <other> AS other
@@ -93,7 +92,8 @@ Feature: TemporalSelectAcceptance
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {time: other}             | '12:00'              |
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {time: other, second: 42} | '12:00:42'           |
 
-  Scenario Outline: Should select time
+  Scenario Outline: [3] Should select time
+    Given any graph
     When executing query:
       """
       WITH <other> AS other
@@ -127,7 +127,8 @@ Feature: TemporalSelectAcceptance
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {time: other, second: 42}                     | '12:00:42+01:00'           |
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {time: other, second: 42, timezone: '+05:00'} | '16:00:42+05:00'           |
 
-  Scenario Outline: Should select date into local date time
+  Scenario Outline: [4] Should select date into local date time
+    Given any graph
     When executing query:
       """
       WITH <other> AS other
@@ -147,7 +148,8 @@ Feature: TemporalSelectAcceptance
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: other, hour: 10, minute: 10, second: 10}          | '1984-10-11T10:10:10' |
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: other, day: 28, hour: 10, minute: 10, second: 10} | '1984-10-28T10:10:10' |
 
-  Scenario Outline: Should select time into local date time
+  Scenario Outline: [5] Should select time into local date time
+    Given any graph
     When executing query:
       """
       WITH <other> AS other
@@ -169,7 +171,8 @@ Feature: TemporalSelectAcceptance
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {year: 1984, month: 10, day: 11, time: other}             | '1984-10-11T12:00'              |
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {year: 1984, month: 10, day: 11, time: other, second: 42} | '1984-10-11T12:00:42'           |
 
-  Scenario Outline: Should select date and time into local date time
+  Scenario Outline: [6] Should select date and time into local date time
+    Given any graph
     When executing query:
       """
       WITH <otherDate> AS otherDate, <otherTime> AS otherTime
@@ -207,7 +210,8 @@ Feature: TemporalSelectAcceptance
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: otherDate, time: otherTime}                      | '1984-10-11T12:00'              |
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: otherDate, time: otherTime, day: 28, second: 42} | '1984-10-28T12:00:42'           |
 
-  Scenario Outline: Should select datetime into local date time
+  Scenario Outline: [7] Should select datetime into local date time
+    Given any graph
     When executing query:
       """
       WITH <other> AS other
@@ -227,7 +231,8 @@ Feature: TemporalSelectAcceptance
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {datetime: other}                      | '1984-10-11T12:00'        |
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {datetime: other, day: 28, second: 42} | '1984-10-28T12:00:42'     |
 
-  Scenario Outline: Should select date into date time
+  Scenario Outline: [8] Should select date into date time
+    Given any graph
     When executing query:
       """
       WITH <other> AS other
@@ -253,7 +258,8 @@ Feature: TemporalSelectAcceptance
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: other, day: 28, hour: 10, minute: 10, second: 10}                               | '1984-10-28T10:10:10Z'                        |
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | {date: other, day: 28, hour: 10, minute: 10, second: 10, timezone: 'Pacific/Honolulu'} | '1984-10-28T10:10:10-10:00[Pacific/Honolulu]' |
 
-  Scenario Outline: Should select time into date time
+  Scenario Outline: [9] Should select time into date time
+    Given any graph
     When executing query:
       """
       WITH <other> AS other
@@ -283,7 +289,8 @@ Feature: TemporalSelectAcceptance
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {year: 1984, month: 10, day: 11, time: other, second: 42}                               | '1984-10-11T12:00:42+01:00[Europe/Stockholm]'           |
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {year: 1984, month: 10, day: 11, time: other, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-11T01:00:42-10:00[Pacific/Honolulu]'           |
 
-  Scenario Outline: Should select date and time into date time
+  Scenario Outline: [10] Should select date and time into date time
+    Given any graph
     When executing query:
       """
       WITH <otherDate> AS otherDate, <otherTime> AS otherTime
@@ -345,7 +352,8 @@ Feature: TemporalSelectAcceptance
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime, day: 28, second: 42}                               | '1984-10-28T12:00:42+01:00[Europe/Stockholm]'           |
       | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: '+01:00'})                                | datetime({year: 1984, month: 10, day: 11, hour: 12, timezone: 'Europe/Stockholm'})                      | {date: otherDate, time: otherTime, day: 28, second: 42, timezone: 'Pacific/Honolulu'} | '1984-10-28T01:00:42-10:00[Pacific/Honolulu]'           |
 
-  Scenario Outline: Should datetime into date time
+  Scenario Outline: [11] Should datetime into date time
+    Given any graph
     When executing query:
       """
       WITH <other> AS other

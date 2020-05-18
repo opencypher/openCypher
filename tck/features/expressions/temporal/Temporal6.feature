@@ -28,12 +28,10 @@
 
 #encoding: utf-8
 
-Feature: TemporalToStringAcceptance
+Feature: Temporal6 - Render Temporal Values as a String
 
-  Background:
+  Scenario: [1] Should serialize date
     Given any graph
-
-  Scenario: Should serialize date
     When executing query:
       """
       WITH date({year: 1984, month: 10, day: 11}) AS d
@@ -44,7 +42,8 @@ Feature: TemporalToStringAcceptance
       | '1984-10-11' | true |
     And no side effects
 
-  Scenario: Should serialize local time
+  Scenario: [2] Should serialize local time
+    Given any graph
     When executing query:
       """
       WITH localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}) AS d
@@ -55,7 +54,8 @@ Feature: TemporalToStringAcceptance
       | '12:31:14.645876123' | true |
     And no side effects
 
-  Scenario: Should serialize time
+  Scenario: [3] Should serialize time
+    Given any graph
     When executing query:
       """
       WITH time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) AS d
@@ -66,7 +66,8 @@ Feature: TemporalToStringAcceptance
       | '12:31:14.645876123+01:00' | true |
     And no side effects
 
-  Scenario: Should serialize local date time
+  Scenario: [4] Should serialize local date time
+    Given any graph
     When executing query:
       """
       WITH localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123}) AS d
@@ -77,7 +78,8 @@ Feature: TemporalToStringAcceptance
       | '1984-10-11T12:31:14.645876123' | true |
     And no side effects
 
-  Scenario: Should serialize date time
+  Scenario: [5] Should serialize date time
+    Given any graph
     When executing query:
       """
       WITH datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}) AS d
@@ -88,7 +90,8 @@ Feature: TemporalToStringAcceptance
       | '1984-10-11T12:31:14.645876123+01:00' | true |
     And no side effects
 
-  Scenario Outline: Should serialize duration
+  Scenario Outline: [6] Should serialize duration
+    Given any graph
     When executing query:
       """
       WITH duration(<map>) AS d
@@ -113,7 +116,8 @@ Feature: TemporalToStringAcceptance
       | {seconds: -60, milliseconds: 1}                                                       | 'PT-59.999S'                    | true    |
       | {seconds: -60, milliseconds: -1}                                                      | 'PT-1M-0.001S'                  | true    |
 
-  Scenario: Should serialize timezones correctly
+  Scenario: [7] Should serialize timezones correctly
+    Given any graph
     When executing query:
       """
       WITH datetime({year: 2017, month: 8, day: 8, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: 'Europe/Stockholm'}) AS d

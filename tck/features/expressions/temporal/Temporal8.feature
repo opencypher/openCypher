@@ -28,12 +28,10 @@
 
 #encoding: utf-8
 
-Feature: TemporalArithmeticAcceptance
+Feature: Temporal8 - Compute Arithmetic Operations on Temporal Values
 
-  Background:
+  Scenario Outline: [1] Should add or subtract duration to or from date
     Given an empty graph
-
-  Scenario Outline: Should add or subtract duration to or from date
     And having executed:
       """
       CREATE (:Duration {dur: duration(<map>)})
@@ -55,7 +53,8 @@ Feature: TemporalArithmeticAcceptance
       | {months: 1, days: -14, hours: 16, minutes: -12, seconds: 70}                                      | '1984-10-28' | '1984-09-25' |
       | {years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3} | '1997-10-11' | '1971-10-12' |
 
-  Scenario Outline: Should add or subtract duration to or from local time
+  Scenario Outline: [2] Should add or subtract duration to or from local time
+    Given an empty graph
     And having executed:
       """
       CREATE (:Duration {dur: duration(<map>)})
@@ -77,7 +76,8 @@ Feature: TemporalArithmeticAcceptance
       | {months: 1, days: -14, hours: 16, minutes: -12, seconds: 70}                                      | '04:20:24.000000001' | '20:42:04.000000001' |
       | {years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3} | '22:29:27.500000004' | '02:33:00.499999998' |
 
-  Scenario Outline: Should add or subtract duration to or from time
+  Scenario Outline: [3] Should add or subtract duration to or from time
+    Given an empty graph
     And having executed:
       """
       CREATE (:Duration {dur: duration(<map>)})
@@ -99,7 +99,8 @@ Feature: TemporalArithmeticAcceptance
       | {months: 1, days: -14, hours: 16, minutes: -12, seconds: 70}                                      | '04:20:24.000000001+01:00' | '20:42:04.000000001+01:00' |
       | {years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3} | '22:29:27.500000004+01:00' | '02:33:00.499999998+01:00' |
 
-  Scenario Outline: Should add or subtract duration to or from local date time
+  Scenario Outline: [4] Should add or subtract duration to or from local date time
+    Given an empty graph
     And having executed:
       """
       CREATE (:Duration {dur: duration(<map>)})
@@ -121,7 +122,8 @@ Feature: TemporalArithmeticAcceptance
       | {months: 1, days: -14, hours: 16, minutes: -12, seconds: 70}                                      | '1984-10-29T04:20:24.000000001' | '1984-09-24T20:42:04.000000001' |
       | {years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3} | '1997-10-11T22:29:27.500000004' | '1971-10-12T02:33:00.499999998' |
 
-  Scenario Outline: Should add or subtract duration to or from date time
+  Scenario Outline: [5] Should add or subtract duration to or from date time
+    Given an empty graph
     And having executed:
       """
       CREATE (:Duration {dur: duration(<map>)})
@@ -143,7 +145,8 @@ Feature: TemporalArithmeticAcceptance
       | {months: 1, days: -14, hours: 16, minutes: -12, seconds: 70}                                      | '1984-10-29T04:20:24.000000001+01:00' | '1984-09-24T20:42:04.000000001+01:00' |
       | {years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3} | '1997-10-11T22:29:27.500000004+01:00' | '1971-10-12T02:33:00.499999998+01:00' |
 
-  Scenario Outline: Should add or subtract durations
+  Scenario Outline: [6] Should add or subtract durations
+    Given an empty graph
     And having executed:
       """
       CREATE (:Duration1 {date: duration(<map1>)})
@@ -171,7 +174,8 @@ Feature: TemporalArithmeticAcceptance
       | {years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3} | {months: 1, days: -14, hours: 16, minutes: -12, seconds: 70}                                      | 'P13Y15DT49H47M23.500000003S'    | 'P12Y10M43DT18H9M3.500000003S'       |
       | {years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3} | {years: 12.5, months: 5.5, days: 14.5, hours: 16.5, minutes: 12.5, seconds: 70.5, nanoseconds: 3} | 'P25Y10M58DT67H56M27.000000006S' | 'PT0S'                               |
 
-  Scenario Outline: Should multiply or divide durations by numbers
+  Scenario Outline: [7] Should multiply or divide durations by numbers
+    Given an empty graph
     And having executed:
       """
       CREATE (:Duration {date: duration({years: 12, months: 5, days: 14, hours: 16, minutes: 12, seconds: 70, nanoseconds: 1})})
