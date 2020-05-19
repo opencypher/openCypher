@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Temporal5 - Access Parts of Temporal Values
+Feature: Temporal5 - Access Components of Temporal Values
 
   Scenario: [1] Should provide accessors for date
     Given an empty graph
