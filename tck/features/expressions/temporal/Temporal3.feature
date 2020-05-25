@@ -27,7 +27,7 @@
 #
 
 #encoding: utf-8
-Feature: Temporal3 - Create Temporal Values from other Temporal Values
+Feature: Temporal3 - Project Temporal Values from other Temporal Values
 
   Scenario Outline: [1] Should select date
     Given any graph
