@@ -27,6 +27,9 @@
  */
 package org.opencypher.tools
 
+import java.nio.file.Files
+import java.nio.file.Paths
+
 import org.junit.jupiter.api.Test
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.inspection.collect.Feature
@@ -35,16 +38,58 @@ import org.opencypher.tools.tck.inspection.collect.GroupCollection
 import org.opencypher.tools.tck.inspection.collect.ScenarioCategory
 import org.opencypher.tools.tck.inspection.collect.Tag
 import org.opencypher.tools.tck.inspection.collect.Total
+import org.scalatest.Assertions._
+
+import scala.collection.mutable.ArrayBuffer
+import scala.io.Source
+import scala.sys.process._
 
 class GenerateTCKIndexDocTest {
   @Test
   def runAsTest(): Unit = GenerateTCKIndexDoc.main(Array())
+
+  @Test
+  def verifyGenerateIndexIsCommitted(): Unit = {
+    val tmpFile = Files.createTempFile("tck-", "-index.adoc")
+    val gitCmd = Seq("git", "-C", Paths.get(System.getProperty("projectRootdir")).toAbsolutePath.toString,
+      "show", s"HEAD:${GenerateTCKIndexDoc.indexDocFileRelative}")
+    val cmd = gitCmd #>> tmpFile.toFile
+
+    val out = ArrayBuffer[String]()
+    val err = ArrayBuffer[String]()
+    val logger = ProcessLogger(line => out += line, line => err += line)
+    val exitCode = cmd.!(logger)
+
+    if(exitCode == 0) {
+      val generated = GenerateTCKIndexDoc.generate
+      val checkedIn = {
+        val src = Source.fromFile(tmpFile.toString)
+        val content = src.getLines.mkString(System.lineSeparator)
+        src.close
+        content
+      }
+      assert(generated == checkedIn, s"generated ${GenerateTCKIndexDoc.indexDocFileRelative} does not equal the version found in HEAD")
+      tmpFile.toFile.deleteOnExit()
+    } else {
+      fail(s"""could not get version of ${GenerateTCKIndexDoc.indexDocFileRelative} in current HEAD:
+              |
+              |${gitCmd.mkString(" ")} > ${tmpFile.toString}
+              |
+              |${err.mkString(System.lineSeparator())}""".stripMargin)
+    }
+  }
 }
 
 object GenerateTCKIndexDoc {
-  private val indexDocFile = System.getProperty("buildDirectory") + "/../../../tck/index.adoc"
+  val indexDocFileRelative = "tck/index.adoc"
+  private val indexDocFileAbsolute = System.getProperty("projectRootdir") + "/" + indexDocFileRelative
 
   def main(args: Array[String]): Unit = {
+    write(generate)
+    println("Generated " + indexDocFileRelative)
+  }
+
+  def generate: String = {
     val scenarios = CypherTCK.allTckScenarios
     val groups = GroupCollection(scenarios).keySet
 
@@ -64,7 +109,7 @@ object GenerateTCKIndexDoc {
             |There is also an `uncategorized` and `precategorized` directory containing uncategorized features.
             |""".stripMargin
         case ScenarioCategory(name, indent, _) =>
-          System.getProperty("line.separator") + s"=${("=" * indent)} $name" + System.getProperty("line.separator")
+          System.lineSeparator() + s"=${"=" * indent} $name" + System.lineSeparator()
         case Feature(name, _, _) =>
           s"* $name"
         case _ => ""
@@ -91,13 +136,13 @@ object GenerateTCKIndexDoc {
       groupHead :: groupsOrderedFiltered.flatMap(printDepthFirst).toList
     }
 
-    val indexDoc = printDepthFirst(Total).mkString(System.lineSeparator)
+    printDepthFirst(Total).mkString(System.lineSeparator)
+  }
 
+  def write(indexDoc: String): Unit = {
     import java.io._
-    val pw = new PrintWriter(new File(indexDocFile))
+    val pw = new PrintWriter(new File(indexDocFileAbsolute))
     pw.write(indexDoc)
-    pw.close
-
-    println("Generated " + indexDocFile)
+    pw.close()
   }
 }
