@@ -36,8 +36,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
-                        <propertyName>buildDirectory</propertyName>
-                        <buildDirectory>${project.build.directory}</buildDirectory>
+                        <propertyName>projectRootdir</propertyName>
+                        <projectRootdir>${project.rootdir}</projectRootdir>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
