@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Addition
+Feature: Mathematical2 - Addition
 
   Scenario: Allow addition
     Given an empty graph

@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: Power
+Feature: Mathematical7 - Power
