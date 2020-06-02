@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: Subtraction
+Feature: Mathematical3 - Subtraction

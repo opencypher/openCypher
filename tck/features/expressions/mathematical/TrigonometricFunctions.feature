@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: TrigonometricFunctions
+Feature: Mathematical16 - TrigonometricFunctions

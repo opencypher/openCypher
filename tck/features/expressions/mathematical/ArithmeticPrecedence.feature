@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: ArithmeticPrecedence
+Feature: Mathematical8 - ArithmeticPrecedence
 
   Scenario: Arithmetic precedence test
     Given any graph

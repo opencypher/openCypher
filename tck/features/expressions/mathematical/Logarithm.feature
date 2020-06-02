@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: Logarithm
+Feature: Mathematical14 - Logarithm
