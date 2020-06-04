@@ -30,7 +30,7 @@
 
 Feature: String1 - Substring extraction
 
-  Scenario: `substring()` with default second argument
+  Scenario: [1] `substring()` with default second argument
     Given any graph
     When executing query:
       """
