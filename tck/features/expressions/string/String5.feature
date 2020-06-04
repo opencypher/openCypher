@@ -30,7 +30,7 @@
 
 Feature: String5 - String Splitting
 
-  Scenario: `split()`
+  Scenario: [1] `split()`
     Given any graph
     When executing query:
       """
