@@ -60,18 +60,6 @@ Feature: FunctionsAcceptance
       | null           | null    | null     | null             |
     And no side effects
 
-  Scenario: `split()`
-    Given any graph
-    When executing query:
-      """
-      UNWIND split('one1two', '1') AS item
-      RETURN count(item) AS item
-      """
-    Then the result should be, in any order:
-      | item |
-      | 2    |
-    And no side effects
-
   Scenario: `properties()` on a node
     Given an empty graph
     And having executed:
