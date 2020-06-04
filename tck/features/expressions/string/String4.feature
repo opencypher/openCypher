@@ -30,7 +30,7 @@
 
 Feature: String4 - String Reversal
 
-  Scenario: `reverse()`
+  Scenario: [1] `reverse()`
     Given any graph
     When executing query:
       """
