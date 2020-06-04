@@ -317,17 +317,6 @@ Feature: ReturnAcceptance2
       | 15      |
     And no side effects
 
-  Scenario: `substring()` with default second argument
-    Given any graph
-    When executing query:
-      """
-      RETURN substring('0123456789', 1) AS s
-      """
-    Then the result should be, in any order:
-      | s           |
-      | '123456789' |
-    And no side effects
-
   Scenario: Returning all variables with ordering
     Given an empty graph
     And having executed:
