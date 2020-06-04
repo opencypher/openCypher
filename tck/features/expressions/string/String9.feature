@@ -28,16 +28,4 @@
 
 #encoding: utf-8
 
-Feature: String5 - String Splitting
-
-  Scenario: [1] `split()`
-    Given any graph
-    When executing query:
-      """
-      UNWIND split('one1two', '1') AS item
-      RETURN count(item) AS item
-      """
-    Then the result should be, in any order:
-      | item |
-      | 2    |
-    And no side effects
+Feature: String9 - Exact String Suffix Search

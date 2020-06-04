@@ -28,4 +28,15 @@
 
 #encoding: utf-8
 
-Feature: String3 - Substring Replacement
+Feature: String4 - String Reversal
+
+  Scenario: [1] `reverse()`
+    Given any graph
+    When executing query:
+      """
+      RETURN reverse('raksO')
+      """
+    Then the result should be, in any order:
+      | reverse('raksO') |
+      | 'Oskar'          |
+    And no side effects
