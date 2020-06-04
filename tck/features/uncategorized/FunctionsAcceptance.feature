@@ -150,17 +150,6 @@ Feature: FunctionsAcceptance
       | null             |
     And no side effects
 
-  Scenario: `reverse()`
-    Given any graph
-    When executing query:
-      """
-      RETURN reverse('raksO')
-      """
-    Then the result should be, in any order:
-      | reverse('raksO') |
-      | 'Oskar'          |
-    And no side effects
-
   Scenario: `exists()` with dynamic property lookup
     Given an empty graph
     And having executed:
