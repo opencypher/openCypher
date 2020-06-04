@@ -30,7 +30,7 @@
 
 Feature: StartsWithAcceptance
 
-  Background:
+  Scenario: Finding exact matches
     Given an empty graph
     And having executed:
       """
@@ -38,8 +38,6 @@ Feature: StartsWithAcceptance
              (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
              (:TheLabel {name: ''}), (:TheLabel)
       """
-
-  Scenario: Finding exact matches
     When executing query:
       """
       MATCH (a)
@@ -52,6 +50,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Finding beginning of string
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -64,6 +69,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Finding end of string 1
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -76,6 +88,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Finding end of string 2
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -88,6 +107,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Finding middle of string
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -101,6 +127,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Finding the empty string
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -117,6 +150,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Finding when the middle is known
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -129,6 +169,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Finding strings starting with whitespace
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     And having executed:
       """
       CREATE (:TheLabel {name: ' Foo '}),
@@ -147,6 +194,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Finding strings starting with newline
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     And having executed:
       """
       CREATE (:TheLabel {name: ' Foo '}),
@@ -165,6 +219,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Finding strings ending with newline
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     And having executed:
       """
       CREATE (:TheLabel {name: ' Foo '}),
@@ -183,6 +244,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Finding strings ending with whitespace
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     And having executed:
       """
       CREATE (:TheLabel {name: ' Foo '}),
@@ -201,6 +269,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Finding strings containing whitespace
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     And having executed:
       """
       CREATE (:TheLabel {name: ' Foo '}),
@@ -219,6 +294,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Finding strings containing newline
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     And having executed:
       """
       CREATE (:TheLabel {name: ' Foo '}),
@@ -237,6 +319,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: No string starts with null
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -248,6 +337,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: No string does not start with null
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -259,6 +355,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: No string ends with null
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -270,6 +373,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: No string does not end with null
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -281,6 +391,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: No string contains null
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -292,6 +409,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: No string does not contain null
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -303,6 +427,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Combining string operators
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -317,6 +448,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: NOT with CONTAINS
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       MATCH (a)
@@ -331,6 +469,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Handling non-string operands for STARTS WITH
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       WITH [1, 3.14, true, [], {}, null] AS operands
@@ -345,6 +490,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Handling non-string operands for CONTAINS
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       WITH [1, 3.14, true, [], {}, null] AS operands
@@ -359,6 +511,13 @@ Feature: StartsWithAcceptance
     And no side effects
 
   Scenario: Handling non-string operands for ENDS WITH
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
     When executing query:
       """
       WITH [1, 3.14, true, [], {}, null] AS operands
