@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: DurationBetweenAcceptance
+Feature: Temporal10 - Compute Durations Between two Temporal Values
 
   Background:
     Given any graph
