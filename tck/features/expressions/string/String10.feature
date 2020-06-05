@@ -30,7 +30,7 @@
 
 Feature: String10 - Exact Substring Search
 
-  Scenario: Finding exact matches with non-proper substring
+  Scenario: [1] Finding exact matches with non-proper substring
     Given an empty graph
     And having executed:
       """
@@ -49,7 +49,7 @@ Feature: String10 - Exact Substring Search
       | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
 
-  Scenario: Finding middle of string
+  Scenario: [2] Finding substring of string
     Given an empty graph
     And having executed:
       """
@@ -68,7 +68,30 @@ Feature: String10 - Exact Substring Search
       | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
 
-  Scenario: Finding strings containing whitespace
+  Scenario: [3] Finding the empty substring
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.name CONTAINS ''
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
+      | (:TheLabel {name: 'AB'})     |
+      | (:TheLabel {name: 'abcdef'}) |
+      | (:TheLabel {name: 'ab'})     |
+      | (:TheLabel {name: ''})       |
+    And no side effects
+
+  Scenario: [4] Finding strings containing whitespace
     Given an empty graph
     And having executed:
       """
@@ -90,7 +113,7 @@ Feature: String10 - Exact Substring Search
       | 'Foo Foo' |
     And no side effects
 
-  Scenario: Finding strings containing newline
+  Scenario: [5] Finding strings containing newline
     Given an empty graph
     And having executed:
       """
@@ -112,7 +135,7 @@ Feature: String10 - Exact Substring Search
       | 'Foo\nFoo' |
     And no side effects
 
-  Scenario: No string contains null
+  Scenario: [6] No string contains null
     Given an empty graph
     And having executed:
       """
@@ -130,7 +153,7 @@ Feature: String10 - Exact Substring Search
       | a |
     And no side effects
 
-  Scenario: No string does not contain null
+  Scenario: [7] No string does not contain null
     Given an empty graph
     And having executed:
       """
@@ -148,7 +171,7 @@ Feature: String10 - Exact Substring Search
       | a |
     And no side effects
 
-  Scenario: Handling non-string operands for CONTAINS
+  Scenario: [8] Handling non-string operands for CONTAINS
     Given an empty graph
     And having executed:
       """
@@ -169,7 +192,7 @@ Feature: String10 - Exact Substring Search
       | null | 36       |
     And no side effects
 
-  Scenario: NOT with CONTAINS
+  Scenario: [9] NOT with CONTAINS
     Given an empty graph
     And having executed:
       """
