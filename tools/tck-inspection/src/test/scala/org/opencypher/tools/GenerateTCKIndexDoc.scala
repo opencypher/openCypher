@@ -45,10 +45,10 @@ import scala.io.Source
 import scala.sys.process._
 
 class GenerateTCKIndexDocTest {
-  @Test
+  @Test //comment this in/out if index.adoc should/should not be generated during build
   def runAsTest(): Unit = GenerateTCKIndexDoc.main(Array())
 
-  @Test
+  //@Test //comment this in/out if generated index.adoc should/should not be checked against working copy HEAD during build
   def verifyGenerateIndexIsCommitted(): Unit = {
     val tmpFile = Files.createTempFile("tck-", "-index.adoc")
     val gitCmd = Seq("git", "-C", Paths.get(System.getProperty("projectRootdir")).toAbsolutePath.toString,
