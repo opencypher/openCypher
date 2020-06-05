@@ -30,7 +30,7 @@
 
 Feature: String9 - Exact String Suffix Search
 
-  Scenario: Finding exact matches with non-proper suffix
+  Scenario: [1] Finding exact matches with non-proper suffix
     Given an empty graph
     And having executed:
       """
@@ -49,7 +49,7 @@ Feature: String9 - Exact String Suffix Search
       | (:TheLabel {name: 'AB'}) |
     And no side effects
 
-  Scenario: Finding end of string
+  Scenario: [2] Finding end of string
     Given an empty graph
     And having executed:
       """
@@ -68,7 +68,7 @@ Feature: String9 - Exact String Suffix Search
       | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
 
-  Scenario: Finding the empty suffix
+  Scenario: [3] Finding the empty suffix
     Given an empty graph
     And having executed:
       """
@@ -91,7 +91,7 @@ Feature: String9 - Exact String Suffix Search
       | (:TheLabel {name: ''})       |
     And no side effects
 
-  Scenario: Finding strings ending with whitespace
+  Scenario: [4] Finding strings ending with whitespace
     Given an empty graph
     And having executed:
       """
@@ -113,7 +113,7 @@ Feature: String9 - Exact String Suffix Search
       | ' Foo ' |
     And no side effects
 
-  Scenario: Finding strings ending with newline
+  Scenario: [5] Finding strings ending with newline
     Given an empty graph
     And having executed:
       """
@@ -135,7 +135,7 @@ Feature: String9 - Exact String Suffix Search
       | '\nFoo\n' |
     And no side effects
 
-  Scenario: No string ends with null
+  Scenario: [6] No string ends with null
     Given an empty graph
     And having executed:
       """
@@ -153,7 +153,7 @@ Feature: String9 - Exact String Suffix Search
       | a |
     And no side effects
 
-  Scenario: No string does not end with null
+  Scenario: [7] No string does not end with null
     Given an empty graph
     And having executed:
       """
@@ -171,7 +171,7 @@ Feature: String9 - Exact String Suffix Search
       | a |
     And no side effects
 
-  Scenario: Handling non-string operands for ENDS WITH
+  Scenario: [8] Handling non-string operands for ENDS WITH
     Given an empty graph
     And having executed:
       """
@@ -192,7 +192,7 @@ Feature: String9 - Exact String Suffix Search
       | null | 36       |
     And no side effects
 
-  Scenario: NOT with ENDS WITH
+  Scenario: [9] NOT with ENDS WITH
     Given an empty graph
     And having executed:
       """
