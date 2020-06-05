@@ -29,3 +29,187 @@
 #encoding: utf-8
 
 Feature: String9 - Exact String Suffix Search
+
+  Scenario: Finding exact matches with non-proper suffix
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.name ENDS WITH 'AB'
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                        |
+      | (:TheLabel {name: 'AB'}) |
+    And no side effects
+
+  Scenario: Finding end of string
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.name ENDS WITH 'DEF'
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
+    And no side effects
+
+  Scenario: Finding the empty suffix
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.name ENDS WITH ''
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
+      | (:TheLabel {name: 'AB'})     |
+      | (:TheLabel {name: 'abcdef'}) |
+      | (:TheLabel {name: 'ab'})     |
+      | (:TheLabel {name: ''})       |
+    And no side effects
+
+  Scenario: Finding strings ending with whitespace
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel),
+             (:TheLabel {name: ' Foo '}),
+             (:TheLabel {name: '\nFoo\n'}),
+             (:TheLabel {name: '\tFoo\t'})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.name ENDS WITH ' '
+      RETURN a.name AS name
+      """
+    Then the result should be, in any order:
+      | name    |
+      | ' Foo ' |
+    And no side effects
+
+  Scenario: Finding strings ending with newline
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel),
+             (:TheLabel {name: ' Foo '}),
+             (:TheLabel {name: '\nFoo\n'}),
+             (:TheLabel {name: '\tFoo\t'})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.name ENDS WITH '\n'
+      RETURN a.name AS name
+      """
+    Then the result should be, in any order:
+      | name      |
+      | '\nFoo\n' |
+    And no side effects
+
+  Scenario: No string ends with null
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.name ENDS WITH null
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a |
+    And no side effects
+
+  Scenario: No string does not end with null
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE NOT a.name ENDS WITH null
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a |
+    And no side effects
+
+  Scenario: Handling non-string operands for ENDS WITH
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      WITH [1, 3.14, true, [], {}, null] AS operands
+      UNWIND operands AS op1
+      UNWIND operands AS op2
+      WITH op1 STARTS WITH op2 AS v
+      RETURN v, count(*)
+      """
+    Then the result should be, in any order:
+      | v    | count(*) |
+      | null | 36       |
+    And no side effects
+
+  Scenario: NOT with ENDS WITH
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE NOT a.name ENDS WITH 'def'
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
+      | (:TheLabel {name: 'AB'})     |
+      | (:TheLabel {name: 'ab'})     |
+      | (:TheLabel {name: ''})       |
+    And no side effects

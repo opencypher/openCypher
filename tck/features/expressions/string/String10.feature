@@ -29,3 +29,163 @@
 #encoding: utf-8
 
 Feature: String9 - Exact Substring Search
+
+  Scenario: Finding exact matches with non-proper substring
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.name CONTAINS 'ABCDEF'
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
+    And no side effects
+
+  Scenario: Finding middle of string
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.name CONTAINS 'CD'
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
+    And no side effects
+
+  Scenario: Finding strings containing whitespace
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel),
+             (:TheLabel {name: 'Foo Foo'}),
+             (:TheLabel {name: 'Foo\nFoo'}),
+             (:TheLabel {name: 'Foo\tFoo'})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.name CONTAINS ' '
+      RETURN a.name AS name
+      """
+    Then the result should be, in any order:
+      | name    |
+      | 'Foo Foo' |
+    And no side effects
+
+  Scenario: Finding strings containing newline
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel),
+             (:TheLabel {name: 'Foo Foo'}),
+             (:TheLabel {name: 'Foo\nFoo'}),
+             (:TheLabel {name: 'Foo\tFoo'})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.name CONTAINS '\n'
+      RETURN a.name AS name
+      """
+    Then the result should be, in any order:
+      | name      |
+      | 'Foo\nFoo' |
+    And no side effects
+
+  Scenario: No string contains null
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.name CONTAINS null
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a |
+    And no side effects
+
+  Scenario: No string does not contain null
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE NOT a.name CONTAINS null
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a |
+    And no side effects
+
+  Scenario: Handling non-string operands for CONTAINS
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      WITH [1, 3.14, true, [], {}, null] AS operands
+      UNWIND operands AS op1
+      UNWIND operands AS op2
+      WITH op1 STARTS WITH op2 AS v
+      RETURN v, count(*)
+      """
+    Then the result should be, in any order:
+      | v    | count(*) |
+      | null | 36       |
+    And no side effects
+
+  Scenario: NOT with CONTAINS
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
+             (:TheLabel {name: 'abcdef'}), (:TheLabel {name: 'ab'}),
+             (:TheLabel {name: ''}), (:TheLabel)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE NOT a.name CONTAINS 'b'
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                            |
+      | (:TheLabel {name: 'ABCDEF'}) |
+      | (:TheLabel {name: 'AB'})     |
+      | (:TheLabel {name: ''})       |
+    And no side effects
