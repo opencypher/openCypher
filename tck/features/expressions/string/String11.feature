@@ -30,7 +30,7 @@
 
 Feature: String11 - Combining Exact String Search
 
-  Scenario: Combining prefix and suffix search
+  Scenario: [1] Combining prefix and suffix search
     Given an empty graph
     And having executed:
       """
@@ -50,7 +50,7 @@ Feature: String11 - Combining Exact String Search
       | (:TheLabel {name: 'abcdef'}) |
     And no side effects
 
-  Scenario: Combining prefix, suffix, and substring search
+  Scenario: [2] Combining prefix, suffix, and substring search
     Given an empty graph
     And having executed:
       """
