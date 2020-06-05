@@ -28,9 +28,9 @@
 
 #encoding: utf-8
 
-Feature: StartsWithAcceptance
+Feature: String11 - Combining Exact String Search
 
-  Scenario: Finding middle of string
+  Scenario: Combining prefix and suffix search
     Given an empty graph
     And having executed:
       """
@@ -50,7 +50,7 @@ Feature: StartsWithAcceptance
       | (:TheLabel {name: 'abcdef'}) |
     And no side effects
 
-  Scenario: Combining string operators
+  Scenario: Combining prefix, suffix, and substring search
     Given an empty graph
     And having executed:
       """
