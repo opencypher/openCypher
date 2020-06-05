@@ -203,7 +203,7 @@ Feature: String8 - Exact String Prefix Search
     When executing query:
       """
       MATCH (a)
-      WHERE NOT a.name ENDS WITH 'ab'
+      WHERE NOT a.name STARTS WITH 'ab'
       RETURN a
       """
     Then the result should be, in any order:
