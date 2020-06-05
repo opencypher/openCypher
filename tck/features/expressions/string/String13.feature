@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: String9 - Regex Replacing
+Feature: String13 - Regex Search

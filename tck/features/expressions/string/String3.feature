@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: String4 - String Reversal
+Feature: String3 - String Reversal
 
   Scenario: [1] `reverse()`
     Given any graph

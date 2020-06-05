@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: String7 - String Concatenation
+Feature: String6 - String Concatenation
