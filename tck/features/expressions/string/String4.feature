@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: String5 - String Splitting
+Feature: String4 - String Splitting
 
   Scenario: [1] `split()`
     Given any graph

@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: String9 - Exact String Prefix Search
+Feature: String8 - Exact String Prefix Search
 
   Scenario: Finding exact matches with non-proper prefix
     Given an empty graph

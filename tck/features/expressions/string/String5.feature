@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: String3 - Manipulate Letter Casing
+Feature: String5 - Manipulate Letter Casing

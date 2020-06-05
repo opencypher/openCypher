@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: String9 - Exact Substring Search
+Feature: String10 - Exact Substring Search
 
   Scenario: Finding exact matches with non-proper substring
     Given an empty graph

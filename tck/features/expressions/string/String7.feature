@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: String8 - String Length
+Feature: String7 - String Length
