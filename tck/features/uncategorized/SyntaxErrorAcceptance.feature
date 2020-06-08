@@ -30,6 +30,7 @@
 
 Feature: SyntaxErrorAcceptance
 
+  @NegativeTest
   Scenario: Using a non-existent function
     Given any graph
     When executing query:
@@ -39,6 +40,7 @@ Feature: SyntaxErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: UnknownFunction
 
+  @NegativeTest
   Scenario: Using `rand()` in aggregations
     Given any graph
     When executing query:
@@ -47,6 +49,7 @@ Feature: SyntaxErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
+  @NegativeTest
   Scenario: Supplying invalid hexadecimal literal 1
     Given any graph
     When executing query:
@@ -55,6 +58,7 @@ Feature: SyntaxErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
+  @NegativeTest
   Scenario: Supplying invalid hexadecimal literal 2
     Given any graph
     When executing query:

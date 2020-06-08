@@ -30,6 +30,7 @@
 
 Feature: SemanticErrorAcceptance
 
+  @NegativeTest
   Scenario: Failing when returning an undefined variable
     Given any graph
     When executing query:
@@ -39,6 +40,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
+  @NegativeTest
   Scenario: Failing when using IN on a string literal
     Given any graph
     When executing query:
@@ -49,6 +51,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @NegativeTest
   Scenario: Failing when using IN on an integer literal
     Given any graph
     When executing query:
@@ -59,6 +62,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @NegativeTest
   Scenario: Failing when using IN on a float literal
     Given any graph
     When executing query:
@@ -69,6 +73,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @NegativeTest
   Scenario: Failing when using IN on a boolean literal
     Given any graph
     When executing query:
@@ -79,6 +84,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @NegativeTest
   Scenario: Failing when a node is used as a relationship
     Given any graph
     When executing query:
@@ -89,6 +95,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableTypeConflict
 
+  @NegativeTest
   Scenario: Failing when a relationship is used as a node
     Given any graph
     When executing query:
@@ -98,6 +105,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableTypeConflict
 
+  @NegativeTest
   Scenario: Failing when using `type()` on a node
     Given any graph
     When executing query:
@@ -107,6 +115,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @NegativeTest
   Scenario: Failing when using `length()` on a node
     Given any graph
     When executing query:
@@ -116,6 +125,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @NegativeTest
   Scenario: Failing when re-using a relationship in the same pattern
     Given any graph
     When executing query:
@@ -125,6 +135,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: RelationshipUniquenessViolation
 
+  @NegativeTest
   Scenario: Failing when using NOT on string literal
     Given any graph
     When executing query:
@@ -133,6 +144,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @NegativeTest
   Scenario: Failing when using variable length relationship in MERGE
     Given any graph
     When executing query:
@@ -143,6 +155,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: CreatingVarLength
 
+  @NegativeTest
   Scenario: Failing when using parameter as node predicate in MATCH
     Given any graph
     When executing query:
@@ -152,6 +165,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
+  @NegativeTest
   Scenario: Failing when using parameter as relationship predicate in MATCH
     Given any graph
     When executing query:
@@ -161,6 +175,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
+  @NegativeTest
   Scenario: Failing when using parameter as node predicate in MERGE
     Given any graph
     When executing query:
@@ -170,6 +185,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
+  @NegativeTest
   Scenario: Failing when using parameter as relationship predicate in MERGE
     Given any graph
     When executing query:
@@ -181,6 +197,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
+  @NegativeTest
   Scenario: Failing when using MERGE on a node that is already bound
     Given any graph
     When executing query:
@@ -190,6 +207,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
+  @NegativeTest
   Scenario: Failing when using MERGE on a relationship that is already bound
     Given any graph
     When executing query:
@@ -199,6 +217,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
+  @NegativeTest
   Scenario: Failing when using undefined variable in ON CREATE
     Given any graph
     When executing query:
@@ -208,6 +227,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
+  @NegativeTest
   Scenario: Failing when using undefined variable in ON MATCH
     Given any graph
     When executing query:
@@ -217,6 +237,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
+  @NegativeTest
   Scenario: Failing when float value is too large
     Given any graph
     When executing query:
@@ -225,6 +246,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: FloatingPointOverflow
 
+  @NegativeTest
   Scenario: Handling property access on the Any type
     Given any graph
     When executing query:
@@ -237,6 +259,7 @@ Feature: SemanticErrorAcceptance
       | 0             |
     And no side effects
 
+  @NegativeTest
   Scenario: Failing when performing property access on a non-map 1
     Given any graph
     When executing query:
@@ -246,6 +269,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
 
+  @NegativeTest
   Scenario: Failing when performing property access on a non-map 2
     Given any graph
     When executing query:
@@ -256,6 +280,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
 
+  @NegativeTest
   Scenario: Failing when checking existence of a non-property and non-pattern
     Given any graph
     When executing query:
@@ -265,6 +290,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentExpression
 
+  @NegativeTest
   Scenario: Bad arguments for `range()`
     Given any graph
     When executing query:
@@ -273,6 +299,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a ArgumentError should be raised at runtime: NumberOutOfRange
 
+  @NegativeTest
   Scenario: Fail for invalid Unicode hyphen in subtraction
     Given any graph
     When executing query:
@@ -281,6 +308,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidUnicodeCharacter
 
+  @NegativeTest
   Scenario: Failing for `size()` on paths
     Given any graph
     When executing query:
@@ -290,6 +318,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @NegativeTest
   Scenario: Failing when using aggregation in list comprehension
     Given any graph
     When executing query:
@@ -299,6 +328,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidAggregation
 
+  @NegativeTest
   Scenario: Failing when using non-constants in SKIP
     Given any graph
     When executing query:
@@ -309,6 +339,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
+  @NegativeTest
   Scenario: Failing when using negative value in SKIP
     Given any graph
     When executing query:
@@ -319,6 +350,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
 
+  @NegativeTest
   Scenario: Failing when using non-constants in LIMIT
     Given any graph
     When executing query:
@@ -329,6 +361,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
+  @NegativeTest
   Scenario: Failing when using negative value in LIMIT
     Given any graph
     When executing query:
@@ -339,6 +372,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
 
+  @NegativeTest
   Scenario: Failing when using floating point in LIMIT
     Given any graph
     When executing query:
@@ -349,6 +383,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @NegativeTest
   Scenario: Failing when merging relationship without type
     Given any graph
     When executing query:
@@ -358,6 +393,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
+  @NegativeTest
   Scenario: Failing when merging relationship without type, no colon
     Given any graph
     When executing query:
@@ -367,6 +403,7 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
+  @NegativeTest
   Scenario: Failing when merging relationship with more than one type
     Given any graph
     When executing query:
