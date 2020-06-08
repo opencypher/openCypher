@@ -28,4 +28,26 @@
 
 #encoding: utf-8
 
-Feature: ComparisonOperatorAcceptance
+Feature: Comparison4 - Combination of Comparisons
+
+  Scenario: [1] Handling long chains of operators
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A {prop1: 3, prop2: 4})
+      CREATE (b:B {prop1: 4, prop2: 5})
+      CREATE (c:C {prop1: 4, prop2: 4})
+      CREATE (a)-[:R]->(b)
+      CREATE (b)-[:R]->(c)
+      CREATE (c)-[:R]->(a)
+      """
+    When executing query:
+      """
+      MATCH (n)-->(m)
+      WHERE n.prop1 < m.prop1 = n.prop2 <> m.prop2
+      RETURN labels(m)
+      """
+    Then the result should be, in any order:
+      | labels(m) |
+      | ['B']     |
+    And no side effects

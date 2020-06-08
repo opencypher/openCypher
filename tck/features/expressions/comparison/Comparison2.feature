@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: ComparisonOperatorAcceptance
+Feature: Comparison2 - Half-bounded Range
