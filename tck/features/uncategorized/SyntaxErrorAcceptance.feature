@@ -30,10 +30,8 @@
 
 Feature: SyntaxErrorAcceptance
 
-  Background:
-    Given any graph
-
   Scenario: Using a non-existent function
+    Given any graph
     When executing query:
       """
       MATCH (a)
@@ -42,6 +40,7 @@ Feature: SyntaxErrorAcceptance
     Then a SyntaxError should be raised at compile time: UnknownFunction
 
   Scenario: Using `rand()` in aggregations
+    Given any graph
     When executing query:
       """
       RETURN count(rand())
@@ -49,6 +48,7 @@ Feature: SyntaxErrorAcceptance
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
   Scenario: Supplying invalid hexadecimal literal 1
+    Given any graph
     When executing query:
       """
       RETURN 0x23G34
@@ -56,6 +56,7 @@ Feature: SyntaxErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
   Scenario: Supplying invalid hexadecimal literal 2
+    Given any graph
     When executing query:
       """
       RETURN 0x23j
