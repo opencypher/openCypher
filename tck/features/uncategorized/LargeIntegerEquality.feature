@@ -30,14 +30,12 @@
 
 Feature: LargeIntegerEquality
 
-  Background:
+  Scenario: Does not lose precision
     Given an empty graph
     And having executed:
       """
       CREATE (:TheLabel {id: 4611686018427387905})
       """
-
-  Scenario: Does not lose precision
     When executing query:
       """
       MATCH (p:TheLabel)
@@ -49,6 +47,11 @@ Feature: LargeIntegerEquality
     And no side effects
 
   Scenario: Handling inlined equality of large integer
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {id: 4611686018427387905})
+      """
     When executing query:
       """
       MATCH (p:TheLabel {id: 4611686018427387905})
@@ -60,6 +63,11 @@ Feature: LargeIntegerEquality
     And no side effects
 
   Scenario: Handling explicit equality of large integer
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {id: 4611686018427387905})
+      """
     When executing query:
       """
       MATCH (p:TheLabel)
@@ -72,6 +80,11 @@ Feature: LargeIntegerEquality
     And no side effects
 
   Scenario: Handling inlined equality of large integer, non-equal values
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {id: 4611686018427387905})
+      """
     When executing query:
       """
       MATCH (p:TheLabel {id : 4611686018427387900})
@@ -82,6 +95,11 @@ Feature: LargeIntegerEquality
     And no side effects
 
   Scenario: Handling explicit equality of large integer, non-equal values
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {id: 4611686018427387905})
+      """
     When executing query:
       """
       MATCH (p:TheLabel)
