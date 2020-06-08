@@ -30,10 +30,8 @@
 
 Feature: SemanticErrorAcceptance
 
-  Background:
-    Given any graph
-
   Scenario: Failing when returning an undefined variable
+    Given any graph
     When executing query:
       """
       MATCH ()
@@ -42,6 +40,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
   Scenario: Failing when using IN on a string literal
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -51,6 +50,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   Scenario: Failing when using IN on an integer literal
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -60,6 +60,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   Scenario: Failing when using IN on a float literal
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -69,6 +70,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   Scenario: Failing when using IN on a boolean literal
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -78,6 +80,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   Scenario: Failing when a node is used as a relationship
+    Given any graph
     When executing query:
       """
       MATCH (r)
@@ -87,6 +90,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: VariableTypeConflict
 
   Scenario: Failing when a relationship is used as a node
+    Given any graph
     When executing query:
       """
       MATCH ()-[r]-(r)
@@ -95,6 +99,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: VariableTypeConflict
 
   Scenario: Failing when using `type()` on a node
+    Given any graph
     When executing query:
       """
       MATCH (r)
@@ -103,6 +108,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   Scenario: Failing when using `length()` on a node
+    Given any graph
     When executing query:
       """
       MATCH (r)
@@ -111,6 +117,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   Scenario: Failing when re-using a relationship in the same pattern
+    Given any graph
     When executing query:
       """
       MATCH (a)-[r]->()-[r]->(a)
@@ -119,6 +126,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: RelationshipUniquenessViolation
 
   Scenario: Failing when using NOT on string literal
+    Given any graph
     When executing query:
       """
       RETURN NOT 'foo'
@@ -126,6 +134,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   Scenario: Failing when using variable length relationship in MERGE
+    Given any graph
     When executing query:
       """
       MERGE (a)
@@ -135,6 +144,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: CreatingVarLength
 
   Scenario: Failing when using parameter as node predicate in MATCH
+    Given any graph
     When executing query:
       """
       MATCH (n $param)
@@ -143,6 +153,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
   Scenario: Failing when using parameter as relationship predicate in MATCH
+    Given any graph
     When executing query:
       """
       MATCH ()-[r:FOO $param]->()
@@ -151,6 +162,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
   Scenario: Failing when using parameter as node predicate in MERGE
+    Given any graph
     When executing query:
       """
       MERGE (n $param)
@@ -159,6 +171,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
   Scenario: Failing when using parameter as relationship predicate in MERGE
+    Given any graph
     When executing query:
       """
       MERGE (a)
@@ -169,6 +182,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
   Scenario: Failing when using MERGE on a node that is already bound
+    Given any graph
     When executing query:
       """
       MATCH (a)
@@ -177,6 +191,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   Scenario: Failing when using MERGE on a relationship that is already bound
+    Given any graph
     When executing query:
       """
       MATCH (a)-[r]->(b)
@@ -185,6 +200,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   Scenario: Failing when using undefined variable in ON CREATE
+    Given any graph
     When executing query:
       """
       MERGE (n)
@@ -193,6 +209,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
   Scenario: Failing when using undefined variable in ON MATCH
+    Given any graph
     When executing query:
       """
       MERGE (n)
@@ -201,6 +218,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
   Scenario: Failing when float value is too large
+    Given any graph
     When executing query:
       """
       RETURN 1.34E999
@@ -208,6 +226,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: FloatingPointOverflow
 
   Scenario: Handling property access on the Any type
+    Given any graph
     When executing query:
       """
       WITH [{num: 0}, 1] AS list
@@ -219,6 +238,7 @@ Feature: SemanticErrorAcceptance
     And no side effects
 
   Scenario: Failing when performing property access on a non-map 1
+    Given any graph
     When executing query:
       """
       WITH [{num: 0}, 1] AS list
@@ -227,6 +247,7 @@ Feature: SemanticErrorAcceptance
     Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
 
   Scenario: Failing when performing property access on a non-map 2
+    Given any graph
     When executing query:
       """
       CREATE (n {name: 'foo'})
@@ -236,6 +257,7 @@ Feature: SemanticErrorAcceptance
     Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
 
   Scenario: Failing when checking existence of a non-property and non-pattern
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -244,6 +266,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidArgumentExpression
 
   Scenario: Bad arguments for `range()`
+    Given any graph
     When executing query:
       """
       RETURN range(2, 8, 0)
@@ -251,6 +274,7 @@ Feature: SemanticErrorAcceptance
     Then a ArgumentError should be raised at runtime: NumberOutOfRange
 
   Scenario: Fail for invalid Unicode hyphen in subtraction
+    Given any graph
     When executing query:
       """
       RETURN 42 — 41
@@ -258,6 +282,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidUnicodeCharacter
 
   Scenario: Failing for `size()` on paths
+    Given any graph
     When executing query:
       """
       MATCH p = (a)-[*]->(b)
@@ -266,6 +291,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   Scenario: Failing when using aggregation in list comprehension
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -274,6 +300,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidAggregation
 
   Scenario: Failing when using non-constants in SKIP
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -283,6 +310,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
   Scenario: Failing when using negative value in SKIP
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -292,6 +320,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
 
   Scenario: Failing when using non-constants in LIMIT
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -301,6 +330,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
   Scenario: Failing when using negative value in LIMIT
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -310,6 +340,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
 
   Scenario: Failing when using floating point in LIMIT
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -319,6 +350,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   Scenario: Failing when merging relationship without type
+    Given any graph
     When executing query:
       """
       CREATE (a), (b)
@@ -327,6 +359,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
   Scenario: Failing when merging relationship without type, no colon
+    Given any graph
     When executing query:
       """
       MATCH (a), (b)
@@ -335,6 +368,7 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
   Scenario: Failing when merging relationship with more than one type
+    Given any graph
     When executing query:
       """
       CREATE (a), (b)
