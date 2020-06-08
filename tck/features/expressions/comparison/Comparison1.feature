@@ -258,3 +258,20 @@ Feature: Comparison1 - Equality
     Then the result should be, in any order:
       | p.id |
     And no side effects
+
+  Scenario: [14] Direction of traversed relationship is not significant for path equality, simple
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (n:A)-[:LOOP]->(n)
+      """
+    When executing query:
+      """
+      MATCH p1 = (:A)-->()
+      MATCH p2 = (:A)<--()
+      RETURN p1 = p2
+      """
+    Then the result should be, in any order:
+      | p1 = p2 |
+      | true    |
+    And no side effects
