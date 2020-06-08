@@ -28,9 +28,9 @@
 
 #encoding: utf-8
 
-Feature: EqualsAcceptance
+Feature: Comparison1 - Equality
 
-  Scenario: Number-typed integer comparison
+  Scenario: [1] Number-typed integer comparison
     Given an empty graph
     And having executed:
       """
@@ -49,7 +49,7 @@ Feature: EqualsAcceptance
       | ({id: 0}) |
     And no side effects
 
-  Scenario: Number-typed float comparison
+  Scenario: [2] Number-typed float comparison
     Given an empty graph
     And having executed:
       """
@@ -67,7 +67,7 @@ Feature: EqualsAcceptance
       | n |
     And no side effects
 
-  Scenario: Any-typed string comparison
+  Scenario: [3] Any-typed string comparison
     Given an empty graph
     And having executed:
       """
@@ -85,7 +85,7 @@ Feature: EqualsAcceptance
       | n |
     And no side effects
 
-  Scenario: Comparing nodes to nodes
+  Scenario: [4] Comparing nodes to nodes
     Given an empty graph
     And having executed:
       """
@@ -104,7 +104,7 @@ Feature: EqualsAcceptance
       | 1        |
     And no side effects
 
-  Scenario: Comparing relationships to relationships
+  Scenario: [5] Comparing relationships to relationships
     Given an empty graph
     And having executed:
       """
@@ -123,7 +123,7 @@ Feature: EqualsAcceptance
       | 1        |
     And no side effects
 
-  Scenario Outline: Comparing lists to lists
+  Scenario Outline: [6] Comparing lists to lists
     Given an empty graph
     When executing query:
       """
@@ -143,7 +143,7 @@ Feature: EqualsAcceptance
       | [[1], [2]]    | [[1], [null]] | null   |
       | [[1], [2, 3]] | [[1], [null]] | false  |
 
-  Scenario Outline: Equality and inequality of NaN
+  Scenario Outline: [7] Equality and inequality of NaN
     Given any graph
     When executing query:
       """
@@ -161,7 +161,7 @@ Feature: EqualsAcceptance
       | 0.0 / 0.0 | 0.0 / 0.0 |
       | 0.0 / 0.0 | 'a'       |
 
-  Scenario Outline: Equality between strings and numbers
+  Scenario Outline: [8] Equality between strings and numbers
     Given any graph
     When executing query:
       """
