@@ -275,3 +275,23 @@ Feature: Comparison1 - Equality
       | p1 = p2 |
       | true    |
     And no side effects
+
+  Scenario: [15] It is unknown - i.e. null - if a null is equal to a null
+    When executing query:
+      """
+      RETURN null = null AS value
+      """
+    Then the result should be, in any order:
+      | value |
+      | null  |
+    And no side effects
+
+  Scenario: [16] It is unknown - i.e. null - if a null is not equal to a null
+    When executing query:
+      """
+      RETURN null <> null AS value
+      """
+    Then the result should be, in any order:
+      | value |
+      | null  |
+    And no side effects
