@@ -277,6 +277,7 @@ Feature: Comparison1 - Equality
     And no side effects
 
   Scenario: [15] It is unknown - i.e. null - if a null is equal to a null
+    Given any graph
     When executing query:
       """
       RETURN null = null AS value
@@ -287,6 +288,7 @@ Feature: Comparison1 - Equality
     And no side effects
 
   Scenario: [16] It is unknown - i.e. null - if a null is not equal to a null
+    Given any graph
     When executing query:
       """
       RETURN null <> null AS value
@@ -295,3 +297,15 @@ Feature: Comparison1 - Equality
       | value |
       | null  |
     And no side effects
+
+  @NegativeTest
+  Scenario: [17] Failing when comparing to an undefined variable
+    Given any graph
+    When executing query:
+      """
+      MATCH (s)
+      WHERE s.name = undefinedVariable
+        AND s.age = 10
+      RETURN s
+      """
+    Then a SyntaxError should be raised at compile time: UndefinedVariable

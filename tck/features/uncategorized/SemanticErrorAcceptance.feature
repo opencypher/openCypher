@@ -41,16 +41,6 @@ Feature: SemanticErrorAcceptance
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
-  Scenario: Failing when comparing to an undefined variable
-    When executing query:
-      """
-      MATCH (s)
-      WHERE s.name = undefinedVariable
-        AND s.age = 10
-      RETURN s
-      """
-    Then a SyntaxError should be raised at compile time: UndefinedVariable
-
   Scenario: Failing when using IN on a string literal
     When executing query:
       """
