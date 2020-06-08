@@ -58,8 +58,8 @@ Feature: MiscellaneousErrorAcceptance
       """
     Then a SemanticError should be raised at compile time: MergeReadOwnWrites
 
-  S
-  @NegativeTestcenario: Failing on aggregation in WHERE
+  @NegativeTest
+  Scenario: Failing on aggregation in WHERE
     Given any graph
     When executing query:
       """
