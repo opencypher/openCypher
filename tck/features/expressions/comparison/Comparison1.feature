@@ -178,3 +178,83 @@ Feature: Comparison1 - Equality
       | 1     | 1.0 | true    |
       | '1.0' | 1.0 | false   |
       | '1'   | 1   | false   |
+
+  Scenario: [9] Does not lose precision
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {id: 4611686018427387905})
+      """
+    When executing query:
+      """
+      MATCH (p:TheLabel)
+      RETURN p.id
+      """
+    Then the result should be, in any order:
+      | p.id                |
+      | 4611686018427387905 |
+    And no side effects
+
+  Scenario: [10] Handling inlined equality of large integer
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {id: 4611686018427387905})
+      """
+    When executing query:
+      """
+      MATCH (p:TheLabel {id: 4611686018427387905})
+      RETURN p.id
+      """
+    Then the result should be, in any order:
+      | p.id                |
+      | 4611686018427387905 |
+    And no side effects
+
+  Scenario: [11] Handling explicit equality of large integer
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {id: 4611686018427387905})
+      """
+    When executing query:
+      """
+      MATCH (p:TheLabel)
+      WHERE p.id = 4611686018427387905
+      RETURN p.id
+      """
+    Then the result should be, in any order:
+      | p.id                |
+      | 4611686018427387905 |
+    And no side effects
+
+  Scenario: [12] Handling inlined equality of large integer, non-equal values
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {id: 4611686018427387905})
+      """
+    When executing query:
+      """
+      MATCH (p:TheLabel {id : 4611686018427387900})
+      RETURN p.id
+      """
+    Then the result should be, in any order:
+      | p.id |
+    And no side effects
+
+  Scenario: [13] Handling explicit equality of large integer, non-equal values
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {id: 4611686018427387905})
+      """
+    When executing query:
+      """
+      MATCH (p:TheLabel)
+      WHERE p.id = 4611686018427387900
+      RETURN p.id
+      """
+    Then the result should be, in any order:
+      | p.id |
+    And no side effects
