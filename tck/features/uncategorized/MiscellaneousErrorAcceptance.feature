@@ -30,10 +30,8 @@
 
 Feature: MiscellaneousErrorAcceptance
 
-  Background:
-    Given any graph
-
   Scenario: Failing on incorrect unicode literal
+    Given any graph
     When executing query:
       """
       RETURN '\uH'
@@ -41,6 +39,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidUnicodeLiteral
 
   Scenario: Failing on merging relationship with null property
+    Given any graph
     When executing query:
       """
       CREATE (a), (b)
@@ -49,6 +48,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SemanticError should be raised at compile time: MergeReadOwnWrites
 
   Scenario: Failing on merging node with null property
+    Given any graph
     When executing query:
       """
       MERGE ({num: null})
@@ -56,6 +56,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SemanticError should be raised at compile time: MergeReadOwnWrites
 
   Scenario: Failing on aggregation in WHERE
+    Given any graph
     When executing query:
       """
       MATCH (a)
@@ -65,6 +66,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidAggregation
 
   Scenario: Failing on aggregation in ORDER BY after RETURN
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -74,6 +76,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidAggregation
 
   Scenario: Failing on aggregation in ORDER BY after WITH
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -84,6 +87,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidAggregation
 
   Scenario: Failing when not aliasing expressions in WITH
+    Given any graph
     When executing query:
       """
       MATCH (a)
@@ -93,6 +97,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: NoExpressionAlias
 
   Scenario: Failing when using undefined variable in pattern
+    Given any graph
     When executing query:
       """
       MATCH (a)
@@ -102,6 +107,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
   Scenario: Failing when using a variable that is already bound in CREATE
+    Given any graph
     When executing query:
       """
       MATCH (a)
@@ -111,6 +117,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   Scenario: Failing when using a path variable that is already bound
+    Given any graph
     When executing query:
       """
       MATCH p = (a)
@@ -121,6 +128,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   Scenario: Failing when using a list as a node
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -131,6 +139,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: VariableTypeConflict
 
   Scenario: Failing when using a variable length relationship as a single relationship
+    Given any graph
     When executing query:
       """
       MATCH (n)
@@ -141,6 +150,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   Scenario: Failing when creating without direction
+    Given any graph
     When executing query:
       """
       CREATE (a)-[:FOO]-(b)
@@ -148,6 +158,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
 
   Scenario: Failing when creating with two directions
+    Given any graph
     When executing query:
       """
       CREATE (a)<-[:FOO]->(b)
@@ -155,6 +166,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
 
   Scenario: Failing when multiple columns have the same name
+    Given any graph
     When executing query:
       """
       RETURN 1 AS a, 2 AS a
@@ -162,6 +174,7 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: ColumnNameConflict
 
   Scenario: Failing when using RETURN * without variables in scope
+    Given any graph
     When executing query:
       """
       MATCH ()
