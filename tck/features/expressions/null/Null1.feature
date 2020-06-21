@@ -28,9 +28,9 @@
 
 #encoding: utf-8
 
-Feature: NullOperator
+Feature: Null1 - IS NULL validation
 
-  Scenario: Property null check on non-null node
+  Scenario: [1] Property null check on non-null node
     Given an empty graph
     And having executed:
       """
@@ -47,24 +47,7 @@ Feature: NullOperator
       | true              | false            |
     And no side effects
 
-  Scenario: Property not null check on non-null node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({exists: 42})
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n.missing IS NOT NULL,
-             n.exists IS NOT NULL
-      """
-    Then the result should be, in any order:
-      | n.missing IS NOT NULL | n.exists IS NOT NULL |
-      | false                 | true                 |
-    And no side effects
-
-  Scenario: Property null check on optional non-null node
+  Scenario: [2] Property null check on optional non-null node
     Given an empty graph
     And having executed:
       """
@@ -81,24 +64,7 @@ Feature: NullOperator
       | true              | false            |
     And no side effects
 
-  Scenario: Property not null check on optional non-null node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({exists: 42})
-      """
-    When executing query:
-      """
-      OPTIONAL MATCH (n)
-      RETURN n.missing IS NOT NULL,
-             n.exists IS NOT NULL
-      """
-    Then the result should be, in any order:
-      | n.missing IS NOT NULL | n.exists IS NOT NULL |
-      | false                 | true                 |
-    And no side effects
-
-  Scenario: Property null check on null node
+  Scenario: [3] Property null check on null node
     Given an empty graph
     When executing query:
       """
@@ -110,14 +76,13 @@ Feature: NullOperator
       | true              |
     And no side effects
 
-  Scenario: Property not null check on null node
-    Given an empty graph
+  Scenario: [4] A literal null IS null
+    Given any graph
     When executing query:
       """
-      OPTIONAL MATCH (n)
-      RETURN n.missing IS NOT NULL
+      RETURN null IS NULL AS value
       """
     Then the result should be, in any order:
-      | n.missing IS NOT NULL |
-      | false                 |
+      | value |
+      | true  |
     And no side effects

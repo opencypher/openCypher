@@ -28,12 +28,10 @@
 
 #encoding: utf-8
 
-Feature: TernaryLogicAcceptanceTest
+Feature: Null2 - Null evaluation
 
-  Background:
+  Scenario: [1] The inverse of a null is a null
     Given any graph
-
-  Scenario: The inverse of a null is a null
     When executing query:
       """
       RETURN NOT null AS value
@@ -43,27 +41,8 @@ Feature: TernaryLogicAcceptanceTest
       | null  |
     And no side effects
 
-  Scenario: A literal null IS null
-    When executing query:
-      """
-      RETURN null IS NULL AS value
-      """
-    Then the result should be, in any order:
-      | value |
-      | true  |
-    And no side effects
-
-  Scenario: A literal null is not IS NOT null
-    When executing query:
-      """
-      RETURN null IS NOT NULL AS value
-      """
-    Then the result should be, in any order:
-      | value |
-      | false |
-    And no side effects
-
-  Scenario: It is unknown - i.e. null - if a null is equal to a null
+  Scenario: [2] It is unknown - i.e. null - if a null is equal to a null
+    Given any graph
     When executing query:
       """
       RETURN null = null AS value
@@ -73,7 +52,8 @@ Feature: TernaryLogicAcceptanceTest
       | null  |
     And no side effects
 
-  Scenario: It is unknown - i.e. null - if a null is not equal to a null
+  Scenario: [3] It is unknown - i.e. null - if a null is not equal to a null
+    Given any graph
     When executing query:
       """
       RETURN null <> null AS value
@@ -83,7 +63,8 @@ Feature: TernaryLogicAcceptanceTest
       | null  |
     And no side effects
 
-  Scenario Outline: Using null in AND
+  Scenario Outline: [4] Using null in AND
+    Given any graph
     And parameters are:
       | lhs | <lhs> |
       | rhs | <rhs> |
@@ -104,7 +85,8 @@ Feature: TernaryLogicAcceptanceTest
       | null  | false | false  |
       | false | null  | false  |
 
-  Scenario Outline: Using null in OR
+  Scenario Outline: [5] Using null in OR
+    Given any graph
     And parameters are:
       | lhs | <lhs> |
       | rhs | <rhs> |
@@ -125,10 +107,11 @@ Feature: TernaryLogicAcceptanceTest
       | null  | false | null   |
       | false | null  | null   |
 
-  Scenario Outline: Using null in XOR
+  Scenario Outline: [6] Using null in XOR
+    Given any graph
     And parameters are:
-      | lhs    | <lhs>    |
-      | rhs    | <rhs>    |
+      | lhs | <lhs> |
+      | rhs | <rhs> |
     When executing query:
       """
       RETURN $lhs XOR $rhs AS result
@@ -146,10 +129,11 @@ Feature: TernaryLogicAcceptanceTest
       | null  | false | null   |
       | false | null  | null   |
 
-  Scenario Outline: Using null in IN
+  Scenario Outline: [7] Using null in IN
+    Given any graph
     And parameters are:
-      | elt    | <elt>    |
-      | coll   | <coll>   |
+      | elt  | <elt>  |
+      | coll | <coll> |
     When executing query:
       """
       RETURN $elt IN $coll AS result
