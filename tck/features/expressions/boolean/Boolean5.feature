@@ -28,21 +28,4 @@
 
 #encoding: utf-8
 
-Feature: WhereAcceptance
-
-  Scenario: NOT and false
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({name: 'a'})
-      """
-    When executing query:
-      """
-      MATCH (n)
-      WHERE NOT(n.name = 'apa' AND false)
-      RETURN n
-      """
-    Then the result should be, in any order:
-      | n             |
-      | ({name: 'a'}) |
-    And no side effects
+Feature: Boolean5 - Interop of logical operations
