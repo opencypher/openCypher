@@ -64,7 +64,7 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
       form(action:="/browserPath", method:="get")(
         table(
           tr(
-            td(input(width:=50.em, `type`:="text", name:="path")),
+            td(input(width:=50.em, `type`:="text", name:="path", value:="tck/features")),
             td(input(`type`:="submit", value:="Show")),
           )
         )
