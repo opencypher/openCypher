@@ -52,7 +52,8 @@ case class BrowserPages(browserModel: BrowserModel, browserRoutes: BrowserRoutes
     val groupsByParent = counts.keys.groupBy(countCategory => countCategory.parent)
 
     // print counts to html table rows as a count group tree in dept first order
-    def printDepthFirst(currentGroup: Group): Seq[scalatags.Text.TypedTag[String]] = {
+    def printDepthFirst(currentGroup: Group, totalCountOptional: Option[Int] = None): Seq[scalatags.Text.TypedTag[String]] = {
+      val totalCount = totalCountOptional.getOrElse(counts.get(currentGroup).map(_.size).getOrElse(Int.MaxValue))
       val thisRow =
         tr(
           td(textIndent:=currentGroup.indent.em)(
@@ -63,6 +64,12 @@ case class BrowserPages(browserModel: BrowserModel, browserRoutes: BrowserRoutes
               a(href:=browserRoutes.listScenariosURL(this, currentGroup))(col.size)
             ).getOrElse("-")
           ),
+          td(textAlign.right)(
+           counts.get(currentGroup).map(col => {
+              val pct = (col.size * 100).toDouble / totalCount
+              frag(f"$pct%3.1f %%")
+            }).getOrElse("-")
+          )
         )
       // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
       val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{
@@ -75,7 +82,7 @@ case class BrowserPages(browserModel: BrowserModel, browserRoutes: BrowserRoutes
       val groupsOrdered = groupsByClasses.toSeq.sortBy(_._1).flatMap {
         case (_, countCategories) => countCategories.toSeq.sortBy(_.name)
       }
-      thisRow +: groupsOrdered.flatMap(printDepthFirst)
+      thisRow +: groupsOrdered.flatMap(g => printDepthFirst(g, Some(totalCount)))
     }
 
     //output header
@@ -83,6 +90,7 @@ case class BrowserPages(browserModel: BrowserModel, browserRoutes: BrowserRoutes
       tr(
         th("Group"),
         th("Count"),
+        th("of Total"),
       )
 
     table(CSS.hoverTable)(header +: printDepthFirst(Total))
