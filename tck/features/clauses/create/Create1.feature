@@ -135,3 +135,17 @@ Feature: Create1 - Creating nodes
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 1 |
+
+  Scenario: [10] CREATE does not lose precision on large integers
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (:TheLabel {id: 4611686018427387905})
+      RETURN p.id
+      """
+    Then the result should be, in any order:
+      | p.id                |
+      | 4611686018427387905 |
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
