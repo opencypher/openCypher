@@ -179,23 +179,7 @@ Feature: Comparison1 - Equality
       | '1.0' | 1.0 | false   |
       | '1'   | 1   | false   |
 
-  Scenario: [9] Does not lose precision
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:TheLabel {id: 4611686018427387905})
-      """
-    When executing query:
-      """
-      MATCH (p:TheLabel)
-      RETURN p.id
-      """
-    Then the result should be, in any order:
-      | p.id                |
-      | 4611686018427387905 |
-    And no side effects
-
-  Scenario: [10] Handling inlined equality of large integer
+  Scenario: [9] Handling inlined equality of large integer
     Given an empty graph
     And having executed:
       """
@@ -211,7 +195,7 @@ Feature: Comparison1 - Equality
       | 4611686018427387905 |
     And no side effects
 
-  Scenario: [11] Handling explicit equality of large integer
+  Scenario: [10] Handling explicit equality of large integer
     Given an empty graph
     And having executed:
       """
@@ -228,7 +212,7 @@ Feature: Comparison1 - Equality
       | 4611686018427387905 |
     And no side effects
 
-  Scenario: [12] Handling inlined equality of large integer, non-equal values
+  Scenario: [11] Handling inlined equality of large integer, non-equal values
     Given an empty graph
     And having executed:
       """
@@ -243,7 +227,7 @@ Feature: Comparison1 - Equality
       | p.id |
     And no side effects
 
-  Scenario: [13] Handling explicit equality of large integer, non-equal values
+  Scenario: [12] Handling explicit equality of large integer, non-equal values
     Given an empty graph
     And having executed:
       """
@@ -259,7 +243,7 @@ Feature: Comparison1 - Equality
       | p.id |
     And no side effects
 
-  Scenario: [14] Direction of traversed relationship is not significant for path equality, simple
+  Scenario: [13] Direction of traversed relationship is not significant for path equality, simple
     Given an empty graph
     And having executed:
       """
@@ -276,7 +260,7 @@ Feature: Comparison1 - Equality
       | true    |
     And no side effects
 
-  Scenario: [15] It is unknown - i.e. null - if a null is equal to a null
+  Scenario: [14] It is unknown - i.e. null - if a null is equal to a null
     Given any graph
     When executing query:
       """
@@ -287,7 +271,7 @@ Feature: Comparison1 - Equality
       | null  |
     And no side effects
 
-  Scenario: [16] It is unknown - i.e. null - if a null is not equal to a null
+  Scenario: [15] It is unknown - i.e. null - if a null is not equal to a null
     Given any graph
     When executing query:
       """
@@ -299,7 +283,7 @@ Feature: Comparison1 - Equality
     And no side effects
 
   @NegativeTest
-  Scenario: [17] Failing when comparing to an undefined variable
+  Scenario: [16] Failing when comparing to an undefined variable
     Given any graph
     When executing query:
       """

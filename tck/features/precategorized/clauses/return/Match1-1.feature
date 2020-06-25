@@ -218,3 +218,19 @@ Feature: Match1-1 - Match nodes RETURN clause scenarios
       RETURN n2.num
       """
     Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+
+  Scenario: RETURN does not lose precision on large integers
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:TheLabel {id: 4611686018427387905})
+      """
+    When executing query:
+      """
+      MATCH (p:TheLabel)
+      RETURN p.id
+      """
+    Then the result should be, in any order:
+      | p.id                |
+      | 4611686018427387905 |
+    And no side effects
