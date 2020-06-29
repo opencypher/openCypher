@@ -8,10 +8,10 @@ Within each member, there are additional categories.
 There is also an `uncategorized` and `precategorized` directory containing uncategorized features.
 
 
-== clauses
+== Clauses
 
 
-=== create
+=== Create
 
 * Create1 - Creating nodes
 * Create2 - Creating relationships
@@ -20,7 +20,7 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Create5 - Multiple hops create patterns
 * Create6 - Negative tests
 
-=== delete
+=== Delete
 
 * Delete1 - Deleting nodes
 * Delete2 - Deleting relationships
@@ -29,7 +29,7 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Delete5 - Delete clause interoperation with built-in data types
 * Delete6 - Negative scenarios
 
-=== match
+=== Match
 
 * Match1 - Match Nodes scenarios
 * Match10 - Match clause failure scenarios
@@ -42,7 +42,12 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Match8 - Match clause Interoperation with other clauses
 * Match9 - Match deprecated scenarios
 
-=== set
+=== Remove
+
+* Remove1 - Remove a Property
+* Remove2 - Remove a Label
+
+=== Set
 
 * Set1 - Set a Property
 * Set2 - Set a Property to Null
@@ -50,20 +55,27 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Set4 - Set Multiple Properties
 * Set5 - Set Multiple Properties with a Map
 
-=== union
+=== Union
 
 * Union1 - Union
 * Union2 - Union All
 * Union3 - Union in combination with Union All
 
-=== unwind
+=== Unwind
 
 * Unwind1
 
-== expressions
+== Expressions
 
 
-=== list
+=== Comparison
+
+* Comparison1 - Equality
+* Comparison2 - Half-bounded Range
+* Comparison3 - Full-Bound Range
+* Comparison4 - Combination of Comparisons
+
+=== List
 
 * List1 - Dynamic Element Access
 * List11 - List Comprehension
@@ -75,7 +87,7 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * List6 - List Size
 * List9 - List Tail
 
-=== literals
+=== Literals
 
 * Literals1 - Boolean and Null
 * Literals2 - Integer
@@ -85,20 +97,32 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Literals6 - Maps
 * Literals7 - Negative tests
 
-=== map
+=== Map
 
 * Map2 - Dynamic Value Access
 * Map3 - Keys Function
 * Map4 - Negative Tests
 
-=== mathematical
+=== Mathematical
 
 * Addition
 * ArithmeticPrecedence
 * SignedNumbersFunctions
 * SquareRoot
 
-=== typeConversion
+=== Temporal
+
+* Temporal1 - Create Temporal Values from a Map
+* Temporal2 - Create Temporal Values from a String
+* Temporal3 - Project Temporal Values from other Temporal Values
+* Temporal4 - Store Temporal Values
+* Temporal5 - Access Components of Temporal Values
+* Temporal6 - Render Temporal Values as a String
+* Temporal7 - Compare Temporal Values
+* Temporal8 - Compute Arithmetic Operations on Temporal Values
+* Temporal9 - Truncate Temporal Values
+
+=== Type Conversion
 
 * TypeConversion1 - To Boolean
 * TypeConversion2 - To Integer
