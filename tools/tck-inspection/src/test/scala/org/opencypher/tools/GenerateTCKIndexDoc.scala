@@ -108,8 +108,10 @@ object GenerateTCKIndexDoc {
             |
             |There is also an `uncategorized` and `precategorized` directory containing uncategorized features.
             |""".stripMargin
-        case ScenarioCategory(name, indent, _) =>
-          System.lineSeparator() + s"=${"=" * indent} $name" + System.lineSeparator()
+        case ScenarioCategory(name, indent, _) => {
+          val prettyName = name.substring(0,1).toUpperCase + name.substring(1).replaceAll("([A-Z])", " $1")
+          System.lineSeparator() + s"=${"=" * indent} $prettyName" + System.lineSeparator()
+        }
         case Feature(name, _, _) =>
           s"* $name"
         case _ => ""
