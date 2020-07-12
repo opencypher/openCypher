@@ -28,28 +28,51 @@
 
 #encoding: utf-8
 
-Feature: Map3 - Keys Function
+Feature: Graph11 - Dynamic property access
+  # Accessing a property of a node or edge by using a dynamically-computed string value as the key; e.g. allowing for the key to be passed in as a parameter
 
-  Scenario: Using `keys()` on a literal map
+  Scenario: Execute n['name'] in read queries
+    Given any graph
+    And having executed:
+      """
+      CREATE ({name: 'Apa'})
+      """
+    When executing query:
+      """
+      MATCH (n {name: 'Apa'})
+      RETURN n['nam' + 'e'] AS value
+      """
+    Then the result should be, in any order:
+      | value |
+      | 'Apa' |
+    And no side effects
+
+  Scenario: Execute n['name'] in update queries
     Given any graph
     When executing query:
       """
-      RETURN keys({name: 'Alice', age: 38, address: {city: 'London', residential: true}}) AS k
+      CREATE (n {name: 'Apa'})
+      RETURN n['nam' + 'e'] AS value
       """
-    Then the result should be (ignoring element order for lists):
-      | k                          |
-      | ['name', 'age', 'address'] |
-    And no side effects
+    Then the result should be, in any order:
+      | value |
+      | 'Apa' |
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
 
-  Scenario: Using `keys()` on a parameter map
+  Scenario: Use dynamic property lookup based on parameters when there is lhs type information
     Given any graph
     And parameters are:
-      | param | {name: 'Alice', age: 38, address: {city: 'London', residential: true}} |
+      | idx | 'name' |
     When executing query:
       """
-      RETURN keys($param) AS k
+      CREATE (n {name: 'Apa'})
+      RETURN n[$idx] AS value
       """
-    Then the result should be (ignoring element order for lists):
-      | k                          |
-      | ['address', 'name', 'age'] |
-    And no side effects
+    Then the result should be, in any order:
+      | value |
+      | 'Apa' |
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |

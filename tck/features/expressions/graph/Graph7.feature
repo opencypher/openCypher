@@ -28,28 +28,36 @@
 
 #encoding: utf-8
 
-Feature: Map3 - Keys Function
+Feature: Graph7 - Edge properties keys
 
-  Scenario: Using `keys()` on a literal map
-    Given any graph
+  Scenario: Using `keys()` on a relationship, empty result
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:KNOWS]->()
+      """
     When executing query:
       """
-      RETURN keys({name: 'Alice', age: 38, address: {city: 'London', residential: true}}) AS k
+      MATCH ()-[r:KNOWS]-()
+      UNWIND keys(r) AS x
+      RETURN DISTINCT x AS theProps
       """
-    Then the result should be (ignoring element order for lists):
-      | k                          |
-      | ['name', 'age', 'address'] |
+    Then the result should be, in any order:
+      | theProps |
     And no side effects
 
-  Scenario: Using `keys()` on a parameter map
-    Given any graph
-    And parameters are:
-      | param | {name: 'Alice', age: 38, address: {city: 'London', residential: true}} |
+  Scenario: Using `keys()` on an optionally matched relationship
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:KNOWS]->()
+      """
     When executing query:
       """
-      RETURN keys($param) AS k
+      OPTIONAL MATCH ()-[r:KNOWS]-()
+      UNWIND keys(r) AS x
+      RETURN DISTINCT x AS theProps
       """
-    Then the result should be (ignoring element order for lists):
-      | k                          |
-      | ['address', 'name', 'age'] |
+    Then the result should be, in any order:
+      | theProps |
     And no side effects

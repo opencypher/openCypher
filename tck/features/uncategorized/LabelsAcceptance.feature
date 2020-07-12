@@ -30,68 +30,10 @@
 
 Feature: LabelsAcceptance
 
-  Background:
-    Given an empty graph
-
-  # similar to Create1.[1] => rename to make clear labels() is tested
-  Scenario: Creating node without label
-    When executing query:
-      """
-      CREATE (node)
-      RETURN labels(node)
-      """
-    Then the result should be, in any order:
-      | labels(node) |
-      | []           |
-    And the side effects should be:
-      | +nodes | 1 |
-
-  # similar to Create1.[3]/[4] => rename to make clear labels() is tested
-  Scenario: Creating node with two labels
-    When executing query:
-      """
-      CREATE (node:Foo:Bar {name: 'Mattias'})
-      RETURN labels(node)
-      """
-    Then the result should be, in any order:
-      | labels(node)   |
-      | ['Foo', 'Bar'] |
-    And the side effects should be:
-      | +nodes      | 1 |
-      | +labels     | 2 |
-      | +properties | 1 |
-
-  # consider adding to Create1
-  Scenario: Ignore space when creating node with labels
-    When executing query:
-      """
-      CREATE (node :Foo:Bar)
-      RETURN labels(node)
-      """
-    Then the result should be, in any order:
-      | labels(node)   |
-      | ['Foo', 'Bar'] |
-    And the side effects should be:
-      | +nodes  | 1 |
-      | +labels | 2 |
-
-  # consider adding to Create1
-  Scenario: Create node with label in pattern
-    When executing query:
-      """
-      CREATE (n:Person)-[:OWNS]->(:Dog)
-      RETURN labels(n)
-      """
-    Then the result should be, in any order:
-      | labels(n)  |
-      | ['Person'] |
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 1 |
-      | +labels        | 2 |
-
   # consider adding to Create6
+  @NegativeTest
   Scenario: Fail when adding a new label predicate on a node that is already bound 1
+    Given an empty graph
     When executing query:
       """
       CREATE (n:Foo)-[:T1]->(),
@@ -100,7 +42,9 @@ Feature: LabelsAcceptance
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   # consider adding to Create6
+  @NegativeTest
   Scenario: Fail when adding new label predicate on a node that is already bound 2
+    Given an empty graph
     When executing query:
       """
       CREATE ()<-[:T2]-(n:Foo),
@@ -109,7 +53,9 @@ Feature: LabelsAcceptance
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   # consider adding to Create6
+  @NegativeTest
   Scenario: Fail when adding new label predicate on a node that is already bound 3
+    Given an empty graph
     When executing query:
       """
       CREATE (n:Foo)
@@ -118,7 +64,9 @@ Feature: LabelsAcceptance
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   # consider adding to Create6
+  @NegativeTest
   Scenario: Fail when adding new label predicate on a node that is already bound 4
+    Given an empty graph
     When executing query:
       """
       CREATE (n {})
@@ -127,25 +75,12 @@ Feature: LabelsAcceptance
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   # consider adding to Create6
+  @NegativeTest
   Scenario: Fail when adding new label predicate on a node that is already bound 5
+    Given an empty graph
     When executing query:
       """
       CREATE (n:Foo)
       CREATE (n {})-[:OWNS]->(:Dog)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
-
-  Scenario: Using `labels()` in return clauses
-    And having executed:
-      """
-      CREATE ()
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN labels(n)
-      """
-    Then the result should be, in any order:
-      | labels(n) |
-      | []        |
-    And no side effects
