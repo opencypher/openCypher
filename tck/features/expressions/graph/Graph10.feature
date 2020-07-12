@@ -28,28 +28,5 @@
 
 #encoding: utf-8
 
-Feature: Map3 - Keys Function
-
-  Scenario: Using `keys()` on a literal map
-    Given any graph
-    When executing query:
-      """
-      RETURN keys({name: 'Alice', age: 38, address: {city: 'London', residential: true}}) AS k
-      """
-    Then the result should be (ignoring element order for lists):
-      | k                          |
-      | ['name', 'age', 'address'] |
-    And no side effects
-
-  Scenario: Using `keys()` on a parameter map
-    Given any graph
-    And parameters are:
-      | param | {name: 'Alice', age: 38, address: {city: 'London', residential: true}} |
-    When executing query:
-      """
-      RETURN keys($param) AS k
-      """
-    Then the result should be (ignoring element order for lists):
-      | k                          |
-      | ['address', 'name', 'age'] |
-    And no side effects
+Feature: Graph10 - Static property access
+  # Accessing a property of a node or edge by using a static, literal string value as the key.

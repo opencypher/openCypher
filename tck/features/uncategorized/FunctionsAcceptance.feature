@@ -30,49 +30,21 @@
 
 Feature: FunctionsAcceptance
 
-  Scenario: Functions should return null if they get path containing unbound
-    Given any graph
-    When executing query:
-      """
-      WITH null AS a
-      OPTIONAL MATCH p = (a)-[r]->()
-      RETURN size(nodes(p)), type(r), nodes(p), relationships(p)
-      """
-    Then the result should be, in any order:
-      | size(nodes(p)) | type(r) | nodes(p) | relationships(p) |
-      | null           | null    | null     | null             |
-    And no side effects
-
-  Scenario: `properties()` on a node
+  Scenario: Run coalesce
     Given an empty graph
     And having executed:
       """
-      CREATE (n:Person {name: 'Popeye', level: 9001})
+      CREATE ({name: 'Emil Eifrem', title: 'CEO'}), ({name: 'Nobody'})
       """
     When executing query:
       """
-      MATCH (p:Person)
-      RETURN properties(p) AS m
+      MATCH (a)
+      RETURN coalesce(a.title, a.name)
       """
     Then the result should be, in any order:
-      | m                             |
-      | {name: 'Popeye', level: 9001} |
-    And no side effects
-
-  Scenario: `properties()` on a relationship
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (n)-[:R {name: 'Popeye', level: 9001}]->(n)
-      """
-    When executing query:
-      """
-      MATCH ()-[r:R]->()
-      RETURN properties(r) AS m
-      """
-    Then the result should be, in any order:
-      | m                             |
-      | {name: 'Popeye', level: 9001} |
+      | coalesce(a.title, a.name) |
+      | 'CEO'                     |
+      | 'Nobody'                  |
     And no side effects
 
   Scenario: `properties()` on a map
@@ -121,23 +93,23 @@ Feature: FunctionsAcceptance
       | null             |
     And no side effects
 
-  Scenario: `exists()` with dynamic property lookup
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:Person {name: 'foo'}),
-             (:Person)
-      """
+  Scenario Outline: `exists()` with literal maps
+    Given any graph
     When executing query:
       """
-      MATCH (n:Person)
-      WHERE exists(n['name'])
-      RETURN n
+      WITH <map> AS map
+      RETURN exists(map.name) AS result
       """
     Then the result should be, in any order:
-      | n                       |
-      | (:Person {name: 'foo'}) |
+      | result   |
+      | <result> |
     And no side effects
+
+    Examples:
+      | map                             | result |
+      | {name: 'Mats', name2: 'Pontus'} | true   |
+      | {name: null}                    | false  |
+      | {notName: 0, notName2: null}    | false  |
 
   Scenario Outline: IS NOT NULL with literal maps
     Given any graph
@@ -272,111 +244,6 @@ Feature: FunctionsAcceptance
       """
     Then a ArgumentError should be raised at runtime: NumberOutOfRange
 
-  Scenario: `type()`
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()-[:T]->()
-      """
-    When executing query:
-      """
-      MATCH ()-[r]->()
-      RETURN type(r)
-      """
-    Then the result should be, in any order:
-      | type(r) |
-      | 'T'     |
-    And no side effects
-
-  Scenario: `type()` on two relationships
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()-[:T1]->()-[:T2]->()
-      """
-    When executing query:
-      """
-      MATCH ()-[r1]->()-[r2]->()
-      RETURN type(r1), type(r2)
-      """
-    Then the result should be, in any order:
-      | type(r1) | type(r2) |
-      | 'T1'     | 'T2'     |
-    And no side effects
-
-  Scenario: `type()` on null relationship
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()
-      """
-    When executing query:
-      """
-      MATCH (a)
-      OPTIONAL MATCH (a)-[r:NOT_THERE]->()
-      RETURN type(r)
-      """
-    Then the result should be, in any order:
-      | type(r) |
-      | null    |
-    And no side effects
-
-  Scenario: `type()` on mixed null and non-null relationships
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()-[:T]->()
-      """
-    When executing query:
-      """
-      MATCH (a)
-      OPTIONAL MATCH (a)-[r:T]->()
-      RETURN type(r)
-      """
-    Then the result should be, in any order:
-      | type(r) |
-      | 'T'     |
-      | null    |
-    And no side effects
-
-  Scenario: `type()` handling Any type
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()-[:T]->()
-      """
-    When executing query:
-      """
-      MATCH (a)-[r]->()
-      WITH [r, 1] AS list
-      RETURN type(list[0])
-      """
-    Then the result should be, in any order:
-      | type(list[0]) |
-      | 'T'           |
-    And no side effects
-
-  Scenario Outline: `type()` failing on invalid arguments
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()-[:T]->()
-      """
-    When executing query:
-      """
-      MATCH p = (n)-[r:T]->()
-      RETURN [x IN [r, <invalid>] | type(x) ] AS list
-      """
-    Then a TypeError should be raised at runtime: InvalidArgumentValue
-
-    Examples:
-      | invalid |
-      | 0       |
-      | 1.0     |
-      | true    |
-      | ''      |
-      | []      |
-
   Scenario: `labels()` should accept type Any
     Given an empty graph
     And having executed:
@@ -421,20 +288,3 @@ Feature: FunctionsAcceptance
       RETURN labels(list[1]) AS l
       """
     Then a TypeError should be raised at runtime: InvalidArgumentValue
-
-  Scenario: `exists()` is case insensitive
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:X {prop: 42}), (:X)
-      """
-    When executing query:
-      """
-      MATCH (n:X)
-      RETURN n, EXIsTS(n.prop) AS b
-      """
-    Then the result should be, in any order:
-      | n               | b     |
-      | (:X {prop: 42}) | true  |
-      | (:X)            | false |
-    And no side effects

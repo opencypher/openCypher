@@ -31,36 +31,6 @@
 Feature: Map2 - Dynamic Value Access
 # Dynamic value access refers to the bracket-operator – <expression resulting in a map>'['<expression resulting in a string>']' – irrespectively of whether the map key – i.e. <expression resulting in a string> – could be evaluated statically in a given scenario.
 
-  Scenario: Execute n['name'] in read queries
-    Given any graph
-    And having executed:
-      """
-      CREATE ({name: 'Apa'})
-      """
-    When executing query:
-      """
-      MATCH (n {name: 'Apa'})
-      RETURN n['nam' + 'e'] AS value
-      """
-    Then the result should be, in any order:
-      | value |
-      | 'Apa' |
-    And no side effects
-
-  Scenario: Execute n['name'] in update queries
-    Given any graph
-    When executing query:
-      """
-      CREATE (n {name: 'Apa'})
-      RETURN n['nam' + 'e'] AS value
-      """
-    Then the result should be, in any order:
-      | value |
-      | 'Apa' |
-    And the side effects should be:
-      | +nodes      | 1 |
-      | +properties | 1 |
-
   Scenario: Use dynamic property lookup based on parameters when there is no type information
     Given any graph
     And parameters are:
@@ -75,22 +45,6 @@ Feature: Map2 - Dynamic Value Access
       | value |
       | 'Apa' |
     And no side effects
-
-  Scenario: Use dynamic property lookup based on parameters when there is lhs type information
-    Given any graph
-    And parameters are:
-      | idx | 'name' |
-    When executing query:
-      """
-      CREATE (n {name: 'Apa'})
-      RETURN n[$idx] AS value
-      """
-    Then the result should be, in any order:
-      | value |
-      | 'Apa' |
-    And the side effects should be:
-      | +nodes      | 1 |
-      | +properties | 1 |
 
   Scenario: Use dynamic property lookup based on parameters when there is rhs type information
     Given any graph

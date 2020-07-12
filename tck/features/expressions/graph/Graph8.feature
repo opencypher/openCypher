@@ -28,28 +28,17 @@
 
 #encoding: utf-8
 
-Feature: Map3 - Keys Function
+Feature: Graph8 - Compute the number of subgraphs induced by a pattern expression
 
-  Scenario: Using `keys()` on a literal map
+  Scenario: Functions should return null if they get path containing unbound
     Given any graph
     When executing query:
       """
-      RETURN keys({name: 'Alice', age: 38, address: {city: 'London', residential: true}}) AS k
+      WITH null AS a
+      OPTIONAL MATCH p = (a)-[r]->()
+      RETURN size(nodes(p)), type(r), nodes(p), relationships(p)
       """
-    Then the result should be (ignoring element order for lists):
-      | k                          |
-      | ['name', 'age', 'address'] |
-    And no side effects
-
-  Scenario: Using `keys()` on a parameter map
-    Given any graph
-    And parameters are:
-      | param | {name: 'Alice', age: 38, address: {city: 'London', residential: true}} |
-    When executing query:
-      """
-      RETURN keys($param) AS k
-      """
-    Then the result should be (ignoring element order for lists):
-      | k                          |
-      | ['address', 'name', 'age'] |
+    Then the result should be, in any order:
+      | size(nodes(p)) | type(r) | nodes(p) | relationships(p) |
+      | null           | null    | null     | null             |
     And no side effects

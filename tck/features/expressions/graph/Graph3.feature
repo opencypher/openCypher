@@ -28,28 +28,36 @@
 
 #encoding: utf-8
 
-Feature: Map3 - Keys Function
+Feature: Graph3 - Graph entity properties
 
-  Scenario: Using `keys()` on a literal map
-    Given any graph
+  Scenario: `properties()` on a node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (n:Person {name: 'Popeye', level: 9001})
+      """
     When executing query:
       """
-      RETURN keys({name: 'Alice', age: 38, address: {city: 'London', residential: true}}) AS k
+      MATCH (p:Person)
+      RETURN properties(p) AS m
       """
-    Then the result should be (ignoring element order for lists):
-      | k                          |
-      | ['name', 'age', 'address'] |
+    Then the result should be, in any order:
+      | m                             |
+      | {name: 'Popeye', level: 9001} |
     And no side effects
 
-  Scenario: Using `keys()` on a parameter map
-    Given any graph
-    And parameters are:
-      | param | {name: 'Alice', age: 38, address: {city: 'London', residential: true}} |
+  Scenario: `properties()` on a relationship
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (n)-[:R {name: 'Popeye', level: 9001}]->(n)
+      """
     When executing query:
       """
-      RETURN keys($param) AS k
+      MATCH ()-[r:R]->()
+      RETURN properties(r) AS m
       """
-    Then the result should be (ignoring element order for lists):
-      | k                          |
-      | ['address', 'name', 'age'] |
+    Then the result should be, in any order:
+      | m                             |
+      | {name: 'Popeye', level: 9001} |
     And no side effects
