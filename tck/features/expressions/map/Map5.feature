@@ -28,22 +28,43 @@
 
 #encoding: utf-8
 
-Feature: Map4 - Exists function
+Feature: Map5 - Negative Tests
 
-  Scenario Outline: `exists()` with literal maps
+  @NegativeTest
+  Scenario: Fail at runtime when attempting to index with an Int into a Map
     Given any graph
+    And parameters are:
+      | expr | {name: 'Apa'} |
+      | idx  | 0             |
     When executing query:
       """
-      WITH <map> AS map
-      RETURN exists(map.name) AS result
+      WITH $expr AS expr, $idx AS idx
+      RETURN expr[idx]
       """
-    Then the result should be, in any order:
-      | result   |
-      | <result> |
-    And no side effects
+    Then a TypeError should be raised at runtime: MapElementAccessByNonString
 
-    Examples:
-      | map                             | result |
-      | {name: 'Mats', name2: 'Pontus'} | true   |
-      | {name: null}                    | false  |
-      | {notName: 0, notName2: null}    | false  |
+  @NegativeTest
+  Scenario: Fail at runtime when trying to index into a map with a non-string
+    Given any graph
+    And parameters are:
+      | expr | {name: 'Apa'} |
+      | idx  | 12.3          |
+    When executing query:
+      """
+      WITH $expr AS expr, $idx AS idx
+      RETURN expr[idx]
+      """
+    Then a TypeError should be raised at runtime: MapElementAccessByNonString
+
+  @NegativeTest
+  Scenario: Fail at runtime when trying to index something which is not a map or list
+    Given any graph
+    And parameters are:
+      | expr | 100 |
+      | idx  | 0   |
+    When executing query:
+      """
+      WITH $expr AS expr, $idx AS idx
+      RETURN expr[idx]
+      """
+    Then a TypeError should be raised at runtime: InvalidElementAccess

@@ -156,24 +156,6 @@ Feature: FunctionsAcceptance
       | (:Person {name: 'foo'}) |
     And no side effects
 
-  Scenario Outline: `exists()` with literal maps
-    Given any graph
-    When executing query:
-      """
-      WITH <map> AS map
-      RETURN exists(map.name) AS result
-      """
-    Then the result should be, in any order:
-      | result   |
-      | <result> |
-    And no side effects
-
-    Examples:
-      | map                             | result |
-      | {name: 'Mats', name2: 'Pontus'} | true   |
-      | {name: null}                    | false  |
-      | {notName: 0, notName2: null}    | false  |
-
   Scenario Outline: IS NOT NULL with literal maps
     Given any graph
     When executing query:
