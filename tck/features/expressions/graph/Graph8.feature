@@ -28,17 +28,85 @@
 
 #encoding: utf-8
 
-Feature: Graph8 - Compute the number of subgraphs induced by a pattern expression
+Feature: Graph8 - Check if a property exists on a node or an edge
 
-  Scenario: Functions should return null if they get path containing unbound
-    Given any graph
+  Scenario: `exists()` with dynamic property lookup
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:Person {name: 'foo'}),
+             (:Person)
+      """
     When executing query:
       """
-      WITH null AS a
-      OPTIONAL MATCH p = (a)-[r]->()
-      RETURN size(nodes(p)), type(r), nodes(p), relationships(p)
+      MATCH (n:Person)
+      WHERE exists(n['name'])
+      RETURN n
       """
     Then the result should be, in any order:
-      | size(nodes(p)) | type(r) | nodes(p) | relationships(p) |
-      | null           | null    | null     | null             |
+      | n                       |
+      | (:Person {name: 'foo'}) |
+    And no side effects
+
+  Scenario: `exists()` is case insensitive
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:X {prop: 42}), (:X)
+      """
+    When executing query:
+      """
+      MATCH (n:X)
+      RETURN n, EXIsTS(n.prop) AS b
+      """
+    Then the result should be, in any order:
+      | n               | b     |
+      | (:X {prop: 42}) | true  |
+      | (:X)            | false |
+    And no side effects
+
+  Scenario: Property existence check on non-null node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({exists: 42})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      RETURN exists(n.missing),
+             exists(n.exists)
+      """
+    Then the result should be, in any order:
+      | exists(n.missing) | exists(n.exists) |
+      | false             | true             |
+    And no side effects
+
+  Scenario: Property existence check on optional non-null node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({exists: 42})
+      """
+    When executing query:
+      """
+      OPTIONAL MATCH (n)
+      RETURN exists(n.missing),
+             exists(n.exists)
+      """
+    Then the result should be, in any order:
+      | exists(n.missing) | exists(n.exists) |
+      | false             | true             |
+    And no side effects
+
+  Scenario: Property existence check on null node
+    Given an empty graph
+    When executing query:
+      """
+      OPTIONAL MATCH (n)
+      RETURN exists(n.missing)
+      """
+    Then the result should be, in any order:
+      | exists(n.missing) |
+      | null              |
     And no side effects

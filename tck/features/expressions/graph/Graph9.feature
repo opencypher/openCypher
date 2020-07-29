@@ -28,85 +28,36 @@
 
 #encoding: utf-8
 
-Feature: Graph9 - Check if a property exists on a node or an edge
+Feature: Graph9 - Access all properties as property map
 
-  Scenario: `exists()` with dynamic property lookup
+  Scenario: `properties()` on a node
     Given an empty graph
     And having executed:
       """
-      CREATE (:Person {name: 'foo'}),
-             (:Person)
+      CREATE (n:Person {name: 'Popeye', level: 9001})
       """
     When executing query:
       """
-      MATCH (n:Person)
-      WHERE exists(n['name'])
-      RETURN n
+      MATCH (p:Person)
+      RETURN properties(p) AS m
       """
     Then the result should be, in any order:
-      | n                       |
-      | (:Person {name: 'foo'}) |
+      | m                             |
+      | {name: 'Popeye', level: 9001} |
     And no side effects
 
-  Scenario: `exists()` is case insensitive
+  Scenario: `properties()` on a relationship
     Given an empty graph
     And having executed:
       """
-      CREATE (a:X {prop: 42}), (:X)
+      CREATE (n)-[:R {name: 'Popeye', level: 9001}]->(n)
       """
     When executing query:
       """
-      MATCH (n:X)
-      RETURN n, EXIsTS(n.prop) AS b
+      MATCH ()-[r:R]->()
+      RETURN properties(r) AS m
       """
     Then the result should be, in any order:
-      | n               | b     |
-      | (:X {prop: 42}) | true  |
-      | (:X)            | false |
-    And no side effects
-
-  Scenario: Property existence check on non-null node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({exists: 42})
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN exists(n.missing),
-             exists(n.exists)
-      """
-    Then the result should be, in any order:
-      | exists(n.missing) | exists(n.exists) |
-      | false             | true             |
-    And no side effects
-
-  Scenario: Property existence check on optional non-null node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({exists: 42})
-      """
-    When executing query:
-      """
-      OPTIONAL MATCH (n)
-      RETURN exists(n.missing),
-             exists(n.exists)
-      """
-    Then the result should be, in any order:
-      | exists(n.missing) | exists(n.exists) |
-      | false             | true             |
-    And no side effects
-
-  Scenario: Property existence check on null node
-    Given an empty graph
-    When executing query:
-      """
-      OPTIONAL MATCH (n)
-      RETURN exists(n.missing)
-      """
-    Then the result should be, in any order:
-      | exists(n.missing) |
-      | null              |
+      | m                             |
+      | {name: 'Popeye', level: 9001} |
     And no side effects

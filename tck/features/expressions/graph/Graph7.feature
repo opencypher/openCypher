@@ -28,7 +28,96 @@
 
 #encoding: utf-8
 
-Feature: Graph7 - Edge properties keys
+Feature: Graph7 - Node properties keys
+
+  Scenario: Using `keys()` on a single node, non-empty result
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({name: 'Andres', surname: 'Lopez'})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      UNWIND keys(n) AS x
+      RETURN DISTINCT x AS theProps
+      """
+    Then the result should be, in any order:
+      | theProps  |
+      | 'name'    |
+      | 'surname' |
+    And no side effects
+
+  Scenario: Using `keys()` on multiple nodes, non-empty result
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({name: 'Andres', surname: 'Lopez'}),
+             ({otherName: 'Andres', otherSurname: 'Lopez'})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      UNWIND keys(n) AS x
+      RETURN DISTINCT x AS theProps
+      """
+    Then the result should be, in any order:
+      | theProps       |
+      | 'name'         |
+      | 'surname'      |
+      | 'otherName'    |
+      | 'otherSurname' |
+    And no side effects
+
+  Scenario: Using `keys()` on a single node, empty result
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()
+      """
+    When executing query:
+      """
+      MATCH (n)
+      UNWIND keys(n) AS x
+      RETURN DISTINCT x AS theProps
+      """
+    Then the result should be, in any order:
+      | theProps |
+    And no side effects
+
+  Scenario: Using `keys()` on an optionally matched node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()
+      """
+    When executing query:
+      """
+      OPTIONAL MATCH (n)
+      UNWIND keys(n) AS x
+      RETURN DISTINCT x AS theProps
+      """
+    Then the result should be, in any order:
+      | theProps |
+    And no side effects
+
+  Scenario: Using `keys()` on a relationship, non-empty result
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:KNOWS {status: 'bad', year: '2015'}]->()
+      """
+    When executing query:
+      """
+      MATCH ()-[r:KNOWS]-()
+      UNWIND keys(r) AS x
+      RETURN DISTINCT x AS theProps
+      """
+    Then the result should be, in any order:
+      | theProps |
+      | 'status' |
+      | 'year'   |
+    And no side effects
 
   Scenario: Using `keys()` on a relationship, empty result
     Given an empty graph
