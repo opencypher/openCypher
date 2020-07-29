@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: Graph2 - Graph entity identifier - ID function
+Feature: Graph2 - Edge source and destination

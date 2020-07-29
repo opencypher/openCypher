@@ -28,36 +28,81 @@
 
 #encoding: utf-8
 
-Feature: Graph3 - Graph entity properties
+Feature: Graph3 - Node labels
 
-  Scenario: `properties()` on a node
+    # similar to Create1.[1] => rename to make clear labels() is tested
+  Scenario: Creating node without label
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (node)
+      RETURN labels(node)
+      """
+    Then the result should be, in any order:
+      | labels(node) |
+      | []           |
+    And the side effects should be:
+      | +nodes | 1 |
+
+  # similar to Create1.[3]/[4] => rename to make clear labels() is tested
+  Scenario: Creating node with two labels
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (node:Foo:Bar {name: 'Mattias'})
+      RETURN labels(node)
+      """
+    Then the result should be, in any order:
+      | labels(node)   |
+      | ['Foo', 'Bar'] |
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +labels     | 2 |
+      | +properties | 1 |
+
+  # consider adding to Create1
+  Scenario: Ignore space when creating node with labels
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (node :Foo:Bar)
+      RETURN labels(node)
+      """
+    Then the result should be, in any order:
+      | labels(node)   |
+      | ['Foo', 'Bar'] |
+    And the side effects should be:
+      | +nodes  | 1 |
+      | +labels | 2 |
+
+  # consider adding to Create1
+  Scenario: Create node with label in pattern
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (n:Person)-[:OWNS]->(:Dog)
+      RETURN labels(n)
+      """
+    Then the result should be, in any order:
+      | labels(n)  |
+      | ['Person'] |
+    And the side effects should be:
+      | +nodes         | 2 |
+      | +relationships | 1 |
+      | +labels        | 2 |
+
+  Scenario: Using `labels()` in return clauses
     Given an empty graph
     And having executed:
       """
-      CREATE (n:Person {name: 'Popeye', level: 9001})
+      CREATE ()
       """
     When executing query:
       """
-      MATCH (p:Person)
-      RETURN properties(p) AS m
+      MATCH (n)
+      RETURN labels(n)
       """
     Then the result should be, in any order:
-      | m                             |
-      | {name: 'Popeye', level: 9001} |
-    And no side effects
-
-  Scenario: `properties()` on a relationship
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (n)-[:R {name: 'Popeye', level: 9001}]->(n)
-      """
-    When executing query:
-      """
-      MATCH ()-[r:R]->()
-      RETURN properties(r) AS m
-      """
-    Then the result should be, in any order:
-      | m                             |
-      | {name: 'Popeye', level: 9001} |
+      | labels(n) |
+      | []        |
     And no side effects

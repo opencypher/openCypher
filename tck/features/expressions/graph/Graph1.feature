@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: Graph1 - Edge source and destination
+Feature: Graph1 - Node and edge identifier - ID function

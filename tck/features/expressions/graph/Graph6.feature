@@ -28,93 +28,51 @@
 
 #encoding: utf-8
 
-Feature: Graph6 - Node properties keys
+Feature: Graph6 - Dynamic property access
+  # Accessing a property of a node or edge by using a dynamically-computed string value as the key; e.g. allowing for the key to be passed in as a parameter
 
-  Scenario: Using `keys()` on a single node, non-empty result
-    Given an empty graph
+  Scenario: Execute n['name'] in read queries
+    Given any graph
     And having executed:
       """
-      CREATE ({name: 'Andres', surname: 'Lopez'})
+      CREATE ({name: 'Apa'})
       """
     When executing query:
       """
-      MATCH (n)
-      UNWIND keys(n) AS x
-      RETURN DISTINCT x AS theProps
+      MATCH (n {name: 'Apa'})
+      RETURN n['nam' + 'e'] AS value
       """
     Then the result should be, in any order:
-      | theProps  |
-      | 'name'    |
-      | 'surname' |
+      | value |
+      | 'Apa' |
     And no side effects
 
-  Scenario: Using `keys()` on multiple nodes, non-empty result
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({name: 'Andres', surname: 'Lopez'}),
-             ({otherName: 'Andres', otherSurname: 'Lopez'})
-      """
+  Scenario: Execute n['name'] in update queries
+    Given any graph
     When executing query:
       """
-      MATCH (n)
-      UNWIND keys(n) AS x
-      RETURN DISTINCT x AS theProps
+      CREATE (n {name: 'Apa'})
+      RETURN n['nam' + 'e'] AS value
       """
     Then the result should be, in any order:
-      | theProps       |
-      | 'name'         |
-      | 'surname'      |
-      | 'otherName'    |
-      | 'otherSurname' |
-    And no side effects
+      | value |
+      | 'Apa' |
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
 
-  Scenario: Using `keys()` on a single node, empty result
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()
-      """
+  Scenario: Use dynamic property lookup based on parameters when there is lhs type information
+    Given any graph
+    And parameters are:
+      | idx | 'name' |
     When executing query:
       """
-      MATCH (n)
-      UNWIND keys(n) AS x
-      RETURN DISTINCT x AS theProps
+      CREATE (n {name: 'Apa'})
+      RETURN n[$idx] AS value
       """
     Then the result should be, in any order:
-      | theProps |
-    And no side effects
-
-  Scenario: Using `keys()` on an optionally matched node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()
-      """
-    When executing query:
-      """
-      OPTIONAL MATCH (n)
-      UNWIND keys(n) AS x
-      RETURN DISTINCT x AS theProps
-      """
-    Then the result should be, in any order:
-      | theProps |
-    And no side effects
-
-  Scenario: Using `keys()` on a relationship, non-empty result
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()-[:KNOWS {status: 'bad', year: '2015'}]->()
-      """
-    When executing query:
-      """
-      MATCH ()-[r:KNOWS]-()
-      UNWIND keys(r) AS x
-      RETURN DISTINCT x AS theProps
-      """
-    Then the result should be, in any order:
-      | theProps |
-      | 'status' |
-      | 'year'   |
-    And no side effects
+      | value |
+      | 'Apa' |
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
