@@ -95,15 +95,15 @@ variable             = // current definition of variable
 parameter            = "$", variable ;
 ----
 
-.Omitted signature imports nothing:
+.Full syntactic example:
 [source, cypher]
 ----
 // parameters to the query are $x, $y
-WITH 1 AS a, 2 AS b
-CALL (a AS $a, b AS b) {
+WITH 1 AS a, 2 AS b, 3 AS c
+CALL (a AS $a, b AS b) {                     // c is omitted from the inner scope
   WITH $x AS x, $y AS y, $a AS a_2, b AS b_2 // inner scope of parameters and variables
   WITH x, count(*) AS agg
-  RETURN x, $y AS y, $a AS a_2               // $a visible past horizon, b is lost
+  RETURN x, $y AS y, $a AS a_2               // $a and b are visible past horizon
 }
 RETURN a, b, x, y, a_2
 ----
@@ -143,18 +143,96 @@ The argument list consists of two types of entries:
 
 * parameters
 ** uses parameter syntax
-** is constant and visible throughout subquery
-** is not part of subquery binding table
-** are added to the query parameters of the superquery
 * variables
 ** uses variable syntax
-** may vary by row and may go out of scope
-** is part of subquery binding table
+
+Apart from the syntax, these entries have the exact same semantics.
+In particular, they:
+
+* are constant and visible throughout the subquery
+* are not part of the subquery binding table
 
 
 ==== Omitted signature
 
-If the input signature is omitted, this is interpreted as declaring the subquery _uncorrelated_.
+If the input signature is omitted, an implicit signature containing _all_ variables of the outer scope is generated.
+That is, the input binding table is a row from the outer binding table, and the input parameters are the parameters of the superquery.
+
+.Omitted signature imports everything as variables:
+[source, cypher]
+----
+WITH 1 AS a, 2 AS b
+CALL {
+  RETURN a + b AS c
+}
+RETURN a, b, c
+----
+
+.Interpreted as:
+[source, cypher]
+----
+WITH 1 AS a, 2 AS b
+CALL (a AS a, b AS b) {
+  RETURN a + b AS c
+}
+RETURN a, b, c
+----
+
+A consequence of this interpretation is that the importing `WITH` simply becomes a standard `WITH` in a backwards-compatible way.
+
+
+=== Examples
+
+==== Import as parameter
+
+.Import as parameter:
+[source, cypher]
+----
+WITH 1 AS a, 2 AS b
+CALL (a AS $a) {                // a made invisible by alias, b by omission
+  WITH 1 AS foo, count(*) AS c
+  RETURN $a AS stillInScope
+}
+RETURN a, b
+----
+
+
+==== Import as variable
+
+.Import as variable:
+[source, cypher]
+----
+WITH 1 AS a, 2 AS b
+CALL (a AS a) {                // b made invisible by omission
+  WITH 1 AS foo, count(*) AS c
+  RETURN $a AS stillInScope
+}
+RETURN a, b
+----
+
+.Import as variable using syntactic sugar:
+[source, cypher]
+----
+WITH 1 AS a, 2 AS b
+CALL (a) {                     // b made invisible by omission
+  WITH 1 AS foo, count(*) AS c
+  RETURN $a AS stillInScope
+}
+RETURN a, b
+----
+
+
+=== Interaction with existing features
+
+The importing `WITH` definition would lose its meaning and simply become a standard `WITH`.
+
+
+=== Alternatives
+
+
+==== Omitting signature
+
+Omitting the signature could instead be defined as importing _no_ variables to the subquery, thus declaring the subquery _uncorrelated_.
 That is, the input binding table is the unit table and the input parameters are the parameters of the superquery.
 
 .Omitted signature imports nothing:
@@ -168,79 +246,52 @@ RETURN a, b
 ----
 
 
-==== Import as parameter
+==== Giving syntax variants semantic difference
 
-* parameters
-** uses parameter syntax
-** is constant and visible throughout subquery
-** is not part of subquery binding table
-** are added to the query parameters of the superquery
+The syntactic variation between importing as variable and importing as parameter could be given a semantic variation.
+One idea could be to interpret importing variables as per-table semantics and importing parameters as per-row semantics.
+
+.Parameters:
+* uses parameter syntax
+* are constant and visible throughout subquery
+* are not part of subquery binding table
 
 .Import as parameter:
 [source, cypher]
 ----
 WITH 1 AS a, 2 AS b
-CALL (a AS $a) {
+CALL (a AS $a) {               // calls the subquery once per row with $a constant per call
   WITH 1 AS foo, count(*) AS c
   RETURN $a AS stillInScope
 }
 RETURN a, b
 ----
 
+'''
 
-==== Import as variable
-
-* variables
-** uses variable syntax
-** may vary by row and may go out of scope
-** is part of subquery binding table
-
+.Variables
+* uses variable syntax
+* may vary by row and may go out of scope
+* are part of the subquery binding table
 
 .Import as variable:
 [source, cypher]
 ----
+// query parameters: $x
 WITH 1 AS a, 2 AS b
-CALL (a AS a) {
-  WITH 1 AS foo, count(*) AS c
-  RETURN $a AS stillInScope
+CALL (a AS a) {                // calls the subquery once with an input binding table of a which varies per row
+  WITH 1 AS foo, count(*) AS c // a falls out of scope
+  RETURN foo, c, $x            // only superquery parameters accessible
 }
-RETURN a, b
+RETURN a, b, foo, c
 ----
 
-
-=== Examples
-
-
-=== Interaction with existing features
-
-The importing `WITH` would not be supported by the explicit signatures given that an omission of the signature is meant to indicate no correlation.
-Whenever an explicit signature is given, any `WITH` that begins the subquery would be interpreted as a standard `WITH`.
+The semantics given via import as variable are drastically different as this indicates calling the subquery only once.
+The outer binding table is column-pruned as per the signature (mentioned elements are kept) and the resulting table is passed as input to the subquery.
+This operation can be interpreted as a fork in the query execution where the subquery result is eventually merged via a join or cross-product to the superquery binding table in its shape at the point of forking.
 
 
-=== Alternatives
+==== Using a single syntactic variant
 
-Omitting the signature could instead be defined as implicitly importing _all_ variables as variables to the subquery.
-
-.Omitted signature imports everything as variables:
-[source, cypher]
-----
-WITH 1 AS a, 2 AS b
-CALL {
-  WITH a, b
-  ...
-}
-...
-----
-.Interpreted as:
-[source, cypher]
-----
-WITH 1 AS a, 2 AS b
-CALL (a AS a, b AS b) {
-  WITH a, b
-  ...
-}
-...
-----
-
-This could lead to removing the definition of the importing `WITH` and redefine it as a standard `WITH` in a backwards-compatible way.
-
+Rather than offering two ways of doing the same thing, we could settle for just one of the two syntactic options.
+This would be supportive of the idea of offering extended semantics in the future, where we reserve a syntax for that.
