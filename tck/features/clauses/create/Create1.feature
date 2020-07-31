@@ -140,7 +140,7 @@ Feature: Create1 - Creating nodes
     Given an empty graph
     When executing query:
       """
-      CREATE (:TheLabel {id: 4611686018427387905})
+      CREATE (p:TheLabel {id: 4611686018427387905})
       RETURN p.id
       """
     Then the result should be, in any order:
