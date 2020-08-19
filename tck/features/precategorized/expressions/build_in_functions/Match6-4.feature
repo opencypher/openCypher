@@ -48,34 +48,4 @@ Feature: Match6-4 - Match named paths built in functions scenarios
       | (:A) | (:B) | 1 |
     And no side effects
 
-  Scenario: Return relationships by fetching them from the path
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (s:Start)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(c:C)
-      """
-    When executing query:
-      """
-      MATCH p = (a:Start)-[:REL*2..2]->(b)
-      RETURN relationships(p)
-      """
-    Then the result should be, in any order:
-      | relationships(p)                   |
-      | [[:REL {num: 1}], [:REL {num: 2}]] |
-    And no side effects
 
-  Scenario: Return relationships by fetching them from the path - starting from the end
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(e:End)
-      """
-    When executing query:
-      """
-      MATCH p = (a)-[:REL*2..2]->(b:End)
-      RETURN relationships(p)
-      """
-    Then the result should be, in any order:
-      | relationships(p)                   |
-      | [[:REL {num: 1}], [:REL {num: 2}]] |
-    And no side effects
