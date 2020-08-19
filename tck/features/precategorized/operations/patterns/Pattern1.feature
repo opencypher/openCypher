@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Graph10 - Compute the number of subgraphs induced by a pattern expression
+Feature: Pattern1 - Compute the number of subgraphs induced by a pattern expression
 
   Scenario: Functions should return null if they get path containing unbound
     Given any graph
