@@ -213,8 +213,8 @@ Feature: Literals6 - Maps
       RETURN { a : ' { b : ' , c : { d : ' ' } , d : ' } ' } AS literal
       """
     Then the result should be, in any order:
-      | literal                           |
-      | {a:' { b : ', c: {d:' '}, d:' } '} |
+      | literal                               |
+      | {a: ' { b : ', c: {d: ' '}, d: ' } '} |
     And no side effects
 
   @skipStyleCheck
