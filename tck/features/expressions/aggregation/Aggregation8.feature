@@ -30,7 +30,7 @@
 
 Feature: Aggregation8 - DISTINCT
 
-  Scenario: Distinct on unbound node
+  Scenario: [1] Distinct on unbound node
     Given an empty graph
     When executing query:
       """
@@ -42,7 +42,7 @@ Feature: Aggregation8 - DISTINCT
       | 0                 |
     And no side effects
 
-  Scenario: Distinct on null
+  Scenario: [2] Distinct on null
     Given an empty graph
     And having executed:
       """
@@ -58,7 +58,7 @@ Feature: Aggregation8 - DISTINCT
       | 0                      |
     And no side effects
 
-  Scenario: Collect distinct nulls
+  Scenario: [3] Collect distinct nulls
     Given any graph
     When executing query:
       """
@@ -70,7 +70,7 @@ Feature: Aggregation8 - DISTINCT
       | [] |
     And no side effects
 
-  Scenario: Collect distinct values mixed with nulls
+  Scenario: [4] Collect distinct values mixed with nulls
     Given any graph
     When executing query:
       """
