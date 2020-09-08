@@ -30,4 +30,146 @@
 
 Feature: Aggregation2 - Min and Max
 
-  
+  Scenario: `max()` over integers
+    Given any graph
+    When executing query:
+      """
+      UNWIND [1, 2, 0, null, -1] AS x
+      RETURN max(x)
+      """
+    Then the result should be, in any order:
+      | max(x) |
+      | 2      |
+    And no side effects
+
+  Scenario: `min()` over integers
+    Given any graph
+    When executing query:
+      """
+      UNWIND [1, 2, 0, null, -1] AS x
+      RETURN min(x)
+      """
+    Then the result should be, in any order:
+      | min(x) |
+      | -1     |
+    And no side effects
+
+  Scenario: `max()` over floats
+    Given any graph
+    When executing query:
+      """
+      UNWIND [1.0, 2.0, 0.5, null] AS x
+      RETURN max(x)
+      """
+    Then the result should be, in any order:
+      | max(x) |
+      | 2.0    |
+    And no side effects
+
+  Scenario: `min()` over floats
+    Given any graph
+    When executing query:
+      """
+      UNWIND [1.0, 2.0, 0.5, null] AS x
+      RETURN min(x)
+      """
+    Then the result should be, in any order:
+      | min(x) |
+      | 0.5    |
+    And no side effects
+
+  Scenario: `max()` over mixed numeric values
+    Given any graph
+    When executing query:
+      """
+      UNWIND [1, 2.0, 5, null, 3.2, 0.1] AS x
+      RETURN max(x)
+      """
+    Then the result should be, in any order:
+      | max(x) |
+      | 5      |
+    And no side effects
+
+  Scenario: `min()` over mixed numeric values
+    Given any graph
+    When executing query:
+      """
+      UNWIND [1, 2.0, 5, null, 3.2, 0.1] AS x
+      RETURN min(x)
+      """
+    Then the result should be, in any order:
+      | min(x) |
+      | 0.1    |
+    And no side effects
+
+  Scenario: `max()` over strings
+    Given any graph
+    When executing query:
+      """
+      UNWIND ['a', 'b', 'B', null, 'abc', 'abc1'] AS i
+      RETURN max(i)
+      """
+    Then the result should be, in any order:
+      | max(i) |
+      | 'b'    |
+    And no side effects
+
+  Scenario: `min()` over strings
+    Given any graph
+    When executing query:
+      """
+      UNWIND ['a', 'b', 'B', null, 'abc', 'abc1'] AS i
+      RETURN min(i)
+      """
+    Then the result should be, in any order:
+      | min(i) |
+      | 'B'    |
+    And no side effects
+
+  Scenario: `max()` over list values
+    Given any graph
+    When executing query:
+      """
+      UNWIND [[1], [2], [2, 1]] AS x
+      RETURN max(x)
+      """
+    Then the result should be, in any order:
+      | max(x) |
+      | [2, 1] |
+    And no side effects
+
+  Scenario: `min()` over list values
+    Given any graph
+    When executing query:
+      """
+      UNWIND [[1], [2], [2, 1]] AS x
+      RETURN min(x)
+      """
+    Then the result should be, in any order:
+      | min(x) |
+      | [1]    |
+    And no side effects
+
+  Scenario: `max()` over mixed values
+    Given any graph
+    When executing query:
+      """
+      UNWIND [1, 'a', null, [1, 2], 0.2, 'b'] AS x
+      RETURN max(x)
+      """
+    Then the result should be, in any order:
+      | max(x) |
+      | 1      |
+    And no side effects
+
+  Scenario: `min()` over mixed values
+    Given any graph
+    When executing query:
+      """
+      UNWIND [1, 'a', null, [1, 2], 0.2, 'b'] AS x
+      RETURN min(x)
+      """
+    Then the result should be, in any order:
+      | min(x) |
+      | [1, 2] |
+    And no side effects
