@@ -30,4 +30,36 @@
 
 Feature: Aggregation3 - Sum
 
+  Scenario: Sum non-null values
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({name: 'a', num: 33})
+      CREATE ({name: 'a'})
+      CREATE ({name: 'a', num: 42})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      RETURN n.name, sum(n.num)
+      """
+    Then the result should be, in any order:
+      | n.name | sum(n.num) |
+      | 'a'    | 75         |
+    And no side effects
+
+  Scenario: No overflow during summation
+    Given any graph
+    When executing query:
+      """
+      UNWIND range(1000000, 2000000) AS i
+      WITH i
+      LIMIT 3000
+      RETURN sum(i)
+      """
+    Then the result should be, in any order:
+      | sum(i)     |
+      | 3004498500 |
+    And no side effects
+
   

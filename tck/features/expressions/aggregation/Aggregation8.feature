@@ -28,39 +28,56 @@
 
 #encoding: utf-8
 
-Feature: Aggregation1 - Count
+Feature: Aggregation8 - DISTINCT
 
-  Scenario: Count non-null values
+  Scenario: Distinct on unbound node
     Given an empty graph
-    And having executed:
-      """
-      CREATE ({name: 'a', num: 33})
-      CREATE ({name: 'a'})
-      CREATE ({name: 'b', num: 42})
-      """
     When executing query:
       """
-      MATCH (n)
-      RETURN n.name, count(n.num)
+      OPTIONAL MATCH (a)
+      RETURN count(DISTINCT a)
       """
     Then the result should be, in any order:
-      | n.name | count(n.num) |
-      | 'a'    | 1            |
-      | 'b'    | 1            |
+      | count(DISTINCT a) |
+      | 0                 |
     And no side effects
 
-  Scenario: Counting with loops
+  Scenario: Distinct on null
     Given an empty graph
     And having executed:
       """
-      CREATE (a), (a)-[:R]->(a)
+      CREATE ()
       """
     When executing query:
       """
-      MATCH ()-[r]-()
-      RETURN count(r)
+      MATCH (a)
+      RETURN count(DISTINCT a.name)
       """
     Then the result should be, in any order:
-      | count(r) |
-      | 1        |
+      | count(DISTINCT a.name) |
+      | 0                      |
+    And no side effects
+
+  Scenario: Collect distinct nulls
+    Given any graph
+    When executing query:
+      """
+      UNWIND [null, null] AS x
+      RETURN collect(DISTINCT x) AS c
+      """
+    Then the result should be, in any order:
+      | c  |
+      | [] |
+    And no side effects
+
+  Scenario: Collect distinct values mixed with nulls
+    Given any graph
+    When executing query:
+      """
+      UNWIND [null, 1, null] AS x
+      RETURN collect(DISTINCT x) AS c
+      """
+    Then the result should be, in any order:
+      | c   |
+      | [1] |
     And no side effects

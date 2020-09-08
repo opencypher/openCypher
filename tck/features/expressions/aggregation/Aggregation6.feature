@@ -30,4 +30,120 @@
 
 Feature: Aggregation6 - Percentiles
 
-  
+  Scenario Outline: `percentileDisc()`
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({price: 10.0}),
+             ({price: 20.0}),
+             ({price: 30.0})
+      """
+    And parameters are:
+      | percentile | <p> |
+    When executing query:
+      """
+      MATCH (n)
+      RETURN percentileDisc(n.price, $percentile) AS p
+      """
+    Then the result should be, in any order:
+      | p        |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | p   | result |
+      | 0.0 | 10.0   |
+      | 0.5 | 20.0   |
+      | 1.0 | 30.0   |
+
+  Scenario Outline: `percentileCont()`
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({price: 10.0}),
+             ({price: 20.0}),
+             ({price: 30.0})
+      """
+    And parameters are:
+      | percentile | <p> |
+    When executing query:
+      """
+      MATCH (n)
+      RETURN percentileCont(n.price, $percentile) AS p
+      """
+    Then the result should be, in any order:
+      | p        |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | p   | result |
+      | 0.0 | 10.0   |
+      | 0.5 | 20.0   |
+      | 1.0 | 30.0   |
+
+  @NegativeTest
+  Scenario Outline: `percentileCont()` failing on bad arguments
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({price: 10.0})
+      """
+    And parameters are:
+      | param | <percentile> |
+    When executing query:
+      """
+      MATCH (n)
+      RETURN percentileCont(n.price, $param)
+      """
+    Then a ArgumentError should be raised at runtime: NumberOutOfRange
+
+    Examples:
+      | percentile |
+      | 1000       |
+      | -1         |
+      | 1.1        |
+
+  @NegativeTest
+  Scenario Outline: `percentileDisc()` failing on bad arguments
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({price: 10.0})
+      """
+    And parameters are:
+      | param | <percentile> |
+    When executing query:
+      """
+      MATCH (n)
+      RETURN percentileDisc(n.price, $param)
+      """
+    Then a ArgumentError should be raised at runtime: NumberOutOfRange
+
+    Examples:
+      | percentile |
+      | 1000       |
+      | -1         |
+      | 1.1        |
+
+  @NegativeTest
+  Scenario: `percentileDisc()` failing in more involved query
+    Given an empty graph
+    And having executed:
+      """
+      UNWIND range(0, 10) AS i
+      CREATE (s:S)
+      WITH s, i
+      UNWIND range(0, i) AS j
+      CREATE (s)-[:REL]->()
+      """
+    When executing query:
+      """
+      MATCH (n:S)
+      WITH n, size([(n)-->() | 1]) AS deg
+      WHERE deg > 2
+      WITH deg
+      LIMIT 100
+      RETURN percentileDisc(0.90, deg), deg
+      """
+    Then a ArgumentError should be raised at runtime: NumberOutOfRange
