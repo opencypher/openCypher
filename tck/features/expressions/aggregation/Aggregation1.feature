@@ -30,7 +30,7 @@
 
 Feature: Aggregation1 - Count
 
-  Scenario: Count non-null values
+  Scenario: [1] Count non-null values
     Given an empty graph
     And having executed:
       """
@@ -49,7 +49,7 @@ Feature: Aggregation1 - Count
       | 'b'    | 1            |
     And no side effects
 
-  Scenario: Counting with loops
+  Scenario: [2] Counting with loops
     Given an empty graph
     And having executed:
       """
