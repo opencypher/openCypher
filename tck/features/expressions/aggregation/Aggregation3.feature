@@ -30,7 +30,7 @@
 
 Feature: Aggregation3 - Sum
 
-  Scenario: Sum non-null values
+  Scenario: [1] Sum non-null values
     Given an empty graph
     And having executed:
       """
@@ -48,7 +48,7 @@ Feature: Aggregation3 - Sum
       | 'a'    | 75         |
     And no side effects
 
-  Scenario: No overflow during summation
+  Scenario: [2] No overflow during summation
     Given any graph
     When executing query:
       """
