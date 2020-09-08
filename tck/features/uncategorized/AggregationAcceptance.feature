@@ -30,6 +30,7 @@
 
 Feature: AggregationAcceptance
 
+  # Consider moving to feature on RETURN clause's expressions on aggregates capability
   Scenario: Support multiple divisions in aggregate function
     Given an empty graph
     And having executed:
@@ -47,6 +48,7 @@ Feature: AggregationAcceptance
       | 2     |
     And no side effects
 
+  # Consider to move to feature on RETURN clause's column renaming capability
   Scenario: Support column renaming for aggregates as well
     Given an empty graph
     And having executed:
@@ -64,6 +66,7 @@ Feature: AggregationAcceptance
       | 11         |
     And no side effects
 
+  # Consider moving to feature on RETURN clause's expressions on aggregates capability
   Scenario: Aggregates inside normal functions
     Given an empty graph
     And having executed:
@@ -81,6 +84,7 @@ Feature: AggregationAcceptance
       | 11               |
     And no side effects
 
+  # Consider moving to feature on RETURN clause's expressions on aggregates capability
   Scenario: Handle aggregates inside non-aggregate expressions
     Given an empty graph
     When executing query:
@@ -92,23 +96,7 @@ Feature: AggregationAcceptance
       | {foo: a.name='Andres', kids: collect(child.name)} |
     And no side effects
 
-  Scenario: Count nodes
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:L), (b1), (b2)
-      CREATE (a)-[:A]->(b1), (a)-[:A]->(b2)
-      """
-    When executing query:
-      """
-      MATCH (a:L)-[rel]->(b)
-      RETURN a, count(*)
-      """
-    Then the result should be, in any order:
-      | a    | count(*) |
-      | (:L) | 2        |
-    And no side effects
-
+  # Consider moving to feature on RETURN clause's ORDER BY capability (on aggregates)
   Scenario: Sort on aggregate function and normal property
     Given an empty graph
     And having executed:
@@ -131,6 +119,7 @@ Feature: AggregationAcceptance
       | 'Germany'  | 1        |
     And no side effects
 
+  # Consider moving to feature on RETURN clause's implicit grouping capability
   Scenario: Aggregate on property
     Given an empty graph
     And having executed:
@@ -150,43 +139,7 @@ Feature: AggregationAcceptance
       | 33    | 2        |
     And no side effects
 
-  Scenario: Count non-null values
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({name: 'a', num: 33})
-      CREATE ({name: 'a'})
-      CREATE ({name: 'b', num: 42})
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n.name, count(n.num)
-      """
-    Then the result should be, in any order:
-      | n.name | count(n.num) |
-      | 'a'    | 1            |
-      | 'b'    | 1            |
-    And no side effects
-
-  Scenario: Sum non-null values
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({name: 'a', num: 33})
-      CREATE ({name: 'a'})
-      CREATE ({name: 'a', num: 42})
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n.name, sum(n.num)
-      """
-    Then the result should be, in any order:
-      | n.name | sum(n.num) |
-      | 'a'    | 75         |
-    And no side effects
-
+  # Consider moving to feature on RETURN clause's aggregates on complex expressions capability
   Scenario: Handle aggregation on functions
     Given an empty graph
     And having executed:
@@ -205,58 +158,7 @@ Feature: AggregationAcceptance
       | () | 1.0            |
     And no side effects
 
-  Scenario: Distinct on unbound node
-    Given an empty graph
-    When executing query:
-      """
-      OPTIONAL MATCH (a)
-      RETURN count(DISTINCT a)
-      """
-    Then the result should be, in any order:
-      | count(DISTINCT a) |
-      | 0                 |
-    And no side effects
-
-  Scenario: Distinct on null
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()
-      """
-    When executing query:
-      """
-      MATCH (a)
-      RETURN count(DISTINCT a.name)
-      """
-    Then the result should be, in any order:
-      | count(DISTINCT a.name) |
-      | 0                      |
-    And no side effects
-
-  Scenario: Collect distinct nulls
-    Given any graph
-    When executing query:
-      """
-      UNWIND [null, null] AS x
-      RETURN collect(DISTINCT x) AS c
-      """
-    Then the result should be, in any order:
-      | c  |
-      | [] |
-    And no side effects
-
-  Scenario: Collect distinct values mixed with nulls
-    Given any graph
-    When executing query:
-      """
-      UNWIND [null, 1, null] AS x
-      RETURN collect(DISTINCT x) AS c
-      """
-    Then the result should be, in any order:
-      | c   |
-      | [1] |
-    And no side effects
-
+  # Consider moving to feature on RETURN clause's DISTINCT capability in implicit grouping
   Scenario: Aggregate on list values
     Given an empty graph
     And having executed:
@@ -276,6 +178,8 @@ Feature: AggregationAcceptance
       | ['blue'] | 1        |
     And no side effects
 
+  # Consider moving to feature on RETURN clause's aggregates on complex expressions capability
+  @NegativeTest
   Scenario: Aggregates in aggregates
     Given any graph
     When executing query:
@@ -284,6 +188,7 @@ Feature: AggregationAcceptance
       """
     Then a SyntaxError should be raised at compile time: NestedAggregation
 
+  # Consider moving to feature on RETURN clause's expressions on aggregates capability
   Scenario: Aggregates with arithmetics
     Given an empty graph
     And having executed:
@@ -300,6 +205,7 @@ Feature: AggregationAcceptance
       | 10 |
     And no side effects
 
+  # Consider moving to feature on RETURN clause's ORDER BY capability (on aggregates)
   Scenario: Aggregates ordered by arithmetics
     Given an empty graph
     And having executed:
@@ -317,6 +223,7 @@ Feature: AggregationAcceptance
       | 30 |
     And no side effects
 
+  # Consider moving to feature on RETURN clause's multiple aggregate capability
   Scenario: Multiple aggregates on same variable
     Given an empty graph
     And having executed:
@@ -333,7 +240,8 @@ Feature: AggregationAcceptance
       | 1        | [()]       |
     And no side effects
 
-  Scenario: Simple counting of nodes
+  # Consider moving to feature on RETURN clause's ORDER BY capability (on aggregates)
+  Scenario: Counting matches
     Given an empty graph
     And having executed:
       """
@@ -350,6 +258,25 @@ Feature: AggregationAcceptance
       | 100      |
     And no side effects
 
+  # Consider moving to feature on RETURN clause's ORDER BY capability (on aggregates)
+  Scenario: Counting matches per group
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:L), (b1), (b2)
+      CREATE (a)-[:A]->(b1), (a)-[:A]->(b2)
+      """
+    When executing query:
+      """
+      MATCH (a:L)-[rel]->(b)
+      RETURN a, count(*)
+      """
+    Then the result should be, in any order:
+      | a    | count(*) |
+      | (:L) | 2        |
+    And no side effects
+
+  # Consider moving to feature on RETURN clause's aggregates on complex expressions capability
   Scenario: Aggregation of named paths
     Given an empty graph
     And having executed:
@@ -373,7 +300,8 @@ Feature: AggregationAcceptance
       | [[(:C), (:D), (:E), (:F)]]                               | 3 |
     And no side effects
 
-  Scenario: Aggregation with `min()`
+  # Consider moving to feature on RETURN clause's aggregates on complex expressions capability
+  Scenario: Returning the minimum length of paths
     Given an empty graph
     And having executed:
       """
@@ -394,6 +322,7 @@ Feature: AggregationAcceptance
       | 'a'  | ['c', 'b'] | 1   |
     And no side effects
 
+  # Consider moving to feature on RETURN clause's multiple expression capability
   Scenario: Handle subexpression in aggregation also occurring as standalone expression with nested aggregation in a literal map
     Given an empty graph
     And having executed:
@@ -429,58 +358,4 @@ Feature: AggregationAcceptance
     Then the result should be, in any order:
       | prop |
       | 42   |
-    And no side effects
-
-  Scenario: No overflow during summation
-    Given any graph
-    When executing query:
-      """
-      UNWIND range(1000000, 2000000) AS i
-      WITH i
-      LIMIT 3000
-      RETURN sum(i)
-      """
-    Then the result should be, in any order:
-      | sum(i)     |
-      | 3004498500 |
-    And no side effects
-
-  Scenario: Counting with loops
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a), (a)-[:R]->(a)
-      """
-    When executing query:
-      """
-      MATCH ()-[r]-()
-      RETURN count(r)
-      """
-    Then the result should be, in any order:
-      | count(r) |
-      | 1        |
-    And no side effects
-
-  Scenario: `max()` should aggregate strings
-    Given any graph
-    When executing query:
-      """
-      UNWIND ['a', 'b', 'B', null, 'abc', 'abc1'] AS i
-      RETURN max(i)
-      """
-    Then the result should be, in any order:
-      | max(i) |
-      | 'b'    |
-    And no side effects
-
-  Scenario: `min()` should aggregate strings
-    Given any graph
-    When executing query:
-      """
-      UNWIND ['a', 'b', 'B', null, 'abc', 'abc1'] AS i
-      RETURN min(i)
-      """
-    Then the result should be, in any order:
-      | min(i) |
-      | 'B'    |
     And no side effects

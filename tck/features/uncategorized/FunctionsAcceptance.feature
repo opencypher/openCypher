@@ -55,6 +55,7 @@ Feature: FunctionsAcceptance
       | {name: 'Popeye', level: 9001} |
     And no side effects
 
+  @NegativeTest
   Scenario: `properties()` failing on an integer literal
     Given any graph
     When executing query:
@@ -63,6 +64,7 @@ Feature: FunctionsAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @NegativeTest
   Scenario: `properties()` failing on a string literal
     Given any graph
     When executing query:
@@ -71,6 +73,7 @@ Feature: FunctionsAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @NegativeTest
   Scenario: `properties()` failing on a list of booleans
     Given any graph
     When executing query:
@@ -108,121 +111,6 @@ Feature: FunctionsAcceptance
       | {name: null}                    | false  |
       | {notName: 0, notName2: null}    | false  |
 
-  Scenario Outline: `percentileDisc()`
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({price: 10.0}),
-             ({price: 20.0}),
-             ({price: 30.0})
-      """
-    And parameters are:
-      | percentile | <p> |
-    When executing query:
-      """
-      MATCH (n)
-      RETURN percentileDisc(n.price, $percentile) AS p
-      """
-    Then the result should be, in any order:
-      | p        |
-      | <result> |
-    And no side effects
-
-    Examples:
-      | p   | result |
-      | 0.0 | 10.0   |
-      | 0.5 | 20.0   |
-      | 1.0 | 30.0   |
-
-  Scenario Outline: `percentileCont()`
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({price: 10.0}),
-             ({price: 20.0}),
-             ({price: 30.0})
-      """
-    And parameters are:
-      | percentile | <p> |
-    When executing query:
-      """
-      MATCH (n)
-      RETURN percentileCont(n.price, $percentile) AS p
-      """
-    Then the result should be, in any order:
-      | p        |
-      | <result> |
-    And no side effects
-
-    Examples:
-      | p   | result |
-      | 0.0 | 10.0   |
-      | 0.5 | 20.0   |
-      | 1.0 | 30.0   |
-
-  Scenario Outline: `percentileCont()` failing on bad arguments
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({price: 10.0})
-      """
-    And parameters are:
-      | param | <percentile> |
-    When executing query:
-      """
-      MATCH (n)
-      RETURN percentileCont(n.price, $param)
-      """
-    Then a ArgumentError should be raised at runtime: NumberOutOfRange
-
-    Examples:
-      | percentile |
-      | 1000       |
-      | -1         |
-      | 1.1        |
-
-  Scenario Outline: `percentileDisc()` failing on bad arguments
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({price: 10.0})
-      """
-    And parameters are:
-      | param | <percentile> |
-    When executing query:
-      """
-      MATCH (n)
-      RETURN percentileDisc(n.price, $param)
-      """
-    Then a ArgumentError should be raised at runtime: NumberOutOfRange
-
-    Examples:
-      | percentile |
-      | 1000       |
-      | -1         |
-      | 1.1        |
-
-  Scenario: `percentileDisc()` failing in more involved query
-    Given an empty graph
-    And having executed:
-      """
-      UNWIND range(0, 10) AS i
-      CREATE (s:S)
-      WITH s, i
-      UNWIND range(0, i) AS j
-      CREATE (s)-[:REL]->()
-      """
-    When executing query:
-      """
-      MATCH (n:S)
-      WITH n, size([(n)-->() | 1]) AS deg
-      WHERE deg > 2
-      WITH deg
-      LIMIT 100
-      RETURN percentileDisc(0.90, deg), deg
-      """
-    Then a ArgumentError should be raised at runtime: NumberOutOfRange
-
   Scenario: `labels()` should accept type Any
     Given an empty graph
     And having executed:
@@ -241,6 +129,7 @@ Feature: FunctionsAcceptance
       | ['Foo', 'Bar'] |
     And no side effects
 
+  @NegativeTest
   Scenario: `labels()` failing on a path
     Given an empty graph
     And having executed:
@@ -254,6 +143,7 @@ Feature: FunctionsAcceptance
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @NegativeTest
   Scenario: `labels()` failing on invalid arguments
     Given an empty graph
     And having executed:
