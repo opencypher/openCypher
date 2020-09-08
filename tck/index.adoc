@@ -52,7 +52,7 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Set1 - Set a Property
 * Set2 - Set a Property to Null
 * Set3 - Set a Label
-* Set4 - Set Multiple Properties
+* Set4 - Set All Properties with a Map
 * Set5 - Set Multiple Properties with a Map
 
 === Union
@@ -68,6 +68,10 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 == Expressions
 
 
+=== Boolean
+
+* Boolean4 - NOT logical operations
+
 === Comparison
 
 * Comparison1 - Equality
@@ -75,11 +79,14 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Comparison3 - Full-Bound Range
 * Comparison4 - Combination of Comparisons
 
+=== Conditional
+
+* Conditional1 - Coalesce Expression
+
 === List
 
 * List1 - Dynamic Element Access
 * List11 - List Comprehension
-* List12 - List Operations Failure
 * List2 - List Slicing
 * List3 - List Equality
 * List4 - List Concatenation
@@ -101,18 +108,36 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 
 * Map2 - Dynamic Value Access
 * Map3 - Keys Function
-* Map4 - Negative Tests
+* Map4 - Exists function
+* Map5 - Negative Tests
 
 === Mathematical
 
-* Addition
-* ArithmeticPrecedence
-* SignedNumbersFunctions
-* SquareRoot
+* Mathematical11 - SignedNumbersFunctions
+* Mathematical13 - SquareRoot
+* Mathematical2 - Addition
+* Mathematical8 - ArithmeticPrecedence
+
+=== Null
+
+* Null1 - IS NULL validation
+* Null2 - IS NOT NULL validation
+* Null2 - Null evaluation
+
+=== String
+
+* String1 - Substring extraction
+* String10 - Exact Substring Search
+* String11 - Combining Exact String Search
+* String3 - String Reversal
+* String4 - String Splitting
+* String8 - Exact String Prefix Search
+* String9 - Exact String Suffix Search
 
 === Temporal
 
 * Temporal1 - Create Temporal Values from a Map
+* Temporal10 - Compute Durations Between two Temporal Values
 * Temporal2 - Create Temporal Values from a String
 * Temporal3 - Project Temporal Values from other Temporal Values
 * Temporal4 - Store Temporal Values
