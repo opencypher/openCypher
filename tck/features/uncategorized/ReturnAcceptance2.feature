@@ -30,6 +30,7 @@
 
 Feature: ReturnAcceptance2
 
+  @NegativeTest
   Scenario: Fail when returning properties of deleted nodes
     Given an empty graph
     And having executed:
@@ -44,6 +45,7 @@ Feature: ReturnAcceptance2
       """
     Then a EntityNotFound should be raised at runtime: DeletedEntityAccess
 
+  @NegativeTest
   Scenario: Fail when returning labels of deleted nodes
     Given an empty graph
     And having executed:
@@ -58,6 +60,7 @@ Feature: ReturnAcceptance2
       """
     Then a EntityNotFound should be raised at runtime: DeletedEntityAccess
 
+  @NegativeTest
   Scenario: Fail when returning properties of deleted relationships
     Given an empty graph
     And having executed:
@@ -117,6 +120,7 @@ Feature: ReturnAcceptance2
       | n |
     And no side effects
 
+  @NegativeTest
   Scenario: Fail when sorting on variable removed by DISTINCT
     Given an empty graph
     And having executed:
@@ -181,6 +185,7 @@ Feature: ReturnAcceptance2
       | (:Start) | () | <(:Start)-[:T]->()> |
     And no side effects
 
+  # Consider moving to feature on RETURN clause's aggregates on complex expressions capability
   Scenario: Arithmetic expressions inside aggregation
     Given an empty graph
     And having executed:
