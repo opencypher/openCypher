@@ -150,3 +150,13 @@ Feature: Create1 - Creating nodes
       | +nodes      | 1 |
       | +properties | 1 |
       | +labels     | 1 |
+
+  @NegativeTest
+  Scenario: [11] Fail when creating a node that is already bound
+    Given any graph
+    When executing query:
+      """
+      MATCH (a)
+      CREATE (a)
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
