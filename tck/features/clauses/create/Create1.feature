@@ -149,3 +149,4 @@ Feature: Create1 - Creating nodes
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 1 |
+      | +labels     | 1 |
