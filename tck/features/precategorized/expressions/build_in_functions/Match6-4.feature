@@ -29,23 +29,3 @@
 #encoding: utf-8
 
 Feature: Match6-4 - Match named paths built in functions scenarios
-
-  Scenario: Return a var length path of length zero
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A)-[:REL]->(b:B)
-      """
-    When executing query:
-      """
-      MATCH p = (a)-[*0..1]->(b)
-      RETURN a, b, length(p) AS l
-      """
-    Then the result should be, in any order:
-      | a    | b    | l |
-      | (:A) | (:A) | 0 |
-      | (:B) | (:B) | 0 |
-      | (:A) | (:B) | 1 |
-    And no side effects
-
-

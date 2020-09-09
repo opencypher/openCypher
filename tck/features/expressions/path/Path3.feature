@@ -30,39 +30,6 @@
 
 Feature: Path3 - Length of a path
 
-  Scenario: Pass the path length test
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
-      """
-    When executing query:
-      """
-      MATCH p = (n)-->(x)
-      WHERE length(p) = 1
-      RETURN x
-      """
-    Then the result should be, in any order:
-      | x                |
-      | (:B {name: 'B'}) |
-    And no side effects
-
-  Scenario: Do not return anything because path length does not match
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
-      """
-    When executing query:
-      """
-      MATCH p = (n)-->(x)
-      WHERE length(p) = 10
-      RETURN x
-      """
-    Then the result should be, in any order:
-      | x |
-    And no side effects
-
   Scenario: Return a var length path of length zero
     Given an empty graph
     And having executed:
