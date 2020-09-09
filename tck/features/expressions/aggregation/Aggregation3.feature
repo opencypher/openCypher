@@ -30,7 +30,7 @@
 
 Feature: Aggregation3 - Sum
 
-  Scenario: [1] Sum non-null values
+  Scenario: [1] Sum only non-null values
     Given an empty graph
     And having executed:
       """
