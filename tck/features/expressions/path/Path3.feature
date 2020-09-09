@@ -30,7 +30,7 @@
 
 Feature: Path3 - Length of a path
 
-  Scenario: Return a var length path of length zero
+  Scenario: [1] Return a var length path of length zero
     Given an empty graph
     And having executed:
       """
