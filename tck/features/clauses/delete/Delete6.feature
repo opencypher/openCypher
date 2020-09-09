@@ -30,23 +30,7 @@
 
 Feature: Delete6 - Negative scenarios
 
-  Scenario: [1] Failing when deleting connected nodes
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (x:X)
-      CREATE (x)-[:R]->()
-      CREATE (x)-[:R]->()
-      CREATE (x)-[:R]->()
-      """
-    When executing query:
-      """
-      MATCH (n:X)
-      DELETE n
-      """
-    Then a ConstraintVerificationFailed should be raised at runtime: DeleteConnectedNode
-
-  Scenario: [2] Failing when using undefined variable in DELETE
+  Scenario: [1] Failing when using undefined variable in DELETE
     Given any graph
     When executing query:
       """
@@ -55,16 +39,7 @@ Feature: Delete6 - Negative scenarios
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
-  Scenario: [3] Failing when deleting a label
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      DELETE n:Person
-      """
-    Then a SyntaxError should be raised at compile time: InvalidDelete
-
-  Scenario: [4] Failing when deleting an integer expression
+  Scenario: [2] Failing when deleting an integer expression
     Given any graph
     When executing query:
       """
