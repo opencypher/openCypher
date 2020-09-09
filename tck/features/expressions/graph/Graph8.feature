@@ -30,7 +30,7 @@
 
 Feature: Graph8 - Check if a property exists on a node or an edge
 
-  Scenario: `exists()` with dynamic property lookup
+  Scenario: [1] `exists()` with dynamic property lookup
     Given an empty graph
     And having executed:
       """
@@ -48,7 +48,7 @@ Feature: Graph8 - Check if a property exists on a node or an edge
       | (:Person {name: 'foo'}) |
     And no side effects
 
-  Scenario: `exists()` is case insensitive
+  Scenario: [2] `exists()` is case insensitive
     Given an empty graph
     And having executed:
       """
@@ -65,7 +65,7 @@ Feature: Graph8 - Check if a property exists on a node or an edge
       | (:X)            | false |
     And no side effects
 
-  Scenario: Property existence check on non-null node
+  Scenario: [3] Property existence check on non-null node
     Given an empty graph
     And having executed:
       """
@@ -82,7 +82,7 @@ Feature: Graph8 - Check if a property exists on a node or an edge
       | false             | true             |
     And no side effects
 
-  Scenario: Property existence check on optional non-null node
+  Scenario: [4] Property existence check on optional non-null node
     Given an empty graph
     And having executed:
       """
@@ -99,7 +99,7 @@ Feature: Graph8 - Check if a property exists on a node or an edge
       | false             | true             |
     And no side effects
 
-  Scenario: Property existence check on null node
+  Scenario: [5] Property existence check on null node
     Given an empty graph
     When executing query:
       """

@@ -31,7 +31,7 @@
 Feature: Graph3 - Node labels
 
     # similar to Create1.[1] => rename to make clear labels() is tested
-  Scenario: Creating node without label
+  Scenario: [1] Creating node without label
     Given an empty graph
     When executing query:
       """
@@ -45,7 +45,7 @@ Feature: Graph3 - Node labels
       | +nodes | 1 |
 
   # similar to Create1.[3]/[4] => rename to make clear labels() is tested
-  Scenario: Creating node with two labels
+  Scenario: [2] Creating node with two labels
     Given an empty graph
     When executing query:
       """
@@ -61,7 +61,7 @@ Feature: Graph3 - Node labels
       | +properties | 1 |
 
   # consider adding to Create1
-  Scenario: Ignore space when creating node with labels
+  Scenario: [3] Ignore space when creating node with labels
     Given an empty graph
     When executing query:
       """
@@ -76,7 +76,7 @@ Feature: Graph3 - Node labels
       | +labels | 2 |
 
   # consider adding to Create1
-  Scenario: Create node with label in pattern
+  Scenario: [4] Create node with label in pattern
     Given an empty graph
     When executing query:
       """
@@ -91,7 +91,7 @@ Feature: Graph3 - Node labels
       | +relationships | 1 |
       | +labels        | 2 |
 
-  Scenario: Using `labels()` in return clauses
+  Scenario: [5] Using `labels()` in return clauses
     Given an empty graph
     And having executed:
       """

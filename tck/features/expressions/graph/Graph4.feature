@@ -30,7 +30,7 @@
 
 Feature: Graph4 - Edge relationship type
 
-  Scenario: `type()`
+  Scenario: [1] `type()`
     Given an empty graph
     And having executed:
       """
@@ -46,7 +46,7 @@ Feature: Graph4 - Edge relationship type
       | 'T'     |
     And no side effects
 
-  Scenario: `type()` on two relationships
+  Scenario: [2] `type()` on two relationships
     Given an empty graph
     And having executed:
       """
@@ -62,7 +62,7 @@ Feature: Graph4 - Edge relationship type
       | 'T1'     | 'T2'     |
     And no side effects
 
-  Scenario: `type()` on null relationship
+  Scenario: [3] `type()` on null relationship
     Given an empty graph
     And having executed:
       """
@@ -79,7 +79,7 @@ Feature: Graph4 - Edge relationship type
       | null    |
     And no side effects
 
-  Scenario: `type()` on mixed null and non-null relationships
+  Scenario: [4] `type()` on mixed null and non-null relationships
     Given an empty graph
     And having executed:
       """
@@ -97,7 +97,7 @@ Feature: Graph4 - Edge relationship type
       | null    |
     And no side effects
 
-  Scenario: `type()` handling Any type
+  Scenario: [5] `type()` handling Any type
     Given an empty graph
     And having executed:
       """
@@ -115,7 +115,7 @@ Feature: Graph4 - Edge relationship type
     And no side effects
 
   @NegativeTest
-  Scenario Outline: `type()` failing on invalid arguments
+  Scenario Outline: [6] `type()` failing on invalid arguments
     Given an empty graph
     And having executed:
       """
