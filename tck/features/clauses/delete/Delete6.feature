@@ -30,6 +30,7 @@
 
 Feature: Delete6 - Negative scenarios
 
+  @NegativeTest
   Scenario: [1] Failing when using undefined variable in DELETE
     Given any graph
     When executing query:
@@ -39,6 +40,7 @@ Feature: Delete6 - Negative scenarios
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
+  @NegativeTest
   Scenario: [2] Failing when deleting an integer expression
     Given any graph
     When executing query:
