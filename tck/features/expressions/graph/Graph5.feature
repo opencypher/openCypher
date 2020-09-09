@@ -29,4 +29,4 @@
 #encoding: utf-8
 
 Feature: Graph5 - Static property access
-  # Accessing a property of a node or edge by using a static, literal string value as the key.
+  # Accessing a property of a node or edge by using a symbolic name as the key.
