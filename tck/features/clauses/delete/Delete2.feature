@@ -92,3 +92,17 @@ Feature: Delete2 - Deleting relationships
       | r    |
       | null |
     And no side effects
+
+  @NegativeTest
+  Scenario: [5] Failing when deleting a relationship type
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:T {id: 42}]->()
+      """
+    When executing query:
+      """
+      MATCH ()-[r:T]-()
+      DELETE r:T
+      """
+    Then a SyntaxError should be raised at compile time: InvalidDelete
