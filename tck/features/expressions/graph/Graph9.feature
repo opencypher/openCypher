@@ -30,7 +30,7 @@
 
 Feature: Graph9 - Access all properties as property map
 
-  Scenario: `properties()` on a node
+  Scenario: [1] `properties()` on a node
     Given an empty graph
     And having executed:
       """
@@ -46,7 +46,7 @@ Feature: Graph9 - Access all properties as property map
       | {name: 'Popeye', level: 9001} |
     And no side effects
 
-  Scenario: `properties()` on a relationship
+  Scenario: [2] `properties()` on a relationship
     Given an empty graph
     And having executed:
       """

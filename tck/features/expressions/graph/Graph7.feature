@@ -30,7 +30,7 @@
 
 Feature: Graph7 - Node properties keys
 
-  Scenario: Using `keys()` on a single node, non-empty result
+  Scenario: [1] Using `keys()` on a single node, non-empty result
     Given an empty graph
     And having executed:
       """
@@ -48,7 +48,7 @@ Feature: Graph7 - Node properties keys
       | 'surname' |
     And no side effects
 
-  Scenario: Using `keys()` on multiple nodes, non-empty result
+  Scenario: [2] Using `keys()` on multiple nodes, non-empty result
     Given an empty graph
     And having executed:
       """
@@ -69,7 +69,7 @@ Feature: Graph7 - Node properties keys
       | 'otherSurname' |
     And no side effects
 
-  Scenario: Using `keys()` on a single node, empty result
+  Scenario: [3] Using `keys()` on a single node, empty result
     Given an empty graph
     And having executed:
       """
@@ -85,7 +85,7 @@ Feature: Graph7 - Node properties keys
       | theProps |
     And no side effects
 
-  Scenario: Using `keys()` on an optionally matched node
+  Scenario: [4] Using `keys()` on an optionally matched node
     Given an empty graph
     And having executed:
       """
@@ -101,7 +101,7 @@ Feature: Graph7 - Node properties keys
       | theProps |
     And no side effects
 
-  Scenario: Using `keys()` on a relationship, non-empty result
+  Scenario: [5] Using `keys()` on a relationship, non-empty result
     Given an empty graph
     And having executed:
       """
@@ -119,7 +119,7 @@ Feature: Graph7 - Node properties keys
       | 'year'   |
     And no side effects
 
-  Scenario: Using `keys()` on a relationship, empty result
+  Scenario: [6] Using `keys()` on a relationship, empty result
     Given an empty graph
     And having executed:
       """
@@ -135,7 +135,7 @@ Feature: Graph7 - Node properties keys
       | theProps |
     And no side effects
 
-  Scenario: Using `keys()` on an optionally matched relationship
+  Scenario: [7] Using `keys()` on an optionally matched relationship
     Given an empty graph
     And having executed:
       """

@@ -31,7 +31,7 @@
 Feature: Graph6 - Dynamic property access
   # Accessing a property of a node or edge by using a dynamically-computed string value as the key; e.g. allowing for the key to be passed in as a parameter
 
-  Scenario: Execute n['name'] in read queries
+  Scenario: [1] Execute n['name'] in read queries
     Given any graph
     And having executed:
       """
@@ -47,7 +47,7 @@ Feature: Graph6 - Dynamic property access
       | 'Apa' |
     And no side effects
 
-  Scenario: Execute n['name'] in update queries
+  Scenario: [2] Execute n['name'] in update queries
     Given any graph
     When executing query:
       """
@@ -61,7 +61,7 @@ Feature: Graph6 - Dynamic property access
       | +nodes      | 1 |
       | +properties | 1 |
 
-  Scenario: Use dynamic property lookup based on parameters when there is lhs type information
+  Scenario: [3] Use dynamic property lookup based on parameters when there is lhs type information
     Given any graph
     And parameters are:
       | idx | 'name' |
