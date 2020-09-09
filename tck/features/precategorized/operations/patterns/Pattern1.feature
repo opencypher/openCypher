@@ -29,16 +29,3 @@
 #encoding: utf-8
 
 Feature: Pattern1 - Compute the number of subgraphs induced by a pattern expression
-
-  Scenario: Functions should return null if they get path containing unbound
-    Given any graph
-    When executing query:
-      """
-      WITH null AS a
-      OPTIONAL MATCH p = (a)-[r]->()
-      RETURN size(nodes(p)), type(r), nodes(p), relationships(p)
-      """
-    Then the result should be, in any order:
-      | size(nodes(p)) | type(r) | nodes(p) | relationships(p) |
-      | null           | null    | null     | null             |
-    And no side effects

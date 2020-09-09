@@ -30,21 +30,18 @@
 
 Feature: FunctionsAcceptance
 
-  Scenario: Run coalesce
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({name: 'Emil Eifrem', title: 'CEO'}), ({name: 'Nobody'})
-      """
+  # Consider splitting into one scenario per one of four function:nodes, relationships, types, and size.
+  Scenario: Functions should return null if they get path containing unbound
+    Given any graph
     When executing query:
       """
-      MATCH (a)
-      RETURN coalesce(a.title, a.name)
+      WITH null AS a
+      OPTIONAL MATCH p = (a)-[r]->()
+      RETURN size(nodes(p)), type(r), nodes(p), relationships(p)
       """
     Then the result should be, in any order:
-      | coalesce(a.title, a.name) |
-      | 'CEO'                     |
-      | 'Nobody'                  |
+      | size(nodes(p)) | type(r) | nodes(p) | relationships(p) |
+      | null           | null    | null     | null             |
     And no side effects
 
   Scenario: `properties()` on a map
@@ -92,24 +89,6 @@ Feature: FunctionsAcceptance
       | properties(null) |
       | null             |
     And no side effects
-
-  Scenario Outline: `exists()` with literal maps
-    Given any graph
-    When executing query:
-      """
-      WITH <map> AS map
-      RETURN exists(map.name) AS result
-      """
-    Then the result should be, in any order:
-      | result   |
-      | <result> |
-    And no side effects
-
-    Examples:
-      | map                             | result |
-      | {name: 'Mats', name2: 'Pontus'} | true   |
-      | {name: null}                    | false  |
-      | {notName: 0, notName2: null}    | false  |
 
   Scenario Outline: IS NOT NULL with literal maps
     Given any graph
