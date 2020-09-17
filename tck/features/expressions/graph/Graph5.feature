@@ -55,7 +55,7 @@ Feature: Graph5 - Node and edge label expressions
     And no side effects
 
   # This scenario does not work in Cypher. Although that is a little bit odd.
-  @ignore
+  @ignore @skipStyleCheck
   Scenario: [2] Single-labels expression on relationships
     Given an empty graph
     And having executed:
