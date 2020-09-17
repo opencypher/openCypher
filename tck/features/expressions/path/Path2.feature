@@ -62,3 +62,16 @@ Feature: Path2 - Relationships of a path
       | relationships(p)                   |
       | [[:REL {num: 1}], [:REL {num: 2}]] |
     And no side effects
+
+  Scenario: [3] `relationships()` on null path
+    Given any graph
+    When executing query:
+      """
+      WITH null AS a
+      OPTIONAL MATCH p = (a)-[r]->()
+      RETURN relationships(p), relationships(null)
+      """
+    Then the result should be, in any order:
+      | relationships(p) | relationships(null) |
+      | null             | null                |
+    And no side effects
