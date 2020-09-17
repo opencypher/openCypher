@@ -48,7 +48,7 @@ Feature: Map4 - Check if a field exists on a map
       | {name: null}                    | false  |
       | {notName: 0, notName2: null}    | false  |
 
-  Scenario: [2] Using `keys()` on null map
+  Scenario: [2] Using `exists()` on null map
     Given any graph
     When executing query:
       """
@@ -56,6 +56,6 @@ Feature: Map4 - Check if a field exists on a map
       RETURN exists(m.prop), exists((null).prop)
       """
     Then the result should be, in any order:
-      | exists(l.prop) | exists((null).prop) |
+      | exists(m.prop) | exists((null).prop) |
       | null           | null                |
     And no side effects

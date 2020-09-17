@@ -62,6 +62,6 @@ Feature: Map3 - Keys Function
       RETURN keys(m), keys(null)
       """
     Then the result should be, in any order:
-      | keys(l) | keys(null) |
+      | keys(m) | keys(null) |
       | null    | null       |
     And no side effects

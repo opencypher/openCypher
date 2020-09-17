@@ -133,8 +133,8 @@ Feature: Graph3 - Node labels
       RETURN labels(n), labels(null)
       """
     Then the result should be, in any order:
-      | size(n) | size(null) |
-      | null    | null       |
+      | labels(n) | labels(null) |
+      | null      | null       |
     And no side effects
 
   @NegativeTest

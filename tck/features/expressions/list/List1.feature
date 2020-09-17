@@ -131,4 +131,17 @@ Feature: List1 - Dynamic Element Access
       WITH [1, 2, 3, 4, 5] AS list, 3.14 AS idx
       RETURN list[idx]
       """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+    Then a SyntaxError should be raised at compile time: ListElementAccessByNonInteger
+
+  @NegativeTest
+  Scenario: [9] Fail at runtime when trying to index something which is not a list
+    Given any graph
+    And parameters are:
+      | expr | 100 |
+      | idx  | 0   |
+    When executing query:
+      """
+      WITH $expr AS expr, $idx AS idx
+      RETURN expr[idx]
+      """
+    Then a TypeError should be raised at runtime: InvalidArgumentType
