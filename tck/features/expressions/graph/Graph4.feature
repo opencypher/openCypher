@@ -72,11 +72,11 @@ Feature: Graph4 - Edge relationship type
       """
       MATCH (a)
       OPTIONAL MATCH (a)-[r:NOT_THERE]->()
-      RETURN type(r)
+      RETURN type(r), type(null)
       """
     Then the result should be, in any order:
-      | type(r) |
-      | null    |
+      | type(r) | type(null) |
+      | null    | null       |
     And no side effects
 
   Scenario: [4] `type()` on mixed null and non-null relationships
