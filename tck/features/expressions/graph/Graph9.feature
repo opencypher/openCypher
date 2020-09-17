@@ -61,3 +61,54 @@ Feature: Graph9 - Access all properties as property map
       | m                             |
       | {name: 'Popeye', level: 9001} |
     And no side effects
+
+  Scenario: [3] `properties()` on null
+    Given any graph
+    When executing query:
+      """
+      OPTIONAL MATCH (n:DoesNotExist)
+      OPTIONAL MATCH (n)-[r:NOT_THERE]->()
+      RETURN properties(n), properties(r), properties(null)
+      """
+    Then the result should be, in any order:
+      | properties(n) | properties(r) | properties(null) |
+      | null          | null          | null             |
+    And no side effects
+
+  Scenario: [4] `properties()` on a map
+    Given any graph
+    When executing query:
+      """
+      RETURN properties({name: 'Popeye', level: 9001}) AS m
+      """
+    Then the result should be, in any order:
+      | m                             |
+      | {name: 'Popeye', level: 9001} |
+    And no side effects
+
+  @NegativeTest
+  Scenario: [5] `properties()` failing on an integer literal
+    Given any graph
+    When executing query:
+      """
+      RETURN properties(1)
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  @NegativeTest
+  Scenario: [6] `properties()` failing on a string literal
+    Given any graph
+    When executing query:
+      """
+      RETURN properties('Cypher')
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  @NegativeTest
+  Scenario: [7] `properties()` failing on a list of booleans
+    Given any graph
+    When executing query:
+      """
+      RETURN properties([true, false])
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
