@@ -31,7 +31,7 @@
 Feature: Map2 - Dynamic Value Access
 # Dynamic value access refers to the bracket-operator – <expression resulting in a map>'['<expression resulting in a string>']' – irrespectively of whether the map key – i.e. <expression resulting in a string> – could be evaluated statically in a given scenario.
 
-  Scenario: Use dynamic property lookup based on parameters when there is no type information
+  Scenario: [1] Use dynamic property lookup based on parameters when there is no type information
     Given any graph
     And parameters are:
       | expr | {name: 'Apa'} |
@@ -46,7 +46,7 @@ Feature: Map2 - Dynamic Value Access
       | 'Apa' |
     And no side effects
 
-  Scenario: Use dynamic property lookup based on parameters when there is rhs type information
+  Scenario: [2] Use dynamic property lookup based on parameters when there is rhs type information
     Given any graph
     And parameters are:
       | expr | {name: 'Apa'} |
@@ -60,3 +60,42 @@ Feature: Map2 - Dynamic Value Access
       | value |
       | 'Apa' |
     And no side effects
+
+  @NegativeTest
+  Scenario: [3] Fail at runtime when attempting to index with an Int into a Map
+    Given any graph
+    And parameters are:
+      | expr | {name: 'Apa'} |
+      | idx  | 0             |
+    When executing query:
+      """
+      WITH $expr AS expr, $idx AS idx
+      RETURN expr[idx]
+      """
+    Then a TypeError should be raised at runtime: MapElementAccessByNonString
+
+  @NegativeTest
+  Scenario: [4] Fail at runtime when trying to index into a map with a non-string
+    Given any graph
+    And parameters are:
+      | expr | {name: 'Apa'} |
+      | idx  | 12.3          |
+    When executing query:
+      """
+      WITH $expr AS expr, $idx AS idx
+      RETURN expr[idx]
+      """
+    Then a TypeError should be raised at runtime: MapElementAccessByNonString
+
+  @NegativeTest
+  Scenario: [5] Fail at runtime when trying to index something which is not a map or list
+    Given any graph
+    And parameters are:
+      | expr | 100 |
+      | idx  | 0   |
+    When executing query:
+      """
+      WITH $expr AS expr, $idx AS idx
+      RETURN expr[idx]
+      """
+    Then a TypeError should be raised at runtime: InvalidElementAccess
