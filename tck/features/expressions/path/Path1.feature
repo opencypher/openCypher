@@ -29,3 +29,16 @@
 #encoding: utf-8
 
 Feature: Path1 - Nodes of a path
+
+  Scenario: [1] `nodes()` on null path
+    Given any graph
+    When executing query:
+      """
+      WITH null AS a
+      OPTIONAL MATCH p = (a)-[r]->()
+      RETURN nodes(p), nodes(null)
+      """
+    Then the result should be, in any order:
+      | size(p) | nodes(null) |
+      | null    | null        |
+    And no side effects
