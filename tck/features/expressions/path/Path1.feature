@@ -39,6 +39,6 @@ Feature: Path1 - Nodes of a path
       RETURN nodes(p), nodes(null)
       """
     Then the result should be, in any order:
-      | size(p) | nodes(null) |
-      | null    | null        |
+      | nodes(p) | nodes(null) |
+      | null     | null        |
     And no side effects

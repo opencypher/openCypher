@@ -88,7 +88,7 @@ Feature: Map2 - Dynamic Value Access
     Then a TypeError should be raised at runtime: MapElementAccessByNonString
 
   @NegativeTest
-  Scenario: [5] Fail at runtime when trying to index something which is not a map or list
+  Scenario: [5] Fail at runtime when trying to index something which is not a map
     Given any graph
     And parameters are:
       | expr | 100 |
@@ -98,4 +98,4 @@ Feature: Map2 - Dynamic Value Access
       WITH $expr AS expr, $idx AS idx
       RETURN expr[idx]
       """
-    Then a TypeError should be raised at runtime: InvalidElementAccess
+    Then a TypeError should be raised at runtime: InvalidArgumentType
