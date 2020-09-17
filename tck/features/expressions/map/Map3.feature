@@ -30,7 +30,7 @@
 
 Feature: Map3 - Keys Function
 
-  Scenario: Using `keys()` on a literal map
+  Scenario: [1] Using `keys()` on a literal map
     Given any graph
     When executing query:
       """
@@ -41,7 +41,7 @@ Feature: Map3 - Keys Function
       | ['name', 'age', 'address'] |
     And no side effects
 
-  Scenario: Using `keys()` on a parameter map
+  Scenario: [2] Using `keys()` on a parameter map
     Given any graph
     And parameters are:
       | param | {name: 'Alice', age: 38, address: {city: 'London', residential: true}} |
@@ -52,4 +52,16 @@ Feature: Map3 - Keys Function
     Then the result should be (ignoring element order for lists):
       | k                          |
       | ['address', 'name', 'age'] |
+    And no side effects
+
+  Scenario: [3] Using `keys()` on null map
+    Given any graph
+    When executing query:
+      """
+      WITH null AS m
+      RETURN keys(m), keys(null)
+      """
+    Then the result should be, in any order:
+      | keys(l) | keys(null) |
+      | null    | null       |
     And no side effects
