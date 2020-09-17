@@ -28,5 +28,103 @@
 
 #encoding: utf-8
 
-Feature: Graph5 - Static property access
-  # Accessing a property of a node or edge by using a symbolic name as the key.
+Feature: Graph5 - Node and edge label expressions
+
+  Scenario: [1] Single-labels expression on nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A:B:C), (:A:B), (:A:C), (:B:C),
+             (:A), (:B), (:C), ()
+      """
+    When executing query:
+      """
+      MATCH (a)
+      RETURN a, a:B AS result
+      """
+    Then the result should be, in any order:
+      | a        | result |
+      | (:A:B:C) | true   |
+      | (:A:B)   | true   |
+      | (:A:C)   | false  |
+      | (:B:C)   | true   |
+      | (:A)     | false  |
+      | (:B)     | true   |
+      | (:C)     | false  |
+      | ()       | false  |
+    And no side effects
+
+## This scenario does not work in Cypher. Although that is a little bit odd.
+#  Scenario: [2] Single-labels expression on relationships
+#    Given an empty graph
+#    And having executed:
+#      """
+#      CREATE ()-[:T1]->(),
+#             ()-[:T2]->(),
+#             ()-[:t2]->(),
+#             (:T2)-[:T3]->(),
+#             ()-[:T4]->(:T2)
+#      """
+#    When executing query:
+#      """
+#      MATCH ()-[r]->()
+#      RETURN r, r:T2 AS result
+#      """
+#    Then the result should be, in any order:
+#      | r     | result |
+#      | [:T1] | false  |
+#      | [:T2] | true   |
+#      | [:t2] | false  |
+#      | [:T3] | false  |
+#      | [:T4] | false  |
+#    And no side effects
+
+  Scenario: [3] Conjunctive labels expression on nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A:B:C), (:A:B), (:A:C), (:B:C),
+             (:A), (:B), (:C), ()
+      """
+    When executing query:
+      """
+      MATCH (a)
+      RETURN a, a:A:B AS result
+      """
+    Then the result should be, in any order:
+      | a        | result |
+      | (:A:B:C) | true   |
+      | (:A:B)   | true   |
+      | (:A:C)   | false  |
+      | (:B:C)   | false  |
+      | (:A)     | false  |
+      | (:B)     | false  |
+      | (:C)     | false  |
+      | ()       | false  |
+    And no side effects
+
+  Scenario Outline: [4] Conjunctive labels expression on nodes with varying order and repeating labels
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A:B), (:A:C), (:B:C),
+             (:A), (:B), (:C), ()
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a<labelexp>
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a        |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | labelexp | result |
+      | :A:C     | (:A:C) |
+      | :C:A     | (:A:C) |
+      | :A:C:A   | (:A:C) |
+      | :C:C:A   | (:A:C) |
+      | :C:A:A:C | (:A:C) |
