@@ -69,3 +69,15 @@ Feature: List6 - List Size
       | l |
       | 3 |
     And no side effects
+
+  Scenario: [4] `size()` on null list
+    Given any graph
+    When executing query:
+      """
+      WITH null AS l
+      RETURN size(l), size(null)
+      """
+    Then the result should be, in any order:
+      | size(l) | size(null) |
+      | null    | null       |
+    And no side effects
