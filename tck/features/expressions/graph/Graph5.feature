@@ -54,30 +54,31 @@ Feature: Graph5 - Node and edge label expressions
       | ()       | false  |
     And no side effects
 
-## This scenario does not work in Cypher. Although that is a little bit odd.
-#  Scenario: [2] Single-labels expression on relationships
-#    Given an empty graph
-#    And having executed:
-#      """
-#      CREATE ()-[:T1]->(),
-#             ()-[:T2]->(),
-#             ()-[:t2]->(),
-#             (:T2)-[:T3]->(),
-#             ()-[:T4]->(:T2)
-#      """
-#    When executing query:
-#      """
-#      MATCH ()-[r]->()
-#      RETURN r, r:T2 AS result
-#      """
-#    Then the result should be, in any order:
-#      | r     | result |
-#      | [:T1] | false  |
-#      | [:T2] | true   |
-#      | [:t2] | false  |
-#      | [:T3] | false  |
-#      | [:T4] | false  |
-#    And no side effects
+  # This scenario does not work in Cypher. Although that is a little bit odd.
+  @ignore
+  Scenario: [2] Single-labels expression on relationships
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:T1]->(),
+             ()-[:T2]->(),
+             ()-[:t2]->(),
+             (:T2)-[:T3]->(),
+             ()-[:T4]->(:T2)
+      """
+    When executing query:
+      """
+      MATCH ()-[r]->()
+      RETURN r, r:T2 AS result
+      """
+    Then the result should be, in any order:
+      | r     | result |
+      | [:T1] | false  |
+      | [:T2] | true   |
+      | [:t2] | false  |
+      | [:T3] | false  |
+      | [:T4] | false  |
+    And no side effects
 
   Scenario: [3] Conjunctive labels expression on nodes
     Given an empty graph
