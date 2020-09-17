@@ -28,9 +28,9 @@
 
 #encoding: utf-8
 
-Feature: Map4 - Exists function
+Feature: Map4 - Check if a field exists on a map
 
-  Scenario Outline: `exists()` with literal maps
+  Scenario Outline: [1] `exists()` with literal maps
     Given any graph
     When executing query:
       """
@@ -47,3 +47,15 @@ Feature: Map4 - Exists function
       | {name: 'Mats', name2: 'Pontus'} | true   |
       | {name: null}                    | false  |
       | {notName: 0, notName2: null}    | false  |
+
+  Scenario: [2] Using `keys()` on null map
+    Given any graph
+    When executing query:
+      """
+      WITH null AS m, { prop: 3 } AS n
+      RETURN exists(m.prop), exists((null).prop)
+      """
+    Then the result should be, in any order:
+      | exists(l.prop) | exists((null).prop) |
+      | null           | null                |
+    And no side effects
