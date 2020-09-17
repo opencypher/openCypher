@@ -160,3 +160,53 @@ Feature: Create1 - Creating nodes
       CREATE (a)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+  @NegativeTest
+  Scenario: [12] Fail when adding a new label predicate on a node that is already bound 1
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (n:Foo)-[:T1]->(),
+             (n:Bar)-[:T2]->()
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+  @NegativeTest
+  Scenario: [13] Fail when adding new label predicate on a node that is already bound 2
+    Given an empty graph
+    When executing query:
+      """
+      CREATE ()<-[:T2]-(n:Foo),
+             (n:Bar)<-[:T1]-()
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+  @NegativeTest
+  Scenario: [14] Fail when adding new label predicate on a node that is already bound 3
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (n:Foo)
+      CREATE (n:Bar)-[:OWNS]->(:Dog)
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+  @NegativeTest
+  Scenario: [15] Fail when adding new label predicate on a node that is already bound 4
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (n {})
+      CREATE (n:Bar)-[:OWNS]->(:Dog)
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+  @NegativeTest
+  Scenario: [16] Fail when adding new label predicate on a node that is already bound 5
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (n:Foo)
+      CREATE (n {})-[:OWNS]->(:Dog)
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
