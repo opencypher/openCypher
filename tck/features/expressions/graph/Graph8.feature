@@ -28,85 +28,125 @@
 
 #encoding: utf-8
 
-Feature: Graph8 - Check if a property exists on a node or an edge
+Feature: Graph8 - Node properties keys
 
-  Scenario: [1] `exists()` with dynamic property lookup
+  Scenario: [1] Using `keys()` on a single node, non-empty result
     Given an empty graph
     And having executed:
       """
-      CREATE (:Person {name: 'foo'}),
-             (:Person)
-      """
-    When executing query:
-      """
-      MATCH (n:Person)
-      WHERE exists(n['name'])
-      RETURN n
-      """
-    Then the result should be, in any order:
-      | n                       |
-      | (:Person {name: 'foo'}) |
-    And no side effects
-
-  Scenario: [2] `exists()` is case insensitive
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:X {prop: 42}), (:X)
-      """
-    When executing query:
-      """
-      MATCH (n:X)
-      RETURN n, EXIsTS(n.prop) AS b
-      """
-    Then the result should be, in any order:
-      | n               | b     |
-      | (:X {prop: 42}) | true  |
-      | (:X)            | false |
-    And no side effects
-
-  Scenario: [3] Property existence check on non-null node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({exists: 42})
+      CREATE ({name: 'Andres', surname: 'Lopez'})
       """
     When executing query:
       """
       MATCH (n)
-      RETURN exists(n.missing),
-             exists(n.exists)
+      UNWIND keys(n) AS x
+      RETURN DISTINCT x AS theProps
       """
     Then the result should be, in any order:
-      | exists(n.missing) | exists(n.exists) |
-      | false             | true             |
+      | theProps  |
+      | 'name'    |
+      | 'surname' |
     And no side effects
 
-  Scenario: [4] Property existence check on optional non-null node
+  Scenario: [2] Using `keys()` on multiple nodes, non-empty result
     Given an empty graph
     And having executed:
       """
-      CREATE ({exists: 42})
+      CREATE ({name: 'Andres', surname: 'Lopez'}),
+             ({otherName: 'Andres', otherSurname: 'Lopez'})
       """
     When executing query:
       """
-      OPTIONAL MATCH (n)
-      RETURN exists(n.missing),
-             exists(n.exists)
+      MATCH (n)
+      UNWIND keys(n) AS x
+      RETURN DISTINCT x AS theProps
       """
     Then the result should be, in any order:
-      | exists(n.missing) | exists(n.exists) |
-      | false             | true             |
+      | theProps       |
+      | 'name'         |
+      | 'surname'      |
+      | 'otherName'    |
+      | 'otherSurname' |
     And no side effects
 
-  Scenario: [5] Property existence check on null node
+  Scenario: [3] Using `keys()` on a single node, empty result
     Given an empty graph
+    And having executed:
+      """
+      CREATE ()
+      """
+    When executing query:
+      """
+      MATCH (n)
+      UNWIND keys(n) AS x
+      RETURN DISTINCT x AS theProps
+      """
+    Then the result should be, in any order:
+      | theProps |
+    And no side effects
+
+  Scenario: [4] Using `keys()` on an optionally matched node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()
+      """
     When executing query:
       """
       OPTIONAL MATCH (n)
-      RETURN exists(n.missing)
+      UNWIND keys(n) AS x
+      RETURN DISTINCT x AS theProps
       """
     Then the result should be, in any order:
-      | exists(n.missing) |
-      | null              |
+      | theProps |
+    And no side effects
+
+  Scenario: [5] Using `keys()` on a relationship, non-empty result
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:KNOWS {status: 'bad', year: '2015'}]->()
+      """
+    When executing query:
+      """
+      MATCH ()-[r:KNOWS]-()
+      UNWIND keys(r) AS x
+      RETURN DISTINCT x AS theProps
+      """
+    Then the result should be, in any order:
+      | theProps |
+      | 'status' |
+      | 'year'   |
+    And no side effects
+
+  Scenario: [6] Using `keys()` on a relationship, empty result
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:KNOWS]->()
+      """
+    When executing query:
+      """
+      MATCH ()-[r:KNOWS]-()
+      UNWIND keys(r) AS x
+      RETURN DISTINCT x AS theProps
+      """
+    Then the result should be, in any order:
+      | theProps |
+    And no side effects
+
+  Scenario: [7] Using `keys()` on an optionally matched relationship
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:KNOWS]->()
+      """
+    When executing query:
+      """
+      OPTIONAL MATCH ()-[r:KNOWS]-()
+      UNWIND keys(r) AS x
+      RETURN DISTINCT x AS theProps
+      """
+    Then the result should be, in any order:
+      | theProps |
     And no side effects
