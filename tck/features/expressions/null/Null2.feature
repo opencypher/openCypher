@@ -86,3 +86,21 @@ Feature: Null2 - IS NOT NULL validation
       | value |
       | false |
     And no side effects
+
+  Scenario Outline: [5] IS NOT NULL with literal maps
+    Given any graph
+    When executing query:
+      """
+      WITH <map> AS map
+      RETURN map.name IS NOT NULL
+      """
+    Then the result should be, in any order:
+      | map.name IS NOT NULL |
+      | <result>             |
+    And no side effects
+
+    Examples:
+      | map                             | result |
+      | {name: 'Mats', name2: 'Pontus'} | true   |
+      | {name: null}                    | false  |
+      | {notName: 0, notName2: null}    | false  |
