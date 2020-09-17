@@ -127,14 +127,14 @@ Feature: Graph3 - Node labels
 
   Scenario: [7] `labels()` on null node
     Given an empty graph
-    And having executed:
+    When executing query:
       """
       OPTIONAL MATCH (n:DoesNotExist)
       RETURN labels(n), labels(null)
       """
     Then the result should be, in any order:
       | labels(n) | labels(null) |
-      | null      | null       |
+      | null      | null         |
     And no side effects
 
   @NegativeTest
