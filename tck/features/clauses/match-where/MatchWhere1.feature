@@ -30,7 +30,7 @@
 
 Feature: MatchWhere1 - Filter single variable
 
-  Scenario: Simple node property predicate
+  Scenario: Filter node with property predicate
     Given an empty graph
     And having executed:
       """
@@ -47,7 +47,24 @@ Feature: MatchWhere1 - Filter single variable
       | ({name: 'bar'}) |
     And no side effects
 
-  Scenario: Handle OR in the WHERE clause
+  Scenario: Filter relationship with property predicate
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A)<-[:KNOWS {name: 'monkey'}]-()-[:KNOWS {name: 'woot'}]->(:B)
+      """
+    When executing query:
+      """
+      MATCH (node)-[r:KNOWS]->(a)
+      WHERE r.name = 'monkey'
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a    |
+      | (:A) |
+    And no side effects
+
+  Scenario: Filter node with disjunctive property predicate
     Given an empty graph
     And having executed:
       """
@@ -65,5 +82,28 @@ Feature: MatchWhere1 - Filter single variable
       | n             |
       | (:A {p1: 12}) |
       | (:B {p2: 13}) |
+    And no side effects
+
+  Scenario: Filter relationship with disjunctive relationship type predicate
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a {name: 'A'}),
+        (b {name: 'B'}),
+        (c {name: 'C'}),
+        (a)-[:KNOWS]->(b),
+        (a)-[:HATES]->(c),
+        (a)-[:WONDERS]->(c)
+      """
+    When executing query:
+      """
+      MATCH (n)-[r]->(x)
+      WHERE type(r) = 'KNOWS' OR type(r) = 'HATES'
+      RETURN r
+      """
+    Then the result should be, in any order:
+      | r        |
+      | [:KNOWS] |
+      | [:HATES] |
     And no side effects
 
