@@ -28,6 +28,7 @@
 
 #encoding: utf-8
 
+#consider splitting into separate category optional-match
 Feature: Match7 - Optional match scenarios
 
   Scenario: [1] Simple OPTIONAL MATCH on empty graph
@@ -532,7 +533,29 @@ Feature: Match7 - Optional match scenarios
       | null | (:B {num: 46}) | null |
     And no side effects
 
-  Scenario: [25] Satisfies the open world assumption, relationships between same nodes
+  Scenario: [25] Handling optional matches with inline label predicate
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single), (a:A {num: 42}),
+             (b:B {num: 46}), (c:C)
+      CREATE (s)-[:REL]->(a),
+             (s)-[:REL]->(b),
+             (a)-[:REL]->(c),
+             (b)-[:LOOP]->(b)
+      """
+    When executing query:
+      """
+      MATCH (n:Single)
+      OPTIONAL MATCH (n)-[r]-(m:NonExistent)
+      RETURN r
+      """
+    Then the result should be, in any order:
+      | r    |
+      | null |
+    And no side effects
+
+  Scenario: [26] Satisfies the open world assumption, relationships between same nodes
     Given an empty graph
     And having executed:
       """
@@ -551,7 +574,7 @@ Feature: Match7 - Optional match scenarios
       | 1       | false    |
     And no side effects
 
-  Scenario: [26] Satisfies the open world assumption, single relationship
+  Scenario: [27] Satisfies the open world assumption, single relationship
     Given an empty graph
     And having executed:
       """
@@ -569,7 +592,7 @@ Feature: Match7 - Optional match scenarios
       | 1       | true     |
     And no side effects
 
-  Scenario: [27] Satisfies the open world assumption, relationships between different nodes
+  Scenario: [28] Satisfies the open world assumption, relationships between different nodes
     Given an empty graph
     And having executed:
       """

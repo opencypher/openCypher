@@ -136,6 +136,25 @@ Feature: MatchWhere1 - Filter single variable
       | [:T {name: 'bar'}] |
     And no side effects
 
+  Scenario: Filter for an unbound relationship
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A), (b:B {id: 1}), (:B {id: 2})
+      CREATE (a)-[:T]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:A), (other:B)
+      OPTIONAL MATCH (a)-[r]->(other)
+      WITH other WHERE r IS NULL
+      RETURN other
+      """
+    Then the result should be, in any order:
+      | other        |
+      | (:B {id: 2}) |
+    And no side effects
+
   Scenario: Filter relationship with relationship type predicate
     Given an empty graph
     And having executed:
@@ -234,5 +253,38 @@ Feature: MatchWhere1 - Filter single variable
       | r        |
       | [:KNOWS] |
       | [:HATES] |
+    And no side effects
+
+  Scenario: Filter path with path length predicate
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
+      """
+    When executing query:
+      """
+      MATCH p = (n)-->(x)
+      WHERE length(p) = 1
+      RETURN x
+      """
+    Then the result should be, in any order:
+      | x                |
+      | (:B {name: 'B'}) |
+    And no side effects
+
+  Scenario: Filter path with false path length predicate
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
+      """
+    When executing query:
+      """
+      MATCH p = (n)-->(x)
+      WHERE length(p) = 10
+      RETURN x
+      """
+    Then the result should be, in any order:
+      | x |
     And no side effects
 
