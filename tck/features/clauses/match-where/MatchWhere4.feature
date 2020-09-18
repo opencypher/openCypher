@@ -30,3 +30,21 @@
 
 Feature: MatchWhere4 - Non-Equi-Joins on variables
 
+  Scenario: Comparing nodes for inequality
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A), (:B)
+      """
+    When executing query:
+      """
+      MATCH (a), (b)
+      WHERE a <> b
+      RETURN a, b
+      """
+    Then the result should be, in any order:
+      | a    | b    |
+      | (:A) | (:B) |
+      | (:B) | (:A) |
+    And no side effects
+

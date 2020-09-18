@@ -30,3 +30,40 @@
 
 Feature: MatchWhere1 - Filter single variable
 
+  Scenario: Simple node property predicate
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({name: 'bar'})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      WHERE n.name = 'bar'
+      RETURN n
+      """
+    Then the result should be, in any order:
+      | n               |
+      | ({name: 'bar'}) |
+    And no side effects
+
+  Scenario: Handle OR in the WHERE clause
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A {p1: 12}),
+        (b:B {p2: 13}),
+        (c:C)
+      """
+    When executing query:
+      """
+      MATCH (n)
+      WHERE n.p1 = 12 OR n.p2 = 13
+      RETURN n
+      """
+    Then the result should be, in any order:
+      | n             |
+      | (:A {p1: 12}) |
+      | (:B {p2: 13}) |
+    And no side effects
+

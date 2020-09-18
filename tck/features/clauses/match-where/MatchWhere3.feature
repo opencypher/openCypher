@@ -30,3 +30,21 @@
 
 Feature: MatchWhere3 - Equi-Joins on variables
 
+  Scenario: Comparing nodes for equality
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A), (:B)
+      """
+    When executing query:
+      """
+      MATCH (a), (b)
+      WHERE a = b
+      RETURN a, b
+      """
+    Then the result should be, in any order:
+      | a    | b    |
+      | (:A) | (:A) |
+      | (:B) | (:B) |
+    And no side effects
+
