@@ -30,7 +30,7 @@
 
 Feature: MatchWhere4 - Non-Equi-Joins on variables
 
-  Scenario: Comparing nodes for inequality
+  Scenario: Join nodes on inequality
     Given an empty graph
     And having executed:
       """

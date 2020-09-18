@@ -30,13 +30,15 @@
 
 Feature: Match7-2 - Optional match WHERE clause scenarios
 
-  Scenario: MATCH and OPTIONAL MATCH on same pattern
+  # Consider for OptionalMatch-Where1
+  Scenario: Filter node with node label predicate on multi-column binding table after MATCH and OPTIONAL MATCH
     Given an empty graph
     And having executed:
       """
-      CREATE (a {name: 'A'}), (b:B {name: 'B'}), (c:C {name: 'C'})
+      CREATE (a {name: 'A'}), (b:B {name: 'B'}), (c:C {name: 'C'}), (d:D {name: 'C'})
       CREATE (a)-[:T]->(b),
-             (a)-[:T]->(c)
+             (a)-[:T]->(c),
+             (a)-[:T]->(d)
       """
     When executing query:
       """
@@ -51,29 +53,8 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | 'A'    |
     And no side effects
 
-  Scenario: Return null when no matches due to inline label predicate
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (s:Single), (a:A {num: 42}),
-             (b:B {num: 46}), (c:C)
-      CREATE (s)-[:REL]->(a),
-             (s)-[:REL]->(b),
-             (a)-[:REL]->(c),
-             (b)-[:LOOP]->(b)
-      """
-    When executing query:
-      """
-      MATCH (n:Single)
-      OPTIONAL MATCH (n)-[r]-(m:NonExistent)
-      RETURN r
-      """
-    Then the result should be, in any order:
-      | r    |
-      | null |
-    And no side effects
-
-  Scenario: Return null when no matches due to label predicate in WHERE
+  # Consider for OptionalMatch-Where1
+  Scenario: Filter node with false node label predicate after OPTIONAL MATCH
     Given an empty graph
     And having executed:
       """
@@ -96,7 +77,8 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | null |
     And no side effects
 
-  Scenario: Respect predicates on the OPTIONAL MATCH
+  # Consider for OptionalMatch-Where1
+  Scenario: Filter node with property predicate on multi-column binding table after OPTIONAL MATCH
     Given an empty graph
     And having executed:
       """
@@ -119,6 +101,27 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | (:A {num: 42}) |
     And no side effects
 
+  # Consider for With-Where1
+  Scenario: Filter for an unbound node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A), (b:B {id: 1}), (:B {id: 2})
+      CREATE (a)-[:T]->(b)
+      """
+    When executing query:
+      """
+      MATCH (other:B)
+      OPTIONAL MATCH (a)-[r]->(other)
+      WITH other WHERE a IS NULL
+      RETURN other
+      """
+    Then the result should be, in any order:
+      | other        |
+      | (:B {id: 2}) |
+    And no side effects
+
+  # Consider for OptionalMatch-Where1
   Scenario: Do not fail when predicates on optionally matched and missed nodes are invalid
     Given an empty graph
     And having executed:
@@ -138,6 +141,7 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | 'Mark'  |
     And no side effects
 
+  # Consider for OptionalMatch-Where3
   Scenario: Matching and optionally matching with unbound nodes and equality predicate in reverse direction
     Given an empty graph
     And having executed:
@@ -158,7 +162,8 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | (:A) | [:T] | null | null |
     And no side effects
 
-  Scenario: OPTIONAL MATCH and WHERE
+  # Consider for OptionalMatch-Where4
+  Scenario: Join nodes on non-equality of properties – OPTIONAL MATCH and WHERE
     Given an empty graph
     And having executed:
       """
@@ -181,7 +186,8 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | (:X {val: 6}) | null          |
     And no side effects
 
-  Scenario: OPTIONAL MATCH on two relationships and WHERE
+  # Consider for OptionalMatch-Where4
+  Scenario: Join nodes on non-equality of properties – OPTIONAL MATCH on two relationships and WHERE
     Given an empty graph
     And having executed:
       """
@@ -204,7 +210,8 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | (:X {val: 6}) | null          | null          |
     And no side effects
 
-  Scenario: Two OPTIONAL MATCH clauses and WHERE
+  # Consider for OptionalMatch-Where4
+  Scenario: Join nodes on non-equality of properties – Two OPTIONAL MATCH clauses and WHERE
     Given an empty graph
     And having executed:
       """
@@ -226,24 +233,5 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | (:X {val: 1}) | (:Y {val: 2}) | (:Z {val: 3}) |
       | (:X {val: 4}) | (:Y {val: 5}) | null          |
       | (:X {val: 6}) | null          | null          |
-    And no side effects
-
-  Scenario: Excluding connected nodes
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A), (b:B {id: 1}), (:B {id: 2})
-      CREATE (a)-[:T]->(b)
-      """
-    When executing query:
-      """
-      MATCH (a:A), (other:B)
-      OPTIONAL MATCH (a)-[r]->(other)
-      WITH other WHERE r IS NULL
-      RETURN other
-      """
-    Then the result should be, in any order:
-      | other        |
-      | (:B {id: 2}) |
     And no side effects
 
