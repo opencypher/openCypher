@@ -48,3 +48,28 @@ Feature: MatchWhere3 - Equi-Joins on variables
       | (:B) | (:B) |
     And no side effects
 
+  Scenario: Join between node properties
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A {animal: 'monkey'}),
+        (b:B {animal: 'cow'}),
+        (c:C {animal: 'monkey'}),
+        (d:D {animal: 'cow'}),
+        (a)-[:KNOWS]->(b),
+        (a)-[:KNOWS]->(c),
+        (d)-[:KNOWS]->(b),
+        (d)-[:KNOWS]->(c)
+      """
+    When executing query:
+      """
+      MATCH (n)-[rel]->(x)
+      WHERE n.animal = x.animal
+      RETURN n, x
+      """
+    Then the result should be, in any order:
+      | n                       | x                       |
+      | (:A {animal: 'monkey'}) | (:C {animal: 'monkey'}) |
+      | (:D {animal: 'cow'})    | (:B {animal: 'cow'})    |
+    And no side effects
+
