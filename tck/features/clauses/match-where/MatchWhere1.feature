@@ -30,7 +30,7 @@
 
 Feature: MatchWhere1 - Filter single variable
 
-  Scenario: Filter node with node label predicate on multi-column binding table
+  Scenario: [1] Filter node with node label predicate on multi-column binding table
     Given an empty graph
     And having executed:
       """
@@ -47,7 +47,7 @@ Feature: MatchWhere1 - Filter single variable
       | 0    | 1    |
     And no side effects
 
-  Scenario: Filter node with node label predicate on empty multi-column binding table
+  Scenario: [2] Filter node with node label predicate on empty multi-column binding table
     Given an empty graph
     And having executed:
       """
@@ -63,7 +63,7 @@ Feature: MatchWhere1 - Filter single variable
       | c |
     And no side effects
 
-  Scenario: Filter node with property predicate on single-column binding table
+  Scenario: [3] Filter node with property predicate on single-column binding table
     Given an empty graph
     And having executed:
       """
@@ -80,7 +80,7 @@ Feature: MatchWhere1 - Filter single variable
       | ({name: 'Bar'}) |
     And no side effects
 
-  Scenario: Filter node with property predicate on multi-column binding table 1
+  Scenario: [4] Filter node with property predicate on multi-column binding table 1
     Given an empty graph
     And having executed:
       """
@@ -100,7 +100,7 @@ Feature: MatchWhere1 - Filter single variable
       | (:Person {name: 'Bob'}) |
     And no side effects
 
-  Scenario: Filter node with property predicate on multi-column binding table 2
+  Scenario: [5] Filter node with property predicate on multi-column binding table 2
     Given an empty graph
     And having executed:
       """
@@ -117,7 +117,7 @@ Feature: MatchWhere1 - Filter single variable
       | ({name: 'Andres'}) |
     And no side effects
 
-  Scenario: Filter node with a parameter in a property predicate
+  Scenario: [6] Filter node with a parameter in a property predicate
     Given an empty graph
     And having executed:
       """
@@ -136,7 +136,7 @@ Feature: MatchWhere1 - Filter single variable
       | [:T {name: 'bar'}] |
     And no side effects
 
-  Scenario: Filter for an unbound relationship
+  Scenario: [7] Filter for an unbound relationship
     Given an empty graph
     And having executed:
       """
@@ -155,7 +155,7 @@ Feature: MatchWhere1 - Filter single variable
       | (:B {id: 2}) |
     And no side effects
 
-  Scenario: Filter relationship with relationship type predicate
+  Scenario: [8] Filter relationship with relationship type predicate
     Given an empty graph
     And having executed:
       """
@@ -176,7 +176,7 @@ Feature: MatchWhere1 - Filter single variable
       | (:B {name: 'B'}) |
     And no side effects
 
-  Scenario: Filter relationship with property predicate
+  Scenario: [9] Filter relationship with property predicate
     Given an empty graph
     And having executed:
       """
@@ -193,7 +193,7 @@ Feature: MatchWhere1 - Filter single variable
       | (:A) |
     And no side effects
 
-  Scenario: Filter relationship with a parameter in a property predicate
+  Scenario: [10] Filter relationship with a parameter in a property predicate
     Given an empty graph
     And having executed:
       """
@@ -212,7 +212,7 @@ Feature: MatchWhere1 - Filter single variable
       | (:B {name: 'me'}) |
     And no side effects
 
-  Scenario: Filter node with disjunctive property predicate
+  Scenario: [11] Filter node with disjunctive property predicate
     Given an empty graph
     And having executed:
       """
@@ -232,7 +232,7 @@ Feature: MatchWhere1 - Filter single variable
       | (:B {p2: 13}) |
     And no side effects
 
-  Scenario: Filter relationship with disjunctive relationship type predicate
+  Scenario: [12] Filter relationship with disjunctive relationship type predicate
     Given an empty graph
     And having executed:
       """
@@ -255,7 +255,7 @@ Feature: MatchWhere1 - Filter single variable
       | [:HATES] |
     And no side effects
 
-  Scenario: Filter path with path length predicate
+  Scenario: [13] Filter path with path length predicate
     Given an empty graph
     And having executed:
       """
@@ -272,7 +272,7 @@ Feature: MatchWhere1 - Filter single variable
       | (:B {name: 'B'}) |
     And no side effects
 
-  Scenario: Filter path with false path length predicate
+  Scenario: [14] Filter path with false path length predicate
     Given an empty graph
     And having executed:
       """
@@ -289,7 +289,7 @@ Feature: MatchWhere1 - Filter single variable
     And no side effects
 
   @NegativeTest
-  Scenario: Fail when filtering path with property predicate
+  Scenario: [15] Fail when filtering path with property predicate
     Given any graph
     When executing query:
       """
@@ -301,7 +301,7 @@ Feature: MatchWhere1 - Filter single variable
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   @NegativeTest
-  Scenario: Fail on aggregation in WHERE
+  Scenario: [16] Fail on aggregation in WHERE
     Given any graph
     When executing query:
       """
@@ -310,4 +310,3 @@ Feature: MatchWhere1 - Filter single variable
       RETURN a
       """
     Then a SyntaxError should be raised at compile time: InvalidAggregation
-

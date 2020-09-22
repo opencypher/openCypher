@@ -30,7 +30,7 @@
 
 Feature: MatchWhere5 - Filter on predicate resulting in null
 
-  Scenario: Filter out on null
+  Scenario: [1] Filter out on null
     Given an empty graph
     And having executed:
       """
@@ -51,7 +51,7 @@ Feature: MatchWhere5 - Filter on predicate resulting in null
       | (:TextNode {var: 'text'}) |
     And no side effects
 
-  Scenario: Filter out on null if the AND'd predicate evaluates to false
+  Scenario: [2] Filter out on null if the AND'd predicate evaluates to false
     Given an empty graph
     And having executed:
       """
@@ -72,7 +72,7 @@ Feature: MatchWhere5 - Filter on predicate resulting in null
       | (:TextNode {var: 'text'}) |
     And no side effects
 
-  Scenario: Do not filter out on null if the OR'd predicate evaluates to true
+  Scenario: [3] Do not filter out on null if the OR'd predicate evaluates to true
     Given an empty graph
     And having executed:
       """
@@ -93,4 +93,3 @@ Feature: MatchWhere5 - Filter on predicate resulting in null
       | (:TextNode {var: 'text'}) |
       | (:IntNode {var: 0})       |
     And no side effects
-

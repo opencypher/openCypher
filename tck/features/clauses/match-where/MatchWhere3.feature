@@ -30,7 +30,7 @@
 
 Feature: MatchWhere3 - Equi-Joins on variables
 
-  Scenario: Comparing nodes for equality
+  Scenario: [1] Join between node identities
     Given an empty graph
     And having executed:
       """
@@ -48,7 +48,7 @@ Feature: MatchWhere3 - Equi-Joins on variables
       | (:B) | (:B) |
     And no side effects
 
-  Scenario: Join between node properties of disconnected nodes
+  Scenario: [2] Join between node properties of disconnected nodes
     Given an empty graph
     And having executed:
       """
@@ -68,7 +68,7 @@ Feature: MatchWhere3 - Equi-Joins on variables
       | (:A {id: 2}) | (:B {id: 2}) |
     And no side effects
 
-  Scenario: Join between node properties of adjacent nodes
+  Scenario: [3] Join between node properties of adjacent nodes
     Given an empty graph
     And having executed:
       """
@@ -92,4 +92,3 @@ Feature: MatchWhere3 - Equi-Joins on variables
       | (:A {animal: 'monkey'}) | (:C {animal: 'monkey'}) |
       | (:D {animal: 'cow'})    | (:B {animal: 'cow'})    |
     And no side effects
-
