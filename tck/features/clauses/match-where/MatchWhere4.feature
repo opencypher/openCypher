@@ -30,7 +30,7 @@
 
 Feature: MatchWhere4 - Non-Equi-Joins on variables
 
-  Scenario: Join nodes on inequality
+  Scenario: [1] Join nodes on inequality
     Given an empty graph
     And having executed:
       """
@@ -48,7 +48,7 @@ Feature: MatchWhere4 - Non-Equi-Joins on variables
       | (:B) | (:A) |
     And no side effects
 
-  Scenario: Join with disjunctive multi-part predicates including patterns
+  Scenario: [2] Join with disjunctive multi-part predicates including patterns
     Given an empty graph
     And having executed:
       """
@@ -68,4 +68,3 @@ Feature: MatchWhere4 - Non-Equi-Joins on variables
       | b                   |
       | (:TheLabel {id: 1}) |
     And no side effects
-
