@@ -59,17 +59,6 @@ Feature: MiscellaneousErrorAcceptance
     Then a SemanticError should be raised at compile time: MergeReadOwnWrites
 
   @NegativeTest
-  Scenario: Failing on aggregation in WHERE
-    Given any graph
-    When executing query:
-      """
-      MATCH (a)
-      WHERE count(a) > 10
-      RETURN a
-      """
-    Then a SyntaxError should be raised at compile time: InvalidAggregation
-
-  @NegativeTest
   Scenario: Failing on aggregation in ORDER BY after RETURN
     Given any graph
     When executing query:
@@ -148,18 +137,6 @@ Feature: MiscellaneousErrorAcceptance
       RETURN messages
       """
     Then a SyntaxError should be raised at compile time: VariableTypeConflict
-
-  @NegativeTest
-  Scenario: Failing when using a variable length relationship as a single relationship
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      MATCH (n)-[r*]->()
-      WHERE r.name = 'apa'
-      RETURN r
-      """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   @NegativeTest
   Scenario: Failing when creating without direction
