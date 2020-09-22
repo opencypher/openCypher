@@ -288,3 +288,26 @@ Feature: MatchWhere1 - Filter single variable
       | x |
     And no side effects
 
+  @NegativeTest
+  Scenario: Fail when filtering path with property predicate
+    Given any graph
+    When executing query:
+      """
+      MATCH (n)
+      MATCH (n)-[r*]->()
+      WHERE r.name = 'apa'
+      RETURN r
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  @NegativeTest
+  Scenario: Fail on aggregation in WHERE
+    Given any graph
+    When executing query:
+      """
+      MATCH (a)
+      WHERE count(a) > 10
+      RETURN a
+      """
+    Then a SyntaxError should be raised at compile time: InvalidAggregation
+
