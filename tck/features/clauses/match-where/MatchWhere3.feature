@@ -48,7 +48,27 @@ Feature: MatchWhere3 - Equi-Joins on variables
       | (:B) | (:B) |
     And no side effects
 
-  Scenario: Join between node properties
+  Scenario: Join between node properties of disconnected nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {id: 1}),
+             (:A {id: 2}),
+             (:B {id: 2}),
+             (:B {id: 3})
+      """
+    When executing query:
+      """
+      MATCH (a:A), (b:B)
+      WHERE a.id = b.id
+      RETURN a, b
+      """
+    Then the result should be, in any order:
+      | a            | b            |
+      | (:A {id: 2}) | (:B {id: 2}) |
+    And no side effects
+
+  Scenario: Join between node properties of adjacent nodes
     Given an empty graph
     And having executed:
       """
