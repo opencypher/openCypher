@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Literals6 - Maps
+Feature: Literals8 - Maps
 
   Scenario: [1] Return an empty map
     Given any graph

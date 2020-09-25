@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Literals5 - List
+Feature: Literals7 - List
 
   Scenario: [1] Return an empty list
     Given any graph

@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Literals4 - String
+Feature: Literals5 - String
 
   Scenario: [1] Return a single-quoted empty string
     Given any graph

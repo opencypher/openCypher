@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Literals3 - Float
+Feature: Literals5 - Float
 
   Scenario: [1] Return a short positive float
     Given any graph
