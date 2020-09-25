@@ -28,128 +28,180 @@
 
 #encoding: utf-8
 
-Feature: Literals2 - Decimal integer
+Feature: Literals2 - Hexadecimal integer
 
-  Scenario: [1] Return a short positive integer
+  Scenario: [1] Return a short positive hexadecimal integer
     Given any graph
     When executing query:
       """
-      RETURN 1 AS literal
+      RETURN 0x1 AS literal
       """
     Then the result should be, in any order:
       | literal |
       | 1       |
     And no side effects
 
-  Scenario: [2] Return a long positive integer
+  Scenario: [2] Return a long positive hexadecimal integer
     Given any graph
     When executing query:
       """
-      RETURN 372036854 AS literal
+      RETURN 0x162CD4F6 AS literal
       """
     Then the result should be, in any order:
       | literal    |
       | 372036854  |
     And no side effects
 
-  Scenario: [3] Return the largest integer
+  Scenario: [3] Return the largest hexadecimal integer
     Given any graph
     When executing query:
       """
-      RETURN 9223372036854775807 AS literal
+      RETURN 0x7FFFFFFFFFFFFFFF AS literal
       """
     Then the result should be, in any order:
       | literal              |
       | 9223372036854775807  |
     And no side effects
 
-  Scenario: [4] Return a positive zero
+  Scenario: [4] Return a positive hexadecimal zero
     Given any graph
     When executing query:
       """
-      RETURN 0 AS literal
+      RETURN 0x0 AS literal
       """
     Then the result should be, in any order:
       | literal |
       | 0       |
     And no side effects
 
-  Scenario: [5] Return a negative zero
+  Scenario: [5] Return a negative hexadecimal zero
     Given any graph
     When executing query:
       """
-      RETURN -0 AS literal
+      RETURN -0x0 AS literal
       """
     Then the result should be, in any order:
       | literal |
       | 0       |
     And no side effects
 
-  Scenario: [6] Return a short negative integer
+  Scenario: [6] Return a short negative hexadecimal integer
     Given any graph
     When executing query:
       """
-      RETURN -1 AS literal
+      RETURN -0x1 AS literal
       """
     Then the result should be, in any order:
       | literal |
       | -1      |
     And no side effects
 
-  Scenario: [7] Return a long negative integer
+  Scenario: [7] Return a long negative hexadecimal integer
     Given any graph
     When executing query:
       """
-      RETURN -372036854 AS literal
+      RETURN -0x162CD4F6 AS literal
       """
     Then the result should be, in any order:
       | literal    |
       | -372036854 |
     And no side effects
 
-  Scenario: [8] Return the smallest integer
+  Scenario: [8] Return the smallest hexadecimal integer
     Given any graph
     When executing query:
       """
-      RETURN -9223372036854775808 AS literal
+      RETURN -0x8000000000000000 AS literal
       """
     Then the result should be, in any order:
       | literal              |
       | -9223372036854775808 |
-    And no side effects  @NegativeTest
+    And no side effects
 
-  @NegativeTest
-  Scenario: [9] Fail on a too large integer
+  Scenario: [9] Return a lower case hexadecimal integer
     Given any graph
     When executing query:
       """
-      RETURN 9223372036854775808 AS literal
+      RETURN 0x1a2b3c4d5e6f7 AS literal
       """
-    Then a SyntaxError should be raised at compile time: IntegerOverflow
+    Then the result should be, in any order:
+      | literal         |
+      | 460367961908983 |
+    And no side effects
 
-  @NegativeTest
-  Scenario: [10] Fail on a too small integer
+  Scenario: [10] Return a upper case hexadecimal integer
     Given any graph
     When executing query:
       """
-      RETURN -9223372036854775809 AS literal
+      RETURN 0x1A2B3C4D5E6F7 AS literal
       """
-    Then a SyntaxError should be raised at compile time: IntegerOverflow
+    Then the result should be, in any order:
+      | literal         |
+      | 460367961908983 |
+    And no side effects
 
-  @NegativeTest
-  Scenario: [11] Fail on an integer containing a alphabetic character
+  Scenario: [11] Return a mixed case hexadecimal integer
     Given any graph
     When executing query:
       """
-      RETURN 9223372h54775808 AS literal
+      RETURN 0x1A2b3c4D5E6f7 AS literal
+      """
+    Then the result should be, in any order:
+      | literal         |
+      | 460367961908983 |
+    And no side effects
+
+  @NegativeTest
+  Scenario: [12] Fail on an incomplete hexadecimal integer
+    Given any graph
+    When executing query:
+      """
+      RETURN 0x AS literal
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
   @NegativeTest
-  Scenario: [12] Fail on an integer containing a invalid symbol character
+  Scenario: [13] Fail on an hexadecimal literal containing a lower case invalid alphanumeric character
     Given any graph
     When executing query:
       """
-      RETURN 9223372#54775808 AS literal
+      RETURN 0x1A2b3j4D5E6f7 AS literal
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  @NegativeTest
+  Scenario: [14] Fail on an hexadecimal literal containing a upper case invalid alphanumeric character
+    Given any graph
+    When executing query:
+      """
+      RETURN 0x1A2b3c4Z5E6f7 AS literal
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+### Error detail not necessarily recognizable
+#  @NegativeTest
+#  Scenario: [15] Fail oning an hexadecimal literal containing a invalid symbol character
+#    Given any graph
+#    When executing query:
+#      """
+#      RETURN 0x1A2b3c4#5E6f7 AS literal
+#      """
+#    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+
+  @NegativeTest
+  Scenario: [16] Fail on a too large hexadecimal integer
+    Given any graph
+    When executing query:
+      """
+      RETURN 0x8000000000000000 AS literal
+      """
+    Then a SyntaxError should be raised at compile time: IntegerOverflow
+
+  @NegativeTest
+  Scenario: [17] Fail on a too small hexadecimal integer
+    Given any graph
+    When executing query:
+      """
+      RETURN -0x8000000000000001 AS literal
+      """
+    Then a SyntaxError should be raised at compile time: IntegerOverflow
