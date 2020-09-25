@@ -28,128 +28,110 @@
 
 #encoding: utf-8
 
-Feature: Literals2 - Decimal integer
+Feature: Literals2 - Octal integer
 
-  Scenario: [1] Return a short positive integer
+  Scenario: [1] Return a short positive octal integer
     Given any graph
     When executing query:
       """
-      RETURN 1 AS literal
+      RETURN 01 AS literal
       """
     Then the result should be, in any order:
       | literal |
       | 1       |
     And no side effects
 
-  Scenario: [2] Return a long positive integer
+  Scenario: [2] Return a long positive octal integer
     Given any graph
     When executing query:
       """
-      RETURN 372036854 AS literal
+      RETURN 02613152366 AS literal
       """
     Then the result should be, in any order:
       | literal    |
       | 372036854  |
     And no side effects
 
-  Scenario: [3] Return the largest integer
+  Scenario: [3] Return the largest octal integer
     Given any graph
     When executing query:
       """
-      RETURN 9223372036854775807 AS literal
+      RETURN 0777777777777777777777 AS literal
       """
     Then the result should be, in any order:
       | literal              |
       | 9223372036854775807  |
     And no side effects
 
-  Scenario: [4] Return a positive zero
+  Scenario: [4] Return a positive octal zero
     Given any graph
     When executing query:
       """
-      RETURN 0 AS literal
+      RETURN 00 AS literal
       """
     Then the result should be, in any order:
       | literal |
       | 0       |
     And no side effects
 
-  Scenario: [5] Return a negative zero
+  Scenario: [5] Return a negative octal zero
     Given any graph
     When executing query:
       """
-      RETURN -0 AS literal
+      RETURN -00 AS literal
       """
     Then the result should be, in any order:
       | literal |
       | 0       |
     And no side effects
 
-  Scenario: [6] Return a short negative integer
+  Scenario: [6] Return a short negative octal integer
     Given any graph
     When executing query:
       """
-      RETURN -1 AS literal
+      RETURN -01 AS literal
       """
     Then the result should be, in any order:
       | literal |
       | -1      |
     And no side effects
 
-  Scenario: [7] Return a long negative integer
+  Scenario: [7] Return a long negative octal integer
     Given any graph
     When executing query:
       """
-      RETURN -372036854 AS literal
+      RETURN -02613152366 AS literal
       """
     Then the result should be, in any order:
       | literal    |
       | -372036854 |
     And no side effects
 
-  Scenario: [8] Return the smallest integer
+  Scenario: [8] Return the smallest octal integer
     Given any graph
     When executing query:
       """
-      RETURN -9223372036854775808 AS literal
+      RETURN -01000000000000000000000 AS literal
       """
     Then the result should be, in any order:
       | literal              |
       | -9223372036854775808 |
-    And no side effects  @NegativeTest
+    And no side effects
 
   @NegativeTest
-  Scenario: [9] Fail on a too large integer
+  Scenario: [9] Fail on a too large octal integer
     Given any graph
     When executing query:
       """
-      RETURN 9223372036854775808 AS literal
+      RETURN 01000000000000000000000 AS literal
       """
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
   @NegativeTest
-  Scenario: [10] Fail on a too small integer
+  Scenario: [10] Fail on a too small octal integer
     Given any graph
     When executing query:
       """
-      RETURN -9223372036854775809 AS literal
+      RETURN -01000000000000000000001 AS literal
       """
     Then a SyntaxError should be raised at compile time: IntegerOverflow
-
-  @NegativeTest
-  Scenario: [11] Fail on an integer containing a alphabetic character
-    Given any graph
-    When executing query:
-      """
-      RETURN 9223372h54775808 AS literal
-      """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
-
-  @NegativeTest
-  Scenario: [12] Fail on an integer containing a invalid symbol character
-    Given any graph
-    When executing query:
-      """
-      RETURN 9223372#54775808 AS literal
-      """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
