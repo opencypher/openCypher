@@ -31,33 +31,6 @@
 Feature: Literals7 - Negative tests
 
   @NegativeTest
-  Scenario: [13] Fail on a list containing only a comma
-    Given any graph
-    When executing query:
-      """
-      RETURN [, ] AS literal
-      """
-    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
-
-  @NegativeTest
-  Scenario: [14] Fail on a nested list with non-matching brackets
-    Given any graph
-    When executing query:
-      """
-      RETURN [[[]] AS literal
-      """
-    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
-
-  @NegativeTest
-  Scenario: [15] Fail on a nested list with missing commas
-    Given any graph
-    When executing query:
-      """
-      RETURN [[','[]',']] AS literal
-      """
-    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
-
-  @NegativeTest
   Scenario: [16] Fail on a map containing key starting with a number
     Given any graph
     When executing query:
