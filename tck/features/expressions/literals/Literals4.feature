@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Literals2 - Octal integer
+Feature: Literals4 - Octal integer
 
   Scenario: [1] Return a short positive octal integer
     Given any graph
