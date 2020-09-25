@@ -31,7 +31,7 @@
 Feature: Literals7 - Negative tests
 
   @NegativeTest
-  Scenario: [1] Return a too large integer
+  Scenario: [1] Fail on a too large integer
     Given any graph
     When executing query:
       """
@@ -40,7 +40,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
   @NegativeTest
-  Scenario: [2] Return a too small integer
+  Scenario: [2] Fail on a too small integer
     Given any graph
     When executing query:
       """
@@ -49,7 +49,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
   @NegativeTest
-  Scenario: [3] Return an integer containing a alphabetic character
+  Scenario: [3] Fail on an integer containing a alphabetic character
     Given any graph
     When executing query:
       """
@@ -58,7 +58,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
   @NegativeTest
-  Scenario: [4] Return an integer containing a invalid symbol character
+  Scenario: [4] Fail on an integer containing a invalid symbol character
     Given any graph
     When executing query:
       """
@@ -67,7 +67,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
   @NegativeTest
-  Scenario: [5] Return an incomplete hexadecimal integer
+  Scenario: [5] Fail on an incomplete hexadecimal integer
     Given any graph
     When executing query:
       """
@@ -76,7 +76,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
   @NegativeTest
-  Scenario: [6] Return an hexadecimal literal containing a lower case invalid alphanumeric character
+  Scenario: [6] Fail on an hexadecimal literal containing a lower case invalid alphanumeric character
     Given any graph
     When executing query:
       """
@@ -85,7 +85,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
   @NegativeTest
-  Scenario: [7] Return an hexadecimal literal containing a upper case invalid alphanumeric character
+  Scenario: [7] Fail on an hexadecimal literal containing a upper case invalid alphanumeric character
     Given any graph
     When executing query:
       """
@@ -95,7 +95,7 @@ Feature: Literals7 - Negative tests
 
 ### Error detail not necessarily recognizable
 #  @NegativeTest
-#  Scenario: [8] Returning an hexadecimal literal containing a invalid symbol character
+#  Scenario: [8] Fail oning an hexadecimal literal containing a invalid symbol character
 #    Given any graph
 #    When executing query:
 #      """
@@ -104,7 +104,7 @@ Feature: Literals7 - Negative tests
 #    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
   @NegativeTest
-  Scenario: [9] Return a too large hexadecimal integer
+  Scenario: [9] Fail on a too large hexadecimal integer
     Given any graph
     When executing query:
       """
@@ -113,7 +113,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
   @NegativeTest
-  Scenario: [10] Return a too small hexadecimal integer
+  Scenario: [10] Fail on a too small hexadecimal integer
     Given any graph
     When executing query:
       """
@@ -122,7 +122,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
   @NegativeTest
-  Scenario: [11] Return a too large octal integer
+  Scenario: [11] Fail on a too large octal integer
     Given any graph
     When executing query:
       """
@@ -131,7 +131,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
   @NegativeTest
-  Scenario: [12] Return a too small octal integer
+  Scenario: [12] Fail on a too small octal integer
     Given any graph
     When executing query:
       """
@@ -140,7 +140,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
   @NegativeTest
-  Scenario: [13] Return a list containing a comma
+  Scenario: [13] Fail on a list containing only a comma
     Given any graph
     When executing query:
       """
@@ -149,7 +149,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   @NegativeTest
-  Scenario: [14] Return a nested list with non-matching brackets
+  Scenario: [14] Fail on a nested list with non-matching brackets
     Given any graph
     When executing query:
       """
@@ -158,7 +158,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   @NegativeTest
-  Scenario: [15] Return a nested list with missing commas
+  Scenario: [15] Fail on a nested list with missing commas
     Given any graph
     When executing query:
       """
@@ -167,7 +167,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   @NegativeTest
-  Scenario: [16] Return a map containing key starting with a number
+  Scenario: [16] Fail on a map containing key starting with a number
     Given any graph
     When executing query:
       """
@@ -176,7 +176,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   @NegativeTest
-  Scenario: [17] Return a map containing key with symbol
+  Scenario: [17] Fail on a map containing key with symbol
     Given any graph
     When executing query:
       """
@@ -185,7 +185,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   @NegativeTest
-  Scenario: [18] Return a map containing key with dot
+  Scenario: [18] Fail on a map containing key with dot
     Given any graph
     When executing query:
       """
@@ -194,7 +194,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   @NegativeTest
-  Scenario: [19] Return a map containing unquoted string
+  Scenario: [19] Fail on a map containing unquoted string
     Given any graph
     When executing query:
       """
@@ -203,7 +203,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
   @NegativeTest
-  Scenario: [20] Return a map containing a comma
+  Scenario: [20] Fail on a map containing only a comma
     Given any graph
     When executing query:
       """
@@ -212,7 +212,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   @NegativeTest
-  Scenario: [21] Return a map containing a value without key
+  Scenario: [21] Fail on a map containing a value without key
     Given any graph
     When executing query:
       """
@@ -221,7 +221,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: MissingParameter
 
   @NegativeTest
-  Scenario: [22] Return a map containing a list without key
+  Scenario: [22] Fail on a map containing a list without key
     Given any graph
     When executing query:
       """
@@ -230,7 +230,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   @NegativeTest
-  Scenario: [23] Return a map containing a map without key
+  Scenario: [23] Fail on a map containing a map without key
     Given any graph
     When executing query:
       """
@@ -239,7 +239,7 @@ Feature: Literals7 - Negative tests
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   @NegativeTest
-  Scenario: [24] Return a nested map with non-matching braces
+  Scenario: [24] Fail on a nested map with non-matching braces
     Given any graph
     When executing query:
       """
