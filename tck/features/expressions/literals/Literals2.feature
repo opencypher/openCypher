@@ -116,7 +116,7 @@ Feature: Literals2 - Decimal integer
     Then the result should be, in any order:
       | literal              |
       | -9223372036854775808 |
-    And no side effects  @NegativeTest
+    And no side effects
 
   @NegativeTest
   Scenario: [9] Fail on a too large integer
