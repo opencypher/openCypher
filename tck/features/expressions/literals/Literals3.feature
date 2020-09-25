@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Literals2 - Hexadecimal integer
+Feature: Literals3 - Hexadecimal integer
 
   Scenario: [1] Return a short positive hexadecimal integer
     Given any graph
