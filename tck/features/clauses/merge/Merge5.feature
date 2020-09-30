@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: MergeRelationshipAcceptance
+Feature: Merge5 - Merge Relationships
 
   Scenario: Creating a relationship
     Given an empty graph
@@ -162,118 +162,6 @@ Feature: MergeRelationshipAcceptance
       | +relationships | 1 |
       | +properties    | 1 |
 
-  Scenario: Using ON CREATE on a node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A), (:B)
-      """
-    When executing query:
-      """
-      MATCH (a:A), (b:B)
-      MERGE (a)-[:KNOWS]->(b)
-        ON CREATE SET b.created = 1
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +relationships | 1 |
-      | +properties    | 1 |
-
-  Scenario: Using ON CREATE on a relationship
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A), (:B)
-      """
-    When executing query:
-      """
-      MATCH (a:A), (b:B)
-      MERGE (a)-[r:TYPE]->(b)
-        ON CREATE SET r.name = 'Lola'
-      RETURN count(r)
-      """
-    Then the result should be, in any order:
-      | count(r) |
-      | 1        |
-    And the side effects should be:
-      | +relationships | 1 |
-      | +properties    | 1 |
-
-  Scenario: Using ON MATCH on created node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A), (:B)
-      """
-    When executing query:
-      """
-      MATCH (a:A), (b:B)
-      MERGE (a)-[:KNOWS]->(b)
-        ON MATCH SET b.created = 1
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +relationships | 1 |
-
-  Scenario: Using ON MATCH on created relationship
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A), (:B)
-      """
-    When executing query:
-      """
-      MATCH (a:A), (b:B)
-      MERGE (a)-[r:KNOWS]->(b)
-        ON MATCH SET r.created = 1
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +relationships | 1 |
-
-  Scenario: Using ON MATCH on a relationship
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A), (b:B)
-      CREATE (a)-[:TYPE]->(b)
-      """
-    When executing query:
-      """
-      MATCH (a:A), (b:B)
-      MERGE (a)-[r:TYPE]->(b)
-        ON MATCH SET r.name = 'Lola'
-      RETURN count(r)
-      """
-    Then the result should be, in any order:
-      | count(r) |
-      | 1        |
-    And the side effects should be:
-      | +properties | 1 |
-
-  Scenario: Using ON CREATE and ON MATCH
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A {id: 1}), (b:B {id: 2})
-      CREATE (a)-[:TYPE]->(b)
-      CREATE (:A {id: 3}), (:B {id: 4})
-      """
-    When executing query:
-      """
-      MATCH (a:A), (b:B)
-      MERGE (a)-[r:TYPE]->(b)
-        ON CREATE SET r.name = 'Lola'
-        ON MATCH SET r.name = 'RUN'
-      RETURN count(r)
-      """
-    Then the result should be, in any order:
-      | count(r) |
-      | 4        |
-    And the side effects should be:
-      | +relationships | 3 |
-      | +properties    | 4 |
-
   Scenario: Creating relationship using merged nodes
     Given an empty graph
     And having executed:
@@ -289,23 +177,6 @@ Feature: MergeRelationshipAcceptance
     Then the result should be empty
     And the side effects should be:
       | +relationships | 1 |
-
-  Scenario: Mixing MERGE with CREATE
-    Given an empty graph
-    When executing query:
-      """
-      CREATE (a:A), (b:B)
-      MERGE (a)-[:KNOWS]->(b)
-      CREATE (b)-[:KNOWS]->(c:C)
-      RETURN count(*)
-      """
-    Then the result should be, in any order:
-      | count(*) |
-      | 1        |
-    And the side effects should be:
-      | +nodes         | 3 |
-      | +relationships | 2 |
-      | +labels        | 3 |
 
   Scenario: Introduce named paths 1
     Given an empty graph
@@ -323,20 +194,6 @@ Feature: MergeRelationshipAcceptance
       | +nodes         | 2 |
       | +relationships | 1 |
       | +properties    | 2 |
-
-  Scenario: Introduce named paths 2
-    Given an empty graph
-    When executing query:
-      """
-      MERGE p = (a {num: 1})
-      RETURN p
-      """
-    Then the result should be, in any order:
-      | p            |
-      | <({num: 1})> |
-    And the side effects should be:
-      | +nodes      | 1 |
-      | +properties | 1 |
 
   Scenario: Use outgoing direction when unspecified
     Given an empty graph
@@ -392,15 +249,6 @@ Feature: MergeRelationshipAcceptance
       | [:KNOWS {name: 'cd'}] |
     And no side effects
 
-  Scenario: Fail when imposing new predicates on a variable that is already bound
-    Given any graph
-    When executing query:
-      """
-      CREATE (a:Foo)
-      MERGE (a)-[r:KNOWS]->(a:Bar)
-      """
-    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
-
   Scenario: Using list properties via variable
     Given an empty graph
     When executing query:
@@ -438,92 +286,6 @@ Feature: MergeRelationshipAcceptance
       | count(*) |
       | 1        |
     And no side effects
-
-  Scenario: Using bound variables from other updating clause
-    Given an empty graph
-    When executing query:
-      """
-      CREATE (a), (b)
-      MERGE (a)-[:X]->(b)
-      RETURN count(a)
-      """
-    Then the result should be, in any order:
-      | count(a) |
-      | 1        |
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 1 |
-
-  Scenario: UNWIND with multiple merges
-    Given an empty graph
-    When executing query:
-      """
-      UNWIND ['Keanu Reeves', 'Hugo Weaving', 'Carrie-Anne Moss', 'Laurence Fishburne'] AS actor
-      MERGE (m:Movie {name: 'The Matrix'})
-      MERGE (p:Person {name: actor})
-      MERGE (p)-[:ACTED_IN]->(m)
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 5 |
-      | +relationships | 4 |
-      | +labels        | 2 |
-      | +properties    | 5 |
-
-  Scenario: Do not match on deleted entities
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A)
-      CREATE (b1:B {num: 0}), (b2:B {num: 1})
-      CREATE (c1:C), (c2:C)
-      CREATE (a)-[:REL]->(b1),
-             (a)-[:REL]->(b2),
-             (b1)-[:REL]->(c1),
-             (b2)-[:REL]->(c2)
-      """
-    When executing query:
-      """
-      MATCH (a:A)-[ab]->(b:B)-[bc]->(c:C)
-      DELETE ab, bc, b, c
-      MERGE (newB:B {num: 1})
-      MERGE (a)-[:REL]->(newB)
-      MERGE (newC:C)
-      MERGE (newB)-[:REL]->(newC)
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 2 |
-      | -nodes         | 4 |
-      | +relationships | 2 |
-      | -relationships | 4 |
-      | +properties    | 1 |
-      | -properties    | 2 |
-
-  Scenario: Do not match on deleted relationships
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A), (b:B)
-      CREATE (a)-[:T {name: 'rel1'}]->(b),
-             (a)-[:T {name: 'rel2'}]->(b)
-      """
-    When executing query:
-      """
-      MATCH (a)-[t:T]->(b)
-      DELETE t
-      MERGE (a)-[t2:T {name: 'rel3'}]->(b)
-      RETURN t2.name
-      """
-    Then the result should be, in any order:
-      | t2.name |
-      | 'rel3'  |
-      | 'rel3'  |
-    And the side effects should be:
-      | +relationships | 1 |
-      | -relationships | 2 |
-      | +properties    | 1 |
-      | -properties    | 2 |
 
   Scenario: Aliasing of existing nodes 1
     Given an empty graph
@@ -610,3 +372,13 @@ Feature: MergeRelationshipAcceptance
       | 0 |
     And the side effects should be:
       | +relationships | 1 |
+
+  @NegativeTest
+  Scenario: Fail when imposing new predicates on a variable that is already bound
+    Given any graph
+    When executing query:
+      """
+      CREATE (a:Foo)
+      MERGE (a)-[r:KNOWS]->(a:Bar)
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
