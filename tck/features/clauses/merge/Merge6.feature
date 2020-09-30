@@ -28,16 +28,51 @@
 
 #encoding: utf-8
 
-Feature: MergeIntoAcceptance
+Feature: Merge6 - Merge Relationships - On Create
 
-  Background:
+  Scenario: Using ON CREATE on a node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A), (:B)
+      """
+    When executing query:
+      """
+      MATCH (a:A), (b:B)
+      MERGE (a)-[:KNOWS]->(b)
+        ON CREATE SET b.created = 1
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +relationships | 1 |
+      | +properties    | 1 |
+
+  Scenario: Using ON CREATE on a relationship
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A), (:B)
+      """
+    When executing query:
+      """
+      MATCH (a:A), (b:B)
+      MERGE (a)-[r:TYPE]->(b)
+        ON CREATE SET r.name = 'Lola'
+      RETURN count(r)
+      """
+    Then the result should be, in any order:
+      | count(r) |
+      | 1        |
+    And the side effects should be:
+      | +relationships | 1 |
+      | +properties    | 1 |
+
+  Scenario: Updating one property with ON CREATE
     Given an empty graph
     And having executed:
       """
       CREATE (:A {name: 'A'}), (:B {name: 'B'})
       """
-
-  Scenario: Updating one property with ON CREATE
     When executing query:
       """
       MATCH (a {name: 'A'}), (b {name: 'B'})
@@ -58,6 +93,11 @@ Feature: MergeIntoAcceptance
       | ['name->foo'] |
 
   Scenario: Null-setting one property with ON CREATE
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {name: 'A'}), (:B {name: 'B'})
+      """
     When executing query:
       """
       MATCH (a {name: 'A'}), (b {name: 'B'})
@@ -77,6 +117,11 @@ Feature: MergeIntoAcceptance
       | []       |
 
   Scenario: Copying properties from node with ON CREATE
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {name: 'A'}), (:B {name: 'B'})
+      """
     When executing query:
       """
       MATCH (a {name: 'A'}), (b {name: 'B'})
@@ -96,32 +141,12 @@ Feature: MergeIntoAcceptance
       | keyValue    |
       | ['name->A'] |
 
-  Scenario: Copying properties from node with ON MATCH
+  Scenario: Copying properties from literal map with ON CREATE
+    Given an empty graph
     And having executed:
       """
-      MATCH (a:A), (b:B)
-      CREATE (a)-[:TYPE {name: 'bar'}]->(b)
+      CREATE (:A {name: 'A'}), (:B {name: 'B'})
       """
-    When executing query:
-      """
-      MATCH (a {name: 'A'}), (b {name: 'B'})
-      MERGE (a)-[r:TYPE]->(b)
-        ON MATCH SET r = a
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +properties | 1 |
-      | -properties | 1 |
-    When executing control query:
-      """
-      MATCH ()-[r:TYPE]->()
-      RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
-      """
-    Then the result should be, in any order:
-      | keyValue    |
-      | ['name->A'] |
-
-  Scenario: Copying properties from literal map with ON CREATE
     When executing query:
       """
       MATCH (a {name: 'A'}), (b {name: 'B'})
@@ -140,28 +165,3 @@ Feature: MergeIntoAcceptance
     Then the result should be (ignoring element order for lists):
       | keyValue                    |
       | ['name->bar', 'name2->baz'] |
-
-  Scenario: Copying properties from literal map with ON MATCH
-    And having executed:
-      """
-      MATCH (a:A), (b:B)
-      CREATE (a)-[:TYPE {name: 'bar'}]->(b)
-      """
-    When executing query:
-      """
-      MATCH (a {name: 'A'}), (b {name: 'B'})
-      MERGE (a)-[r:TYPE]->(b)
-        ON MATCH SET r += {name: 'baz', name2: 'baz'}
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +properties | 2 |
-      | -properties | 1 |
-    When executing control query:
-      """
-      MATCH ()-[r:TYPE]->()
-      RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
-      """
-    Then the result should be (ignoring element order for lists):
-      | keyValue                    |
-      | ['name->baz', 'name2->baz'] |
