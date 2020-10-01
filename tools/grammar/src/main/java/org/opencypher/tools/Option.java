@@ -62,24 +62,31 @@ import static org.opencypher.tools.Reflection.defaultInvoker;
  *     }
  * }
  * </code></pre>
- * This class contains a DSL that {@linkplain Reflection#lambdaParameterName(Serializable) uses reflection} to make it
- * convenient to create a custom instance of an <i>options interface</i>. Example:
- * <pre><code>
- * UserOfOptions[] custom = {
- *     new UserOfOptions( options( UserOfOptions.MyOptions.class,
- *         fontName -&gt; "Times New Roman",
- *         fontSize -&gt; 22 ) ),
- *     new UserOfOptions( options( UserOfOptions.MyOptions.class,
- *         targetDate -&gt; new Date( 1963, 11, 22 ),
- *         prettyFont -&gt; new Font( "Arial", Font.BOLD, prettyFont.fontSize() ) ),
- * };
- * </code></pre>
  *
  * @param <T> The value type of the <i>options interface</i> that this option customizes.
  */
-@FunctionalInterface
 public interface Option<T> extends Serializable
 {
+    static <T> Option<T> option( String name, Function<T,?> lookup )
+    {
+        return new Option<T>()
+        {
+            @Override
+            public String name()
+            {
+                return name;
+            }
+
+            @Override
+            public Object value( T options )
+            {
+                return lookup.apply( options );
+            }
+        };
+    }
+
+    String name();
+
     Object value( T options );
 
     /**
@@ -136,9 +143,9 @@ public interface Option<T> extends Serializable
             {
                 throw new IllegalArgumentException( "options must be an interface: " + iFace );
             }
-            Map<String, Option<? super T>> optionMap = new HashMap<>(
-                    map( asList( options ), Reflection::lambdaParameterName ) );
-            Map<String, Method> methods = map( asList( iFace.getMethods() ), ( method ) -> {
+            Map<String, Option<? super T>> optionMap = new HashMap<>( map( asList( options ), Option::name ) );
+            Map<String, Method> methods = map( asList( iFace.getMethods() ), ( method ) ->
+            {
                 if ( method.getDeclaringClass() == Object.class )
                 {
                     return null;
@@ -158,7 +165,8 @@ public interface Option<T> extends Serializable
                 }
                 return method.getName();
             } );
-            optionMap.keySet().forEach( name -> {
+            optionMap.keySet().forEach( name ->
+            {
                 Method method = methods.get( name );
                 if ( method == null )
                 {
@@ -208,11 +216,11 @@ public interface Option<T> extends Serializable
                 Object value = dynamic.apply( method );
                 if ( value != null )
                 {
-                    options.put( name, option = option( value ) );
+                    options.put( name, option = option( name, value ) );
                 }
                 else
                 {
-                    options.put( name, option = option( defaultInvoker( method ) ) );
+                    options.put( name, option = option( name, defaultInvoker( method ) ) );
                 }
             }
             return invoke( option, proxy );
@@ -224,14 +232,14 @@ public interface Option<T> extends Serializable
             return option.value( options );
         }
 
-        private static <T> Option<T> option( Object value )
+        private static <T> Option<T> option( String name, Object value )
         {
-            return options -> value;
+            return Option.option( name, options -> value );
         }
 
-        private static <T> Option<T> option( MethodHandle invoker )
+        private static <T> Option<T> option( String name, MethodHandle invoker )
         {
-            return ( options ) -> Reflection.invoke( invoker, options );
+            return Option.option( name, options -> Reflection.invoke( invoker, options ) );
         }
     }
 }

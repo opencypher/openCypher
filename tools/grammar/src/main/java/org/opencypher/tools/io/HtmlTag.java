@@ -29,9 +29,6 @@ package org.opencypher.tools.io;
 
 import java.io.Serializable;
 import java.nio.file.Path;
-import java.util.function.Consumer;
-
-import static org.opencypher.tools.Reflection.lambdaParameterName;
 
 /**
  * Tiny DSL for generating HTML.
@@ -77,24 +74,19 @@ public final class HtmlTag implements AutoCloseable
         return new Html( output );
     }
 
-    @FunctionalInterface
-    public interface Attribute<T> extends Serializable
+    public interface Attribute extends Serializable
     {
-        String value( T target );
+        String name();
 
-        default String name()
-        {
-            return lambdaParameterName( this );
-        }
+        String value();
     }
 
-    @SafeVarargs
-    public final HtmlTag tag( String tag, Attribute<Void>... attributes )
+    public final HtmlTag tag( String tag, Attribute... attributes )
     {
         output.append( '<' ).append( tag );
-        for ( Attribute<Void> attribute : attributes )
+        for ( Attribute attribute : attributes )
         {
-            String value = attribute.value( null );
+            String value = attribute.value();
             if ( value != null )
             {
                 output.append( ' ' ).append( attribute.name() )
@@ -131,9 +123,9 @@ public final class HtmlTag implements AutoCloseable
      * @param value     the value of the attribute.
      * @return an object that generates the attribute.
      */
-    public static Attribute<Void> attr( String attribute, String value )
+    public static Attribute attr( String attribute, String value )
     {
-        return new Attribute<Void>()
+        return new Attribute()
         {
             @Override
             public String name()
@@ -142,7 +134,7 @@ public final class HtmlTag implements AutoCloseable
             }
 
             @Override
-            public String value( Void target )
+            public String value()
             {
                 return value;
             }
@@ -156,24 +148,9 @@ public final class HtmlTag implements AutoCloseable
      * @param value the value of the meta attribute.
      * @return an object that generates the tag in the head.
      */
-    public static Attribute<HtmlTag> meta( String name, String value )
+    public static HeadTag meta( String name, String value )
     {
-        return head( "meta", ignored ->
-        {
-        }, new Attribute<Void>()
-        {
-            @Override
-            public String name()
-            {
-                return name;
-            }
-
-            @Override
-            public String value( Void target )
-            {
-                return value;
-            }
-        } );
+        return head( "meta", null, attr( name, value ) );
     }
 
     /**
@@ -181,30 +158,14 @@ public final class HtmlTag implements AutoCloseable
      *
      * Allows adding attributes to a head tag.
      *
-     * @param tag        the name and contents of the head tag.
-     * @param attributes the attributes of the head tag.
-     * @return an object that generates the tag in the head.
-     */
-    public static Attribute<HtmlTag> head( Attribute<HtmlTag> tag, Attribute<Void>... attributes )
-    {
-        return head( tag.name(), tag::value, attributes );
-    }
-
-    /**
-     * Generate html tags for use in {@link HtmlTag.Html#head &lt;head&gt;}.
-     *
-     * This is an alternative to {@code html.head( title -> "my title" )}, allowing the use of the API on earlier
-     * builds of the JDK as {@code html.head( head( "title", title -> title.text( "my title" ) ) )}.
-     *
      * @param tag        the name of the head tag.
-     * @param content    generator for the content of the head tag.
+     * @param text       the contents of the head tag.
      * @param attributes the attributes of the head tag.
      * @return an object that generates the tag in the head.
      */
-    @SafeVarargs
-    public static Attribute<HtmlTag> head( String tag, Consumer<HtmlTag> content, Attribute<Void>... attributes )
+    public static HeadTag head( String tag, String text, Attribute... attributes )
     {
-        return new HeadTag( tag, content, attributes );
+        return new HeadTag( tag, text, attributes );
     }
 
     private final Output output;
@@ -218,20 +179,18 @@ public final class HtmlTag implements AutoCloseable
 
     public static final class Html implements AutoCloseable
     {
-        @SafeVarargs
-        public final void head( Attribute<HtmlTag>... tags )
+        public final void head( HeadTag... tags )
         {
             state = state.head();
             try ( HtmlTag head = html.tag( "head" ) )
             {
-                for ( Attribute<HtmlTag> tag : tags )
+                for ( HeadTag tag : tags )
                 {
-                    try ( HtmlTag headTag = head.tag( tag.name(), HeadTag.attributes( tag ) ) )
+                    try ( HtmlTag headTag = head.tag( tag.tag, tag.attributes ) )
                     {
-                        String text = tag.value( headTag );
-                        if ( text != null )
+                        if ( tag.text != null )
                         {
-                            headTag.text( text );
+                            headTag.text( tag.text );
                         }
                     }
                 }
@@ -313,38 +272,17 @@ public final class HtmlTag implements AutoCloseable
         return output;
     }
 
-    private static class HeadTag implements Attribute<HtmlTag>
+    public static final class HeadTag
     {
-        @SuppressWarnings( "unchecked" )
-        private static final Attribute<Void>[] NO_ATTRIBUTES = new Attribute[0];
-
-        static Attribute<Void>[] attributes( Attribute<HtmlTag> tag )
-        {
-            return tag instanceof HeadTag ? ((HeadTag) tag).attributes : NO_ATTRIBUTES;
-        }
-
         private final String tag;
-        private final Consumer<HtmlTag> content;
-        private final Attribute<Void>[] attributes;
+        private final String text;
+        private final Attribute[] attributes;
 
-        HeadTag( String tag, Consumer<HtmlTag> content, Attribute<Void>[] attributes )
+        private HeadTag( String tag, String text, Attribute[] attributes )
         {
             this.tag = tag;
-            this.content = content;
+            this.text = text;
             this.attributes = attributes;
-        }
-
-        @Override
-        public String name()
-        {
-            return tag;
-        }
-
-        @Override
-        public String value( HtmlTag target )
-        {
-            content.accept( target );
-            return null;
         }
     }
 }

@@ -35,7 +35,7 @@
     <dep.hamcrest.version>1.3</dep.hamcrest.version>
     <dep.junit.platform.version>1.4.0</dep.junit.platform.version>
     <dep.junit.version>5.4.0</dep.junit.version>
-    <dep.maven.compiler.plugin.version>3.5</dep.maven.compiler.plugin.version>
+    <dep.maven.compiler.plugin.version>3.8.1</dep.maven.compiler.plugin.version>
     <dep.maven.javadoc.plugin.version>3.0.0</dep.maven.javadoc.plugin.version>
     <dep.maven.source.plugin.version>3.0.0</dep.maven.source.plugin.version>
     <dep.maven.surefire.plugin.version>2.22.1</dep.maven.surefire.plugin.version>
@@ -341,11 +341,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${dep.maven.compiler.plugin.version}</version>
-          <configuration>
-            <compilerArgs>
-              <arg>-parameters</arg>
-            </compilerArgs>
-          </configuration>
         </plugin>
 
       </plugins>

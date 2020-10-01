@@ -33,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
+import static org.opencypher.generator.ProductionReplacement.replace;
 import static org.opencypher.tools.Assert.assertEquals;
 import static org.opencypher.tools.io.Output.string;
 
@@ -64,21 +65,21 @@ public class NodeWritingTest
     @Test
     public void shouldWriteReplacement() throws Exception
     {
-        assertGenerates( "!bar", literal( "!" ), production( foo -> foo.write( "bar" ) ) );
+        assertGenerates( "!bar", literal( "!" ), production( replace( "foo", foo -> foo.write( "bar" ) ) ) );
     }
 
     @Test
     @SuppressWarnings("Convert2MethodRef")
     public void shouldWriteDefaultValueForReplacement() throws Exception
     {
-        assertGenerates( "!foo", literal( "!" ), production( foo -> foo.generateDefault(), literal( "foo" ) ) );
+        assertGenerates( "!foo", literal( "!" ), production( replace( "foo", foo -> foo.generateDefault() ), literal( "foo" ) ) );
     }
 
     @Test
     public void shouldAllowAccessToSurroundingTreeFromReplacements() throws Exception
     {
         assertGenerates( "aalpha", child( "alpha", literal( "a" ), production(
-                beta -> beta.write( beta.node().parent().name() ) ) ) );
+                replace("beta", beta -> beta.write( beta.node().parent().name() ) ) ) ) );
     }
 
     // dsl

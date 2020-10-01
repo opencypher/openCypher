@@ -43,6 +43,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.opencypher.generator.GeneratorFixture.assertGenerates;
 import static org.opencypher.generator.ChoicesFixture.onRepetition;
+import static org.opencypher.generator.ProductionReplacement.replace;
 import static org.opencypher.grammar.Grammar.charactersOfSet;
 import static org.opencypher.grammar.Grammar.grammar;
 import static org.opencypher.grammar.Grammar.literal;
@@ -154,7 +155,7 @@ public class GeneratorTest
         String generated = generate( grammar( "foo" )
                                              .production( "foo", nonTerminal( "bar" ) )
                                              .production( "bar", literal( "WRONG!" ) ),
-                                     bar -> bar.write( "OK" ) );
+                                     replace( "bar", bar -> bar.write( "OK" ) ) );
 
         // then
         assertEquals( "OK", generated );
@@ -169,7 +170,7 @@ public class GeneratorTest
                                                  .production( "alpha", nonTerminal( "symbol" ) )
                                                  .production( "beta", nonTerminal( "symbol" ) )
                                                  .production( "symbol", literal( "<NOT REPLACED>" ) ),
-                                symbol -> {
+                                replace("symbol", symbol -> {
                                     switch ( symbol.node().parent().name() )
                                     {
                                     case "alpha":
@@ -182,7 +183,7 @@ public class GeneratorTest
                                         symbol.generateDefault();
                                         break;
                                     }
-                                } ) );
+                                } ) ) );
     }
 
     private void assertCharacterSet( String name, String characters )

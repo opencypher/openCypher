@@ -37,6 +37,7 @@ import org.opencypher.grammar.Production;
 import org.opencypher.tools.io.HtmlTag;
 import org.opencypher.tools.io.Output;
 
+import static org.opencypher.tools.io.HtmlTag.attr;
 import static org.opencypher.tools.io.Output.output;
 
 /**
@@ -172,7 +173,7 @@ public class ISO14977 extends BnfWriter
 
         private HtmlTag link( String target )
         {
-            return target == null ? null : html.tag( "a", href -> target );
+            return target == null ? null : html.tag( "a", attr( "href", target ) );
         }
 
         private String literalLink( String literal )

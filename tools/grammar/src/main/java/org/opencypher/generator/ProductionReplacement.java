@@ -70,8 +70,5 @@ public interface ProductionReplacement<T> extends Serializable
         };
     }
 
-    default String production()
-    {
-        return Reflection.lambdaParameterName( this );
-    }
+    String production();
 }
