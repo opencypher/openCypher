@@ -18,7 +18,6 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Create3 - Interoperation with other clauses
 * Create4 - Large Create Query
 * Create5 - Multiple hops create patterns
-* Create6 - Negative tests
 
 === Delete
 
@@ -32,7 +31,6 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 === Match
 
 * Match1 - Match Nodes scenarios
-* Match10 - Match clause failure scenarios
 * Match2 - Match relationships scenarios
 * Match3 - Match fixed length patterns scenarios
 * Match4 - Match variable length patterns scenarios
@@ -68,6 +66,14 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 == Expressions
 
 
+=== Aggregation
+
+* Aggregation1 - Count
+* Aggregation2 - Min and Max
+* Aggregation3 - Sum
+* Aggregation6 - Percentiles
+* Aggregation8 - DISTINCT
+
 === Boolean
 
 * Boolean4 - NOT logical operations
@@ -83,6 +89,15 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 
 * Conditional1 - Coalesce Expression
 
+=== Graph
+
+* Graph3 - Node labels
+* Graph4 - Edge relationship type
+* Graph6 - Dynamic property access
+* Graph7 - Node properties keys
+* Graph8 - Check if a property exists on a node or an edge
+* Graph9 - Access all properties as property map
+
 === List
 
 * List1 - Dynamic Element Access
@@ -97,19 +112,19 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 === Literals
 
 * Literals1 - Boolean and Null
-* Literals2 - Integer
-* Literals3 - Float
-* Literals4 - String
-* Literals5 - List
-* Literals6 - Maps
-* Literals7 - Negative tests
+* Literals2 - Decimal integer
+* Literals3 - Hexadecimal integer
+* Literals4 - Octal integer
+* Literals5 - Float
+* Literals6 - String
+* Literals7 - List
+* Literals8 - Maps
 
 === Map
 
 * Map2 - Dynamic Value Access
 * Map3 - Keys Function
-* Map4 - Exists function
-* Map5 - Negative Tests
+* Map4 - Check if a field exists on a map
 
 === Mathematical
 
@@ -123,6 +138,16 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Null1 - IS NULL validation
 * Null2 - IS NOT NULL validation
 * Null2 - Null evaluation
+
+=== Path
+
+* Path1 - Nodes of a path
+* Path2 - Relationships of a path
+* Path3 - Length of a path
+
+=== Pattern
+
+* Pattern3 - Pattern Comprehension
 
 === String
 
