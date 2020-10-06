@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Graph9 - Check if a property exists on a node or an edge
+Feature: Graph9 - Property existence check
 
   Scenario: [1] `exists()` with dynamic property lookup
     Given an empty graph
