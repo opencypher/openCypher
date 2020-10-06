@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Map4 - Check if a field exists on a map
+Feature: Map4 - Field existence check
 
   Scenario Outline: [1] `exists()` with literal maps
     Given any graph

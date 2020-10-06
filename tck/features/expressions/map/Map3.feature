@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Map3 - Keys Function
+Feature: Map3 - Keys function
 
   Scenario: [1] Using `keys()` on a literal map
     Given any graph
