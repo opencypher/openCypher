@@ -117,14 +117,12 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
       form(action:="/diffRepositoryPR", method:="get")(
         table(
           tr(
-            td(),
             td("Repository"),
             td("PR#"),
             td("Subpath"),
             td(),
           ),
           tr(
-            td(CSS.tckCollection)(BeforeCollection.toString),
             td(input(width:=25.em, `type`:="text", name:="repo", value:="https://github.com/openCypher/openCypher")),
             td(input(width:=10.em, `type`:="text", name:="pr", value:="")),
             td(input(width:=15.em, `type`:="text", name:="subPath", value:="tck/features")),
