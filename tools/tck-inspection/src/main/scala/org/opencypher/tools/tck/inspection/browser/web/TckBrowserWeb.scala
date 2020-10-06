@@ -29,7 +29,7 @@ package org.opencypher.tools.tck.inspection.browser.web
 
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
+import java.nio.file.{Files, Path}
 
 import cask.model.Response
 import org.opencypher.tools.tck.inspection.util.CallingSystemProcesses
@@ -55,6 +55,23 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
           tr(
             td(input(width:=25.em, `type`:="text", name:="repo", value:="https://github.com/openCypher/openCypher")),
             td(input(width:=10.em, `type`:="text", name:="commit", value:="HEAD")),
+            td(input(width:=15.em, `type`:="text", name:="subPath", value:="tck/features")),
+            td(input(`type`:="submit", value:="Show")),
+          )
+        )
+      ),
+      subSectionTitle("Git repository PR"),
+      form(action:="/browserRepositoryPR", method:="get")(
+        table(
+          tr(
+            td("Repository"),
+            td("PR#"),
+            td("Subdirectory"),
+            td(),
+          ),
+          tr(
+            td(input(width:=25.em, `type`:="text", name:="repo", value:="https://github.com/openCypher/openCypher")),
+            td(input(width:=10.em, `type`:="text", name:="pr", value:="")),
             td(input(width:=15.em, `type`:="text", name:="subPath", value:="tck/features")),
             td(input(`type`:="submit", value:="Show")),
           )
@@ -96,6 +113,25 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
           )
         )
       ),
+      subSectionTitle("Git repository PR with its main"),
+      form(action:="/diffRepositoryPR", method:="get")(
+        table(
+          tr(
+            td(),
+            td("Repository"),
+            td("PR#"),
+            td("Subpath"),
+            td(),
+          ),
+          tr(
+            td(CSS.tckCollection)(BeforeCollection.toString),
+            td(input(width:=25.em, `type`:="text", name:="repo", value:="https://github.com/openCypher/openCypher")),
+            td(input(width:=10.em, `type`:="text", name:="pr", value:="")),
+            td(input(width:=15.em, `type`:="text", name:="subPath", value:="tck/features")),
+            td(input(`type`:="submit", value:="Show")),
+          )
+        )
+      ),
       subSectionTitle("Local directories"),
       form(action:="/diffPaths", method:="get")(
         table(
@@ -119,11 +155,29 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     val beforeRepoDir = Files.createTempDirectory("diffRepositoryCommits-before")
     val beforeCheckoutResult = checkoutRepoCommit(beforeRepo, beforeCommit, beforeRepoDir.toString)
     val beforeTckDir = beforeRepoDir.resolve(beforeSubPath).toAbsolutePath
-    val beforePathEnc = URLEncoder.encode(beforeTckDir.toString, StandardCharsets.UTF_8.toString)
 
     val afterRepoDir = Files.createTempDirectory("diffRepositoryCommits-after")
     val afterCheckoutResult = checkoutRepoCommit(afterRepo, afterCommit, afterRepoDir.toString)
     val afterTckDir = afterRepoDir.resolve(afterSubPath).toAbsolutePath
+
+    diffCheckouts(beforeCheckoutResult, beforeTckDir, afterCheckoutResult, afterTckDir)
+  }
+
+  @cask.get("/diffRepositoryPR")
+  def diffRepositoryPR(repo: String, pr: String, subPath: String): Response[String] = {
+    val beforeRepoDir = Files.createTempDirectory("diffRepositoryPR-before")
+    val beforeCheckoutResult = checkoutRepoCommit(repo, "HEAD", beforeRepoDir.toString)
+    val beforeTckDir = beforeRepoDir.resolve(subPath).toAbsolutePath
+
+    val afterRepoDir = Files.createTempDirectory("diffRepositoryPR-after")
+    val afterCheckoutResult = checkoutMergedPR(repo, pr, afterRepoDir.toString)
+    val afterTckDir = afterRepoDir.resolve(subPath).toAbsolutePath
+
+    diffCheckouts(beforeCheckoutResult, beforeTckDir, afterCheckoutResult, afterTckDir)
+  }
+
+  private def diffCheckouts(beforeCheckoutResult: Option[Frag], beforeTckDir: Path, afterCheckoutResult: Option[Frag], afterTckDir: Path): Response[String] = {
+    val beforePathEnc = URLEncoder.encode(beforeTckDir.toString, StandardCharsets.UTF_8.toString)
     val afterPathEnc = URLEncoder.encode(afterTckDir.toString, StandardCharsets.UTF_8.toString)
 
     (beforeCheckoutResult, afterCheckoutResult) match {
@@ -138,8 +192,26 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     }
   }
 
-  private def checkoutRepoCommit(repositoryUrl: String, commit: String, localDirectory: String) =
+  private def checkoutRepoCommit(repositoryUrl: String, commit: String, localDirectory: String): Option[Frag] =
     CallingSystemProcesses.checkoutRepoCommit(repositoryUrl, commit, localDirectory) match {
+      case ProcessReturn(0, _, _, _) => None
+      case ProcessReturn(x, out, err, cmd) =>
+        Some(
+          dl(
+            dt("Command"),
+            dd(code(cmd)),
+            dt("stdout"),
+            dd(code(out.flatMap(line => Seq[Frag](line, br())).dropRight(1))),
+            dt("stderr"),
+            dd(code(err.flatMap(line => Seq[Frag](line, br())).dropRight(1))),
+            dt("exit code"),
+            dd(code(x))
+          )
+        )
+    }
+
+  private def checkoutMergedPR(repositoryUrl: String, pr: String, localDirectory: String): Option[Frag] =
+    CallingSystemProcesses.checkoutMergedPR(repositoryUrl, pr, localDirectory) match {
       case ProcessReturn(0, _, _, _) => None
       case ProcessReturn(x, out, err, cmd) =>
         Some(
@@ -162,11 +234,26 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     val afterPathEnc = URLEncoder.encode(after, StandardCharsets.UTF_8.toString)
     redirect(s"/diff/$beforePathEnc/$afterPathEnc")
   }
+
   @cask.get("/browserRepositoryCommit")
   def browserRepositoryCommit(repo: String, commit: String, subPath: String): Response[String] = {
     val repoDir = Files.createTempDirectory("browserRepositoryCommit")
     val checkoutResult = checkoutRepoCommit(repo, commit, repoDir.toString)
     val tckDir = repoDir.resolve(subPath).toAbsolutePath
+
+    browseCheckouts(checkoutResult, tckDir)
+  }
+
+  @cask.get("/browserRepositoryPR")
+  def browserRepositoryPR(repo: String, pr: String, subPath: String): Response[String] = {
+    val repoDir = Files.createTempDirectory("browserRepositoryPR")
+    val checkoutResult = checkoutMergedPR(repo, pr, repoDir.toString)
+    val tckDir = repoDir.resolve(subPath).toAbsolutePath
+
+    browseCheckouts(checkoutResult, tckDir)
+  }
+
+  private def browseCheckouts(checkoutResult: Option[Frag], tckDir: Path): Response[String] = {
     val pathEnc = URLEncoder.encode(tckDir.toString, StandardCharsets.UTF_8.toString)
 
     checkoutResult match {
