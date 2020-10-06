@@ -51,14 +51,26 @@ object CallingSystemProcesses {
   }
 
   def checkoutRepoCommit(repositoryUrl: String, commit: String, localDirectory: String): ProcessReturn = {
-    val gitCloneCmdSeq =  Seq("git", "clone", repositoryUrl, localDirectory)
-    val gitFetchCmdSeq =  Seq("git", "-C", localDirectory, "fetch")
-    val gitCheckoutCmdSeq =  Seq("git", "-C", localDirectory, "checkout", commit)
+    val gitCloneCmdSeq = Seq("git", "clone", repositoryUrl, localDirectory)
+    val gitFetchCmdSeq = Seq("git", "-C", localDirectory, "fetch")
+    val gitCheckoutCmdSeq = Seq("git", "-C", localDirectory, "checkout", commit)
 
+    cloneFetchCheckout(gitCloneCmdSeq, gitFetchCmdSeq, gitCheckoutCmdSeq)
+  }
+
+  def checkoutMergedPR(repositoryUrl: String, pr: String, localDirectory: String): ProcessReturn = {
+    val gitCloneCmdSeq = Seq("git", "clone", repositoryUrl, localDirectory)
+    val gitFetchCmdSeq = Seq("git", "-C", localDirectory, "fetch", "origin", s"+refs/pull/$pr/merge")
+    val gitCheckoutCmdSeq = Seq("git", "-C", localDirectory, "checkout", "-qf", "FETCH_HEAD")
+
+    cloneFetchCheckout(gitCloneCmdSeq, gitFetchCmdSeq, gitCheckoutCmdSeq)
+  }
+
+  private def cloneFetchCheckout(gitCloneCmdSeq: Seq[String], gitFetchCmdSeq: Seq[String], gitCheckoutCmdSeq: Seq[String]): ProcessReturn = {
     val cmd =
       gitCloneCmdSeq #&&
-      gitFetchCmdSeq #&&
-      gitCheckoutCmdSeq
+        gitFetchCmdSeq #&&
+        gitCheckoutCmdSeq
     val out = ArrayBuffer[String]()
     val err = ArrayBuffer[String]()
     val logger = ProcessLogger(line => out += line, line => err += line)
@@ -67,7 +79,7 @@ object CallingSystemProcesses {
 
     ProcessReturn(exitCode, out, err,
       gitCloneCmdSeq.mkString(" ") + "&&" +
-      gitFetchCmdSeq.mkString(" ") + "&&" +
-      gitCheckoutCmdSeq.mkString(" "))
+        gitFetchCmdSeq.mkString(" ") + "&&" +
+        gitCheckoutCmdSeq.mkString(" "))
   }
 }
