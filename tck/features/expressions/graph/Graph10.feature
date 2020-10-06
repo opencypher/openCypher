@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Graph10 - Access all properties as property map
+Feature: Graph10 - Retrieve all properties as a property map
 
   Scenario: [1] `properties()` on a node
     Given an empty graph
