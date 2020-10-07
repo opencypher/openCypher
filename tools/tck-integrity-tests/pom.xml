@@ -123,5 +123,12 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-cypher-compatibility-spec-suite</artifactId>
+      <version>${dep.neo4j.version}</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 </project>
