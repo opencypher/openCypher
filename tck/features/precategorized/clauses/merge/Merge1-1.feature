@@ -75,7 +75,7 @@ Feature: Merge1-1 - Merge Node and Match Interoperability
       | +labels     | 1 |
       | +properties | 1 |
 
-  Scenario: Should be able to use properties from match in ON MATCH and ON CREATE
+  Scenario: Merge should be able to use properties of bound node in ON MATCH and ON CREATE
     Given an empty graph
     And having executed:
       """
