@@ -30,7 +30,7 @@
 
 Feature: Merge1-2 - Merge Node and Unwind Interoperability
 
-  Scenario: Unwind combined with merge
+  Scenario: [1] Unwind combined with merge
     Given an empty graph
     When executing query:
       """

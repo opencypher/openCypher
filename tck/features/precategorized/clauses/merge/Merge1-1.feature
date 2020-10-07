@@ -30,7 +30,7 @@
 
 Feature: Merge1-1 - Merge Node and Create Interoperability
 
-  Scenario: Merge followed by multiple creates
+  Scenario: [1] Merge followed by multiple creates
     Given an empty graph
     When executing query:
       """

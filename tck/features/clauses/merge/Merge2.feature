@@ -30,7 +30,7 @@
 
 Feature: Merge2 - Merge Node - On Create
 
-  Scenario: Merge node with label add label on create
+  Scenario: [1] Merge node with label add label on create
     Given an empty graph
     When executing query:
       """
@@ -45,7 +45,7 @@ Feature: Merge2 - Merge Node - On Create
       | +nodes  | 1 |
       | +labels | 2 |
 
-  Scenario: ON CREATE on created nodes
+  Scenario: [2] ON CREATE on created nodes
     Given an empty graph
     When executing query:
       """
@@ -57,7 +57,7 @@ Feature: Merge2 - Merge Node - On Create
       | +nodes      | 1 |
       | +properties | 1 |
 
-  Scenario: Merge node with label add property on create
+  Scenario: [3] Merge node with label add property on create
     Given an empty graph
     When executing query:
       """
@@ -73,7 +73,7 @@ Feature: Merge2 - Merge Node - On Create
       | +labels     | 1 |
       | +properties | 1 |
 
-  Scenario: Merge node with label add property on update when it exists
+  Scenario: [4] Merge node with label add property on update when it exists
     Given an empty graph
     And having executed:
       """
@@ -90,7 +90,7 @@ Feature: Merge2 - Merge Node - On Create
       | null  |
     And no side effects
 
-  Scenario: Merge should be able to use properties of bound node in ON CREATE
+  Scenario: [5] Merge should be able to use properties of bound node in ON CREATE
     Given an empty graph
     And having executed:
       """

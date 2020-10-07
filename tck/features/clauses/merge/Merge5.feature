@@ -30,7 +30,7 @@
 
 Feature: Merge5 - Merge Relationships
 
-  Scenario: Creating a relationship
+  Scenario: [1] Creating a relationship
     Given an empty graph
     And having executed:
       """
@@ -48,7 +48,7 @@ Feature: Merge5 - Merge Relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  Scenario: Matching a relationship
+  Scenario: [2] Matching a relationship
     Given an empty graph
     And having executed:
       """
@@ -66,7 +66,7 @@ Feature: Merge5 - Merge Relationships
       | 1        |
     And no side effects
 
-  Scenario: Matching two relationships
+  Scenario: [3] Matching two relationships
     Given an empty graph
     And having executed:
       """
@@ -85,7 +85,7 @@ Feature: Merge5 - Merge Relationships
       | 2        |
     And no side effects
 
-  Scenario: Using bound variables from other updating clause
+  Scenario: [4] Using bound variables from other updating clause
     Given an empty graph
     When executing query:
       """
@@ -100,7 +100,7 @@ Feature: Merge5 - Merge Relationships
       | +nodes         | 2 |
       | +relationships | 1 |
 
-  Scenario: Filtering relationships
+  Scenario: [5] Filtering relationships
     Given an empty graph
     And having executed:
       """
@@ -119,7 +119,7 @@ Feature: Merge5 - Merge Relationships
       | 1        |
     And no side effects
 
-  Scenario: Creating relationship when all matches filtered out
+  Scenario: [6] Creating relationship when all matches filtered out
     Given an empty graph
     And having executed:
       """
@@ -139,7 +139,7 @@ Feature: Merge5 - Merge Relationships
       | +relationships | 1 |
       | +properties    | 1 |
 
-  Scenario: Matching incoming relationship
+  Scenario: [7] Matching incoming relationship
     Given an empty graph
     And having executed:
       """
@@ -158,7 +158,7 @@ Feature: Merge5 - Merge Relationships
       | 1        |
     And no side effects
 
-  Scenario: Creating relationship with property
+  Scenario: [8] Creating relationship with property
     Given an empty graph
     And having executed:
       """
@@ -177,7 +177,7 @@ Feature: Merge5 - Merge Relationships
       | +relationships | 1 |
       | +properties    | 1 |
 
-  Scenario: Creating relationship using merged nodes
+  Scenario: [9] Creating relationship using merged nodes
     Given an empty graph
     And having executed:
       """
@@ -193,7 +193,7 @@ Feature: Merge5 - Merge Relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  Scenario: Merge should bind a path
+  Scenario: [10] Merge should bind a path
     Given an empty graph
     When executing query:
       """
@@ -210,7 +210,7 @@ Feature: Merge5 - Merge Relationships
       | +relationships | 1 |
       | +properties    | 2 |
 
-  Scenario: Use outgoing direction when unspecified
+  Scenario: [11] Use outgoing direction when unspecified
     Given an empty graph
     When executing query:
       """
@@ -226,7 +226,7 @@ Feature: Merge5 - Merge Relationships
       | +relationships | 1 |
       | +properties    | 2 |
 
-  Scenario: Match outgoing relationship when direction unspecified
+  Scenario: [12] Match outgoing relationship when direction unspecified
     Given an empty graph
     And having executed:
       """
@@ -244,7 +244,7 @@ Feature: Merge5 - Merge Relationships
       | [:KNOWS] |
     And no side effects
 
-  Scenario: Match both incoming and outgoing relationships when direction unspecified
+  Scenario: [13] Match both incoming and outgoing relationships when direction unspecified
     Given an empty graph
     And having executed:
       """
@@ -264,7 +264,7 @@ Feature: Merge5 - Merge Relationships
       | [:KNOWS {name: 'cd'}] |
     And no side effects
 
-  Scenario: Using list properties via variable
+  Scenario: [14] Using list properties via variable
     Given an empty graph
     When executing query:
       """
@@ -284,7 +284,7 @@ Feature: Merge5 - Merge Relationships
       | +labels        | 2 |
       | +properties    | 1 |
 
-  Scenario: Matching using list property
+  Scenario: [15] Matching using list property
     Given an empty graph
     And having executed:
       """
@@ -302,7 +302,7 @@ Feature: Merge5 - Merge Relationships
       | 1        |
     And no side effects
 
-  Scenario: Aliasing of existing nodes 1
+  Scenario: [16] Aliasing of existing nodes 1
     Given an empty graph
     And having executed:
       """
@@ -322,7 +322,7 @@ Feature: Merge5 - Merge Relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  Scenario: Aliasing of existing nodes 2
+  Scenario: [17] Aliasing of existing nodes 2
     Given an empty graph
     And having executed:
       """
@@ -341,7 +341,7 @@ Feature: Merge5 - Merge Relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  Scenario: Double aliasing of existing nodes 1
+  Scenario: [18] Double aliasing of existing nodes 1
     Given an empty graph
     And having executed:
       """
@@ -365,7 +365,7 @@ Feature: Merge5 - Merge Relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  Scenario: Double aliasing of existing nodes 2
+  Scenario: [19] Double aliasing of existing nodes 2
     Given an empty graph
     And having executed:
       """
@@ -388,7 +388,7 @@ Feature: Merge5 - Merge Relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  Scenario: Do not match on deleted entities
+  Scenario: [20] Do not match on deleted entities
     Given an empty graph
     And having executed:
       """
@@ -418,7 +418,7 @@ Feature: Merge5 - Merge Relationships
       | +properties    | 1 |
       | -properties    | 2 |
 
-  Scenario: Do not match on deleted relationships
+  Scenario: [21] Do not match on deleted relationships
     Given an empty graph
     And having executed:
       """
@@ -444,7 +444,7 @@ Feature: Merge5 - Merge Relationships
       | -properties    | 2 |
 
   @NegativeTest
-  Scenario: Fail when imposing new predicates on a variable that is already bound
+  Scenario: [22] Fail when imposing new predicates on a variable that is already bound
     Given any graph
     When executing query:
       """

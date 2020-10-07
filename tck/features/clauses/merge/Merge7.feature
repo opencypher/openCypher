@@ -30,7 +30,7 @@
 
 Feature: Merge7 - Merge Relationships - On Match
 
-  Scenario: Using ON MATCH on created node
+  Scenario: [1] Using ON MATCH on created node
     Given an empty graph
     And having executed:
       """
@@ -46,7 +46,7 @@ Feature: Merge7 - Merge Relationships - On Match
     And the side effects should be:
       | +relationships | 1 |
 
-  Scenario: Using ON MATCH on created relationship
+  Scenario: [2] Using ON MATCH on created relationship
     Given an empty graph
     And having executed:
       """
@@ -62,7 +62,7 @@ Feature: Merge7 - Merge Relationships - On Match
     And the side effects should be:
       | +relationships | 1 |
 
-  Scenario: Using ON MATCH on a relationship
+  Scenario: [3] Using ON MATCH on a relationship
     Given an empty graph
     And having executed:
       """
@@ -82,7 +82,7 @@ Feature: Merge7 - Merge Relationships - On Match
     And the side effects should be:
       | +properties | 1 |
 
-  Scenario: Copying properties from node with ON MATCH
+  Scenario: [4] Copying properties from node with ON MATCH
     Given an empty graph
     And having executed:
       """
@@ -112,7 +112,7 @@ Feature: Merge7 - Merge Relationships - On Match
       | keyValue    |
       | ['name->A'] |
 
-  Scenario: Copying properties from literal map with ON MATCH
+  Scenario: [5] Copying properties from literal map with ON MATCH
     Given an empty graph
     And having executed:
       """
