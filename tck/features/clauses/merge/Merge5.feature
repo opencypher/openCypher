@@ -178,7 +178,7 @@ Feature: Merge5 - Merge Relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  Scenario: Introduce named paths 1
+  Scenario: Merge should bind a path
     Given an empty graph
     When executing query:
       """
