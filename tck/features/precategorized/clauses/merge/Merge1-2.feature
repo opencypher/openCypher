@@ -30,7 +30,7 @@
 
 Feature: Merge1-2 - Merge Node and Create Interoperability
 
-  Scenario: Should handle arguments properly with only write clauses
+  Scenario: Merge should be able to merge using property of freshly created node
     Given an empty graph
     When executing query:
       """
