@@ -80,3 +80,26 @@ Feature: Merge3 - Merge Node - On Match
       | 42    |
     And the side effects should be:
       | +properties | 1 |
+
+  Scenario: Merge should be able to use properties of bound node in ON MATCH
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:Person {bornIn: 'New York'}),
+        (:Person {bornIn: 'Ohio'})
+      """
+    When executing query:
+      """
+      MATCH (person:Person)
+      MERGE (city:City)
+        ON MATCH SET city.name = person.bornIn
+      RETURN person.bornIn
+      """
+    Then the result should be, in any order:
+      | person.bornIn |
+      | 'New York'    |
+      | 'Ohio'        |
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +labels     | 1 |
+      | +properties | 1 |

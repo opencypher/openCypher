@@ -208,6 +208,40 @@ Feature: Merge1 - Merge Node
       | +labels     | 1 |
       | +properties | 1 |
 
+  Scenario: Merge should be able to merge using property of bound node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:Person {name: 'A', bornIn: 'New York'})
+      CREATE (:Person {name: 'B', bornIn: 'Ohio'})
+      CREATE (:Person {name: 'C', bornIn: 'New Jersey'})
+      CREATE (:Person {name: 'D', bornIn: 'New York'})
+      CREATE (:Person {name: 'E', bornIn: 'Ohio'})
+      CREATE (:Person {name: 'F', bornIn: 'New Jersey'})
+      """
+    When executing query:
+      """
+      MATCH (person:Person)
+      MERGE (city:City {name: person.bornIn})
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes      | 3 |
+      | +labels     | 1 |
+      | +properties | 3 |
+
+  Scenario: Merge should be able to merge using property of freshly created node
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (a {num: 1})
+      MERGE ({v: a.num})
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes      | 2 |
+      | +properties | 2 |
+
   Scenario: Merge should bind a path
     Given an empty graph
     When executing query:
@@ -221,3 +255,26 @@ Feature: Merge1 - Merge Node
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 1 |
+
+  Scenario: Merges should not be able to match on deleted nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1}),
+        (:A {num: 2})
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      DELETE a
+      MERGE (a2:A)
+      RETURN a2.num
+      """
+    Then the result should be, in any order:
+      | a2.num |
+      | null   |
+      | null   |
+    And the side effects should be:
+      | +nodes      | 1 |
+      | -nodes      | 2 |
+      | -properties | 2 |

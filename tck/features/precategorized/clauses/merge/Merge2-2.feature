@@ -28,19 +28,20 @@
 
 #encoding: utf-8
 
-Feature: Merge2-2 - Merge Edge and Match Interoperability
+Feature: Merge2-2 - Merge Edge and Unwind Interoperability
 
-  Scenario: Using bound variables from other updating clause
+  Scenario: UNWIND with multiple merges
     Given an empty graph
     When executing query:
       """
-      CREATE (a), (b)
-      MERGE (a)-[:X]->(b)
-      RETURN count(a)
+      UNWIND ['Keanu Reeves', 'Hugo Weaving', 'Carrie-Anne Moss', 'Laurence Fishburne'] AS actor
+      MERGE (m:Movie {name: 'The Matrix'})
+      MERGE (p:Person {name: actor})
+      MERGE (p)-[:ACTED_IN]->(m)
       """
-    Then the result should be, in any order:
-      | count(a) |
-      | 1        |
+    Then the result should be empty
     And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 1 |
+      | +nodes         | 5 |
+      | +relationships | 4 |
+      | +labels        | 2 |
+      | +properties    | 5 |

@@ -28,73 +28,19 @@
 
 #encoding: utf-8
 
-Feature: Merge1-1 - Merge Node and Match Interoperability
+Feature: Merge1-1 - Merge Node and Create Interoperability
 
-  Scenario: Should be able to merge using property from match
+  Scenario: Merge followed by multiple creates
     Given an empty graph
-    And having executed:
-      """
-      CREATE (:Person {name: 'A', bornIn: 'New York'})
-      CREATE (:Person {name: 'B', bornIn: 'Ohio'})
-      CREATE (:Person {name: 'C', bornIn: 'New Jersey'})
-      CREATE (:Person {name: 'D', bornIn: 'New York'})
-      CREATE (:Person {name: 'E', bornIn: 'Ohio'})
-      CREATE (:Person {name: 'F', bornIn: 'New Jersey'})
-      """
     When executing query:
       """
-      MATCH (person:Person)
-      MERGE (city:City {name: person.bornIn})
+      MERGE (t:T {id: 42})
+      CREATE (f:R)
+      CREATE (t)-[:REL]->(f)
       """
     Then the result should be empty
     And the side effects should be:
-      | +nodes      | 3 |
-      | +labels     | 1 |
-      | +properties | 3 |
-
-  Scenario: Merge should be able to use properties of bound node in ON MATCH
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:Person {bornIn: 'New York'}),
-        (:Person {bornIn: 'Ohio'})
-      """
-    When executing query:
-      """
-      MATCH (person:Person)
-      MERGE (city:City)
-        ON MATCH SET city.name = person.bornIn
-      RETURN person.bornIn
-      """
-    Then the result should be, in any order:
-      | person.bornIn |
-      | 'New York'    |
-      | 'Ohio'        |
-    And the side effects should be:
-      | +nodes      | 1 |
-      | +labels     | 1 |
-      | +properties | 1 |
-
-  Scenario: Merge should be able to use properties of bound node in ON MATCH and ON CREATE
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:Person {bornIn: 'New York'}),
-        (:Person {bornIn: 'Ohio'})
-      """
-    When executing query:
-        """
-        MATCH (person:Person)
-        MERGE (city:City)
-          ON MATCH SET city.name = person.bornIn
-          ON CREATE SET city.name = person.bornIn
-        RETURN person.bornIn
-        """
-    Then the result should be, in any order:
-      | person.bornIn |
-      | 'New York'    |
-      | 'Ohio'        |
-    And the side effects should be:
-      | +nodes      | 1 |
-      | +labels     | 1 |
-      | +properties | 1 |
+      | +nodes         | 2 |
+      | +relationships | 1 |
+      | +labels        | 2 |
+      | +properties    | 1 |

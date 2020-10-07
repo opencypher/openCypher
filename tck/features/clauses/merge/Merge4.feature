@@ -47,3 +47,27 @@ Feature: Merge4 - Merge Node - On Match and On Create
     And the side effects should be:
       | +nodes  | 1 |
       | +labels | 3 |
+
+  Scenario: Merge should be able to use properties of bound node in ON MATCH and ON CREATE
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:Person {bornIn: 'New York'}),
+        (:Person {bornIn: 'Ohio'})
+      """
+    When executing query:
+        """
+        MATCH (person:Person)
+        MERGE (city:City)
+          ON MATCH SET city.name = person.bornIn
+          ON CREATE SET city.name = person.bornIn
+        RETURN person.bornIn
+        """
+    Then the result should be, in any order:
+      | person.bornIn |
+      | 'New York'    |
+      | 'Ohio'        |
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +labels     | 1 |
+      | +properties | 1 |
