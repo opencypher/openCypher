@@ -208,7 +208,7 @@ Feature: Merge1 - Merge Node
       | +labels     | 1 |
       | +properties | 1 |
 
-  Scenario: Introduce named paths 2
+  Scenario: Merge should bind a path
     Given an empty graph
     When executing query:
       """
