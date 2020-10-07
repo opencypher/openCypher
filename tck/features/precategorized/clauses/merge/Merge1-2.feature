@@ -42,7 +42,7 @@ Feature: Merge1-2 - Merge Node and Create Interoperability
       | +nodes      | 2 |
       | +properties | 2 |
 
-  Scenario: Should be able to use properties from match in ON CREATE
+  Scenario: Merge should be able to use properties of bound node in ON CREATE
     Given an empty graph
     And having executed:
       """
