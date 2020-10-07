@@ -127,6 +127,22 @@
       <groupId>org.neo4j</groupId>
       <artifactId>neo4j-cypher-compatibility-spec-suite</artifactId>
       <version>${dep.neo4j.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-cypher-spec-suite-tools</artifactId>
+      <version>${dep.neo4j.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.neo4j.community</groupId>
+      <artifactId>it-test-support</artifactId>
+      <version>${dep.neo4j.version}</version>
       <scope>test</scope>
     </dependency>
 
