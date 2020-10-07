@@ -125,7 +125,7 @@ Feature: Merge1 - Merge Node
       | 42    |
     And no side effects
 
-  Scenario: Should work when finding multiple elements
+  Scenario: Merge should work when finding multiple elements
     Given an empty graph
     When executing query:
       """
