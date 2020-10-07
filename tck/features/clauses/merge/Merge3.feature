@@ -30,7 +30,7 @@
 
 Feature: Merge3 - Merge Node - On Match
 
-  Scenario: Should be able to set labels on match
+  Scenario: Merge should be able to set labels on match
     Given an empty graph
     And having executed:
       """
