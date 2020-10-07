@@ -138,7 +138,7 @@ Feature: Merge1 - Merge Node
       | +nodes  | 2 |
       | +labels | 1 |
 
-  Scenario: Should handle argument properly
+  Scenario: Merge should handle argument properly
     Given an empty graph
     And having executed:
       """
