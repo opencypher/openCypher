@@ -28,54 +28,19 @@
 
 #encoding: utf-8
 
-Feature: Merge1-2 - Merge Node and Create Interoperability
+Feature: Merge1-2 - Merge Node and Unwind Interoperability
 
-  Scenario: Merge should be able to merge using property of freshly created node
+  Scenario: Unwind combined with merge
     Given an empty graph
     When executing query:
       """
-      CREATE (a {num: 1})
-      MERGE ({v: a.num})
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes      | 2 |
-      | +properties | 2 |
-
-  Scenario: Merge should be able to use properties of bound node in ON CREATE
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:Person {bornIn: 'New York'}),
-        (:Person {bornIn: 'Ohio'})
-      """
-    When executing query:
-      """
-      MATCH (person:Person)
-      MERGE (city:City)
-        ON CREATE SET city.name = person.bornIn
-      RETURN person.bornIn
+      UNWIND [1, 2, 3, 4] AS int
+      MERGE (n {id: int})
+      RETURN count(*)
       """
     Then the result should be, in any order:
-      | person.bornIn |
-      | 'New York'    |
-      | 'Ohio'        |
+      | count(*) |
+      | 4        |
     And the side effects should be:
-      | +nodes      | 1 |
-      | +labels     | 1 |
-      | +properties | 1 |
-
-  Scenario: Merge followed by multiple creates
-    Given an empty graph
-    When executing query:
-      """
-      MERGE (t:T {id: 42})
-      CREATE (f:R)
-      CREATE (t)-[:REL]->(f)
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 1 |
-      | +labels        | 2 |
-      | +properties    | 1 |
+      | +nodes      | 4 |
+      | +properties | 4 |
