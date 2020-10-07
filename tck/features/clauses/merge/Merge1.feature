@@ -30,7 +30,7 @@
 
 Feature: Merge1 - Merge Node
 
-  Scenario: Merge node when no nodes exist
+  Scenario: [1] Merge node when no nodes exist
     Given an empty graph
     When executing query:
       """
@@ -43,7 +43,7 @@ Feature: Merge1 - Merge Node
     And the side effects should be:
       | +nodes | 1 |
 
-  Scenario: Merge node with label
+  Scenario: [2] Merge node with label
     Given an empty graph
     When executing query:
       """
@@ -57,7 +57,7 @@ Feature: Merge1 - Merge Node
       | +nodes  | 1 |
       | +labels | 1 |
 
-  Scenario: Merge node with label when it exists
+  Scenario: [3] Merge node with label when it exists
     Given an empty graph
     And having executed:
       """
@@ -73,7 +73,7 @@ Feature: Merge1 - Merge Node
       | 1    |
     And no side effects
 
-  Scenario: Merge node should create when it doesn't match, properties
+  Scenario: [4] Merge node should create when it doesn't match, properties
     Given an empty graph
     And having executed:
       """
@@ -91,7 +91,7 @@ Feature: Merge1 - Merge Node
       | +nodes      | 1 |
       | +properties | 1 |
 
-  Scenario: Merge node should create when it doesn't match, properties and label
+  Scenario: [5] Merge node should create when it doesn't match, properties and label
     Given an empty graph
     And having executed:
       """
@@ -109,7 +109,7 @@ Feature: Merge1 - Merge Node
       | +nodes      | 1 |
       | +properties | 1 |
 
-  Scenario: Merge node with prop and label
+  Scenario: [6] Merge node with prop and label
     Given an empty graph
     And having executed:
       """
@@ -125,7 +125,7 @@ Feature: Merge1 - Merge Node
       | 42    |
     And no side effects
 
-  Scenario: Merge should work when finding multiple elements
+  Scenario: [7] Merge should work when finding multiple elements
     Given an empty graph
     When executing query:
       """
@@ -138,7 +138,7 @@ Feature: Merge1 - Merge Node
       | +nodes  | 2 |
       | +labels | 1 |
 
-  Scenario: Merge should handle argument properly
+  Scenario: [8] Merge should handle argument properly
     Given an empty graph
     And having executed:
       """
@@ -156,7 +156,7 @@ Feature: Merge1 - Merge Node
       | +labels     | 1 |
       | +properties | 1 |
 
-  Scenario: Merge should support updates while merging
+  Scenario: [9] Merge should support updates while merging
     Given an empty graph
     And having executed:
       """
@@ -189,7 +189,7 @@ Feature: Merge1 - Merge Node
       | +labels     | 1  |
       | +properties | 30 |
 
-  Scenario: Merge must properly handle multiple labels
+  Scenario: [10] Merge must properly handle multiple labels
     Given an empty graph
     And having executed:
       """
@@ -208,7 +208,7 @@ Feature: Merge1 - Merge Node
       | +labels     | 1 |
       | +properties | 1 |
 
-  Scenario: Merge should be able to merge using property of bound node
+  Scenario: [11] Merge should be able to merge using property of bound node
     Given an empty graph
     And having executed:
       """
@@ -230,7 +230,7 @@ Feature: Merge1 - Merge Node
       | +labels     | 1 |
       | +properties | 3 |
 
-  Scenario: Merge should be able to merge using property of freshly created node
+  Scenario: [12] Merge should be able to merge using property of freshly created node
     Given an empty graph
     When executing query:
       """
@@ -256,7 +256,7 @@ Feature: Merge1 - Merge Node
       | +nodes      | 1 |
       | +properties | 1 |
 
-  Scenario: Merges should not be able to match on deleted nodes
+  Scenario: [13] Merges should not be able to match on deleted nodes
     Given an empty graph
     And having executed:
       """

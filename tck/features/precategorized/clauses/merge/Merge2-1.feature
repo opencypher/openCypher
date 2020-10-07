@@ -30,7 +30,7 @@
 
 Feature: Merge2-1 - Merge Edge and Create Interoperability
 
-  Scenario: Mixing MERGE with CREATE
+  Scenario: [1] Mixing MERGE with CREATE
     Given an empty graph
     When executing query:
       """

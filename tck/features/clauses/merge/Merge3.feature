@@ -30,7 +30,7 @@
 
 Feature: Merge3 - Merge Node - On Match
 
-  Scenario: Merge should be able to set labels on match
+  Scenario: [1] Merge should be able to set labels on match
     Given an empty graph
     And having executed:
       """
@@ -45,7 +45,7 @@ Feature: Merge3 - Merge Node - On Match
     And the side effects should be:
       | +labels | 1 |
 
-  Scenario: Merge node with label add label on match when it exists
+  Scenario: [2] Merge node with label add label on match when it exists
     Given an empty graph
     And having executed:
       """
@@ -63,7 +63,7 @@ Feature: Merge3 - Merge Node - On Match
     And the side effects should be:
       | +labels | 1 |
 
-  Scenario: Merge node and set property on match
+  Scenario: [3] Merge node and set property on match
     Given an empty graph
     And having executed:
       """
@@ -81,7 +81,7 @@ Feature: Merge3 - Merge Node - On Match
     And the side effects should be:
       | +properties | 1 |
 
-  Scenario: Merge should be able to use properties of bound node in ON MATCH
+  Scenario: [4] Merge should be able to use properties of bound node in ON MATCH
     Given an empty graph
     And having executed:
       """
