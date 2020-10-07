@@ -156,7 +156,7 @@ Feature: Merge1 - Merge Node
       | +labels     | 1 |
       | +properties | 1 |
 
-  Scenario: Should support updates while merging
+  Scenario: Merge should support updates while merging
     Given an empty graph
     And having executed:
       """
