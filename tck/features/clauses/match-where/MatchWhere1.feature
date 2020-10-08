@@ -63,7 +63,7 @@ Feature: MatchWhere1 - Filter single variable
       | c |
     And no side effects
 
-  Scenario: [3] Filter node with property predicate on a single variable with multiple binding
+  Scenario: [3] Filter node with property predicate on a single variable with multiple bindings
     Given an empty graph
     And having executed:
       """
@@ -117,7 +117,7 @@ Feature: MatchWhere1 - Filter single variable
       | ({name: 'Andres'}) |
     And no side effects
 
-  Scenario: [6] Filter node with a parameter in a property predicate on multi variables with one bindings
+  Scenario: [6] Filter node with a parameter in a property predicate on multi variables with one binding
     Given an empty graph
     And having executed:
       """
@@ -174,7 +174,7 @@ Feature: MatchWhere1 - Filter single variable
       | (:A) |
     And no side effects
 
-  Scenario: [9] Filter relationship with a parameter in a property predicate on multi variables with one bindings
+  Scenario: [9] Filter relationship with a parameter in a property predicate on multi variables with one binding
     Given an empty graph
     And having executed:
       """
@@ -236,7 +236,7 @@ Feature: MatchWhere1 - Filter single variable
       | [:HATES] |
     And no side effects
 
-  Scenario: [12] Filter path with path length predicate on multi variables with one bindings
+  Scenario: [12] Filter path with path length predicate on multi variables with one binding
     Given an empty graph
     And having executed:
       """
@@ -253,7 +253,7 @@ Feature: MatchWhere1 - Filter single variable
       | (:B {name: 'B'}) |
     And no side effects
 
-  Scenario: [13] Filter path with false path length predicate on multi variables with one bindings
+  Scenario: [13] Filter path with false path length predicate on multi variables with one binding
     Given an empty graph
     And having executed:
       """
