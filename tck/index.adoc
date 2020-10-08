@@ -40,6 +40,17 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Match8 - Match clause Interoperation with other clauses
 * Match9 - Match deprecated scenarios
 
+=== Merge
+
+* Merge1 - Merge Node
+* Merge2 - Merge Node - On Create
+* Merge3 - Merge Node - On Match
+* Merge4 - Merge Node - On Match and On Create
+* Merge5 - Merge Relationships
+* Merge6 - Merge Relationships - On Create
+* Merge7 - Merge Relationships - On Match
+* Merge8 - Merge Relationships - On Match and On Create
+
 === Remove
 
 * Remove1 - Remove a Property
@@ -91,12 +102,13 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 
 === Graph
 
+* Graph10 - Retrieve all properties as a property map
 * Graph3 - Node labels
 * Graph4 - Edge relationship type
-* Graph6 - Dynamic property access
-* Graph7 - Node properties keys
-* Graph8 - Check if a property exists on a node or an edge
-* Graph9 - Access all properties as property map
+* Graph5 - Node and edge label expressions
+* Graph7 - Dynamic property access
+* Graph8 - Property keys function
+* Graph9 - Property existence check
 
 === List
 
@@ -123,8 +135,8 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 === Map
 
 * Map2 - Dynamic Value Access
-* Map3 - Keys Function
-* Map4 - Check if a field exists on a map
+* Map3 - Keys function
+* Map4 - Field existence check
 
 === Mathematical
 
