@@ -27,10 +27,7 @@
  */
 package org.opencypher.tools.tck.reporting.cucumber;
 
-import cucumber.api.PickleStepTestStep;
-import cucumber.api.Result;
-import cucumber.api.TestCase;
-import cucumber.api.TestStep;
+import cucumber.api.*;
 import cucumber.api.event.EventListener;
 import cucumber.api.event.TestCaseStarted;
 import cucumber.api.event.TestRunFinished;
@@ -40,7 +37,9 @@ import cucumber.api.event.TestStepFinished;
 import cucumber.api.event.TestStepStarted;
 import cucumber.api.event.WriteEvent;
 import cucumber.runner.CanonicalOrderEventPublisher;
-import cucumber.runtime.RuntimeOptions;
+import cucumber.runtime.Env;
+import io.cucumber.core.options.EnvironmentOptionsParser;
+import io.cucumber.core.options.RuntimeOptions;
 import cucumber.runtime.formatter.PluginFactory;
 import gherkin.pickles.Pickle;
 import gherkin.pickles.PickleLocation;
@@ -49,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import io.cucumber.core.options.RuntimeOptionsBuilder;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -75,7 +76,7 @@ public class CucumberReportAdapter implements BeforeAllCallback, AfterAllCallbac
     private TestCase currentTestCase;
 
     @Override
-    public void beforeAll(ExtensionContext context) throws Exception {
+    public void beforeAll(ExtensionContext context) {
         initCucumberPlugins();
 
         TCKEvents.feature().subscribe(adapt(featureReadEvent()));
@@ -83,30 +84,33 @@ public class CucumberReportAdapter implements BeforeAllCallback, AfterAllCallbac
         TCKEvents.stepStarted().subscribe(adapt(stepStartedEvent()));
         TCKEvents.stepFinished().subscribe(adapt(stepFinishedEvent()));
 
-        bus.handle(new TestRunStarted(time()));
+        Long startedAt = time();
+        bus.handle(new TestRunStarted(startedAt, startedAt));
     }
 
     @Override
     public void afterAll(ExtensionContext context) throws Exception {
-        bus.handle(new TestRunFinished(time()));
+        Long finishedAt = time();
+        bus.handle(new TestRunFinished(finishedAt, finishedAt));
         output.close();
     }
 
     private void initCucumberPlugins() {
         PluginFactory pluginFactory = new PluginFactory();
-        RuntimeOptions options = new RuntimeOptions("");
-        options.getPluginFormatterNames()
+        RuntimeOptions options = new EnvironmentOptionsParser().parse(new Env()).build();
+        options.getPluginNames()
             .stream()
             .map(pluginFactory::create)
             .filter(EventListener.class::isInstance)
             .map(EventListener.class::cast)
-            .forEach(json -> json.setEventPublisher(bus));
+            .forEach(eventListener -> eventListener.setEventPublisher(bus));
     }
 
     private Consumer<TCKEvents.FeatureRead> featureReadEvent() {
         return feature -> {
+            Long readAt = time();
             featureNameToUri.put(feature.name(), feature.uri());
-            bus.handle(new TestSourceRead(time(), feature.uri(), feature.source()));
+            bus.handle(new TestSourceRead(readAt, readAt, feature.uri(), feature.source()));
         };
     }
 
@@ -121,7 +125,7 @@ public class CucumberReportAdapter implements BeforeAllCallback, AfterAllCallbac
                 .collect(Collectors.toList());
             int line = outlineLocation(pickle.getLocations());
             currentTestCase = new TCKTestCase(pickle, steps, featureUri, line);
-            bus.handle(new TestCaseStarted(startedAt, currentTestCase));
+            bus.handle(new TestCaseStarted(startedAt, startedAt, currentTestCase));
         };
     }
 
@@ -133,7 +137,7 @@ public class CucumberReportAdapter implements BeforeAllCallback, AfterAllCallbac
             if (shouldReport(step)) {
                 int line = outlineLocation(step.source().getLocations());
                 TCKTestStep testStep = new TCKTestStep(step.source(), checkNull(currentTestCase).getUri(), line);
-                TestStepStarted cucumberEvent = new TestStepStarted(startedAt, checkNull(currentTestCase), testStep);
+                TestStepStarted cucumberEvent = new TestStepStarted(startedAt, startedAt, checkNull(currentTestCase), testStep);
                 bus.handle(cucumberEvent);
             }
         };
@@ -151,7 +155,7 @@ public class CucumberReportAdapter implements BeforeAllCallback, AfterAllCallbac
                 int line = outlineLocation(step.source().getLocations());
                 PickleStepTestStep testStep = new TCKTestStep(step.source(), checkNull(currentTestCase).getUri(), line);
                 Result result = new Result(status, duration, errorOrNull(event.result()));
-                TestStepFinished cucumberEvent = new TestStepFinished(finishedAt, checkNull(currentTestCase), testStep, result);
+                TestStepFinished cucumberEvent = new TestStepFinished(finishedAt, finishedAt, checkNull(currentTestCase), testStep, result);
                 bus.handle(cucumberEvent);
             } else {
                 output.clear();
@@ -168,7 +172,7 @@ public class CucumberReportAdapter implements BeforeAllCallback, AfterAllCallbac
         }
 
         if (!log.isEmpty()) {
-            bus.handle(new WriteEvent(timeNow, checkNull(currentTestCase), log));
+            bus.handle(new WriteEvent(timeNow, timeNow, checkNull(currentTestCase), log));
         }
     }
 
