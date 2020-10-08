@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-	<appender name="consoleAppender" class="org.apache.log4j.ConsoleAppender">
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d{HH:mm:ss.SSS} %-5p (%40F:%3L) - %m%n" />
-		</layout>
-	</appender>
-
-	
-	<logger name="org.opencypher.grammar.tools.antlr.BNFListener">
-		<level value="warn" />
-	</logger>
-	
-	<root>
-		<priority value="warn" />
-		<appender-ref ref="consoleAppender" />
-	</root>
-</log4j:configuration>
+<Configuration>
+	<Appenders>
+		<Console name="consoleAppender" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5p (%40F:%3L) - %m%n"/>
+		</Console>
+	</Appenders>
+	<Loggers>
+		<Logger name="org.opencypher.grammar.tools.antlr.BNFListener" level="warn"/>
+		<Root level="warn">
+			<AppenderRef ref="consoleAppender"/>
+		</Root>
+	</Loggers>
+</Configuration>
