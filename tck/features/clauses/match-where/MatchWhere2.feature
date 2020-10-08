@@ -30,7 +30,7 @@
 
 Feature: MatchWhere2 - Filter multiple variables
 
-  Scenario: [1] Filter node with conjunctive two-part property predicate on multi-column binding table
+  Scenario: [1] Filter nodes with conjunctive two-part property predicate on multi variables with multiple bindings
     Given an empty graph
     And having executed:
       """
@@ -55,7 +55,7 @@ Feature: MatchWhere2 - Filter multiple variables
       | (:D) |
     And no side effects
 
-  Scenario: [2] Filter node with conjunctive multi-part property predicates on multi-column binding table
+  Scenario: [2] Filter node with conjunctive multi-part property predicates on multi variables with multiple bindings
     Given an empty graph
     And having executed:
       """
