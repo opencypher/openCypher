@@ -30,7 +30,7 @@
 
 Feature: Merge2-2 - Merge Edge and Unwind Interoperability
 
-  Scenario: [1]UNWIND with multiple merges
+  Scenario: [1] UNWIND with multiple merges
     Given an empty graph
     When executing query:
       """
