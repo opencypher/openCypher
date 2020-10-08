@@ -79,12 +79,6 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.scalacheck</groupId>
-      <artifactId>scalacheck_${scala.binary.version}</artifactId>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
 </project>
