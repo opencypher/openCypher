@@ -42,7 +42,6 @@
     <dep.maven.surefire.plugin.version>2.22.2</dep.maven.surefire.plugin.version>
     <dep.scala.maven.plugin.version>3.4.4</dep.scala.maven.plugin.version>
     <dep.scala.version>2.12.10</dep.scala.version>
-    <dep.scalacheck.version>1.13.5</dep.scalacheck.version>
     <dep.scalatest.version>3.0.5</dep.scalatest.version>
     <dep.xmlgraphics-commons.version>2.0</dep.xmlgraphics-commons.version>
     <dep.commons-csv.version>1.8</dep.commons-csv.version>
@@ -187,13 +186,6 @@
         <groupId>com.fasterxml.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-xml</artifactId>
         <version>${dep.jackson-dataformat-xml.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.scalacheck</groupId>
-        <artifactId>scalacheck_${scala.binary.version}</artifactId>
-        <version>${dep.scalacheck.version}</version>
-        <scope>test</scope>
       </dependency>
 
       <dependency>
