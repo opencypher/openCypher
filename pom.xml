@@ -30,7 +30,7 @@
     <dep.antlr4.version>4.7.2</dep.antlr4.version>
     <dep.apiguardian.version>1.0.0</dep.apiguardian.version>
     <dep.batik.version>1.8</dep.batik.version>
-    <dep.cucumber.version>4.2.0</dep.cucumber.version>
+    <dep.cucumber.version>4.7.1</dep.cucumber.version>
     <dep.gherkin.version>5.1.0</dep.gherkin.version>
     <dep.hamcrest.version>2.2</dep.hamcrest.version>
     <dep.junit.platform.version>1.7.0</dep.junit.platform.version>
