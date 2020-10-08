@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Graph8 - Properties keys function
+Feature: Graph8 - Property keys function
 
   Scenario: [1] Using `keys()` on a single node, non-empty result
     Given an empty graph
