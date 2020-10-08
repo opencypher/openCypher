@@ -31,7 +31,7 @@
 Feature: Match7-2 - Optional match WHERE clause scenarios
 
   # Consider for OptionalMatch-Where1
-  Scenario: Filter node with node label predicate on multi-column binding table after MATCH and OPTIONAL MATCH
+  Scenario: Filter node with node label predicate on multi variables with multiple bindings after MATCH and OPTIONAL MATCH
     Given an empty graph
     And having executed:
       """
@@ -78,7 +78,7 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
     And no side effects
 
   # Consider for OptionalMatch-Where1
-  Scenario: Filter node with property predicate on multi-column binding table after OPTIONAL MATCH
+  Scenario: Filter node with property predicate on multi variables with multiple bindings after OPTIONAL MATCH
     Given an empty graph
     And having executed:
       """
@@ -99,26 +99,6 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
     Then the result should be, in any order:
       | m              |
       | (:A {num: 42}) |
-    And no side effects
-
-  # Consider for With-Where1
-  Scenario: Filter for an unbound node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A), (b:B {id: 1}), (:B {id: 2})
-      CREATE (a)-[:T]->(b)
-      """
-    When executing query:
-      """
-      MATCH (other:B)
-      OPTIONAL MATCH (a)-[r]->(other)
-      WITH other WHERE a IS NULL
-      RETURN other
-      """
-    Then the result should be, in any order:
-      | other        |
-      | (:B {id: 2}) |
     And no side effects
 
   # Consider for OptionalMatch-Where1
