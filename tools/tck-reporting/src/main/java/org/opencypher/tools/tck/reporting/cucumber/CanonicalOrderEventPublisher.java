@@ -25,45 +25,27 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools;
+package org.opencypher.tools.tck.reporting.cucumber;
 
-import java.io.IOException;
+import io.cucumber.core.eventbus.AbstractEventPublisher;
+import io.cucumber.plugin.event.Event;
+import io.cucumber.plugin.event.TestRunFinished;
+import java.util.LinkedList;
+import java.util.List;
 
-import io.cucumber.junit.Cucumber;
-import org.junit.runner.Description;
-import org.junit.runner.Runner;
-import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.model.InitializationError;
-import org.opencypher.tools.grammar.Antlr4TestUtils;
+class CanonicalOrderEventPublisher extends AbstractEventPublisher {
+    private final List<Event> queue = new LinkedList();
 
-public class InitFunction extends Runner
-{
-    private Cucumber cucumber;
-
-    /**
-     * Constructor called by JUnit.
-     *
-     * @param clazz the class with the @RunWith annotation.
-     * @throws org.junit.runners.model.InitializationError if there is another problem
-     */
-    public InitFunction( Class clazz ) throws InitializationError
-    {
-        cucumber = new Cucumber( init( clazz ) );
+    CanonicalOrderEventPublisher() {
     }
 
-    private static Class init( Class clazz )
-    {
-        org.opencypher.tools.tck.validateQueryGrammar.f_$eq( Antlr4TestUtils::parse );
-        return clazz;
-    }
+    public void handle(Event event) {
+        this.queue.add(event);
+        if (event instanceof TestRunFinished) {
+            this.queue.sort(new CanonicalEventOrder());
+            this.sendAll(this.queue);
+            this.queue.clear();
+        }
 
-    @Override
-    public Description getDescription() {
-        return cucumber.getDescription();
-    }
-
-    @Override
-    public void run(RunNotifier runNotifier) {
-        cucumber.run(runNotifier);
     }
 }

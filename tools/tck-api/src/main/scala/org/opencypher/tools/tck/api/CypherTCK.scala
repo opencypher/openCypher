@@ -32,11 +32,8 @@ import java.nio.charset.StandardCharsets
 import java.nio.file._
 import java.util
 
-import gherkin.AstBuilder
-import gherkin.Parser
-import gherkin.TokenMatcher
-import gherkin.ast.GherkinDocument
-import gherkin.pickles.Compiler
+import io.cucumber.core.gherkin.{DataTableArgument, DocStringArgument}
+import io.cucumber.core.gherkin.vintage.GherkinVintageFeatureParser
 import org.opencypher.tools.tck.SideEffectOps.Diff
 import org.opencypher.tools.tck._
 import org.opencypher.tools.tck.api.events.TCKEvents
@@ -58,8 +55,7 @@ object CypherTCK {
   val featuresPath = "/features"
   val featureSuffix = ".feature"
 
-  private lazy val parser = new Parser[GherkinDocument](new AstBuilder)
-  private lazy val matcher = new TokenMatcher
+  private lazy val parser = new GherkinVintageFeatureParser()
 
   /**
     * Provides all the scenarios in the openCypher TCK.
@@ -124,64 +120,61 @@ object CypherTCK {
   }
 
   def parseFeature(featureFile: Path, featureString: String, categories: Seq[String]): Feature = {
-    val gherkinDocument = Try(parser.parse(featureString, matcher)) match {
-      case Success(doc) => doc
+    Try(parser.parse(featureFile.toUri, featureString, null)) match {
+      case Success(featureOption) =>
+        if(featureOption.isPresent) {
+          val feature = featureOption.get()
+          val pickles = feature.getPickles.asScala.toList
+          // filters out scenarios with TCKTags.IGNORE
+          val included = pickles.filterNot(tagNames(_) contains TCKTags.IGNORE)
+
+          val includedGroupedByName = included.groupBy(_.getName)
+          val includedGroupedAndSorted = includedGroupedByName.mapValues(_.sortBy(_.getLocation.getLine))
+
+          val featureName = feature.getName
+          val scenarios = includedGroupedAndSorted.flatMap {
+            case (_, pickles) =>
+              if(pickles.size > 1)
+                pickles.zipWithIndex.map {
+                  case (pickle, exampleIndex) => toScenario(categories, featureName, pickle, Some(exampleIndex), featureFile)
+                }
+              else
+                pickles.map(pickle => toScenario(categories, featureName, pickle, None, featureFile))
+          }.toSeq
+          TCKEvents.setFeature(FeatureRead(featureName, featureFile.toUri, featureString))
+          Feature(scenarios)
+        }
+        else return Feature(Seq[Scenario]())
       case Failure(error) =>
         throw InvalidFeatureFormatException(s"Could not parse feature from ${featureFile.toAbsolutePath.toString}: ${error.getMessage}")
     }
-    val compiler = new Compiler
-    val pickles = compiler.compile(gherkinDocument).asScala
-    // filters out scenarios with TCKTags.IGNORE
-    val included = pickles.filterNot(tagNames(_) contains TCKTags.IGNORE)
-
-    val includedGroupedByName = included.groupBy(_.getName)
-    val includedGroupedAndSorted = includedGroupedByName.
-      mapValues(_.
-        sortBy(_.getLocations.asScala.headOption.map(_.getLine).getOrElse(0))
-      )
-
-    val featureName = gherkinDocument.getFeature.getName
-    val scenarios = includedGroupedAndSorted.flatMap {
-      case (_, pickles) =>
-        if(pickles.size > 1)
-          pickles.zipWithIndex.map {
-            case (pickle, exampleIndex) => toScenario(categories, featureName, pickle, Some(exampleIndex), featureFile)
-          }
-        else
-          pickles.map(pickle => toScenario(categories, featureName, pickle, None, featureFile))
-    }.toSeq
-    TCKEvents.setFeature(FeatureRead(featureName, featureFile.toString, featureString))
-    Feature(scenarios)
   }
 
-  private def toScenario(categories: Seq[String], featureName: String, pickle: gherkin.pickles.Pickle, exampleIndex: Option[Int], sourceFile: Path): Scenario = {
+  private def toScenario(categories: Seq[String], featureName: String, pickle: io.cucumber.core.gherkin.Pickle, exampleIndex: Option[Int], sourceFile: Path): Scenario = {
 
     val tags = tagNames(pickle)
     val shouldValidate = !tags.contains(TCKTags.ALLOW_CUSTOM_ERRORS)
 
     val steps = pickle.getSteps.asScala.flatMap { step =>
-      def stepArguments = step.getArgument.asScala
+      def stepArgument = step.getArgument
 
       def queryFromStep: String = {
-        require(stepArguments.size == 1)
-        stepArguments.head.asInstanceOf[gherkin.pickles.PickleString].getContent
+        stepArgument.asInstanceOf[DocStringArgument].getContent
       }
 
+      def dataTableRowsFromArgument = stepArgument.asInstanceOf[DataTableArgument].cells().asScala.map(_.asScala.toList).toList
+
       def parseTable(orderedLists: Boolean = true): CypherValueRecords = {
-        require(step.getArgument.size == 1)
-        val rows = stepArguments.head.asInstanceOf[gherkin.pickles.PickleTable].getRows.asScala
-        val header = cellValues(rows.head)
+        val rows = dataTableRowsFromArgument
+        val header = rows.head
         val values = rows.tail
         val expectedRows = values.map { row =>
           header
-            .zip(cellValues(row))
+            .zip(row)
             .toMap
-        }.toList
+        }
         CypherValueRecords.fromRows(header, expectedRows, orderedLists)
       }
-
-      def cellValues(row: gherkin.pickles.PickleRow): List[String] =
-        row.getCells.asScala.map(_.getValue).toList
 
       def parseSideEffectsTable: Diff = {
         Diff(parseMap(_.toInt))
@@ -192,10 +185,7 @@ object CypherTCK {
       }
 
       def parseMap[V](parseValue: String => V): Map[String, V] = {
-        require(step.getArgument.size == 1)
-        val rows = stepArguments.head.asInstanceOf[gherkin.pickles.PickleTable].getRows.asScala
-        rows.map { row =>
-          val sideEffect = cellValues(row)
+        dataTableRowsFromArgument.map { sideEffect =>
           require(sideEffect.length == 2)
           sideEffect.head -> parseValue(sideEffect.tail.head)
         }.toMap
@@ -249,17 +239,17 @@ object CypherTCK {
     Scenario(categories.toList, featureName, pickle.getName, exampleIndex, tags, steps, pickle, sourceFile)
   }
 
-  private def tagNames(pickle: gherkin.pickles.Pickle): Set[String] = pickle.getTags.asScala.map(_.getName).toSet
+  private def tagNames(pickle: io.cucumber.core.gherkin.Pickle): Set[String] = pickle.getTags.asScala.toSet
 
 }
 
 case class Feature(scenarios: Seq[Scenario])
 
 sealed trait Step {
-  val source: gherkin.pickles.PickleStep
+  val source: io.cucumber.core.gherkin.Step
 }
 
-case class SideEffects(expected: Diff = Diff(), source: gherkin.pickles.PickleStep) extends Step {
+case class SideEffects(expected: Diff = Diff(), source: io.cucumber.core.gherkin.Step) extends Step {
   def fillInZeros: SideEffects = copy(expected = expected.fillInZeros)
 
   override def equals(obj: Any): Boolean = {
@@ -277,7 +267,7 @@ case class SideEffects(expected: Diff = Diff(), source: gherkin.pickles.PickleSt
   }
 }
 
-case class Measure(source: gherkin.pickles.PickleStep) extends Step {
+case class Measure(source: io.cucumber.core.gherkin.Step) extends Step {
   override def equals(obj: Any): Boolean = {
     obj match {
       case Measure(thatSource) => PickleStep(thatSource) == PickleStep(source)
@@ -288,7 +278,7 @@ case class Measure(source: gherkin.pickles.PickleStep) extends Step {
   override def hashCode(): Int = PickleStep(source).hashCode()
 }
 
-case class Dummy(source: gherkin.pickles.PickleStep) extends Step {
+case class Dummy(source: io.cucumber.core.gherkin.Step) extends Step {
   override def equals(obj: Any): Boolean = {
     obj match {
       case Dummy(thatSource) => PickleStep(thatSource) == PickleStep(source)
@@ -299,7 +289,7 @@ case class Dummy(source: gherkin.pickles.PickleStep) extends Step {
   override def hashCode(): Int = PickleStep(source).hashCode()
 }
 
-case class RegisterProcedure(signature: String, values: CypherValueRecords, source: gherkin.pickles.PickleStep) extends Step {
+case class RegisterProcedure(signature: String, values: CypherValueRecords, source: io.cucumber.core.gherkin.Step) extends Step {
   override def equals(obj: Any): Boolean = {
     obj match {
       case RegisterProcedure(thatSignature, thatValues, thatSource) =>
@@ -316,7 +306,7 @@ case class RegisterProcedure(signature: String, values: CypherValueRecords, sour
   }
 }
 
-case class Parameters(values: Map[String, CypherValue], source: gherkin.pickles.PickleStep) extends Step {
+case class Parameters(values: Map[String, CypherValue], source: io.cucumber.core.gherkin.Step) extends Step {
   override def equals(obj: Any): Boolean = {
     obj match {
       case Parameters(thatValues, thatSource) =>
@@ -332,7 +322,7 @@ case class Parameters(values: Map[String, CypherValue], source: gherkin.pickles.
   }
 }
 
-case class Execute(query: String, qt: QueryType, source: gherkin.pickles.PickleStep) extends Step {
+case class Execute(query: String, qt: QueryType, source: io.cucumber.core.gherkin.Step) extends Step {
   override def equals(obj: Any): Boolean = {
     obj match {
       case Execute(thatQuery, thatQt, thatSource) =>
@@ -349,7 +339,7 @@ case class Execute(query: String, qt: QueryType, source: gherkin.pickles.PickleS
   }
 }
 
-case class ExpectResult(expectedResult: CypherValueRecords, source: gherkin.pickles.PickleStep, sorted: Boolean = false) extends Step {
+case class ExpectResult(expectedResult: CypherValueRecords, source: io.cucumber.core.gherkin.Step, sorted: Boolean = false) extends Step {
   override def equals(obj: Any): Boolean = {
     obj match {
       case ExpectResult(thatExpectedResult, thatSource, thatSorted) =>
@@ -366,7 +356,7 @@ case class ExpectResult(expectedResult: CypherValueRecords, source: gherkin.pick
   }
 }
 
-case class ExpectError(errorType: String, phase: String, detail: String, source: gherkin.pickles.PickleStep) extends Step {
+case class ExpectError(errorType: String, phase: String, detail: String, source: io.cucumber.core.gherkin.Step) extends Step {
   // Returns None if valid and Some("error message") otherwise.
   def validate(): Option[String] = {
     if (!TCKErrorTypes.ALL.contains(errorType)) {

@@ -27,13 +27,9 @@
  */
 package org.opencypher.tools.tck.inspection.diff
 
+import java.net.URI
 import java.util
 
-import gherkin.pickles.Argument
-import gherkin.pickles.Pickle
-import gherkin.pickles.PickleLocation
-import gherkin.pickles.PickleStep
-import gherkin.pickles.PickleTag
 import org.opencypher.tools.tck.api.Dummy
 import org.opencypher.tools.tck.api.Measure
 import org.opencypher.tools.tck.api.Scenario
@@ -50,9 +46,58 @@ import org.scalatest.FunSuite
 import org.scalatest.Matchers
 
 class GroupCollectionDiffTest extends FunSuite with Matchers {
-  private val dummyPickle = new Pickle("", "", new util.ArrayList[PickleStep](), new util.ArrayList[PickleTag](), new util.ArrayList[PickleLocation]())
-  private val dummyPickleStep = new PickleStep("", new util.ArrayList[Argument](), new util.ArrayList[PickleLocation]())
-  private def namedDummyPickleStep(name: String) = new PickleStep(name, new util.ArrayList[Argument](), new util.ArrayList[PickleLocation]())
+  private val dummyPickle = new io.cucumber.core.gherkin.Pickle() {
+    override def getKeyword: String = ""
+
+    override def getLanguage: String = "EN"
+
+    override def getName: String = "name"
+
+    override def getLocation: io.cucumber.core.gherkin.Location = new io.cucumber.core.gherkin.Location() {
+      override def getLine: Int = 1
+
+      override def getColumn: Int = 1
+    }
+
+    override def getScenarioLocation: io.cucumber.core.gherkin.Location = new io.cucumber.core.gherkin.Location() {
+      override def getLine: Int = 1
+
+      override def getColumn: Int = 1
+    }
+
+    override def getSteps: util.List[io.cucumber.core.gherkin.Step] = new util.ArrayList[io.cucumber.core.gherkin.Step]()
+
+    override def getTags: util.List[String] = new util.ArrayList[String]()
+
+    override def getUri: URI = new URI("http://www.opencypher.org/")
+
+    override def getId: String = "id"
+  }
+
+  private def namedDummyPickleStep(name: String): io.cucumber.core.gherkin.Step = new io.cucumber.core.gherkin.Step() {
+    override def getLine: Int = 1
+
+    override def getArgument: io.cucumber.core.gherkin.Argument = new io.cucumber.core.gherkin.DocStringArgument() {
+      override def getContent: String = "text"
+
+      override def getContentType: String = ""
+
+      override def getLine: Int = 1
+    }
+
+    override def getKeyWord: String = "keyWord"
+
+    override def getType: io.cucumber.core.gherkin.StepType = io.cucumber.core.gherkin.StepType.GIVEN
+
+    override def getPreviousGivenWhenThenKeyWord: String = ""
+
+    override def getText: String = name
+
+    override def getId: String = "id"
+  }
+
+  private val dummyPickleStep = namedDummyPickleStep("")
+
   private def dummyStep(name: String): Step = Dummy(namedDummyPickleStep(name))
   private def dummyPath(path: String): java.nio.file.Path = new java.io.File("ftr1.feature").toPath
 

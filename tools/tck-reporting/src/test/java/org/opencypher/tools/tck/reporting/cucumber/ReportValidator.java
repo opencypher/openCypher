@@ -43,7 +43,7 @@ public class ReportValidator implements BeforeAllCallback, AfterAllCallback {
     public void beforeAll(ExtensionContext extensionContext) throws Exception {
         cucumberReport = Files.createTempFile("cucumber", ".json");
         cucumberReport.toFile().deleteOnExit();
-        System.setProperty("cucumber.options", "--plugin json:" + cucumberReport);
+        System.setProperty("cucumber.plugin", "json:" + cucumberReport);
     }
 
     @Override

@@ -27,6 +27,8 @@
  */
 package org.opencypher.tools.tck
 
+import java.net.URI
+
 import scala.collection.JavaConverters._
 
 /**
@@ -34,22 +36,22 @@ import scala.collection.JavaConverters._
   * except for scenarios resulting from a Scenario Outline. If a scenario name is found to be ambiguous a message will be returned providing the
   * name and the scenarios causing it's ambiguity, otherwise None will be returned.
   */
-object validateDuplicateNames extends (cucumber.api.Scenario => Option[String]) {
+object validateDuplicateNames extends (io.cucumber.scala.Scenario => Option[String]) {
 
-  private val scenarioNamesByFeature = scala.collection.mutable.HashMap[String, Map[String, Int]]()
+  private val scenarioNamesByFeature = scala.collection.mutable.HashMap[URI, Map[String, Int]]()
 
-  override def apply(scenario: cucumber.api.Scenario): Option[String] = {
+  override def apply(scenario: io.cucumber.scala.Scenario): Option[String] = {
     val scenarioNames = scenarioNamesByFeature.getOrElseUpdate(scenario.getUri, Map[String, Int]())
     val lineNumber = scenarioNames.get(scenario.getName)
     lineNumber match {
       case None =>
-        scenarioNamesByFeature.put(scenario.getUri, scenarioNames ++ Map[String, Int](scenario.getName -> scenario.getLines.asScala.last) )
+        scenarioNamesByFeature.put(scenario.getUri, scenarioNames ++ Map[String, Int](scenario.getName -> scenario.getLine) )
         None
       case Some(lineNumber) =>
-        if (lineNumber == scenario.getLines.asScala.last)
+        if (lineNumber == scenario.getLine)
           None
         else
-          Some(s"scenario name '${scenario.getName}' is a ambiguous for scenarios ${scenario.getUri}:$lineNumber and ${scenario.getUri}:${scenario.getLines.asScala.last}")
+          Some(s"scenario name '${scenario.getName}' is a ambiguous for scenarios ${scenario.getUri}:$lineNumber and ${scenario.getUri}:${scenario.getLine}")
     }
   }
 }

@@ -27,7 +27,7 @@
  */
 package org.opencypher.tools.tck
 
-import cucumber.api.scala.{EN, ScalaDsl}
+import io.cucumber.scala.{EN, ScalaDsl}
 
 trait TCKCucumberTemplate extends ScalaDsl with EN {
 

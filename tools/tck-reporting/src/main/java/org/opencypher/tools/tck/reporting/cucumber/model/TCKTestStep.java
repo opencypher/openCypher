@@ -27,55 +27,81 @@
  */
 package org.opencypher.tools.tck.reporting.cucumber.model;
 
-import cucumber.api.PickleStepTestStep;
-import gherkin.pickles.PickleStep;
+import io.cucumber.core.gherkin.Step;
+import io.cucumber.plugin.event.Argument;
+import io.cucumber.plugin.event.PickleStepTestStep;
+import io.cucumber.plugin.event.StepArgument;
+
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TCKTestStep implements PickleStepTestStep {
-    private PickleStep step;
-    private String uri;
-    private int line;
+    private Step step;
+    private URI uri;
 
-    public TCKTestStep(PickleStep step, String uri, int line) {
+    public TCKTestStep(Step step, URI uri) {
         this.step = step;
         this.uri = uri;
-        this.line = line;
-    }
-
-    @Override
-    public PickleStep getPickleStep() {
-        return step;
-    }
-
-    @Override
-    public String getStepLocation() {
-        return uri + ":" + getStepLine();
     }
 
     @Override
     public int getStepLine() {
-        return line;
+        return step.getLine();
     }
 
+    @Override
+    public URI getUri() {
+        return uri;
+    }
+
+    /** @deprecated */
+    @Deprecated
     @Override
     public String getStepText() {
         return step.getText();
     }
 
     @Override
-    public List<cucumber.api.Argument> getDefinitionArgument() {
+    public List<Argument> getDefinitionArgument() {
         return new ArrayList<>();
     }
 
+    /** @deprecated */
+    @Deprecated
     @Override
-    public List<gherkin.pickles.Argument> getStepArgument() {
+    public StepArgument getStepArgument() {
         return step.getArgument();
     }
 
     @Override
     public String getPattern() {
         return "";
+    }
+
+    @Override
+    public io.cucumber.plugin.event.Step getStep() {
+        return new io.cucumber.plugin.event.Step() {
+            @Override
+            public StepArgument getArgument() {
+                return step.getArgument();
+            }
+
+            @Override
+            public String getKeyWord() {
+                return step.getKeyWord();
+            }
+
+            @Override
+            public String getText() {
+                return step.getText();
+            }
+
+            @Override
+            public int getLine() {
+                return step.getLine();
+            }
+        };
     }
 
     @Override

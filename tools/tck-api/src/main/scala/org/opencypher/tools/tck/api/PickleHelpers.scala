@@ -27,73 +27,53 @@
  */
 package org.opencypher.tools.tck.api
 
+import io.cucumber.core.gherkin.{DataTableArgument, DocStringArgument}
+import io.cucumber.plugin.event.StepArgument
+
 import scala.collection.JavaConverters._
-
-case class PickleLocation(line: Int, column: Int)
-
-case object PickleLocation {
-  def apply(pickleLocation: gherkin.pickles.PickleLocation): PickleLocation =
-    PickleLocation(pickleLocation.getLine, pickleLocation.getColumn)
-
-  def apply(pickleLocation: gherkin.pickles.PickleLocation, withLocation: Boolean): Option[PickleLocation] =
-    if(withLocation)
-      Some(PickleLocation(pickleLocation.getLine, pickleLocation.getColumn))
-    else
-      None
-}
 
 trait PickleArgument
 
 case object PickleArgument {
-  def apply(pickleArgument: gherkin.pickles.Argument, withLocation: Boolean = false): PickleArgument = pickleArgument match {
-    case ps: gherkin.pickles.PickleString => PickleString(ps.getContent, ps.getContentType, PickleLocation(ps.getLocation, withLocation))
-    case pt: gherkin.pickles.PickleTable => PickleTable(
-      pt.getRows.asScala.map(
-        row => row.getCells.asScala.map(
-          cell => PickleCell(cell.getValue, PickleLocation(cell.getLocation, withLocation))
-        ).toList
-      ).toList,
-      pt.getRows.asScala.headOption.flatMap(
-        _.getCells.asScala.headOption.flatMap(
-          c => PickleLocation(c.getLocation, withLocation)
-        )
-      )
-    )
+  def apply(pickleArgument: StepArgument, withLocation: Boolean = false): Option[PickleArgument] = pickleArgument match {
+    case ps: DocStringArgument => Some(PickleString(ps.getContent, ps.getContentType, if(withLocation) Some(ps.getLine) else None))
+    case pt: DataTableArgument => Some(PickleTable(pt.cells().asScala.map(_.asScala.toList).toList, if(withLocation) Some(pt.getLine) else None))
+    case _ => None
   }
 }
 
-case class PickleString(content: String, contentType: String, location: Option[PickleLocation]) extends PickleArgument
+case class PickleString(content: String, contentType: String, location: Option[Int]) extends PickleArgument
 
-case class PickleTable(row: List[List[PickleCell]], location: Option[PickleLocation]) extends PickleArgument
+case class PickleTable(row: List[List[String]], location: Option[Int]) extends PickleArgument
 
-case class PickleCell(value: String, location: Option[PickleLocation])
-
-case class PickleStep(text: String, arguments: List[PickleArgument], locations: Option[List[PickleLocation]])
+case class PickleStep(text: String, argument: Option[PickleArgument], locations: Option[Int])
 
 case object PickleStep {
-  def apply(pickleStep: gherkin.pickles.PickleStep, withLocation: Boolean = false): PickleStep =
+  def apply(step: io.cucumber.core.gherkin.Step, withLocation: Boolean = false): PickleStep =
     PickleStep(
-      pickleStep.getText,
-      pickleStep.getArgument.asScala.map(a => PickleArgument(a, withLocation)).toList,
-      if(withLocation)
-        Some(pickleStep.getLocations.asScala.map(l => PickleLocation(l)).toList)
-      else
-        None
+      step.getText,
+      PickleArgument(step.getArgument, withLocation),
+      if(withLocation) Some(step.getLine) else None
     )
 }
 
-case class Pickle(name: String, language: String, steps: List[PickleStep], tags: List[String], location: Option[List[PickleLocation]])
+case class PickleLocation(line: Int, column: Int)
+
+case object PickleLocation {
+  def apply(location: io.cucumber.core.gherkin.Location): PickleLocation = {
+    PickleLocation(location.getLine, location.getColumn)
+  }
+}
+
+case class Pickle(name: String, language: String, steps: List[PickleStep], tags: List[String], location: Option[PickleLocation])
 
 case object Pickle {
-  def apply(pickle: gherkin.pickles.Pickle, withLocation: Boolean = false): Pickle =
+  def apply(pickle: io.cucumber.core.gherkin.Pickle, withLocation: Boolean = false): Pickle =
     Pickle(
       pickle.getName,
       pickle.getLanguage,
       pickle.getSteps.asScala.map(s => PickleStep(s, withLocation)).toList,
-      pickle.getTags.asScala.map(_.getName).toList,
-      if(withLocation)
-        Some(pickle.getLocations.asScala.map(l => PickleLocation(l)).toList)
-      else
-        None
+      pickle.getTags.asScala.toList,
+      if(withLocation) Some(PickleLocation(pickle.getScenarioLocation)) else None
     )
 }
