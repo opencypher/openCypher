@@ -140,10 +140,10 @@
         ]
       },
       {
-        "line": 50,
+        "line": 63,
         "name": "Outline Test",
         "description": "",
-        "id": "foo;outline-test",
+        "id": "foo;outline-test;;2",
         "type": "scenario",
         "keyword": "Scenario Outline",
         "steps": [
@@ -216,10 +216,10 @@
         ]
       },
       {
-        "line": 50,
+        "line": 64,
         "name": "Outline Test",
         "description": "",
-        "id": "foo;outline-test",
+        "id": "foo;outline-test;;3",
         "type": "scenario",
         "keyword": "Scenario Outline",
         "steps": [
@@ -292,10 +292,10 @@
         ]
       },
       {
-        "line": 50,
+        "line": 65,
         "name": "Outline Test",
         "description": "",
-        "id": "foo;outline-test",
+        "id": "foo;outline-test;;4",
         "type": "scenario",
         "keyword": "Scenario Outline",
         "steps": [
@@ -372,7 +372,7 @@
     "description": "",
     "id": "foo",
     "keyword": "Feature",
-    "uri": "Foo.feature",
+    "uri": "file:Foo.feature",
     "tags": []
   }
 ]

@@ -38,7 +38,7 @@ case class ProcessReturn(exitCode: Int, out: Seq[String], err: Seq[String], cmd:
 object CallingSystemProcesses {
 
   def openScenarioInEditor(scenario: Scenario): ProcessReturn = {
-    val cmdSeq =  Seq("subl", scenario.sourceFile.toAbsolutePath.toString + ":" + Pickle(scenario.source, withLocation = true).location.map(_.head.line).getOrElse(0))
+    val cmdSeq =  Seq("subl", scenario.sourceFile.toAbsolutePath.toString + ":" + Pickle(scenario.source, withLocation = true).location.map(_.line).getOrElse(0))
     val cmd = Process(cmdSeq)
 
     val out = ArrayBuffer[String]()

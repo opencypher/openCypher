@@ -274,7 +274,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           )),
           openScenarioInEditorLink(scenario,
             div(CSS.fileLocation)(
-              scenario.sourceFile.toAbsolutePath.toString + ":" + Pickle(scenario.source, withLocation = true).location.map(_.head.line).getOrElse(0)
+              scenario.sourceFile.toAbsolutePath.toString + ":" + Pickle(scenario.source, withLocation = true).location.map(_.line).getOrElse(0)
             )
           )
         )
@@ -321,7 +321,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           div(CSS.locationLine)(scenarioLocationFrag(scenario = before, collection = Some(BeforeCollection.toString))),
           openScenarioInEditorLink(before,
             div(CSS.fileLocation)(
-              before.sourceFile.toAbsolutePath.toString + ":" + Pickle(before.source, withLocation = true).location.map(_.head.line).getOrElse(0)
+              before.sourceFile.toAbsolutePath.toString + ":" + Pickle(before.source, withLocation = true).location.map(_.line).getOrElse(0)
             )
           )
         ),
@@ -330,7 +330,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
           div(CSS.locationLine)(scenarioLocationFrag(scenario = after, collection = Some(AfterCollection.toString))),
           openScenarioInEditorLink(after,
             div(CSS.fileLocation)(
-              after.sourceFile.toAbsolutePath.toString + ":" + Pickle(after.source, withLocation = true).location.map(_.head.line).getOrElse(0)
+              after.sourceFile.toAbsolutePath.toString + ":" + Pickle(after.source, withLocation = true).location.map(_.line).getOrElse(0)
             )
           )
         )

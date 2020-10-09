@@ -43,7 +43,7 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   private var currentScenarioName = ""
   private var skipStyleCheck: Boolean = false
 
-  Before { (scenario: cucumber.api.Scenario) =>
+  Before { (scenario: io.cucumber.scala.Scenario) =>
     validateDuplicateNames(scenario).map(msg => throw InvalidFeatureFormatException(msg))
     currentScenarioName = scenario.getName
     skipStyleCheck = scenario.getSourceTagNames.contains(TCKTags.SKIP_STYLE_CHECK)
@@ -143,7 +143,7 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
     stepValidator.reportStep("Control-query")
   }
 
-  After(_ => stepValidator.checkRequiredSteps())
+  After((_: io.cucumber.scala.Scenario) => stepValidator.checkRequiredSteps())
 
   private def codeStyle(query: String): Option[String] = {
     if (skipStyleCheck) None

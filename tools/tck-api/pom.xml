@@ -57,7 +57,12 @@
 
     <dependency>
       <groupId>io.cucumber</groupId>
-      <artifactId>gherkin</artifactId>
+      <artifactId>cucumber-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.cucumber</groupId>
+      <artifactId>cucumber-gherkin</artifactId>
     </dependency>
 
     <dependency>

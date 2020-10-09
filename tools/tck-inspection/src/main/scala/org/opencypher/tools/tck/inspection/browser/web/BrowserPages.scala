@@ -104,7 +104,7 @@ case class BrowserPages(browserModel: BrowserModel, browserRoutes: BrowserRoutes
           div(CSS.locationLine)(scenarioLocationFrag(scenario)),
           blankLink(browserRoutes.openScenarioInEditorURL(this, scenario),
             div(CSS.fileLocation)(
-              scenario.sourceFile.toAbsolutePath.toString + ":" + Pickle(scenario.source, withLocation = true).location.map(_.head.line).getOrElse(0)
+              scenario.sourceFile.toAbsolutePath.toString + ":" + Pickle(scenario.source, withLocation = true).location.map(_.line).getOrElse(0)
             )
           )
         )

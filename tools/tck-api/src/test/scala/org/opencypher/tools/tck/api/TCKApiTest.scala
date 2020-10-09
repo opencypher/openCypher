@@ -56,7 +56,7 @@ class TCKApiTest extends FunSuite with Matchers {
     outlineScenarios.map(_.exampleIndex) should equal(Seq(Some(0), Some(1), Some(2)))
     outlineScenarios.foreach(s => {
       outlineScenarios.filter(_.exampleIndex.get > s.exampleIndex.get).foreach(s2 => {
-        s2.source.getLocations.get(0).getLine > s.source.getLocations.get(0).getLine
+        s2.source.getLocation.getLine > s.source.getLocation.getLine
       })
     })
   }

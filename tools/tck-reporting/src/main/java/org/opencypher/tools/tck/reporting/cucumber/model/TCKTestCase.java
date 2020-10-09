@@ -27,45 +27,49 @@
  */
 package org.opencypher.tools.tck.reporting.cucumber.model;
 
-import cucumber.api.TestCase;
-import cucumber.api.TestStep;
-import gherkin.pickles.Pickle;
-import gherkin.pickles.PickleTag;
+import io.cucumber.core.gherkin.Pickle;
+import io.cucumber.plugin.event.TestCase;
+import io.cucumber.plugin.event.TestStep;
+
+import java.net.URI;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class TCKTestCase implements TestCase {
-    private final int line;
-    private final String name;
-    private final String uri;
+    private final Pickle pickle;
     private final List<TestStep> testSteps;
-    private final List<PickleTag> tags;
 
-    public TCKTestCase(Pickle pickle, List<TestStep> testSteps, String uri, int line) {
-        this.name = pickle.getName();
-        this.testSteps = testSteps;
-        this.tags = pickle.getTags();
-        this.uri = uri;
-        this.line = line;
+    public TCKTestCase(Pickle pickle) {
+        this.pickle = pickle;
+        this.testSteps = pickle.getSteps().stream().map(s -> new TCKTestStep(s, pickle.getUri())).collect(Collectors.toList());
     }
 
     @Override
-    public int getLine() {
-        return line;
+    public Integer getLine() {
+        return pickle.getLocation().getLine();
+    }
+
+    @Override
+    public String getKeyword() {
+        return pickle.getKeyword();
     }
 
     @Override
     public String getName() {
-        return name;
+        return pickle.getName();
     }
 
+    /** @deprecated */
+    @Deprecated
     @Override
     public String getScenarioDesignation() {
         return "";
     }
 
     @Override
-    public List<PickleTag> getTags() {
-        return tags;
+    public List<String> getTags() {
+        return pickle.getTags();
     }
 
     @Override
@@ -74,7 +78,12 @@ public class TCKTestCase implements TestCase {
     }
 
     @Override
-    public String getUri() {
-        return uri;
+    public URI getUri() {
+        return pickle.getUri();
+    }
+
+    @Override
+    public UUID getId() {
+        return UUID.nameUUIDFromBytes(pickle.getId().getBytes());
     }
 }

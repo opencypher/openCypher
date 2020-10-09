@@ -27,6 +27,7 @@
  */
 package org.opencypher.tools.tck.api.events
 
+import java.net.URI
 import java.util.UUID
 
 import org.opencypher.tools.tck.api.Graph.Result
@@ -62,7 +63,7 @@ object TCKEvents {
 
   case class StepFinished(step: Step, result: StepResult, correlationId: String) extends CorrelationId
 
-  case class FeatureRead(name: String, uri: String, source: String)
+  case class FeatureRead(name: String, uri: URI, source: String)
 
   object Publish {
     def apply[T](): Publish[T] = new Publish[T]

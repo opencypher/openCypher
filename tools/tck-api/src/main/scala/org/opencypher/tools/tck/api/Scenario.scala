@@ -45,7 +45,7 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-case class Scenario(categories: List[String], featureName: String, name: String, exampleIndex: Option[Int], tags: Set[String], steps: List[Step], source: gherkin.pickles.Pickle, sourceFile: Path) {
+case class Scenario(categories: List[String], featureName: String, name: String, exampleIndex: Option[Int], tags: Set[String], steps: List[Step], source: io.cucumber.core.gherkin.Pickle, sourceFile: Path) {
 
   self =>
 
