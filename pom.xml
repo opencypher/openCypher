@@ -28,7 +28,6 @@
 
   <properties>
     <dep.antlr4.version>4.7.2</dep.antlr4.version>
-    <dep.apiguardian.version>1.0.0</dep.apiguardian.version>
     <dep.batik.version>1.13</dep.batik.version>
     <dep.cucumber.version>5.7.0</dep.cucumber.version>
     <dep.hamcrest.version>2.2</dep.hamcrest.version>
@@ -97,12 +96,6 @@
         <version>${dep.junit.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apiguardian</groupId>
-        <artifactId>apiguardian-api</artifactId>
-        <version>${dep.apiguardian.version}</version>
       </dependency>
 
       <dependency>
