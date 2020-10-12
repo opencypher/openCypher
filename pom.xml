@@ -37,7 +37,7 @@
     <dep.junit4.version>4.13</dep.junit4.version>
     <dep.maven.compiler.plugin.version>3.8.1</dep.maven.compiler.plugin.version>
     <dep.maven.javadoc.plugin.version>3.2.0</dep.maven.javadoc.plugin.version>
-    <dep.maven.source.plugin.version>3.0.0</dep.maven.source.plugin.version>
+    <dep.maven.source.plugin.version>3.2.1</dep.maven.source.plugin.version>
     <dep.maven.surefire.plugin.version>2.22.2</dep.maven.surefire.plugin.version>
     <dep.scala.maven.plugin.version>3.4.4</dep.scala.maven.plugin.version>
     <dep.scala.version>2.12.10</dep.scala.version>
