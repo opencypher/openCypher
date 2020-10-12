@@ -46,7 +46,7 @@
     <dep.commons-csv.version>1.8</dep.commons-csv.version>
     <dep.commons-cli.version>1.4</dep.commons-cli.version>
     <dep.freemarker.version>2.3.30</dep.freemarker.version>
-    <dep.jackson-dataformat-xml.version>2.9.0</dep.jackson-dataformat-xml.version>
+    <dep.jackson-dataformat-xml.version>2.11.3</dep.jackson-dataformat-xml.version>
     <license.header>${project.rootdir}/ASL-2-header.txt</license.header>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
