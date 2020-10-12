@@ -337,8 +337,8 @@ Feature: AggregationAcceptance
         {name: count(b)} AS baz
       """
     Then the result should be, in any order:
-      | foo | bar | baz      |
-      | 42  | 42  | {name:1} |
+      | foo | bar | baz       |
+      | 42  | 42  | {name: 1} |
     And no side effects
 
   Scenario: Projection during aggregation in WITH before MERGE and after WITH with predicate
