@@ -29,7 +29,7 @@
   <properties>
     <dep.antlr4.version>4.7.2</dep.antlr4.version>
     <dep.apiguardian.version>1.0.0</dep.apiguardian.version>
-    <dep.batik.version>1.8</dep.batik.version>
+    <dep.batik.version>1.13</dep.batik.version>
     <dep.cucumber.version>5.7.0</dep.cucumber.version>
     <dep.hamcrest.version>2.2</dep.hamcrest.version>
     <dep.junit.platform.version>1.7.0</dep.junit.platform.version>
@@ -42,7 +42,7 @@
     <dep.scala.maven.plugin.version>3.4.4</dep.scala.maven.plugin.version>
     <dep.scala.version>2.12.10</dep.scala.version>
     <dep.scalatest.version>3.0.5</dep.scalatest.version>
-    <dep.xmlgraphics-commons.version>2.0</dep.xmlgraphics-commons.version>
+    <dep.xmlgraphics-commons.version>2.4</dep.xmlgraphics-commons.version>
     <dep.commons-csv.version>1.8</dep.commons-csv.version>
     <dep.commons-cli.version>1.4</dep.commons-cli.version>
     <dep.freemarker.version>2.3.30</dep.freemarker.version>
