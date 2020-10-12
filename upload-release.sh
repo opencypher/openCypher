@@ -26,8 +26,8 @@ mkdir -p ${RELEASE_VERSION}/docs
 echo "Done!"
 
 echo "Generating railroad diagrams... "
-./tools/grammar/src/main/shell/launch.sh RailRoadDiagramPages -outputDir=${RELEASE_VERSION}/railroad cypher.xml
-./tools/grammar/src/main/shell/launch.sh RailRoadDiagramPages --INCLUDE_LEGACY=true -outputDir=${RELEASE_VERSION}/legacy/railroad cypher.xml
+./tools/grammar/src/main/shell/launch.sh RailRoadDiagramPages --user.country=US --user.language=en -outputDir=${RELEASE_VERSION}/railroad cypher.xml
+./tools/grammar/src/main/shell/launch.sh RailRoadDiagramPages --INCLUDE_LEGACY=true --user.country=US --user.language=en -outputDir=${RELEASE_VERSION}/legacy/railroad cypher.xml
 echo "Done!"
 
 echo "Generating EBNF grammars... "
