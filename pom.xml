@@ -31,7 +31,6 @@
     <dep.apiguardian.version>1.0.0</dep.apiguardian.version>
     <dep.batik.version>1.8</dep.batik.version>
     <dep.cucumber.version>5.7.0</dep.cucumber.version>
-    <dep.gherkin.version>5.1.0</dep.gherkin.version>
     <dep.hamcrest.version>2.2</dep.hamcrest.version>
     <dep.junit.platform.version>1.7.0</dep.junit.platform.version>
     <dep.junit.version>5.7.0</dep.junit.version>
@@ -98,12 +97,6 @@
         <version>${dep.junit.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>io.cucumber</groupId>
-        <artifactId>gherkin</artifactId>
-        <version>${dep.gherkin.version}</version>
       </dependency>
 
       <dependency>
