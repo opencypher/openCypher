@@ -124,12 +124,6 @@
       </dependency>
 
       <dependency>
-        <groupId>io.cucumber</groupId>
-        <artifactId>cucumber-gherkin</artifactId>
-        <version>${dep.cucumber.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-svggen</artifactId>
         <version>${dep.batik.version}</version>
