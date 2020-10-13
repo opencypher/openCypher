@@ -278,3 +278,13 @@ Feature: Merge1 - Merge Node
       | +nodes      | 1 |
       | -nodes      | 2 |
       | -properties | 2 |
+
+  @NegativeTest
+  Scenario: [14] Fail when merge a node that is already bound
+    Given any graph
+    When executing query:
+      """
+      MATCH (a)
+      MERGE (a)
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound

@@ -198,16 +198,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
   @NegativeTest
-  Scenario: Failing when using MERGE on a node that is already bound
-    Given any graph
-    When executing query:
-      """
-      MATCH (a)
-      MERGE (a)
-      """
-    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
-
-  @NegativeTest
   Scenario: Failing when float value is too large
     Given any graph
     When executing query:
