@@ -112,3 +112,13 @@ Feature: Merge2 - Merge Node - On Create
       | +nodes      | 1 |
       | +labels     | 1 |
       | +properties | 1 |
+
+  @NegativeTest
+  Scenario: [6] Fail when using undefined variable in ON CREATE
+    Given any graph
+    When executing query:
+      """
+      MERGE (n)
+        ON CREATE SET x.num = 1
+      """
+    Then a SyntaxError should be raised at compile time: UndefinedVariable
