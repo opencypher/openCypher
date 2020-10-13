@@ -281,16 +281,6 @@ Feature: SemanticErrorAcceptance
     Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
 
   @NegativeTest
-  Scenario: Failing when checking existence of a non-property and non-pattern
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      RETURN exists(n.num + 1)
-      """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentExpression
-
-  @NegativeTest
   Scenario: Bad arguments for `range()`
     Given any graph
     When executing query:

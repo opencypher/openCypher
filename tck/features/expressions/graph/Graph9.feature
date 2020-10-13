@@ -110,3 +110,13 @@ Feature: Graph9 - Property existence check
       | exists(n.missing) |
       | null              |
     And no side effects
+
+  @NegativeTest
+  Scenario: [6] Fail when checking existence of a non-property and non-pattern
+    Given any graph
+    When executing query:
+      """
+      MATCH (n)
+      RETURN exists(n.num + 1)
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentExpression
