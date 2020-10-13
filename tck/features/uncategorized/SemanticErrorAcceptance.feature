@@ -309,16 +309,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidUnicodeCharacter
 
   @NegativeTest
-  Scenario: Failing for `size()` on paths
-    Given any graph
-    When executing query:
-      """
-      MATCH p = (a)-[*]->(b)
-      RETURN size(p)
-      """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentType
-
-  @NegativeTest
   Scenario: Failing when using aggregation in list comprehension
     Given any graph
     When executing query:
