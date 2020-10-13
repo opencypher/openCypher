@@ -28,4 +28,26 @@
 
 #encoding: utf-8
 
-Feature: Match6-4 - Match named paths built in functions scenarios
+Feature: With3 - Forward multiple expressions
+
+  Scenario: Forwarding multiple node and relationship variables
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:T1 {id: 0}]->(:X),
+             ()-[:T2 {id: 1}]->(:X),
+             ()-[:T2 {id: 2}]->()
+      """
+    When executing query:
+      """
+      MATCH (a)-[r]->(b:X)
+      WITH a, r, b
+      MATCH (a)-[r]->(b)
+      RETURN r AS rel
+        ORDER BY rel.id
+      """
+    Then the result should be, in order:
+      | rel           |
+      | [:T1 {id: 0}] |
+      | [:T2 {id: 1}] |
+    And no side effects
