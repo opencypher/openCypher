@@ -218,16 +218,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   @NegativeTest
-  Scenario: Failing when using undefined variable in ON MATCH
-    Given any graph
-    When executing query:
-      """
-      MERGE (n)
-        ON MATCH SET x.num = 1
-      """
-    Then a SyntaxError should be raised at compile time: UndefinedVariable
-
-  @NegativeTest
   Scenario: Failing when float value is too large
     Given any graph
     When executing query:
