@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Match3 - Match fixed length patterns scenarios
+Feature: Match3 - Match fixed length patterns
 
   Scenario: [1] Get neighbours
     Given an empty graph
@@ -517,3 +517,13 @@ Feature: Match3 - Match fixed length patterns scenarios
     Then the result should be, in any order:
       | b |
     And no side effects
+
+  @NegativeTest
+  Scenario: [27] Fail when re-using a relationship in the same pattern
+    Given any graph
+    When executing query:
+      """
+      MATCH (a)-[r]->()-[r]->(a)
+      RETURN r
+      """
+    Then a SyntaxError should be raised at compile time: RelationshipUniquenessViolation

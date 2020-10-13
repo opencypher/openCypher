@@ -126,16 +126,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   @NegativeTest
-  Scenario: Failing when re-using a relationship in the same pattern
-    Given any graph
-    When executing query:
-      """
-      MATCH (a)-[r]->()-[r]->(a)
-      RETURN r
-      """
-    Then a SyntaxError should be raised at compile time: RelationshipUniquenessViolation
-
-  @NegativeTest
   Scenario: Bad arguments for `range()`
     Given any graph
     When executing query:
