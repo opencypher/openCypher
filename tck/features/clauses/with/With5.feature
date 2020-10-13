@@ -28,23 +28,24 @@
 
 #encoding: utf-8
 
-Feature: Match1-3 - Match nodes WITH clause scenarios
+Feature: With5 - Implicit grouping with DISTINCT
 
-  Scenario: Return bounded node property
+  Scenario: DISTINCT on an expression
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 1, name: 'King Kong'}),
-        ({num: 2, name: 'Ann Darrow'})
+      CREATE ({name: 'A'}),
+             ({name: 'A'}),
+             ({name: 'B'})
       """
     When executing query:
       """
-      MATCH (n)
-      WITH n.name AS n
-      RETURN n
+      MATCH (a)
+      WITH DISTINCT a.name
+      RETURN *
       """
     Then the result should be, in any order:
-      | n            |
-      | 'Ann Darrow' |
-      | 'King Kong'  |
+      | a.name |
+      | 'A'    |
+      | 'B'    |
     And no side effects
