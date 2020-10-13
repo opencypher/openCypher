@@ -186,18 +186,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
   @NegativeTest
-  Scenario: Failing when using parameter as relationship predicate in MERGE
-    Given any graph
-    When executing query:
-      """
-      MERGE (a)
-      MERGE (b)
-      MERGE (a)-[r:FOO $param]->(b)
-      RETURN r
-      """
-    Then a SyntaxError should be raised at compile time: InvalidParameterUse
-
-  @NegativeTest
   Scenario: Bad arguments for `range()`
     Given any graph
     When executing query:
