@@ -136,15 +136,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: RelationshipUniquenessViolation
 
   @NegativeTest
-  Scenario: Failing when using NOT on string literal
-    Given any graph
-    When executing query:
-      """
-      RETURN NOT 'foo'
-      """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentType
-
-  @NegativeTest
   Scenario: Bad arguments for `range()`
     Given any graph
     When executing query:
