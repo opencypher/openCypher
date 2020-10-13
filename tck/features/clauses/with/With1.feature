@@ -28,9 +28,98 @@
 
 #encoding: utf-8
 
-Feature: Match7-3 - Optional match WITH clause scenarios
+Feature: With1 - Forward single variable
+  # correctly forward of values according to their type, no other effects
 
-  Scenario: WITH after OPTIONAL MATCH
+  Scenario: Forwarind a node variable 1
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A)-[:REL]->(:B)
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a
+      MATCH (a)-->(b)
+      RETURN *
+      """
+    Then the result should be, in any order:
+      | a    | b    |
+      | (:A) | (:B) |
+    And no side effects
+
+  Scenario: Forwarind a node variable 2
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A)-[:REL]->(:B)
+      CREATE (:X)
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a
+      MATCH (x:X), (a)-->(b)
+      RETURN *
+      """
+    Then the result should be, in any order:
+      | x    | a    | b    |
+      | (:X) | (:A) | (:B) |
+    And no side effects
+
+  Scenario: Forwarding a relationship variable
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:T1]->(:X),
+             ()-[:T2]->(:X),
+             ()-[:T3]->()
+      """
+    When executing query:
+      """
+      MATCH ()-[r1]->(:X)
+      WITH r1 AS r2
+      MATCH ()-[r2]->()
+      RETURN r2 AS rel
+      """
+    Then the result should be, in any order:
+      | rel   |
+      | [:T1] |
+      | [:T2] |
+    And no side effects
+
+  Scenario: Forwarding a path variable
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()
+      """
+    When executing query:
+      """
+      MATCH p = (a)
+      WITH p
+      RETURN p
+      """
+    Then the result should be, in any order:
+      | p    |
+      | <()> |
+    And no side effects
+
+  Scenario: Forwarding null
+    Given an empty graph
+    When executing query:
+      """
+      OPTIONAL MATCH (a:Start)
+      WITH a
+      MATCH (a)-->(b)
+      RETURN *
+      """
+    Then the result should be, in any order:
+      | a | b |
+    And no side effects
+
+  Scenario: Forwarind a node variable possibly null
     Given an empty graph
     And having executed:
       """
@@ -51,61 +140,4 @@ Feature: Match7-3 - Optional match WITH clause scenarios
     Then the result should be, in any order:
       | a              | b              |
       | (:A {num: 42}) | (:B {num: 46}) |
-    And no side effects
-
-  Scenario: Matching and optionally matching with bound nodes in reverse direction
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A)-[:T]->(:B)
-      """
-    When executing query:
-      """
-      MATCH (a1)-[r]->()
-      WITH r, a1
-        LIMIT 1
-      OPTIONAL MATCH (a1)<-[r]-(b2)
-      RETURN a1, r, b2
-      """
-    Then the result should be, in any order:
-      | a1   | r    | b2   |
-      | (:A) | [:T] | null |
-    And no side effects
-
-  Scenario: Matching with LIMIT and optionally matching using a relationship that is already bound
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A)-[:T]->(:B)
-      """
-    When executing query:
-      """
-      MATCH ()-[r]->()
-      WITH r
-        LIMIT 1
-      OPTIONAL MATCH (a2)-[r]->(b2)
-      RETURN a2, r, b2
-      """
-    Then the result should be, in any order:
-      | a2   | r    | b2   |
-      | (:A) | [:T] | (:B) |
-    And no side effects
-
-  Scenario: Matching with LIMIT and optionally matching using a relationship and node that are both already bound
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A)-[:T]->(:B)
-      """
-    When executing query:
-      """
-      MATCH (a1)-[r]->()
-      WITH r, a1
-        LIMIT 1
-      OPTIONAL MATCH (a1)-[r]->(b2)
-      RETURN a1, r, b2
-      """
-    Then the result should be, in any order:
-      | a1   | r    | b2   |
-      | (:A) | [:T] | (:B) |
     And no side effects
