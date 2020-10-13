@@ -260,27 +260,6 @@ Feature: SemanticErrorAcceptance
     And no side effects
 
   @NegativeTest
-  Scenario: Failing when performing property access on a non-map 1
-    Given any graph
-    When executing query:
-      """
-      WITH [{num: 0}, 1] AS list
-      RETURN (list[1]).num
-      """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
-
-  @NegativeTest
-  Scenario: Failing when performing property access on a non-map 2
-    Given any graph
-    When executing query:
-      """
-      CREATE (n {name: 'foo'})
-      WITH n.name AS n2
-      RETURN n2.name
-      """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
-
-  @NegativeTest
   Scenario: Bad arguments for `range()`
     Given any graph
     When executing query:
