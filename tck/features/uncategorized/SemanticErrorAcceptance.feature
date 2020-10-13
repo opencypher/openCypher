@@ -156,16 +156,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: CreatingVarLength
 
   @NegativeTest
-  Scenario: Failing when using parameter as node predicate in MATCH
-    Given any graph
-    When executing query:
-      """
-      MATCH (n $param)
-      RETURN n
-      """
-    Then a SyntaxError should be raised at compile time: InvalidParameterUse
-
-  @NegativeTest
   Scenario: Bad arguments for `range()`
     Given any graph
     When executing query:
