@@ -30,57 +30,60 @@
 
 Feature: Match2-3 - Match relationships WITH clause scenarios
 
-  Scenario: Matching using a relationship that is already bound
+  # WithOrderByLimit
+  Scenario: Ordering and limiting on aggregate
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[:T1]->(),
-             ()-[:T2]->()
+      CREATE ()-[:T1 {num: 3}]->(x:X),
+             ()-[:T2 {num: 2}]->(x:X),
+             ()-[:T3 {num: 1}]->(:Y)
       """
     When executing query:
       """
-      MATCH ()-[r1]->()
-      WITH r1 AS r2
-      MATCH ()-[r2]->()
-      RETURN r2 AS rel
+      MATCH ()-[r1]->(x)
+      WITH x, sum(r1.num) AS c
+        ORDER BY c LIMIT 1
+      RETURN x, c
       """
     Then the result should be, in any order:
-      | rel   |
-      | [:T1] |
-      | [:T2] |
+      | x    | c |
+      | (:Y) | 1 |
     And no side effects
 
-  Scenario: Matching using a relationship that is already bound, in conjunction with aggregation
+  # WithOrderBySkip
+  Scenario: Ordering and skipping on aggregate
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[:T1]->(),
-             ()-[:T2]->()
+      CREATE ()-[:T1 {num: 3}]->(x:X),
+             ()-[:T2 {num: 2}]->(x:X),
+             ()-[:T3 {num: 1}]->(:Y)
       """
     When executing query:
       """
-      MATCH ()-[r1]->()
-      WITH r1 AS r2, count(*) AS c
-        ORDER BY c
-      MATCH ()-[r2]->()
-      RETURN r2 AS rel
+      MATCH ()-[r1]->(x)
+      WITH x, sum(r1.num) AS c
+        ORDER BY c SKIP 1
+      RETURN x, c
       """
     Then the result should be, in any order:
-      | rel   |
-      | [:T1] |
-      | [:T2] |
+      | x    | c |
+      | (:X) | 5 |
     And no side effects
 
+  # WithOrderBy
   Scenario: Matching using a relationship that is already bound, in conjunction with aggregation and ORDER BY
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[:T1 {id: 0}]->(),
-             ()-[:T2 {id: 1}]->()
+      CREATE ()-[:T1 {id: 0}]->(:X),
+             ()-[:T2 {id: 1}]->(:X),
+             ()-[:T2 {id: 2}]->()
       """
     When executing query:
       """
-      MATCH (a)-[r]->(b)
+      MATCH (a)-[r]->(b:X)
       WITH a, r, b, count(*) AS c
         ORDER BY c
       MATCH (a)-[r]->(b)
