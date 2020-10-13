@@ -36,7 +36,7 @@ Feature: Match2-3 - Match relationships WITH clause scenarios
     And having executed:
       """
       CREATE ()-[:T1 {num: 3}]->(x:X),
-             ()-[:T2 {num: 2}]->(x:X),
+             ()-[:T2 {num: 2}]->(x),
              ()-[:T3 {num: 1}]->(:Y)
       """
     When executing query:
@@ -57,7 +57,7 @@ Feature: Match2-3 - Match relationships WITH clause scenarios
     And having executed:
       """
       CREATE ()-[:T1 {num: 3}]->(x:X),
-             ()-[:T2 {num: 2}]->(x:X),
+             ()-[:T2 {num: 2}]->(x),
              ()-[:T3 {num: 1}]->(:Y)
       """
     When executing query:
