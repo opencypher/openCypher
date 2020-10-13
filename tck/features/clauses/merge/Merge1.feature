@@ -288,3 +288,13 @@ Feature: Merge1 - Merge Node
       MERGE (a)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+  @NegativeTest
+  Scenario: [15] Fail when using parameter as node predicate in MERGE
+    Given any graph
+    When executing query:
+      """
+      MERGE (n $param)
+      RETURN n
+      """
+    Then a SyntaxError should be raised at compile time: InvalidParameterUse
