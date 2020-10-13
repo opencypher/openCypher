@@ -41,11 +41,11 @@ Feature: With5 - Implicit grouping with DISTINCT
     When executing query:
       """
       MATCH (a)
-      WITH DISTINCT a.name
-      RETURN *
+      WITH DISTINCT a.name AS name
+      RETURN name
       """
     Then the result should be, in any order:
-      | a.name |
-      | 'A'    |
-      | 'B'    |
+      | name |
+      | 'A'  |
+      | 'B'  |
     And no side effects

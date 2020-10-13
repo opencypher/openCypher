@@ -41,13 +41,13 @@ Feature: With6 - Implicit grouping with aggregates
     When executing query:
       """
       MATCH (a)
-      WITH a.name, count(*) AS relCount
-      RETURN *
+      WITH a.name AS name, count(*) AS relCount
+      RETURN name, relCount
       """
     Then the result should be, in any order:
-      | a.name | relCount |
-      | 'A'    | 2        |
-      | 'B'    | 1        |
+      | name | relCount |
+      | 'A'  | 2        |
+      | 'B'  | 1        |
     And no side effects
 
   Scenario: Implicit grouping with single relationship variable as grouping key and single aggregation

@@ -64,8 +64,8 @@ Feature: With1 - Forward single variable
       RETURN *
       """
     Then the result should be, in any order:
-      | x    | a    | b    |
-      | (:X) | (:A) | (:B) |
+      | a    | b    | x    |
+      | (:A) | (:B) | (:X) |
     And no side effects
 
   Scenario: Forwarding a relationship variable
