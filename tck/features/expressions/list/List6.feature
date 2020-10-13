@@ -81,3 +81,13 @@ Feature: List6 - List Size
       | size(l) | size(null) |
       | null    | null       |
     And no side effects
+
+  @NegativeTest
+  Scenario: [5] Fail for `size()` on paths
+    Given any graph
+    When executing query:
+      """
+      MATCH p = (a)-[*]->(b)
+      RETURN size(p)
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
