@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Match2 - Match relationships scenarios
+Feature: Match2 - Match relationships
 
   Scenario: [1] Match non-existent relationships returns empty
     Given an empty graph
@@ -131,3 +131,13 @@ Feature: Match2 - Match relationships scenarios
       | [:KNOWS] |
       | [:HATES] |
     And no side effects
+
+  @NegativeTest
+  Scenario: [7] Fail when using parameter as relationship predicate in MATCH
+    Given any graph
+    When executing query:
+      """
+      MATCH ()-[r:FOO $param]->()
+      RETURN r
+      """
+    Then a SyntaxError should be raised at compile time: InvalidParameterUse
