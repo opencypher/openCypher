@@ -247,19 +247,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: FloatingPointOverflow
 
   @NegativeTest
-  Scenario: Handling property access on the Any type
-    Given any graph
-    When executing query:
-      """
-      WITH [{num: 0}, 1] AS list
-      RETURN (list[0]).num
-      """
-    Then the result should be, in any order:
-      | (list[0]).num |
-      | 0             |
-    And no side effects
-
-  @NegativeTest
   Scenario: Bad arguments for `range()`
     Given any graph
     When executing query:

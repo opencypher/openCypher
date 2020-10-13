@@ -31,8 +31,20 @@
 Feature: Map1 - Static value access
 # Static value access refers to the dot-operator – <expression resulting in a map>.<identify> – which does not allow any dynamic computation of the map key – i.e. <identify>.
 
+  Scenario: [1] Statically access field of a map resulting from an expression
+    Given any graph
+    When executing query:
+      """
+      WITH [{num: 0}, 1] AS list
+      RETURN (list[0]).num
+      """
+    Then the result should be, in any order:
+      | (list[0]).num |
+      | 0             |
+    And no side effects
+
   @NegativeTest
-  Scenario: [1] Fail when performing property access on a non-map
+  Scenario: [2] Fail when performing property access on a non-map
     Given any graph
     When executing query:
       """
