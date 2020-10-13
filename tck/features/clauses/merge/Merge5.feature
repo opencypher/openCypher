@@ -504,3 +504,14 @@ Feature: Merge5 - Merge relationships
       RETURN r
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
+
+  @NegativeTest
+  Scenario: [28] Fail when using variable length relationship in MERGE
+    Given any graph
+    When executing query:
+      """
+      MERGE (a)
+      MERGE (b)
+      MERGE (a)-[:FOO*2]->(b)
+      """
+    Then a SyntaxError should be raised at compile time: CreatingVarLength
