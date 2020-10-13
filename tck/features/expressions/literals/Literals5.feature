@@ -315,3 +315,12 @@ Feature: Literals5 - Float
       | literal        |
       | 1.23456789e308 |
     And no side effects
+
+  @NegativeTest
+  Scenario: [27] Fail when float value is too large
+    Given any graph
+    When executing query:
+      """
+      RETURN 1.34E999
+      """
+    Then a SyntaxError should be raised at compile time: FloatingPointOverflow

@@ -198,15 +198,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
   @NegativeTest
-  Scenario: Failing when float value is too large
-    Given any graph
-    When executing query:
-      """
-      RETURN 1.34E999
-      """
-    Then a SyntaxError should be raised at compile time: FloatingPointOverflow
-
-  @NegativeTest
   Scenario: Bad arguments for `range()`
     Given any graph
     When executing query:
