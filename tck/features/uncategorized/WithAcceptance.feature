@@ -30,24 +30,7 @@
 
 Feature: WithAcceptance
 
-  Scenario: Passing on pattern nodes
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A)-[:REL]->(:B)
-      """
-    When executing query:
-      """
-      MATCH (a:A)
-      WITH a
-      MATCH (a)-->(b)
-      RETURN *
-      """
-    Then the result should be, in any order:
-      | a    | b    |
-      | (:A) | (:B) |
-    And no side effects
-
+  # WithOrderByLimit
   Scenario: ORDER BY and LIMIT can be used
     Given an empty graph
     And having executed:
@@ -69,49 +52,8 @@ Feature: WithAcceptance
       | (:A) |
     And no side effects
 
-  Scenario: No dependencies between the query parts
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A), (:B)
-      """
-    When executing query:
-      """
-      MATCH (a)
-      WITH a
-      MATCH (b)
-      RETURN a, b
-      """
-    Then the result should be, in any order:
-      | a    | b    |
-      | (:A) | (:A) |
-      | (:A) | (:B) |
-      | (:B) | (:A) |
-      | (:B) | (:B) |
-    And no side effects
-
-  Scenario: Aliasing
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:Begin {num: 42}),
-             (:End {num: 42}),
-             (:End {num: 3})
-      """
-    When executing query:
-      """
-      MATCH (a:Begin)
-      WITH a.num AS property
-      MATCH (b:End)
-      WHERE property = b.num
-      RETURN b
-      """
-    Then the result should be, in any order:
-      | b                |
-      | (:End {num: 42}) |
-    And no side effects
-
-  Scenario: Handle dependencies across WITH
+  # WithOrderByLimit (does this scenario realy testing LIMIT)
+  Scenario: Handle dependencies across WITH with LIMIT
     Given an empty graph
     And having executed:
       """
@@ -133,6 +75,7 @@ Feature: WithAcceptance
       | (:End {num: 42, id: 0}) |
     And no side effects
 
+  # WithOrderBySkip
   Scenario: Handle dependencies across WITH with SKIP
     Given an empty graph
     And having executed:
@@ -156,6 +99,7 @@ Feature: WithAcceptance
       | ({name: 'A', num: 0, id: 0}) |
     And no side effects
 
+  # WithWhere
   Scenario: WHERE after WITH should filter results
     Given an empty graph
     And having executed:
@@ -176,6 +120,7 @@ Feature: WithAcceptance
       | ({name: 'B'}) |
     And no side effects
 
+  # WithWhere
   Scenario: WHERE after WITH can filter on top of an aggregation
     Given an empty graph
     And having executed:
@@ -199,6 +144,7 @@ Feature: WithAcceptance
       | ({name: 'A'}) |
     And no side effects
 
+  # WithOrderBy
   Scenario: ORDER BY on an aggregating key
     Given an empty graph
     And having executed:
@@ -220,6 +166,7 @@ Feature: WithAcceptance
       | 'B'  | 1        |
     And no side effects
 
+  # WithOrderBy
   Scenario: ORDER BY a DISTINCT column
     Given an empty graph
     And having executed:
@@ -241,6 +188,7 @@ Feature: WithAcceptance
       | 'B'  |
     And no side effects
 
+  # WithWhere
   Scenario: WHERE on a DISTINCT column
     Given an empty graph
     And having executed:
@@ -261,52 +209,8 @@ Feature: WithAcceptance
       | 'B'  |
     And no side effects
 
-  Scenario: A simple pattern with one bound endpoint
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:A)-[:REL]->(:B)
-      """
-    When executing query:
-      """
-      MATCH (a:A)-[r:REL]->(b:B)
-      WITH a AS b, b AS tmp, r AS r
-      WITH b AS a, r
-      LIMIT 1
-      MATCH (a)-[r]->(b)
-      RETURN a, r, b
-      """
-    Then the result should be, in any order:
-      | a    | r      | b    |
-      | (:A) | [:REL] | (:B) |
-    And no side effects
-
-  Scenario: Null handling
-    Given an empty graph
-    When executing query:
-      """
-      OPTIONAL MATCH (a:Start)
-      WITH a
-      MATCH (a)-->(b)
-      RETURN *
-      """
-    Then the result should be, in any order:
-      | a | b |
-    And no side effects
-
-  Scenario: Nested maps
-    Given an empty graph
-    When executing query:
-      """
-      WITH {name: {name2: 'baz'}} AS nestedMap
-      RETURN nestedMap.name.name2
-      """
-    Then the result should be, in any order:
-      | nestedMap.name.name2 |
-      | 'baz'                |
-    And no side effects
-
-  Scenario: Connected components succeeding WITH
+  # WithLimit
+  Scenario: Connected components succeeding WITH with LIMIT
     Given an empty graph
     And having executed:
       """
@@ -326,6 +230,7 @@ Feature: WithAcceptance
       | (:B) | (:A) | (:X) |
     And no side effects
 
+  # WithWhere
   Scenario: Single WITH using a predicate and aggregation
     Given an empty graph
     And having executed:
@@ -337,37 +242,6 @@ Feature: WithAcceptance
       MATCH (n)
       WITH n
       WHERE n.num = 42
-      RETURN count(*)
-      """
-    Then the result should be, in any order:
-      | count(*) |
-      | 1        |
-    And no side effects
-
-  Scenario: Multiple WITHs using a predicate and aggregation
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a {name: 'David'}),
-             (b {name: 'Other'}),
-             (c {name: 'NotOther'}),
-             (d {name: 'NotOther2'}),
-             (a)-[:REL]->(b),
-             (a)-[:REL]->(c),
-             (a)-[:REL]->(d),
-             (b)-[:REL]->(),
-             (b)-[:REL]->(),
-             (c)-[:REL]->(),
-             (c)-[:REL]->(),
-             (d)-[:REL]->()
-      """
-    When executing query:
-      """
-      MATCH (david {name: 'David'})--(otherPerson)-->()
-      WITH otherPerson, count(*) AS foaf
-      WHERE foaf > 1
-      WITH otherPerson
-      WHERE otherPerson.name <> 'NotOther'
       RETURN count(*)
       """
     Then the result should be, in any order:
