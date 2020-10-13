@@ -33,7 +33,7 @@
     <dep.hamcrest.version>2.2</dep.hamcrest.version>
     <dep.junit.platform.version>1.7.0</dep.junit.platform.version>
     <dep.junit.version>5.7.0</dep.junit.version>
-    <dep.junit4.version>4.13</dep.junit4.version>
+    <dep.junit4.version>4.13.1</dep.junit4.version>
     <dep.maven.compiler.plugin.version>3.8.1</dep.maven.compiler.plugin.version>
     <dep.maven.javadoc.plugin.version>3.2.0</dep.maven.javadoc.plugin.version>
     <dep.maven.source.plugin.version>3.2.1</dep.maven.source.plugin.version>
