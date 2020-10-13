@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Merge5 - Merge Relationships
+Feature: Merge5 - Merge relationships
 
   Scenario: [1] Creating a relationship
     Given an empty graph
@@ -452,3 +452,33 @@ Feature: Merge5 - Merge Relationships
       MERGE (a)-[r:KNOWS]->(a:Bar)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+  @NegativeTest
+  Scenario: [23] Fail when merging relationship without type
+    Given any graph
+    When executing query:
+      """
+      CREATE (a), (b)
+      MERGE (a)-->(b)
+      """
+    Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
+
+  @NegativeTest
+  Scenario: [24] Fail when merging relationship without type, no colon
+    Given any graph
+    When executing query:
+      """
+      MATCH (a), (b)
+      MERGE (a)-[NO_COLON]->(b)
+      """
+    Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
+
+  @NegativeTest
+  Scenario: [25] Fail when merging relationship with more than one type
+    Given any graph
+    When executing query:
+      """
+      CREATE (a), (b)
+      MERGE (a)-[:A|:B]->(b)
+      """
+    Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
