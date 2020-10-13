@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Match1 - Match Nodes scenarios
+Feature: Match1 - Match nodes
 
   Scenario: [1] Match non-existent nodes returns empty
     Given an empty graph
@@ -119,3 +119,13 @@ Feature: Match1 - Match Nodes scenarios
       | 3 | 1 |
       | 3 | 2 |
     And no side effects
+
+  @NegativeTest
+  Scenario: [6] Fail when using parameter as node predicate in MATCH
+    Given any graph
+    When executing query:
+      """
+      MATCH (n $param)
+      RETURN n
+      """
+    Then a SyntaxError should be raised at compile time: InvalidParameterUse
