@@ -41,50 +41,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
   @NegativeTest
-  Scenario: Failing when using IN on a string literal
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      WHERE n.id IN ''
-      RETURN 1
-      """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentType
-
-  @NegativeTest
-  Scenario: Failing when using IN on an integer literal
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      WHERE n.id IN 1
-      RETURN 1
-      """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentType
-
-  @NegativeTest
-  Scenario: Failing when using IN on a float literal
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      WHERE n.id IN 1.0
-      RETURN 1
-      """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentType
-
-  @NegativeTest
-  Scenario: Failing when using IN on a boolean literal
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      WHERE n.id IN true
-      RETURN 1
-      """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentType
-
-  @NegativeTest
   Scenario: Failing when a node is used as a relationship
     Given any graph
     When executing query:

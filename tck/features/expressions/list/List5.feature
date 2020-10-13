@@ -486,3 +486,20 @@ Feature: List5 - List Membership Validation - IN Operator
       | res  |
       | true |
     And no side effects
+
+  @NegativeTest
+  Scenario Outline: [42] Failing when using IN on a non-list literal
+    Given any graph
+    When executing query:
+      """
+      RETURN 1 IN <invalid>
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+    Examples:
+      | invalid |
+      | true    |
+      | 123     |
+      | 123.4   |
+      | 'foo'   |
+      | {x: []} |
