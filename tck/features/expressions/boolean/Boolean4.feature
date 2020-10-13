@@ -46,3 +46,20 @@ Feature: Boolean4 - NOT logical operations
       | n             |
       | ({name: 'a'}) |
     And no side effects
+
+  @NegativeTest
+  Scenario Outline: [2] Fail when using NOT on a non-boolean literal
+    Given any graph
+    When executing query:
+      """
+      RETURN NOT <literal>
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+    Examples:
+      | literal       |
+      | 123           |
+      | 123.4         |
+      | 'foo'         |
+    # | [true, false] | current Neo4j return true on an empty list and false on any other list
+      | {bool: true}  |
