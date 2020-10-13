@@ -71,16 +71,6 @@ Feature: SemanticErrorAcceptance
     Then a ArgumentError should be raised at runtime: NumberOutOfRange
 
   @NegativeTest
-  Scenario: Failing when using aggregation in list comprehension
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      RETURN [x IN [1, 2, 3, 4, 5] | count(*)]
-      """
-    Then a SyntaxError should be raised at compile time: InvalidAggregation
-
-  @NegativeTest
   Scenario: Failing when using non-constants in SKIP
     Given any graph
     When executing query:
