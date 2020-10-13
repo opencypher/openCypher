@@ -28,9 +28,30 @@
 
 #encoding: utf-8
 
-Feature: Match8 - Match clause Interoperation with other clauses
+Feature: Match8 - Match clause interoperation with other clauses
 
-  Scenario: [1] Counting rows after MATCH, MERGE, OPTIONAL MATCH
+  Scenario: [1] Pattern independented of bound variables results in cross product
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A), (:B)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a
+      MATCH (b)
+      RETURN a, b
+      """
+    Then the result should be, in any order:
+      | a    | b    |
+      | (:A) | (:A) |
+      | (:A) | (:B) |
+      | (:B) | (:A) |
+      | (:B) | (:B) |
+    And no side effects
+
+  Scenario: [2] Counting rows after MATCH, MERGE, OPTIONAL MATCH
     Given an empty graph
     And having executed:
       """
