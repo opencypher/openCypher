@@ -482,3 +482,13 @@ Feature: Merge5 - Merge relationships
       MERGE (a)-[:A|:B]->(b)
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
+
+  @NegativeTest
+  Scenario: [26] Fail when merging relationship that is already bound
+    Given any graph
+    When executing query:
+      """
+      MATCH (a)-[r]->(b)
+      MERGE (a)-[r]->(b)
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
