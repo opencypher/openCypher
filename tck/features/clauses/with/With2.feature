@@ -28,43 +28,49 @@
 
 #encoding: utf-8
 
-Feature: Match6-3 - Match named paths WITH clause scenarios
+Feature: With2 - Forward single expression
+  # correctly projecting an expression, no other effects
 
-  Scenario: Named path with WITH
+  Scenario: Forwarding a property to express a join
     Given an empty graph
     And having executed:
       """
-      CREATE ()
+      CREATE (a:End {num: 42, id: 0}),
+             (:End {num: 3}),
+             (:Begin {num: a.id})
       """
     When executing query:
       """
-      MATCH p = (a)
-      WITH p
-      RETURN p
+      MATCH (a:Begin)
+      WITH a.num AS property
+      MATCH (b)
+      WHERE b.id = property
+      RETURN b
       """
     Then the result should be, in any order:
-      | p    |
-      | <()> |
+      | b                       |
+      | (:End {num: 42, id: 0}) |
     And no side effects
 
-  Scenario: Aggregation with named paths
+  Scenario: Forwarding a nested map literal
     Given an empty graph
-    And having executed:
-      """
-      CREATE (n1 {num: 1}), (n2 {num: 2}),
-             (n3 {num: 3}), (n4 {num: 4})
-      CREATE (n1)-[:T]->(n2),
-             (n3)-[:T]->(n4)
-      """
     When executing query:
       """
-      MATCH p = ()-[*]->()
-      WITH count(*) AS count, p AS p
-      WITH nodes(p) AS nodes
-      RETURN *
+      WITH {name: {name2: 'baz'}} AS nestedMap
+      RETURN nestedMap.name.name2
       """
     Then the result should be, in any order:
-      | nodes                    |
-      | [({num: 1}), ({num: 2})] |
-      | [({num: 3}), ({num: 4})] |
+      | nestedMap.name.name2 |
+      | 'baz'                |
     And no side effects
+
+  @NegativeTest
+  Scenario: Failing when not aliasing expressions in WITH
+    Given any graph
+    When executing query:
+      """
+      MATCH (a)
+      WITH a, count(*)
+      RETURN a
+      """
+    Then a SyntaxError should be raised at compile time: NoExpressionAlias
