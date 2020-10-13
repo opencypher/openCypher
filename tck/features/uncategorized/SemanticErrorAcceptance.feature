@@ -300,15 +300,6 @@ Feature: SemanticErrorAcceptance
     Then a ArgumentError should be raised at runtime: NumberOutOfRange
 
   @NegativeTest
-  Scenario: Fail for invalid Unicode hyphen in subtraction
-    Given any graph
-    When executing query:
-      """
-      RETURN 42 — 41
-      """
-    Then a SyntaxError should be raised at compile time: InvalidUnicodeCharacter
-
-  @NegativeTest
   Scenario: Failing when using aggregation in list comprehension
     Given any graph
     When executing query:
