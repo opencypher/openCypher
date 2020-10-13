@@ -166,16 +166,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
   @NegativeTest
-  Scenario: Failing when using parameter as relationship predicate in MATCH
-    Given any graph
-    When executing query:
-      """
-      MATCH ()-[r:FOO $param]->()
-      RETURN r
-      """
-    Then a SyntaxError should be raised at compile time: InvalidParameterUse
-
-  @NegativeTest
   Scenario: Bad arguments for `range()`
     Given any graph
     When executing query:
