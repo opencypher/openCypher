@@ -30,3 +30,14 @@
 
 Feature: Graph6 - Static property access
   # Accessing a property of a node or edge by using a symbolic name as the key.
+
+  @NegativeTest
+  Scenario: [1] Fail when performing property access on a non-graph element
+    Given any graph
+    When executing query:
+      """
+      CREATE (n {name: 'foo'})
+      WITH n.name AS n2
+      RETURN n2.name
+      """
+    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
