@@ -135,3 +135,13 @@ Feature: Graph4 - Edge relationship type
       | true    |
       | ''      |
       | []      |
+
+  @NegativeTest
+  Scenario: Failing when using `type()` on a node
+    Given any graph
+    When executing query:
+      """
+      MATCH (r)
+      RETURN type(r)
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
