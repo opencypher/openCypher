@@ -29,3 +29,12 @@
 #encoding: utf-8
 
 Feature: Mathematical3 - Subtraction
+
+  @NegativeTest
+  Scenario: [1] Fail for invalid Unicode hyphen in subtraction
+    Given any graph
+    When executing query:
+      """
+      RETURN 42 — 41
+      """
+    Then a SyntaxError should be raised at compile time: InvalidUnicodeCharacter
