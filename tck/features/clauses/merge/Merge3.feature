@@ -103,3 +103,13 @@ Feature: Merge3 - Merge Node - On Match
       | +nodes      | 1 |
       | +labels     | 1 |
       | +properties | 1 |
+
+  @NegativeTest
+  Scenario: [5] Fail when using undefined variable in ON MATCH
+    Given any graph
+    When executing query:
+      """
+      MERGE (n)
+        ON MATCH SET x.num = 1
+      """
+    Then a SyntaxError should be raised at compile time: UndefinedVariable
