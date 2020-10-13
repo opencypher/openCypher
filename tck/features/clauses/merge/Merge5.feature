@@ -494,7 +494,7 @@ Feature: Merge5 - Merge relationships
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   @NegativeTest
-  Scenario: Failing when using parameter as relationship predicate in MERGE
+  Scenario: [27] Fail when using parameter as relationship predicate in MERGE
     Given any graph
     When executing query:
       """
