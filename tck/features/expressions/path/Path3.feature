@@ -47,3 +47,23 @@ Feature: Path3 - Length of a path
       | (:B) | (:B) | 0 |
       | (:A) | (:B) | 1 |
     And no side effects
+
+  @NegativeTest
+  Scenario: Failing when using `length()` on a node
+    Given any graph
+    When executing query:
+      """
+      MATCH (n)
+      RETURN length(n)
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  @NegativeTest
+  Scenario: Failing when using `length()` on a relationship
+    Given any graph
+    When executing query:
+      """
+      MATCH ()-[r]->()
+      RETURN length(r)
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
