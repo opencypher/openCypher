@@ -143,12 +143,33 @@ Feature: Match2 - Match relationships
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
   @NegativeTest
-  Scenario: [8] Fail when a node is used as a relationship
+  Scenario Outline: [8] Fail when a node or a path is used as a relationship
     Given any graph
     When executing query:
       """
-      MATCH (r)
+      MATCH <pattern>
       MATCH ()-[r]-()
       RETURN r
       """
     Then a SyntaxError should be raised at compile time: VariableTypeConflict
+
+    Examples:
+      | pattern      |
+      | (r)          |
+      | r = ()-[]-() |
+
+  @NegativeTest
+  Scenario Outline: [9] Fail when a relationship and a node have the same variable
+    Given any graph
+    When executing query:
+      """
+      MATCH <pattern>
+      RETURN r
+      """
+    Then a SyntaxError should be raised at compile time: VariableTypeConflict
+
+    Examples:
+      | pattern     |
+      | (r)-[r]-()  |
+      | ()-[r]-(r)  |
+      | (r)-[r]-(r) |
