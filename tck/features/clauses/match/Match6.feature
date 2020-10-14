@@ -386,3 +386,126 @@ Feature: Match6 - Match named paths scenarios
       | <({name: 'A'})-[:KNOWS]->({name: 'B'})>                         |
       | <({name: 'A'})-[:KNOWS]->({name: 'B'})-[:KNOWS]->({name: 'C'})> |
     And no side effects
+
+  @NegativeTest
+  Scenario Outline: [21] Fail when a node has the same variable in a preceding MATCH
+    Given any graph
+    When executing query:
+      """
+      MATCH <pattern>
+      MATCH p = ()-[]-()
+      RETURN p
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+    Examples:
+      | pattern                               |
+      | (p)-[]-()                             |
+      | (p)-[]->()                            |
+      | (p)<-[]-()                            |
+      | ()-[]-(p)                             |
+      | ()-[]->(p)                            |
+      | ()<-[]-(p)                            |
+      | (p)-[]-(), ()                         |
+      | ()-[]-(p), ()                         |
+      | (p)-[]-()-[]-()                       |
+      | ()-[]-(p)-[]-()                       |
+      | ()-[]-()-[]-(p)                       |
+      | (a)-[r]-(p)-[]->(b), (t), (t)-[*]-(b) |
+      | (a)-[r*]-(s)-[]-(b), (p), (t)-[]-(b)  |
+      | (a)-[r]-(p)<-[*]-(b), (t), (t)-[]-(b) |
+
+  @NegativeTest
+  Scenario Outline: [22] Fail when a relationship has the same variable in a preceding MATCH
+    Given any graph
+    When executing query:
+      """
+      MATCH <pattern>
+      MATCH p = ()-[]-()
+      RETURN p
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+    Examples:
+      | pattern                               |
+      | ()-[p]-()                             |
+      | ()-[p]->()                            |
+      | ()<-[p]-()                            |
+      | ()-[p*]-()                            |
+      | ()-[p*]->()                           |
+      | ()<-[p*]-()                           |
+      | ()-[p]-(), ()                         |
+      | ()-[p*]-(), ()                        |
+      | ()-[p]-()-[]-()                       |
+      | ()-[p*]-()-[]-()                      |
+      | ()-[]-()-[p]-()                       |
+      | ()-[]-()-[p*]-()                      |
+      | (a)-[r]-()-[]->(b), (t), (t)-[p*]-(b) |
+      | (a)-[r*]-(s)-[p]-(b), (t), (t)-[]-(b) |
+      | (a)-[r]-(s)<-[p]-(b), (t), (t)-[]-(b) |
+
+  @NegativeTest
+  Scenario Outline: [23] Fail when a node has the same variable in the same pattern
+    Given any graph
+    When executing query:
+      """
+      MATCH <pattern>
+      RETURN p
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+    Examples:
+      | pattern                                               |
+      | p = (p)-[]-()                                         |
+      | p = (p)-[]->()                                        |
+      | p = (p)<-[]-()                                        |
+      | p = ()-[]-(p)                                         |
+      | p = ()-[]->(p)                                        |
+      | p = ()<-[]-(p)                                        |
+      | (p)-[]-(), p = ()-[]-()                               |
+      | (p)-[]->(), p = ()-[]-()                              |
+      | (p)<-[]-(), p = ()-[]-()                              |
+      | ()-[]-(p), p = ()-[]-()                               |
+      | ()-[]->(p), p = ()-[]-()                              |
+      | ()<-[]-(p), p = ()-[]-()                              |
+      | (p)-[]-(), (), p = ()-[]-()                           |
+      | ()-[p]-(), (), p = ()-[]-()                           |
+      | ()-[]-(p), (), p = ()-[]-()                           |
+      | (p)-[]-()-[]-(), p = ()-[]-()                         |
+      | ()-[]-(p)-[]-(), p = ()-[]-()                         |
+      | ()-[]-()-[]-(p), p = ()-[]-()                         |
+      | (a)-[r]-(p)-[]-(b), p = (s)-[]-(t), (t), (t)-[]-(b)   |
+      | (a)-[r]-(p)<-[*]-(b), p = (s)-[]-(t), (t), (t)-[]-(b) |
+
+  @NegativeTest
+  Scenario Outline: [24] Fail when a relationship has the same variable in the same pattern
+    Given any graph
+    When executing query:
+      """
+      MATCH <pattern>
+      RETURN p
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+    Examples:
+      | pattern                                                |
+      | p = ()-[p]-()                                          |
+      | p = ()-[p]->()                                         |
+      | p = ()<-[p]-()                                         |
+      | p = ()-[p*]-()                                         |
+      | p = ()-[p*]->()                                        |
+      | p = ()<-[p*]-()                                        |
+      | ()-[p]-(), p = ()-[]-()                                |
+      | ()-[p]->(), p = ()-[]-()                               |
+      | ()<-[p]-(), p = ()-[]-()                               |
+      | ()-[p*]-(), p = ()-[]-()                               |
+      | ()-[p*]->(), p = ()-[]-()                              |
+      | ()<-[p*]-(), p = ()-[]-()                              |
+      | ()-[p]-(), (), p = ()-[]-()                            |
+      | ()-[p*]-(), (), p = ()-[]-()                           |
+      | ()-[p]-()-[]-(), p = ()-[]-()                          |
+      | ()-[p*]-()-[]-(), p = ()-[]-()                         |
+      | ()-[]-()-[p]-(), p = ()-[]-()                          |
+      | ()-[]-()-[p*]-(), p = ()-[]-()                         |
+      | (a)-[r]-(s)-[p]-(b), p = (s)-[]-(t), (t), (t)-[]-(b)   |
+      | (a)-[r]-(s)<-[p*]-(b), p = (s)-[]-(t), (t), (t)-[]-(b) |
