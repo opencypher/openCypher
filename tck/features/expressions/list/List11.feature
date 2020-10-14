@@ -39,6 +39,7 @@ Feature: List11 - Create a list from a range
     Then the result should be, in any order:
       | list   |
       | <list> |
+    And no side effects
 
     Examples:
       | start | end   | list                                         |
@@ -56,7 +57,6 @@ Feature: List11 - Create a list from a range
       | 6     | 10    | [6, 7, 8, 9, 10]                             |
       | 1234  | 1234  | [1234]                                       |
       | 1234  | 1236  | [1234, 1235, 1236]                           |
-    And no side effects
 
   Scenario Outline: [2] Create list from `range()` with explicitly given step
     Given any graph
@@ -67,6 +67,7 @@ Feature: List11 - Create a list from a range
     Then the result should be, in any order:
       | list   |
       | <list> |
+    And no side effects
 
     Examples:
       | start | end   | step  | list                                              |
@@ -95,9 +96,7 @@ Feature: List11 - Create a list from a range
       | -10   | 10    | 3     | [-10, -7, -4, -1, 2, 5, 8]                        |
       | -2000 | 0     | 1298  | [-2000, -702]                                     |
       | -3412 | 1381  | 1298  | [-3412, -2114, -816, 482]                         |
-    And no side effects
 
-  @NegativeTest
   Scenario: [3] Create an empty list if range direction and step direction are inconsistent
     Given any graph
     When executing query:
@@ -112,6 +111,7 @@ Feature: List11 - Create a list from a range
     Then the result should be, in any order:
       | okay |
       | true |
+    And no side effects
 
   @NegativeTest
   Scenario Outline: [4] Fail on invalid arguments for `range()`
