@@ -28,10 +28,91 @@
 
 #encoding: utf-8
 
-Feature: List11 - Create a list for a range - `range()` function
+Feature: List11 - Create a list from a range
+
+  Scenario Outline: [1] Create list from `range()` with default step
+    Given any graph
+    When executing query:
+      """
+      RETURN range(<start>, <end>) AS list
+      """
+    Then the result should be, in any order:
+      | list   |
+      | <list> |
+
+    Examples:
+      | start | end   | list                                         |
+      | -1236 | -1234 | [-1236, -1235, -1234]                        |
+      | -1234 | -1234 | [-1234]                                      |
+      | -10   | -3    | [-10, -9, -8, -7, -6, -5, -4, -3]            |
+      | -10   | 0     | [-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0] |
+      | -1    | 0     | [-1, 0]                                      |
+      | 0     | -123  | []                                           |
+      | 0     | -1    | []                                           |
+      | -1    | 1     | [-1, 0, 1]                                   |
+      | 0     | 0     | [0]                                          |
+      | 0     | 1     | [0, 1]                                       |
+      | 0     | 10    | [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]           |
+      | 6     | 10    | [6, 7, 8, 9, 10]                             |
+      | 1234  | 1234  | [1234]                                       |
+      | 1234  | 1236  | [1234, 1235, 1236]                           |
+
+  Scenario Outline: [2] Create list from `range()` with explicitly given step
+    Given any graph
+    When executing query:
+      """
+      RETURN range(<start>, <end>, <step>) AS list
+      """
+    Then the result should be, in any order:
+      | list   |
+      | <list> |
+
+    Examples:
+      | start | end   | step  | list                                              |
+      | 1381  | -3412 | -1298 | [1381, 83, -1215, -2513]                          |
+      | 0     | -2000 | -1298 | [0, -1298]                                        |
+      | 10    | -10   | -3    | [10, 7, 4, 1, -2, -5, -8]                         |
+      | 0     | -10   | -3    | [0, -3, -6, -9]                                   |
+      | 0     | -20   | -2    | [0, -2, -4, -6, -8, -10, -12, -14, -16, -18, -20] |
+      | 0     | -10   | -1    | [0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10]      |
+      | 0     | -1    | -1    | [0, -1]                                           |
+      | -1236 | -1234 | 1     | [-1236, -1235, -1234]                             |
+      | -10   | 0     | 1     | [-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0]      |
+      | -1    | 0     | 1     | [-1, 0]                                           |
+      | 0     | 1     | -123  | []                                                |
+      | 0     | 1     | -1    | []                                                |
+      | 0     | -123  | 1     | []                                                |
+      | 0     | -1    | 1     | []                                                |
+      | 0     | 0     | 1     | [0]                                               |
+      | 0     | 1     | 2     | [0]                                               |
+      | 0     | 1     | 1     | [0, 1]                                            |
+      | 0     | 10    | 1     | [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]                |
+      | 6     | 10    | 1     | [6, 7, 8, 9, 10]                                  |
+      | 1234  | 1234  | 1     | [1234]                                            |
+      | 1234  | 1236  | 1     | [1234, 1235, 1236]                                |
+      | -10   | 0     | 3     | [-10, -7, -4, -1]                                 |
+      | -10   | 10    | 3     | [-10, -7, -4, -1, 2, 5, 8]                        |
+      | -2000 | 0     | 1298  | [-2000, -702]                                     |
+      | -3412 | 1381  | 1298  | [-3412, -2114, -816, 482]                         |
 
   @NegativeTest
-  Scenario: [1] Bad arguments for `range()`
+  Scenario: [3] Create an empty list if range direction and step direction are inconsistent
+    Given any graph
+    When executing query:
+      """
+      WITH 0 AS start, [1, 2, 500, 1000, 1500] AS ends, [-1000, -3, -2, -1, 1, 2, 3, 1000] AS steps
+      UNWIND ends AS end
+      UNWIND steps AS step
+      WITH start, end, step, range(start, end, step) AS list
+      WITH start, end, step, list, sign(end-start) <> sign(step) AS empty
+      RETURN ALL(ok IN collect((size(list) = 0) = empty) WHERE ok) AS okay
+      """
+    Then the result should be, in any order:
+      | okay |
+      | true |
+
+  @NegativeTest
+  Scenario: [4] Fail on invalid arguments for `range()`
     Given any graph
     When executing query:
       """
