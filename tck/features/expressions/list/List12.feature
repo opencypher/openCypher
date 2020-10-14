@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: List11 - List Comprehension
+Feature: List12 - List Comprehension
 
   Scenario: [1] Collect and extract using a list comprehension
     Given an empty graph
