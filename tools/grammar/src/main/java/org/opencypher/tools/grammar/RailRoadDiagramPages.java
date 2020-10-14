@@ -128,7 +128,7 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
             html.head( head( "title", production.name() ), meta( "charset", "UTF-8" ) );
             try ( HtmlTag body = html.body() )
             {
-                body.tag( "h1" ).text( production.name() ).close();
+                body.textTag( "h1", production.name() );
                 body.tag( "object", attr( "data", svg ), attr( "type", "image/svg+xml" ) ).close();
                 String description = production.description();
                 if ( description != null )
@@ -136,7 +136,7 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
                     body.p();
                     body.text( description );
                 }
-                body.tag( "h2" ).text( "EBNF" ).close();
+                body.textTag( "h2", "EBNF" );
                 for ( NonTerminal nonTerminal : production.references() )
                 {
                     Production site = nonTerminal.declaringProduction();
@@ -158,7 +158,7 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
                 Collection<Production> references = production.referencedFrom();
                 if ( !references.isEmpty() )
                 {
-                    body.tag( "h2" ).text( "Referenced from" ).close();
+                    body.textTag( "h2", "Referenced from" );
                     try ( HtmlTag ul = body.tag( "ul" ) )
                     {
                         for ( Production reference : references )
@@ -166,7 +166,7 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
                             try ( HtmlTag li = ul.tag( "li" ) )
                             {
                                 String name = reference.name();
-                                li.tag( "a", attr( "href", referenceLink( name ) ) ).text( name ).close();
+                                li.a( referenceLink( name ), name );
                             }
                         }
                     }

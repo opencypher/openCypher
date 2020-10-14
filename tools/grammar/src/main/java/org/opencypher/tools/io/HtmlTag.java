@@ -35,8 +35,8 @@ import java.nio.file.Path;
  *
  * Usage:
  * <pre><code>
- * try ( {@link Html} html = HtmlTag.{@link #html(Path) html}( {@link Path outputPath} ) ) {
- *     html.{@link HtmlTag.Html#head head}( title -&gt; "My Page" );
+ * try ( {@link HtmlTag.Html} html = {@link HtmlTag}.{@link #html(Path) html}( {@link Path outputPath} ) ) {
+ *     html.{@link HtmlTag.Html#head head}( {@link HtmlTag}.{@link HtmlTag#head head}("title", "My Page") );
  *     try ( {@link HtmlTag} body = html.{@link Html#body() body}() ) {
  *         body.{@link #tag(String, Attribute[]) tag}("h1")                  // opens a new &lt;h1&gt; tag
  *             .{@link #text(String) text}("Welcome to My Page") // adds text content to the tag
@@ -46,17 +46,14 @@ import java.nio.file.Path;
  *         body.{@link #text(String) text}("You should come back when there is more content.");
  *         body.{@link #br() br}();
  *         body.{@link #text(String) text}("Until then, here is a picture of a cat for you to look at:");
- *         body.{@link #tag(String, Attribute[]) tag}("img", src -&gt; "http://thecatapi.com/api/images/get?format=src&amp;type=gif");
+ *         // img tags should not be closed, so we simply don't invoke the {@link #close close()} method.
+ *         body.{@link #tag(String, Attribute[]) tag}("img", {@link HtmlTag}.{@link HtmlTag#attr attr}("src", "http://thecatapi.com/api/images/get?format=src&amp;type=gif") );
  *         body.{@link #p() p}();
- *         body.{@link #tag(String, Attribute[]) tag}("b").{@link #text(String) text}("To do:").{@link #close()
- * close}();
+ *         body.{@link #textTag textTag}("b", "To do:");
  *         try ( {@link HtmlTag} list = body.{@link #tag(String, Attribute[]) tag}("ul") ) {
- *             list.{@link #tag(String, Attribute[]) tag}("li").{@link #text(String) text}("Find cuter cat").{@link
- * #close() close}();
- *             list.{@link #tag(String, Attribute[]) tag}("li").{@link #text(String) text}("???").{@link #close()
- * close}();
- *             list.{@link #tag(String, Attribute[]) tag}("li").{@link #text(String) text}("Profit!").{@link #close()
- * close}();
+ *             list.{@link #textTag textTag}("li", "Find cuter cat")
+ *                 .{@link #textTag textTag}("li", "???")
+ *                 .{@link #textTag textTag}("li", "Profit!");
  *         }
  *     }
  * }
@@ -101,6 +98,20 @@ public final class HtmlTag implements AutoCloseable
     {
         output.escape( text, c -> c == '<' ? "&lt;" : null );
         return this;
+    }
+
+    public HtmlTag textTag( String tag, String text, Attribute... attributes )
+    {
+        try ( HtmlTag html = tag( tag, attributes ) )
+        {
+            html.text( text );
+        }
+        return this;
+    }
+
+    public HtmlTag a( String href, String text )
+    {
+        return textTag( "a", text, attr( "href", href ) );
     }
 
     public void p()
