@@ -41,16 +41,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
   @NegativeTest
-  Scenario: Failing when a relationship is used as a node
-    Given any graph
-    When executing query:
-      """
-      MATCH ()-[r]-(r)
-      RETURN r
-      """
-    Then a SyntaxError should be raised at compile time: VariableTypeConflict
-
-  @NegativeTest
   Scenario: Bad arguments for `range()`
     Given any graph
     When executing query:

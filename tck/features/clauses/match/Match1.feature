@@ -129,3 +129,14 @@ Feature: Match1 - Match nodes
       RETURN n
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
+
+  @NegativeTest
+  Scenario: [7] Fail when a relationship is used as a node
+    Given any graph
+    When executing query:
+      """
+      MATCH ()-[r]-()
+      MATCH (r)
+      RETURN r
+      """
+    Then a SyntaxError should be raised at compile time: VariableTypeConflict
