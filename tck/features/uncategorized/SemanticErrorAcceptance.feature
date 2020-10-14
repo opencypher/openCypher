@@ -41,15 +41,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
   @NegativeTest
-  Scenario: Bad arguments for `range()`
-    Given any graph
-    When executing query:
-      """
-      RETURN range(2, 8, 0)
-      """
-    Then a ArgumentError should be raised at runtime: NumberOutOfRange
-
-  @NegativeTest
   Scenario: Failing when using non-constants in SKIP
     Given any graph
     When executing query:
