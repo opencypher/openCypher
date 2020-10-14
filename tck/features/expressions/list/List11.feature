@@ -112,10 +112,51 @@ Feature: List11 - Create a list from a range
       | true |
 
   @NegativeTest
-  Scenario: [4] Fail on invalid arguments for `range()`
+  Scenario Outline: [4] Fail on invalid arguments for `range()`
     Given any graph
     When executing query:
       """
       RETURN range(2, 8, 0)
       """
     Then a ArgumentError should be raised at runtime: NumberOutOfRange
+
+    Examples:
+      | start | end  | step |
+      | 0     | 0    | 0    |
+      | 2     | 8    | 0    |
+      | -2    | 8    | 0    |
+      | 2     | -8   | 0    |
+
+  @NegativeTest
+  Scenario Outline: [5] Fail on invalid argument types for `range()`
+    Given any graph
+    When executing query:
+      """
+      RETURN range(<start>, <end>, <step>)
+      """
+    Then a ArgumentError should be raised at runtime: InvalidArgumentType
+
+    Examples:
+      | start      | end      | step      |
+      | true       | 1        | 1         |
+      | 0          | true     | 1         |
+      | 0          | 1        | true      |
+      | -1.1       | 1        | 1         |
+      | -0.0       | 1        | 1         |
+      | 0.0        | 1        | 1         |
+      | 1.1        | 1        | 1         |
+      | 0          | -1.1     | 1         |
+      | 0          | -0.0     | 1         |
+      | 0          | 0.0      | 1         |
+      | 0          | 1.1      | 1         |
+      | 0          | 1        | -1.1      |
+      | 0          | 1        | 1.1       |
+      | 'xyz'      | 1        | 1         |
+      | 0          | 'xyz'    | 1         |
+      | 0          | 1        | 'xyz'     |
+      | [0]        | 1        | 1         |
+      | 0          | [1]      | 1         |
+      | 0          | 1        | [1]       |
+      | {start: 0} | 1        | 1         |
+      | 0          | {end: 1} | 1         |
+      | 0          | 1        | {step: 1} |
