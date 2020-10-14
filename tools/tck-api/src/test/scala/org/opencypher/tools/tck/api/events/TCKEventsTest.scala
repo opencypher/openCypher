@@ -44,7 +44,7 @@ object TCKEventsTest {
   @BeforeAll
   def subscribe(): Unit = {
     TCKEvents.feature.subscribe(
-      f => { if (f.name == "List6 - List Size") { events += s"Feature '${f.name}' read" } })
+      f => { if (f.name == "List6 - List size") { events += s"Feature '${f.name}' read" } })
     TCKEvents.scenario.subscribe(s => events += s"Scenario '${s.name}' started")
     TCKEvents.stepStarted.subscribe(s =>
       events += s"Step '${s.step.getClass.getSimpleName} -> ${s.step.source.getText}' started")
@@ -56,7 +56,7 @@ object TCKEventsTest {
   def assertEvents(): Unit = {
     TCKEvents.reset()
     val expected = List[String](
-      "Feature 'List6 - List Size' read",
+      "Feature 'List6 - List size' read",
       "Scenario '[1] Return list size' started",
       "Step 'Execute -> any graph' started",
       "Step 'Execute' finished. Result: <empty result>",
