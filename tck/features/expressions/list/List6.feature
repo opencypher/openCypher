@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: List6 - List Size
+Feature: List6 - List size
 
   Scenario: [1] Return list size
     Given any graph
