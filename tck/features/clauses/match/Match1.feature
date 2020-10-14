@@ -131,12 +131,127 @@ Feature: Match1 - Match nodes
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
   @NegativeTest
-  Scenario: [7] Fail when a relationship is used as a node
+  Scenario Outline: [7] Fail when a relationship has the same variable in a preceding MATCH
     Given any graph
     When executing query:
       """
-      MATCH ()-[r]-()
+      MATCH <pattern>
       MATCH (r)
       RETURN r
       """
     Then a SyntaxError should be raised at compile time: VariableTypeConflict
+
+    Examples:
+      | pattern                                     |
+      | ()-[r]-()                                   |
+      | ()-[r]->()                                  |
+      | ()<-[r]-()                                  |
+      | (), ()-[r]-()                               |
+      | ()-[r]-(), ()                               |
+      | ()-[]-(), ()-[r]-()                         |
+      | ()-[]-()-[r]-()                             |
+      | ()-[]-()-[]-(), ()-[r]-()                   |
+      | ()-[]-()-[]-(), ()-[r]-(), ()               |
+      | ()-[]-()-[]-(), (), ()-[r]-()               |
+      | (x), (a)-[q]-(b), (s), (s)-[r]->(t)<-[]-(b) |
+
+  @NegativeTest
+  Scenario Outline: [8] Fail when a path has the same variable in a preceding MATCH
+    Given any graph
+    When executing query:
+      """
+      MATCH <pattern>
+      MATCH (r)
+      RETURN r
+      """
+    Then a SyntaxError should be raised at compile time: VariableTypeConflict
+
+    Examples:
+      | pattern                                    |
+      | r = ()-[]-()                               |
+      | r = ()-[]->()                              |
+      | r = ()<-[]-()                              |
+      | r = ()-[*]-()                              |
+      | r = ()-[*]->()                             |
+      | (), r = ()-[]-()                           |
+      | (), r = ()-[]->()                          |
+      | (), r = ()<-[]-()                          |
+      | (), r = ()-[*]-()                          |
+      | (), r = ()-[*]->()                         |
+      | ()-[]-(), r = ()-[]-(), ()                 |
+      | r = ()-[]-(), ()-[]-(), ()                 |
+      | ()-[]-()<-[]-(), r = ()-[]-()              |
+      | (x), r = (a)-[q]-(b), (s)-[p]-(t)-[]-(b)   |
+      | (x), (a)-[q]-(b), r = (s)-[p]-(t)-[]-(b)   |
+      | (x), (a)-[q]-(b), r = (s)-[p]->(t)<-[]-(b) |
+
+  @NegativeTest
+  Scenario Outline: [9] Fail when a relationship has the same variable in the same pattern
+    Given any graph
+    When executing query:
+      """
+      MATCH <pattern>
+      RETURN r
+      """
+    Then a SyntaxError should be raised at compile time: VariableTypeConflict
+
+    Examples:
+      | pattern                                         |
+      | ()-[r]-(r)                                      |
+      | ()-[r]->(r)                                     |
+      | ()<-[r]-(r)                                     |
+      | ()-[r]-()-[]-(r)                                |
+      | ()-[r*]-()-[]-(r)                               |
+      | ()-[r]-(), (r)                                  |
+      | ()-[r]->(), (r)                                 |
+      | ()<-[r]-(), (r)                                 |
+      | ()-[r]-(), (r)-[]-()                            |
+      | ()-[r]-(), ()-[]-(r)                            |
+      | (s)-[r]-(t), (r)-[]-(t)                         |
+      | (s)-[r]-(t), (s)-[]-(r)                         |
+      | (), ()-[r]-(), (r)                              |
+      | ()-[r]-(), (), (r)                              |
+      | ()-[r]-(), (r), ()                              |
+      | ()-[]-(), ()-[r]-(), (r)                        |
+      | ()-[]-()-[r]-(), ()-[]-(r)                      |
+      | ()-[]-()-[]-(), ()-[r]-(), (r)                  |
+      | ()-[]-()-[r]-(), (r), ()-[]-()                  |
+      | ()-[]-()-[r]-(), (), (r)-[]-()                  |
+      | ()-[]-()-[r*]-(), (r), ()-[]-()                 |
+      | ()-[*]-()-[r]-(), (), (r)-[]-()                 |
+      | ()-[*]-()-[r]-(), (), (r)-[*]-()                |
+      | ()-[*]-()-[r]-(), (), ()-[*]-(r)                |
+      | (x), (a)-[r]-(b), (s), (s)-[]->(r)<-[]-(b)      |
+
+  @NegativeTest
+  Scenario Outline: [10] Fail when a path has the same variable in the same pattern
+    Given any graph
+    When executing query:
+      """
+      MATCH <pattern>
+      RETURN r
+      """
+    Then a SyntaxError should be raised at compile time: VariableTypeConflict
+
+    Examples:
+      | pattern                                         |
+      | r = ()-[]-(), (r)                               |
+      | r = ()-[]->(), (r)                              |
+      | r = ()<-[]-(), (r)                              |
+      | r = ()-[*]-(), (r)                              |
+      | r = ()-[*]->(), (r)                             |
+      | (), r = ()-[]-(), (r)                           |
+      | (), r = ()-[]->(), (r)                          |
+      | (), r = ()<-[]-(), (r)                          |
+      | (), r = ()-[*]-(), (r)                          |
+      | (), r = ()-[*]->(), (r)                         |
+      | ()-[]-(), r = ()-[]-(), (), (r)                 |
+      | r = ()-[]-(), ()-[]-(), (), (r)                 |
+      | ()-[]-()<-[]-(), r = ()-[]-(), (r)              |
+      | (x), r = (a)-[q]-(b), (s)-[p]-(t)-[]-(b), (r)   |
+      | (x), (a)-[q]-(b), r = (s)-[p]-(t)-[]-(b), (r)   |
+      | (x), (a)-[q]-(b), r = (s)-[p]->(t)<-[]-(b), (r) |
+      | (x), r = (s)-[p]-(t)-[]-(b), (r), (a)-[q]-(b)   |
+      | (x), r = (s)-[p]->(t)<-[]-(b), (r), (a)-[q]-(b) |
+      | (x), r = (s)-[p]-(t)-[]-(b), (a)-[q]-(r)        |
+      | (x), r = (s)-[p]->(t)<-[]-(b), (r)-[q]-(b)      |
