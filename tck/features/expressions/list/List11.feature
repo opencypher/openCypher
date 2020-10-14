@@ -56,6 +56,7 @@ Feature: List11 - Create a list from a range
       | 6     | 10    | [6, 7, 8, 9, 10]                             |
       | 1234  | 1234  | [1234]                                       |
       | 1234  | 1236  | [1234, 1235, 1236]                           |
+    And no side effects
 
   Scenario Outline: [2] Create list from `range()` with explicitly given step
     Given any graph
@@ -94,15 +95,16 @@ Feature: List11 - Create a list from a range
       | -10   | 10    | 3     | [-10, -7, -4, -1, 2, 5, 8]                        |
       | -2000 | 0     | 1298  | [-2000, -702]                                     |
       | -3412 | 1381  | 1298  | [-3412, -2114, -816, 482]                         |
+    And no side effects
 
   @NegativeTest
   Scenario: [3] Create an empty list if range direction and step direction are inconsistent
     Given any graph
     When executing query:
       """
-      WITH 0 AS start, [1, 2, 500, 1000, 1500] AS ends, [-1000, -3, -2, -1, 1, 2, 3, 1000] AS steps
-      UNWIND ends AS end
-      UNWIND steps AS step
+      WITH 0 AS start, [1, 2, 500, 1000, 1500] AS endList, [-1000, -3, -2, -1, 1, 2, 3, 1000] AS stepList
+      UNWIND endList AS end
+      UNWIND stepList AS step
       WITH start, end, step, range(start, end, step) AS list
       WITH start, end, step, list, sign(end-start) <> sign(step) AS empty
       RETURN ALL(ok IN collect((size(list) = 0) = empty) WHERE ok) AS okay
