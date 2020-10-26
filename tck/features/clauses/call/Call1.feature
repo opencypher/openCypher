@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Call1 - Procedures without arguments
+Feature: Call1 - Basic procedure calling
 
   Scenario: Standalone call to VOID procedure that takes no arguments
     Given an empty graph
@@ -122,7 +122,6 @@ Feature: Call1 - Procedures without arguments
     Then the result should be, in any order:
       | 1 |
     And no side effects
-
 
   Scenario: Standalone call to STRING procedure that takes no arguments
     Given an empty graph
