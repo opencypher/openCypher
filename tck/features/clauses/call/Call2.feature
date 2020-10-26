@@ -28,66 +28,100 @@
 
 #encoding: utf-8
 
-Feature: Call2 - Procedures with NUMBER arguments
+Feature: Call2 - Procedure arguments
 
-  Scenario: Standalone call to procedure with argument of type NUMBER accepts value of type INTEGER
+  Scenario: In-query call to procedure with explicit arguments
     Given an empty graph
-    And there exists a procedure test.my.proc(in :: NUMBER?) :: (out :: STRING?):
-      | in   | out           |
-      | 42   | 'wisdom'      |
-      | 42.3 | 'about right' |
+    And there exists a procedure test.my.proc(name :: STRING?, id :: INTEGER?) :: (city :: STRING?, country_code :: INTEGER?):
+      | name     | id | city      | country_code |
+      | 'Andres' | 1  | 'Malmö'   | 46           |
+      | 'Tobias' | 1  | 'Malmö'   | 46           |
+      | 'Mats'   | 1  | 'Malmö'   | 46           |
+      | 'Stefan' | 1  | 'Berlin'  | 49           |
+      | 'Stefan' | 2  | 'München' | 49           |
+      | 'Petra'  | 1  | 'London'  | 44           |
     When executing query:
       """
-      CALL test.my.proc(42)
+      CALL test.my.proc('Stefan', 1) YIELD city, country_code
+      RETURN city, country_code
       """
     Then the result should be, in order:
-      | out      |
-      | 'wisdom' |
+      | city     | country_code |
+      | 'Berlin' | 49           |
     And no side effects
 
-  Scenario: In-query call to procedure with argument of type NUMBER accepts value of type INTEGER
+  Scenario: Standalone call to procedure with explicit arguments
     Given an empty graph
-    And there exists a procedure test.my.proc(in :: NUMBER?) :: (out :: STRING?):
-      | in   | out           |
-      | 42   | 'wisdom'      |
-      | 42.3 | 'about right' |
+    And there exists a procedure test.my.proc(name :: STRING?, id :: INTEGER?) :: (city :: STRING?, country_code :: INTEGER?):
+      | name     | id | city      | country_code |
+      | 'Andres' | 1  | 'Malmö'   | 46           |
+      | 'Tobias' | 1  | 'Malmö'   | 46           |
+      | 'Mats'   | 1  | 'Malmö'   | 46           |
+      | 'Stefan' | 1  | 'Berlin'  | 49           |
+      | 'Stefan' | 2  | 'München' | 49           |
+      | 'Petra'  | 1  | 'London'  | 44           |
     When executing query:
       """
-      CALL test.my.proc(42) YIELD out
+      CALL test.my.proc('Stefan', 1)
+      """
+    Then the result should be, in order:
+      | city     | country_code |
+      | 'Berlin' | 49           |
+    And no side effects
+
+  Scenario: Standalone call to procedure with implicit arguments
+    Given an empty graph
+    And there exists a procedure test.my.proc(name :: STRING?, id :: INTEGER?) :: (city :: STRING?, country_code :: INTEGER?):
+      | name     | id | city      | country_code |
+      | 'Andres' | 1  | 'Malmö'   | 46           |
+      | 'Tobias' | 1  | 'Malmö'   | 46           |
+      | 'Mats'   | 1  | 'Malmö'   | 46           |
+      | 'Stefan' | 1  | 'Berlin'  | 49           |
+      | 'Stefan' | 2  | 'München' | 49           |
+      | 'Petra'  | 1  | 'London'  | 44           |
+    And parameters are:
+      | name | 'Stefan' |
+      | id   | 1        |
+    When executing query:
+      """
+      CALL test.my.proc
+      """
+    Then the result should be, in order:
+      | city     | country_code |
+      | 'Berlin' | 49           |
+    And no side effects
+
+  @NegativeTest
+  Scenario: In-query call to procedure that takes arguments fails when trying to pass them implicitly
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
+      | in | out |
+    When executing query:
+      """
+      CALL test.my.proc YIELD out
       RETURN out
       """
-    Then the result should be, in order:
-      | out      |
-      | 'wisdom' |
-    And no side effects
+    Then a SyntaxError should be raised at compile time: InvalidArgumentPassingMode
 
-  Scenario: Standalone call to procedure with argument of type NUMBER accepts value of type FLOAT
+  @NegativeTest
+  Scenario: Standalone call to procedure should fail if input type is wrong
     Given an empty graph
-    And there exists a procedure test.my.proc(in :: NUMBER?) :: (out :: STRING?):
-      | in   | out           |
-      | 42   | 'wisdom'      |
-      | 42.3 | 'about right' |
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
+      | in | out |
     When executing query:
       """
-      CALL test.my.proc(42.3)
+      CALL test.my.proc(true)
       """
-    Then the result should be, in order:
-      | out           |
-      | 'about right' |
-    And no side effects
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  Scenario: In-query call to procedure with argument of type NUMBER accepts value of type FLOAT
+  @NegativeTest
+  Scenario: In-query call to procedure should fail if input type is wrong
     Given an empty graph
-    And there exists a procedure test.my.proc(in :: NUMBER?) :: (out :: STRING?):
-      | in   | out           |
-      | 42   | 'wisdom'      |
-      | 42.3 | 'about right' |
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
+      | in | out |
     When executing query:
       """
-      CALL test.my.proc(42.3) YIELD out
+      CALL test.my.proc(true) YIELD out
       RETURN out
       """
-    Then the result should be, in order:
-      | out           |
-      | 'about right' |
-    And no side effects
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
