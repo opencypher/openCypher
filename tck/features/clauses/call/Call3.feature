@@ -28,7 +28,69 @@
 
 #encoding: utf-8
 
-Feature: Call3 - Procedures with FLOAT arguments
+Feature: Call3 - Assignable-type arguments
+
+  Scenario: Standalone call to procedure with argument of type NUMBER accepts value of type INTEGER
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: NUMBER?) :: (out :: STRING?):
+      | in   | out           |
+      | 42   | 'wisdom'      |
+      | 42.3 | 'about right' |
+    When executing query:
+      """
+      CALL test.my.proc(42)
+      """
+    Then the result should be, in order:
+      | out      |
+      | 'wisdom' |
+    And no side effects
+
+  Scenario: In-query call to procedure with argument of type NUMBER accepts value of type INTEGER
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: NUMBER?) :: (out :: STRING?):
+      | in   | out           |
+      | 42   | 'wisdom'      |
+      | 42.3 | 'about right' |
+    When executing query:
+      """
+      CALL test.my.proc(42) YIELD out
+      RETURN out
+      """
+    Then the result should be, in order:
+      | out      |
+      | 'wisdom' |
+    And no side effects
+
+  Scenario: Standalone call to procedure with argument of type NUMBER accepts value of type FLOAT
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: NUMBER?) :: (out :: STRING?):
+      | in   | out           |
+      | 42   | 'wisdom'      |
+      | 42.3 | 'about right' |
+    When executing query:
+      """
+      CALL test.my.proc(42.3)
+      """
+    Then the result should be, in order:
+      | out           |
+      | 'about right' |
+    And no side effects
+
+  Scenario: In-query call to procedure with argument of type NUMBER accepts value of type FLOAT
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: NUMBER?) :: (out :: STRING?):
+      | in   | out           |
+      | 42   | 'wisdom'      |
+      | 42.3 | 'about right' |
+    When executing query:
+      """
+      CALL test.my.proc(42.3) YIELD out
+      RETURN out
+      """
+    Then the result should be, in order:
+      | out           |
+      | 'about right' |
+    And no side effects
 
   Scenario: Standalone call to procedure with argument of type FLOAT accepts value of type INTEGER
     Given an empty graph
@@ -52,6 +114,35 @@ Feature: Call3 - Procedures with FLOAT arguments
     When executing query:
       """
       CALL test.my.proc(42) YIELD out
+      RETURN out
+      """
+    Then the result should be, in order:
+      | out            |
+      | 'close enough' |
+    And no side effects
+
+  Scenario: Standalone call to procedure with argument of type INTEGER accepts value of type FLOAT
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
+      | in | out            |
+      | 42 | 'close enough' |
+    When executing query:
+      """
+      CALL test.my.proc(42.0)
+      """
+    Then the result should be, in order:
+      | out            |
+      | 'close enough' |
+    And no side effects
+
+  Scenario: In-query call to procedure with argument of type INTEGER accepts value of type FLOAT
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
+      | in | out            |
+      | 42 | 'close enough' |
+    When executing query:
+      """
+      CALL test.my.proc(42.0) YIELD out
       RETURN out
       """
     Then the result should be, in order:

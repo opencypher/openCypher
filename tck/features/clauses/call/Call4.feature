@@ -28,33 +28,33 @@
 
 #encoding: utf-8
 
-Feature: Call4 - Procedures with INTEGER arguments
+Feature: Call4 - Null Arguments
 
-  Scenario: Standalone call to procedure with argument of type INTEGER accepts value of type FLOAT
+  Scenario: Standalone call to procedure with null argument
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
-      | in | out            |
-      | 42 | 'close enough' |
+      | in   | out   |
+      | null | 'nix' |
     When executing query:
       """
-      CALL test.my.proc(42.0)
+      CALL test.my.proc(null)
       """
     Then the result should be, in order:
-      | out            |
-      | 'close enough' |
+      | out   |
+      | 'nix' |
     And no side effects
 
-  Scenario: In-query call to procedure with argument of type INTEGER accepts value of type FLOAT
+  Scenario: In-query call to procedure with null argument
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
-      | in | out            |
-      | 42 | 'close enough' |
+      | in   | out   |
+      | null | 'nix' |
     When executing query:
       """
-      CALL test.my.proc(42.0) YIELD out
+      CALL test.my.proc(null) YIELD out
       RETURN out
       """
     Then the result should be, in order:
-      | out            |
-      | 'close enough' |
+      | out   |
+      | 'nix' |
     And no side effects

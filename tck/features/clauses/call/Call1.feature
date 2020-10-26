@@ -159,3 +159,122 @@ Feature: Call1 - Basic procedure calling
       | 'B'   |
       | 'C'   |
     And no side effects
+
+  @NegativeTest
+  Scenario: Standalone call to procedure should fail if explicit argument is missing
+    Given an empty graph
+    And there exists a procedure test.my.proc(name :: STRING?, in :: INTEGER?) :: (out :: INTEGER?):
+      | name | in | out |
+    When executing query:
+      """
+      CALL test.my.proc('Dobby')
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberOfArguments
+
+  @NegativeTest
+  Scenario: In-query call to procedure should fail if explicit argument is missing
+    Given an empty graph
+    And there exists a procedure test.my.proc(name :: STRING?, in :: INTEGER?) :: (out :: INTEGER?):
+      | name | in | out |
+    When executing query:
+      """
+      CALL test.my.proc('Dobby') YIELD out
+      RETURN out
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberOfArguments
+
+  @NegativeTest
+  Scenario: Standalone call to procedure should fail if too many explicit argument are given
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
+      | in | out |
+    When executing query:
+      """
+      CALL test.my.proc(1, 2, 3, 4)
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberOfArguments
+
+  @NegativeTest
+  Scenario: In-query call to procedure should fail if too many explicit argument are given
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
+      | in | out |
+    When executing query:
+      """
+      CALL test.my.proc(1, 2, 3, 4) YIELD out
+      RETURN out
+      """
+    Then a SyntaxError should be raised at compile time: InvalidNumberOfArguments
+
+  @NegativeTest
+  Scenario: Standalone call to procedure should fail if implicit argument is missing
+    Given an empty graph
+    And there exists a procedure test.my.proc(name :: STRING?, in :: INTEGER?) :: (out :: INTEGER?):
+      | name | in | out |
+    And parameters are:
+      | name | 'Stefan' |
+    When executing query:
+      """
+      CALL test.my.proc
+      """
+    Then a ParameterMissing should be raised at compile time: MissingParameter
+
+  @NegativeTest
+  Scenario: In-query call to procedure that has outputs fails if no outputs are yielded
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
+      | in | out |
+    When executing query:
+      """
+      CALL test.my.proc(1)
+      RETURN out
+      """
+    Then a SyntaxError should be raised at compile time: UndefinedVariable
+
+  @NegativeTest
+  Scenario: Standalone call to unknown procedure should fail
+    Given an empty graph
+    When executing query:
+      """
+      CALL test.my.proc
+      """
+    Then a ProcedureError should be raised at compile time: ProcedureNotFound
+
+  @NegativeTest
+  Scenario: In-query call to unknown procedure should fail
+    Given an empty graph
+    When executing query:
+      """
+      CALL test.my.proc() YIELD out
+      RETURN out
+      """
+    Then a ProcedureError should be raised at compile time: ProcedureNotFound
+
+  @NegativeTest
+  Scenario: In-query procedure call should fail if shadowing an already bound variable
+    Given an empty graph
+    And there exists a procedure test.labels() :: (label :: STRING?):
+      | label |
+      | 'A'   |
+      | 'B'   |
+      | 'C'   |
+    When executing query:
+      """
+      WITH 'Hi' AS label
+      CALL test.labels() YIELD label
+      RETURN *
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+  @NegativeTest
+  Scenario: In-query procedure call should fail if one of the argument expressions uses an aggregation function
+    Given an empty graph
+    And there exists a procedure test.labels(in :: INTEGER?) :: (label :: STRING?):
+      | in | label |
+    When executing query:
+      """
+      MATCH (n)
+      CALL test.labels(count(n)) YIELD label
+      RETURN label
+      """
+    Then a SyntaxError should be raised at compile time: InvalidAggregation

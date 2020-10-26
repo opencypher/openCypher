@@ -28,27 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Call5 - Procedures with multiple arguments
-
-  Scenario: In-query call to procedure with explicit arguments
-    Given an empty graph
-    And there exists a procedure test.my.proc(name :: STRING?, id :: INTEGER?) :: (city :: STRING?, country_code :: INTEGER?):
-      | name     | id | city      | country_code |
-      | 'Andres' | 1  | 'Malmö'   | 46           |
-      | 'Tobias' | 1  | 'Malmö'   | 46           |
-      | 'Mats'   | 1  | 'Malmö'   | 46           |
-      | 'Stefan' | 1  | 'Berlin'  | 49           |
-      | 'Stefan' | 2  | 'München' | 49           |
-      | 'Petra'  | 1  | 'London'  | 44           |
-    When executing query:
-      """
-      CALL test.my.proc('Stefan', 1) YIELD city, country_code
-      RETURN city, country_code
-      """
-    Then the result should be, in order:
-      | city     | country_code |
-      | 'Berlin' | 49           |
-    And no side effects
+Feature: Call5 - Results projection
 
   Scenario: In-query call to procedure with explicit arguments that drops all result fields
     Given an empty graph
@@ -69,45 +49,4 @@ Feature: Call5 - Procedures with multiple arguments
     Then the result should be, in order:
       | name     | id | count |
       | 'Stefan' | 1  | 1     |
-    And no side effects
-
-  Scenario: Standalone call to procedure with explicit arguments
-    Given an empty graph
-    And there exists a procedure test.my.proc(name :: STRING?, id :: INTEGER?) :: (city :: STRING?, country_code :: INTEGER?):
-      | name     | id | city      | country_code |
-      | 'Andres' | 1  | 'Malmö'   | 46           |
-      | 'Tobias' | 1  | 'Malmö'   | 46           |
-      | 'Mats'   | 1  | 'Malmö'   | 46           |
-      | 'Stefan' | 1  | 'Berlin'  | 49           |
-      | 'Stefan' | 2  | 'München' | 49           |
-      | 'Petra'  | 1  | 'London'  | 44           |
-    When executing query:
-      """
-      CALL test.my.proc('Stefan', 1)
-      """
-    Then the result should be, in order:
-      | city     | country_code |
-      | 'Berlin' | 49           |
-    And no side effects
-
-  Scenario: Standalone call to procedure with implicit arguments
-    Given an empty graph
-    And there exists a procedure test.my.proc(name :: STRING?, id :: INTEGER?) :: (city :: STRING?, country_code :: INTEGER?):
-      | name     | id | city      | country_code |
-      | 'Andres' | 1  | 'Malmö'   | 46           |
-      | 'Tobias' | 1  | 'Malmö'   | 46           |
-      | 'Mats'   | 1  | 'Malmö'   | 46           |
-      | 'Stefan' | 1  | 'Berlin'  | 49           |
-      | 'Stefan' | 2  | 'München' | 49           |
-      | 'Petra'  | 1  | 'London'  | 44           |
-    And parameters are:
-      | name | 'Stefan' |
-      | id   | 1        |
-    When executing query:
-      """
-      CALL test.my.proc
-      """
-    Then the result should be, in order:
-      | city     | country_code |
-      | 'Berlin' | 49           |
     And no side effects
