@@ -57,14 +57,17 @@
     <test.runner.jvm.settings.additional/>
     <test.runner.jvm.settings>
       -Xmx2G
+      -XX:+UseG1GC
       -Djunit.jupiter.extensions.autodetection.enabled=true
       -Djunit.jupiter.execution.parallel.enabled=true
       -Djunit.jupiter.execution.timeout.default=${default.jupiter.test.timeout}
-      -Djunit.jupiter.execution.parallel.mode.classes.default=${default.jupiter.test.mode}
+      -Djunit.jupiter.execution.parallel.mode.default=${default.jupiter.test.mode}
+      -Djunit.jupiter.execution.parallel.mode.classes.default=${default.jupiter.classes.test.mode}
       ${test.runner.jvm.settings.additional}
     </test.runner.jvm.settings>
     <default.jupiter.test.timeout>20m</default.jupiter.test.timeout>
-    <default.jupiter.test.mode>same_thread</default.jupiter.test.mode>
+    <default.jupiter.test.mode>concurrent</default.jupiter.test.mode>
+    <default.jupiter.classes.test.mode>same_thread</default.jupiter.classes.test.mode>
     <forkCounts>0</forkCounts>
   </properties>
 
