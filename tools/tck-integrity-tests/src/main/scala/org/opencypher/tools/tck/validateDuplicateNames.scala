@@ -38,20 +38,17 @@ import scala.collection.JavaConverters._
   */
 object validateDuplicateNames extends (io.cucumber.scala.Scenario => Option[String]) {
 
-  private val scenarioNamesByFeature = scala.collection.mutable.HashMap[URI, Map[String, Int]]()
+  private val scenarioNamesByFeature = scala.collection.mutable.HashMap[URI, scala.collection.mutable.HashMap[String, List[Int]]]()
 
   override def apply(scenario: io.cucumber.scala.Scenario): Option[String] = {
-    val scenarioNames = scenarioNamesByFeature.getOrElseUpdate(scenario.getUri, Map[String, Int]())
-    val lineNumber = scenarioNames.get(scenario.getName)
-    lineNumber match {
-      case None =>
-        scenarioNamesByFeature.put(scenario.getUri, scenarioNames ++ Map[String, Int](scenario.getName -> scenario.getLine) )
-        None
-      case Some(lineNumber) =>
-        if (lineNumber == scenario.getLine)
-          None
-        else
-          Some(s"scenario name '${scenario.getName}' is a ambiguous for scenarios ${scenario.getUri}:$lineNumber and ${scenario.getUri}:${scenario.getLine}")
+    val scenarioNames = scenarioNamesByFeature.getOrElseUpdate(scenario.getUri, scala.collection.mutable.HashMap[String, List[Int]]())
+    val lineNumbers = scenarioNames.getOrElseUpdate(scenario.getName, List[Int]())
+    // this is not very stable, but this only indicator we currently have for scenario from scenario outlines
+    if (lineNumbers.isEmpty || lineNumbers.exists(lineNumber => Math.abs(scenario.getLine - lineNumber) == 1)) {
+      scenarioNames.update(scenario.getName, scenario.getLine :: lineNumbers)
+      None
+    } else {
+      Some(s"scenario name '${scenario.getName}' is a ambiguous for scenarios ${scenario.getUri}:${lineNumbers.mkString(",")}")
     }
   }
 }
