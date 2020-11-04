@@ -201,8 +201,9 @@ class ScenarioFormatValidator {
     val correctWhenThenSetup = numberOfWhenQueries == (if (hadControlQuery) numberOfThenAssertions - 1 else numberOfThenAssertions)
     if (hadGiven && numberOfWhenQueries > 0 && (correctWhenThenSetup && hadSideEffects || hadError)) {
       reset()
-    } else
+    } else {
       error(s"The scenario setup was incomplete: Given: $hadGiven, Query: $numberOfWhenQueries, Results or error: ${numberOfThenAssertions > 0 || hadError}, Side effects: $hadSideEffects")
+    }
   }
 
   private def reset(): Unit = {
