@@ -17,6 +17,8 @@
 
     <properties>
         <project.rootdir>${project.basedir}/../..</project.rootdir>
+        <default.jupiter.test.mode>same_thread</default.jupiter.test.mode>
+        <default.jupiter.classes.test.mode>same_thread</default.jupiter.classes.test.mode>
     </properties>
 
     <licenses>
