@@ -168,7 +168,6 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
 
 class ScenarioFormatValidator {
   private var hadGiven = false
-  private var hadPending = false
   private var numberOfWhenQueries = 0
   private var numberOfThenAssertions = 0
   private var hadError = false
@@ -199,18 +198,15 @@ class ScenarioFormatValidator {
   }
 
   def checkRequiredSteps(): Unit = {
-    if (!hadPending) {
-      val correctWhenThenSetup = numberOfWhenQueries == (if (hadControlQuery) numberOfThenAssertions - 1 else numberOfThenAssertions)
-      if (hadGiven && numberOfWhenQueries > 0 && (correctWhenThenSetup && hadSideEffects || hadError)) {
-        reset()
-      } else
-        error(s"The scenario setup was incomplete: Given: $hadGiven, Query: $numberOfWhenQueries, Results or error: ${numberOfThenAssertions > 0 || hadError}, Side effects: $hadSideEffects")
-    }
+    val correctWhenThenSetup = numberOfWhenQueries == (if (hadControlQuery) numberOfThenAssertions - 1 else numberOfThenAssertions)
+    if (hadGiven && numberOfWhenQueries > 0 && (correctWhenThenSetup && hadSideEffects || hadError)) {
+      reset()
+    } else
+      error(s"The scenario setup was incomplete: Given: $hadGiven, Query: $numberOfWhenQueries, Results or error: ${numberOfThenAssertions > 0 || hadError}, Side effects: $hadSideEffects")
   }
 
   private def reset(): Unit = {
     hadGiven = false
-    hadPending = false
     numberOfWhenQueries = 0
     numberOfThenAssertions = 0
     hadError = false
