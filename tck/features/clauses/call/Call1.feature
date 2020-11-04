@@ -30,7 +30,7 @@
 
 Feature: Call1 - Basic procedure calling
 
-  Scenario: Standalone call to VOID procedure that takes no arguments
+  Scenario: [1] Standalone call to VOID procedure that takes no arguments
     Given an empty graph
     And there exists a procedure test.doNothing() :: VOID:
       |
@@ -41,7 +41,7 @@ Feature: Call1 - Basic procedure calling
     Then the result should be empty
     And no side effects
 
-  Scenario: Standalone call to VOID procedure that takes no arguments, called with implicit arguments
+  Scenario: [2] Standalone call to VOID procedure that takes no arguments, called with implicit arguments
     Given an empty graph
     And there exists a procedure test.doNothing() :: VOID:
       |
@@ -52,7 +52,7 @@ Feature: Call1 - Basic procedure calling
     Then the result should be empty
     And no side effects
 
-  Scenario: In-query call to VOID procedure that takes no arguments
+  Scenario: [3] In-query call to VOID procedure that takes no arguments
     Given an empty graph
     And there exists a procedure test.doNothing() :: VOID:
       |
@@ -66,7 +66,7 @@ Feature: Call1 - Basic procedure calling
       | n |
     And no side effects
 
-  Scenario: In-query call to VOID procedure does not consume rows
+  Scenario: [4] In-query call to VOID procedure does not consume rows
     Given an empty graph
     And there exists a procedure test.doNothing() :: VOID:
       |
@@ -89,7 +89,7 @@ Feature: Call1 - Basic procedure calling
       | 'c'  |
     And no side effects
 
-  Scenario: Standalone call to procedure that takes no arguments and yields no results
+  Scenario: [5] Standalone call to procedure that takes no arguments and yields no results
     Given an empty graph
     And there exists a procedure test.doNothing() :: ():
       |
@@ -100,7 +100,7 @@ Feature: Call1 - Basic procedure calling
     Then the result should be empty
     And no side effects
 
-  Scenario: Standalone call to procedure that takes no arguments and yields no results, called with implicit arguments
+  Scenario: [6] Standalone call to procedure that takes no arguments and yields no results, called with implicit arguments
     Given an empty graph
     And there exists a procedure test.doNothing() :: ():
       |
@@ -111,7 +111,7 @@ Feature: Call1 - Basic procedure calling
     Then the result should be empty
     And no side effects
 
-  Scenario: Standalone call to STRING procedure that takes no arguments
+  Scenario: [7] Standalone call to STRING procedure that takes no arguments
     Given an empty graph
     And there exists a procedure test.labels() :: (label :: STRING?):
       | label |
@@ -129,7 +129,7 @@ Feature: Call1 - Basic procedure calling
       | 'C'   |
     And no side effects
 
-  Scenario: In-query call to STRING procedure that takes no arguments
+  Scenario: [8] In-query call to STRING procedure that takes no arguments
     Given an empty graph
     And there exists a procedure test.labels() :: (label :: STRING?):
       | label |
@@ -149,7 +149,7 @@ Feature: Call1 - Basic procedure calling
     And no side effects
 
   @NegativeTest
-  Scenario: Standalone call to procedure should fail if explicit argument is missing
+  Scenario: [9] Standalone call to procedure should fail if explicit argument is missing
     Given an empty graph
     And there exists a procedure test.my.proc(name :: STRING?, in :: INTEGER?) :: (out :: INTEGER?):
       | name | in | out |
@@ -160,7 +160,7 @@ Feature: Call1 - Basic procedure calling
     Then a SyntaxError should be raised at compile time: InvalidNumberOfArguments
 
   @NegativeTest
-  Scenario: In-query call to procedure should fail if explicit argument is missing
+  Scenario: [10] In-query call to procedure should fail if explicit argument is missing
     Given an empty graph
     And there exists a procedure test.my.proc(name :: STRING?, in :: INTEGER?) :: (out :: INTEGER?):
       | name | in | out |
@@ -172,7 +172,7 @@ Feature: Call1 - Basic procedure calling
     Then a SyntaxError should be raised at compile time: InvalidNumberOfArguments
 
   @NegativeTest
-  Scenario: Standalone call to procedure should fail if too many explicit argument are given
+  Scenario: [11] Standalone call to procedure should fail if too many explicit argument are given
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
       | in | out |
@@ -183,7 +183,7 @@ Feature: Call1 - Basic procedure calling
     Then a SyntaxError should be raised at compile time: InvalidNumberOfArguments
 
   @NegativeTest
-  Scenario: In-query call to procedure should fail if too many explicit argument are given
+  Scenario: [12] In-query call to procedure should fail if too many explicit argument are given
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
       | in | out |
@@ -195,7 +195,7 @@ Feature: Call1 - Basic procedure calling
     Then a SyntaxError should be raised at compile time: InvalidNumberOfArguments
 
   @NegativeTest
-  Scenario: Standalone call to procedure should fail if implicit argument is missing
+  Scenario: [13] Standalone call to procedure should fail if implicit argument is missing
     Given an empty graph
     And there exists a procedure test.my.proc(name :: STRING?, in :: INTEGER?) :: (out :: INTEGER?):
       | name | in | out |
@@ -208,7 +208,7 @@ Feature: Call1 - Basic procedure calling
     Then a ParameterMissing should be raised at compile time: MissingParameter
 
   @NegativeTest
-  Scenario: In-query call to procedure that has outputs fails if no outputs are yielded
+  Scenario: [14] In-query call to procedure that has outputs fails if no outputs are yielded
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
       | in | out |
@@ -220,7 +220,7 @@ Feature: Call1 - Basic procedure calling
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
   @NegativeTest
-  Scenario: Standalone call to unknown procedure should fail
+  Scenario: [15] Standalone call to unknown procedure should fail
     Given an empty graph
     When executing query:
       """
@@ -229,7 +229,7 @@ Feature: Call1 - Basic procedure calling
     Then a ProcedureError should be raised at compile time: ProcedureNotFound
 
   @NegativeTest
-  Scenario: In-query call to unknown procedure should fail
+  Scenario: [16] In-query call to unknown procedure should fail
     Given an empty graph
     When executing query:
       """
@@ -239,7 +239,7 @@ Feature: Call1 - Basic procedure calling
     Then a ProcedureError should be raised at compile time: ProcedureNotFound
 
   @NegativeTest
-  Scenario: In-query procedure call should fail if shadowing an already bound variable
+  Scenario: [17] In-query procedure call should fail if shadowing an already bound variable
     Given an empty graph
     And there exists a procedure test.labels() :: (label :: STRING?):
       | label |
@@ -255,7 +255,7 @@ Feature: Call1 - Basic procedure calling
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   @NegativeTest
-  Scenario: In-query procedure call should fail if one of the argument expressions uses an aggregation function
+  Scenario: [18] In-query procedure call should fail if one of the argument expressions uses an aggregation function
     Given an empty graph
     And there exists a procedure test.labels(in :: INTEGER?) :: (label :: STRING?):
       | in | label |
