@@ -30,7 +30,7 @@
 
 Feature: Call2 - Procedure arguments
 
-  Scenario: In-query call to procedure with explicit arguments
+  Scenario: [1] In-query call to procedure with explicit arguments
     Given an empty graph
     And there exists a procedure test.my.proc(name :: STRING?, id :: INTEGER?) :: (city :: STRING?, country_code :: INTEGER?):
       | name     | id | city      | country_code |
@@ -50,7 +50,7 @@ Feature: Call2 - Procedure arguments
       | 'Berlin' | 49           |
     And no side effects
 
-  Scenario: Standalone call to procedure with explicit arguments
+  Scenario: [2] Standalone call to procedure with explicit arguments
     Given an empty graph
     And there exists a procedure test.my.proc(name :: STRING?, id :: INTEGER?) :: (city :: STRING?, country_code :: INTEGER?):
       | name     | id | city      | country_code |
@@ -69,7 +69,7 @@ Feature: Call2 - Procedure arguments
       | 'Berlin' | 49           |
     And no side effects
 
-  Scenario: Standalone call to procedure with implicit arguments
+  Scenario: [3] Standalone call to procedure with implicit arguments
     Given an empty graph
     And there exists a procedure test.my.proc(name :: STRING?, id :: INTEGER?) :: (city :: STRING?, country_code :: INTEGER?):
       | name     | id | city      | country_code |
@@ -92,7 +92,7 @@ Feature: Call2 - Procedure arguments
     And no side effects
 
   @NegativeTest
-  Scenario: In-query call to procedure that takes arguments fails when trying to pass them implicitly
+  Scenario: [4] In-query call to procedure that takes arguments fails when trying to pass them implicitly
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
       | in | out |
@@ -104,7 +104,7 @@ Feature: Call2 - Procedure arguments
     Then a SyntaxError should be raised at compile time: InvalidArgumentPassingMode
 
   @NegativeTest
-  Scenario: Standalone call to procedure should fail if input type is wrong
+  Scenario: [5] Standalone call to procedure should fail if input type is wrong
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
       | in | out |
@@ -115,7 +115,7 @@ Feature: Call2 - Procedure arguments
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   @NegativeTest
-  Scenario: In-query call to procedure should fail if input type is wrong
+  Scenario: [6] In-query call to procedure should fail if input type is wrong
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
       | in | out |
