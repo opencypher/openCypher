@@ -29,24 +29,3 @@
 #encoding: utf-8
 
 Feature: Call5 - Results projection
-
-  Scenario: In-query call to procedure with explicit arguments that drops all result fields
-    Given an empty graph
-    And there exists a procedure test.my.proc(name :: STRING?, id :: INTEGER?) :: (city :: STRING?, country_code :: INTEGER?):
-      | name     | id | city      | country_code |
-      | 'Andres' | 1  | 'Malmö'   | 46           |
-      | 'Tobias' | 1  | 'Malmö'   | 46           |
-      | 'Mats'   | 1  | 'Malmö'   | 46           |
-      | 'Stefan' | 1  | 'Berlin'  | 49           |
-      | 'Stefan' | 2  | 'München' | 49           |
-      | 'Petra'  | 1  | 'London'  | 44           |
-    When executing query:
-      """
-      WITH 'Stefan' AS name, 1 AS id
-      CALL test.my.proc(name, id) YIELD -
-      RETURN name, id, count(*) AS count
-      """
-    Then the result should be, in order:
-      | name     | id | count |
-      | 'Stefan' | 1  | 1     |
-    And no side effects
