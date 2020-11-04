@@ -28,6 +28,8 @@
 package org.opencypher.tools;
 
 import io.cucumber.junit.CucumberOptions;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.runner.RunWith;
 
 @RunWith( InitFunction.class )
@@ -36,6 +38,7 @@ import org.junit.runner.RunWith;
         glue = { "classpath:org/opencypher/tools/tck" },
         features = { "../../tck/features" }
 )
+@Execution(ExecutionMode.SAME_THREAD)
 public class VerifyFeaturesTest
 {
 }
