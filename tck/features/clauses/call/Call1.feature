@@ -111,18 +111,6 @@ Feature: Call1 - Basic procedure calling
     Then the result should be empty
     And no side effects
 
-  Scenario: In-query call to procedure that takes no arguments and yields no results
-    Given an empty graph
-    And there exists a procedure test.doNothing() :: ():
-      |
-    When executing query:
-      """
-      CALL test.doNothing() YIELD - RETURN 1
-      """
-    Then the result should be, in any order:
-      | 1 |
-    And no side effects
-
   Scenario: Standalone call to STRING procedure that takes no arguments
     Given an empty graph
     And there exists a procedure test.labels() :: (label :: STRING?):
