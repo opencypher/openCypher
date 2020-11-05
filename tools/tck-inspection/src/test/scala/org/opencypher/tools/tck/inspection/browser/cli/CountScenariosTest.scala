@@ -40,10 +40,10 @@ import org.opencypher.tools.tck.inspection.collect.GroupCollection
 import org.opencypher.tools.tck.inspection.diff
 import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
 import org.opencypher.tools.tck.inspection.diff.GroupDiff
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class CountScenariosTest extends FunSuite with Matchers {
+class CountScenariosTest extends AnyFunSuite with Matchers {
   private val dummyPickle = new io.cucumber.core.gherkin.Pickle() {
     override def getKeyword: String = ""
 
