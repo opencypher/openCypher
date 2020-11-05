@@ -39,7 +39,8 @@
     <dep.maven.surefire.plugin.version>2.22.2</dep.maven.surefire.plugin.version>
     <dep.scala.maven.plugin.version>3.4.4</dep.scala.maven.plugin.version>
     <dep.scala.version>2.12.10</dep.scala.version>
-    <dep.scalatest.version>3.0.5</dep.scalatest.version>
+    <dep.scalatest.version>3.2.2</dep.scalatest.version>
+    <dep.scalatest.runner.version>0.1.8</dep.scalatest.runner.version>
     <dep.xmlgraphics-commons.version>2.4</dep.xmlgraphics-commons.version>
     <dep.commons-csv.version>1.8</dep.commons-csv.version>
     <dep.commons-cli.version>1.4</dep.commons-cli.version>
@@ -147,6 +148,13 @@
             <artifactId>scala-library</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>co.helmethair</groupId>
+        <artifactId>scalatest-junit-runner</artifactId>
+        <version>${dep.scalatest.runner.version}</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -306,10 +314,10 @@
     </pluginManagement>
 
     <plugins>
-        <plugin>
-          <groupId>org.neo4j.build.plugins</groupId>
-          <artifactId>license-maven-plugin</artifactId>
-        </plugin>
+      <plugin>
+        <groupId>org.neo4j.build.plugins</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
 
