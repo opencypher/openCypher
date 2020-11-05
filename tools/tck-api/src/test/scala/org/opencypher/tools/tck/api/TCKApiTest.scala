@@ -29,10 +29,10 @@ package org.opencypher.tools.tck.api
 
 import java.net.URI
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class TCKApiTest extends FunSuite with Matchers {
+class TCKApiTest extends AnyFunSuite with Matchers {
   private val fooUri: URI = getClass.getResource("..").toURI
   private val scenarios: Seq[Scenario] = CypherTCK.parseFeatures(fooUri).flatMap(_.scenarios)
 
