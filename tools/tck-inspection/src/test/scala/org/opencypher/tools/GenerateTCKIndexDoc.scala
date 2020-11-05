@@ -30,7 +30,6 @@ package org.opencypher.tools
 import java.nio.file.Files
 import java.nio.file.Paths
 
-import org.junit.jupiter.api.Test
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.inspection.collect.Feature
 import org.opencypher.tools.tck.inspection.collect.Group
@@ -38,18 +37,20 @@ import org.opencypher.tools.tck.inspection.collect.GroupCollection
 import org.opencypher.tools.tck.inspection.collect.ScenarioCategory
 import org.opencypher.tools.tck.inspection.collect.Tag
 import org.opencypher.tools.tck.inspection.collect.Total
-import org.scalatest.Assertions._
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 import scala.sys.process._
 
-class GenerateTCKIndexDocTest {
-  @Test //comment this in/out if index.adoc should/should not be generated during build
-  def runAsTest(): Unit = GenerateTCKIndexDoc.main(Array())
+class GenerateTCKIndexDocTest extends AnyFunSuite {
+  //used test(...)/ignore(...) if index.adoc should/should not be generated during build
+  test("generate index doc") {
+    GenerateTCKIndexDoc.main(Array())
+  }
 
-  //@Test //comment this in/out if generated index.adoc should/should not be checked against working copy HEAD during build
-  def verifyGenerateIndexIsCommitted(): Unit = {
+  //used test(...)/ignore(...) if generated index.adoc should/should not be checked against working copy HEAD during build
+  ignore("generate index doc should be committed") {
     val tmpFile = Files.createTempFile("tck-", "-index.adoc")
     val gitCmd = Seq("git", "-C", Paths.get(System.getProperty("projectRootdir")).toAbsolutePath.toString,
       "show", s"HEAD:${GenerateTCKIndexDoc.indexDocFileRelative}")
