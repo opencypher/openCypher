@@ -30,10 +30,10 @@ package org.opencypher.tools.tck.api
 import java.net.URI
 import java.util
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class ScenarioTest extends FunSuite with Matchers {
+class ScenarioTest extends AnyFunSuite with Matchers {
   val rand = new scala.util.Random(1)
 
   val noPickleSteps = new util.ArrayList[io.cucumber.core.gherkin.Step]()
