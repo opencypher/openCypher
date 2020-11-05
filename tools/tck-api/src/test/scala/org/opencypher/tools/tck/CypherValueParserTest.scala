@@ -28,9 +28,10 @@
 package org.opencypher.tools.tck
 
 import org.opencypher.tools.tck.values._
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class CypherValueParserTest extends FunSuite with Matchers {
+class CypherValueParserTest extends AnyFunSuite with Matchers {
 
   test("unlabelled node") {
     val string = "()"
