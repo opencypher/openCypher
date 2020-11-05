@@ -35,10 +35,10 @@ import org.opencypher.tools.tck.api.Measure
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
 import org.opencypher.tools.tck.inspection.diff.ScenarioDiffTag._
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class GroupDiffTest extends FunSuite with Matchers {
+class GroupDiffTest extends AnyFunSuite with Matchers {
   private val dummyPickle = new io.cucumber.core.gherkin.Pickle() {
     override def getKeyword: String = ""
 
