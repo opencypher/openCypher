@@ -27,21 +27,22 @@
  */
 package org.opencypher.tools.tck.api
 
-import org.junit.jupiter.api.Test
-import org.opencypher.tools.tck.api.CypherTCK.{featuresPath, parseClasspathFeatures}
+import org.scalatest.Assertions
+import org.scalatest.funsuite.AnyFunSuite
 
-class CypherTCKTest {
+class CypherTCKTest extends AnyFunSuite with Assertions {
 
-  @Test
-  def callParseClasspathFeaturesRepeatedly() {
-    parseClasspathFeatures(featuresPath)
-    parseClasspathFeatures(featuresPath)
+
+  test("call parseClasspathFeatures repeatedly") {
+    CypherTCK.parseClasspathFeatures(CypherTCK.featuresPath)
+    CypherTCK.parseClasspathFeatures(CypherTCK.featuresPath)
+    succeed
   }
 
-  @Test
-  def parseAllScenarioValues(): Unit = {
+  test("call allTckScenarios") {
     CypherTCK.allTckScenarios
     // does not throw exception
+    succeed
   }
 
 }
