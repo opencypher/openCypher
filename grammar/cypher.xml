@@ -274,13 +274,10 @@
 
   <production name="YieldItems" rr:inline="true">
     <seq>
-      <alt>
-        *
-        <seq>
-          <non-terminal ref="YieldItem"/>
-          <repeat>&WS; , &WS;<non-terminal ref="YieldItem"/></repeat>
-        </seq>
-      </alt>
+      <seq>
+        <non-terminal ref="YieldItem"/>
+        <repeat>&WS; , &WS;<non-terminal ref="YieldItem"/></repeat>
+      </seq>
       <opt>&WS; <non-terminal ref="Where"/></opt>
     </seq>
   </production>
