@@ -27,52 +27,46 @@
  */
 package org.opencypher.tools.tck
 
-import java.util
-
-import org.junit.jupiter.api.{DynamicTest, TestFactory}
 import org.opencypher.tools.tck.api._
 import org.opencypher.tools.tck.constants.TCKErrorDetails.UNKNOWN_FUNCTION
 import org.opencypher.tools.tck.constants.TCKErrorPhases.COMPILE_TIME
 import org.opencypher.tools.tck.constants.TCKErrorTypes.SYNTAX_ERROR
 import org.opencypher.tools.tck.values.CypherValue
+import org.scalatest.Assertions
+import org.scalatest.funspec.AnyFunSpec
 
-import scala.collection.JavaConverters._
+class TckTest extends AnyFunSpec with Assertions {
 
-object FakeGraph extends Graph with ProcedureSupport {
-  override def cypher(query: String, params: Map[String, CypherValue], queryType: QueryType): Result = {
-    queryType match {
-      case InitQuery =>
-        CypherValueRecords.empty
-      case SideEffectQuery =>
-        CypherValueRecords.empty
-      case ExecQuery if query.contains("foo()") =>
-        ExecutionFailed(SYNTAX_ERROR, COMPILE_TIME, UNKNOWN_FUNCTION)
-      case ExecQuery =>
-        StringRecords(List("1"), List(Map("1" -> "1")))
+  describe("Out of the scenarios in Foo.feature") {
+    val fooUri = getClass.getResource("Foo.feature").toURI
+    val scenarios = CypherTCK.parseFeatures(fooUri) match {
+      case feature :: Nil => feature.scenarios
+      case _ => List[Scenario]()
+    }
+
+    scenarios.foreach { scenario =>
+      it(s"${scenario.toString()} should run successfully") {
+        scenario(FakeGraph).run()
+        succeed
+      }
     }
   }
 
-  override def registerProcedure(signature: String, values: CypherValueRecords): Unit =
-    ()
-}
-
-class TckTest {
-
-  @TestFactory
-  def testCustomFeature(): util.Collection[DynamicTest] = {
-    val fooUri = getClass.getResource("Foo.feature").toURI
-    val scenarios = CypherTCK.parseFeatures(fooUri) match {
-        case feature :: Nil => feature.scenarios
-        case _ => List[Scenario]()
+  private object FakeGraph extends Graph with ProcedureSupport {
+    override def cypher(query: String, params: Map[String, CypherValue], queryType: QueryType): Result = {
+      queryType match {
+        case InitQuery =>
+          CypherValueRecords.empty
+        case SideEffectQuery =>
+          CypherValueRecords.empty
+        case ExecQuery if query.contains("foo()") =>
+          ExecutionFailed(SYNTAX_ERROR, COMPILE_TIME, UNKNOWN_FUNCTION)
+        case ExecQuery =>
+          StringRecords(List("1"), List(Map("1" -> "1")))
       }
-
-    def createTestGraph(): Graph = FakeGraph
-
-    val dynamicTests = scenarios.map { scenario =>
-      val name = scenario.toString()
-      val runnable = scenario(createTestGraph())
-      DynamicTest.dynamicTest(name, () => runnable.run())
     }
-    dynamicTests.asJavaCollection
+
+    override def registerProcedure(signature: String, values: CypherValueRecords): Unit =
+      ()
   }
 }
