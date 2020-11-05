@@ -53,7 +53,8 @@ class TCKEventsTest extends AnyFunSuite with Assertions with Matchers {
     scenarios.head(FakeGraph).run()
 
     TCKEvents.reset()
-    val expected = List[String](
+
+    events.toList should equal(List[String](
       "Feature 'List6 - List Size' read",
       "Scenario '[1] Return list size' started",
       "Step 'Execute -> any graph' started",
