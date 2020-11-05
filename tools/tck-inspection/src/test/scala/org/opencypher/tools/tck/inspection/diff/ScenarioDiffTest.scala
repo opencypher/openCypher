@@ -35,10 +35,10 @@ import org.opencypher.tools.tck.api.Measure
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
 import org.opencypher.tools.tck.inspection.diff.ScenarioDiffTag._
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class ScenarioDiffTest extends FunSuite with Matchers {
+class ScenarioDiffTest extends AnyFunSuite with Matchers {
   val rand = new scala.util.Random(1)
 
   val noPickleSteps = new util.ArrayList[io.cucumber.core.gherkin.Step]()
