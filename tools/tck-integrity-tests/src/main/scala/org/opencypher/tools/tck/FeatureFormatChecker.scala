@@ -44,7 +44,7 @@ class FeatureFormatChecker extends TCKCucumberTemplate {
   private var skipStyleCheck: Boolean = false
 
   Before { (scenario: io.cucumber.scala.Scenario) =>
-    //validateDuplicateNames(scenario).map(msg => throw InvalidFeatureFormatException(msg))
+    validateDuplicateNames(scenario).map(msg => throw InvalidFeatureFormatException(msg))
     currentScenarioName = scenario.getName
     skipStyleCheck = scenario.getSourceTagNames.contains(TCKTags.SKIP_STYLE_CHECK)
   }
