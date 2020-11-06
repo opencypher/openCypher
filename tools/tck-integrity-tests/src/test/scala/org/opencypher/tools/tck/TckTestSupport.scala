@@ -28,14 +28,15 @@
 package org.opencypher.tools.tck
 
 import io.cucumber.datatable.DataTable
-import org.junit.runner.RunWith
 import org.junit.platform.runner.JUnitPlatform
-import org.scalatest.{FunSuiteLike, Matchers}
+import org.junit.runner.RunWith
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 import scala.collection.convert.DecorateAsJava
 
 @RunWith(classOf[JUnitPlatform])
-abstract class TckTestSupport extends FunSuiteLike with Matchers with DecorateAsJava {
+abstract class TckTestSupport extends AnyFunSuite with Matchers with DecorateAsJava {
 
   def tableOf(strings: Seq[String]*): DataTable = {
     DataTable.create(strings.map(_.toList.asJava).toList.asJava)
