@@ -69,3 +69,41 @@ Feature: WithWhere1 - Filter single variable
       | bars |
       | 'B'  |
     And no side effects
+
+  Scenario: Filter for an unbound relationship variable
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A), (b:B {id: 1}), (:B {id: 2})
+      CREATE (a)-[:T]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a:A), (other:B)
+      OPTIONAL MATCH (a)-[r]->(other)
+      WITH other WHERE r IS NULL
+      RETURN other
+      """
+    Then the result should be, in any order:
+      | other        |
+      | (:B {id: 2}) |
+    And no side effects
+
+  Scenario: Filter for an unbound node variable
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A), (b:B {id: 1}), (:B {id: 2})
+      CREATE (a)-[:T]->(b)
+      """
+    When executing query:
+      """
+      MATCH (other:B)
+      OPTIONAL MATCH (a)-[r]->(other)
+      WITH other WHERE a IS NULL
+      RETURN other
+      """
+    Then the result should be, in any order:
+      | other        |
+      | (:B {id: 2}) |
+    And no side effects
