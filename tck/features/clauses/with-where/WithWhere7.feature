@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: WithWhere6 - Variable visibility under aliasing
+Feature: WithWhere7 - Variable visibility under aliasing
 
   Scenario: WHERE sees a variable bound before but not after WITH
     Given an empty graph
@@ -46,7 +46,7 @@ Feature: WithWhere6 - Variable visibility under aliasing
       RETURN *
       """
     Then the result should be, in any order:
-      | bars |
+      | name |
       | 'B'  |
     And no side effects
 
@@ -66,7 +66,7 @@ Feature: WithWhere6 - Variable visibility under aliasing
       RETURN *
       """
     Then the result should be, in any order:
-      | bars |
+      | name |
       | 'B'  |
     And no side effects
 
@@ -86,7 +86,7 @@ Feature: WithWhere6 - Variable visibility under aliasing
       RETURN *
       """
     Then the result should be, in any order:
-      | bars |
+      | name |
       | 'B'  |
       | 'C'  |
     And no side effects

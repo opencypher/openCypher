@@ -61,12 +61,12 @@ Feature: WithWhere1 - Filter single variable
     When executing query:
       """
       MATCH (a)
-      WITH DISTINCT a.name2
+      WITH DISTINCT a.name2 AS name
       WHERE a.name2 = 'B'
       RETURN *
       """
     Then the result should be, in any order:
-      | bars |
+      | name |
       | 'B'  |
     And no side effects
 
