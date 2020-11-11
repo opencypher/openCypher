@@ -120,32 +120,3 @@ Feature: Call3 - Assignable-type arguments
       | out            |
       | 'close enough' |
     And no side effects
-
-  Scenario: [7] Standalone call to procedure with argument of type INTEGER accepts value of type FLOAT
-    Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
-      | in | out            |
-      | 42 | 'close enough' |
-    When executing query:
-      """
-      CALL test.my.proc(42.0)
-      """
-    Then the result should be, in order:
-      | out            |
-      | 'close enough' |
-    And no side effects
-
-  Scenario: [8] In-query call to procedure with argument of type INTEGER accepts value of type FLOAT
-    Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
-      | in | out            |
-      | 42 | 'close enough' |
-    When executing query:
-      """
-      CALL test.my.proc(42.0) YIELD out
-      RETURN out
-      """
-    Then the result should be, in order:
-      | out            |
-      | 'close enough' |
-    And no side effects
