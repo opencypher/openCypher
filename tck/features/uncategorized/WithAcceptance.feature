@@ -100,27 +100,6 @@ Feature: WithAcceptance
     And no side effects
 
   # WithWhere
-  Scenario: WHERE after WITH should filter results
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({name: 'A'}),
-             ({name: 'B'}),
-             ({name: 'C'})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      WITH a
-      WHERE a.name = 'B'
-      RETURN a
-      """
-    Then the result should be, in any order:
-      | a             |
-      | ({name: 'B'}) |
-    And no side effects
-
-  # WithWhere
   Scenario: WHERE after WITH can filter on top of an aggregation
     Given an empty graph
     And having executed:
