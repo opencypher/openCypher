@@ -30,7 +30,7 @@
 
 Feature: WithWhere7 - Variable visibility under aliasing
 
-  Scenario: WHERE sees a variable bound before but not after WITH
+  Scenario: [1] WHERE sees a variable bound before but not after WITH
     Given an empty graph
     And having executed:
       """
@@ -50,7 +50,7 @@ Feature: WithWhere7 - Variable visibility under aliasing
       | 'B'  |
     And no side effects
 
-  Scenario: WHERE sees a variable bound after but not before WITH
+  Scenario: [2] WHERE sees a variable bound after but not before WITH
     Given an empty graph
     And having executed:
       """
@@ -70,7 +70,7 @@ Feature: WithWhere7 - Variable visibility under aliasing
       | 'B'  |
     And no side effects
 
-  Scenario: WHERE sees both, variable bound before but not after WITH and variable bound after but not before WITH
+  Scenario: [3] WHERE sees both, variable bound before but not after WITH and variable bound after but not before WITH
     Given an empty graph
     And having executed:
       """
