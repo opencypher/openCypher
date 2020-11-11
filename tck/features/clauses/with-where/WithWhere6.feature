@@ -30,7 +30,7 @@
 
 Feature: WithWhere6 - Filter on aggregates
 
-  Scenario: WHERE after WITH can filter on top of an aggregation
+  Scenario: [1] Filter a single aggregate
     Given an empty graph
     And having executed:
       """
