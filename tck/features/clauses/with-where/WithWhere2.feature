@@ -29,3 +29,62 @@
 #encoding: utf-8
 
 Feature: WithWhere2 - Filter multiple variables
+
+  Scenario: [1] Filter nodes with conjunctive two-part property predicate on multi variables with multiple bindings
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A), (b:B {id: 1}), (c:C {id: 2}), (d:D)
+      CREATE (a)-[:T]->(b),
+             (a)-[:T]->(c),
+             (a)-[:T]->(d),
+             (b)-[:T]->(c),
+             (b)-[:T]->(d),
+             (c)-[:T]->(d)
+      """
+    When executing query:
+      """
+      MATCH (a)--(b)--(c)--(d)--(a), (b)--(d)
+      WITH a, c, d
+      WHERE a.id = 1
+        AND c.id = 2
+      RETURN d
+      """
+    Then the result should be, in any order:
+      | d    |
+      | (:A) |
+      | (:D) |
+    And no side effects
+
+  Scenario: [2] Filter node with conjunctive multi-part property predicates on multi variables with multiple bindings
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (advertiser {name: 'advertiser1', id: 0}),
+             (thing {name: 'Color', id: 1}),
+             (red {name: 'red'}),
+             (p1 {name: 'product1'}),
+             (p2 {name: 'product4'})
+      CREATE (advertiser)-[:ADV_HAS_PRODUCT]->(p1),
+             (advertiser)-[:ADV_HAS_PRODUCT]->(p2),
+             (thing)-[:AA_HAS_VALUE]->(red),
+             (p1)-[:AP_HAS_VALUE]->(red),
+             (p2)-[:AP_HAS_VALUE]->(red)
+      """
+    And parameters are:
+      | 1 | 0 |
+      | 2 | 1 |
+    When executing query:
+      """
+      MATCH (advertiser)-[:ADV_HAS_PRODUCT]->(out)-[:AP_HAS_VALUE]->(red)<-[:AA_HAS_VALUE]-(a)
+      WITH a, advertiser, red, out
+      WHERE advertiser.id = $1
+        AND a.id = $2
+        AND red.name = 'red'
+        AND out.name = 'product1'
+      RETURN out.name
+      """
+    Then the result should be, in any order:
+      | out.name   |
+      | 'product1' |
+    And no side effects
