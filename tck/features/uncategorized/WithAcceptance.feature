@@ -164,7 +164,7 @@ Feature: WithAcceptance
       | (:B) | (:A) | (:X) |
     And no side effects
 
-  # WithWhere
+  # Return aggregation after With filtering
   Scenario: Single WITH using a predicate and aggregation
     Given an empty graph
     And having executed:
