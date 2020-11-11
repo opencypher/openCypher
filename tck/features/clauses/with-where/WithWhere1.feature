@@ -29,3 +29,23 @@
 #encoding: utf-8
 
 Feature: WithWhere1 - Filter single variable
+
+  Scenario: Filter node with property predicate on a single variable with multiple bindings
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({name: 'A'}),
+             ({name: 'B'}),
+             ({name: 'C'})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a
+      WHERE a.name = 'B'
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a             |
+      | ({name: 'B'}) |
+    And no side effects
