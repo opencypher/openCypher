@@ -143,27 +143,6 @@ Feature: WithAcceptance
       | 'B'  |
     And no side effects
 
-  # WithWhere
-  Scenario: WHERE on a DISTINCT column
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({name2: 'A'}),
-             ({name2: 'A'}),
-             ({name2: 'B'})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      WITH DISTINCT a.name2 AS bars
-      WHERE a.name2 = 'B'
-      RETURN *
-      """
-    Then the result should be, in any order:
-      | bars |
-      | 'B'  |
-    And no side effects
-
   # WithLimit
   Scenario: Connected components succeeding WITH with LIMIT
     Given an empty graph

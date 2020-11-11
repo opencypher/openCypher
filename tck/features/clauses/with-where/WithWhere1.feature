@@ -49,3 +49,23 @@ Feature: WithWhere1 - Filter single variable
       | a             |
       | ({name: 'B'}) |
     And no side effects
+
+  Scenario: Filter node with property predicate on a single variable with multiple distinct bindings
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({name2: 'A'}),
+             ({name2: 'A'}),
+             ({name2: 'B'})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH DISTINCT a.name2
+      WHERE a.name2 = 'B'
+      RETURN *
+      """
+    Then the result should be, in any order:
+      | bars |
+      | 'B'  |
+    And no side effects
