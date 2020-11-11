@@ -29,3 +29,44 @@
 #encoding: utf-8
 
 Feature: WithWhere4 - Non-Equi-Joins on variables
+
+  Scenario: [1] Join nodes on inequality
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A), (:B)
+      """
+    When executing query:
+      """
+      MATCH (a), (b)
+      WITH a, b
+      WHERE a <> b
+      RETURN a, b
+      """
+    Then the result should be, in any order:
+      | a    | b    |
+      | (:A) | (:B) |
+      | (:B) | (:A) |
+    And no side effects
+
+  Scenario: [2] Join with disjunctive multi-part predicates including patterns
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:TheLabel {id: 0}), (b:TheLabel {id: 1}), (c:TheLabel {id: 2})
+      CREATE (a)-[:T]->(b),
+             (b)-[:T]->(c)
+      """
+    When executing query:
+      """
+      MATCH (a), (b)
+      WITH a, b
+      WHERE a.id = 0
+        AND (a)-[:T]->(b:TheLabel)
+        OR (a)-[:T*]->(b:MissingLabel)
+      RETURN DISTINCT b
+      """
+    Then the result should be, in any order:
+      | b                   |
+      | (:TheLabel {id: 1}) |
+    And no side effects
