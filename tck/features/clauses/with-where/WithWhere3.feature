@@ -29,3 +29,69 @@
 #encoding: utf-8
 
 Feature: WithWhere3 - Equi-Joins on variables
+
+  Scenario: [1] Join between node identities
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A), (:B)
+      """
+    When executing query:
+      """
+      MATCH (a), (b)
+      WITH a, b
+      WHERE a = b
+      RETURN a, b
+      """
+    Then the result should be, in any order:
+      | a    | b    |
+      | (:A) | (:A) |
+      | (:B) | (:B) |
+    And no side effects
+
+  Scenario: [2] Join between node properties of disconnected nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {id: 1}),
+             (:A {id: 2}),
+             (:B {id: 2}),
+             (:B {id: 3})
+      """
+    When executing query:
+      """
+      MATCH (a:A), (b:B)
+      WITH a, b
+      WHERE a.id = b.id
+      RETURN a, b
+      """
+    Then the result should be, in any order:
+      | a            | b            |
+      | (:A {id: 2}) | (:B {id: 2}) |
+    And no side effects
+
+  Scenario: [3] Join between node properties of adjacent nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A {animal: 'monkey'}),
+        (b:B {animal: 'cow'}),
+        (c:C {animal: 'monkey'}),
+        (d:D {animal: 'cow'}),
+        (a)-[:KNOWS]->(b),
+        (a)-[:KNOWS]->(c),
+        (d)-[:KNOWS]->(b),
+        (d)-[:KNOWS]->(c)
+      """
+    When executing query:
+      """
+      MATCH (n)-[rel]->(x)
+      WITH n, x
+      WHERE n.animal = x.animal
+      RETURN n, x
+      """
+    Then the result should be, in any order:
+      | n                       | x                       |
+      | (:A {animal: 'monkey'}) | (:C {animal: 'monkey'}) |
+      | (:D {animal: 'cow'})    | (:B {animal: 'cow'})    |
+    And no side effects
