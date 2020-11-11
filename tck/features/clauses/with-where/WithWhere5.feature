@@ -29,3 +29,93 @@
 #encoding: utf-8
 
 Feature: WithWhere5 - Filter on predicate resulting in null
+
+  Scenario: [1] Filter out on null
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (root:Root {name: 'x'}),
+             (child1:TextNode {var: 'text'}),
+             (child2:IntNode {var: 0})
+      CREATE (root)-[:T]->(child1),
+             (root)-[:T]->(child2)
+      """
+    When executing query:
+      """
+      MATCH (:Root {name: 'x'})-->(i:TextNode)
+      WITH i
+      WHERE i.var > 'te'
+      RETURN i
+      """
+    Then the result should be, in any order:
+      | i                         |
+      | (:TextNode {var: 'text'}) |
+    And no side effects
+
+  Scenario: [2] Filter out on null if the AND'd predicate evaluates to false
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (root:Root {name: 'x'}),
+             (child1:TextNode {var: 'text'}),
+             (child2:IntNode {var: 0})
+      CREATE (root)-[:T]->(child1),
+             (root)-[:T]->(child2)
+      """
+    When executing query:
+      """
+      MATCH (:Root {name: 'x'})-->(i:TextNode)
+      WITH i
+      WHERE i.var > 'te' AND i:TextNode
+      RETURN i
+      """
+    Then the result should be, in any order:
+      | i                         |
+      | (:TextNode {var: 'text'}) |
+    And no side effects
+
+  Scenario: [3] Filter out on null if the AND'd predicate evaluates to true
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (root:Root {name: 'x'}),
+             (child1:TextNode {var: 'text'}),
+             (child2:IntNode {var: 0})
+      CREATE (root)-[:T]->(child1),
+             (root)-[:T]->(child2)
+      """
+    When executing query:
+      """
+      MATCH (:Root {name: 'x'})-->(i:TextNode)
+      WITH i
+      WHERE i.var > 'te' AND exists(i.var)
+      RETURN i
+      """
+    Then the result should be, in any order:
+      | i                         |
+      | (:TextNode {var: 'text'}) |
+    And no side effects
+
+  Scenario: [4] Do not filter out on null if the OR'd predicate evaluates to true
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (root:Root {name: 'x'}),
+             (child1:TextNode {var: 'text'}),
+             (child2:IntNode {var: 0})
+      CREATE (root)-[:T]->(child1),
+             (root)-[:T]->(child2)
+      """
+    When executing query:
+      """
+      MATCH (:Root {name: 'x'})-->(i)
+      WITH i
+      WHERE i.var > 'te' OR exists(i.var)
+      RETURN i
+      """
+    Then the result should be, in any order:
+      | i                         |
+      | (:TextNode {var: 'text'}) |
+      | (:IntNode {var: 0})       |
+    And no side effects
+
