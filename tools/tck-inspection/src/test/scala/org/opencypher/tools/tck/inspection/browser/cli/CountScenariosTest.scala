@@ -35,7 +35,7 @@ import org.opencypher.tools.tck.api.Dummy
 import org.opencypher.tools.tck.api.Measure
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
-import org.opencypher.tools.tck.api.groups.CollectGroups
+import org.opencypher.tools.tck.api.groups.GroupScenarios
 import org.opencypher.tools.tck.api.groups.Group
 import org.opencypher.tools.tck.inspection.diff
 import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
@@ -104,7 +104,7 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
     val expectedCountOutput: String =
       """Total        1
         || ftr1       1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CollectGroups(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(GroupScenarios(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count single top-level scenario with tag") {
@@ -115,7 +115,7 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
         || @B         1
         || A          1
         || C          1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CollectGroups(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(GroupScenarios(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count single sub-level scenario without tags") {
@@ -126,7 +126,7 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
         || | B              1
         || | | C            1
         || | | | ftr1       1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CollectGroups(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(GroupScenarios(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count two top-level scenarios in same feature without tags") {
@@ -136,7 +136,7 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
     val expectedCountOutput: String =
       """Total        2
         || ftr1       2""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CollectGroups(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(GroupScenarios(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count three top-level scenarios in two features without tags") {
@@ -148,7 +148,7 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
       """Total        3
         || ftr1       2
         || ftr2       1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CollectGroups(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(GroupScenarios(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count three top-level scenarios in two features with tags") {
@@ -164,7 +164,7 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
         || B          1
         || C          3
         || D          1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CollectGroups(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(GroupScenarios(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count three mixed-level scenarios without tags") {
@@ -182,7 +182,7 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
         || | | K            1
         || | | | ftr2       1
         || ftr1             1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CollectGroups(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(GroupScenarios(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count five mixed-level scenarios with tags") {
@@ -207,7 +207,7 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
         || B                2
         || C                4
         || D                1""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CollectGroups(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(GroupScenarios(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Count scenarios through TCK API") {
@@ -228,15 +228,15 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
         || @TestA             2
         || @TestB             1
         || @TestC             3""".stripMargin
-    CountScenarios.reportCountsInPrettyPrint(CollectGroups(scenarios)) should equal(expectedCountOutput)
+    CountScenarios.reportCountsInPrettyPrint(GroupScenarios(scenarios)) should equal(expectedCountOutput)
   }
 
   test("Report pretty diff counts with one scenario added from a top-level same feature without tags") {
     val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val groupCollectionDiff: Map[Group, GroupDiff] = GroupCollectionDiff(
-      CollectGroups(Seq(scrB)),
-      CollectGroups(Seq(scrA, scrB))
+      GroupScenarios(Seq(scrB)),
+      GroupScenarios(Seq(scrA, scrB))
     )
 
     val expectedResult: String =
@@ -252,8 +252,8 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
     val scrA = Scenario(List[String](), "ftr1", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val groupCollectionDiff: Map[Group, GroupDiff] = diff.GroupCollectionDiff(
-      CollectGroups(Seq(scrA, scrB)),
-      CollectGroups(Seq(scrB))
+      GroupScenarios(Seq(scrA, scrB)),
+      GroupScenarios(Seq(scrB))
     )
 
     val expectedResult: String =
@@ -270,8 +270,8 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
     val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr2.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val groupCollectionDiff: Map[Group, GroupDiff] = diff.GroupCollectionDiff(
-      CollectGroups(Seq(scrA1, scrB)),
-      CollectGroups(Seq(scrA2, scrB))
+      GroupScenarios(Seq(scrA1, scrB)),
+      GroupScenarios(Seq(scrA2, scrB))
     )
 
     val expectedResult: String =
@@ -289,8 +289,8 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
     val scrA2 = Scenario(List[String]("X"), "ftr2", "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("X/ftr2.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val groupCollectionDiff: Map[Group, GroupDiff] = diff.GroupCollectionDiff(
-      CollectGroups(Seq(scrA1, scrB)),
-      CollectGroups(Seq(scrA2, scrB))
+      GroupScenarios(Seq(scrA1, scrB)),
+      GroupScenarios(Seq(scrA2, scrB))
     )
 
     val expectedResult: String =
@@ -310,8 +310,8 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
     val scrB1 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("A"), List[Step](dummyStep("B")), dummyPickle, dummyPath("ftr1.feature"))
     val scrB2 = Scenario(List[String](), "ftr1", "scrB", None, Set[String]("B"), List[Step](dummyStep("B")), dummyPickle, dummyPath("ftr1.feature"))
     val groupCollectionDiff: Map[Group, GroupDiff] = diff.GroupCollectionDiff(
-      CollectGroups(Seq(scrA1, scrB1)),
-      CollectGroups(Seq(scrA2, scrB2))
+      GroupScenarios(Seq(scrA1, scrB1)),
+      GroupScenarios(Seq(scrA2, scrB2))
     )
 
     val expectedResult: String =
@@ -333,8 +333,8 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
     val scrB2 = Scenario(List[String](), "ftr1", "scrB", Some(2), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB1x = Scenario(List[String](), "ftr1", "scrB", Some(1), Set[String]("B"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val groupCollectionDiff: Map[Group, GroupDiff] = diff.GroupCollectionDiff(
-      CollectGroups(Seq(scrA, scrB0, scrB1, scrB2)),
-      CollectGroups(Seq(scrA, scrB0, scrB1x, scrB2))
+      GroupScenarios(Seq(scrA, scrB0, scrB1, scrB2)),
+      GroupScenarios(Seq(scrA, scrB0, scrB1x, scrB2))
     )
 
     val expectedResult: String =
@@ -355,8 +355,8 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
     val scrA2 = Scenario(List[String](), "ftr2", "scrA", None, Set[String]("X"), stepsA2, dummyPickle, dummyPath("ftr2.feature"))
     val scrB = Scenario(List[String](), "ftr1", "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val groupCollectionDiff: Map[Group, GroupDiff] = diff.GroupCollectionDiff(
-      CollectGroups(Seq(scrA1, scrB)),
-      CollectGroups(Seq(scrA2, scrB))
+      GroupScenarios(Seq(scrA1, scrB)),
+      GroupScenarios(Seq(scrA2, scrB))
     )
 
     val expectedResult: String =
@@ -396,8 +396,8 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
         |- @TestB               1           0             0      0        0
         |- @TestC               2           1             0      0        0""".stripMargin
     CountScenarios.reportDiffCountsInPrettyPrint(diff.GroupCollectionDiff(
-      CollectGroups(scenariosBefore),
-      CollectGroups(scenariosAfter)
+      GroupScenarios(scenariosBefore),
+      GroupScenarios(scenariosAfter)
     )) should equal(expectedResult)
   }
 }

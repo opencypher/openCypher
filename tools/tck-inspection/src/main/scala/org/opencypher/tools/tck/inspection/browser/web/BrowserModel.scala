@@ -30,7 +30,7 @@ package org.opencypher.tools.tck.inspection.browser.web
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.groups.Group
-import org.opencypher.tools.tck.api.groups.CollectGroups
+import org.opencypher.tools.tck.api.groups.GroupScenarios
 import org.opencypher.tools.tck.api.groups.Total
 
 import scala.util.matching.Regex
@@ -44,7 +44,7 @@ case class BrowserModel(path: String) {
     s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
   )
 
-  val counts: Map[Group, Seq[Scenario]] = CollectGroups(scenarios)
+  val counts: Map[Group, Seq[Scenario]] = GroupScenarios(scenarios)
 
   val (groupId2Group, group2GroupId) = {
     val groupList = counts.keySet.toIndexedSeq
