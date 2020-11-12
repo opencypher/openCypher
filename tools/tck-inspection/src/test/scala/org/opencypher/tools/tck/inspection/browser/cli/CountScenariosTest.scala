@@ -35,7 +35,8 @@ import org.opencypher.tools.tck.api.Dummy
 import org.opencypher.tools.tck.api.Measure
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
-import org.opencypher.tools.tck.api.groups.{Group, CollectGroups}
+import org.opencypher.tools.tck.api.groups.CollectGroups
+import org.opencypher.tools.tck.api.groups.Group
 import org.opencypher.tools.tck.inspection.diff
 import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
 import org.opencypher.tools.tck.inspection.diff.GroupDiff
