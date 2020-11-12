@@ -25,28 +25,28 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.inspection.collect
+package org.opencypher.tools.tck.api.groups
 
 import org.opencypher.tools.tck.api.Scenario
 
-object GroupCollection extends (Seq[Scenario] => Map[Group, Seq[Scenario]]) {
+object CollectGroups extends (Seq[Scenario] => Map[Group, Seq[Scenario]]) {
   def apply(scenarios: Seq[Scenario]): Map[Group, Seq[Scenario]] = {
     // collect individual group for each scenario as 2-tuples of (Scenario,CountCategory)
-    val individualCounts: Seq[(Scenario,Group)] = scenarios.flatMap(scenario => {
+    val individualCounts: Seq[(Scenario, Group)] = scenarios.flatMap(scenario => {
       // category
-      def mapToGroups(categories: List[String], parent: Group): Seq[(Scenario, Group)] = {
+      def mapToCategoryGroups(categories: List[String], parent: ContainerGroup): Seq[(Scenario, ContainerGroup)] = {
         categories match {
-          case Nil => Seq[(Scenario, Group)]()
+          case Nil => Seq[(Scenario, ContainerGroup)]()
           case category :: remainingCategories =>
-            val categoryGroup = (scenario, ScenarioCategory(category, parent.indent + 1, Some(parent)))
-            categoryGroup +: mapToGroups(remainingCategories, categoryGroup._2)
+            val categoryGroup = (scenario, ScenarioCategory(category, parent))
+            categoryGroup +: mapToCategoryGroups(remainingCategories, categoryGroup._2)
         }
       }
-      val categoryGroups: Seq[(Scenario, Group)] = mapToGroups(scenario.categories, Total)
+      val categoryGroups: Seq[(Scenario, ContainerGroup)] = mapToCategoryGroups(scenario.categories, Total)
       // feature
       val feature: Feature = {
         val indent = categoryGroups.lastOption.map(_._2.indent).getOrElse(0) + 1
-        Feature(scenario.featureName, indent, Some(categoryGroups.lastOption.getOrElse((scenario, Total))._2))
+        Feature(scenario.featureName, categoryGroups.lastOption.getOrElse((scenario, Total))._2)
       }
       // tags
       val tagGroups: Seq[(Scenario, Group)] = scenario.tags.map(tag => (scenario, Tag(tag))).toSeq
