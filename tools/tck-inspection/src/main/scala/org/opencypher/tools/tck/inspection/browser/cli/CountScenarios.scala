@@ -29,12 +29,7 @@ package org.opencypher.tools.tck.inspection.browser.cli
 
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.inspection.collect.Feature
-import org.opencypher.tools.tck.inspection.collect.Group
-import org.opencypher.tools.tck.inspection.collect.GroupCollection
-import org.opencypher.tools.tck.inspection.collect.ScenarioCategory
-import org.opencypher.tools.tck.inspection.collect.Tag
-import org.opencypher.tools.tck.inspection.collect.Total
+import org.opencypher.tools.tck.api.groups.{CollectGroups, Feature, Group, OrderGroupsDepthFirst, ScenarioCategory, Tag, Total}
 import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
 import org.opencypher.tools.tck.inspection.diff.GroupDiff
 import org.opencypher.tools.tck.inspection.diff.ScenarioDiff
@@ -47,14 +42,14 @@ import org.opencypher.tools.tck.inspection.diff.ScenarioDiff
 case object CountScenarios {
   def main(args: Array[String]): Unit = {
     if(args.length == 0) {
-      println(reportCountsInPrettyPrint(GroupCollection(CypherTCK.allTckScenarios)))
+      println(reportCountsInPrettyPrint(CollectGroups(CypherTCK.allTckScenarios)))
     } else if(args.length == 1) {
-      println(reportCountsInPrettyPrint(GroupCollection(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
+      println(reportCountsInPrettyPrint(CollectGroups(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
     } else if(args.length == 2) {
       println(reportDiffCountsInPrettyPrint(
         GroupCollectionDiff(
-          GroupCollection(CypherTCK.allTckScenariosFromFilesystem(args(0))),
-          GroupCollection(CypherTCK.allTckScenariosFromFilesystem(args(1))))
+          CollectGroups(CypherTCK.allTckScenariosFromFilesystem(args(0))),
+          CollectGroups(CypherTCK.allTckScenariosFromFilesystem(args(1))))
         )
       )
     }
@@ -71,79 +66,56 @@ case object CountScenarios {
   }
 
   def reportCountsInPrettyPrint(groups: Map[Group, Seq[Scenario]]): String = {
-    val groupsByParent = groups.keys.groupBy(countCategory => countCategory.parent)
-    val outputs = groups.keys.map(cat => cat -> {
-      ("| " * cat.indent) + cat
+    val groupSequence = OrderGroupsDepthFirst(groups.keySet)
+
+    val outputs = groups.keys.map(group => group -> {
+      ("| " * group.indent) + group.name
     }).toMap
     // maxOutputLength is needed to align the counts
     val maxOutputLength = outputs.values.map(_.length).max
 
-    // print counts to stdout as a count group tree in dept first order
-    def printDepthFirst(currentGroup: Group): List[String] = {
-      val thisOutput = outputs(currentGroup)
+    val outputLines = groupSequence.map( group => {
+      val thisOutput = outputs(group)
       val thisOutputLine = "%s%s%8d".format(
         thisOutput,
-        " " * (maxOutputLength-thisOutput.length),
-        groups.getOrElse(currentGroup, Seq()).size
+        " " * (maxOutputLength - thisOutput.length),
+        groups.getOrElse(group, Seq()).size
       )
-      // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
-      val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{
-        case Total => 0
-        case _:ScenarioCategory => 1
-        case _:Feature => 2
-        case _:Tag => 3
-      }
-      // within each group ordered alphabetically by name
-      val groupsOrdered = groupsByClasses.toSeq.sortBy(_._1).flatMap {
-        case (_, countCategories) => countCategories.toSeq.sortBy(_.name)
-      }
+      thisOutputLine
+    })
 
-      thisOutputLine :: groupsOrdered.flatMap(printDepthFirst).toList
-    }
-
-    printDepthFirst(Total).mkString(System.lineSeparator)
+    outputLines.mkString(System.lineSeparator)
   }
 
   def reportDiffCountsInPrettyPrint(diffs: Map[Group, GroupDiff]): String = {
-    val groupsByParent = diffs.keys.groupBy(countCategory => countCategory.parent)
-    val outputs = diffs.keys.map(cat => cat -> {
-      ("  " * (cat.indent - 1)) + ("- " * (if (cat.indent > 0) 1 else 0)) + cat
+    val groupSequence = OrderGroupsDepthFirst(diffs.keySet)
+
+    val outputs = diffs.keys.map(group => group -> {
+      ("  " * (group.indent - 1)) + ("- " * (if (group.indent > 0) 1 else 0)) + group.name
     }).toMap
     // maxOutputLength is needed to align the counts
     val maxOutputLength = outputs.values.map(_.length).max
 
-    // print counts to stdout as a count group tree in dept first order
-    def printDepthFirst(currentGroup: Group): List[String] = {
-      val thisOutput = outputs(currentGroup)
+    val outputLines = groupSequence.map( group => {
+      val thisOutput = outputs(group)
       val thisOutputLine = "%s%s%10d%12d%14d%7d%9d".format(
         thisOutput,
         " " * (maxOutputLength - thisOutput.length),
-        diffs.get(currentGroup).map(_.unchangedScenarios.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.movedScenarios.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.changedScenarios.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.addedScenarios.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.removedScenarios.size).getOrElse(0)
+        diffs.get(group).map(_.unchangedScenarios.size).getOrElse(0),
+        diffs.get(group).map(_.movedScenarios.size).getOrElse(0),
+        diffs.get(group).map(_.changedScenarios.size).getOrElse(0),
+        diffs.get(group).map(_.addedScenarios.size).getOrElse(0),
+        diffs.get(group).map(_.removedScenarios.size).getOrElse(0)
       )
-      // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
-      val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{
-        case Total => 0
-        case _:ScenarioCategory => 1
-        case _:Feature => 2
-        case _:Tag => 3
-      }
-      // within each class ordered alphabetically by name
-      val groupsOrdered = groupsByClasses.toSeq.sortBy(_._1).flatMap {
-        case (_, countCategories) => countCategories.toSeq.sortBy(_.name)
-      }
-      thisOutputLine :: groupsOrdered.flatMap(printDepthFirst).toList
-    }
+      thisOutputLine
+    })
 
     //output header
     val columnNames = "Group" + (" " * (maxOutputLength-"Group".length)) +
       " unchanged" + "  moved only" + "  changed more" + "  added" + "  removed"
     val header = columnNames + System.lineSeparator + ("–" * columnNames.length) + System.lineSeparator
 
-    header + printDepthFirst(Total).mkString(System.lineSeparator)
+    header + outputLines.mkString(System.lineSeparator)
   }
 
   def reportDiffCountsInGFMPrint(diffs: Map[Group, GroupDiff]): String = {
