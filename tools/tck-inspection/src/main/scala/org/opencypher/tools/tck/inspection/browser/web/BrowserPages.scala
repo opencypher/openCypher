@@ -29,11 +29,8 @@ package org.opencypher.tools.tck.inspection.browser.web
 
 import org.opencypher.tools.tck.api.Pickle
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.inspection.collect
-import org.opencypher.tools.tck.inspection.collect.Feature
-import org.opencypher.tools.tck.inspection.collect.Group
-import org.opencypher.tools.tck.inspection.collect.ScenarioCategory
-import org.opencypher.tools.tck.inspection.collect.Total
+import org.opencypher.tools.tck.api.groups.Group
+import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
 import scalatags.Text
 import scalatags.Text.all._
 
@@ -49,41 +46,27 @@ case class BrowserPages(browserModel: BrowserModel, browserRoutes: BrowserRoutes
   }
 
   def browserCountsFrag(counts: Map[Group, Seq[Scenario]]): Text.TypedTag[String] = {
-    val groupsByParent = counts.keys.groupBy(countCategory => countCategory.parent)
+    val groupSequence = OrderGroupsDepthFirst(counts.keySet)
+    val totalCount = counts.get(groupSequence.head).map(_.size).getOrElse(Int.MaxValue)
 
-    // print counts to html table rows as a count group tree in dept first order
-    def printDepthFirst(currentGroup: Group, totalCountOptional: Option[Int] = None): Seq[scalatags.Text.TypedTag[String]] = {
-      val totalCount = totalCountOptional.getOrElse(counts.get(currentGroup).map(_.size).getOrElse(Int.MaxValue))
-      val thisRow =
-        tr(
-          td(textIndent:=currentGroup.indent.em)(
-            currentGroup.toString
-          ),
-          td(textAlign.right)(
-            counts.get(currentGroup).map(col =>
-              a(href:=browserRoutes.listScenariosURL(this, currentGroup))(col.size)
-            ).getOrElse("-")
-          ),
-          td(textAlign.right)(
-           counts.get(currentGroup).map(col => {
-              val pct = (col.size * 100).toDouble / totalCount
-              frag(f"$pct%3.1f %%")
-            }).getOrElse("-")
-          )
+    val tableRows = groupSequence.map( group =>
+      tr(
+        td(textIndent:=group.indent.em)(
+          group.name
+        ),
+        td(textAlign.right)(
+          counts.get(group).map(col =>
+            a(href:=browserRoutes.listScenariosURL(this, group))(col.size)
+          ).getOrElse("-")
+        ),
+        td(textAlign.right)(
+          counts.get(group).map(col => {
+            val pct = (col.size * 100).toDouble / totalCount
+            frag(f"$pct%3.1f %%")
+          }).getOrElse("-")
         )
-      // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
-      val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{
-        case Total => 0
-        case _:ScenarioCategory => 1
-        case _:Feature => 2
-        case _:collect.Tag => 3
-      }
-      // within each class ordered alphabetically by name
-      val groupsOrdered = groupsByClasses.toSeq.sortBy(_._1).flatMap {
-        case (_, countCategories) => countCategories.toSeq.sortBy(_.name)
-      }
-      thisRow +: groupsOrdered.flatMap(g => printDepthFirst(g, Some(totalCount)))
-    }
+      )
+    )
 
     //output header
     val header =
@@ -93,7 +76,7 @@ case class BrowserPages(browserModel: BrowserModel, browserRoutes: BrowserRoutes
         th("of Total"),
       )
 
-    table(CSS.hoverTable)(header +: printDepthFirst(Total))
+    table(CSS.hoverTable)(header +: tableRows)
   }
 
   def scenarioPage(scenario: Scenario, withLocation: Boolean = true): Text.TypedTag[String] = {
