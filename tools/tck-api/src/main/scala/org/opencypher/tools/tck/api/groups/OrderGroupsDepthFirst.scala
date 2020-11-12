@@ -25,29 +25,21 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck.inspection.collect
+package org.opencypher.tools.tck.api.groups
 
-trait Group {
-  def name: String
-  def indent: Int
-  def parent: Option[Group]
+object OrderGroupsDepthFirst {
+  def apply(groups: Set[Group], filter: Group => Boolean = _ => true): Seq[Group] = {
+    val groupsByParent = groups.groupBy(countCategory => countCategory.parent)
 
-  override def toString: String = name
+    def orderDepthFirst(currentGroup: Group): Seq[Group] = {
+      if(filter(currentGroup)) {
+        val groupsOrdered = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).toSeq.sorted
+        currentGroup +: groupsOrdered.flatMap(g => orderDepthFirst(g))
+      } else {
+        Seq[Group]()
+      }
+    }
+
+    orderDepthFirst(Total)
+  }
 }
-
-case object Total extends Group {
-  override val name = "Total"
-  override val indent = 0
-  override val parent: Option[Group] = None
-}
-
-case class Tag(override val name: String) extends Group {
-  override val indent = 1
-  override val parent: Option[Group] = Some(Total)
-}
-
-case class Feature(override val name: String, override val indent: Int, override val parent: Option[Group]) extends Group {
-  override def toString: String = "Feature: " + name
-}
-
-case class ScenarioCategory(override val name: String, override val indent: Int, override val parent: Option[Group]) extends Group

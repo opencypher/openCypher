@@ -29,11 +29,8 @@ package org.opencypher.tools.tck.inspection.browser.web
 
 import org.opencypher.tools.tck.api.Pickle
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.inspection.collect
-import org.opencypher.tools.tck.inspection.collect.Feature
-import org.opencypher.tools.tck.inspection.collect.Group
-import org.opencypher.tools.tck.inspection.collect.ScenarioCategory
-import org.opencypher.tools.tck.inspection.collect.Total
+import org.opencypher.tools.tck.api.groups.Group
+import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
 import org.opencypher.tools.tck.inspection.diff.Diff
 import org.opencypher.tools.tck.inspection.diff.ElementDiff
 import org.opencypher.tools.tck.inspection.diff.ElementaryDiffTag._
@@ -58,84 +55,69 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
   }
 
   def diffCountsFrag(diffs: Map[Group, GroupDiff], before: Map[Group, Seq[Scenario]], after: Map[Group, Seq[Scenario]]): Text.TypedTag[String] = {
-    val groupsByParent = diffs.keys.groupBy(countCategory => countCategory.parent)
+    val groupSequence = OrderGroupsDepthFirst(diffs.keySet)
 
-    // print counts to html table rows as a count group tree in dept first order
-    def printDepthFirst(currentGroup: Group): Seq[scalatags.Text.TypedTag[String]] = {
-      val thisRow = {
-        val currentDiff = diffs.get(currentGroup)
-        tr(
-          td(textIndent:=currentGroup.indent.em)(
-            currentGroup.toString
-          ),
-          td(),
-          td(textAlign.right)(
-            before.get(currentGroup).map(col =>
-              a(href:=diffRoutes.listBeforeScenariosURL(this, currentGroup))(col.size)
-            ).getOrElse("-")
-          ),
-          td(),
-          td(textAlign.right)({
-            val size = currentDiff.map(_.unchangedScenarios.size).getOrElse(0)
-            if(size > 0)
-              a(href:=diffRoutes.listUnchangedScenariosURL(this, currentGroup))(size)
-            else
-              "-"
-          }),
-          td(),
-          td(textAlign.right)({
-            val size = currentDiff.map(_.movedScenarios.size).getOrElse(0)
-            if(size > 0)
-              a(href:=diffRoutes.listMovedScenariosURL(this, currentGroup))(size)
-            else
-              "-"
-          }),
-          td(),
-          td(textAlign.right)({
-            val size = currentDiff.map(_.changedScenarios.size).getOrElse(0)
-            if (size > 0)
-              a(href := diffRoutes.listChangedScenariosURL(this, currentGroup))(size)
-            else
-              "-"
-          }),
-          td(),
-          td(textAlign.right)({
-            val size = currentDiff.map(_.addedScenarios.size).getOrElse(0)
-            if (size > 0)
-              a(href:=diffRoutes.listAddedScenariosURL(this, currentGroup))(size)
-            else
-              "-"
-          }),
-          td(),
-          td(textAlign.right)({
-            val size = currentDiff.map(_.removedScenarios.size).getOrElse(0)
-            if (size > 0)
-              a(href:=diffRoutes.listRemovedScenariosURL(this, currentGroup))(size)
-            else
-              "-"
-          }),
-          td(),
-          td(textAlign.right)(
-            after.get(currentGroup).map(col =>
-              a(href:=diffRoutes.listAfterScenariosURL(this, currentGroup))(col.size)
-            ).getOrElse("-")
-          ),
-          td(),
-        )
-      }
-      // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
-      val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{
-        case Total => 0
-        case _:ScenarioCategory => 1
-        case _:Feature => 2
-        case _:collect.Tag => 3
-      }
-      // within each class ordered alphabetically by name
-      val groupsOrdered = groupsByClasses.toSeq.sortBy(_._1).flatMap {
-        case (_, countCategories) => countCategories.toSeq.sortBy(_.name)
-      }
-      thisRow +: groupsOrdered.flatMap(printDepthFirst)
-    }
+    val tableRows = groupSequence.map( group => {
+      val currentDiff = diffs.get(group)
+      tr(
+        td(textIndent:=group.indent.em)(
+          group.name
+        ),
+        td(),
+        td(textAlign.right)(
+          before.get(group).map(col =>
+            a(href:=diffRoutes.listBeforeScenariosURL(this, group))(col.size)
+          ).getOrElse("-")
+        ),
+        td(),
+        td(textAlign.right)({
+          val size = currentDiff.map(_.unchangedScenarios.size).getOrElse(0)
+          if(size > 0)
+            a(href:=diffRoutes.listUnchangedScenariosURL(this, group))(size)
+          else
+            "-"
+        }),
+        td(),
+        td(textAlign.right)({
+          val size = currentDiff.map(_.movedScenarios.size).getOrElse(0)
+          if(size > 0)
+            a(href:=diffRoutes.listMovedScenariosURL(this, group))(size)
+          else
+            "-"
+        }),
+        td(),
+        td(textAlign.right)({
+          val size = currentDiff.map(_.changedScenarios.size).getOrElse(0)
+          if (size > 0)
+            a(href := diffRoutes.listChangedScenariosURL(this, group))(size)
+          else
+            "-"
+        }),
+        td(),
+        td(textAlign.right)({
+          val size = currentDiff.map(_.addedScenarios.size).getOrElse(0)
+          if (size > 0)
+            a(href:=diffRoutes.listAddedScenariosURL(this, group))(size)
+          else
+            "-"
+        }),
+        td(),
+        td(textAlign.right)({
+          val size = currentDiff.map(_.removedScenarios.size).getOrElse(0)
+          if (size > 0)
+            a(href:=diffRoutes.listRemovedScenariosURL(this, group))(size)
+          else
+            "-"
+        }),
+        td(),
+        td(textAlign.right)(
+          after.get(group).map(col =>
+            a(href:=diffRoutes.listAfterScenariosURL(this, group))(col.size)
+          ).getOrElse("-")
+        ),
+        td(),
+      )
+    })
 
     //output header
     val header =
@@ -158,7 +140,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
         th(code(")")),
       )
 
-    table(CSS.hoverTable)(header +: printDepthFirst(Total))
+    table(CSS.hoverTable)(header +: tableRows)
   }
 
   def listMovedScenarios(group: Group): Text.TypedTag[String] = {

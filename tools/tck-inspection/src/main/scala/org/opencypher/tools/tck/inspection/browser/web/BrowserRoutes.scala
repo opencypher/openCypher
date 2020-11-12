@@ -32,7 +32,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.inspection.collect.Group
+import org.opencypher.tools.tck.api.groups.Group
 import org.opencypher.tools.tck.inspection.util.CallingSystemProcesses
 import org.opencypher.tools.tck.inspection.util.ProcessReturn
 import scalatags.Text.all._
