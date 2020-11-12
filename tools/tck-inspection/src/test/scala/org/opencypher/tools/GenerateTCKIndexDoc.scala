@@ -31,12 +31,12 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 import org.opencypher.tools.tck.api.CypherTCK
-import org.opencypher.tools.tck.inspection.collect.Feature
-import org.opencypher.tools.tck.inspection.collect.Group
-import org.opencypher.tools.tck.inspection.collect.GroupCollection
-import org.opencypher.tools.tck.inspection.collect.ScenarioCategory
-import org.opencypher.tools.tck.inspection.collect.Tag
-import org.opencypher.tools.tck.inspection.collect.Total
+import org.opencypher.tools.tck.api.groups.CollectGroups
+import org.opencypher.tools.tck.api.groups.Feature
+import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
+import org.opencypher.tools.tck.api.groups.ScenarioCategory
+import org.opencypher.tools.tck.api.groups.Tag
+import org.opencypher.tools.tck.api.groups.Total
 import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.mutable.ArrayBuffer
@@ -81,6 +81,9 @@ class GenerateTCKIndexDocTest extends AnyFunSuite {
   }
 }
 
+/*
+ * Call with -DprojectRootdir=<repo-root> (as absolut path)
+ */
 object GenerateTCKIndexDoc {
   val indexDocFileRelative = "tck/index.adoc"
   private val indexDocFileAbsolute = System.getProperty("projectRootdir") + "/" + indexDocFileRelative
@@ -92,54 +95,34 @@ object GenerateTCKIndexDoc {
 
   def generate: String = {
     val scenarios = CypherTCK.allTckScenarios
-    val groups = GroupCollection(scenarios).keySet
+    val groupedScenarios = CollectGroups.apply(scenarios)
 
-    val groupsByParent = groups.groupBy(_.parent)
+    val groupSequence = OrderGroupsDepthFirst(groupedScenarios.keySet, {
+      case ScenarioCategory("precategorized", _) => false
+      case ScenarioCategory("uncategorized", _) => false
+      case Tag(_) => false
+      case _ => true
+    })
 
-    // print counts to stdout as a count group tree in dept first order
-    def printDepthFirst(currentGroup: Group): List[String] = {
-      val groupHead = currentGroup match {
-        case Total =>
-          """= TCK Index
-            |
-            |The TCK is split into categories based on language constructs.
-            |The two main groups are clauses and expressions.
-            |Each group enumerates its members.
-            |Within each member, there are additional categories.
-            |
-            |There is also an `uncategorized` and `precategorized` directory containing uncategorized features.
-            |""".stripMargin
-        case ScenarioCategory(name, indent, _) => {
-          val prettyName = name.substring(0,1).toUpperCase + name.substring(1).replaceAll("([A-Z])", " $1")
-          System.lineSeparator() + s"=${"=" * indent} $prettyName" + System.lineSeparator()
-        }
-        case Feature(name, _, _) =>
-          s"* $name"
-        case _ => ""
+    groupSequence map {
+      case Total =>
+        """= TCK Index
+          |
+          |The TCK is split into categories based on language constructs.
+          |The two main groups are clauses and expressions.
+          |Each group enumerates its members.
+          |Within each member, there are additional categories.
+          |
+          |There is also an `uncategorized` and `precategorized` directory containing uncategorized features.
+          |""".stripMargin
+      case sc@ScenarioCategory(name, _) => {
+        val prettyName = name.substring(0,1).toUpperCase + name.substring(1).replaceAll("([A-Z])", " $1")
+        System.lineSeparator() + s"=${"=" * sc.indent} $prettyName" + System.lineSeparator()
       }
-      // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
-      val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{
-        case Total => 0
-        case _:Feature => 1
-        case _:ScenarioCategory => 2
-        case _:Tag => 3
-      }
-      // within each group ordered alphabetically by name
-      val groupsOrdered = groupsByClasses.toSeq.sortBy(_._1).flatMap {
-        case (_, countCategories) => countCategories.toSeq.sortBy(_.name)
-      }
-      // filter out tags and uncategorized
-      val groupsOrderedFiltered = groupsOrdered.filter {
-        case ScenarioCategory("precategorized", _, _) => false
-        case ScenarioCategory("uncategorized", _, _) => false
-        case Tag(_) => false
-        case _ => true
-      }
-
-      groupHead :: groupsOrderedFiltered.flatMap(printDepthFirst).toList
-    }
-
-    printDepthFirst(Total).mkString(System.lineSeparator)
+      case Feature(name, _) =>
+        s"* $name"
+      case _ => ""
+    } mkString(System.lineSeparator)
   }
 
   def write(indexDoc: String): Unit = {
