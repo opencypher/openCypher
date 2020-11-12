@@ -28,7 +28,7 @@
 package org.opencypher.tools.tck.inspection.diff
 
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.inspection.collect.Group
+import org.opencypher.tools.tck.api.groups.Group
 
 case object GroupCollectionDiff extends ((Map[Group, Seq[Scenario]], Map[Group, Seq[Scenario]]) => Map[Group, GroupDiff]) {
   def apply(before: Map[Group, Seq[Scenario]],

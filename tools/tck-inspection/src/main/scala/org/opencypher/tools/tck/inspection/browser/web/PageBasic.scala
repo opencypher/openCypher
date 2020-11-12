@@ -49,7 +49,7 @@ import org.opencypher.tools.tck.constants.TCKSideEffects.DELETED_LABELS
 import org.opencypher.tools.tck.constants.TCKSideEffects.DELETED_NODES
 import org.opencypher.tools.tck.constants.TCKSideEffects.DELETED_PROPERTIES
 import org.opencypher.tools.tck.constants.TCKSideEffects.DELETED_RELATIONSHIPS
-import org.opencypher.tools.tck.inspection.collect.Group
+import org.opencypher.tools.tck.api.groups.Group
 import scalatags.Text
 import scalatags.Text.all._
 import scalatags.Text.tags2
