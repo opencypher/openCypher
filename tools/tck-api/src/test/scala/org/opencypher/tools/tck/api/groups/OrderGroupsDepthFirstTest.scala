@@ -38,7 +38,7 @@ import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.{Inside, Inspectors, OptionValues}
 import org.scalatest.matchers.should.Matchers
 
-class CollectGroupsTest extends AnyFunSpec with Matchers with Inspectors with Inside with OptionValues {
+class OrderGroupsDepthFirstTest extends AnyFunSpec with Matchers with Inspectors with Inside with OptionValues {
 
   describe("Total group") {
     it("has indent of zero") {
@@ -62,7 +62,7 @@ class CollectGroupsTest extends AnyFunSpec with Matchers with Inspectors with In
       createScenario(List[String]("b"), "ftr3", "1", Set[String]("B")),
       createScenario(List[String]("a", "b"), "ftrX", "1", Set[String]("11")),
     )
-    val groupedScenarios = CollectGroups.apply(scenarios)
+    val groupedScenarios = GroupScenarios(scenarios)
     val groupSequence = OrderGroupsDepthFirst(groupedScenarios.keySet)
 
     it("has Total group as the first group") {
@@ -157,7 +157,7 @@ class CollectGroupsTest extends AnyFunSpec with Matchers with Inspectors with In
     val scrD = createScenario(List[String]("b"), "ftr3", "scrD", Set[String]("B"))
 
     val scenarios = List(scrA, scrB, scrC, scrD)
-    val groupedScenarios = CollectGroups.apply(scenarios)
+    val groupedScenarios = GroupScenarios(scenarios)
     val groupSequence = OrderGroupsDepthFirst(groupedScenarios.keySet)
 
     it("should yield the given group sequence") {
@@ -190,7 +190,7 @@ class CollectGroupsTest extends AnyFunSpec with Matchers with Inspectors with In
       createScenario(List[String]("b"), "ftr3", "1", Set[String]("B")),
       createScenario(List[String]("a", "b"), "ftrX", "1", Set[String]("11")),
     )
-    val groupedScenarios = CollectGroups.apply(scenarios)
+    val groupedScenarios = GroupScenarios(scenarios)
     val groupSequence = OrderGroupsDepthFirst(groupedScenarios.keySet)
 
     it("should yield the given group sequence") {

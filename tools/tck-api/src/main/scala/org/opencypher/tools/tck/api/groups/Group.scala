@@ -56,27 +56,27 @@ trait ContainerGroup extends Group
 
 trait ContainedGroup extends Group {
   def parentGroup: ContainerGroup
-  override lazy val indent = parentGroup.indent + 1
+  override lazy val indent: Int = parentGroup.indent + 1
   override lazy val parent: Option[Group] = Some(parentGroup)
+  override def toString: String = parentGroup.toString + name
 }
 
 case object Total extends ContainerGroup {
   override val name = "Total"
   override val indent = 0
   override val parent: Option[Group] = None
+  override def toString: String = "/"
 }
 
 case class Tag(override val name: String) extends ContainedGroup {
-  override val parentGroup = Total
+  override val parentGroup: ContainerGroup = Total
 }
 
 object Tag {
   implicit def orderingByName[A <: Tag]: Ordering[A] = Ordering.by(_.name)
 }
 
-case class Feature(override val name: String, override val parentGroup: ContainerGroup) extends ContainedGroup {
-  override def toString: String = "Feature: " + name
-}
+case class Feature(override val name: String, override val parentGroup: ContainerGroup) extends ContainedGroup
 
 object Feature {
   private val namePatternWithDescription = "^([^0-9]+)([0-9]+)( - .+)$".r
@@ -94,11 +94,7 @@ object Feature {
 }
 
 case class ScenarioCategory(override val name: String, override val parentGroup: ContainerGroup) extends ContainedGroup with ContainerGroup {
-  override def toString: String = parent match {
-    case Some(Total) => name + "/"
-    case Some(p) => p.toString + name + "/"
-    case None => name + "/"
-  }
+  override def toString: String = parentGroup.toString + name + "/"
 }
 
 object ScenarioCategory {

@@ -29,7 +29,7 @@ package org.opencypher.tools.tck.api.groups
 
 import org.opencypher.tools.tck.api.Scenario
 
-object CollectGroups extends (Seq[Scenario] => Map[Group, Seq[Scenario]]) {
+object GroupScenarios extends (Seq[Scenario] => Map[Group, Seq[Scenario]]) {
   def apply(scenarios: Seq[Scenario]): Map[Group, Seq[Scenario]] = {
     // collect individual group for each scenario as 2-tuples of (Scenario,CountCategory)
     val individualCounts: Seq[(Scenario, Group)] = scenarios.flatMap(scenario => {
@@ -45,7 +45,6 @@ object CollectGroups extends (Seq[Scenario] => Map[Group, Seq[Scenario]]) {
       val categoryGroups: Seq[(Scenario, ContainerGroup)] = mapToCategoryGroups(scenario.categories, Total)
       // feature
       val feature: Feature = {
-        val indent = categoryGroups.lastOption.map(_._2.indent).getOrElse(0) + 1
         Feature(scenario.featureName, categoryGroups.lastOption.getOrElse((scenario, Total))._2)
       }
       // tags

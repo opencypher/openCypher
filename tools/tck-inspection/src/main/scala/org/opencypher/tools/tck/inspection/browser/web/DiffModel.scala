@@ -29,7 +29,7 @@ package org.opencypher.tools.tck.inspection.browser.web
 
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.groups.CollectGroups
+import org.opencypher.tools.tck.api.groups.GroupScenarios
 import org.opencypher.tools.tck.api.groups.Group
 import org.opencypher.tools.tck.api.groups.Total
 import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
@@ -62,7 +62,7 @@ case class DiffModel(beforePath: String, afterPath: String) {
     s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
   )
 
-  val (before, after) = (CollectGroups(scenariosBefore), CollectGroups(scenariosAfter))
+  val (before, after) = (GroupScenarios(scenariosBefore), GroupScenarios(scenariosAfter))
 
   val diffs: Map[Group, GroupDiff] = GroupCollectionDiff(before, after)
 

@@ -29,7 +29,7 @@ package org.opencypher.tools.tck.inspection.browser.cli
 
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.groups.CollectGroups
+import org.opencypher.tools.tck.api.groups.GroupScenarios
 import org.opencypher.tools.tck.api.groups.Feature
 import org.opencypher.tools.tck.api.groups.Group
 import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
@@ -48,14 +48,14 @@ import org.opencypher.tools.tck.inspection.diff.ScenarioDiff
 case object CountScenarios {
   def main(args: Array[String]): Unit = {
     if(args.length == 0) {
-      println(reportCountsInPrettyPrint(CollectGroups(CypherTCK.allTckScenarios)))
+      println(reportCountsInPrettyPrint(GroupScenarios(CypherTCK.allTckScenarios)))
     } else if(args.length == 1) {
-      println(reportCountsInPrettyPrint(CollectGroups(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
+      println(reportCountsInPrettyPrint(GroupScenarios(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
     } else if(args.length == 2) {
       println(reportDiffCountsInPrettyPrint(
         GroupCollectionDiff(
-          CollectGroups(CypherTCK.allTckScenariosFromFilesystem(args(0))),
-          CollectGroups(CypherTCK.allTckScenariosFromFilesystem(args(1))))
+          GroupScenarios(CypherTCK.allTckScenariosFromFilesystem(args(0))),
+          GroupScenarios(CypherTCK.allTckScenariosFromFilesystem(args(1))))
         )
       )
     }
