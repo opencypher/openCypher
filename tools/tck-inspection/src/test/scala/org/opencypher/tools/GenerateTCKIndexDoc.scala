@@ -31,7 +31,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 import org.opencypher.tools.tck.api.CypherTCK
-import org.opencypher.tools.tck.api.groups.CollectGroups
+import org.opencypher.tools.tck.api.groups.GroupScenarios
 import org.opencypher.tools.tck.api.groups.Feature
 import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
 import org.opencypher.tools.tck.api.groups.ScenarioCategory
@@ -95,7 +95,7 @@ object GenerateTCKIndexDoc {
 
   def generate: String = {
     val scenarios = CypherTCK.allTckScenarios
-    val groupedScenarios = CollectGroups.apply(scenarios)
+    val groupedScenarios = GroupScenarios.apply(scenarios)
 
     val groupSequence = OrderGroupsDepthFirst(groupedScenarios.keySet, {
       case ScenarioCategory("precategorized", _) => false
