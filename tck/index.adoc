@@ -11,6 +11,13 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 == Clauses
 
 
+=== Call
+
+* Call1 - Basic procedure calling
+* Call2 - Procedure arguments
+* Call3 - Assignable-type arguments
+* Call4 - Null Arguments
+
 === Create
 
 * Create1 - Creating nodes
@@ -36,9 +43,17 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Match4 - Match variable length patterns scenarios
 * Match5 - Match variable length patterns over given graphs scenarios
 * Match6 - Match named paths scenarios
-* Match7 - Optional match scenarios
-* Match8 - Match clause Interoperation with other clauses
+* Match7 - Optional match
+* Match8 - Match clause interoperation with other clauses
 * Match9 - Match deprecated scenarios
+
+=== Match-where
+
+* MatchWhere1 - Filter single variable
+* MatchWhere2 - Filter multiple variables
+* MatchWhere3 - Equi-Joins on variables
+* MatchWhere4 - Non-Equi-Joins on variables
+* MatchWhere5 - Filter on predicate resulting in null
 
 === Merge
 
@@ -74,6 +89,16 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 
 * Unwind1
 
+=== With
+
+* With1 - Forward single variable
+* With2 - Forward single expression
+* With3 - Forward multiple expressions
+* With4 - Variable aliasing
+* With5 - Implicit grouping with DISTINCT
+* With6 - Implicit grouping with aggregates
+* With7 - WITH on WITH
+
 == Expressions
 
 
@@ -102,24 +127,24 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 
 === Graph
 
-* Graph10 - Retrieve all properties as a property map
 * Graph3 - Node labels
 * Graph4 - Edge relationship type
 * Graph5 - Node and edge label expressions
 * Graph7 - Dynamic property access
 * Graph8 - Property keys function
 * Graph9 - Property existence check
+* Graph10 - Retrieve all properties as a property map
 
 === List
 
 * List1 - Dynamic Element Access
-* List11 - List Comprehension
 * List2 - List Slicing
 * List3 - List Equality
 * List4 - List Concatenation
 * List5 - List Membership Validation - IN Operator
 * List6 - List Size
 * List9 - List Tail
+* List11 - List Comprehension
 
 === Literals
 
@@ -140,10 +165,10 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 
 === Mathematical
 
-* Mathematical11 - SignedNumbersFunctions
-* Mathematical13 - SquareRoot
 * Mathematical2 - Addition
 * Mathematical8 - ArithmeticPrecedence
+* Mathematical11 - SignedNumbersFunctions
+* Mathematical13 - SquareRoot
 
 === Null
 
@@ -164,17 +189,16 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 === String
 
 * String1 - Substring extraction
-* String10 - Exact Substring Search
-* String11 - Combining Exact String Search
 * String3 - String Reversal
 * String4 - String Splitting
 * String8 - Exact String Prefix Search
 * String9 - Exact String Suffix Search
+* String10 - Exact Substring Search
+* String11 - Combining Exact String Search
 
 === Temporal
 
 * Temporal1 - Create Temporal Values from a Map
-* Temporal10 - Compute Durations Between two Temporal Values
 * Temporal2 - Create Temporal Values from a String
 * Temporal3 - Project Temporal Values from other Temporal Values
 * Temporal4 - Store Temporal Values
@@ -183,6 +207,7 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Temporal7 - Compare Temporal Values
 * Temporal8 - Compute Arithmetic Operations on Temporal Values
 * Temporal9 - Truncate Temporal Values
+* Temporal10 - Compute Durations Between two Temporal Values
 
 === Type Conversion
 
@@ -190,3 +215,10 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * TypeConversion2 - To Integer
 * TypeConversion3 - To Float
 * TypeConversion4 - To String
+
+== Use Cases
+
+
+=== Triadic Selection
+
+* TriadicSelection1 - Query three related nodes on binary-tree graphs
