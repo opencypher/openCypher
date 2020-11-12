@@ -29,7 +29,13 @@ package org.opencypher.tools.tck.inspection.browser.cli
 
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.groups.{CollectGroups, Feature, Group, OrderGroupsDepthFirst, ScenarioCategory, Tag, Total}
+import org.opencypher.tools.tck.api.groups.CollectGroups
+import org.opencypher.tools.tck.api.groups.Feature
+import org.opencypher.tools.tck.api.groups.Group
+import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
+import org.opencypher.tools.tck.api.groups.ScenarioCategory
+import org.opencypher.tools.tck.api.groups.Tag
+import org.opencypher.tools.tck.api.groups.Total
 import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
 import org.opencypher.tools.tck.inspection.diff.GroupDiff
 import org.opencypher.tools.tck.inspection.diff.ScenarioDiff
