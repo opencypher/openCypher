@@ -42,6 +42,103 @@ import org.scalatest.OptionValues
 
 class GroupScenariosTest extends AnyFunSpec with Matchers with Inspectors with Inside with OptionValues {
 
+  describe("Total group") {
+    it("has indent of zero") {
+      Total.indent shouldBe 0
+    }
+    it("has no parent") {
+      Total.parent shouldBe None
+    }
+  }
+
+  def invariants(groupedScenarios: Map[Group, Seq[Scenario]], scenarios: Seq[Scenario]) {
+    val groups = groupedScenarios.keys
+
+    describe("should yield a map that contains the every of original scenarios at least once") {
+      groups.flatMap(g => groupedScenarios(g)).toSet should equal(scenarios.toSet)
+    }
+    describe("should yield a map there the key set") {
+      it("has one Feature group per distinct feature per category") {
+        groups.count {
+          case _: Feature => true
+          case _ => false
+        } should equal(scenarios.map(s => (s.categories, s.featureName)).distinct.size)
+      }
+      it("has one ScenarioCategory group per distinct category") {
+        def prepCategoryList(categories: List[String], parent: List[String] = List[String]()): List[List[String]] = categories match {
+          case Nil => List[List[String]]()
+          case c :: cs => (parent :+ c) +: prepCategoryList(cs, parent :+ c)
+        }
+        groups.count {
+          case _: ScenarioCategory => true
+          case _ => false
+        } should equal(scenarios.flatMap(s => prepCategoryList(s.categories)).distinct.size)
+      }
+      it("has one Tag group per distinct tag") {
+        groups.count {
+          case _: Tag => true
+          case _ => false
+        } should equal(scenarios.flatMap(_.tags).distinct.size)
+      }
+      describe("has every group, except Total, with a parent group so that") {
+        groups filter {
+          case Total => false
+          case _ => true
+        } foreach { g =>
+          it(s"group $g has a parent") {
+            g.parent.isDefined shouldBe true
+          }
+        }
+      }
+      describe("has every ScenarioCategory group with a parent group which is a ScenarioCategory or Total so that") {
+        groups filter {
+          case _:ScenarioCategory => true
+          case _ => false
+        } foreach { g =>
+          it(s"group $g has a parent which is a ScenarioCategory or Total") {
+            g.parent.value should matchPattern {
+              case _:ScenarioCategory =>
+              case Total =>
+            }
+          }
+        }
+      }
+      describe("has every Feature group with a parent group which is a ScenarioCategory or Total so that") {
+        groups filter {
+          case _:Feature => true
+          case _ => false
+        } foreach { g =>
+          it(s"group $g has a parent which is a ScenarioCategory or Total") {
+            g.parent.value should matchPattern {
+              case _:ScenarioCategory =>
+              case Total =>
+            }
+          }
+        }
+      }
+      describe("has every Tag group with a parent group which is Total so that") {
+        groups filter {
+          case _:Tag => true
+          case _ => false
+        } foreach { g =>
+          it(s"group $g has a parent which is Total") {
+            g.parent.value shouldBe Total
+          }
+        }
+      }
+      describe("has every group, except Total, indented one more than their parent group so that") {
+        groups filter {
+          case Total => false
+          case _ => true
+        } foreach { g =>
+          it(s"group $g is indented one more than ${g.parent}") {
+            g.indent should equal(g.parent.get.indent + 1)
+          }
+        }
+      }
+    }
+  }
+
   describe("The given list of four scenarios, GroupScenarios") {
     val scrA = createScenario(List[String](), "ftr5", "scrA", Set[String]())
     val scrB = createScenario(List[String](), "ftr1", "scrB", Set[String]("A"))
@@ -50,6 +147,8 @@ class GroupScenariosTest extends AnyFunSpec with Matchers with Inspectors with I
 
     val scenarios = List(scrA, scrB, scrC, scrD)
     val groupedScenarios = GroupScenarios(scenarios)
+
+    invariants(groupedScenarios, scenarios)
 
     it("should yield the given map") {
       val scB = ScenarioCategory("b", Total)
@@ -83,6 +182,8 @@ class GroupScenariosTest extends AnyFunSpec with Matchers with Inspectors with I
     val scenarios = List(scrA, scrB, scrC, scrD, scrE, scrF, scrG, scrH, scrI, scrJ)
     val groupedScenarios = GroupScenarios(scenarios)
 
+    invariants(groupedScenarios, scenarios)
+
     it("should yield the given map") {
       val scB = ScenarioCategory("b", Total)
       val scA = ScenarioCategory("a", Total)
@@ -113,62 +214,60 @@ class GroupScenariosTest extends AnyFunSpec with Matchers with Inspectors with I
     }
   }
 
-  private def createScenario(categories: List[String], featureName: String, name: String, tags: Set[String]) =
-    Scenario(categories, featureName, name, None, tags, dummySteps, dummyPickle, dummyPath("xyz.feature"))
+  private def createScenario(categories: List[String], featureName: String, name: String, tags: Set[String]) = {
+    val dummyPickle = new io.cucumber.core.gherkin.Pickle() {
+      override val getKeyword: String = ""
 
-  private val dummyPickle = new io.cucumber.core.gherkin.Pickle() {
-    override def getKeyword: String = ""
+      override val getLanguage: String = "EN"
 
-    override def getLanguage: String = "EN"
+      override val getName: String = "name"
 
-    override def getName: String = "name"
+      override val getLocation: io.cucumber.core.gherkin.Location = new io.cucumber.core.gherkin.Location() {
+        override val getLine: Int = 1
 
-    override def getLocation: io.cucumber.core.gherkin.Location = new io.cucumber.core.gherkin.Location() {
-      override def getLine: Int = 1
+        override val getColumn: Int = 1
+      }
 
-      override def getColumn: Int = 1
+      override val getScenarioLocation: io.cucumber.core.gherkin.Location = new io.cucumber.core.gherkin.Location() {
+        override val getLine: Int = 1
+
+        override val getColumn: Int = 1
+      }
+
+      override val getSteps: util.List[io.cucumber.core.gherkin.Step] = new util.ArrayList[io.cucumber.core.gherkin.Step]()
+
+      override val getTags: util.List[String] = new util.ArrayList[String]()
+
+      override val getUri: URI = new URI("http://www.opencypher.org/")
+
+      override val getId: String = "id"
     }
 
-    override def getScenarioLocation: io.cucumber.core.gherkin.Location = new io.cucumber.core.gherkin.Location() {
-      override def getLine: Int = 1
+    val dummyPickleStep: io.cucumber.core.gherkin.Step = new io.cucumber.core.gherkin.Step() {
+      override val getLine: Int = 1
 
-      override def getColumn: Int = 1
+      override val getArgument: io.cucumber.core.gherkin.Argument = new io.cucumber.core.gherkin.DocStringArgument() {
+        override val getContent: String = "text"
+
+        override val getContentType: String = ""
+
+        override val getLine: Int = 1
+      }
+
+      override val getKeyWord: String = "keyWord"
+
+      override val getType: io.cucumber.core.gherkin.StepType = io.cucumber.core.gherkin.StepType.GIVEN
+
+      override val getPreviousGivenWhenThenKeyWord: String = ""
+
+      override val getText: String = "xyz"
+
+      override val getId: String = "id"
     }
 
-    override def getSteps: util.List[io.cucumber.core.gherkin.Step] = new util.ArrayList[io.cucumber.core.gherkin.Step]()
+    val dummySteps: List[Step] = List[Step](Dummy(dummyPickleStep), Measure(dummyPickleStep))
+    val dummyPath: java.nio.file.Path = new java.io.File("ftr1.feature").toPath
 
-    override def getTags: util.List[String] = new util.ArrayList[String]()
-
-    override def getUri: URI = new URI("http://www.opencypher.org/")
-
-    override def getId: String = "id"
+    Scenario(categories, featureName, name, None, tags, dummySteps, dummyPickle, dummyPath)
   }
-
-  private def namedDummyPickleStep(name: String): io.cucumber.core.gherkin.Step = new io.cucumber.core.gherkin.Step() {
-    override def getLine: Int = 1
-
-    override def getArgument: io.cucumber.core.gherkin.Argument = new io.cucumber.core.gherkin.DocStringArgument() {
-      override def getContent: String = "text"
-
-      override def getContentType: String = ""
-
-      override def getLine: Int = 1
-    }
-
-    override def getKeyWord: String = "keyWord"
-
-    override def getType: io.cucumber.core.gherkin.StepType = io.cucumber.core.gherkin.StepType.GIVEN
-
-    override def getPreviousGivenWhenThenKeyWord: String = ""
-
-    override def getText: String = name
-
-    override def getId: String = "id"
-  }
-
-  private val dummyPickleStep = namedDummyPickleStep("")
-
-  private val dummySteps: List[Step] = List[Step](Dummy(dummyPickleStep), Measure(dummyPickleStep))
-  private def dummyPath(path: String): java.nio.file.Path = new java.io.File("ftr1.feature").toPath
-
 }
