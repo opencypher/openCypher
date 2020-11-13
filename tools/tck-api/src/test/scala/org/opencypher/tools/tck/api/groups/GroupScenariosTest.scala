@@ -57,7 +57,7 @@ class GroupScenariosTest extends AnyFunSpec with Matchers with Inspectors with I
     describe("should yield a map that contains the every of original scenarios at least once") {
       groups.flatMap(g => groupedScenarios(g)).toSet should equal(scenarios.toSet)
     }
-    describe("should yield a map there the key set") {
+    describe("should yield a map where the key set") {
       it("has one Feature group per distinct feature per category") {
         groups.count {
           case _: Feature => true
