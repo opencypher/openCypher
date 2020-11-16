@@ -128,7 +128,12 @@ a nullable variant:
 ** Lists (ordered sequences with random access) of elements of a given material or nullable type `T`. The syntax for a nullable lists of elements of type `T` is `LIST? OF T`. Note that accessing a list by index always yields a value of type `T?` since indexing out of bounds is defined to return `null`.
 ** `LIST OF T2` is a subtype of `LIST OF T1` if `T2` is a subtype of `T1`. This is a valid subtyping rule since values in Cypher are immutable. Adding an element of type `T` to a `LIST OF S` would produce a new list of type `LIST OF R`, where `R` is the nearest common supertype of `T` and `S`
 * `MAP`
-** Maps from string keys to values of any type, i.e. `{ name: 'Svensson' }`. The type of map values is `ANY?` since it is unknown to the type system if a given map contains a certain key or not. Note also that maps do not distinguish between missing keys and keys that map to a `null` value. `MAP` is a parent to all property containers, like `NODE` and `RELATIONSHIP`.
+** Maps from string keys to values of any type, i.e. `{ name: 'Svensson' }`.
+   The type of map values is `ANY?` since it is unknown to the type system if a given map contains a certain key or not.
+   Note also that maps distinguish between missing keys and keys that map to a `null` value.
+   As an example, that means that `{name: null}` is not equal to `{}`, the empty map.
+   A use case where this distinction is particularly important is when setting multiple properties on a node.
+   `SET n += {name: null, age: 20}` will remove any existing `name` properties while `SET n += {age: 20}` would leave `name` properties untouched.
 
 ==== Graph Types
 
@@ -136,9 +141,11 @@ The following graph types should be supported by any implementation of Cypher, b
 a nullable variant:
 
 * `NODE`
-** A `NODE` is a node in the property graph model with properties, labels, and relationships. A node is an entity and a property container in the model and therefore also a `MAP`.
+** A `NODE` is a node in the property graph model with properties, labels, and relationships.
+   A node is an entity and a property container.
 * `RELATIONSHIP`
-** A `RELATIONSHIP` is a relationship in the property graph model with properties, relationship type, a start node, and an end node. A relationship is an entity and a property container in the model and therefore also a `MAP`.
+** A `RELATIONSHIP` is a relationship in the property graph model with properties, relationship type, a start node, and an end node.
+   A relationship is an entity and a property container.
 * `PATH`
 ** A path from a node `n1` to a node `ni` - corresponding to a walk in the graph from `n1` to `ni` - is a sequence `n1`, `r1`, `n2`, `r2`, ..., `r(i-1)`, `ni` of alternating nodes and relationships such that for `1 \<= j < i`, any `rj` contained in the path is incident with `nj` and `n(j+1)`. Additionally, a single node path is a path that starts and ends at the same node `n0` and does not contain any relationships.
 
