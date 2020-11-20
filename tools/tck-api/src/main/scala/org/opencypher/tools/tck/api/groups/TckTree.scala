@@ -25,16 +25,24 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck
+package org.opencypher.tools.tck.api.groups
 
-import java.util
+import org.opencypher.tools.tck.api.Scenario
 
-import cypher.features.InterpretedTCKTests
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.DynamicTest
-import org.junit.jupiter.api.TestFactory
-
-class TCKImplementationTest {
-  @TestFactory @Disabled
-  def runTckOnNeo4j(): util.Collection[DynamicTest] = new InterpretedTCKTests().runInterpreted()
+case class TckTree(scenarios: Seq[Scenario]) {
+  lazy val groupedScenarios: Map[Group, Seq[Scenario]] = GroupScenarios(scenarios)
+  lazy val groups: Set[Group] = groupedScenarios.keySet
+  lazy val groupChildren: Map[Group, Seq[Group]] = {
+    val containerGroups = groups filter {
+      case _:ContainerGroup => true
+      case _ => false
+    }
+    val parentChildrenPairs = containerGroups.map(
+      pg => (pg, (groups filter {
+        case cg: ContainedGroup if cg.parentGroup == pg => true
+        case _ => false
+      }).toSeq.sorted)
+    )
+    parentChildrenPairs.toMap
+  }
 }
