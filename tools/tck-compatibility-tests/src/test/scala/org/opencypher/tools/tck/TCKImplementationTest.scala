@@ -71,7 +71,7 @@ class TCKImplementationTest extends AsyncFunSpec with ParallelTestExecution {
           }
         case f:Feature =>
           describe(s"${f.name}") {
-            val scenarios = tck.groupedScenarios(f).sortBy(s => (s.name, s.exampleIndex))
+            val scenarios = tck.groupedScenarios(f).sortBy(s => (s.number, s.name, s.exampleIndex))
             val tests = scenarios.map(s => (s, ScenarioTestHelper.createTests(List(s), InterpretedTestConfig, () => new TestDatabaseManagementServiceBuilder(), defaultTestConfig).asScala.head))
             tests foreach {
               case (s, t) =>
@@ -79,7 +79,7 @@ class TCKImplementationTest extends AsyncFunSpec with ParallelTestExecution {
                  * use ignore(...) for switching OFF the test
                  * use it(...) for switching ON the test
                  */
-                it(s"${s.name}${s.exampleIndex.map(ix => " #"+ix).getOrElse("")}", s.tags.map(t => Tag(t)).toSeq: _*) {
+                it(s"${s.number.map(n => "["+n+"] ").getOrElse("")}${s.name}${s.exampleIndex.map(ix => " #"+ix).getOrElse("")}", s.tags.map(t => Tag(t)).toSeq: _*) {
                   val future = Future {
                     //print(":")
                     t.getExecutable.execute()
