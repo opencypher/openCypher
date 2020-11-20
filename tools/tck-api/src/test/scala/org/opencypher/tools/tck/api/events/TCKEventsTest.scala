@@ -47,7 +47,7 @@ class TCKEventsTest extends AnyFunSuite with Assertions with Matchers {
     TCKEvents.stepFinished.subscribe(s =>
       events += s"Step '${s.step.getClass.getSimpleName}' finished. Result: ${s.result.right.get.right.get}")
 
-    val scenarios = CypherTCK.allTckScenarios.filter(s => s.name == "[1] Return list size").toList
+    val scenarios = CypherTCK.allTckScenarios.filter(s => s.name == "Return list size").toList
     scenarios.size should equal(1)
 
     scenarios.head(FakeGraph).run()
@@ -56,7 +56,7 @@ class TCKEventsTest extends AnyFunSuite with Assertions with Matchers {
 
     events.toList should equal(List[String](
       "Feature 'List6 - List Size' read",
-      "Scenario '[1] Return list size' started",
+      "Scenario 'Return list size' started",
       "Step 'Execute -> any graph' started",
       "Step 'Execute' finished. Result: <empty result>",
       "Step 'Measure -> executing query:' started",
