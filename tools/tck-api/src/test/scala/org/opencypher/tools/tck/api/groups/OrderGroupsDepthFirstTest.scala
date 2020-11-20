@@ -73,10 +73,10 @@ class OrderGroupsDepthFirstTest extends AnyFunSpec with Matchers with Inspectors
   }
 
   describe("The given list of four scenarios") {
-    val scrA = createScenario(List[String](), "ftr5", "scrA", Set[String]())
-    val scrB = createScenario(List[String](), "ftr1", "scrB", Set[String]("A"))
-    val scrC = createScenario(List[String]("b"), "ftr11", "scrC", Set[String]("A"))
-    val scrD = createScenario(List[String]("b"), "ftr3", "scrD", Set[String]("B"))
+    val scrA = createScenario(List[String](), "ftr5", 1, "scrA", Set[String]())
+    val scrB = createScenario(List[String](), "ftr1", 1, "scrB", Set[String]("A"))
+    val scrC = createScenario(List[String]("b"), "ftr11", 1, "scrC", Set[String]("A"))
+    val scrD = createScenario(List[String]("b"), "ftr3", 1, "scrD", Set[String]("B"))
 
     val scenarios = List(scrA, scrB, scrC, scrD)
     val groupedScenarios = GroupScenarios(scenarios)
@@ -102,16 +102,16 @@ class OrderGroupsDepthFirstTest extends AnyFunSpec with Matchers with Inspectors
   }
 
   describe("The given list of ten scenarios") {
-    val scrA = createScenario(List[String](), "ftr5 - a", "1", Set[String]())
-    val scrB = createScenario(List[String](), "ftr1 - b", "1", Set[String]("A"))
-    val scrC = createScenario(List[String](), "ftr1 - b", "2", Set[String]("A"))
-    val scrD = createScenario(List[String]("b"), "ftr11 - c", "1", Set[String]("A", "C"))
-    val scrE = createScenario(List[String]("b"), "ftr11", "1", Set[String]("A", "C"))
-    val scrF = createScenario(List[String]("a", "b"), "ftr2", "1", Set[String]("C"))
-    val scrG = createScenario(List[String]("a", "b"), "ftr", "1", Set[String]("D"))
-    val scrH = createScenario(List[String]("b"), "ftr11 - b", "1", Set[String]("D", "2"))
-    val scrI = createScenario(List[String]("b"), "ftr3", "1", Set[String]("B"))
-    val scrJ = createScenario(List[String]("a", "b"), "ftrX", "1", Set[String]("11"))
+    val scrA = createScenario(List[String](), "ftr5 - a", 1, "1", Set[String]())
+    val scrB = createScenario(List[String](), "ftr1 - b", 1, "1", Set[String]("A"))
+    val scrC = createScenario(List[String](), "ftr1 - b", 2, "2", Set[String]("A"))
+    val scrD = createScenario(List[String]("b"), "ftr11 - c", 1, "1", Set[String]("A", "C"))
+    val scrE = createScenario(List[String]("b"), "ftr11", 1, "1", Set[String]("A", "C"))
+    val scrF = createScenario(List[String]("a", "b"), "ftr2", 1, "1", Set[String]("C"))
+    val scrG = createScenario(List[String]("a", "b"), "ftr", 1, "1", Set[String]("D"))
+    val scrH = createScenario(List[String]("b"), "ftr11 - b", 1, "1", Set[String]("D", "2"))
+    val scrI = createScenario(List[String]("b"), "ftr3", 1, "1", Set[String]("B"))
+    val scrJ = createScenario(List[String]("a", "b"), "ftrX", 1, "1", Set[String]("11"))
 
     val scenarios = List(scrA, scrB, scrC, scrD, scrE, scrF, scrG, scrH, scrI, scrJ)
     val groupedScenarios = GroupScenarios(scenarios)
@@ -149,7 +149,7 @@ class OrderGroupsDepthFirstTest extends AnyFunSpec with Matchers with Inspectors
     }
   }
 
-  private def createScenario(categories: List[String], featureName: String, name: String, tags: Set[String]) = {
+  private def createScenario(categories: List[String], featureName: String, number: Int, name: String, tags: Set[String]) = {
     val dummyPickle = new io.cucumber.core.gherkin.Pickle() {
       override val getKeyword: String = ""
 
@@ -203,6 +203,6 @@ class OrderGroupsDepthFirstTest extends AnyFunSpec with Matchers with Inspectors
     val dummySteps: List[Step] = List[Step](Dummy(dummyPickleStep), Measure(dummyPickleStep))
     val dummyPath: java.nio.file.Path = new java.io.File("ftr1.feature").toPath
 
-    Scenario(categories, featureName, name, None, tags, dummySteps, dummyPickle, dummyPath)
+    Scenario(categories, featureName, Some(number), name, None, tags, dummySteps, dummyPickle, dummyPath)
   }
 }

@@ -28,7 +28,8 @@
 
 Feature: Test
 
-  Scenario: Return literal
+  @numbered
+  Scenario: [1] Return literal
     Given an empty graph
     When executing query:
       """
@@ -39,7 +40,8 @@ Feature: Test
       | 1 |
     And no side effects
 
-  Scenario: Fail
+  @numbered
+  Scenario: [2] Fail
     Given an empty graph
     When executing query:
       """

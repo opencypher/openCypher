@@ -150,6 +150,15 @@ object CypherTCK {
     }
   }
 
+  private val pickleNamePattern = "^\\Q[\\E([0-9]+)\\Q]\\E (.+)$".r
+
+  private def parsePickleName(pickleName: String): (String, Option[Int]) = {
+    pickleName match {
+      case pickleNamePattern(number, name) => (name, Some(number.toInt))
+      case _ => (pickleName, None)
+    }
+  }
+
   private def toScenario(categories: Seq[String], featureName: String, pickle: io.cucumber.core.gherkin.Pickle, exampleIndex: Option[Int], sourceFile: Path): Scenario = {
 
     val tags = tagNames(pickle)
@@ -236,7 +245,8 @@ object CypherTCK {
       }
       scenarioSteps
     }.toList
-    Scenario(categories.toList, featureName, pickle.getName, exampleIndex, tags, steps, pickle, sourceFile)
+    val (name, number) = parsePickleName(pickle.getName)
+    Scenario(categories.toList, featureName, number, name, exampleIndex, tags, steps, pickle, sourceFile)
   }
 
   private def tagNames(pickle: io.cucumber.core.gherkin.Pickle): Set[String] = pickle.getTags.asScala.toSet
