@@ -43,6 +43,7 @@ import org.opencypher.tools.tck.api.groups.Group
 import org.opencypher.tools.tck.api.groups.ScenarioCategory
 import org.opencypher.tools.tck.api.groups.TckTree
 import org.opencypher.tools.tck.api.groups.Total
+import org.scalatest.Ignore
 import org.scalatest.ParallelTestExecution
 import org.scalatest.Tag
 import org.scalatest.funspec.AsyncFunSpec
@@ -50,6 +51,7 @@ import org.scalatest.funspec.AsyncFunSpec
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
+@Ignore
 class TCKImplementationTest extends AsyncFunSpec with ParallelTestExecution {
 
   /*
