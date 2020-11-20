@@ -61,6 +61,11 @@ class TCKApiTest extends AnyFunSuite with Matchers {
     })
   }
 
+  test("numbered scenarios have a number") {
+    val numberedScenarios = scenarios.filter(s => s.tags.contains("@numbered"))
+    numberedScenarios.foreach(s => s.number should not be None)
+  }
+
   test("sourceFile of top-level scenarios") {
     val someLevelScenarios = scenarios.filter(_.featureName == "Foo")
     someLevelScenarios.foreach(_.sourceFile should

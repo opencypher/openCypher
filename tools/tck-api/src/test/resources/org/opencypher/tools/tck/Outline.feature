@@ -28,7 +28,8 @@
 
 Feature: Outline
 
-  Scenario Outline: Outline Test
+  @numbered
+  Scenario Outline: [1] Outline Test
     Given an empty graph
     When executing query:
       """
