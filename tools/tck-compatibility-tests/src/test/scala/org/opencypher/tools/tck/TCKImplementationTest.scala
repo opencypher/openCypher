@@ -37,7 +37,6 @@ import org.junit.jupiter.api.DynamicContainer
 import org.junit.jupiter.api.DynamicNode
 import org.junit.jupiter.api.DynamicTest
 import org.neo4j.test.TestDatabaseManagementServiceBuilder
-import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.groups.ContainerGroup
 import org.opencypher.tools.tck.api.groups.Feature
 import org.opencypher.tools.tck.api.groups.Group
@@ -59,7 +58,7 @@ class TCKImplementationTest extends AsyncFunSpec with ParallelTestExecution {
    * (with -P the number of threads will be decided based on the number of processors available)
    */
   describe("On Neo4j") {
-    val tck = TckTree(CypherTCK.allTckScenarios)
+    val tck = TckTree(new InterpretedTCKTests().scenarios)
 
     def spawnTests(currentGroup: Group): Unit = {
       currentGroup match {
@@ -100,7 +99,7 @@ object TCKImplementationTest {
   def tckOnNeo4jAsJUnitTests(): util.Collection[DynamicTest] = new InterpretedTCKTests().runInterpreted()
 
   def tckOnNeo4jAsJUnitHierarchicalTests(): util.Collection[DynamicNode] = {
-    val tck = TckTree(CypherTCK.allTckScenarios)
+    val tck = TckTree(new InterpretedTCKTests().scenarios)
 
     def createTests(currentGroup: Group = Total): DynamicNode = {
       currentGroup match {
