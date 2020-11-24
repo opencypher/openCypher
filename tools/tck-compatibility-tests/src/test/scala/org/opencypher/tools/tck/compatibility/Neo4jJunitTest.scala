@@ -33,6 +33,7 @@ import cypher.features.InterpretedTCKTests
 import cypher.features.InterpretedTestConfig
 import cypher.features.Neo4jAdapter
 import cypher.features.ScenarioTestHelper
+import org.junit.Ignore
 import org.junit.jupiter.api.DynamicContainer
 import org.junit.jupiter.api.DynamicTest
 import org.neo4j.test.TestDatabaseManagementServiceBuilder
@@ -40,8 +41,10 @@ import org.neo4j.test.TestDatabaseManagementServiceBuilder
 import scala.collection.JavaConverters._
 
 object Neo4jJunitTest extends DynamicJunitTests {
+  @Ignore
   def tckOnNeo4jAsJUnitTests(): util.Collection[DynamicTest] = new InterpretedTCKTests().runInterpreted()
 
+  @Ignore
   def tckOnNeo4jAsJUnitHierarchicalTests(): util.Collection[DynamicContainer] = {
     Seq(DynamicContainer.dynamicContainer(
       "On Neo4j",
