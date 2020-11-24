@@ -158,7 +158,7 @@
         <groupId>org.scalatest</groupId>
         <artifactId>scalatest_${scala.binary.version}</artifactId>
         <version>${dep.scalatest.version}</version>
-        <scope>test</scope>
+        <!--scope>test</scope--> <!-- tck-api uses scalatest in compile scope-->
         <exclusions>
           <exclusion>
             <groupId>org.scala-lang</groupId>
