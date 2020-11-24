@@ -27,25 +27,35 @@
  */
 package org.opencypher.tools.tck.api.groups
 
+import org.opencypher.tools.tck.api.Scenario
+
 trait Group {
   def name: String
+  def description: String = name
   def indent: Int
   def parent: Option[Group]
+  def children(implicit tck: TckTree): Seq[Group] = tck.groupChildren.getOrElse(this, Seq[Group]())
 
   override def toString: String = name
 }
 
 object Group {
-  implicit def orderingByName[A <: Group]: Ordering[A] = (x: A, y: A) => (x, y) match {
-    case (x: ScenarioCategory, y: ScenarioCategory) => ScenarioCategory.orderingByName.compare(x, y)
-    case (x: Feature, y: Feature) => Feature.orderingByName.compare(x, y)
-    case (x: Tag, y: Tag) => Tag.orderingByName.compare(x, y)
+  implicit def canonicalOrdering[A <: Group]: Ordering[A] = (x: A, y: A) => (x, y) match {
+    case (x: ScenarioCategory, y: ScenarioCategory) => ScenarioCategory.canonicalOrdering.compare(x, y)
+    case (x: Feature, y: Feature) => Feature.canonicalOrdering.compare(x, y)
+    case (x: Numbered, y: Numbered) => Numbered.canonicalOrdering.compare(x, y)
+    case (x: ExampleItem, y: ExampleItem) => ExampleItem.canonicalOrdering.compare(x, y)
+    case (x: Tag, y: Tag) => Tag.canonicalOrdering.compare(x, y)
     case (Total, _) => -1
     case (_, Total) => 1
     case (_: ScenarioCategory, _) => -1
     case (_, _: ScenarioCategory) => 1
     case (_: Feature, _) => -1
     case (_, _: Feature) => 1
+    case (_: Numbered, _) => -1
+    case (_, _: Numbered) => 1
+    case (_: ExampleItem, _) => -1
+    case (_, _: ExampleItem) => 1
     case (_: Tag, _) => -1
     case (_, _: Tag) => 1
     case (_, _) => 0
@@ -68,20 +78,20 @@ case object Total extends ContainerGroup {
   override def toString: String = "/"
 }
 
-case class Tag(override val name: String) extends ContainedGroup {
-  override val parentGroup: ContainerGroup = Total
+case class ScenarioCategory(override val name: String, override val parentGroup: ContainerGroup) extends ContainedGroup with ContainerGroup {
+  override def toString: String = parentGroup.toString + name + "/"
 }
 
-object Tag {
-  implicit def orderingByName[A <: Tag]: Ordering[A] = Ordering.by(_.name)
+object ScenarioCategory {
+  implicit def canonicalOrdering[A <: ScenarioCategory]: Ordering[A] = Ordering.by(_.name)
 }
 
-case class Feature(override val name: String, override val parentGroup: ContainerGroup) extends ContainedGroup
+case class Feature(override val name: String, override val parentGroup: ContainerGroup) extends ContainedGroup with ContainerGroup
 
 object Feature {
   private val namePatternWithDescription = "^([^0-9]+)([0-9]+)( - .+)$".r
   private val namePatternWithoutDescription = "^([^0-9]+)([0-9]+)$".r
-  implicit def orderingByName[A <: Feature]: Ordering[A] = Ordering.by(f => {
+  implicit def canonicalOrdering[A <: Feature]: Ordering[A] = Ordering.by(f => {
     f.name match {
       case namePatternWithDescription(name, number, description)
         => (name, number.toInt, description)
@@ -93,10 +103,38 @@ object Feature {
   })
 }
 
-case class ScenarioCategory(override val name: String, override val parentGroup: ContainerGroup) extends ContainedGroup with ContainerGroup {
+trait Numbered extends ContainedGroup {
+  def number: Option[Int]
+
+  override def description = s"${number.map(n => "["+n+"] ").getOrElse("")}$name"
+}
+
+object Numbered {
+  implicit def canonicalOrdering[A <: Numbered]: Ordering[A] = Ordering.by(n => (n.number, n.name))
+}
+
+case class ScenarioOutline(override val number: Option[Int], override val name: String, override val parentGroup: ContainerGroup) extends Numbered with ContainedGroup with ContainerGroup {
   override def toString: String = parentGroup.toString + name + "/"
 }
 
-object ScenarioCategory {
-  implicit def orderingByName[A <: ScenarioCategory]: Ordering[A] = Ordering.by(_.name)
+trait Item extends ContainedGroup {
+  def scenario: Scenario
+}
+
+case class ScenarioItem(override val number: Option[Int], override val name: String, override val scenario: Scenario, override val parentGroup: Feature) extends Numbered with Item
+
+case class ExampleItem(override val name: String, index: Int, override val scenario: Scenario, override val parentGroup: ScenarioOutline) extends Item {
+  override def description = s"#$index"
+}
+
+object ExampleItem {
+  implicit def canonicalOrdering[A <: ExampleItem]: Ordering[A] = Ordering.by(_.index)
+}
+
+case class Tag(override val name: String) extends ContainedGroup {
+  override val parentGroup: ContainerGroup = Total
+}
+
+object Tag {
+  implicit def canonicalOrdering[A <: Tag]: Ordering[A] = Ordering.by(_.name)
 }
