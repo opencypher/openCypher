@@ -28,41 +28,9 @@
 
 #encoding: utf-8
 
-Feature: Match1-1 - Match nodes RETURN clause scenarios
+Feature: Return6 - Implicit grouping with aggregates
 
-  Scenario: Matching and returning ordered results, with LIMIT
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({num: 1}), ({num: 3}), ({num: 2})
-      """
-    When executing query:
-      """
-      MATCH (foo)
-      RETURN foo.num AS x
-        ORDER BY x DESC
-        LIMIT 4
-      """
-    Then the result should be, in order:
-      | x |
-      | 3 |
-      | 2 |
-      | 1 |
-    And no side effects
-
-  Scenario: Accept skip zero
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      WHERE 1 = 0
-      RETURN n SKIP 0
-      """
-    Then the result should be, in any order:
-      | n |
-    And no side effects
-
-  Scenario: Fail when using property access on primitive type
+  Scenario: Return count aggregation over nodes
     Given an empty graph
     And having executed:
       """
@@ -71,8 +39,42 @@ Feature: Match1-1 - Match nodes RETURN clause scenarios
     When executing query:
       """
       MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      RETURN n.num AS n, count(n) AS count
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then the result should be, in any order:
+      | n  | count |
+      | 42 | 1     |
+    And no side effects
 
+  Scenario: Projecting an arithmetic expression with aggregation
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({id: 42})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      RETURN a, count(a) + 3
+      """
+    Then the result should be, in any order:
+      | a          | count(a) + 3 |
+      | ({id: 42}) | 4            |
+    And no side effects
+
+  Scenario: Aggregating by a list property has a correct definition of equality
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({a: [1, 2, 3]}), ({a: [1, 2, 3]})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a.num AS a, count(*) AS count
+      RETURN count
+      """
+    Then the result should be, in any order:
+      | count |
+      | 2     |
+    And no side effects

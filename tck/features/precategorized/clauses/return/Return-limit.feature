@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: ReturnAcceptanceTest
+Feature: Return-Limit
 
   Scenario: Limit to two hits
     Given an empty graph
@@ -168,98 +168,44 @@ Feature: ReturnAcceptanceTest
       | ({name: 'D'}) |
     And no side effects
 
-  Scenario: Sort on aggregated function
+
+  Scenario: LIMIT 0 should return an empty result
     Given an empty graph
     And having executed:
       """
-      CREATE ({division: 'A', age: 22}),
-        ({division: 'B', age: 33}),
-        ({division: 'B', age: 44}),
-        ({division: 'C', age: 55})
+      CREATE (), (), ()
       """
     When executing query:
       """
       MATCH (n)
-      RETURN n.division, max(n.age)
-        ORDER BY max(n.age)
-      """
-    Then the result should be, in order:
-      | n.division | max(n.age) |
-      | 'A'        | 22         |
-      | 'B'        | 44         |
-      | 'C'        | 55         |
-    And no side effects
-
-  Scenario: Support sort and distinct
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({name: 'A'}),
-        ({name: 'B'}),
-        ({name: 'C'})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      RETURN DISTINCT a
-        ORDER BY a.name
-      """
-    Then the result should be, in order:
-      | a             |
-      | ({name: 'A'}) |
-      | ({name: 'B'}) |
-      | ({name: 'C'}) |
-    And no side effects
-
-  Scenario: Support column renaming
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:Singleton)
-      """
-    When executing query:
-      """
-      MATCH (a)
-      RETURN a AS ColumnName
+      RETURN n
+        LIMIT 0
       """
     Then the result should be, in any order:
-      | ColumnName   |
-      | (:Singleton) |
+      | n |
     And no side effects
 
-  Scenario: Support ordering by a property after being distinct-ified
+  Scenario: Limiting amount of rows when there are fewer left than the LIMIT argument
     Given an empty graph
     And having executed:
       """
-      CREATE (:A)-[:T]->(:B)
-      """
-    When executing query:
-      """
-      MATCH (a)-->(b)
-      RETURN DISTINCT b
-        ORDER BY b.name
-      """
-    Then the result should be, in order:
-      | b    |
-      | (:B) |
-    And no side effects
-
-  Scenario: Count star should count everything in scope
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:L1), (:L2), (:L3)
+      UNWIND range(0, 15) AS i
+      CREATE ({count: i})
       """
     When executing query:
       """
       MATCH (a)
-      RETURN a, count(*)
-      ORDER BY count(*)
+      RETURN a.count
+        ORDER BY a.count
+        SKIP 10
+        LIMIT 10
       """
-    Then the result should be, in any order:
-      | a     | count(*) |
-      | (:L1) | 1        |
-      | (:L2) | 1        |
-      | (:L3) | 1        |
+    Then the result should be, in order:
+      | a.count |
+      | 10      |
+      | 11      |
+      | 12      |
+      | 13      |
+      | 14      |
+      | 15      |
     And no side effects
-

@@ -30,23 +30,6 @@
 
 Feature: Match3-1 - Match fixed length patterns RETURN clause scenarios
 
-  Scenario: Projecting nodes and relationships
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A), (b:B)
-      CREATE (a)-[:T]->(b)
-      """
-    When executing query:
-      """
-      MATCH (a)-[r]->()
-      RETURN a AS foo, r AS bar
-      """
-    Then the result should be, in any order:
-      | foo  | bar  |
-      | (:A) | [:T] |
-    And no side effects
-
   Scenario: Undirected match in self-relationship graph, count
     Given an empty graph
     And having executed:
