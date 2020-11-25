@@ -68,7 +68,7 @@ trait ContainedGroup extends Group {
   def parentGroup: ContainerGroup
   override lazy val indent: Int = parentGroup.indent + 1
   override lazy val parent: Option[Group] = Some(parentGroup)
-  override def toString: String = parentGroup.toString + name
+  override def toString: String = parentGroup.toString + name + "/"
 }
 
 case object Total extends ContainerGroup {
@@ -107,24 +107,28 @@ trait Numbered extends ContainedGroup {
   def number: Option[Int]
 
   override def description = s"${number.map(n => "["+n+"] ").getOrElse("")}$name"
+
+  override def toString: String = parentGroup.toString + description + "/"
 }
 
 object Numbered {
   implicit def canonicalOrdering[A <: Numbered]: Ordering[A] = Ordering.by(n => (n.number, n.name))
 }
 
-case class ScenarioOutline(override val number: Option[Int], override val name: String, override val parentGroup: ContainerGroup) extends Numbered with ContainedGroup with ContainerGroup {
-  override def toString: String = parentGroup.toString + name + "/"
-}
+case class ScenarioOutline(override val number: Option[Int], override val name: String, override val parentGroup: ContainerGroup) extends Numbered with ContainedGroup with ContainerGroup
 
 trait Item extends ContainedGroup {
   def scenario: Scenario
 }
 
-case class ScenarioItem(override val number: Option[Int], override val name: String, override val scenario: Scenario, override val parentGroup: Feature) extends Numbered with Item
+case class ScenarioItem(override val scenario: Scenario, override val parentGroup: Feature) extends Numbered with Item {
+  override def number: Option[Int] = scenario.number
+  override def name: String = scenario.name
+}
 
-case class ExampleItem(override val name: String, index: Int, override val scenario: Scenario, override val parentGroup: ScenarioOutline) extends Item {
+case class ExampleItem(index: Int, override val scenario: Scenario, override val parentGroup: ScenarioOutline) extends Item {
   override def description = s"#$index"
+  override def name: String = s"#$index"
 }
 
 object ExampleItem {
