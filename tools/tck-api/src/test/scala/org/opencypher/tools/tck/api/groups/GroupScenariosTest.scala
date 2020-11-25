@@ -103,8 +103,7 @@ class GroupScenariosTest extends AnyFunSpec with Matchers with Inspectors with I
           case sc:ScenarioCategory =>
             it(s"ScenarioCategory group $sc has a parent which is a ScenarioCategory or Total") {
               sc.parent.value should matchPattern {
-                case _:ScenarioCategory =>
-                case Total =>
+                case _:ScenarioCategory | Total =>
               }
             }
           case _ => Unit
@@ -115,7 +114,6 @@ class GroupScenariosTest extends AnyFunSpec with Matchers with Inspectors with I
           case f:Feature => it(s"Feature group $f has a parent which is a ScenarioCategory or Total") {
             f.parent.value should matchPattern {
               case _:ScenarioCategory | Total =>
-              case Total =>
             }
           }
           case _ => Unit
