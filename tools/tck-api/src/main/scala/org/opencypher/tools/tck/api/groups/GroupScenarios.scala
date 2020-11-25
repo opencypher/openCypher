@@ -51,11 +51,11 @@ object GroupScenarios extends (Seq[Scenario] => Map[Group, Seq[Scenario]]) {
       val outline: Seq[(Scenario, ContainedGroup)] = scenario.exampleIndex.
         map(i => {
           val o = ScenarioOutline(scenario.number, scenario.name, feature)
-          val e = ExampleItem(s"#$i", i, scenario, o)
+          val e = ExampleItem(i, scenario, o)
           (o, e)
         }).
         map(p => Seq((scenario, p._1), (scenario, p._2))).
-        getOrElse(Seq((scenario, ScenarioItem(scenario.number, scenario.name, scenario, feature))))
+        getOrElse(Seq((scenario, ScenarioItem(scenario, feature))))
       // tags
       val tagGroups: Seq[(Scenario, Group)] = scenario.tags.map(tag => (scenario, Tag(tag))).toSeq
 
