@@ -28,70 +28,86 @@
 
 #encoding: utf-8
 
-Feature: Match2-1 - Match relationships RETURN clause scenarios
+Feature: Return5 - Implicit grouping with distinct
 
-  Scenario: Returning a relationship property value
+  Scenario: DISTINCT inside aggregation should work with lists in maps
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[:T {num: 1}]->()
+      CREATE ({list: ['A', 'B']}), ({list: ['A', 'B']})
       """
     When executing query:
       """
-      MATCH ()-[r]->()
-      RETURN r.num
+      MATCH (n)
+      RETURN count(DISTINCT {name: n.list}) AS count
       """
     Then the result should be, in any order:
-      | r.num |
+      | count |
       | 1     |
     And no side effects
 
-  Scenario: Missing relationship property should become null
+  Scenario: DISTINCT on nullable values
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[:T {name: 1}]->()
+      CREATE ({name: 'Florescu'}), (), ()
       """
     When executing query:
       """
-      MATCH ()-[r]->()
-      RETURN r.name2
+      MATCH (n)
+      RETURN DISTINCT n.name
       """
     Then the result should be, in any order:
-      | r.name2 |
-      | null    |
+      | n.name     |
+      | 'Florescu' |
+      | null       |
     And no side effects
 
-  Scenario: Projecting a list of nodes and relationships
+  Scenario: Handling DISTINCT with lists in maps
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A), (b:B)
-      CREATE (a)-[:T]->(b)
+      CREATE ({list: ['A', 'B']}), ({list: ['A', 'B']})
       """
     When executing query:
       """
-      MATCH (n)-[r]->(m)
-      RETURN [n, r, m] AS r
+      MATCH (n)
+      WITH DISTINCT {name: n.list} AS map
+      RETURN count(*)
       """
     Then the result should be, in any order:
-      | r                  |
-      | [(:A), [:T], (:B)] |
+      | count(*) |
+      | 1        |
     And no side effects
 
-  Scenario: Projecting a map of nodes and relationships
+  Scenario: DISTINCT inside aggregation should work with nested lists in maps
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A), (b:B)
-      CREATE (a)-[:T]->(b)
+      CREATE ({list: ['A', 'B']}), ({list: ['A', 'B']})
       """
     When executing query:
       """
-      MATCH (n)-[r]->(m)
-      RETURN {node1: n, rel: r, node2: m} AS m
+      MATCH (n)
+      RETURN count(DISTINCT {name: [[n.list, n.list], [n.list, n.list]]}) AS count
       """
     Then the result should be, in any order:
-      | m                                     |
-      | {node1: (:A), rel: [:T], node2: (:B)} |
+      | count |
+      | 1     |
+    And no side effects
+
+  Scenario: DISTINCT inside aggregation should work with nested lists of maps in maps
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({list: ['A', 'B']}), ({list: ['A', 'B']})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      RETURN count(DISTINCT {name: [{name2: n.list}, {baz: {apa: n.list}}]}) AS count
+      """
+    Then the result should be, in any order:
+      | count |
+      | 1     |
     And no side effects

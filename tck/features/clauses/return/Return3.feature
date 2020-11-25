@@ -28,51 +28,69 @@
 
 #encoding: utf-8
 
-Feature: Match1-1 - Match nodes RETURN clause scenarios
+Feature: Return3 - Return multiple expressions (if column order correct)
 
-  Scenario: Matching and returning ordered results, with LIMIT
+  Scenario: Returning multiple expressions
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 1}), ({num: 3}), ({num: 2})
+      CREATE ()
       """
     When executing query:
       """
-      MATCH (foo)
-      RETURN foo.num AS x
-        ORDER BY x DESC
-        LIMIT 4
-      """
-    Then the result should be, in order:
-      | x |
-      | 3 |
-      | 2 |
-      | 1 |
-    And no side effects
-
-  Scenario: Accept skip zero
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      WHERE 1 = 0
-      RETURN n SKIP 0
+      MATCH (a)
+      RETURN exists(a.id), a IS NOT NULL
       """
     Then the result should be, in any order:
-      | n |
+      | exists(a.id) | a IS NOT NULL |
+      | false        | true          |
     And no side effects
 
-  Scenario: Fail when using property access on primitive type
+  Scenario: Returning multiple node property values
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 42})
+      CREATE ({name: 'Philip J. Fry', age: 2046, seasons: [1, 2, 3, 4, 5, 6, 7]})
       """
     When executing query:
       """
-      MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      MATCH (a)
+      RETURN a.name, a.age, a.seasons
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then the result should be, in any order:
+      | a.name          | a.age | a.seasons             |
+      | 'Philip J. Fry' | 2046  | [1, 2, 3, 4, 5, 6, 7] |
+    And no side effects
 
+  Scenario: Projecting nodes and relationships
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A), (b:B)
+      CREATE (a)-[:T]->(b)
+      """
+    When executing query:
+      """
+      MATCH (a)-[r]->()
+      RETURN a AS foo, r AS bar
+      """
+    Then the result should be, in any order:
+      | foo  | bar  |
+      | (:A) | [:T] |
+    And no side effects
+
+  Scenario: Return all variables
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:Start)-[:T]->()
+      """
+    When executing query:
+      """
+      MATCH p = (a:Start)-->(b)
+      RETURN *
+      """
+    Then the result should be, in any order:
+      | a        | b  | p                   |
+      | (:Start) | () | <(:Start)-[:T]->()> |
+    And no side effects

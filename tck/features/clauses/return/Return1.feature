@@ -28,51 +28,27 @@
 
 #encoding: utf-8
 
-Feature: Match1-1 - Match nodes RETURN clause scenarios
+Feature: Return1 - Return single variable (correct return of values according to their type)
 
-  Scenario: Matching and returning ordered results, with LIMIT
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({num: 1}), ({num: 3}), ({num: 2})
-      """
-    When executing query:
-      """
-      MATCH (foo)
-      RETURN foo.num AS x
-        ORDER BY x DESC
-        LIMIT 4
-      """
-    Then the result should be, in order:
-      | x |
-      | 3 |
-      | 2 |
-      | 1 |
-    And no side effects
-
-  Scenario: Accept skip zero
+  Scenario: Accept valid Unicode literal
     Given any graph
     When executing query:
       """
-      MATCH (n)
-      WHERE 1 = 0
-      RETURN n SKIP 0
+      RETURN '\u01FF' AS a
       """
     Then the result should be, in any order:
-      | n |
+      | a   |
+      | 'ǿ' |
     And no side effects
 
-  Scenario: Fail when using property access on primitive type
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({num: 42})
-      """
+
+  Scenario: Arithmetic expressions should propagate null values
+    Given any graph
     When executing query:
       """
-      MATCH (n)
-      WITH n.num AS n2
-      RETURN n2.num
+      RETURN 1 + (2 - (3 * (4 / (5 ^ (6 % null))))) AS a
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
-
+    Then the result should be, in any order:
+      | a    |
+      | null |
+    And no side effects

@@ -28,16 +28,64 @@
 
 #encoding: utf-8
 
-Feature: ColumnNameAcceptance
+Feature: Return4 - Column renaming
 
-  Background:
+  Scenario: Honour the column name for RETURN items
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({name: 'Someone'})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a.name AS a
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a         |
+      | 'Someone' |
+    And no side effects
+
+    #TODO: duplicate?
+  Scenario: Support column renaming
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:Singleton)
+      """
+    When executing query:
+      """
+      MATCH (a)
+      RETURN a AS ColumnName
+      """
+    Then the result should be, in any order:
+      | ColumnName   |
+      | (:Singleton) |
+    And no side effects
+
+  Scenario: Aliasing expressions
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({id: 42})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      RETURN a.id AS a, a.id
+      """
+    Then the result should be, in any order:
+      | a  | a.id |
+      | 42 | 42   |
+    And no side effects
+
+  Scenario: Keeping used expression 1
     Given an empty graph
     And having executed:
       """
       CREATE ()
       """
-
-  Scenario: Keeping used expression 1
     When executing query:
       """
       MATCH (n)
@@ -49,6 +97,11 @@ Feature: ColumnNameAcceptance
     And no side effects
 
   Scenario: Keeping used expression 2
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()
+      """
     When executing query:
       """
       MATCH p = (n)-->(b)
@@ -60,6 +113,11 @@ Feature: ColumnNameAcceptance
 
   @skipStyleCheck
   Scenario: Keeping used expression 3
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()
+      """
     When executing query:
       """
       MATCH p = (n)-->(b)
@@ -71,6 +129,11 @@ Feature: ColumnNameAcceptance
     And no side effects
 
   Scenario: Keeping used expression 4
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()
+      """
     When executing query:
       """
       MATCH p = (n)-->(b)
