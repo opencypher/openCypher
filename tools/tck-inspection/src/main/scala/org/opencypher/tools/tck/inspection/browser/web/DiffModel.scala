@@ -51,16 +51,18 @@ object BothCollections extends TckCollection {
 
 case class DiffModel(beforePath: String, afterPath: String) {
 
-  private val regexLeadingNumber: Regex = """[\[][0-9]+[\]][ ]""".r
+  //private val regexLeadingNumber: Regex = """[\[][0-9]+[\]][ ]""".r
 
-  private val scenariosBeforeRaw = CypherTCK.allTckScenariosFromFilesystem(beforePath)
-  private val scenariosBefore = scenariosBeforeRaw.map(
-    s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
-  )
-  private val scenariosAfterRaw = CypherTCK.allTckScenariosFromFilesystem(afterPath)
-  private val scenariosAfter = scenariosAfterRaw.map(
-    s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
-  )
+  //private val scenariosBeforeRaw = CypherTCK.allTckScenariosFromFilesystem(beforePath)
+  private val scenariosBefore = CypherTCK.allTckScenariosFromFilesystem(beforePath)
+  //scenariosBeforeRaw.map(
+  //  s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
+  //)
+  //private val scenariosAfterRaw = CypherTCK.allTckScenariosFromFilesystem(afterPath)
+  private val scenariosAfter = CypherTCK.allTckScenariosFromFilesystem(afterPath)
+  //scenariosAfterRaw.map(
+  //  s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
+  //)
 
   val (before, after) = (GroupScenarios(scenariosBefore), GroupScenarios(scenariosAfter))
 
