@@ -29,8 +29,11 @@ package org.opencypher.tools.tck.inspection.browser.web
 
 import org.opencypher.tools.tck.api.Pickle
 import org.opencypher.tools.tck.api.Scenario
+import org.opencypher.tools.tck.api.groups.ExampleItem
 import org.opencypher.tools.tck.api.groups.Group
 import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
+import org.opencypher.tools.tck.api.groups.ScenarioItem
+import org.opencypher.tools.tck.api.groups.ScenarioOutline
 import org.opencypher.tools.tck.inspection.diff.Diff
 import org.opencypher.tools.tck.inspection.diff.ElementDiff
 import org.opencypher.tools.tck.inspection.diff.ElementaryDiffTag._
@@ -55,7 +58,11 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
   }
 
   def diffCountsFrag(diffs: Map[Group, GroupDiff], before: Map[Group, Seq[Scenario]], after: Map[Group, Seq[Scenario]]): Text.TypedTag[String] = {
-    val groupSequence = OrderGroupsDepthFirst(diffs.keySet)
+    val groupsFiltered = diffs.keySet filter {
+      case _:ScenarioItem | _:ScenarioOutline | _:ExampleItem => false
+      case _ => true
+    }
+    val groupSequence = OrderGroupsDepthFirst(groupsFiltered)
 
     val tableRows = groupSequence.map( group => {
       val currentDiff = diffs.get(group)
