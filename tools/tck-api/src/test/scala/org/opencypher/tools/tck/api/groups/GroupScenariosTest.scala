@@ -39,6 +39,8 @@ class GroupScenariosTest extends AnyFunSpec with GroupTest with Inspectors with 
   private val rand = Random
   rand.setSeed(0)
 
+  private def toMapOfSets(m: Map[Group, Seq[Scenario]]): Map[Group, Set[Scenario]] = m.mapValues(_.toSet)
+
   describe("Total group") {
     it("has indent of zero") {
       Total.indent shouldBe 0
@@ -182,7 +184,7 @@ class GroupScenariosTest extends AnyFunSpec with GroupTest with Inspectors with 
       val ftr11 = Feature("ftr11", scB)
       val ftr1 = Feature("ftr1", Total)
       val ftr5 = Feature("ftr5", Total)
-      val expected = Map(
+      val expected = toMapOfSets(Map(
         Total -> Seq(scrA, scrB, scrC, scrD),
         scB -> Seq(scrC, scrD),
         ftr3 -> Seq(scrD),
@@ -195,9 +197,9 @@ class GroupScenariosTest extends AnyFunSpec with GroupTest with Inspectors with 
         ScenarioItem(scrA, ftr5) -> Seq(scrA),
         Tag("A") -> Seq(scrB, scrC),
         Tag("B") -> Seq(scrD)
-      )
+      ))
 
-      groupedScenarios should equal(expected)
+      toMapOfSets(groupedScenarios) should equal(expected)
     }
   }
 
@@ -233,7 +235,7 @@ class GroupScenariosTest extends AnyFunSpec with GroupTest with Inspectors with 
       val ftr11c = Feature("ftr11 - c", scB)
       val ftr1b = Feature("ftr1 - b", Total)
       val ftr5a = Feature("ftr5 - a", Total)
-      val expected = Map(
+      val expected = toMapOfSets(Map(
         Total -> Seq(scrA, scrB, scrC, scrD, scrE, scrF1, scrF2, scrG, scrH, scrI, scrJ),
         scA -> Seq(scrF1, scrF2, scrG, scrJ),
         scAB -> Seq(scrF1, scrF2, scrG, scrJ),
@@ -265,9 +267,9 @@ class GroupScenariosTest extends AnyFunSpec with GroupTest with Inspectors with 
         Tag("B") -> Seq(scrI),
         Tag("C") -> Seq(scrD, scrE, scrF1, scrF2),
         Tag("D") -> Seq(scrG, scrH)
-      )
+      ))
 
-      groupedScenarios should equal(expected)
+      toMapOfSets(groupedScenarios) should equal(expected)
     }
   }
 }
