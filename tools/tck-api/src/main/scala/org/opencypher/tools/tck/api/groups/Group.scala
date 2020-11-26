@@ -112,7 +112,7 @@ trait Numbered extends ContainedGroup {
 }
 
 object Numbered {
-  implicit def canonicalOrdering[A <: Numbered]: Ordering[A] = Ordering.by(n => (n.number, n.name))
+  implicit def canonicalOrdering[A <: Numbered]: Ordering[A] = Ordering.by(n => (n.number.getOrElse(Int.MaxValue), n.name))
 }
 
 case class ScenarioOutline(override val number: Option[Int], override val name: String, override val parentGroup: ContainerGroup) extends Numbered with ContainedGroup with ContainerGroup
