@@ -115,12 +115,12 @@ class ScenarioDiffTest extends AnyFunSuite with Matchers {
 
   test("Diff equal scenarios not differing in source") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("1", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("1", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
@@ -130,12 +130,12 @@ class ScenarioDiffTest extends AnyFunSuite with Matchers {
 
   test("Diff equal scenarios differing in source") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("1", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("2", "s", 2).getSteps.get(0)), Measure(pickle("2", "s", 2).getSteps.get(1))),
       pickle("2", "s", 2), new java.io.File("A/B/f.feature").toPath
     )
@@ -145,12 +145,12 @@ class ScenarioDiffTest extends AnyFunSuite with Matchers {
 
   test("Diff scenarios differing in category only") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("1", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("XX", "A"), "f", "s", None, Set[String]("S", "T"),
+      List[String]("XX", "A"), "f", Some(1), "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("2", "s", 2).getSteps.get(0)), Measure(pickle("2", "s", 2).getSteps.get(1))),
       pickle("2", "s", 2), new java.io.File("XX/A/f.feature").toPath
     )
@@ -160,12 +160,12 @@ class ScenarioDiffTest extends AnyFunSuite with Matchers {
 
   test("Diff scenarios differing in tags only") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "exec", 1).getSteps.get(0)), Measure(pickle("1", "result", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", None, Set[String]("S", "XX"),
+      List[String]("A", "B"), "f", Some(1), "s", None, Set[String]("S", "XX"),
       List[Step](Dummy(pickle("2", "s", 2).getSteps.get(0)), Measure(pickle("2", "s", 2).getSteps.get(1))),
       pickle("2", "s", 2), new java.io.File("A/B/f.feature").toPath
     )
@@ -175,12 +175,12 @@ class ScenarioDiffTest extends AnyFunSuite with Matchers {
 
   test("Diff scenarios differing in kind of steps only") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("1", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", None, Set[String]("S", "T"),
       List[Step](Measure(pickle("2", "s", 2).getSteps.get(0)), Dummy(pickle("2", "s", 2).getSteps.get(1))),
       pickle("2", "s", 2), new java.io.File("A/B/f.feature").toPath
     )
@@ -190,12 +190,12 @@ class ScenarioDiffTest extends AnyFunSuite with Matchers {
 
   test("Diff scenarios differing in content of steps only") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("1", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("2", "s", 2).getSteps.get(1)), Measure(pickle("2", "s", 2).getSteps.get(0))),
       pickle("2", "s", 2), new java.io.File("A/B/f.feature").toPath
     )
@@ -205,12 +205,12 @@ class ScenarioDiffTest extends AnyFunSuite with Matchers {
 
   test("Diff equal scenarios differing in example index only") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", Some(0), Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", Some(0), Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("1", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", Some(1), Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", Some(1), Set[String]("S", "T"),
       List[Step](Dummy(pickle("2", "s", 2).getSteps.get(0)), Measure(pickle("2", "s", 2).getSteps.get(1))),
       pickle("2", "s", 2), new java.io.File("A/B/f.feature").toPath
     )
@@ -220,12 +220,12 @@ class ScenarioDiffTest extends AnyFunSuite with Matchers {
 
   test("Diff scenarios differing in categories, tags, and content of steps only") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("1", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("XX", "B"), "f", "s", None, Set[String]("S", "XX"),
+      List[String]("XX", "B"), "f", Some(1), "s", None, Set[String]("S", "XX"),
       List[Step](Dummy(pickle("2", "s", 2).getSteps.get(1)), Measure(pickle("2", "s", 2).getSteps.get(0))),
       pickle("2", "s", 2), new java.io.File("XX/B/f.feature").toPath
     )
@@ -235,12 +235,12 @@ class ScenarioDiffTest extends AnyFunSuite with Matchers {
 
   test("Diff different scenarios with different name") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("1", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "XX", None, Set[String]("S", "XX"),
+      List[String]("A", "B"), "f", Some(1), "XX", None, Set[String]("S", "XX"),
       List[Step](Measure(pickle("2", "XX", 2).getSteps.get(0)), Dummy(pickle("2", "XX", 2).getSteps.get(1))),
       pickle("2", "XX", 2), new java.io.File("A/B/f.feature").toPath
     )
@@ -250,12 +250,12 @@ class ScenarioDiffTest extends AnyFunSuite with Matchers {
 
   test("Diff different scenarios with different example number") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", Some(0), Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", Some(0), Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("1", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", Some(1), Set[String]("S", "XX"),
+      List[String]("A", "B"), "f", Some(1), "s", Some(1), Set[String]("S", "XX"),
       List[Step](Measure(pickle("2", "XX", 2).getSteps.get(0)), Dummy(pickle("2", "XX", 2).getSteps.get(1))),
       pickle("2", "XX", 2), new java.io.File("A/B/f.feature").toPath
     )
@@ -265,12 +265,12 @@ class ScenarioDiffTest extends AnyFunSuite with Matchers {
 
   test("Diff different scenarios with different name and example number") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", "s", Some(0), Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(1), "s", Some(0), Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("1", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", "XX", Some(1), Set[String]("S", "XX"),
+      List[String]("A", "B"), "f", Some(1), "XX", Some(1), Set[String]("S", "XX"),
       List[Step](Measure(pickle("2", "XX", 2).getSteps.get(0)), Dummy(pickle("2", "XX", 2).getSteps.get(1))),
       pickle("2", "XX", 2), new java.io.File("A/B/f.feature").toPath
     )
