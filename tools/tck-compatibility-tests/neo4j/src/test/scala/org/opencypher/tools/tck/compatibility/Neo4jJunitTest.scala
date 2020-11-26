@@ -27,31 +27,34 @@
  */
 package org.opencypher.tools.tck.compatibility
 
+import java.util
+
 import cypher.features.InterpretedTCKTests
 import cypher.features.InterpretedTestConfig
 import cypher.features.Neo4jAdapter
 import cypher.features.ScenarioTestHelper
+import org.junit.Ignore
+import org.junit.jupiter.api.DynamicContainer
+import org.junit.jupiter.api.DynamicTest
 import org.neo4j.test.TestDatabaseManagementServiceBuilder
-import org.scalatest.Ignore
 
 import scala.collection.JavaConverters._
 
-@Ignore
-class Neo4jScalaTest extends AsyncScalaTests {
+object Neo4jJunitTest extends DynamicJunitTests {
+  @Ignore
+  def tckOnNeo4jAsJUnitTests(): util.Collection[DynamicTest] = new InterpretedTCKTests().runInterpreted()
 
-  /*
-   * To run these test in parallel, provide the program argument -P<n> to the runner,
-   * where <n> is the number of threads, e.g. -P16
-   * (with -P the number of threads will be decided based on the number of processors available)
-   */
-  describe("On Neo4j") {
-    create(
-      new InterpretedTCKTests().scenarios,
-      scenario => {
-        //print(":")
-        val t = ScenarioTestHelper.createTests(List(scenario), InterpretedTestConfig, () => new TestDatabaseManagementServiceBuilder(), Neo4jAdapter.defaultTestConfig).asScala.head
-        t.getExecutable.execute()
-      }
-    )
+  def tckOnNeo4jAsJUnitHierarchicalTests(): util.Collection[DynamicContainer] = {
+    Seq(DynamicContainer.dynamicContainer(
+      "On Neo4j",
+      create(
+        new InterpretedTCKTests().scenarios,
+        scenario => {
+          //print(":")
+          val t = ScenarioTestHelper.createTests(List(scenario), InterpretedTestConfig, () => new TestDatabaseManagementServiceBuilder(), Neo4jAdapter.defaultTestConfig).asScala.head
+          t.getExecutable
+        }
+      )
+    )).asJavaCollection
   }
 }
