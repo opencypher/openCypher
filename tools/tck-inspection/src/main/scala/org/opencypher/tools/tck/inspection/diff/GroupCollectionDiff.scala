@@ -28,12 +28,17 @@
 package org.opencypher.tools.tck.inspection.diff
 
 import org.opencypher.tools.tck.api.Scenario
+import org.opencypher.tools.tck.api.groups.ExampleItem
 import org.opencypher.tools.tck.api.groups.Group
+import org.opencypher.tools.tck.api.groups.ScenarioItem
 
 case object GroupCollectionDiff extends ((Map[Group, Seq[Scenario]], Map[Group, Seq[Scenario]]) => Map[Group, GroupDiff]) {
   def apply(before: Map[Group, Seq[Scenario]],
            after: Map[Group, Seq[Scenario]]): Map[Group, GroupDiff] = {
-    val allGroups = before.keySet ++ after.keySet
+    val allGroups = (before.keySet ++ after.keySet) filter {
+      case _:ScenarioItem | _:ExampleItem => false
+      case _ => true
+    }
     allGroups.map(group => (group, GroupDiff(before.get(group), after.get(group)))).toMap
   }
 }
