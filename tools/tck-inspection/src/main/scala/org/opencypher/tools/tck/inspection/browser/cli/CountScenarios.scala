@@ -29,11 +29,14 @@ package org.opencypher.tools.tck.inspection.browser.cli
 
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
+import org.opencypher.tools.tck.api.groups.ExampleItem
 import org.opencypher.tools.tck.api.groups.GroupScenarios
 import org.opencypher.tools.tck.api.groups.Feature
 import org.opencypher.tools.tck.api.groups.Group
 import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
 import org.opencypher.tools.tck.api.groups.ScenarioCategory
+import org.opencypher.tools.tck.api.groups.ScenarioItem
+import org.opencypher.tools.tck.api.groups.ScenarioOutline
 import org.opencypher.tools.tck.api.groups.Tag
 import org.opencypher.tools.tck.api.groups.Total
 import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
@@ -72,11 +75,15 @@ case object CountScenarios {
   }
 
   def reportCountsInPrettyPrint(groups: Map[Group, Seq[Scenario]]): String = {
-    val groupSequence = OrderGroupsDepthFirst(groups.keySet)
+    val groupsFiltered = groups.keySet filter {
+      case _:ScenarioItem | _:ScenarioOutline | _:ExampleItem => false
+      case _ => true
+    }
+    val groupSequence = OrderGroupsDepthFirst(groupsFiltered)
 
-    val outputs = groups.keys.map(group => group -> {
-      ("| " * group.indent) + group.name
-    }).toMap
+    val outputs = groupsFiltered.map(group =>
+      group -> (("| " * group.indent) + group.name)
+    ).toMap
     // maxOutputLength is needed to align the counts
     val maxOutputLength = outputs.values.map(_.length).max
 
@@ -94,9 +101,13 @@ case object CountScenarios {
   }
 
   def reportDiffCountsInPrettyPrint(diffs: Map[Group, GroupDiff]): String = {
-    val groupSequence = OrderGroupsDepthFirst(diffs.keySet)
+    val groupsFiltered = diffs.keySet filter {
+      case _:ScenarioItem | _:ScenarioOutline | _:ExampleItem => false
+      case _ => true
+    }
+    val groupSequence = OrderGroupsDepthFirst(groupsFiltered)
 
-    val outputs = diffs.keys.map(group => group -> {
+    val outputs = groupsFiltered.map(group => group -> {
       ("  " * (group.indent - 1)) + ("- " * (if (group.indent > 0) 1 else 0)) + group.name
     }).toMap
     // maxOutputLength is needed to align the counts
@@ -122,46 +133,5 @@ case object CountScenarios {
     val header = columnNames + System.lineSeparator + ("–" * columnNames.length) + System.lineSeparator
 
     header + outputLines.mkString(System.lineSeparator)
-  }
-
-  def reportDiffCountsInGFMPrint(diffs: Map[Group, GroupDiff]): String = {
-    val groupsByParent = diffs.keys.groupBy(countCategory => countCategory.parent)
-    val outputs = diffs.keys.map(cat => cat -> {
-      "`/" + ("…/" * (cat.indent - 1)) + ("…/" * (if (cat.indent > 0) 1 else 0)) + "` " + cat
-    }).toMap
-    // maxOutputLength is needed to align the counts
-    val maxOutputLength = outputs.values.map(_.length).max
-
-    // print counts to stdout as a count group tree in dept first order
-    def printDepthFirst(currentGroup: Group): List[String] = {
-      val thisOutput = outputs(currentGroup)
-      val thisOutputLine = "%s | %d | %d | %d | %d | %d".format(
-        thisOutput,
-        diffs.get(currentGroup).map(_.unchangedScenarios.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.movedScenarios.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.changedScenarios.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.addedScenarios.size).getOrElse(0),
-        diffs.get(currentGroup).map(_.removedScenarios.size).getOrElse(0)
-      )
-      // on each level ordered in classes of Total, ScenarioCategories, Features, Tags
-      val groupsByClasses = groupsByParent.getOrElse(Some(currentGroup), Iterable[Group]()).groupBy{
-        case Total => 0
-        case _:ScenarioCategory => 1
-        case _:Feature => 2
-        case _:Tag => 3
-      }
-      // within each class ordered alphabetically by name
-      val groupsOrdered = groupsByClasses.toSeq.sortBy(_._1).flatMap {
-        case (_, countCategories) => countCategories.toSeq.sortBy(_.name)
-      }
-      thisOutputLine :: groupsOrdered.flatMap(printDepthFirst).toList
-    }
-
-    //output header
-    val header =
-      """Group | unchanged | moved only | changed more | added | removed
-        |------|-----------|------------|--------------|-------|--------""".stripMargin
-
-    (header :: printDepthFirst(Total)).mkString(System.lineSeparator)
   }
 }
