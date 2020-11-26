@@ -37,12 +37,13 @@ import scala.util.matching.Regex
 
 case class BrowserModel(path: String) {
 
-  private val regexLeadingNumber: Regex = """[\[][0-9]+[\]][ ]""".r
+  //private val regexLeadingNumber: Regex = """[\[][0-9]+[\]][ ]""".r
 
-  private val scenariosRaw = CypherTCK.allTckScenariosFromFilesystem(path)
-  private val scenarios = scenariosRaw.map(
-    s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
-  )
+  //private val scenariosRaw = CypherTCK.allTckScenariosFromFilesystem(path)
+  private val scenarios = CypherTCK.allTckScenariosFromFilesystem(path)
+  //scenariosRaw.map(
+  //  s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
+  //)
 
   val counts: Map[Group, Seq[Scenario]] = GroupScenarios(scenarios)
 
