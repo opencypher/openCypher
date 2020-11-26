@@ -27,21 +27,17 @@
  */
 package org.opencypher.tools.tck.api.groups
 
-import java.net.URI
-import java.util
-
-import io.cucumber.core.gherkin.Pickle
-import org.opencypher.tools.tck.api.Dummy
-import org.opencypher.tools.tck.api.Measure
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.Step
 import org.scalatest.funspec.AnyFunSpec
-import org.scalatest.matchers.should.Matchers
 import org.scalatest.Inside
 import org.scalatest.Inspectors
 import org.scalatest.OptionValues
 
-class GroupScenariosTest extends AnyFunSpec with Matchers with Inspectors with Inside with OptionValues {
+import scala.util.Random
+
+class GroupScenariosTest extends AnyFunSpec with GroupTest with Inspectors with Inside with OptionValues {
+  private val rand = Random
+  rand.setSeed(0)
 
   describe("Total group") {
     it("has indent of zero") {
@@ -170,12 +166,12 @@ class GroupScenariosTest extends AnyFunSpec with Matchers with Inspectors with I
   }
 
   describe("The given list of four scenarios, GroupScenarios") {
-    val scrA = createScenario(List[String](), "ftr5", 1, "scrA", None, Set[String]())
-    val scrB = createScenario(List[String](), "ftr1", 1, "scrB", None, Set[String]("A"))
-    val scrC = createScenario(List[String]("b"), "ftr11", 1, "scrC", None, Set[String]("A"))
-    val scrD = createScenario(List[String]("b"), "ftr3", 1, "scrD", None, Set[String]("B"))
+    val scrA = createScenario(List[String](), "ftr5", Some(1), "scrA", None, Set[String]())
+    val scrB = createScenario(List[String](), "ftr1", Some(1), "scrB", None, Set[String]("A"))
+    val scrC = createScenario(List[String]("b"), "ftr11", Some(1), "scrC", None, Set[String]("A"))
+    val scrD = createScenario(List[String]("b"), "ftr3", Some(1), "scrD", None, Set[String]("B"))
 
-    val scenarios = List(scrA, scrB, scrC, scrD)
+    val scenarios = rand.shuffle(List(scrA, scrB, scrC, scrD))
     val groupedScenarios = GroupScenarios(scenarios)
 
     invariants(groupedScenarios, scenarios)
@@ -206,19 +202,19 @@ class GroupScenariosTest extends AnyFunSpec with Matchers with Inspectors with I
   }
 
   describe("The given list of ten scenarios, GroupScenarios") {
-    val scrA = createScenario(List[String](), "ftr5 - a", 1, "1", None, Set[String]())
-    val scrB = createScenario(List[String](), "ftr1 - b", 1, "1", None, Set[String]("A"))
-    val scrC = createScenario(List[String](), "ftr1 - b", 2, "2", None, Set[String]("A"))
-    val scrD = createScenario(List[String]("b"), "ftr11 - c", 1, "1", None, Set[String]("A", "C"))
-    val scrE = createScenario(List[String]("b"), "ftr11", 1, "1", None, Set[String]("A", "C"))
-    val scrF1 = createScenario(List[String]("a", "b"), "ftr2", 1, "1", Some(1), Set[String]("C"))
-    val scrF2 = createScenario(List[String]("a", "b"), "ftr2", 1, "1", Some(2), Set[String]("C"))
-    val scrG = createScenario(List[String]("a", "b"), "ftr", 1, "1", None, Set[String]("D"))
-    val scrH = createScenario(List[String]("b"), "ftr11 - b", 1, "1", None, Set[String]("D", "2"))
-    val scrI = createScenario(List[String]("b"), "ftr3", 1, "1", None, Set[String]("B"))
-    val scrJ = createScenario(List[String]("a", "b"), "ftrX", 1, "1", None, Set[String]("11"))
+    val scrA = createScenario(List[String](), "ftr5 - a", Some(1), "1", None, Set[String]())
+    val scrB = createScenario(List[String](), "ftr1 - b", Some(1), "1", None, Set[String]("A"))
+    val scrC = createScenario(List[String](), "ftr1 - b", Some(2), "2", None, Set[String]("A"))
+    val scrD = createScenario(List[String]("b"), "ftr11 - c", Some(1), "1", None, Set[String]("A", "C"))
+    val scrE = createScenario(List[String]("b"), "ftr11", Some(1), "1", None, Set[String]("A", "C"))
+    val scrF1 = createScenario(List[String]("a", "b"), "ftr2", Some(1), "1", Some(1), Set[String]("C"))
+    val scrF2 = createScenario(List[String]("a", "b"), "ftr2", Some(1), "1", Some(2), Set[String]("C"))
+    val scrG = createScenario(List[String]("a", "b"), "ftr", Some(1), "1", None, Set[String]("D"))
+    val scrH = createScenario(List[String]("b"), "ftr11 - b", Some(1), "1", None, Set[String]("D", "2"))
+    val scrI = createScenario(List[String]("b"), "ftr3", Some(1), "1", None, Set[String]("B"))
+    val scrJ = createScenario(List[String]("a", "b"), "ftrX", Some(1), "1", None, Set[String]("11"))
 
-    val scenarios = List(scrA, scrB, scrC, scrD, scrE, scrF1, scrF2, scrG, scrH, scrI, scrJ)
+    val scenarios = rand.shuffle(List(scrA, scrB, scrC, scrD, scrE, scrF1, scrF2, scrG, scrH, scrI, scrJ))
     val groupedScenarios = GroupScenarios(scenarios)
 
     invariants(groupedScenarios, scenarios)
@@ -273,62 +269,5 @@ class GroupScenariosTest extends AnyFunSpec with Matchers with Inspectors with I
 
       groupedScenarios should equal(expected)
     }
-  }
-
-  private def createScenario(categories: List[String], featureName: String, number: Int, name: String, index: Option[Int], tags: Set[String]) = {
-    val dummyPickle: Pickle = new io.cucumber.core.gherkin.Pickle() {
-      override val getKeyword: String = ""
-
-      override val getLanguage: String = "EN"
-
-      override val getName: String = "name"
-
-      override val getLocation: io.cucumber.core.gherkin.Location = new io.cucumber.core.gherkin.Location() {
-        override val getLine: Int = 1
-
-        override val getColumn: Int = 1
-      }
-
-      override val getScenarioLocation: io.cucumber.core.gherkin.Location = new io.cucumber.core.gherkin.Location() {
-        override val getLine: Int = 1
-
-        override val getColumn: Int = 1
-      }
-
-      override val getSteps: util.List[io.cucumber.core.gherkin.Step] = new util.ArrayList[io.cucumber.core.gherkin.Step]()
-
-      override val getTags: util.List[String] = new util.ArrayList[String]()
-
-      override val getUri: URI = new URI("http://www.opencypher.org/")
-
-      override val getId: String = "id"
-    }
-
-    val dummyPickleStep: io.cucumber.core.gherkin.Step = new io.cucumber.core.gherkin.Step() {
-      override val getLine: Int = 1
-
-      override val getArgument: io.cucumber.core.gherkin.Argument = new io.cucumber.core.gherkin.DocStringArgument() {
-        override val getContent: String = "text"
-
-        override val getContentType: String = ""
-
-        override val getLine: Int = 1
-      }
-
-      override val getKeyWord: String = "keyWord"
-
-      override val getType: io.cucumber.core.gherkin.StepType = io.cucumber.core.gherkin.StepType.GIVEN
-
-      override val getPreviousGivenWhenThenKeyWord: String = ""
-
-      override val getText: String = "xyz"
-
-      override val getId: String = "id"
-    }
-
-    val dummySteps: List[Step] = List[Step](Dummy(dummyPickleStep), Measure(dummyPickleStep))
-    val dummyPath: java.nio.file.Path = new java.io.File("ftr1.feature").toPath
-
-    Scenario(categories, featureName, Some(number), name, index, tags, dummySteps, dummyPickle, dummyPath)
   }
 }
