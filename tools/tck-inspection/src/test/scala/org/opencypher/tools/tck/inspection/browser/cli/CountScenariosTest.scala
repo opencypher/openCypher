@@ -326,24 +326,25 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
     CountScenarios.reportDiffCountsInPrettyPrint(groupCollectionDiff) should equal(expectedResult)
   }
 
-  test("Report pretty diff counts with one scenario from a outline in a top-level feature has a changed tags") {
+  test("Report pretty diff counts with two scenarios from an outline in a top-level feature have a changed tags") {
     val scrA = Scenario(List[String](), "ftr1", Some(1), "scrA", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB0 = Scenario(List[String](), "ftr1", Some(2), "scrB", Some(0), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB1 = Scenario(List[String](), "ftr1", Some(2), "scrB", Some(1), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
-    val scrB2 = Scenario(List[String](), "ftr1", Some(2), "scrB", Some(2), Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrC = Scenario(List[String](), "ftr1", Some(3), "scrC", None, Set[String]("A"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scrB0x = Scenario(List[String](), "ftr1", Some(2), "scrB", Some(0), Set[String]("B"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scrB1x = Scenario(List[String](), "ftr1", Some(2), "scrB", Some(1), Set[String]("B"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val groupCollectionDiff: Map[Group, GroupDiff] = diff.GroupCollectionDiff(
-      GroupScenarios(Seq(scrA, scrB0, scrB1, scrB2)),
-      GroupScenarios(Seq(scrA, scrB0, scrB1x, scrB2))
+      GroupScenarios(Seq(scrA, scrB0, scrB1, scrC)),
+      GroupScenarios(Seq(scrA, scrB0x, scrB1x, scrC))
     )
 
     val expectedResult: String =
       """Group  unchanged  moved only  changed more  added  removed
         |––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-        |Total          3           0             1      0        0
-        |- ftr1         3           0             1      0        0
-        |- A            2           0             0      0        1
-        |- B            0           0             0      1        0""".stripMargin
+        |Total          2           0             2      0        0
+        |- ftr1         2           0             2      0        0
+        |- A            1           0             0      0        2
+        |- B            0           0             0      2        0""".stripMargin
 
     CountScenarios.reportDiffCountsInPrettyPrint(groupCollectionDiff) should equal(expectedResult)
   }
