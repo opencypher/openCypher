@@ -29,8 +29,11 @@ package org.opencypher.tools.tck.inspection.browser.web
 
 import org.opencypher.tools.tck.api.Pickle
 import org.opencypher.tools.tck.api.Scenario
+import org.opencypher.tools.tck.api.groups.ExampleItem
 import org.opencypher.tools.tck.api.groups.Group
 import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
+import org.opencypher.tools.tck.api.groups.ScenarioItem
+import org.opencypher.tools.tck.api.groups.ScenarioOutline
 import scalatags.Text
 import scalatags.Text.all._
 
@@ -46,7 +49,11 @@ case class BrowserPages(browserModel: BrowserModel, browserRoutes: BrowserRoutes
   }
 
   def browserCountsFrag(counts: Map[Group, Seq[Scenario]]): Text.TypedTag[String] = {
-    val groupSequence = OrderGroupsDepthFirst(counts.keySet)
+    val groupsFiltered = counts.keySet filter {
+      case _:ScenarioItem | _:ScenarioOutline | _:ExampleItem => false
+      case _ => true
+    }
+    val groupSequence = OrderGroupsDepthFirst(groupsFiltered)
     val totalCount = counts.get(groupSequence.head).map(_.size).getOrElse(Int.MaxValue)
 
     val tableRows = groupSequence.map( group =>
