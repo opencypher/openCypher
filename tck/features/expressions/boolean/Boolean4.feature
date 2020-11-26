@@ -57,9 +57,53 @@ Feature: Boolean4 - NOT logical operations
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
     Examples:
-      | literal       |
-      | 123           |
-      | 123.4         |
-      | 'foo'         |
-    # | [true, false] | current Neo4j return true on an empty list and false on any other list
-      | {bool: true}  |
+      | literal          |
+      | 0                |
+      | 1                |
+      | 123              |
+      | 123.4            |
+      | ''               |
+      | 'false'          |
+      | 'true'           |
+      | 'foo'            |
+      | []               |
+      | [null]           |
+      | [true]           |
+      | [false]          |
+      | [true, false]    |
+      | [false, true]    |
+      | [0]              |
+      | [1]              |
+      | [1, 2, 3]        |
+      | [0.0]            |
+      | [1.0]            |
+      | [1.0, 2.1]       |
+      | ['']             |
+      | ['', '']         |
+      | ['true']         |
+      | ['false']        |
+      | ['a', 'b']       |
+      | {}               |
+      | {``: null}       |
+      | {a: null}        |
+      | {``: true}       |
+      | {``: false}      |
+      | {true: true}     |
+      | {false: false}   |
+      | {bool: true}     |
+      | {bool: false}    |
+      | {``: 0}          |
+      | {``: 1}          |
+      | {a: 0}           |
+      | {a: 1}           |
+      | {a: 1, b: 2}     |
+      | {``: 0.0}        |
+      | {``: 1.0}        |
+      | {a: 0.0}         |
+      | {a: 1.0}         |
+      | {a: 1.0, b: 2.1} |
+      | {``: ''}         |
+      | {a: ''}          |
+      | {a: 'a'}         |
+      | {a: 'a', b: 'b'} |
+      | {a: 12, b: true} |
