@@ -44,7 +44,7 @@ object validateDuplicateNames extends (io.cucumber.scala.Scenario => Option[Stri
     val scenarioNames = scenarioNamesByFeature.getOrElseUpdate(scenario.getUri, scala.collection.mutable.HashMap[String, List[Int]]())
     val lineNumbers = scenarioNames.getOrElseUpdate(scenario.getName, List[Int]())
     // this is not very stable, but this only indicator we currently have for scenario from scenario outlines
-    if (lineNumbers.isEmpty || lineNumbers.exists(lineNumber => Math.abs(scenario.getLine - lineNumber) == 1)) {
+    if (lineNumbers.isEmpty || lineNumbers.exists(lineNumber => Math.abs(scenario.getLine - lineNumber) == 3)) {
       scenarioNames.update(scenario.getName, scenario.getLine :: lineNumbers)
       None
     } else {
