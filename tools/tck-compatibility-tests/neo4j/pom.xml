@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.opencypher</groupId>
+        <artifactId>tck-compatibility</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>neo4j_2.12</artifactId>
+    <name>openCypher TCK Compatibility Test for Neo4j</name>
+    <url>http://opencypher.org</url>
+    <description>Running openCypher TCK scenarios on Neo4j</description>
+
+    <properties>
+        <project.rootdir>${project.basedir}/../../..</project.rootdir>
+        <default.jupiter.test.mode>concurrent</default.jupiter.test.mode>
+        <default.jupiter.classes.test.mode>concurrent</default.jupiter.classes.test.mode>
+        <forkCounts>2C</forkCounts>
+    </properties>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest-maven-plugin</artifactId>
+                <configuration>
+                    <parallel>true</parallel>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+        </dependency>
+
+        <!-- Test deps -->
+
+        <dependency>
+            <groupId>org.opencypher</groupId>
+            <artifactId>tck-api_${scala.binary.version}</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.opencypher</groupId>
+            <artifactId>util_${scala.binary.version}</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.opencypher</groupId>
+            <artifactId>tck</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.binary.version}</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>co.helmethair</groupId>
+            <artifactId>scalatest-junit-runner</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-cypher-compatibility-spec-suite</artifactId>
+            <version>${dep.neo4j.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-cypher-spec-suite-tools</artifactId>
+            <version>${dep.neo4j.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j.community</groupId>
+            <artifactId>it-test-support</artifactId>
+            <version>${dep.neo4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+
+</project>
