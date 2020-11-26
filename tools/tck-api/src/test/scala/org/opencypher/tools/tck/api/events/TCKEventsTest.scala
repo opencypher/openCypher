@@ -55,7 +55,7 @@ class TCKEventsTest extends AnyFunSuite with Assertions with Matchers {
     TCKEvents.reset()
 
     events.toList should equal(List[String](
-      "Feature 'List6 - List Size' read",
+      "Feature 'List6 - List size' read",
       "Scenario 'Return list size' started",
       "Step 'Execute -> any graph' started",
       "Step 'Execute' finished. Result: <empty result>",
@@ -67,7 +67,7 @@ class TCKEventsTest extends AnyFunSuite with Assertions with Matchers {
       "Step 'ExpectResult' finished. Result: | n |" + System.lineSeparator + "| 3 |",
       "Step 'SideEffects -> no side effects' started",
       "Step 'SideEffects' finished. Result: | n |" + System.lineSeparator + "| 3 |"
-    )
+    ))
   }
 
   private object FakeGraph extends Graph with ProcedureSupport {
