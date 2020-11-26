@@ -66,7 +66,7 @@ class TCKEventsTest extends AnyFunSuite with Assertions with Matchers {
       "Step 'ExpectResult' finished. Result: | n |" + System.lineSeparator + "| 3 |",
       "Step 'SideEffects -> no side effects' started",
       "Step 'SideEffects' finished. Result: | n |" + System.lineSeparator + "| 3 |"
-    ))
+    )
   }
 
   private object FakeGraph extends Graph with ProcedureSupport {
