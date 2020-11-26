@@ -30,6 +30,7 @@ package org.opencypher.tools.tck.api.groups
 import java.net.URI
 import java.util
 
+import io.cucumber.core.gherkin.Pickle
 import org.opencypher.tools.tck.api.Dummy
 import org.opencypher.tools.tck.api.Measure
 import org.opencypher.tools.tck.api.Scenario
@@ -275,7 +276,7 @@ class GroupScenariosTest extends AnyFunSpec with Matchers with Inspectors with I
   }
 
   private def createScenario(categories: List[String], featureName: String, number: Int, name: String, index: Option[Int], tags: Set[String]) = {
-    val dummyPickle = new io.cucumber.core.gherkin.Pickle() {
+    val dummyPickle: Pickle = new io.cucumber.core.gherkin.Pickle() {
       override val getKeyword: String = ""
 
       override val getLanguage: String = "EN"
