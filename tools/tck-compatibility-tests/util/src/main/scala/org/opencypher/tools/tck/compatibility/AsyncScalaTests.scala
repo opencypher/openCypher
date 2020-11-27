@@ -31,10 +31,10 @@ import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.groups.ContainerGroup
 import org.opencypher.tools.tck.api.groups.Group
 import org.opencypher.tools.tck.api.groups.Item
+import org.opencypher.tools.tck.api.groups.Tag
 import org.opencypher.tools.tck.api.groups.TckTree
 import org.opencypher.tools.tck.api.groups.Total
 import org.scalatest.ParallelTestExecution
-import org.scalatest.Tag
 import org.scalatest.funspec.AsyncFunSpec
 
 import scala.concurrent.Future
@@ -44,12 +44,13 @@ trait AsyncScalaTests extends AsyncFunSpec with ParallelTestExecution {
   def create(scenarios: Seq[Scenario], exec: Scenario => Unit): Unit = {
     implicit val tck: TckTree = TckTree(scenarios)
 
-    def tagSeq(item: Item): Seq[Tag] = item.scenario.tags.map(t => Tag(t)).toSeq
+    def tagSeq(item: Item): Seq[org.scalatest.Tag] = item.scenario.tags.map(t => org.scalatest.Tag(t)).toSeq
 
     def spawnTests(currentGroup: Group): Unit = {
       currentGroup match {
         case Total =>
           Total.children.foreach(spawnTests)
+        case _: Tag => Unit // do not execute scenarios via tags, would be redundant
         case g: ContainerGroup =>
           describe(g.description) {
             g.children.foreach(spawnTests)
