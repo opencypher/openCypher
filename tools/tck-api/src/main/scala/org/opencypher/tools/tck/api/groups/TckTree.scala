@@ -29,20 +29,107 @@ package org.opencypher.tools.tck.api.groups
 
 import org.opencypher.tools.tck.api.Scenario
 
-case class TckTree(scenarios: Seq[Scenario]) {
-  lazy val groupedScenarios: Map[Group, Seq[Scenario]] = GroupScenarios(scenarios)
-  lazy val groups: Set[Group] = groupedScenarios.keySet
-  lazy val groupChildren: Map[Group, Seq[Group]] = {
-    val containerGroups = groups filter {
-      case _:ContainerGroup => true
-      case _ => false
+case class TckTree(override val groups: Set[Group]) extends GroupTreeBasics {
+
+  lazy val groupedScenarios: Map[Group, Set[Scenario]] = {
+    def collectScenario(group: Group): Map[Group, Set[Scenario]] = {
+      group match {
+        case i: Item => Map(i -> Set(i.scenario))
+        case g =>
+          val children = groupChildren(g).flatMap(collectScenario).toMap
+          Map(g -> children.values.flatten.toSet) ++ children
+      }
     }
-    val parentChildrenPairs = containerGroups.map(
-      pg => (pg, (groups filter {
-        case cg: ContainedGroup if cg.parentGroup == pg => true
-        case _ => false
-      }).toSeq.sorted)
-    )
-    parentChildrenPairs.toMap
+    collectScenario(Total)
+  }
+
+  lazy val groupSizes: Map[Group, Int] = {
+    def countScenario(group: Group): Map[Group, Int] = {
+      group match {
+        case i:Item => Map(i -> 1)
+        case g =>
+          val children = groupChildren(g).flatMap(countScenario).toMap
+          Map(g -> children.values.sum) ++ children
+      }
+    }
+    countScenario(Total)
+  }
+
+  /**
+   * Filters group hierarchically. If a group does not pass the filter, all its child group are removed, too.
+   * @param filter filter function
+   * @return
+   */
+  def filter(filter: Group => Boolean): TckTree = {
+    def collectGroups(currentGroup: Group): Set[Group] = {
+      if(filter(currentGroup)) {
+        groupChildren(currentGroup).flatMap(collectGroups)
+      } else {
+        Set[Group]()
+      }
+    }
+
+    TckTree(collectGroups(Total))
+  }
+}
+
+object TckTree {
+  def apply(scenarios: Seq[Scenario]): TckTree = TckTree({
+      val allGroups: Set[Group] = scenarios.flatMap(scenario => {
+        // category
+        def mapToCategoryGroups(categories: List[String], parent: ContainerGroup): Seq[ContainerGroup] = {
+          categories match {
+            case Nil => Seq[ContainerGroup]()
+            case category :: remainingCategories =>
+              val categoryGroup = ScenarioCategory(category, parent)
+              categoryGroup +: mapToCategoryGroups(remainingCategories, categoryGroup)
+          }
+        }
+        val categoryGroups: Seq[ContainerGroup] = mapToCategoryGroups(scenario.categories, Total)
+
+        // feature
+        val feature: Feature = {
+          Feature(scenario.featureName, categoryGroups.lastOption.getOrElse(Total))
+        }
+
+        // tags
+        val tagGroups = scenario.tags.map(tag => Tag(tag)).toSeq
+
+        val tagsAndFeature: Seq[ScenarioContainer] = tagGroups :+ feature
+
+        // scenario outline
+        val outline: Seq[Group] = tagsAndFeature.flatMap(parent =>
+          scenario.exampleIndex.
+            map(i => {
+              val o = ScenarioOutline(scenario.number, scenario.name, parent)
+              val e = ExampleItem(i, scenario, o)
+              Seq[Group](o, e)
+            }).getOrElse(Seq[Group](ScenarioItem(scenario, parent)))
+        )
+
+        //putting all together
+        Total +: (categoryGroups ++ outline ++ tagsAndFeature)
+      }).toSet
+
+      allGroups
+    })
+}
+
+trait GroupTreeBasics {
+  def groups: Set[Group]
+
+  lazy val groupsOrderedDepthFirst: Seq[Group] = {
+    def orderDepthFirst(currentGroup: Group): Seq[Group] =
+      currentGroup +: groupChildren(currentGroup).toSeq.sorted.flatMap(orderDepthFirst)
+
+    orderDepthFirst(Total)
+  }
+
+  lazy val groupChildren: Map[Group, Set[Group]] = {
+    val containerGroups = groups.collect {
+      case cg: ContainedGroup => cg
+    }.groupBy(_.parentGroup).asInstanceOf[Map[Group, Set[Group]]]
+
+    groups.map(g => g -> containerGroups.getOrElse(g, Set.empty[Group])).toMap
   }
 }
