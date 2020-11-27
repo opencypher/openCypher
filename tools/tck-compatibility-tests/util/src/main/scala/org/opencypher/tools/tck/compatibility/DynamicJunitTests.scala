@@ -37,6 +37,7 @@ import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.groups.ContainerGroup
 import org.opencypher.tools.tck.api.groups.Group
 import org.opencypher.tools.tck.api.groups.Item
+import org.opencypher.tools.tck.api.groups.Tag
 import org.opencypher.tools.tck.api.groups.TckTree
 import org.opencypher.tools.tck.api.groups.Total
 
@@ -50,7 +51,8 @@ trait DynamicJunitTests {
     def spawnTests(currentGroup: Group): Seq[DynamicNode] = {
       currentGroup match {
         case Total =>
-          Total.children.flatMap(g => spawnTests(g))
+          Total.children.toSeq.sorted.flatMap(g => spawnTests(g))
+        case _: Tag => Seq.empty[DynamicNode]
         case g: ContainerGroup =>
           Seq(DynamicContainer.dynamicContainer(
             g.description,
