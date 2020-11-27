@@ -29,7 +29,42 @@ package org.opencypher.tools.tck.api.groups
 
 import org.opencypher.tools.tck.api.Scenario
 
-case class TckTree(override val groups: Set[Group]) extends GroupTreeBasics {
+case class TckTree(scenarios: Seq[Scenario]) extends GroupTreeBasics {
+  lazy val groups: Set[Group] = scenarios.flatMap(scenario => {
+    // category
+    def mapToCategoryGroups(categories: List[String], parent: ContainerGroup): Seq[ContainerGroup] = {
+      categories match {
+        case Nil => Seq[ContainerGroup]()
+        case category :: remainingCategories =>
+          val categoryGroup = ScenarioCategory(category, parent)
+          categoryGroup +: mapToCategoryGroups(remainingCategories, categoryGroup)
+      }
+    }
+    val categoryGroups: Seq[ContainerGroup] = mapToCategoryGroups(scenario.categories, Total)
+
+    // feature
+    val feature: Feature = {
+      Feature(scenario.featureName, categoryGroups.lastOption.getOrElse(Total))
+    }
+
+    // tags
+    val tagGroups = scenario.tags.map(tag => Tag(tag)).toSeq
+
+    val tagsAndFeature: Seq[ScenarioContainer] = tagGroups :+ feature
+
+    // scenario outline
+    val outline: Seq[Group] = tagsAndFeature.flatMap(parent =>
+      scenario.exampleIndex.
+        map(i => {
+          val o = ScenarioOutline(scenario.number, scenario.name, parent)
+          val e = ExampleItem(i, scenario, o)
+          Seq[Group](o, e)
+        }).getOrElse(Seq[Group](ScenarioItem(scenario, parent)))
+    )
+
+    //putting all together
+    Total +: (categoryGroups ++ outline ++ tagsAndFeature)
+  }).toSet
 
   lazy val groupedScenarios: Map[Group, Set[Scenario]] = {
     def collectScenario(group: Group): Map[Group, Set[Scenario]] = {
@@ -55,64 +90,11 @@ case class TckTree(override val groups: Set[Group]) extends GroupTreeBasics {
     countScenario(Total)
   }
 
-  /**
-   * Filters group hierarchically. If a group does not pass the filter, all its child group are removed, too.
-   * @param filter filter function
-   * @return
-   */
-  def filter(filter: Group => Boolean): TckTree = {
-    def collectGroups(currentGroup: Group): Set[Group] = {
-      if(filter(currentGroup)) {
-        groupChildren(currentGroup).flatMap(collectGroups)
-      } else {
-        Set[Group]()
-      }
-    }
-
-    TckTree(collectGroups(Total))
-  }
+  def filter(filter: Group => Boolean): TckTree = TckTree(groups.filter(filter).flatMap(groupedScenarios))
 }
 
 object TckTree {
-  def apply(scenarios: Seq[Scenario]): TckTree = TckTree({
-      val allGroups: Set[Group] = scenarios.flatMap(scenario => {
-        // category
-        def mapToCategoryGroups(categories: List[String], parent: ContainerGroup): Seq[ContainerGroup] = {
-          categories match {
-            case Nil => Seq[ContainerGroup]()
-            case category :: remainingCategories =>
-              val categoryGroup = ScenarioCategory(category, parent)
-              categoryGroup +: mapToCategoryGroups(remainingCategories, categoryGroup)
-          }
-        }
-        val categoryGroups: Seq[ContainerGroup] = mapToCategoryGroups(scenario.categories, Total)
-
-        // feature
-        val feature: Feature = {
-          Feature(scenario.featureName, categoryGroups.lastOption.getOrElse(Total))
-        }
-
-        // tags
-        val tagGroups = scenario.tags.map(tag => Tag(tag)).toSeq
-
-        val tagsAndFeature: Seq[ScenarioContainer] = tagGroups :+ feature
-
-        // scenario outline
-        val outline: Seq[Group] = tagsAndFeature.flatMap(parent =>
-          scenario.exampleIndex.
-            map(i => {
-              val o = ScenarioOutline(scenario.number, scenario.name, parent)
-              val e = ExampleItem(i, scenario, o)
-              Seq[Group](o, e)
-            }).getOrElse(Seq[Group](ScenarioItem(scenario, parent)))
-        )
-
-        //putting all together
-        Total +: (categoryGroups ++ outline ++ tagsAndFeature)
-      }).toSet
-
-      allGroups
-    })
+  def apply(scenarios: Set[Scenario]): TckTree = TckTree(scenarios.toSeq)
 }
 
 trait GroupTreeBasics {
