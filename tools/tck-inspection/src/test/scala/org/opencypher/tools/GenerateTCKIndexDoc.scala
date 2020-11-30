@@ -32,9 +32,7 @@ import java.nio.file.Paths
 
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.groups.Feature
-import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
 import org.opencypher.tools.tck.api.groups.ScenarioCategory
-import org.opencypher.tools.tck.api.groups.Tag
 import org.opencypher.tools.tck.api.groups.TckTree
 import org.opencypher.tools.tck.api.groups.Total
 import org.scalatest.funsuite.AnyFunSuite
