@@ -34,19 +34,19 @@ import org.opencypher.tools.tck.api.Dummy
 import org.opencypher.tools.tck.api.Measure
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.Step
-import org.opencypher.tools.tck.api.groups.GroupScenarios
 import org.opencypher.tools.tck.api.groups.Feature
 import org.opencypher.tools.tck.api.groups.Group
 import org.opencypher.tools.tck.api.groups.ScenarioCategory
 import org.opencypher.tools.tck.api.groups.ScenarioOutline
 import org.opencypher.tools.tck.api.groups.Tag
+import org.opencypher.tools.tck.api.groups.TckTree
 import org.opencypher.tools.tck.api.groups.Total
 import org.opencypher.tools.tck.inspection.diff
 import org.opencypher.tools.tck.inspection.diff.ScenarioDiffTag._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
-class GroupCollectionDiffTest extends AnyFunSuite with Matchers {
+class TckTreeDiffTest extends AnyFunSuite with Matchers {
   private val dummyPickle = new io.cucumber.core.gherkin.Pickle() {
     override def getKeyword: String = ""
 
@@ -107,15 +107,15 @@ class GroupCollectionDiffTest extends AnyFunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", Some(2), "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA, scrB)
-    val collectBefore = GroupScenarios(scenariosBefore)
-    val collectAfter = GroupScenarios(scenariosAfter)
+    val collectBefore = TckTree(scenariosBefore)
+    val collectAfter = TckTree(scenariosAfter)
 
     val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Seq(scrB), Seq(scrA, scrB)),
       Feature("ftr1", Total) -> GroupDiff(Seq(scrB), Seq(scrA, scrB)),
     )
 
-    GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    TckTreeDiff(collectBefore, collectAfter).diffs should equal(expectedResult)
   }
 
   test("Diff with one scenario removed from the same top-level feature without tags") {
@@ -123,15 +123,15 @@ class GroupCollectionDiffTest extends AnyFunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", Some(2), "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrB)
-    val collectBefore = GroupScenarios(scenariosBefore)
-    val collectAfter = GroupScenarios(scenariosAfter)
+    val collectBefore = TckTree(scenariosBefore)
+    val collectAfter = TckTree(scenariosAfter)
 
     val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Seq(scrA, scrB), Seq(scrB)),
       Feature("ftr1", Total) -> GroupDiff(Seq(scrA, scrB), Seq(scrB)),
     )
 
-    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    TckTreeDiff(collectBefore, collectAfter).diffs should equal(expectedResult)
   }
 
   test("Diff with one scenario moved to another top-level feature without tags") {
@@ -140,8 +140,8 @@ class GroupCollectionDiffTest extends AnyFunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", Some(2), "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
-    val collectBefore = GroupScenarios(scenariosBefore)
-    val collectAfter = GroupScenarios(scenariosAfter)
+    val collectBefore = TckTree(scenariosBefore)
+    val collectAfter = TckTree(scenariosAfter)
 
     val scrA1scrA2Diff = ScenarioDiff(scrA1, scrA2)
     scrA1scrA2Diff.diffTags should equal(Set(Moved))
@@ -152,7 +152,7 @@ class GroupCollectionDiffTest extends AnyFunSuite with Matchers {
       Feature("ftr2", Total) -> GroupDiff(Seq(), Seq(scrA2)),
     )
 
-    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    TckTreeDiff(collectBefore, collectAfter).diffs should equal(expectedResult)
   }
 
   test("Diff with one scenario moved to another sub-level feature without tags") {
@@ -161,8 +161,8 @@ class GroupCollectionDiffTest extends AnyFunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", Some(2), "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
-    val collectBefore = GroupScenarios(scenariosBefore)
-    val collectAfter = GroupScenarios(scenariosAfter)
+    val collectBefore = TckTree(scenariosBefore)
+    val collectAfter = TckTree(scenariosAfter)
 
     val scrA1scrA2Diff = ScenarioDiff(scrA1, scrA2)
     scrA1scrA2Diff.diffTags should equal(Set(Moved))
@@ -174,7 +174,8 @@ class GroupCollectionDiffTest extends AnyFunSuite with Matchers {
       catX -> GroupDiff(Seq(), Seq(scrA2)),
       Feature("ftr2", catX) -> GroupDiff(Seq(), Seq(scrA2)),
     )
-    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+
+    TckTreeDiff(collectBefore, collectAfter).diffs should equal(expectedResult)
   }
 
   test("Diff with one scenario moved to another top-level feature and a changed tag") {
@@ -184,8 +185,8 @@ class GroupCollectionDiffTest extends AnyFunSuite with Matchers {
     val scrB2 = Scenario(List[String](), "ftr1", Some(2), "scrB", None, Set[String]("B"), List[Step](dummyStep("B")), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB1)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB2)
-    val collectBefore = GroupScenarios(scenariosBefore)
-    val collectAfter = GroupScenarios(scenariosAfter)
+    val collectBefore = TckTree(scenariosBefore)
+    val collectAfter = TckTree(scenariosAfter)
 
     val scrA1scrA2Diff = ScenarioDiff(scrA1, scrA2)
     scrA1scrA2Diff.diffTags should equal(Set(Moved))
@@ -200,7 +201,7 @@ class GroupCollectionDiffTest extends AnyFunSuite with Matchers {
       Tag("B") -> GroupDiff(Seq(), Seq(scrB2)),
     )
 
-    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    TckTreeDiff(collectBefore, collectAfter).diffs should equal(expectedResult)
   }
 
   test("Diff with two scenarios from an outline in a top-level feature have a changed tags") {
@@ -212,8 +213,8 @@ class GroupCollectionDiffTest extends AnyFunSuite with Matchers {
     val scrB1x = Scenario(List[String](), "ftr1", Some(2), "scrB", Some(1), Set[String]("B"), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA, scrB0, scrB1, scrC)
     val scenariosAfter: Seq[Scenario] = Seq(scrA, scrB0x, scrB1x, scrC)
-    val collectBefore = GroupScenarios(scenariosBefore)
-    val collectAfter = GroupScenarios(scenariosAfter)
+    val collectBefore = TckTree(scenariosBefore)
+    val collectAfter = TckTree(scenariosAfter)
 
     val scrB1scrB1xDiff = ScenarioDiff(scrB1, scrB1x)
     scrB1scrB1xDiff.diffTags should equal(Set(Retagged))
@@ -223,12 +224,11 @@ class GroupCollectionDiffTest extends AnyFunSuite with Matchers {
     val expectedResult = Map[Group, GroupDiff](
       Total -> GroupDiff(Seq(scrA, scrB0, scrB1, scrC), Seq(scrA, scrB0x, scrB1x, scrC)),
       Feature("ftr1", Total) -> GroupDiff(Seq(scrA, scrB0, scrB1, scrC), Seq(scrA, scrB0x, scrB1x, scrC)),
-      ScenarioOutline(Some(2), "scrB", Feature("ftr1", Total)) -> GroupDiff(Seq(scrB0, scrB1), Seq(scrB0x, scrB1x)),
       Tag("A") -> GroupDiff(Seq(scrB0, scrB1, scrC), Seq(scrC)),
       Tag("B") -> GroupDiff(Seq(), Seq(scrB0x, scrB1x)),
     )
 
-    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    TckTreeDiff(collectBefore, collectAfter).diffs should equal(expectedResult)
   }
 
   test("Diff with one scenario changed in categories, tags, and content of steps") {
@@ -239,8 +239,8 @@ class GroupCollectionDiffTest extends AnyFunSuite with Matchers {
     val scrB = Scenario(List[String](), "ftr1", Some(2), "scrB", None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
     val scenariosBefore: Seq[Scenario] = Seq(scrA1, scrB)
     val scenariosAfter: Seq[Scenario] = Seq(scrA2, scrB)
-    val collectBefore = GroupScenarios(scenariosBefore)
-    val collectAfter = GroupScenarios(scenariosAfter)
+    val collectBefore = TckTree(scenariosBefore)
+    val collectAfter = TckTree(scenariosAfter)
 
     val scrA1scrA2Diff = ScenarioDiff(scrA1, scrA2)
     scrA1scrA2Diff.diffTags should equal(Set(Moved, Retagged, StepsChanged))
@@ -253,7 +253,7 @@ class GroupCollectionDiffTest extends AnyFunSuite with Matchers {
       Tag("X") -> GroupDiff(Seq(), Seq(scrA2)),
     )
 
-    diff.GroupCollectionDiff(collectBefore, collectAfter) should equal(expectedResult)
+    TckTreeDiff(collectBefore, collectAfter).diffs should equal(expectedResult)
   }
 
 }

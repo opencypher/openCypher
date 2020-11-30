@@ -74,7 +74,7 @@ case class BrowserRoutes()(implicit val log: cask.Logger) extends cask.Routes wi
   def listScenarios(pathEnc: String, groupId: Int): String = secureBrowserPage(
     pathEnc = pathEnc,
     pageFrag = browserPages => securedGroupPage(browserPages, groupId, group => browserPages.listScenariosPage(
-      scenarios = group => browserPages.browserModel.counts.get(group),
+      scenarios = group => browserPages.browserModel.tckTree.groupedScenarios.get(group),
       group = group,
       kind = None,
       showSingleScenarioURL = scenario => showSingleScenarioURL(browserPages, scenario),

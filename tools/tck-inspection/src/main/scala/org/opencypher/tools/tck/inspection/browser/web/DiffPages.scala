@@ -29,16 +29,12 @@ package org.opencypher.tools.tck.inspection.browser.web
 
 import org.opencypher.tools.tck.api.Pickle
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.groups.ExampleItem
 import org.opencypher.tools.tck.api.groups.Group
-import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
-import org.opencypher.tools.tck.api.groups.ScenarioItem
-import org.opencypher.tools.tck.api.groups.ScenarioOutline
 import org.opencypher.tools.tck.inspection.diff.Diff
 import org.opencypher.tools.tck.inspection.diff.ElementDiff
 import org.opencypher.tools.tck.inspection.diff.ElementaryDiffTag._
-import org.opencypher.tools.tck.inspection.diff.GroupDiff
 import org.opencypher.tools.tck.inspection.diff.ScenarioDiff
+import org.opencypher.tools.tck.inspection.diff.TckTreeDiff
 import org.opencypher.tools.tck.inspection.diff.Tuple2Diff
 import scalatags.Text
 import scalatags.Text.all._
@@ -53,29 +49,25 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
         div(span(CSS.tckCollection)(AfterCollection.toString), code(diffModel.afterPath))
       ),
       sectionTitle("Counts"),
-      diffCountsFrag(diffModel.diffs, diffModel.before, diffModel.after)
+      diffCountsFrag(diffModel.tckTreeDiff)
     )
   }
 
-  def diffCountsFrag(diffs: Map[Group, GroupDiff], before: Map[Group, Seq[Scenario]], after: Map[Group, Seq[Scenario]]): Text.TypedTag[String] = {
-    val groupsFiltered = diffs.keySet filter {
-      case _:ScenarioItem | _:ScenarioOutline | _:ExampleItem => false
-      case _ => true
-    }
-    val groupSequence = OrderGroupsDepthFirst(groupsFiltered)
-
-    val tableRows = groupSequence.map( group => {
-      val currentDiff = diffs.get(group)
+  def diffCountsFrag(tckTreeDiff: TckTreeDiff): Text.TypedTag[String] = {
+    val tableRows = tckTreeDiff.groupsOrderedDepthFirst.map( group => {
+      val currentDiff = tckTreeDiff.diffs.get(group)
       tr(
         td(textIndent:=group.indent.em)(
           group.name
         ),
         td(),
-        td(textAlign.right)(
-          before.get(group).map(col =>
-            a(href:=diffRoutes.listBeforeScenariosURL(this, group))(col.size)
-          ).getOrElse("-")
-        ),
+        td(textAlign.right)({
+          val size = tckTreeDiff.before.groupedScenarios.get(group).map(_.size).getOrElse(0)
+          if (size > 0)
+            a(href := diffRoutes.listBeforeScenariosURL(this, group))(size)
+          else
+            "-"
+        }),
         td(),
         td(textAlign.right)({
           val size = currentDiff.map(_.unchangedScenarios.size).getOrElse(0)
@@ -117,11 +109,13 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
             "-"
         }),
         td(),
-        td(textAlign.right)(
-          after.get(group).map(col =>
-            a(href:=diffRoutes.listAfterScenariosURL(this, group))(col.size)
-          ).getOrElse("-")
-        ),
+        td(textAlign.right)({
+          val size = tckTreeDiff.after.groupedScenarios.get(group).map(_.size).getOrElse(0)
+          if (size > 0)
+            a(href := diffRoutes.listAfterScenariosURL(this, group))(size)
+          else
+            "-"
+        }),
         td(),
       )
     })
@@ -151,8 +145,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
   }
 
   def listMovedScenarios(group: Group): Text.TypedTag[String] = {
-    val diffs =
-      diffModel.diffs.get(group).map(_.movedScenarios).getOrElse(Set.empty[ScenarioDiff])
+    val diffs = diffModel.tckTreeDiff.diffs(group).movedScenarios
     val byScenario = diffs.toSeq.sortBy(d => d.before.toString + d.after.toString)
     val byLocation = diffs.groupBy {
       case ScenarioDiff(before, after) => before.categories.mkString("/")+"/"+before.featureName+">>>"+after.categories.mkString("/")+"/"+after.featureName
@@ -218,10 +211,8 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
   }
 
   def listChangedScenarios(group: Group): Text.TypedTag[String] = {
-    val diffs =
-      diffModel.diffs.get(group).map(_.changedScenarios).getOrElse(
-        Set.empty[ScenarioDiff]
-      ).toSeq.sortBy(d => d.before.toString + d.after.toString)
+    val diffs = diffModel.tckTreeDiff.diffs(group).changedScenarios.toSeq.sortBy(d => d.before.toString + d.after.toString)
+
     page(
       pageTitle(diffs.size, " scenario(s) changed in group ", i(group.toString)),
       ul(

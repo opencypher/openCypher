@@ -29,16 +29,19 @@ package org.opencypher.tools.tck.inspection.diff
 
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.groups.ExampleItem
-import org.opencypher.tools.tck.api.groups.Group
+import org.opencypher.tools.tck.api.groups.GroupTreeBasics
 import org.opencypher.tools.tck.api.groups.ScenarioItem
+import org.opencypher.tools.tck.api.groups.ScenarioOutline
+import org.opencypher.tools.tck.api.groups.TckTree
 
-case object GroupCollectionDiff extends ((Map[Group, Seq[Scenario]], Map[Group, Seq[Scenario]]) => Map[Group, GroupDiff]) {
-  def apply(before: Map[Group, Seq[Scenario]],
-           after: Map[Group, Seq[Scenario]]): Map[Group, GroupDiff] = {
-    val allGroups = (before.keySet ++ after.keySet) filter {
-      case _:ScenarioItem | _:ExampleItem => false
-      case _ => true
-    }
-    allGroups.map(group => (group, GroupDiff(before.get(group), after.get(group)))).toMap
+case class TckTreeDiff(before: TckTree, after: TckTree) extends GroupTreeBasics {
+  override lazy val groups = (before.groups ++ after.groups) filter {
+    case _:ScenarioItem | _:ScenarioOutline | _:ExampleItem => false
+    case _ => true
   }
+
+  lazy val diffs =
+    groups.map(group =>
+      group -> GroupDiff(before.groupedScenarios.getOrElse(group, Set.empty[Scenario]), after.groupedScenarios.getOrElse(group, Set.empty[Scenario]))
+    ).toMap
 }
