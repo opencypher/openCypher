@@ -30,18 +30,11 @@ package org.opencypher.tools.tck.inspection.browser.cli
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.groups.ExampleItem
-import org.opencypher.tools.tck.api.groups.GroupScenarios
-import org.opencypher.tools.tck.api.groups.Feature
-import org.opencypher.tools.tck.api.groups.Group
-import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
-import org.opencypher.tools.tck.api.groups.ScenarioCategory
 import org.opencypher.tools.tck.api.groups.ScenarioItem
 import org.opencypher.tools.tck.api.groups.ScenarioOutline
-import org.opencypher.tools.tck.api.groups.Tag
-import org.opencypher.tools.tck.api.groups.Total
-import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
-import org.opencypher.tools.tck.inspection.diff.GroupDiff
+import org.opencypher.tools.tck.api.groups.TckTree
 import org.opencypher.tools.tck.inspection.diff.ScenarioDiff
+import org.opencypher.tools.tck.inspection.diff.TckTreeDiff
 
 /*
  * This is a tiny tool to count TCK scenarios in the list returned by `CypherTCK.allTckScenarios`.
@@ -51,16 +44,16 @@ import org.opencypher.tools.tck.inspection.diff.ScenarioDiff
 case object CountScenarios {
   def main(args: Array[String]): Unit = {
     if(args.length == 0) {
-      println(reportCountsInPrettyPrint(GroupScenarios(CypherTCK.allTckScenarios)))
+      println(reportCountsInPrettyPrint(TckTree(CypherTCK.allTckScenarios)))
     } else if(args.length == 1) {
-      println(reportCountsInPrettyPrint(GroupScenarios(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
+      println(reportCountsInPrettyPrint(TckTree(CypherTCK.allTckScenariosFromFilesystem(args(0)))))
     } else if(args.length == 2) {
       println(reportDiffCountsInPrettyPrint(
-        GroupCollectionDiff(
-          GroupScenarios(CypherTCK.allTckScenariosFromFilesystem(args(0))),
-          GroupScenarios(CypherTCK.allTckScenariosFromFilesystem(args(1))))
+        TckTreeDiff(
+          TckTree(CypherTCK.allTckScenariosFromFilesystem(args(0))),
+          TckTree(CypherTCK.allTckScenariosFromFilesystem(args(1)))
         )
-      )
+      ))
     }
   }
 
@@ -74,12 +67,11 @@ case object CountScenarios {
     duplicates
   }
 
-  def reportCountsInPrettyPrint(groups: Map[Group, Seq[Scenario]]): String = {
-    val groupsFiltered = groups.keySet filter {
+  def reportCountsInPrettyPrint(tckTree: TckTree): String = {
+    val groupsFiltered = tckTree.groupsOrderedDepthFirst filter {
       case _:ScenarioItem | _:ScenarioOutline | _:ExampleItem => false
       case _ => true
     }
-    val groupSequence = OrderGroupsDepthFirst(groupsFiltered)
 
     val outputs = groupsFiltered.map(group =>
       group -> (("| " * group.indent) + group.name)
@@ -87,12 +79,12 @@ case object CountScenarios {
     // maxOutputLength is needed to align the counts
     val maxOutputLength = outputs.values.map(_.length).max
 
-    val outputLines = groupSequence.map( group => {
+    val outputLines = groupsFiltered.map( group => {
       val thisOutput = outputs(group)
       val thisOutputLine = "%s%s%8d".format(
         thisOutput,
         " " * (maxOutputLength - thisOutput.length),
-        groups.getOrElse(group, Seq()).size
+        tckTree.groupedScenarios(group).size
       )
       thisOutputLine
     })
@@ -100,14 +92,10 @@ case object CountScenarios {
     outputLines.mkString(System.lineSeparator)
   }
 
-  def reportDiffCountsInPrettyPrint(diffs: Map[Group, GroupDiff]): String = {
-    val groupsFiltered = diffs.keySet filter {
-      case _:ScenarioItem | _:ScenarioOutline | _:ExampleItem => false
-      case _ => true
-    }
-    val groupSequence = OrderGroupsDepthFirst(groupsFiltered)
+  def reportDiffCountsInPrettyPrint(tckTreeDiff: TckTreeDiff): String = {
+    val groupSequence = tckTreeDiff.groupsOrderedDepthFirst
 
-    val outputs = groupsFiltered.map(group => group -> {
+    val outputs = groupSequence.map(group => group -> {
       ("  " * (group.indent - 1)) + ("- " * (if (group.indent > 0) 1 else 0)) + group.name
     }).toMap
     // maxOutputLength is needed to align the counts
@@ -118,11 +106,11 @@ case object CountScenarios {
       val thisOutputLine = "%s%s%10d%12d%14d%7d%9d".format(
         thisOutput,
         " " * (maxOutputLength - thisOutput.length),
-        diffs.get(group).map(_.unchangedScenarios.size).getOrElse(0),
-        diffs.get(group).map(_.movedScenarios.size).getOrElse(0),
-        diffs.get(group).map(_.changedScenarios.size).getOrElse(0),
-        diffs.get(group).map(_.addedScenarios.size).getOrElse(0),
-        diffs.get(group).map(_.removedScenarios.size).getOrElse(0)
+        tckTreeDiff.diffs(group).unchangedScenarios.size,
+        tckTreeDiff.diffs(group).movedScenarios.size,
+        tckTreeDiff.diffs(group).changedScenarios.size,
+        tckTreeDiff.diffs(group).addedScenarios.size,
+        tckTreeDiff.diffs(group).removedScenarios.size
       )
       thisOutputLine
     })
