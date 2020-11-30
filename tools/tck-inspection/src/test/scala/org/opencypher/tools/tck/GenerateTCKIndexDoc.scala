@@ -25,7 +25,7 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools
+package org.opencypher.tools.tck
 
 import java.nio.file.Files
 import java.nio.file.Paths
