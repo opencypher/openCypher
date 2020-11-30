@@ -78,18 +78,6 @@ case class TckTree(scenarios: Seq[Scenario]) extends GroupTreeBasics {
     collectScenario(Total)
   }
 
-  lazy val groupSizes: Map[Group, Int] = {
-    def countScenario(group: Group): Map[Group, Int] = {
-      group match {
-        case i:Item => Map(i -> 1)
-        case g =>
-          val children = groupChildren(g).flatMap(countScenario).toMap
-          Map(g -> children.values.sum) ++ children
-      }
-    }
-    countScenario(Total)
-  }
-
   def filter(filter: Group => Boolean): TckTree = TckTree(groups.filter(filter).flatMap(groupedScenarios))
 }
 
