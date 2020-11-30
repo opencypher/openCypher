@@ -29,11 +29,9 @@ package org.opencypher.tools.tck.inspection.browser.web
 
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.groups.GroupScenarios
-import org.opencypher.tools.tck.api.groups.Group
+import org.opencypher.tools.tck.api.groups.TckTree
 import org.opencypher.tools.tck.api.groups.Total
-import org.opencypher.tools.tck.inspection.diff.GroupCollectionDiff
-import org.opencypher.tools.tck.inspection.diff.GroupDiff
+import org.opencypher.tools.tck.inspection.diff.TckTreeDiff
 
 import scala.util.matching.Regex
 
@@ -51,32 +49,23 @@ object BothCollections extends TckCollection {
 
 case class DiffModel(beforePath: String, afterPath: String) {
 
-  //private val regexLeadingNumber: Regex = """[\[][0-9]+[\]][ ]""".r
-
-  //private val scenariosBeforeRaw = CypherTCK.allTckScenariosFromFilesystem(beforePath)
   private val scenariosBefore = CypherTCK.allTckScenariosFromFilesystem(beforePath)
-  //scenariosBeforeRaw.map(
-  //  s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
-  //)
-  //private val scenariosAfterRaw = CypherTCK.allTckScenariosFromFilesystem(afterPath)
+
   private val scenariosAfter = CypherTCK.allTckScenariosFromFilesystem(afterPath)
-  //scenariosAfterRaw.map(
-  //  s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
-  //)
 
-  val (before, after) = (GroupScenarios(scenariosBefore), GroupScenarios(scenariosAfter))
+  private val (before, after) = (TckTree(scenariosBefore), TckTree(scenariosAfter))
 
-  val diffs: Map[Group, GroupDiff] = GroupCollectionDiff(before, after)
+  val tckTreeDiff: TckTreeDiff = TckTreeDiff(before, after)
 
   val scenario2Collection: Map[Scenario, TckCollection] =
-    diffs(Total).unchangedScenarios.map(_ -> BothCollections).toMap ++
-      diffs(Total).movedScenarios.flatMap { case d => Map(d.before -> BeforeCollection, d.after -> AfterCollection) } ++
-      diffs(Total).changedScenarios.flatMap { case d => Map(d.before -> BeforeCollection, d.after -> AfterCollection) } ++
-      diffs(Total).addedScenarios.map(_ -> AfterCollection).toMap ++
-      diffs(Total).removedScenarios.map(_ -> BeforeCollection).toMap
+    tckTreeDiff.diffs(Total).unchangedScenarios.map(_ -> BothCollections).toMap ++
+      tckTreeDiff.diffs(Total).movedScenarios.flatMap { case d => Map(d.before -> BeforeCollection, d.after -> AfterCollection) } ++
+      tckTreeDiff.diffs(Total).changedScenarios.flatMap { case d => Map(d.before -> BeforeCollection, d.after -> AfterCollection) } ++
+      tckTreeDiff.diffs(Total).addedScenarios.map(_ -> AfterCollection).toMap ++
+      tckTreeDiff.diffs(Total).removedScenarios.map(_ -> BeforeCollection).toMap
 
   val (groupId2Group, group2GroupId) = {
-    val groupList = diffs.keySet.toIndexedSeq
+    val groupList = tckTreeDiff.groups.toIndexedSeq
     (groupList, groupList.zipWithIndex.map(p => (p._1, p._2)).toMap)
   }
 

@@ -30,10 +30,10 @@ package org.opencypher.tools.tck.inspection.browser.web
 import org.opencypher.tools.tck.api.Pickle
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.groups.ExampleItem
-import org.opencypher.tools.tck.api.groups.Group
-import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
 import org.opencypher.tools.tck.api.groups.ScenarioItem
 import org.opencypher.tools.tck.api.groups.ScenarioOutline
+import org.opencypher.tools.tck.api.groups.TckTree
+import org.opencypher.tools.tck.api.groups.Total
 import scalatags.Text
 import scalatags.Text.all._
 
@@ -44,34 +44,30 @@ case class BrowserPages(browserModel: BrowserModel, browserRoutes: BrowserRoutes
       pageTitle("Browse"),
       div(code(browserModel.path)),
       sectionTitle("Counts"),
-      browserCountsFrag(browserModel.counts)
+      browserCountsFrag(browserModel.tckTree)
     )
   }
 
-  def browserCountsFrag(counts: Map[Group, Seq[Scenario]]): Text.TypedTag[String] = {
-    val groupsFiltered = counts.keySet filter {
+  def browserCountsFrag(tckTree: TckTree): Text.TypedTag[String] = {
+    val groupsFiltered = tckTree.groupsOrderedDepthFirst filter {
       case _:ScenarioItem | _:ScenarioOutline | _:ExampleItem => false
       case _ => true
     }
-    val groupSequence = OrderGroupsDepthFirst(groupsFiltered)
-    val totalCount = counts.get(groupSequence.head).map(_.size).getOrElse(Int.MaxValue)
 
-    val tableRows = groupSequence.map( group =>
+    val totalCount = tckTree.groupedScenarios(Total).size
+
+    val tableRows = groupsFiltered.map( group =>
       tr(
         td(textIndent:=group.indent.em)(
           group.name
         ),
         td(textAlign.right)(
-          counts.get(group).map(col =>
-            a(href:=browserRoutes.listScenariosURL(this, group))(col.size)
-          ).getOrElse("-")
+          a(href:=browserRoutes.listScenariosURL(this, group))(tckTree.groupedScenarios(group).size)
         ),
-        td(textAlign.right)(
-          counts.get(group).map(col => {
-            val pct = (col.size * 100).toDouble / totalCount
-            frag(f"$pct%3.1f %%")
-          }).getOrElse("-")
-        )
+        td(textAlign.right)({
+          val pct = (tckTree.groupedScenarios(group).size * 100).toDouble / totalCount
+          frag(f"$pct%3.1f %%")
+        })
       )
     )
 

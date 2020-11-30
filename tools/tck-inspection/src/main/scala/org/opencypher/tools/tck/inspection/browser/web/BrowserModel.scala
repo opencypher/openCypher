@@ -30,30 +30,22 @@ package org.opencypher.tools.tck.inspection.browser.web
 import org.opencypher.tools.tck.api.CypherTCK
 import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.groups.Group
-import org.opencypher.tools.tck.api.groups.GroupScenarios
+import org.opencypher.tools.tck.api.groups.TckTree
 import org.opencypher.tools.tck.api.groups.Total
 
 import scala.util.matching.Regex
 
 case class BrowserModel(path: String) {
 
-  //private val regexLeadingNumber: Regex = """[\[][0-9]+[\]][ ]""".r
-
-  //private val scenariosRaw = CypherTCK.allTckScenariosFromFilesystem(path)
-  private val scenarios = CypherTCK.allTckScenariosFromFilesystem(path)
-  //scenariosRaw.map(
-  //  s => Scenario(s.categories, s.featureName, regexLeadingNumber.replaceFirstIn(s.name, ""), s.exampleIndex, s.tags, s.steps, s.source, s.sourceFile)
-  //)
-
-  val counts: Map[Group, Seq[Scenario]] = GroupScenarios(scenarios)
+  val tckTree: TckTree = TckTree(CypherTCK.allTckScenariosFromFilesystem(path))
 
   val (groupId2Group, group2GroupId) = {
-    val groupList = counts.keySet.toIndexedSeq
+    val groupList = tckTree.groups.toIndexedSeq
     (groupList, groupList.zipWithIndex.map(p => (p._1, p._2)).toMap)
   }
 
   val (scenarioId2Scenario, scenario2ScenarioId) = {
-    val scenarioList = counts(Total).toList.toIndexedSeq
-    (scenarioList, scenarioList.zipWithIndex.map(p => (p._1, p._2)).toMap)
+    val scenarioList = tckTree.groupedScenarios(Total).toIndexedSeq
+    (scenarioList, scenarioList.zipWithIndex.map(p => p._1 -> p._2).toMap)
   }
 }
