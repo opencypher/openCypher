@@ -49,7 +49,7 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
   }
 
   def invariants(tckTree: TckTree, scenarios: Seq[Scenario]) {
-    describe("should provide a map that contains every of original scenarios at least once") {
+    it("should provide a map that contains every of original scenarios at least once") {
       tckTree.groupedScenarios.values.flatten.toSet should equal(scenarios.toSet)
     }
     describe("should have consistent parent-child relationship, i.e.") {
@@ -334,6 +334,43 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
       )
 
       tckTree.groupsOrderedDepthFirst should equal(expected)
+    }
+
+    describe("when filtered out a category should result in a TckTree that") {
+      val tckTreeFiltered = tckTree filter {
+        case ScenarioCategory(n, _) if n == "b" => false
+        case _ => true
+      }
+
+      invariants(tckTreeFiltered, rand.shuffle(List(scrA, scrB)))
+
+      it("should provide the given map") {
+        val expected = Map(
+          Total -> Set(scrA, scrB),
+          ftr1 -> Set(scrB),
+          ScenarioItem(scrB, ftr1) -> Set(scrB),
+          ftr5 -> Set(scrA),
+          ScenarioItem(scrA, ftr5) -> Set(scrA),
+          Tag("A") -> Set(scrB),
+          ScenarioItem(scrB, Tag("A")) -> Set(scrB),
+        )
+
+        tckTreeFiltered.groupedScenarios should equal(expected)
+      }
+
+      it("should provide the given group sequence") {
+        val expected = Seq(
+          Total,
+          ftr1,
+          ScenarioItem(scrB, ftr1),
+          ftr5,
+          ScenarioItem(scrA, ftr5),
+          Tag("A"),
+          ScenarioItem(scrB, Tag("A")),
+        )
+
+        tckTreeFiltered.groupsOrderedDepthFirst should equal(expected)
+      }
     }
   }
 
