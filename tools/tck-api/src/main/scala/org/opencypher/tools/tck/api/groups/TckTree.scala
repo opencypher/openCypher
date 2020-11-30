@@ -78,7 +78,31 @@ case class TckTree(scenarios: Seq[Scenario]) extends GroupTreeBasics {
     collectScenario(Total)
   }
 
-  def filter(filter: Group => Boolean): TckTree = TckTree(groups.filter(filter).flatMap(groupedScenarios))
+  def filter(filter: Group => Boolean): TckTree = {
+    def collectGroups(g: Group): Set[Group] = {
+      if(filter(g))
+        groupChildren(g).flatMap(collectGroups) + g
+      else
+        Set.empty
+    }
+    val filteredGroups = collectGroups(Total)
+
+    def scenarioAndTheirItems(groups: Set[Group]) =
+      groups.collect {
+        case i:Item => (i.scenario, i)
+      } groupBy(_._1) mapValues(_.map(_._2))
+
+    // get scenarios with their set of items from the original groups
+    val scenariosFromGroups = scenarioAndTheirItems(groups)
+    // get scenarios with their set of items from the filtered groups
+    val scenariosFromFilteredGroups = scenarioAndTheirItems(filteredGroups)
+    // only keep scenarios from the filtered groups that still have the same set of items as in the original groups
+    val filteredScenarios = scenariosFromFilteredGroups.collect {
+      case (scenario, items) if scenariosFromGroups.get(scenario).contains(items) => scenario
+    }.toSeq
+    // build new tree
+    TckTree(filteredScenarios)
+  }
 }
 
 object TckTree {
