@@ -31,11 +31,11 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 import org.opencypher.tools.tck.api.CypherTCK
-import org.opencypher.tools.tck.api.groups.GroupScenarios
 import org.opencypher.tools.tck.api.groups.Feature
 import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
 import org.opencypher.tools.tck.api.groups.ScenarioCategory
 import org.opencypher.tools.tck.api.groups.Tag
+import org.opencypher.tools.tck.api.groups.TckTree
 import org.opencypher.tools.tck.api.groups.Total
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -95,16 +95,13 @@ object GenerateTCKIndexDoc {
 
   def generate: String = {
     val scenarios = CypherTCK.allTckScenarios
-    val groupedScenarios = GroupScenarios.apply(scenarios)
-
-    val groupSequence = OrderGroupsDepthFirst(groupedScenarios.keySet, {
+    val tckTree = TckTree(scenarios).filter({
       case ScenarioCategory("precategorized", _) => false
       case ScenarioCategory("uncategorized", _) => false
-      case Tag(_) => false
       case _ => true
     })
 
-    groupSequence map {
+    tckTree.groupsOrderedDepthFirst map {
       case Total =>
         """= TCK Index
           |
