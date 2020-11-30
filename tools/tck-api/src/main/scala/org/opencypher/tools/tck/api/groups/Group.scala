@@ -35,7 +35,6 @@ trait Group {
   def indent: Int
   def parent: Option[Group]
   def children(implicit tck: TckTree): Set[Group] = tck.groupChildren.getOrElse(this, Set[Group]())
-  def size(implicit tck: TckTree): Int = tck.groupSizes.getOrElse(this, 0)
 
   override def toString: String = name
 }
