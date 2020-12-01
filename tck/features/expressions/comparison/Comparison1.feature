@@ -143,7 +143,37 @@ Feature: Comparison1 - Equality
       | [[1], [2]]    | [[1], [null]] | null   |
       | [[1], [2, 3]] | [[1], [null]] | false  |
 
-  Scenario Outline: [7] Equality and inequality of NaN
+  Scenario Outline: [7] Comparing maps to maps
+    Given an empty graph
+    When executing query:
+      """
+      RETURN <lhs> = <rhs> AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | lhs             | rhs                | result |
+      | {}              | {}                 | true   |
+      | {k: true}       | {k: true}          | true   |
+      | {k: 1}          | {k: 1}             | true   |
+      | {k: 1.0}        | {k: 1.0}           | true   |
+      | {k: 'abc'}      | {k: 'abc'}         | true   |
+      | {k: 'a', l: 2}  | {k: 'a', l: 2}     | true   |
+      | {}              | {k: null}          | false  |
+      | {k: null}       | {}                 | false  |
+      | {k: 1}          | {k: 1, l: null}    | false  |
+      | {k: null, l: 1} | {l: 1}             | false  |
+      | {k: null}       | {k: null, l: null} | false  |
+      | {k: null}       | {k: null}          | null   |
+      | {k: 1}          | {k: null}          | null   |
+      | {k: 1, l: null} | {k: null, l: null} | null   |
+      | {k: 1, l: null} | {k: null, l: 1}    | null   |
+      | {k: 1, l: null} | {k: 1, l: 1}       | null   |
+
+  Scenario Outline: [8] Equality and inequality of NaN
     Given any graph
     When executing query:
       """
@@ -161,7 +191,7 @@ Feature: Comparison1 - Equality
       | 0.0 / 0.0 | 0.0 / 0.0 |
       | 0.0 / 0.0 | 'a'       |
 
-  Scenario Outline: [8] Equality between strings and numbers
+  Scenario Outline: [9] Equality between strings and numbers
     Given any graph
     When executing query:
       """
@@ -179,7 +209,7 @@ Feature: Comparison1 - Equality
       | '1.0' | 1.0 | false   |
       | '1'   | 1   | false   |
 
-  Scenario: [9] Handling inlined equality of large integer
+  Scenario: [10] Handling inlined equality of large integer
     Given an empty graph
     And having executed:
       """
@@ -195,7 +225,7 @@ Feature: Comparison1 - Equality
       | 4611686018427387905 |
     And no side effects
 
-  Scenario: [10] Handling explicit equality of large integer
+  Scenario: [11] Handling explicit equality of large integer
     Given an empty graph
     And having executed:
       """
@@ -212,7 +242,7 @@ Feature: Comparison1 - Equality
       | 4611686018427387905 |
     And no side effects
 
-  Scenario: [11] Handling inlined equality of large integer, non-equal values
+  Scenario: [12] Handling inlined equality of large integer, non-equal values
     Given an empty graph
     And having executed:
       """
@@ -227,7 +257,7 @@ Feature: Comparison1 - Equality
       | p.id |
     And no side effects
 
-  Scenario: [12] Handling explicit equality of large integer, non-equal values
+  Scenario: [13] Handling explicit equality of large integer, non-equal values
     Given an empty graph
     And having executed:
       """
@@ -243,7 +273,7 @@ Feature: Comparison1 - Equality
       | p.id |
     And no side effects
 
-  Scenario: [13] Direction of traversed relationship is not significant for path equality, simple
+  Scenario: [14] Direction of traversed relationship is not significant for path equality, simple
     Given an empty graph
     And having executed:
       """
@@ -260,7 +290,7 @@ Feature: Comparison1 - Equality
       | true    |
     And no side effects
 
-  Scenario: [14] It is unknown - i.e. null - if a null is equal to a null
+  Scenario: [15] It is unknown - i.e. null - if a null is equal to a null
     Given any graph
     When executing query:
       """
@@ -271,7 +301,7 @@ Feature: Comparison1 - Equality
       | null  |
     And no side effects
 
-  Scenario: [15] It is unknown - i.e. null - if a null is not equal to a null
+  Scenario: [16] It is unknown - i.e. null - if a null is not equal to a null
     Given any graph
     When executing query:
       """
@@ -283,7 +313,7 @@ Feature: Comparison1 - Equality
     And no side effects
 
   @NegativeTest
-  Scenario: [16] Failing when comparing to an undefined variable
+  Scenario: [17] Failing when comparing to an undefined variable
     Given any graph
     When executing query:
       """
