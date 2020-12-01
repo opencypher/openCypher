@@ -70,7 +70,7 @@ Feature: Map3 - Keys function
     Given any graph
     When executing query:
       """
-      RETURN keys(<map>) as keys
+      RETURN keys(<map>) AS keys
       """
     Then the result should be (ignoring element order for lists):
       | keys     |
