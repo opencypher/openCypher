@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Set4 - Set All Properties with a Map
+Feature: Set4 - Set all properties with a map
 
   Scenario: [1] Set multiple properties with a property map
     Given an empty graph
@@ -48,7 +48,7 @@ Feature: Set4 - Set All Properties with a Map
     And the side effects should be:
       | +properties | 3 |
 
-  Scenario: [2] Non-existent values in a property map are removed with SET =
+  Scenario: [2] Non-existent values in a property map are removed with SET
     Given an empty graph
     And having executed:
       """
@@ -61,7 +61,26 @@ Feature: Set4 - Set All Properties with a Map
       RETURN n
       """
     Then the result should be, in any order:
-      | n                           |
+      | n                          |
+      | (:X {name: 'B', baz: 'C'}) |
+    And the side effects should be:
+      | +properties | 2 |
+      | -properties | 2 |
+
+  Scenario: [2] Null values in a property map are removed with SET
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:X {name: 'A', name2: 'B'})
+      """
+    When executing query:
+      """
+      MATCH (n:X {name: 'A'})
+      SET n = {name: 'B', name2: null, baz: 'C'}
+      RETURN n
+      """
+    Then the result should be, in any order:
+      | n                          |
       | (:X {name: 'B', baz: 'C'}) |
     And the side effects should be:
       | +properties | 2 |
@@ -85,7 +104,7 @@ Feature: Set4 - Set All Properties with a Map
     And the side effects should be:
       | -properties | 2 |
 
-  Scenario: [4] Ignore null when setting properties using an overriding map
+  Scenario: [5] Ignore null when setting properties using an overriding map
     Given an empty graph
     When executing query:
       """
