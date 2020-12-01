@@ -29,7 +29,6 @@
 
     <modules>
         <module>util</module>
-        <module>neo4j</module>
     </modules>
 
 </project>
