@@ -78,12 +78,12 @@ Feature: Map3 - Keys function
     And no side effects
 
     Examples:
-      | keys                  | result    |
-      | {}                    | []        |
-      | {k: 1}                | [k]       |
-      | {k: null}             | [k]       |
-      | {null: null}          | [null]    |
-      | {k: null, l: 1}       | [k, l]    |
-      | {k: 1, l: null}       | [k, l]    |
-      | {k: null, l: null}    | [k, l]    |
-      | {k: 1, l: null, m: 1} | [k, l, m] |
+      | keys                  | result          |
+      | {}                    | []              |
+      | {k: 1}                | ['k']           |
+      | {k: null}             | ['k']           |
+      | {null: null}          | ['null']        |
+      | {k: null, l: 1}       | ['k', 'l']      |
+      | {k: 1, l: null}       | ['k', 'l']      |
+      | {k: null, l: null}    | ['k', 'l']      |
+      | {k: 1, l: null, m: 1} | ['k', 'l', 'm'] |
