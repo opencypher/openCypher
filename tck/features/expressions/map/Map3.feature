@@ -65,3 +65,25 @@ Feature: Map3 - Keys function
       | keys(m) | keys(null) |
       | null    | null       |
     And no side effects
+
+  Scenario Outline: [4] Using `keys()` on map with null values
+    Given any graph
+    When executing query:
+      """
+      RETURN keys(<map>) as keys
+      """
+    Then the result should be (ignoring element order for lists):
+      | keys     |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | keys                  | result    |
+      | {}                    | []        |
+      | {k: 1}                | [k]       |
+      | {k: null}             | [k]       |
+      | {null: null}          | [null]    |
+      | {k: null, l: 1}       | [k, l]    |
+      | {k: 1, l: null}       | [k, l]    |
+      | {k: null, l: null}    | [k, l]    |
+      | {k: 1, l: null, m: 1} | [k, l, m] |
