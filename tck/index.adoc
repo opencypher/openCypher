@@ -11,6 +11,13 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 == Clauses
 
 
+=== Call
+
+* Call1 - Basic procedure calling
+* Call2 - Procedure arguments
+* Call3 - Assignable-type arguments
+* Call4 - Null Arguments
+
 === Create
 
 * Create1 - Creating nodes
@@ -30,15 +37,23 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 
 === Match
 
-* Match1 - Match Nodes scenarios
-* Match2 - Match relationships scenarios
-* Match3 - Match fixed length patterns scenarios
+* Match1 - Match nodes
+* Match2 - Match relationships
+* Match3 - Match fixed length patterns
 * Match4 - Match variable length patterns scenarios
 * Match5 - Match variable length patterns over given graphs scenarios
 * Match6 - Match named paths scenarios
-* Match7 - Optional match scenarios
-* Match8 - Match clause Interoperation with other clauses
+* Match7 - Optional match
+* Match8 - Match clause interoperation with other clauses
 * Match9 - Match deprecated scenarios
+
+=== Match-where
+
+* MatchWhere1 - Filter single variable
+* MatchWhere2 - Filter multiple variables
+* MatchWhere3 - Equi-Joins on variables
+* MatchWhere4 - Non-Equi-Joins on variables
+* MatchWhere5 - Filter on predicate resulting in null
 
 === Merge
 
@@ -46,7 +61,7 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Merge2 - Merge Node - On Create
 * Merge3 - Merge Node - On Match
 * Merge4 - Merge Node - On Match and On Create
-* Merge5 - Merge Relationships
+* Merge5 - Merge relationships
 * Merge6 - Merge Relationships - On Create
 * Merge7 - Merge Relationships - On Match
 * Merge8 - Merge Relationships - On Match and On Create
@@ -73,6 +88,16 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 === Unwind
 
 * Unwind1
+
+=== With
+
+* With1 - Forward single variable
+* With2 - Forward single expression
+* With3 - Forward multiple expressions
+* With4 - Variable aliasing
+* With5 - Implicit grouping with DISTINCT
+* With6 - Implicit grouping with aggregates
+* With7 - WITH on WITH
 
 == Expressions
 
@@ -106,6 +131,7 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Graph3 - Node labels
 * Graph4 - Edge relationship type
 * Graph5 - Node and edge label expressions
+* Graph6 - Static property access
 * Graph7 - Dynamic property access
 * Graph8 - Property keys function
 * Graph9 - Property existence check
@@ -113,12 +139,13 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 === List
 
 * List1 - Dynamic Element Access
-* List11 - List Comprehension
+* List11 - Create a list for a range - `range()` function
+* List12 - List Comprehension
 * List2 - List Slicing
 * List3 - List Equality
 * List4 - List Concatenation
 * List5 - List Membership Validation - IN Operator
-* List6 - List Size
+* List6 - List size
 * List9 - List Tail
 
 === Literals
@@ -134,6 +161,7 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 
 === Map
 
+* Map1 - Static value access
 * Map2 - Dynamic Value Access
 * Map3 - Keys function
 * Map4 - Field existence check
@@ -143,6 +171,7 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * Mathematical11 - SignedNumbersFunctions
 * Mathematical13 - SquareRoot
 * Mathematical2 - Addition
+* Mathematical3 - Subtraction
 * Mathematical8 - ArithmeticPrecedence
 
 === Null
@@ -190,3 +219,10 @@ There is also an `uncategorized` and `precategorized` directory containing uncat
 * TypeConversion2 - To Integer
 * TypeConversion3 - To Float
 * TypeConversion4 - To String
+
+== Use Cases
+
+
+=== Triadic Selection
+
+* TriadicSelection1 - Query three related nodes on binary-tree graphs
