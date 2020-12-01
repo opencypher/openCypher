@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Set5 - Set Multiple Properties with a Map
+Feature: Set5 - Set multiple properties with a map
 
   Scenario: [1] Ignore null when setting properties using an appending map
     Given an empty graph
@@ -56,7 +56,7 @@ Feature: Set5 - Set Multiple Properties with a Map
       RETURN n
       """
     Then the result should be, in any order:
-      | n                             |
+      | n                            |
       | (:X {name: 'A', name2: 'C'}) |
     And the side effects should be:
       | +properties | 1 |
@@ -75,7 +75,7 @@ Feature: Set5 - Set Multiple Properties with a Map
       RETURN n
       """
     Then the result should be, in any order:
-      | n                             |
+      | n                            |
       | (:X {name: 'A', name2: 'B'}) |
     And the side effects should be:
       | +properties | 1 |
