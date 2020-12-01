@@ -35,7 +35,7 @@ Feature: Map4 - Field existence check
     When executing query:
       """
       WITH <map> AS map
-      RETURN exists(map.name) AS result
+      RETURN exists(map.<key>) AS result
       """
     Then the result should be, in any order:
       | result   |
@@ -43,10 +43,20 @@ Feature: Map4 - Field existence check
     And no side effects
 
     Examples:
-      | map                             | result |
-      | {name: 'Mats', name2: 'Pontus'} | true   |
-      | {name: null}                    | false  |
-      | {notName: 0, notName2: null}    | false  |
+      | map                                 | key     | result |
+      | {name: 'Mats', name2: 'Pontus'}     | name    | true   |
+      | {name: 'Mats', name2: 'Pontus'}     | name2   | true   |
+      | {name: null}                        | name    | true   |
+      | {name: null, name2: 'Pontus'}       | name    | true   |
+      | {name: null, name2: null}           | name    | true   |
+      | {name: null, name2: null}           | name2   | true   |
+      | {name: 'Pontus', name2: null}       | name2   | true   |
+      | {name: 'Pontus', notName2: null}    | name    | true   |
+      | {notName: 'Pontus', notName2: null} | notName | true   |
+      | {notName: null, notName2: null}     | notName | true   |
+      | {notName: null, notName2: null}     | name    | false  |
+      | {notName: 0, notName2: null}        | name    | false  |
+      | {notName: 0}                        | name    | false  |
 
   Scenario: [2] Using `exists()` on null map
     Given any graph
