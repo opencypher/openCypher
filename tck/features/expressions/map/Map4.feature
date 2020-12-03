@@ -52,11 +52,10 @@ Feature: Map4 - Field existence check
       | {name: null, name2: null}           | name2   | true   |
       | {name: 'Pontus', name2: null}       | name2   | true   |
       | {name: 'Pontus', notName2: null}    | name    | true   |
-      | {notName: 'Pontus', notName2: null} | notName | true   |
-      | {notName: null, notName2: null}     | notName | true   |
       | {notName: null, notName2: null}     | name    | false  |
       | {notName: 0, notName2: null}        | name    | false  |
       | {notName: 0}                        | name    | false  |
+      | {}                                  | name    | false  |
 
   Scenario: [2] Using `exists()` on null map
     Given any graph
