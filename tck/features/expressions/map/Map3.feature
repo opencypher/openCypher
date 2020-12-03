@@ -82,7 +82,6 @@ Feature: Map3 - Keys function
       | {}                    | []              |
       | {k: 1}                | ['k']           |
       | {k: null}             | ['k']           |
-      | {null: null}          | ['null']        |
       | {k: null, l: 1}       | ['k', 'l']      |
       | {k: 1, l: null}       | ['k', 'l']      |
       | {k: null, l: null}    | ['k', 'l']      |
