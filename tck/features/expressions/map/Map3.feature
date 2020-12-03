@@ -78,7 +78,7 @@ Feature: Map3 - Keys function
     And no side effects
 
     Examples:
-      | keys                  | result          |
+      | map                   | result          |
       | {}                    | []              |
       | {k: 1}                | ['k']           |
       | {k: null}             | ['k']           |
