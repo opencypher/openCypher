@@ -31,17 +31,9 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 import org.opencypher.tools.tck.api.CypherTCK
-<<<<<<< HEAD:tools/tck-inspection/src/test/scala/org/opencypher/tools/tck/GenerateTCKIndexDoc.scala
 import org.opencypher.tools.tck.api.groups.Feature
 import org.opencypher.tools.tck.api.groups.ScenarioCategory
 import org.opencypher.tools.tck.api.groups.TckTree
-=======
-import org.opencypher.tools.tck.api.groups.CollectGroups
-import org.opencypher.tools.tck.api.groups.Feature
-import org.opencypher.tools.tck.api.groups.OrderGroupsDepthFirst
-import org.opencypher.tools.tck.api.groups.ScenarioCategory
-import org.opencypher.tools.tck.api.groups.Tag
->>>>>>> adjust tck index doc generator:tools/tck-inspection/src/test/scala/org/opencypher/tools/GenerateTCKIndexDoc.scala
 import org.opencypher.tools.tck.api.groups.Total
 import org.scalatest.funsuite.AnyFunSuite
 
