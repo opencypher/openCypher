@@ -67,7 +67,7 @@ Feature: Set4 - Set all properties with a map
       | +properties | 2 |
       | -properties | 2 |
 
-  Scenario: [2] Null values in a property map are removed with SET
+  Scenario: [3] Null values in a property map are removed with SET
     Given an empty graph
     And having executed:
       """
@@ -86,7 +86,7 @@ Feature: Set4 - Set all properties with a map
       | +properties | 2 |
       | -properties | 2 |
 
-  Scenario: [3] All properties are removed if node is set to empty property map
+  Scenario: [4] All properties are removed if node is set to empty property map
     Given an empty graph
     And having executed:
       """
