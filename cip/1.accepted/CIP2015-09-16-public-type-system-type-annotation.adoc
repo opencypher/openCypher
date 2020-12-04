@@ -50,23 +50,23 @@ The details of internal types are out of scope for the purposes of this document
 
 === Types and Type Literal Syntax
 
-The section below presents presents the new Public Type System (PTS) proposed for Cypher.
+The section below presents the new Public Type System (PTS) proposed for Cypher.
 
 ==== Material and nullable types
 
 The type system provides a way to track nullability, i.e. a type may express if a given expression may be `null` or not.
-Tracking (non-)nullability helps an implementation to detect and warn about possible user errors during compile time and  it also enables optimizations that rely on values not being `null`. As an example, an implementation may infer that `MATCH` will never introduce a nullable variable, but `OPTIONAL MATCH` will only introduce nullable variables.
-
-Material types are all types that do not permit `null` as a valid result of evaluating the underlying expression.
-In the sections below, generally only the material variants of each type are given.
+Tracking (non-)nullability helps an implementation to detect and warn about possible user errors during compile time and it also enables optimizations that rely on values not being `null`. As an example, an implementation may infer that `MATCH` will never introduce a nullable variable, but `OPTIONAL MATCH` will only introduce nullable variables.
 
 Nullable types are all types that do permit `null` as a valid result of evaluating the underlying expression.
-Nullable type names are formed by suffixing a material type name with a single question mark (without in-between whitespace).
-Nullable variants of all material types should be supported by any implementation of Cypher.
+In the sections below, generally only the nullable variants of each type are given.
 Note that `null` is not a type but a value that inhabits every nullable type.
 
-Every nullable type is a supertype of its underlying material type, i.e. `T?` is a supertype of `T`.
-By transitivity of subtyping, if `S` is a supertype of `T`, then `S?` is also a supertype of `T`.
+Material types are all types that do not permit `null` as a valid result of evaluating the underlying expression.
+Material type names are formed by suffixing a nullable type name with a single exclamation mark (without in-between whitespace).
+Material variants of all nullable types should be supported by any implementation of Cypher.
+
+Every nullable type is a supertype of its underlying material type, i.e. `T` is a supertype of `T!`.
+By transitivity of subtyping, if `S` is a supertype of `T`, then `S` is also a supertype of `T!`.
 
 ==== Abstract and concrete types
 
@@ -149,10 +149,6 @@ a nullable variant:
 * `PATH`
 ** A path from a node `n1` to a node `ni` - corresponding to a walk in the graph from `n1` to `ni` - is a sequence `n1`, `r1`, `n2`, `r2`, ..., `r(i-1)`, `ni` of alternating nodes and relationships such that for `1 \<= j < i`, any `rj` contained in the path is incident with `nj` and `n(j+1)`. Additionally, a single node path is a path that starts and ends at the same node `n0` and does not contain any relationships.
 
-==== Void type
-
-This CIP also introduces an additional nullable type called `VOID`. `VOID` is intended to be used as the return type of user defined procedures that execute without producing a result value, i.e. the return type of procedures with side effects. `VOID` is a subtype of `ANY?`. In an expression context, `null` is the only value that inhibits the `VOID` type, indicating a missing "real" return value (Note though that Cypher currently does not have any expressions of type `VOID` and this is merely defined here for completeness).
-
 === Type Annotation
 
 To specify the type of a term in future changes to the Cypher grammar, this CIP proposes using the following syntax
@@ -177,15 +173,13 @@ type = nullable core type
      | container type
      ;
 
-nullable core type = material core type, "?"
-                   | void type
-                   ;
-
-material core type = any type
+nullable core type = any type
                    | scalar type
                    | temporal type
                    | graph type
                    ;
+
+material core type = nullable core type, "!" ;
 
 any type = "ANY" ;
 
@@ -213,24 +207,21 @@ container type = material container type
                | nullable container type
                ;
 
-material container type	= "LIST", "OF", type
+nullable container type	= "LIST", "OF", type
                         | "MAP"
                         ;
 
-nullable container type	= "LIST?", "OF", type
-                        | "MAP?"
+material container type	= "LIST!", "OF", type
+                        | "MAP!"
                         ;
 
-void type = "VOID" ;
-
 keywords = type keywords
-         | type keywords, "?"
-         | void type
+         | type keywords, "!"
          | "OF"
          | ...
          ;
 
-type keywords = material core types
+type keywords = nullable core types
               | container type keywords
               ;
 
