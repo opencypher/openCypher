@@ -57,16 +57,16 @@ The section below presents the new Public Type System (PTS) proposed for Cypher.
 The type system provides a way to track nullability, i.e. a type may express if a given expression may be `null` or not.
 Tracking (non-)nullability helps an implementation to detect and warn about possible user errors during compile time and it also enables optimizations that rely on values not being `null`. As an example, an implementation may infer that `MATCH` will never introduce a nullable variable, but `OPTIONAL MATCH` will only introduce nullable variables.
 
+Material types are all types that do not permit `null` as a valid result of evaluating the underlying expression.
+In the sections below, generally only the material variants of each type are given.
+
 Nullable types are all types that do permit `null` as a valid result of evaluating the underlying expression.
-In the sections below, generally only the nullable variants of each type are given.
+Nullable type names are formed by suffixing a material type name with a single question mark (without in-between whitespace).
+Nullable variants of all material types should be supported by any implementation of Cypher.
 Note that `null` is not a type but a value that inhabits every nullable type.
 
-Material types are all types that do not permit `null` as a valid result of evaluating the underlying expression.
-Material type names are formed by suffixing a nullable type name with a single exclamation mark (without in-between whitespace).
-Material variants of all nullable types should be supported by any implementation of Cypher.
-
-Every nullable type is a supertype of its underlying material type, i.e. `T` is a supertype of `T!`.
-By transitivity of subtyping, if `S` is a supertype of `T`, then `S` is also a supertype of `T!`.
+Every nullable type is a supertype of its underlying material type, i.e. `T?` is a supertype of `T`.
+By transitivity of subtyping, if `S` is a supertype of `T`, then `S?` is also a supertype of `T`.
 
 ==== Abstract and concrete types
 
@@ -173,13 +173,15 @@ type = nullable core type
      | container type
      ;
 
-nullable core type = any type
+nullable core type = material core type, "?"
+                   | void type
+                   ;
+
+material core type = any type
                    | scalar type
                    | temporal type
                    | graph type
                    ;
-
-material core type = nullable core type, "!" ;
 
 any type = "ANY" ;
 
@@ -207,21 +209,21 @@ container type = material container type
                | nullable container type
                ;
 
-nullable container type	= "LIST", "OF", type
+material container type	= "LIST", "OF", type
                         | "MAP"
                         ;
 
-material container type	= "LIST!", "OF", type
-                        | "MAP!"
+nullable container type	= "LIST?", "OF", type
+                        | "MAP?"
                         ;
 
 keywords = type keywords
-         | type keywords, "!"
+         | type keywords, "?"
          | "OF"
          | ...
          ;
 
-type keywords = nullable core types
+type keywords = material core types
               | container type keywords
               ;
 
