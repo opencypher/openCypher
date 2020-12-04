@@ -369,18 +369,19 @@ We define the following ascending global sort order of disjoint types:
 * `BOOLEAN`
 * `NUMBER`
 ** `NaN` values are treated as the largest numbers in orderability only (i.e. they are put after positive infinity)
-* `VOID` (i.e. the type of `null`)
+
+The value `null` is larger than any other value.
 
 To give a concrete example, under this global sort order all nodes come before all strings.
 
 Between values of the same type in the global sort order, orderability defers to comparability except that equality is overridden by equivalence as described below.
-For example, `[null, 1]` is ordered before `[null, 2]` under orderability.
+For example, `[null, 1]` is ordered after `[1, 2]` and before `[null, 2]` under orderability.
 Additionally, for the container types, elements of the containers use orderability, not comparability, to determine the order between them.
 For example, `[1, 'foo', 3]` is ordered before `[1, 2, 'bar']` since `'foo'` is ordered before `2`.
 
 Furthermore, the values of additional, non-canonical types must not be inserted after `NaN` values in the global sort order.
 
-The accompanying descending global sort order is the same order in reverse (i.e. it runs from `VOID` to `MAP`).
+The accompanying descending global sort order is the same order in reverse.
 
 
 [[equivalence-def,equivalence]]
@@ -527,19 +528,18 @@ Any other comparison will always yield a `null` value (except when comparing `Na
 .Comparability of values of different types (`X` means the result of comparison will always return `true` or `false`)
 [frame="topbot",options="header,footer"]
 |================================================================================================================================
-|Type           | `NODE` | `RELATIONSHIP` | `PATH` | `MAP` | `LIST OF ANY?` | Temporal | `DURATION` | `STRING` | `BOOLEAN` | `INTEGER` | `FLOAT` | `VOID`
-|`NODE`         | X      |                |        |       |                |          |            |          |           |           |         |
-|`RELATIONSHIP` |        | X              |        |       |                |          |            |          |           |           |         |
-|`PATH`         |        |                | X      |       |                |          |            |          |           |           |         |
-|`MAP`          |        |                |        | X     |                |          |            |          |           |           |         |
-|`LIST OF ANY?` |        |                |        |       | X              |          |            |          |           |           |         |
-|Temporal       |        |                |        |       |                | X^†^     |            |          |           |           |         |
-|`DURATION`     |        |                |        |       |                |          |            |          |           |           |         |
-|`STRING`       |        |                |        |       |                |          |            | X        |           |           |         |
-|`BOOLEAN`      |        |                |        |       |                |          |            |          | X         |           |         |
-|`INTEGER`      |        |                |        |       |                |          |            |          |           | X         | X       |
-|`FLOAT`        |        |                |        |       |                |          |            |          |           | X         | X       |
-|`VOID`         |        |                |        |       |                |          |            |          |           |           |         |
+|Type           | `NODE` | `RELATIONSHIP` | `PATH` | `MAP` | `LIST OF ANY?` | Temporal | `DURATION` | `STRING` | `BOOLEAN` | `INTEGER` | `FLOAT`
+|`NODE`         | X      |                |        |       |                |          |            |          |           |           |
+|`RELATIONSHIP` |        | X              |        |       |                |          |            |          |           |           |
+|`PATH`         |        |                | X      |       |                |          |            |          |           |           |
+|`MAP`          |        |                |        | X     |                |          |            |          |           |           |
+|`LIST OF ANY?` |        |                |        |       | X              |          |            |          |           |           |
+|Temporal       |        |                |        |       |                | X^†^     |            |          |           |           |
+|`DURATION`     |        |                |        |       |                |          |            |          |           |           |
+|`STRING`       |        |                |        |       |                |          |            | X        |           |           |
+|`BOOLEAN`      |        |                |        |       |                |          |            |          | X         |           |
+|`INTEGER`      |        |                |        |       |                |          |            |          |           | X         | X
+|`FLOAT`        |        |                |        |       |                |          |            |          |           | X         | X
 |================================================================================================================================
 
 † Comparisons between _the same_ Temporal instant type will always return `true` or `false`, comparisons between _different_ temporal instant types will not.
