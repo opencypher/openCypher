@@ -111,3 +111,22 @@ Feature: Return5 - Implicit grouping with distinct
       | count |
       | 1     |
     And no side effects
+
+  Scenario: Aggregate on list values
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({color: ['red']})
+      CREATE ({color: ['blue']})
+      CREATE ({color: ['red']})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      RETURN DISTINCT a.color, count(*)
+      """
+    Then the result should be, in any order:
+      | a.color  | count(*) |
+      | ['red']  | 2        |
+      | ['blue'] | 1        |
+    And no side effects

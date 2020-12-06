@@ -143,3 +143,38 @@ Feature: Return4 - Column renaming
       | aVg(    n.aGe     ) |
       | null                |
     And no side effects
+
+  Scenario: Support column renaming for aggregations
+    Given an empty graph
+    And having executed:
+      """
+      UNWIND range(0, 10) AS i
+      CREATE ()
+      """
+    When executing query:
+      """
+      MATCH ()
+      RETURN count(*) AS columnName
+      """
+    Then the result should be, in any order:
+      | columnName |
+      | 11         |
+    And no side effects
+
+  Scenario: Handle subexpression in aggregation also occurring as standalone expression with nested aggregation in a literal map
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A), (:B {num: 42})
+      """
+    When executing query:
+      """
+      MATCH (a:A), (b:B)
+      RETURN coalesce(a.num, b.num) AS foo,
+        b.num AS bar,
+        {name: count(b)} AS baz
+      """
+    Then the result should be, in any order:
+      | foo | bar | baz       |
+      | 42  | 42  | {name: 1} |
+    And no side effects
