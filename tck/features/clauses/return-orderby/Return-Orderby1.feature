@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Return-Order By 1 - Order by a single variable (correct order of values according to their type)
+Feature: ReturnOrderBy1 - Order by a single variable (correct order of values according to their type)
 
   Background:
     Given an empty graph

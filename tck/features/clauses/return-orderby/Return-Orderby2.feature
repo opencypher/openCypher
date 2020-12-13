@@ -28,12 +28,11 @@
 
 #encoding: utf-8
 
-Feature: Return-Order By 2 - Order by a single expression (order of projection)
+Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
 
-  Background:
-    Given an empty graph
 
   Scenario: ORDER BY should return results in ascending order
+    Given an empty graph
     And having executed:
       """
       CREATE (n1 {num: 1}),
@@ -54,6 +53,7 @@ Feature: Return-Order By 2 - Order by a single expression (order of projection)
     And no side effects
 
   Scenario: ORDER BY DESC should return results in descending order
+    Given an empty graph
     And having executed:
       """
       CREATE (n1 {num: 1}),
