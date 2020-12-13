@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Return-Order By 3 - Order by multiple expressions (order obey priority of expressions)
+Feature: ReturnOrderBy3 - Order by multiple expressions (order obey priority of expressions)
 
   Scenario: Sort on aggregate function and normal property
     Given an empty graph

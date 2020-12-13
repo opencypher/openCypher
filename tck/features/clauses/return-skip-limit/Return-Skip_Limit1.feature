@@ -28,7 +28,8 @@
 
 #encoding: utf-8
 
-Feature: Return-Skip-Limit 1 - Skip
+Feature: ReturnSkipLimit1 - Skip
+
 
   Scenario: Start the result from the second row
     Given an empty graph

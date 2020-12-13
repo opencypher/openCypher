@@ -28,10 +28,10 @@
 
 #encoding: utf-8
 
-Feature: Return-Order By 5 - Order by in combination with column renaming
-
+Feature: ReturnOrderBy5 - Order by in combination with column renaming
 
   Scenario: Renaming columns before ORDER BY should return results in ascending order
+    Given an empty graph
     And having executed:
       """
       CREATE (n1 {num: 1}),
