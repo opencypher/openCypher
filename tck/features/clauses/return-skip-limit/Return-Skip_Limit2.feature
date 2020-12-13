@@ -28,7 +28,8 @@
 
 #encoding: utf-8
 
-Feature: Return-Skip-Limit 2 - Limit
+Feature: ReturnSkipLimit2 - Limit
+
 
   Scenario: Limit to two hits
     Given an empty graph
@@ -84,6 +85,7 @@ Feature: Return-Skip-Limit 2 - Limit
     And no side effects
 
   Scenario: Handle ORDER BY with LIMIT 1
+    Given an empty graph
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -102,6 +104,7 @@ Feature: Return-Skip-Limit 2 - Limit
     And no side effects
 
   Scenario: ORDER BY with LIMIT 0 should not generate errors
+    Given any graph
     When executing query:
       """
       MATCH (p:Person)
