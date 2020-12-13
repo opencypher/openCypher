@@ -123,7 +123,8 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       """
     Then the result should be, in any order:
       | n                      |
-      | ({numbers: [1, 2, 3]})
+      | ({numbers: [1, 2, 3]}) |
+    And no side effects
 
   Scenario: Adding list properties in projection
     Given an empty graph

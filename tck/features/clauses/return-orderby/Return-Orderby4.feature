@@ -28,12 +28,10 @@
 
 #encoding: utf-8
 
-Feature: Return-Order By 4 - Order by in combination with projection
-
-  Background:
-    Given an empty graph
+Feature: ReturnOrderBy4 - Order by in combination with projection
 
   Scenario: ORDER BY of a column introduced in RETURN should return salient results in ascending order
+    Given an empty graph
     When executing query:
       """
       WITH [0, 1] AS prows, [[2], [3, 4]] AS qrows
@@ -49,9 +47,8 @@ Feature: Return-Order By 4 - Order by in combination with projection
       | 1 |
     And no side effects
 
-
-
-  Scenario: Handle projections with ORDER BY - GH#4937
+  Scenario: Handle projections with ORDER BY
+    Given an empty graph
     And having executed:
       """
       CREATE (c1:Crew {name: 'Neo', rank: 1}),

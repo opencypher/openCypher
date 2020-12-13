@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Return-Skip-Limit 2 - Skip & limit
+Feature: ReturnSkipLimit3 - Skip and limit
 
   Scenario: Get rows in the middle
     Given an empty graph
