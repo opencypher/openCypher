@@ -99,50 +99,6 @@ Feature: WithAcceptance
       | ({name: 'A', num: 0, id: 0}) |
     And no side effects
 
-  # WithOrderBy
-  Scenario: ORDER BY on an aggregating key
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({name: 'A'}),
-             ({name: 'A'}),
-             ({name: 'B'})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      WITH a.name AS bars, count(*) AS relCount
-      ORDER BY a.name
-      RETURN *
-      """
-    Then the result should be, in any order:
-      | bars | relCount |
-      | 'A'  | 2        |
-      | 'B'  | 1        |
-    And no side effects
-
-  # WithOrderBy
-  Scenario: ORDER BY a DISTINCT column
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({name: 'A'}),
-             ({name: 'A'}),
-             ({name: 'B'})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      WITH DISTINCT a.name AS bars
-      ORDER BY a.name
-      RETURN *
-      """
-    Then the result should be, in any order:
-      | bars |
-      | 'A'  |
-      | 'B'  |
-    And no side effects
-
   # WithLimit
   Scenario: Connected components succeeding WITH with LIMIT
     Given an empty graph
