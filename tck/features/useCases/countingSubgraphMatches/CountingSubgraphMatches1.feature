@@ -28,9 +28,9 @@
 
 #encoding: utf-8
 
-Feature: Match3-1 - Match fixed length patterns RETURN clause scenarios
+Feature: CountingSubgraphMatches1 - Matching subgraph patterns and count the number of matches
 
-  Scenario: Undirected match in self-relationship graph, count
+  Scenario: [1] Undirected match in self-relationship graph, count
     Given an empty graph
     And having executed:
       """
@@ -46,7 +46,7 @@ Feature: Match3-1 - Match fixed length patterns RETURN clause scenarios
       | 1        |
     And no side effects
 
-  Scenario: Undirected match of self-relationship in self-relationship graph, count
+  Scenario: [2] Undirected match of self-relationship in self-relationship graph, count
     Given an empty graph
     And having executed:
       """
@@ -62,7 +62,7 @@ Feature: Match3-1 - Match fixed length patterns RETURN clause scenarios
       | 1        |
     And no side effects
 
-  Scenario: Undirected match on simple relationship graph, count
+  Scenario: [3] Undirected match on simple relationship graph, count
     Given an empty graph
     And having executed:
       """
@@ -78,7 +78,7 @@ Feature: Match3-1 - Match fixed length patterns RETURN clause scenarios
       | 2        |
     And no side effects
 
-  Scenario: Directed match on self-relationship graph, count
+  Scenario: [4] Directed match on self-relationship graph, count
     Given an empty graph
     And having executed:
       """
@@ -94,7 +94,7 @@ Feature: Match3-1 - Match fixed length patterns RETURN clause scenarios
       | 1        |
     And no side effects
 
-  Scenario: Directed match of self-relationship on self-relationship graph, count
+  Scenario: [5] Directed match of self-relationship on self-relationship graph, count
     Given an empty graph
     And having executed:
       """
@@ -110,7 +110,7 @@ Feature: Match3-1 - Match fixed length patterns RETURN clause scenarios
       | 1        |
     And no side effects
 
-  Scenario: Counting undirected self-relationships in self-relationship graph
+  Scenario: [6] Counting undirected self-relationships in self-relationship graph
     Given an empty graph
     And having executed:
       """
@@ -126,7 +126,7 @@ Feature: Match3-1 - Match fixed length patterns RETURN clause scenarios
       | 1        |
     And no side effects
 
-  Scenario: Counting distinct undirected self-relationships in self-relationship graph
+  Scenario: [7] Counting distinct undirected self-relationships in self-relationship graph
     Given an empty graph
     And having executed:
       """
@@ -142,7 +142,7 @@ Feature: Match3-1 - Match fixed length patterns RETURN clause scenarios
       | 1                 |
     And no side effects
 
-  Scenario: Directed match of a simple relationship, count
+  Scenario: [8] Directed match of a simple relationship, count
     Given an empty graph
     And having executed:
       """
@@ -158,7 +158,7 @@ Feature: Match3-1 - Match fixed length patterns RETURN clause scenarios
       | 1        |
     And no side effects
 
-  Scenario: Counting directed self-relationships
+  Scenario: [9] Counting directed self-relationships
     Given an empty graph
     And having executed:
       """
@@ -175,7 +175,7 @@ Feature: Match3-1 - Match fixed length patterns RETURN clause scenarios
       | 1        |
     And no side effects
 
-  Scenario: Mixing directed and undirected pattern parts with self-relationship, count
+  Scenario: [10] Mixing directed and undirected pattern parts with self-relationship, count
     Given an empty graph
     And having executed:
       """
@@ -193,7 +193,7 @@ Feature: Match3-1 - Match fixed length patterns RETURN clause scenarios
       | 2        |
     And no side effects
 
-  Scenario: Mixing directed and undirected pattern parts with self-relationship, undirected count
+  Scenario: [11] Mixing directed and undirected pattern parts with self-relationship, undirected count
     Given an empty graph
     And having executed:
       """
