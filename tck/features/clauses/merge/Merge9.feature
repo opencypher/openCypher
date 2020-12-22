@@ -30,7 +30,7 @@
 
 Feature: Merge9 - Merge clause interoperation with other clauses
 
-  Scenario: [1] Unwind combined with merge
+  Scenario: [1] UNWIND with one MERGE
     Given an empty graph
     When executing query:
       """
@@ -45,7 +45,23 @@ Feature: Merge9 - Merge clause interoperation with other clauses
       | +nodes      | 4 |
       | +properties | 4 |
 
-  Scenario: [2] Mixing MERGE with CREATE
+  Scenario: [2] UNWIND with multiple MERGE
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND ['Keanu Reeves', 'Hugo Weaving', 'Carrie-Anne Moss', 'Laurence Fishburne'] AS actor
+      MERGE (m:Movie {name: 'The Matrix'})
+      MERGE (p:Person {name: actor})
+      MERGE (p)-[:ACTED_IN]->(m)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes         | 5 |
+      | +relationships | 4 |
+      | +labels        | 2 |
+      | +properties    | 5 |
+
+  Scenario: [3] Mixing MERGE with CREATE
     Given an empty graph
     When executing query:
       """
@@ -61,3 +77,4 @@ Feature: Merge9 - Merge clause interoperation with other clauses
       | +nodes         | 3 |
       | +relationships | 2 |
       | +labels        | 3 |
+
