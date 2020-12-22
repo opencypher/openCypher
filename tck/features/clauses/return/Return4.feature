@@ -30,7 +30,7 @@
 
 Feature: Return4 - Column renaming
 
-  Scenario: Honour the column name for RETURN items
+  Scenario: [1] Honour the column name for RETURN items
     Given an empty graph
     And having executed:
       """
@@ -47,7 +47,7 @@ Feature: Return4 - Column renaming
       | 'Someone' |
     And no side effects
 
-  Scenario: Support column renaming
+  Scenario: [2] Support column renaming
     Given an empty graph
     And having executed:
       """
@@ -63,7 +63,7 @@ Feature: Return4 - Column renaming
       | (:Singleton) |
     And no side effects
 
-  Scenario: Aliasing expressions
+  Scenario: [3] Aliasing expressions
     Given an empty graph
     And having executed:
       """
@@ -79,7 +79,7 @@ Feature: Return4 - Column renaming
       | 42 | 42   |
     And no side effects
 
-  Scenario: Keeping used expression 1
+  Scenario: [4] Keeping used expression 1
     Given an empty graph
     And having executed:
       """
@@ -95,7 +95,7 @@ Feature: Return4 - Column renaming
       | 1          |
     And no side effects
 
-  Scenario: Keeping used expression 2
+  Scenario: [5] Keeping used expression 2
     Given an empty graph
     And having executed:
       """
@@ -111,7 +111,7 @@ Feature: Return4 - Column renaming
     And no side effects
 
   @skipStyleCheck
-  Scenario: Keeping used expression 3
+  Scenario: [6] Keeping used expression 3
     Given an empty graph
     And having executed:
       """
@@ -127,7 +127,7 @@ Feature: Return4 - Column renaming
       | 0                   |
     And no side effects
 
-  Scenario: Keeping used expression 4
+  Scenario: [7] Keeping used expression 4
     Given an empty graph
     And having executed:
       """
@@ -143,7 +143,7 @@ Feature: Return4 - Column renaming
       | null                |
     And no side effects
 
-  Scenario: Support column renaming for aggregations
+  Scenario: [8] Support column renaming for aggregations
     Given an empty graph
     And having executed:
       """
@@ -160,7 +160,7 @@ Feature: Return4 - Column renaming
       | 11         |
     And no side effects
 
-  Scenario: Handle subexpression in aggregation also occurring as standalone expression with nested aggregation in a literal map
+  Scenario: [9] Handle subexpression in aggregation also occurring as standalone expression with nested aggregation in a literal map
     Given an empty graph
     And having executed:
       """

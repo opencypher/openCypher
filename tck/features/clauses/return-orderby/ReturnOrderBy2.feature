@@ -30,8 +30,7 @@
 
 Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
 
-
-  Scenario: ORDER BY should return results in ascending order
+  Scenario: [1] ORDER BY should return results in ascending order
     Given an empty graph
     And having executed:
       """
@@ -52,7 +51,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
       | 3    |
     And no side effects
 
-  Scenario: ORDER BY DESC should return results in descending order
+  Scenario: [2] ORDER BY DESC should return results in descending order
     Given an empty graph
     And having executed:
       """
@@ -73,7 +72,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
       | -5   |
     And no side effects
 
-  Scenario: Sort on aggregated function
+  Scenario: [3] Sort on aggregated function
     Given an empty graph
     And having executed:
       """
@@ -96,7 +95,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
     And no side effects
 
 
-  Scenario: Support sort and distinct
+  Scenario: [4] Support sort and distinct
     Given an empty graph
     And having executed:
       """
@@ -118,7 +117,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
     And no side effects
 
     #TODO: duplicate of the above?
-  Scenario: Support ordering by a property after being distinct-ified
+  Scenario: [5] Support ordering by a property after being distinct-ified
     Given an empty graph
     And having executed:
       """
@@ -135,7 +134,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
       | (:B) |
     And no side effects
 
-  Scenario: Count star should count everything in scope
+  Scenario: [6] Count star should count everything in scope
     Given an empty graph
     And having executed:
       """
@@ -154,7 +153,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
       | (:L3) | 1        |
     And no side effects
 
-  Scenario: Ordering with aggregation
+  Scenario: [7] Ordering with aggregation
     Given an empty graph
     And having executed:
       """
@@ -171,7 +170,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
       | 'nisse' | 1   |
     And no side effects
 
-  Scenario: Returning all variables with ordering
+  Scenario: [8] Returning all variables with ordering
     Given an empty graph
     And having executed:
       """
@@ -189,7 +188,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
       | ({id: 10}) |
     And no side effects
 
-  Scenario: Using aliased DISTINCT expression in ORDER BY
+  Scenario: [9] Using aliased DISTINCT expression in ORDER BY
     Given an empty graph
     And having executed:
       """
@@ -207,7 +206,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
       | 1  |
     And no side effects
 
-  Scenario: Returned columns do not change from using ORDER BY
+  Scenario: [10] Returned columns do not change from using ORDER BY
     Given an empty graph
     And having executed:
       """
@@ -225,7 +224,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
       | ({id: 10}) |
     And no side effects
 
-  Scenario: Aggregates ordered by arithmetics
+  Scenario: [11] Aggregates ordered by arithmetics
     Given an empty graph
     And having executed:
       """
@@ -242,7 +241,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
       | 30 |
     And no side effects
 
-  Scenario: Aggregation of named paths
+  Scenario: [12] Aggregation of named paths
     Given an empty graph
     And having executed:
       """
@@ -266,7 +265,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
     And no side effects
 
   @NegativeTest
-  Scenario: Fail when sorting on variable removed by DISTINCT
+  Scenario: [13] Fail when sorting on variable removed by DISTINCT
     Given an empty graph
     And having executed:
       """

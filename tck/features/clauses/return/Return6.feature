@@ -30,7 +30,7 @@
 
 Feature: Return6 - Implicit grouping with aggregates
 
-  Scenario: Return count aggregation over nodes
+  Scenario: [1] Return count aggregation over nodes
     Given an empty graph
     And having executed:
       """
@@ -46,7 +46,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | 42 | 1     |
     And no side effects
 
-  Scenario: Projecting an arithmetic expression with aggregation
+  Scenario: [2] Projecting an arithmetic expression with aggregation
     Given an empty graph
     And having executed:
       """
@@ -62,7 +62,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | ({id: 42}) | 4            |
     And no side effects
 
-  Scenario: Aggregating by a list property has a correct definition of equality
+  Scenario: [3] Aggregating by a list property has a correct definition of equality
     Given an empty graph
     And having executed:
       """
@@ -79,7 +79,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | 2     |
     And no side effects
 
-  Scenario: Support multiple divisions in aggregate function
+  Scenario: [4] Support multiple divisions in aggregate function
     Given an empty graph
     And having executed:
       """
@@ -96,7 +96,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | 2     |
     And no side effects
 
-  Scenario: Aggregates inside normal functions
+  Scenario: [5] Aggregates inside normal functions
     Given an empty graph
     And having executed:
       """
@@ -113,7 +113,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | 11               |
     And no side effects
 
-  Scenario: Handle aggregates inside non-aggregate expressions
+  Scenario: [6] Handle aggregates inside non-aggregate expressions
     Given an empty graph
     When executing query:
       """
@@ -124,7 +124,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | {foo: a.name='Andres', kids: collect(child.name)} |
     And no side effects
 
-  Scenario: Aggregate on property
+  Scenario: [7] Aggregate on property
     Given an empty graph
     And having executed:
       """
@@ -143,7 +143,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | 33    | 2        |
     And no side effects
 
-  Scenario: Handle aggregation on functions
+  Scenario: [8] Handle aggregation on functions
     Given an empty graph
     And having executed:
       """
@@ -161,7 +161,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | () | 1.0            |
     And no side effects
 
-  Scenario: Aggregates with arithmetics
+  Scenario: [9] Aggregates with arithmetics
     Given an empty graph
     And having executed:
       """
@@ -177,7 +177,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | 10 |
     And no side effects
 
-  Scenario: Multiple aggregates on same variable
+  Scenario: [10] Multiple aggregates on same variable
     Given an empty graph
     And having executed:
       """
@@ -193,7 +193,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | 1        | [()]       |
     And no side effects
 
-  Scenario: Counting matches
+  Scenario: [11] Counting matches
     Given an empty graph
     And having executed:
       """
@@ -210,7 +210,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | 100      |
     And no side effects
 
-  Scenario: Counting matches per group
+  Scenario: [12] Counting matches per group
     Given an empty graph
     And having executed:
       """
@@ -227,7 +227,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | (:L) | 2        |
     And no side effects
 
-  Scenario: Returning the minimum length of paths
+  Scenario: [13] Returning the minimum length of paths
     Given an empty graph
     And having executed:
       """
@@ -249,7 +249,7 @@ Feature: Return6 - Implicit grouping with aggregates
     And no side effects
 
   @NegativeTest
-  Scenario: Aggregates in aggregates
+  Scenario: [14] Aggregates in aggregates
     Given any graph
     When executing query:
       """

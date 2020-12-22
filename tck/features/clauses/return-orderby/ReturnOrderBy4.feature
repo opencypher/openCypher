@@ -30,7 +30,7 @@
 
 Feature: ReturnOrderBy4 - Order by in combination with projection
 
-  Scenario: ORDER BY of a column introduced in RETURN should return salient results in ascending order
+  Scenario: [1] ORDER BY of a column introduced in RETURN should return salient results in ascending order
     Given an empty graph
     When executing query:
       """
@@ -47,7 +47,7 @@ Feature: ReturnOrderBy4 - Order by in combination with projection
       | 1 |
     And no side effects
 
-  Scenario: Handle projections with ORDER BY
+  Scenario: [2] Handle projections with ORDER BY
     Given an empty graph
     And having executed:
       """

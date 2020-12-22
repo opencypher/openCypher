@@ -30,7 +30,7 @@
 
 Feature: Return1 - Return single variable (correct return of values according to their type)
 
-  Scenario: Returning a list property
+  Scenario: [1] Returning a list property
     Given an empty graph
     And having executed:
       """
