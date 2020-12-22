@@ -30,18 +30,6 @@
 
 Feature: Match1-1 - Match nodes RETURN clause scenarios
 
-  Scenario: Accept skip zero
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      WHERE 1 = 0
-      RETURN n SKIP 0
-      """
-    Then the result should be, in any order:
-      | n |
-    And no side effects
-
   Scenario: Fail when using property access on primitive type
     Given an empty graph
     And having executed:
