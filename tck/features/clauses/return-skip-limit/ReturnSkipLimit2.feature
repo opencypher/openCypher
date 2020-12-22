@@ -134,7 +134,7 @@ Feature: ReturnSkipLimit2 - Limit
     And no side effects
 
   @NegativeTest
-  Scenario: [7] LIMIT with an expression that depends on variables should fail
+  Scenario: [7] Fail when using non-constants in LIMIT
     Given any graph
     When executing query:
       """
@@ -179,7 +179,18 @@ Feature: ReturnSkipLimit2 - Limit
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
   @NegativeTest
-  Scenario: [10] Negative LIMIT should fail
+  Scenario: [10] Fail when using negative value in LIMIT 1
+    Given any graph
+    When executing query:
+      """
+      MATCH (n)
+      RETURN n
+        LIMIT -1
+      """
+    Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
+
+  @NegativeTest
+  Scenario: [11] Fail when using negative value in LIMIT 2
     Given any graph
     And having executed:
       """
@@ -195,7 +206,7 @@ Feature: ReturnSkipLimit2 - Limit
     Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
 
   @NegativeTest
-  Scenario: [11] Floating point parameter for LIMIT should fail
+  Scenario: [12] Floating point parameter for LIMIT should fail
     Given any graph
     And having executed:
       """
@@ -213,7 +224,7 @@ Feature: ReturnSkipLimit2 - Limit
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
   @NegativeTest
-  Scenario: [12] Floating point parameter for LIMIT with ORDER BY should fail
+  Scenario: [13] Floating point parameter for LIMIT with ORDER BY should fail
     Given any graph
     And having executed:
       """
@@ -231,7 +242,18 @@ Feature: ReturnSkipLimit2 - Limit
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
   @NegativeTest
-  Scenario: [13] Floating point LIMIT should fail
+  Scenario: [14] Fail when using floating point in LIMIT 1
+    Given any graph
+    When executing query:
+      """
+      MATCH (n)
+      RETURN n
+        LIMIT 1.7
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  @NegativeTest
+  Scenario: [15] Fail when using floating point in LIMIT 2
     Given any graph
     And having executed:
       """
