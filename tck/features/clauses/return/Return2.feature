@@ -293,3 +293,13 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       RETURN r.num
       """
     Then a EntityNotFound should be raised at runtime: DeletedEntityAccess
+
+  @NegativeTest
+  Scenario: [18] Fail on projecting a non-existent function
+    Given any graph
+    When executing query:
+      """
+      MATCH (a)
+      RETURN foo(a)
+      """
+    Then a SyntaxError should be raised at compile time: UnknownFunction
