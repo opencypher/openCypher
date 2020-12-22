@@ -30,4 +30,38 @@
 
 Feature: Aggregation5 - Collect
 
-  
+  Scenario: [1] `collect()` filtering nulls
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()
+      """
+    When executing query:
+      """
+      MATCH (n)
+      OPTIONAL MATCH (n)-[:NOT_EXIST]->(x)
+      RETURN n, collect(x)
+      """
+    Then the result should be, in any order:
+      | n  | collect(x) |
+      | () | []         |
+    And no side effects
+
+  Scenario: [2] OPTIONAL MATCH and `collect()` on node property
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:DoesExist {num: 42})
+      CREATE (:DoesExist {num: 43})
+      CREATE (:DoesExist {num: 44})
+      """
+    When executing query:
+      """
+      OPTIONAL MATCH (f:DoesExist)
+      OPTIONAL MATCH (n:DoesNotExist)
+      RETURN collect(DISTINCT n.num) AS a, collect(DISTINCT f.num) AS b
+      """
+    Then the result should be, in any order:
+      | a  | b            |
+      | [] | [42, 43, 44] |
+    And no side effects
