@@ -28,9 +28,24 @@
 
 #encoding: utf-8
 
-Feature: Merge2-1 - Merge Edge and Create Interoperability
+Feature: Merge9 - Merge clause interoperation with other clauses
 
-  Scenario: [1] Mixing MERGE with CREATE
+  Scenario: [1] Unwind combined with merge
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [1, 2, 3, 4] AS int
+      MERGE (n {id: int})
+      RETURN count(*)
+      """
+    Then the result should be, in any order:
+      | count(*) |
+      | 4        |
+    And the side effects should be:
+      | +nodes      | 4 |
+      | +properties | 4 |
+
+  Scenario: [2] Mixing MERGE with CREATE
     Given an empty graph
     When executing query:
       """
