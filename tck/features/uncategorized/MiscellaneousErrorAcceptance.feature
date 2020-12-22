@@ -31,16 +31,6 @@
 Feature: MiscellaneousErrorAcceptance
 
   @NegativeTest
-  Scenario: Failing on merging relationship with null property
-    Given any graph
-    When executing query:
-      """
-      CREATE (a), (b)
-      MERGE (a)-[r:X {num: null}]->(b)
-      """
-    Then a SemanticError should be raised at compile time: MergeReadOwnWrites
-
-  @NegativeTest
   Scenario: Failing on merging node with null property
     Given any graph
     When executing query:

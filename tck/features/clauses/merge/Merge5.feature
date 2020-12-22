@@ -515,3 +515,13 @@ Feature: Merge5 - Merge relationships
       MERGE (a)-[:FOO*2]->(b)
       """
     Then a SyntaxError should be raised at compile time: CreatingVarLength
+
+  @NegativeTest
+  Scenario: [29] Fail on merging relationship with null property
+    Given any graph
+    When executing query:
+      """
+      CREATE (a), (b)
+      MERGE (a)-[r:X {num: null}]->(b)
+      """
+    Then a SemanticError should be raised at compile time: MergeReadOwnWrites
