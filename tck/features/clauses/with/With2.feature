@@ -31,7 +31,7 @@
 Feature: With2 - Forward single expression
   # correctly projecting an expression, no other effects
 
-  Scenario: Forwarding a property to express a join
+  Scenario: [1] Forwarding a property to express a join
     Given an empty graph
     And having executed:
       """
@@ -52,7 +52,7 @@ Feature: With2 - Forward single expression
       | (:End {num: 42, id: 0}) |
     And no side effects
 
-  Scenario: Forwarding a nested map literal
+  Scenario: [2] Forwarding a nested map literal
     Given an empty graph
     When executing query:
       """
@@ -63,14 +63,3 @@ Feature: With2 - Forward single expression
       | nestedMap.name.name2 |
       | 'baz'                |
     And no side effects
-
-  @NegativeTest
-  Scenario: Failing when not aliasing expressions in WITH
-    Given any graph
-    When executing query:
-      """
-      MATCH (a)
-      WITH a, count(*)
-      RETURN a
-      """
-    Then a SyntaxError should be raised at compile time: NoExpressionAlias
