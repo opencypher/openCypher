@@ -167,7 +167,7 @@ Feature: Literals6 - String
     And no side effects
 
   @NegativeTest
-  Scenario: [12] Failing on incorrect unicode literal
+  Scenario: [13] Failing on incorrect unicode literal
     Given any graph
     When executing query:
       """
