@@ -341,3 +341,14 @@ Feature: Create2 - Creating relationships
       CREATE ()-[r]->()
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+  @NegativeTest
+  Scenario: [23] Fail when creating a relationship using undefined variable in pattern
+    Given any graph
+    When executing query:
+      """
+      MATCH (a)
+      CREATE (a)-[:KNOWS]->(b {name: missing})
+      RETURN b
+      """
+    Then a SyntaxError should be raised at compile time: UndefinedVariable
