@@ -31,17 +31,6 @@
 Feature: MiscellaneousErrorAcceptance
 
   @NegativeTest
-  Scenario: Failing on aggregation in ORDER BY after RETURN
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n.num1
-        ORDER BY max(n.num2)
-      """
-    Then a SyntaxError should be raised at compile time: InvalidAggregation
-
-  @NegativeTest
   Scenario: Failing when using undefined variable in pattern
     Given any graph
     When executing query:
