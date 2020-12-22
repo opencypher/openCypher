@@ -30,7 +30,7 @@
 
 Feature: With3 - Forward multiple expressions
 
-  Scenario: Forwarding multiple node and relationship variables
+  Scenario: [1] Forwarding multiple node and relationship variables
     Given an empty graph
     And having executed:
       """
