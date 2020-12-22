@@ -71,3 +71,15 @@ Feature: WithOrderBy2 - Order by a single expression
       | 'A'  |
       | 'B'  |
     And no side effects
+
+  @NegativeTest
+  Scenario: [3] Fail on aggregation in ORDER BY after WITH
+    Given any graph
+    When executing query:
+      """
+      MATCH (n)
+      WITH n.num1 AS foo
+        ORDER BY max(n.num2)
+      RETURN foo AS foo
+      """
+    Then a SyntaxError should be raised at compile time: InvalidAggregation
