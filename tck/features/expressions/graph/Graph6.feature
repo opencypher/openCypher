@@ -33,7 +33,7 @@ Feature: Graph6 - Static property access
 
   @NegativeTest
   Scenario: [1] Fail when performing property access on a non-graph element
-    Given empty graph
+    Given an empty graph
     And having executed:
       """
       CREATE ({num: 42})
