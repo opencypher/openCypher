@@ -110,3 +110,25 @@ Feature: With4 - Variable aliasing
       RETURN a
       """
     Then a SyntaxError should be raised at compile time: NoExpressionAlias
+
+  Scenario: [6] Reusing variable names in WITH
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:Person), (b:Person), (m:Message {id: 10})
+      CREATE (a)-[:LIKE {creationDate: 20160614}]->(m)-[:POSTED_BY]->(b)
+      """
+    When executing query:
+      """
+      MATCH (person:Person)<--(message)<-[like]-(:Person)
+      WITH like.creationDate AS likeTime, person AS person
+        ORDER BY likeTime, message.id
+      WITH head(collect({likeTime: likeTime})) AS latestLike, person AS person
+      WITH latestLike.likeTime AS likeTime
+        ORDER BY likeTime
+      RETURN likeTime
+      """
+    Then the result should be, in order:
+      | likeTime |
+      | 20160614 |
+    And no side effects

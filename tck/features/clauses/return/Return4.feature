@@ -179,10 +179,31 @@ Feature: Return4 - Column renaming
     And no side effects
 
   @NegativeTest
-  Scenario: Fail when returning multiple columns with same name
+  Scenario: [10] Fail when returning multiple columns with same name
     Given any graph
     When executing query:
       """
       RETURN 1 AS a, 2 AS a
       """
     Then a SyntaxError should be raised at compile time: ColumnNameConflict
+
+  Scenario: [11] Reusing variable names in RETURN
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:Person), (b:Person), (m:Message {id: 10})
+      CREATE (a)-[:LIKE {creationDate: 20160614}]->(m)-[:POSTED_BY]->(b)
+      """
+    When executing query:
+      """
+      MATCH (person:Person)<--(message)<-[like]-(:Person)
+      WITH like.creationDate AS likeTime, person AS person
+        ORDER BY likeTime, message.id
+      WITH head(collect({likeTime: likeTime})) AS latestLike, person AS person
+      RETURN latestLike.likeTime AS likeTime
+        ORDER BY likeTime
+      """
+    Then the result should be, in order:
+      | likeTime |
+      | 20160614 |
+    And no side effects
