@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Merge1-1 - Merge Node and Create Interoperability
+Feature: Create6 - Create clause interoperation with other clauses
 
   Scenario: [1] Merge followed by multiple creates
     Given an empty graph
