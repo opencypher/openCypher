@@ -99,3 +99,14 @@ Feature: With4 - Variable aliasing
       RETURN a
       """
     Then a SyntaxError should be raised at compile time: ColumnNameConflict
+
+  @NegativeTest
+  Scenario: [5] Fail when not aliasing expressions in WITH
+    Given any graph
+    When executing query:
+      """
+      MATCH (a)
+      WITH a, count(*)
+      RETURN a
+      """
+    Then a SyntaxError should be raised at compile time: NoExpressionAlias

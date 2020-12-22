@@ -42,17 +42,6 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: InvalidAggregation
 
   @NegativeTest
-  Scenario: Failing when not aliasing expressions in WITH
-    Given any graph
-    When executing query:
-      """
-      MATCH (a)
-      WITH a, count(*)
-      RETURN a
-      """
-    Then a SyntaxError should be raised at compile time: NoExpressionAlias
-
-  @NegativeTest
   Scenario: Failing when using undefined variable in pattern
     Given any graph
     When executing query:
