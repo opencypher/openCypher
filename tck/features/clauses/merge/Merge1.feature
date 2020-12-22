@@ -298,3 +298,12 @@ Feature: Merge1 - Merge Node
       RETURN n
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
+
+  @NegativeTest
+  Scenario: [16] Fail on merging node with null property
+    Given any graph
+    When executing query:
+      """
+      MERGE ({num: null})
+      """
+    Then a SemanticError should be raised at compile time: MergeReadOwnWrites
