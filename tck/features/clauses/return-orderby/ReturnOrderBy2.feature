@@ -116,7 +116,6 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
       | ({name: 'C'}) |
     And no side effects
 
-    #TODO: duplicate of the above?
   Scenario: [5] Support ordering by a property after being distinct-ified
     Given an empty graph
     And having executed:
