@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020 "Neo Technology,"
+# Copyright (c) 2015-2021 "Neo Technology,"
 # Network Engine for Objects in Lund AB [http://neotechnology.com]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,3 +29,26 @@
 #encoding: utf-8
 
 Feature: WithOrderBy4 - Order by in combination with projection
+
+  Scenario: [1] Matching using a relationship that is already bound, in conjunction with aggregation and ORDER BY
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:T1 {id: 0}]->(:X),
+             ()-[:T2 {id: 1}]->(:X),
+             ()-[:T2 {id: 2}]->()
+      """
+    When executing query:
+      """
+      MATCH (a)-[r]->(b:X)
+      WITH a, r, b, count(*) AS c
+        ORDER BY c
+      MATCH (a)-[r]->(b)
+      RETURN r AS rel
+        ORDER BY rel.id
+      """
+    Then the result should be, in order:
+      | rel           |
+      | [:T1 {id: 0}] |
+      | [:T2 {id: 1}] |
+    And no side effects
