@@ -53,3 +53,23 @@ Feature: WithSkipLimit1 - Skip
       | b                            |
       | ({name: 'A', num: 0, id: 0}) |
     And no side effects
+
+  Scenario: [2] Ordering and skipping on aggregate
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:T1 {num: 3}]->(x:X),
+             ()-[:T2 {num: 2}]->(x),
+             ()-[:T3 {num: 1}]->(:Y)
+      """
+    When executing query:
+      """
+      MATCH ()-[r1]->(x)
+      WITH x, sum(r1.num) AS c
+        ORDER BY c SKIP 1
+      RETURN x, c
+      """
+    Then the result should be, in any order:
+      | x    | c |
+      | (:X) | 5 |
+    And no side effects
