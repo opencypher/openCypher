@@ -33,11 +33,15 @@ Feature: Graph6 - Static property access
 
   @NegativeTest
   Scenario: [1] Fail when performing property access on a non-graph element
-    Given any graph
+    Given empty graph
+    And having executed:
+      """
+      CREATE ({num: 42})
+      """
     When executing query:
       """
-      CREATE (n {name: 'foo'})
-      WITH n.name AS n2
-      RETURN n2.name
+      MATCH (n)
+      WITH n.num AS n2
+      RETURN n2.num
       """
     Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
