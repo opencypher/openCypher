@@ -31,7 +31,7 @@
 Feature: With1 - Forward single variable
   # correctly forward of values according to their type, no other effects
 
-  Scenario: Forwarind a node variable 1
+  Scenario: [1] Forwarind a node variable 1
     Given an empty graph
     And having executed:
       """
@@ -49,7 +49,7 @@ Feature: With1 - Forward single variable
       | (:A) | (:B) |
     And no side effects
 
-  Scenario: Forwarind a node variable 2
+  Scenario: [2] Forwarind a node variable 2
     Given an empty graph
     And having executed:
       """
@@ -68,7 +68,7 @@ Feature: With1 - Forward single variable
       | (:A) | (:B) | (:X) |
     And no side effects
 
-  Scenario: Forwarding a relationship variable
+  Scenario: [3] Forwarding a relationship variable
     Given an empty graph
     And having executed:
       """
@@ -89,7 +89,7 @@ Feature: With1 - Forward single variable
       | [:T2] |
     And no side effects
 
-  Scenario: Forwarding a path variable
+  Scenario: [4] Forwarding a path variable
     Given an empty graph
     And having executed:
       """
@@ -106,7 +106,7 @@ Feature: With1 - Forward single variable
       | <()> |
     And no side effects
 
-  Scenario: Forwarding null
+  Scenario: [5] Forwarding null
     Given an empty graph
     When executing query:
       """
@@ -119,7 +119,7 @@ Feature: With1 - Forward single variable
       | a | b |
     And no side effects
 
-  Scenario: Forwarind a node variable possibly null
+  Scenario: [6] Forwarind a node variable possibly null
     Given an empty graph
     And having executed:
       """
