@@ -30,10 +30,8 @@
 
 Feature: ReturnOrderBy1 - Order by a single variable (correct order of values according to their type)
 
-  Background:
-    Given an empty graph
-
   Scenario: ORDER BY should order booleans in the expected order
+    Given an empty graph
     When executing query:
       """
       UNWIND [true, false] AS bools
@@ -47,6 +45,7 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
     And no side effects
 
   Scenario: ORDER BY DESC should order booleans in the expected order
+    Given an empty graph
     When executing query:
       """
       UNWIND [true, false] AS bools
@@ -60,6 +59,7 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
     And no side effects
 
   Scenario: ORDER BY should order strings in the expected order
+    Given an empty graph
     When executing query:
       """
       UNWIND ['.*', '', ' ', 'one'] AS strings
@@ -75,6 +75,7 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
     And no side effects
 
   Scenario: ORDER BY DESC should order strings in the expected order
+    Given an empty graph
     When executing query:
       """
       UNWIND ['.*', '', ' ', 'one'] AS strings
@@ -90,6 +91,7 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
     And no side effects
 
   Scenario: ORDER BY should order ints in the expected order
+    Given an empty graph
     When executing query:
       """
       UNWIND [1, 3, 2] AS ints
@@ -104,6 +106,7 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
     And no side effects
 
   Scenario: ORDER BY DESC should order ints in the expected order
+    Given an empty graph
     When executing query:
       """
       UNWIND [1, 3, 2] AS ints
@@ -118,6 +121,7 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
     And no side effects
 
   Scenario: ORDER BY should order floats in the expected order
+    Given an empty graph
     When executing query:
       """
       UNWIND [1.5, 1.3, 999.99] AS floats
@@ -132,6 +136,7 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
     And no side effects
 
   Scenario: ORDER BY DESC should order floats in the expected order
+    Given an empty graph
     When executing query:
       """
       UNWIND [1.5, 1.3, 999.99] AS floats
@@ -146,6 +151,7 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
     And no side effects
 
   Scenario: ORDER BY should order lists in the expected order
+    Given an empty graph
     When executing query:
       """
       UNWIND [[], ['a'], ['a', 1], [1], [1, 'a'], [1, null], [null, 1], [null, 2]] AS lists
@@ -165,6 +171,7 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
     And no side effects
 
   Scenario: ORDER BY DESC should order lists in the expected order
+    Given an empty graph
     When executing query:
       """
       UNWIND [[], ['a'], ['a', 1], [1], [1, 'a'], [1, null], [null, 1], [null, 2]] AS lists
@@ -184,6 +191,7 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
     And no side effects
 
   Scenario: ORDER BY should order distinct types in the expected order
+    Given an empty graph
     And having executed:
       """
       CREATE (:N)-[:REL]->()
@@ -210,6 +218,7 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
     And no side effects
 
   Scenario: ORDER BY DESC should order distinct types in the expected order
+    Given an empty graph
     And having executed:
       """
       CREATE (:N)-[:REL]->()
