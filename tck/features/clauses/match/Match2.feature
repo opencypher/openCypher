@@ -132,8 +132,25 @@ Feature: Match2 - Match relationships
       | [:HATES] |
     And no side effects
 
+  Scenario: [7] Matching twice with conflicting relationship types on same relationship
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:T]->()
+      """
+    When executing query:
+      """
+      MATCH (a1)-[r:T]->()
+      WITH r, a1
+      MATCH (a1)-[r:Y]->(b2)
+      RETURN a1, r, b2
+      """
+    Then the result should be, in any order:
+      | a1 | r | b2 |
+    And no side effects
+
   @NegativeTest
-  Scenario: [7] Fail when using parameter as relationship predicate in MATCH
+  Scenario: [8] Fail when using parameter as relationship predicate in MATCH
     Given any graph
     When executing query:
       """
@@ -143,7 +160,7 @@ Feature: Match2 - Match relationships
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
   @NegativeTest
-  Scenario Outline: [8] Fail when a node has the same variable in a preceding MATCH
+  Scenario Outline: [9] Fail when a node has the same variable in a preceding MATCH
     Given any graph
     When executing query:
       """
@@ -183,7 +200,7 @@ Feature: Match2 - Match relationships
       | (s), (a)-[q]-(b), (t), (s)-[]->(r)<-[]-(b) |
 
   @NegativeTest
-  Scenario Outline: [9] Fail when a path has the same variable in a preceding MATCH
+  Scenario Outline: [10] Fail when a path has the same variable in a preceding MATCH
     Given any graph
     When executing query:
       """
@@ -216,7 +233,7 @@ Feature: Match2 - Match relationships
       | (x), (a)-[q]-(b), r = (s)-[p*]->(t)<-[]-(b) |
 
   @NegativeTest
-  Scenario Outline: [10] Fail when a node has the same variable in the same pattern
+  Scenario Outline: [11] Fail when a node has the same variable in the same pattern
     Given any graph
     When executing query:
       """
@@ -246,7 +263,7 @@ Feature: Match2 - Match relationships
       | (r), (a)-[q]-(b), (s), (s)-[r]->(t)<-[]-(b) |
 
   @NegativeTest
-  Scenario Outline: [11] Fail when a path has the same variable in the same pattern
+  Scenario Outline: [12] Fail when a path has the same variable in the same pattern
     Given any graph
     When executing query:
       """
