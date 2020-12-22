@@ -352,3 +352,12 @@ Feature: Create2 - Creating relationships
       RETURN b
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
+
+  @NegativeTest
+  Scenario: [24] Fail when creating with two directions
+    Given any graph
+    When executing query:
+      """
+      CREATE (a)<-[:FOO]->(b)
+      """
+    Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship

@@ -64,15 +64,6 @@ Feature: MiscellaneousErrorAcceptance
     Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
 
   @NegativeTest
-  Scenario: Failing when creating with two directions
-    Given any graph
-    When executing query:
-      """
-      CREATE (a)<-[:FOO]->(b)
-      """
-    Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
-
-  @NegativeTest
   Scenario: Failing when multiple columns have the same name
     Given any graph
     When executing query:
