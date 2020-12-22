@@ -28,10 +28,9 @@
 
 #encoding: utf-8
 
-Feature: WithAcceptance
+Feature: Return8 - Return clause interoperation with other clauses
 
-  # Return aggregation after With filtering
-  Scenario: Single WITH using a predicate and aggregation
+  Scenario: [1] Return aggregation after With filtering
     Given an empty graph
     And having executed:
       """
