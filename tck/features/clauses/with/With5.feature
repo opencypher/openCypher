@@ -30,7 +30,7 @@
 
 Feature: With5 - Implicit grouping with DISTINCT
 
-  Scenario: DISTINCT on an expression
+  Scenario: [1] DISTINCT on an expression
     Given an empty graph
     And having executed:
       """
