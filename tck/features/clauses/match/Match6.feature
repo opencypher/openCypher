@@ -519,7 +519,7 @@ Feature: Match6 - Match named paths scenarios
       MATCH p = ()-[]-()
       RETURN p
       """
-    Then a SyntaxError should be raised at compile time: VariableTypeConflict
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
     Examples:
       | invalid |
