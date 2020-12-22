@@ -30,7 +30,7 @@
 
 Feature: With6 - Implicit grouping with aggregates
 
-  Scenario: Implicit grouping with single expression as grouping key and single aggregation
+  Scenario: [1] Implicit grouping with single expression as grouping key and single aggregation
     Given an empty graph
     And having executed:
       """
@@ -50,7 +50,7 @@ Feature: With6 - Implicit grouping with aggregates
       | 'B'  | 1        |
     And no side effects
 
-  Scenario: Implicit grouping with single relationship variable as grouping key and single aggregation
+  Scenario: [2] Implicit grouping with single relationship variable as grouping key and single aggregation
     Given an empty graph
     And having executed:
       """
@@ -71,7 +71,7 @@ Feature: With6 - Implicit grouping with aggregates
       | [:T2] |
     And no side effects
 
-  Scenario: Implicit grouping with multiple node and relationship variables as grouping key and single aggregation
+  Scenario: [3] Implicit grouping with multiple node and relationship variables as grouping key and single aggregation
     Given an empty graph
     And having executed:
       """
@@ -92,7 +92,7 @@ Feature: With6 - Implicit grouping with aggregates
       | [:T2] |
     And no side effects
 
-  Scenario: Implicit grouping with single path variable as grouping key and single aggregation
+  Scenario: [4] Implicit grouping with single path variable as grouping key and single aggregation
     Given an empty graph
     And having executed:
       """
