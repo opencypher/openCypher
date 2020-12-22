@@ -30,26 +30,6 @@
 
 Feature: Match1-1 - Match nodes RETURN clause scenarios
 
-  Scenario: Matching and returning ordered results, with LIMIT
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({num: 1}), ({num: 3}), ({num: 2})
-      """
-    When executing query:
-      """
-      MATCH (foo)
-      RETURN foo.num AS x
-        ORDER BY x DESC
-        LIMIT 4
-      """
-    Then the result should be, in order:
-      | x |
-      | 3 |
-      | 2 |
-      | 1 |
-    And no side effects
-
   Scenario: Accept skip zero
     Given any graph
     When executing query:
