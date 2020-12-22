@@ -47,7 +47,6 @@ Feature: Return4 - Column renaming
       | 'Someone' |
     And no side effects
 
-    #TODO: duplicate?
   Scenario: Support column renaming
     Given an empty graph
     And having executed:

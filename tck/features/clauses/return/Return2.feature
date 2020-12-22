@@ -30,6 +30,17 @@
 
 Feature: Return2 - Return single expression (correctly projecting an expression)
 
+  Scenario: Arithmetic expressions should propagate null values
+    Given any graph
+    When executing query:
+      """
+      RETURN 1 + (2 - (3 * (4 / (5 ^ (6 % null))))) AS a
+      """
+    Then the result should be, in any order:
+      | a    |
+      | null |
+    And no side effects
+
   Scenario: Returning a node property value
     Given an empty graph
     And having executed:
@@ -110,22 +121,6 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | 2   |
     And no side effects
 
-  Scenario: Returning a list property
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({numbers: [1, 2, 3]})
-      """
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n
-      """
-    Then the result should be, in any order:
-      | n                      |
-      | ({numbers: [1, 2, 3]}) |
-    And no side effects
-
   Scenario: Adding list properties in projection
     Given an empty graph
     And having executed:
@@ -173,7 +168,6 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | {a: 1, b: 'foo'} |
       | {a: 1, b: 'foo'} |
     And no side effects
-
 
   Scenario: Return count aggregation over an empty graph
     Given an empty graph
@@ -254,7 +248,6 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | 'T'     |
     And the side effects should be:
       | -relationships | 1 |
-
 
   @NegativeTest
   Scenario: Fail when returning properties of deleted nodes
