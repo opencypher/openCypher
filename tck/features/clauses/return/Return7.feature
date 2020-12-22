@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2021 "Neo Technology,"
+# Copyright (c) 2015-2020 "Neo Technology,"
 # Network Engine for Objects in Lund AB [http://neotechnology.com]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,13 +28,30 @@
 
 #encoding: utf-8
 
-Feature: MiscellaneousErrorAcceptance
+Feature: Return7 - Return all variables
+
+  Scenario: [1] Return all variables
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:Start)-[:T]->()
+      """
+    When executing query:
+      """
+      MATCH p = (a:Start)-->(b)
+      RETURN *
+      """
+    Then the result should be, in any order:
+      | a        | b  | p                   |
+      | (:Start) | () | <(:Start)-[:T]->()> |
+    And no side effects
 
   @NegativeTest
-  Scenario: Failing when multiple columns have the same name
+  Scenario: [2] Fail when using RETURN * without variables in scope
     Given any graph
     When executing query:
       """
-      RETURN 1 AS a, 2 AS a
+      MATCH ()
+      RETURN *
       """
-    Then a SyntaxError should be raised at compile time: ColumnNameConflict
+    Then a SyntaxError should be raised at compile time: NoVariablesInScope

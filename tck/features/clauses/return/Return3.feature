@@ -78,19 +78,3 @@ Feature: Return3 - Return multiple expressions (if column order correct)
       | foo  | bar  |
       | (:A) | [:T] |
     And no side effects
-
-  Scenario: [4] Return all variables
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (:Start)-[:T]->()
-      """
-    When executing query:
-      """
-      MATCH p = (a:Start)-->(b)
-      RETURN *
-      """
-    Then the result should be, in any order:
-      | a        | b  | p                   |
-      | (:Start) | () | <(:Start)-[:T]->()> |
-    And no side effects
