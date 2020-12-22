@@ -175,3 +175,25 @@ Feature: ReturnSkipLimit1 - Skip
       SKIP 1.5
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  @NegativeTest
+  Scenario: [9] Fail when using non-constants in SKIP
+    Given any graph
+    When executing query:
+      """
+      MATCH (n)
+      RETURN n
+        SKIP n.count
+      """
+    Then a SyntaxError should be raised at compile time: NonConstantExpression
+
+  @NegativeTest
+  Scenario: [10] Fail when using negative value in SKIP
+    Given any graph
+    When executing query:
+      """
+      MATCH (n)
+      RETURN n
+        SKIP -1
+      """
+    Then a SyntaxError should be raised at compile time: NegativeIntegerArgument

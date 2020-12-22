@@ -41,28 +41,6 @@ Feature: SemanticErrorAcceptance
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
   @NegativeTest
-  Scenario: Failing when using non-constants in SKIP
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n
-        SKIP n.count
-      """
-    Then a SyntaxError should be raised at compile time: NonConstantExpression
-
-  @NegativeTest
-  Scenario: Failing when using negative value in SKIP
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      RETURN n
-        SKIP -1
-      """
-    Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
-
-  @NegativeTest
   Scenario: Failing when using non-constants in LIMIT
     Given any graph
     When executing query:
