@@ -31,17 +31,6 @@
 Feature: MiscellaneousErrorAcceptance
 
   @NegativeTest
-  Scenario: Failing when using a variable that is already bound in CREATE
-    Given any graph
-    When executing query:
-      """
-      MATCH (a)
-      CREATE (a {name: 'foo'})
-      RETURN a
-      """
-    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
-
-  @NegativeTest
   Scenario: Failing when using a path variable that is already bound
     Given any graph
     When executing query:
