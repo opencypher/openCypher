@@ -31,15 +31,6 @@
 Feature: MiscellaneousErrorAcceptance
 
   @NegativeTest
-  Scenario: Failing on incorrect unicode literal
-    Given any graph
-    When executing query:
-      """
-      RETURN '\uH'
-      """
-    Then a SyntaxError should be raised at compile time: InvalidUnicodeLiteral
-
-  @NegativeTest
   Scenario: Failing on merging relationship with null property
     Given any graph
     When executing query:

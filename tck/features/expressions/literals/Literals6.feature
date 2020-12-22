@@ -165,3 +165,12 @@ Feature: Literals6 - String
       | literal   |
       | '🧐🍌❖⋙⚐' |
     And no side effects
+
+  @NegativeTest
+  Scenario: [12] Failing on incorrect unicode literal
+    Given any graph
+    When executing query:
+      """
+      RETURN '\uH'
+      """
+    Then a SyntaxError should be raised at compile time: InvalidUnicodeLiteral
