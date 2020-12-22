@@ -31,7 +31,7 @@
 Feature: With4 - Variable aliasing
   # correctly aliasing variables
 
-  Scenario: Aliasing relationship variable
+  Scenario: [1] Aliasing relationship variable
     Given an empty graph
     And having executed:
       """
@@ -50,7 +50,7 @@ Feature: With4 - Variable aliasing
       | [:T2] |
     And no side effects
 
-  Scenario: Aliasing expression to new variable name
+  Scenario: [2] Aliasing expression to new variable name
     Given an empty graph
     And having executed:
       """
@@ -71,7 +71,7 @@ Feature: With4 - Variable aliasing
       | (:End {num: 42}) |
     And no side effects
 
-  Scenario: Aliasing expression to exsiting variable name
+  Scenario: [3] Aliasing expression to exsiting variable name
     Given an empty graph
     And having executed:
       """
@@ -91,7 +91,7 @@ Feature: With4 - Variable aliasing
     And no side effects
 
   @NegativeTest
-  Scenario: Fail when forwarding multiple aliases with the same name
+  Scenario: [4] Fail when forwarding multiple aliases with the same name
     Given any graph
     When executing query:
       """
