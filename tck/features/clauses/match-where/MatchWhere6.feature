@@ -28,10 +28,9 @@
 
 #encoding: utf-8
 
-Feature: Match7-2 - Optional match WHERE clause scenarios
+Feature: MatchWhere6 - Filter optional matches
 
-  # Consider for OptionalMatch-Where1
-  Scenario: Filter node with node label predicate on multi variables with multiple bindings after MATCH and OPTIONAL MATCH
+  Scenario: [1] Filter node with node label predicate on multi variables with multiple bindings after MATCH and OPTIONAL MATCH
     Given an empty graph
     And having executed:
       """
@@ -53,8 +52,7 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | 'A'    |
     And no side effects
 
-  # Consider for OptionalMatch-Where1
-  Scenario: Filter node with false node label predicate after OPTIONAL MATCH
+  Scenario: [2] Filter node with false node label predicate after OPTIONAL MATCH
     Given an empty graph
     And having executed:
       """
@@ -77,8 +75,7 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | null |
     And no side effects
 
-  # Consider for OptionalMatch-Where1
-  Scenario: Filter node with property predicate on multi variables with multiple bindings after OPTIONAL MATCH
+  Scenario: [3] Filter node with property predicate on multi variables with multiple bindings after OPTIONAL MATCH
     Given an empty graph
     And having executed:
       """
@@ -101,8 +98,7 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | (:A {num: 42}) |
     And no side effects
 
-  # Consider for OptionalMatch-Where1
-  Scenario: Do not fail when predicates on optionally matched and missed nodes are invalid
+  Scenario: [4] Do not fail when predicates on optionally matched and missed nodes are invalid
     Given an empty graph
     And having executed:
       """
@@ -121,8 +117,7 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | 'Mark'  |
     And no side effects
 
-  # Consider for OptionalMatch-Where3
-  Scenario: Matching and optionally matching with unbound nodes and equality predicate in reverse direction
+  Scenario: [5] Matching and optionally matching with unbound nodes and equality predicate in reverse direction
     Given an empty graph
     And having executed:
       """
@@ -142,8 +137,7 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | (:A) | [:T] | null | null |
     And no side effects
 
-  # Consider for OptionalMatch-Where4
-  Scenario: Join nodes on non-equality of properties – OPTIONAL MATCH and WHERE
+  Scenario: [6] Join nodes on non-equality of properties – OPTIONAL MATCH and WHERE
     Given an empty graph
     And having executed:
       """
@@ -166,8 +160,7 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | (:X {val: 6}) | null          |
     And no side effects
 
-  # Consider for OptionalMatch-Where4
-  Scenario: Join nodes on non-equality of properties – OPTIONAL MATCH on two relationships and WHERE
+  Scenario: [7] Join nodes on non-equality of properties – OPTIONAL MATCH on two relationships and WHERE
     Given an empty graph
     And having executed:
       """
@@ -190,8 +183,7 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | (:X {val: 6}) | null          | null          |
     And no side effects
 
-  # Consider for OptionalMatch-Where4
-  Scenario: Join nodes on non-equality of properties – Two OPTIONAL MATCH clauses and WHERE
+  Scenario: [8] Join nodes on non-equality of properties – Two OPTIONAL MATCH clauses and WHERE
     Given an empty graph
     And having executed:
       """
@@ -214,4 +206,3 @@ Feature: Match7-2 - Optional match WHERE clause scenarios
       | (:X {val: 4}) | (:Y {val: 5}) | null          |
       | (:X {val: 6}) | null          | null          |
     And no side effects
-
