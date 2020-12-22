@@ -28,9 +28,9 @@
 
 #encoding: utf-8
 
-Feature: Call1-1 - Procedures without arguments and WITH clause interoperability.
+Feature: Call6 - Call clause interoperation with other clauses
 
-  Scenario: Calling the same STRING procedure twice using the same outputs in each call
+  Scenario: [1] Calling the same STRING procedure twice using the same outputs in each call
     Given an empty graph
     And there exists a procedure test.labels() :: (label :: STRING?):
       | label |
@@ -38,7 +38,7 @@ Feature: Call1-1 - Procedures without arguments and WITH clause interoperability
       | 'B'   |
       | 'C'   |
     When executing query:
-"""
+      """
       CALL test.labels() YIELD label
       WITH count(*) AS c
       CALL test.labels() YIELD label
