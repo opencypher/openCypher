@@ -140,9 +140,9 @@ Feature: Graph5 - Node and edge label expressions
       """
       MATCH (n:Single)
       OPTIONAL MATCH (n)-[r:TYPE]-(m)
-      RETURN r:TYPE, m:TYPE
+      RETURN m:TYPE
       """
     Then the result should be, in any order:
-      | r:TYPE | m:TYPE |
-      | null   | null   |
+      | m:TYPE |
+      | null   |
     And no side effects
