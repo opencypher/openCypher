@@ -31,17 +31,6 @@
 Feature: MiscellaneousErrorAcceptance
 
   @NegativeTest
-  Scenario: Failing when using undefined variable in pattern
-    Given any graph
-    When executing query:
-      """
-      MATCH (a)
-      CREATE (a)-[:KNOWS]->(b {name: missing})
-      RETURN b
-      """
-    Then a SyntaxError should be raised at compile time: UndefinedVariable
-
-  @NegativeTest
   Scenario: Failing when using a variable that is already bound in CREATE
     Given any graph
     When executing query:

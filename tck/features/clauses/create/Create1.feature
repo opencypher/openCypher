@@ -211,3 +211,13 @@ Feature: Create1 - Creating nodes
       CREATE (n {})-[:OWNS]->(:Dog)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+  @NegativeTest
+  Scenario: Fail when creating a node using undefined variable in pattern
+    Given any graph
+    When executing query:
+      """
+      CREATE (b {name: missing})
+      RETURN b
+      """
+    Then a SyntaxError should be raised at compile time: UndefinedVariable
