@@ -132,3 +132,19 @@ Feature: With4 - Variable aliasing
       | likeTime |
       | 20160614 |
     And no side effects
+
+  Scenario: [7] Multiple aliasing and backreferencing
+    Given any graph
+    When executing query:
+      """
+      CREATE (m {id: 0})
+      WITH {first: m.id} AS m
+      WITH {second: m.first} AS m
+      RETURN m.second
+      """
+    Then the result should be, in any order:
+      | m.second |
+      | 0        |
+    And the side effects should be:
+      | +nodes      | 1 |
+      | +properties | 1 |
