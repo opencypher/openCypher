@@ -277,3 +277,14 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
         ORDER BY a.age
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
+
+  @NegativeTest
+  Scenario: [14] Fail on aggregation in ORDER BY after RETURN
+    Given any graph
+    When executing query:
+      """
+      MATCH (n)
+      RETURN n.num1
+        ORDER BY max(n.num2)
+      """
+    Then a SyntaxError should be raised at compile time: InvalidAggregation
