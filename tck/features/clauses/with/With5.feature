@@ -49,3 +49,20 @@ Feature: With5 - Implicit grouping with DISTINCT
       | 'A'  |
       | 'B'  |
     And no side effects
+
+  Scenario: Handling DISTINCT with lists in maps
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({list: ['A', 'B']}), ({list: ['A', 'B']})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      WITH DISTINCT {name: n.list} AS map
+      RETURN count(*)
+      """
+    Then the result should be, in any order:
+      | count(*) |
+      | 1        |
+    And no side effects

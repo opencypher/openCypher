@@ -30,25 +30,18 @@
 
 Feature: Return1 - Return single variable (correct return of values according to their type)
 
-  Scenario: Accept valid Unicode literal
-    Given any graph
+  Scenario: Returning a list property
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({numbers: [1, 2, 3]})
+      """
     When executing query:
       """
-      RETURN '\u01FF' AS a
+      MATCH (n)
+      RETURN n
       """
     Then the result should be, in any order:
-      | a   |
-      | 'ǿ' |
-    And no side effects
-
-
-  Scenario: Arithmetic expressions should propagate null values
-    Given any graph
-    When executing query:
-      """
-      RETURN 1 + (2 - (3 * (4 / (5 ^ (6 % null))))) AS a
-      """
-    Then the result should be, in any order:
-      | a    |
-      | null |
+      | n                      |
+      | ({numbers: [1, 2, 3]}) |
     And no side effects

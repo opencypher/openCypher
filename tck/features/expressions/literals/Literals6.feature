@@ -59,7 +59,7 @@ Feature: Literals6 - String
       RETURN '🧐🍌❖⋙⚐' AS literal
       """
     Then the result should be, in any order:
-      | literal    |
+      | literal   |
       | '🧐🍌❖⋙⚐' |
     And no side effects
 
@@ -131,8 +131,19 @@ Feature: Literals6 - String
       | ''      |
     And no side effects
 
+  Scenario: [10] Accept valid Unicode literal
+    Given any graph
+    When executing query:
+      """
+      RETURN '\u01FF' AS a
+      """
+    Then the result should be, in any order:
+      | a   |
+      | 'ǿ' |
+    And no side effects
+
   @skipStyleCheck
-  Scenario: [10] Return a double-quoted string with one character
+  Scenario: [11] Return a double-quoted string with one character
     Given any graph
     When executing query:
       """
@@ -144,13 +155,13 @@ Feature: Literals6 - String
     And no side effects
 
   @skipStyleCheck
-  Scenario: [11] Return a double-quoted string with uft-8 characters
+  Scenario: [12] Return a double-quoted string with uft-8 characters
     Given any graph
     When executing query:
       """
       RETURN "🧐🍌❖⋙⚐" AS literal
       """
     Then the result should be, in any order:
-      | literal    |
+      | literal   |
       | '🧐🍌❖⋙⚐' |
     And no side effects
