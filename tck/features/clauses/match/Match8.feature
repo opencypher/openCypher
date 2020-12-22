@@ -71,3 +71,34 @@ Feature: Match8 - Match clause interoperation with other clauses
       | count(*) |
       | 6        |
     And no side effects
+
+  Scenario: [3] Matching and disregarding output, then matching again
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (andres {name: 'Andres'}),
+             (michael {name: 'Michael'}),
+             (peter {name: 'Peter'}),
+             (bread {type: 'Bread'}),
+             (veggies {type: 'Veggies'}),
+             (meat {type: 'Meat'})
+      CREATE (andres)-[:ATE {times: 10}]->(bread),
+             (andres)-[:ATE {times: 8}]->(veggies),
+             (michael)-[:ATE {times: 4}]->(veggies),
+             (michael)-[:ATE {times: 6}]->(bread),
+             (michael)-[:ATE {times: 9}]->(meat),
+             (peter)-[:ATE {times: 7}]->(veggies),
+             (peter)-[:ATE {times: 7}]->(bread),
+             (peter)-[:ATE {times: 4}]->(meat)
+      """
+    When executing query:
+      """
+      MATCH ()-->()
+      WITH 1 AS x
+      MATCH ()-[r1]->()<--()
+      RETURN sum(r1.times)
+      """
+    Then the result should be, in any order:
+      | sum(r1.times) |
+      | 776           |
+    And no side effects
