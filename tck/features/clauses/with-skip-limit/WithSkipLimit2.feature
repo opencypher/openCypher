@@ -94,3 +94,23 @@ Feature: WithSkipLimit2 - Limit
       | m    | n    | x    |
       | (:B) | (:A) | (:X) |
     And no side effects
+
+  Scenario: [4] Ordering and limiting on aggregate
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:T1 {num: 3}]->(x:X),
+             ()-[:T2 {num: 2}]->(x),
+             ()-[:T3 {num: 1}]->(:Y)
+      """
+    When executing query:
+      """
+      MATCH ()-[r1]->(x)
+      WITH x, sum(r1.num) AS c
+        ORDER BY c LIMIT 1
+      RETURN x, c
+      """
+    Then the result should be, in any order:
+      | x    | c |
+      | (:Y) | 1 |
+    And no side effects
