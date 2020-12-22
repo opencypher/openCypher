@@ -509,3 +509,25 @@ Feature: Match6 - Match named paths scenarios
       | ()-[]-()-[p*]-(), p = ()-[]-()                         |
       | (a)-[r]-(s)-[p]-(b), p = (s)-[]-(t), (t), (t)-[]-(b)   |
       | (a)-[r]-(s)<-[p*]-(b), p = (s)-[]-(t), (t), (t)-[]-(b) |
+
+  @NegativeTest
+  Scenario Outline: [25] Fail when matching a path variable bound to a value
+    Given any graph
+    When executing query:
+      """
+      WITH <invalid> AS p
+      MATCH p = ()-[]-()
+      RETURN p
+      """
+    Then a SyntaxError should be raised at compile time: VariableTypeConflict
+
+    Examples:
+      | invalid |
+      | true    |
+      | 123     |
+      | 123.4   |
+      | 'foo'   |
+      | []      |
+      | [10]    |
+      | {x: 1}  |
+      | {x: []} |
