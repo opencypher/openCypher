@@ -562,3 +562,15 @@ Feature: Match3 - Match fixed length patterns
       RETURN r
       """
     Then a SyntaxError should be raised at compile time: RelationshipUniquenessViolation
+
+  @NegativeTest
+  Scenario: [30] Fail when using a list or nodes as a node
+    Given any graph
+    When executing query:
+      """
+      MATCH (n)
+      WITH [n] AS users
+      MATCH (users)-->(messages)
+      RETURN messages
+      """
+    Then a SyntaxError should be raised at compile time: VariableTypeConflict

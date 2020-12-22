@@ -31,18 +31,6 @@
 Feature: MiscellaneousErrorAcceptance
 
   @NegativeTest
-  Scenario: Failing when using a list as a node
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      WITH [n] AS users
-      MATCH (users)-->(messages)
-      RETURN messages
-      """
-    Then a SyntaxError should be raised at compile time: VariableTypeConflict
-
-  @NegativeTest
   Scenario: Failing when multiple columns have the same name
     Given any graph
     When executing query:
