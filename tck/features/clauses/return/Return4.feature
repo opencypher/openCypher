@@ -177,3 +177,12 @@ Feature: Return4 - Column renaming
       | foo | bar | baz       |
       | 42  | 42  | {name: 1} |
     And no side effects
+
+  @NegativeTest
+  Scenario: Fail when returning multiple columns with same name
+    Given any graph
+    When executing query:
+      """
+      RETURN 1 AS a, 2 AS a
+      """
+    Then a SyntaxError should be raised at compile time: ColumnNameConflict
