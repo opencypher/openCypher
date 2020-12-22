@@ -39,12 +39,3 @@ Feature: SyntaxErrorAcceptance
       RETURN foo(a)
       """
     Then a SyntaxError should be raised at compile time: UnknownFunction
-
-  @NegativeTest
-  Scenario: Using `rand()` in aggregations
-    Given any graph
-    When executing query:
-      """
-      RETURN count(rand())
-      """
-    Then a SyntaxError should be raised at compile time: NonConstantExpression
