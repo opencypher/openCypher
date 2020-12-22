@@ -51,27 +51,6 @@ Feature: Match2-3 - Match relationships WITH clause scenarios
       | (:Y) | 1 |
     And no side effects
 
-  # WithOrderBySkip
-  Scenario: Ordering and skipping on aggregate
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ()-[:T1 {num: 3}]->(x:X),
-             ()-[:T2 {num: 2}]->(x),
-             ()-[:T3 {num: 1}]->(:Y)
-      """
-    When executing query:
-      """
-      MATCH ()-[r1]->(x)
-      WITH x, sum(r1.num) AS c
-        ORDER BY c SKIP 1
-      RETURN x, c
-      """
-    Then the result should be, in any order:
-      | x    | c |
-      | (:X) | 5 |
-    And no side effects
-
   # WithOrderBy
   Scenario: Matching using a relationship that is already bound, in conjunction with aggregation and ORDER BY
     Given an empty graph
