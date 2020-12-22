@@ -78,3 +78,22 @@ Feature: Merge9 - Merge clause interoperation with other clauses
       | +relationships | 2 |
       | +labels        | 3 |
 
+  Scenario: [4] MERGE after WITH with predicate and WITH with aggregation
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 42})
+      """
+    When executing query:
+      """
+      UNWIND [42] AS props
+      WITH props WHERE props > 32
+      WITH DISTINCT props AS p
+      MERGE (a:A {num: p})
+      RETURN a.num AS prop
+      """
+    Then the result should be, in any order:
+      | prop |
+      | 42   |
+    And no side effects
+
