@@ -210,27 +210,3 @@ Feature: Match3-1 - Match fixed length patterns RETURN clause scenarios
       | count(*) |
       | 6        |
     And no side effects
-
-  Scenario: ORDER BY with LIMIT
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:A), (n1 {num: 1}), (n2 {num: 2}),
-             (m1), (m2)
-      CREATE (a)-[:T]->(n1),
-             (n1)-[:T]->(m1),
-             (a)-[:T]->(n2),
-             (n2)-[:T]->(m2)
-      """
-    When executing query:
-      """
-      MATCH (a:A)-->(n)-->(m)
-      RETURN n.num, count(*)
-        ORDER BY n.num
-        LIMIT 1000
-      """
-    Then the result should be, in order:
-      | n.num | count(*) |
-      | 1     | 1        |
-      | 2     | 1        |
-    And no side effects
