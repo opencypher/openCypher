@@ -1,5 +1,6 @@
+
 #
-# Copyright (c) 2015-2021 "Neo Technology,"
+# Copyright (c) 2015-2020 "Neo Technology,"
 # Network Engine for Objects in Lund AB [http://neotechnology.com]
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,23 +29,68 @@
 
 #encoding: utf-8
 
-Feature: WithAcceptance
+Feature: WithSkipLimit2 - Limit
 
-  # Return aggregation after With filtering
-  Scenario: Single WITH using a predicate and aggregation
+  Scenario: [1] ORDER BY and LIMIT can be used
     Given an empty graph
     And having executed:
       """
-      CREATE ({num: 43}), ({num: 42})
+      CREATE (a:A), (), (), (),
+             (a)-[:REL]->()
       """
     When executing query:
       """
-      MATCH (n)
-      WITH n
-      WHERE n.num = 42
-      RETURN count(*)
+      MATCH (a:A)
+      WITH a
+      ORDER BY a.name
+      LIMIT 1
+      MATCH (a)-->(b)
+      RETURN a
       """
     Then the result should be, in any order:
-      | count(*) |
-      | 1        |
+      | a    |
+      | (:A) |
+    And no side effects
+
+  # Does this scenario realy testing LIMIT?
+  Scenario: [2] Handle dependencies across WITH with LIMIT
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:End {num: 42, id: 0}),
+             (:End {num: 3}),
+             (:Begin {num: a.id})
+      """
+    When executing query:
+      """
+      MATCH (a:Begin)
+      WITH a.num AS property
+        LIMIT 1
+      MATCH (b)
+      WHERE b.id = property
+      RETURN b
+      """
+    Then the result should be, in any order:
+      | b                       |
+      | (:End {num: 42, id: 0}) |
+    And no side effects
+
+  Scenario: [3] Connected components succeeding WITH with LIMIT
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A)-[:REL]->(:X)
+      CREATE (:B)
+      """
+    When executing query:
+      """
+      MATCH (n:A)
+      WITH n
+      LIMIT 1
+      MATCH (m:B), (n)-->(x:X)
+      RETURN *
+      """
+    Then the result should be, in any order:
+      | m    | n    | x    |
+      | (:B) | (:A) | (:X) |
     And no side effects
