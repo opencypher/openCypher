@@ -30,7 +30,7 @@
 
 Feature: With7 - WITH on WITH
 
-  Scenario: A simple pattern with one bound endpoint
+  Scenario: [1] A simple pattern with one bound endpoint
     Given an empty graph
     And having executed:
       """
@@ -50,7 +50,7 @@ Feature: With7 - WITH on WITH
       | (:A) | [:REL] | (:B) |
     And no side effects
 
-  Scenario: Multiple WITHs using a predicate and aggregation
+  Scenario: [2] Multiple WITHs using a predicate and aggregation
     Given an empty graph
     And having executed:
       """
