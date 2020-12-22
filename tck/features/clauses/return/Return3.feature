@@ -30,7 +30,7 @@
 
 Feature: Return3 - Return multiple expressions (if column order correct)
 
-  Scenario: Returning multiple expressions
+  Scenario: [1] Returning multiple expressions
     Given an empty graph
     And having executed:
       """
@@ -46,7 +46,7 @@ Feature: Return3 - Return multiple expressions (if column order correct)
       | false        | true          |
     And no side effects
 
-  Scenario: Returning multiple node property values
+  Scenario: [2] Returning multiple node property values
     Given an empty graph
     And having executed:
       """
@@ -62,7 +62,7 @@ Feature: Return3 - Return multiple expressions (if column order correct)
       | 'Philip J. Fry' | 2046  | [1, 2, 3, 4, 5, 6, 7] |
     And no side effects
 
-  Scenario: Projecting nodes and relationships
+  Scenario: [3] Projecting nodes and relationships
     Given an empty graph
     And having executed:
       """
@@ -79,7 +79,7 @@ Feature: Return3 - Return multiple expressions (if column order correct)
       | (:A) | [:T] |
     And no side effects
 
-  Scenario: Return all variables
+  Scenario: [4] Return all variables
     Given an empty graph
     And having executed:
       """

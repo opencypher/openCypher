@@ -30,7 +30,7 @@
 
 Feature: Return5 - Implicit grouping with distinct
 
-  Scenario: DISTINCT inside aggregation should work with lists in maps
+  Scenario: [1] DISTINCT inside aggregation should work with lists in maps
     Given an empty graph
     And having executed:
       """
@@ -46,7 +46,7 @@ Feature: Return5 - Implicit grouping with distinct
       | 1     |
     And no side effects
 
-  Scenario: DISTINCT on nullable values
+  Scenario: [2] DISTINCT on nullable values
     Given an empty graph
     And having executed:
       """
@@ -63,7 +63,7 @@ Feature: Return5 - Implicit grouping with distinct
       | null       |
     And no side effects
 
-  Scenario: DISTINCT inside aggregation should work with nested lists in maps
+  Scenario: [3] DISTINCT inside aggregation should work with nested lists in maps
     Given an empty graph
     And having executed:
       """
@@ -79,7 +79,7 @@ Feature: Return5 - Implicit grouping with distinct
       | 1     |
     And no side effects
 
-  Scenario: DISTINCT inside aggregation should work with nested lists of maps in maps
+  Scenario: [4] DISTINCT inside aggregation should work with nested lists of maps in maps
     Given an empty graph
     And having executed:
       """
@@ -95,7 +95,7 @@ Feature: Return5 - Implicit grouping with distinct
       | 1     |
     And no side effects
 
-  Scenario: Aggregate on list values
+  Scenario: [5] Aggregate on list values
     Given an empty graph
     And having executed:
       """

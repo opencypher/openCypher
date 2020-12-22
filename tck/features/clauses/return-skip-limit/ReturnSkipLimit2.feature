@@ -30,8 +30,7 @@
 
 Feature: ReturnSkipLimit2 - Limit
 
-
-  Scenario: Limit to two hits
+  Scenario: [1] Limit to two hits
     Given an empty graph
     When executing query:
       """
@@ -45,7 +44,7 @@ Feature: ReturnSkipLimit2 - Limit
       | 1 |
     And no side effects
 
-  Scenario: Limit to two hits with explicit order
+  Scenario: [2] Limit to two hits with explicit order
     Given an empty graph
     And having executed:
       """
@@ -68,7 +67,7 @@ Feature: ReturnSkipLimit2 - Limit
       | ({name: 'B'}) |
     And no side effects
 
-  Scenario: LIMIT 0 should return an empty result
+  Scenario: [3] LIMIT 0 should return an empty result
     Given an empty graph
     And having executed:
       """
@@ -84,7 +83,7 @@ Feature: ReturnSkipLimit2 - Limit
       | n |
     And no side effects
 
-  Scenario: Handle ORDER BY with LIMIT 1
+  Scenario: [4] Handle ORDER BY with LIMIT 1
     Given an empty graph
     And having executed:
       """
@@ -103,7 +102,7 @@ Feature: ReturnSkipLimit2 - Limit
       | 'Craig' |
     And no side effects
 
-  Scenario: ORDER BY with LIMIT 0 should not generate errors
+  Scenario: [5] ORDER BY with LIMIT 0 should not generate errors
     Given any graph
     When executing query:
       """
@@ -116,7 +115,7 @@ Feature: ReturnSkipLimit2 - Limit
       | name |
     And no side effects
 
-  Scenario: LIMIT with an expression that does not depend on variables
+  Scenario: [6] LIMIT with an expression that does not depend on variables
     Given any graph
     And having executed:
       """
@@ -135,7 +134,7 @@ Feature: ReturnSkipLimit2 - Limit
     And no side effects
 
   @NegativeTest
-  Scenario: LIMIT with an expression that depends on variables should fail
+  Scenario: [7] LIMIT with an expression that depends on variables should fail
     Given any graph
     When executing query:
       """
@@ -144,7 +143,7 @@ Feature: ReturnSkipLimit2 - Limit
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
   @NegativeTest
-  Scenario: Negative parameter for LIMIT should fail
+  Scenario: [8] Negative parameter for LIMIT should fail
     Given any graph
     And having executed:
       """
@@ -162,7 +161,7 @@ Feature: ReturnSkipLimit2 - Limit
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
   @NegativeTest
-  Scenario: Negative parameter for LIMIT with ORDER BY should fail
+  Scenario: [9] Negative parameter for LIMIT with ORDER BY should fail
     Given any graph
     And having executed:
       """
@@ -180,7 +179,7 @@ Feature: ReturnSkipLimit2 - Limit
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
   @NegativeTest
-  Scenario: Negative LIMIT should fail
+  Scenario: [10] Negative LIMIT should fail
     Given any graph
     And having executed:
       """
@@ -196,7 +195,7 @@ Feature: ReturnSkipLimit2 - Limit
     Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
 
   @NegativeTest
-  Scenario: Floating point parameter for LIMIT should fail
+  Scenario: [11] Floating point parameter for LIMIT should fail
     Given any graph
     And having executed:
       """
@@ -214,7 +213,7 @@ Feature: ReturnSkipLimit2 - Limit
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
   @NegativeTest
-  Scenario: Floating point parameter for LIMIT with ORDER BY should fail
+  Scenario: [12] Floating point parameter for LIMIT with ORDER BY should fail
     Given any graph
     And having executed:
       """
@@ -232,7 +231,7 @@ Feature: ReturnSkipLimit2 - Limit
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
   @NegativeTest
-  Scenario: Floating point LIMIT should fail
+  Scenario: [13] Floating point LIMIT should fail
     Given any graph
     And having executed:
       """

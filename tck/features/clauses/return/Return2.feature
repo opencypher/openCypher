@@ -30,7 +30,7 @@
 
 Feature: Return2 - Return single expression (correctly projecting an expression)
 
-  Scenario: Arithmetic expressions should propagate null values
+  Scenario: [1] Arithmetic expressions should propagate null values
     Given any graph
     When executing query:
       """
@@ -41,7 +41,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | null |
     And no side effects
 
-  Scenario: Returning a node property value
+  Scenario: [2] Returning a node property value
     Given an empty graph
     And having executed:
       """
@@ -57,7 +57,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | 1     |
     And no side effects
 
-  Scenario: Missing node property should become null
+  Scenario: [3] Missing node property should become null
     Given an empty graph
     And having executed:
       """
@@ -73,7 +73,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | null   |
     And no side effects
 
-  Scenario: Returning a relationship property value
+  Scenario: [4] Returning a relationship property value
     Given an empty graph
     And having executed:
       """
@@ -89,7 +89,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | 1     |
     And no side effects
 
-  Scenario: Missing relationship property should become null
+  Scenario: [5] Missing relationship property should become null
     Given an empty graph
     And having executed:
       """
@@ -105,7 +105,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | null    |
     And no side effects
 
-  Scenario: Adding a property and a literal in projection
+  Scenario: [6] Adding a property and a literal in projection
     Given an empty graph
     And having executed:
       """
@@ -121,7 +121,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | 2   |
     And no side effects
 
-  Scenario: Adding list properties in projection
+  Scenario: [7] Adding list properties in projection
     Given an empty graph
     And having executed:
       """
@@ -137,7 +137,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | [4, 5, 1, 2, 3] |
     And no side effects
 
-  Scenario: Returning label predicate expression
+  Scenario: [8] Returning label predicate expression
     Given an empty graph
     And having executed:
       """
@@ -154,7 +154,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | false   |
     And no side effects
 
-  Scenario: Returning a projected map
+  Scenario: [9] Returning a projected map
     Given an empty graph
     And having executed:
       """
@@ -169,7 +169,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | {a: 1, b: 'foo'} |
     And no side effects
 
-  Scenario: Return count aggregation over an empty graph
+  Scenario: [10] Return count aggregation over an empty graph
     Given an empty graph
     When executing query:
       """
@@ -181,7 +181,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | false        |
     And no side effects
 
-  Scenario: RETURN does not lose precision on large integers
+  Scenario: [11]RETURN does not lose precision on large integers
     Given an empty graph
     And having executed:
       """
@@ -197,7 +197,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | 4611686018427387905 |
     And no side effects
 
-  Scenario: Projecting a list of nodes and relationships
+  Scenario: [12] Projecting a list of nodes and relationships
     Given an empty graph
     And having executed:
       """
@@ -214,7 +214,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | [(:A), [:T], (:B)] |
     And no side effects
 
-  Scenario: Projecting a map of nodes and relationships
+  Scenario: [13] Projecting a map of nodes and relationships
     Given an empty graph
     And having executed:
       """
@@ -231,7 +231,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | {node1: (:A), rel: [:T], node2: (:B)} |
     And no side effects
 
-  Scenario: Do not fail when returning type of deleted relationships
+  Scenario: [14] Do not fail when returning type of deleted relationships
     Given an empty graph
     And having executed:
       """
@@ -250,7 +250,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | -relationships | 1 |
 
   @NegativeTest
-  Scenario: Fail when returning properties of deleted nodes
+  Scenario: [15] Fail when returning properties of deleted nodes
     Given an empty graph
     And having executed:
       """
@@ -265,7 +265,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
     Then a EntityNotFound should be raised at runtime: DeletedEntityAccess
 
   @NegativeTest
-  Scenario: Fail when returning labels of deleted nodes
+  Scenario: [16] Fail when returning labels of deleted nodes
     Given an empty graph
     And having executed:
       """
@@ -280,7 +280,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
     Then a EntityNotFound should be raised at runtime: DeletedEntityAccess
 
   @NegativeTest
-  Scenario: Fail when returning properties of deleted relationships
+  Scenario: [17] Fail when returning properties of deleted relationships
     Given an empty graph
     And having executed:
       """
