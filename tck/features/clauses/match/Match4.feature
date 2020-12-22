@@ -150,7 +150,30 @@ Feature: Match4 - Match variable length patterns scenarios
       | [[:X], [:Y]] |
     And no side effects
 
-  Scenario: [7] Matching relationships into a list and matching variable length using the list
+  Scenario: [7] Matching variable length patterns including a bound relationship
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (n0:Node),
+             (n1:Node),
+             (n2:Node),
+             (n3:Node),
+             (n0)-[:EDGE]->(n1),
+             (n1)-[:EDGE]->(n2),
+             (n2)-[:EDGE]->(n3)
+      """
+    When executing query:
+      """
+      MATCH ()-[r:EDGE]-()
+      MATCH p = (n)-[*0..1]-()-[r]-()-[*0..1]-(m)
+      RETURN count(p) AS c
+      """
+    Then the result should be, in any order:
+      | c  |
+      | 32 |
+    And no side effects
+
+  Scenario: [8] Matching relationships into a list and matching variable length using the list
     Given an empty graph
     And having executed:
       """
@@ -172,7 +195,7 @@ Feature: Match4 - Match variable length patterns scenarios
     And no side effects
 
   @NegativeTest
-  Scenario: [8] Fail when asterisk operator is missing
+  Scenario: [9] Fail when asterisk operator is missing
     Given an empty graph
     And having executed:
       """
@@ -215,7 +238,7 @@ Feature: Match4 - Match variable length patterns scenarios
     Then a SyntaxError should be raised at compile time: InvalidRelationshipPattern
 
   @NegativeTest
-  Scenario: [9] Fail on negative bound
+  Scenario: [10] Fail on negative bound
     Given an empty graph
     And having executed:
       """
