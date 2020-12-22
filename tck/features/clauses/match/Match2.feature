@@ -282,3 +282,25 @@ Feature: Match2 - Match relationships
       | (a)-[p]-(s)-[]-(b), r = (s)-[]-(t), (t), (t)-[r*]-(b)  |
       | (a)-[p]-(s)-[]-(b), r = (s)-[*]-(t), (t), (t)-[r]-(b)  |
       | (a)-[p]-(s)-[]-(b), r = (s)-[*]-(t), (t), (t)-[r*]-(b) |
+
+  @NegativeTest
+  Scenario Outline: [13] Fail when matching a relationship variable bound to a value
+    Given any graph
+    When executing query:
+      """
+      WITH <invalid> AS r
+      MATCH ()-[r]-()
+      RETURN r
+      """
+    Then a SyntaxError should be raised at compile time: VariableTypeConflict
+
+    Examples:
+      | invalid |
+      | true    |
+      | 123     |
+      | 123.4   |
+      | 'foo'   |
+      | []      |
+      | [10]    |
+      | {x: 1}  |
+      | {x: []} |
