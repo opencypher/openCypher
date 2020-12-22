@@ -309,13 +309,21 @@ Feature: Create2 - Creating relationships
     Given any graph
     When executing query:
       """
-      CREATE ({id: 2})-[r:KNOWS]-({id: 1})
-      RETURN r
+      CREATE (a)-[:FOO]-(b)
       """
     Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
 
   @NegativeTest
-  Scenario: [20] Fail when creating a relationship with more than one type
+  Scenario: [20] Fail when creating a relationship with two directions
+    Given any graph
+    When executing query:
+      """
+      CREATE (a)<-[:FOO]->(b)
+      """
+    Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
+
+  @NegativeTest
+  Scenario: [21] Fail when creating a relationship with more than one type
     Given any graph
     When executing query:
       """
@@ -324,7 +332,7 @@ Feature: Create2 - Creating relationships
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
   @NegativeTest
-  Scenario: [21] Fail when creating a variable-length relationship
+  Scenario: [22] Fail when creating a variable-length relationship
     Given any graph
     When executing query:
       """
@@ -333,7 +341,7 @@ Feature: Create2 - Creating relationships
     Then a SyntaxError should be raised at compile time: CreatingVarLength
 
   @NegativeTest
-  Scenario: [22] Fail when creating a relationship that is already bound
+  Scenario: [23] Fail when creating a relationship that is already bound
     Given any graph
     When executing query:
       """
@@ -343,7 +351,7 @@ Feature: Create2 - Creating relationships
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   @NegativeTest
-  Scenario: [23] Fail when creating a relationship using undefined variable in pattern
+  Scenario: [24] Fail when creating a relationship using undefined variable in pattern
     Given any graph
     When executing query:
       """
@@ -352,12 +360,3 @@ Feature: Create2 - Creating relationships
       RETURN b
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
-
-  @NegativeTest
-  Scenario: [24] Fail when creating with two directions
-    Given any graph
-    When executing query:
-      """
-      CREATE (a)<-[:FOO]->(b)
-      """
-    Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
