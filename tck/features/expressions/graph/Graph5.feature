@@ -129,3 +129,20 @@ Feature: Graph5 - Node and edge label expressions
       | :A:C:A   | (:A:C) |
       | :C:C:A   | (:A:C) |
       | :C:A:A:C | (:A:C) |
+
+  Scenario: [5] Label expression on null
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s:Single)
+      """
+    When executing query:
+      """
+      MATCH (n:Single)
+      OPTIONAL MATCH (n)-[r:TYPE]-(m)
+      RETURN r:TYPE, m:TYPE
+      """
+    Then the result should be, in any order:
+      | r:TYPE | m:TYPE |
+      | null   | null   |
+    And no side effects
