@@ -255,3 +255,25 @@ Feature: Match1 - Match nodes
       | (x), r = (s)-[p]->(t)<-[]-(b), (r), (a)-[q]-(b) |
       | (x), r = (s)-[p]-(t)-[]-(b), (a)-[q]-(r)        |
       | (x), r = (s)-[p]->(t)<-[]-(b), (r)-[q]-(b)      |
+
+  @NegativeTest
+  Scenario Outline: [11] Fail when matching a node variable bound to a value
+    Given any graph
+    When executing query:
+      """
+      WITH <invalid> AS n
+      MATCH (n)
+      RETURN n
+      """
+    Then a SyntaxError should be raised at compile time: VariableTypeConflict
+
+    Examples:
+      | invalid |
+      | true    |
+      | 123     |
+      | 123.4   |
+      | 'foo'   |
+      | []      |
+      | [10]    |
+      | {x: 1}  |
+      | {x: []} |
