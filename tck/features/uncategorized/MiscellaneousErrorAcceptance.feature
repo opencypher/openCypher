@@ -31,15 +31,6 @@
 Feature: MiscellaneousErrorAcceptance
 
   @NegativeTest
-  Scenario: Failing on merging node with null property
-    Given any graph
-    When executing query:
-      """
-      MERGE ({num: null})
-      """
-    Then a SemanticError should be raised at compile time: MergeReadOwnWrites
-
-  @NegativeTest
   Scenario: Failing on aggregation in ORDER BY after RETURN
     Given any graph
     When executing query:
