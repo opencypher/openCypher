@@ -99,8 +99,20 @@ Feature: ReturnSkipLimit1 - Skip
       | true     |
     And no side effects
 
+  Scenario: [4] Accept skip zero
+    Given any graph
+    When executing query:
+      """
+      MATCH (n)
+      WHERE 1 = 0
+      RETURN n SKIP 0
+      """
+    Then the result should be, in any order:
+      | n |
+    And no side effects
+
   @NegativeTest
-  Scenario: [4] ]KIP with an expression that depends on variables should fail
+  Scenario: [5] SKIP with an expression that depends on variables should fail
     Given any graph
     When executing query:
       """
@@ -109,7 +121,7 @@ Feature: ReturnSkipLimit1 - Skip
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
   @NegativeTest
-  Scenario: [5] Negative parameter for SKIP should fail
+  Scenario: [6] Negative parameter for SKIP should fail
     Given any graph
     And having executed:
       """
@@ -127,7 +139,7 @@ Feature: ReturnSkipLimit1 - Skip
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
   @NegativeTest
-  Scenario: [6] Negative SKIP should fail
+  Scenario: [7] Negative SKIP should fail
     Given any graph
     And having executed:
       """
@@ -143,7 +155,7 @@ Feature: ReturnSkipLimit1 - Skip
     Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
 
   @NegativeTest
-  Scenario: [7] Floating point parameter for SKIP should fail
+  Scenario: [8] Floating point parameter for SKIP should fail
     Given any graph
     And having executed:
       """
@@ -161,7 +173,7 @@ Feature: ReturnSkipLimit1 - Skip
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
   @NegativeTest
-  Scenario: [8] Floating point SKIP should fail
+  Scenario: [9] Floating point SKIP should fail
     Given any graph
     And having executed:
       """
@@ -177,7 +189,7 @@ Feature: ReturnSkipLimit1 - Skip
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
   @NegativeTest
-  Scenario: [9] Fail when using non-constants in SKIP
+  Scenario: [10] Fail when using non-constants in SKIP
     Given any graph
     When executing query:
       """
@@ -188,7 +200,7 @@ Feature: ReturnSkipLimit1 - Skip
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
   @NegativeTest
-  Scenario: [10] Fail when using negative value in SKIP
+  Scenario: [11] Fail when using negative value in SKIP
     Given any graph
     When executing query:
       """
