@@ -110,6 +110,12 @@
 
     <dependency>
       <groupId>org.opencypher</groupId>
+      <artifactId>tck-compatibility-tests-util_${scala.binary.version}</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opencypher</groupId>
       <artifactId>grammar</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
