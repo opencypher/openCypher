@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tck-compatibility</artifactId>
+    <artifactId>tck-compatibility-tests</artifactId>
     <packaging>pom</packaging>
     <name>TCK compatibility testing</name>
     <url>http://opencypher.org</url>
