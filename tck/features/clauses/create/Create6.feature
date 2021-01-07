@@ -44,3 +44,4 @@ Feature: Create6 - Create clause interoperation with other clauses
       | +relationships | 1 |
       | +labels        | 2 |
       | +properties    | 1 |
+      
