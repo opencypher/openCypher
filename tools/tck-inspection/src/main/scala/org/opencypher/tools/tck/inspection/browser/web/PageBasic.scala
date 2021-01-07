@@ -30,6 +30,7 @@ package org.opencypher.tools.tck.inspection.browser.web
 import org.opencypher.tools.tck.api.CypherValueRecords
 import org.opencypher.tools.tck.api.Dummy
 import org.opencypher.tools.tck.api.ExecQuery
+import org.opencypher.tools.tck.api.ControlQuery
 import org.opencypher.tools.tck.api.Execute
 import org.opencypher.tools.tck.api.ExpectError
 import org.opencypher.tools.tck.api.ExpectResult
@@ -178,6 +179,7 @@ trait PageBasic {
           qt match {
             case InitQuery => "Initialize with"
             case ExecQuery => "Execute query"
+            case ControlQuery => "Control query"
             case SideEffectQuery => "Execute update"
           },
           div(pre(fontFamily:="Monospace")(query))

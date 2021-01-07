@@ -59,6 +59,8 @@ class TckTest extends AnyFunSpec with Assertions {
           CypherValueRecords.empty
         case SideEffectQuery =>
           CypherValueRecords.empty
+        case ControlQuery =>
+          CypherValueRecords.empty
         case ExecQuery if query.contains("foo()") =>
           ExecutionFailed(SYNTAX_ERROR, COMPILE_TIME, UNKNOWN_FUNCTION)
         case ExecQuery =>
