@@ -77,6 +77,8 @@ class TCKEventsTest extends AnyFunSuite with Assertions with Matchers {
           CypherValueRecords.empty
         case SideEffectQuery =>
           CypherValueRecords.empty
+        case ControlQuery =>
+          CypherValueRecords.empty
         case ExecQuery =>
           StringRecords(List("n"), List(Map("n" -> "3")))
       }

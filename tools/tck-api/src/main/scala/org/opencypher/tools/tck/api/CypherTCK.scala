@@ -32,7 +32,9 @@ import java.nio.charset.StandardCharsets
 import java.nio.file._
 import java.util
 
-import io.cucumber.core.gherkin.{DataTableArgument, DocStringArgument}
+import io.cucumber.core.gherkin.DataTableArgument
+import io.cucumber.core.gherkin.DocStringArgument
+import io.cucumber.core.gherkin.StepType
 import io.cucumber.core.gherkin.vintage.GherkinVintageFeatureParser
 import org.opencypher.tools.tck.SideEffectOps.Diff
 import org.opencypher.tools.tck._
@@ -144,7 +146,7 @@ object CypherTCK {
           TCKEvents.setFeature(FeatureRead(featureName, featureFile.toUri, featureString))
           Feature(scenarios)
         }
-        else return Feature(Seq[Scenario]())
+        else Feature(Seq[Scenario]())
       case Failure(error) =>
         throw InvalidFeatureFormatException(s"Could not parse feature from ${featureFile.toAbsolutePath.toString}: ${error.getMessage}")
     }
@@ -213,7 +215,7 @@ object CypherTCK {
 
         // When
         case executingQueryR()        => List(Measure(step), Execute(queryFromStep, ExecQuery, step))
-        case executingControlQueryR() => List(Execute(queryFromStep, ExecQuery, step))
+        case executingControlQueryR() => List(Execute(queryFromStep, ControlQuery, step))
 
         // Then
         case expectEmptyResultR()          => List(ExpectResult(CypherValueRecords.empty, step))
@@ -257,6 +259,8 @@ case class Feature(scenarios: Seq[Scenario])
 
 sealed trait Step {
   val source: io.cucumber.core.gherkin.Step
+
+  def isGivenStep: Boolean = source.getType == StepType.GIVEN
 }
 
 case class SideEffects(expected: Diff = Diff(), source: io.cucumber.core.gherkin.Step) extends Step {
@@ -404,5 +408,7 @@ sealed trait QueryType
 case object InitQuery extends QueryType
 
 case object ExecQuery extends QueryType
+
+case object ControlQuery extends QueryType
 
 case object SideEffectQuery extends QueryType
