@@ -32,4 +32,6 @@ object TCKTags {
   val IGNORE = "@ignore"
   val ALLOW_CUSTOM_ERRORS = "@allowCustomErrors"
   val SKIP_STYLE_CHECK = "@skipStyleCheck"
+  val SKIP_GRAMMAR_CHECK = "@skipGrammarCheck"
+  val NEGATIVE_TEST = "@NegativeTest"
 }
