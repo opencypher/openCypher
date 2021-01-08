@@ -100,7 +100,7 @@ Feature: Create5 - Multiple hops create patterns
     And the side effects should be:
       | +nodes         | 4 |
       | +relationships | 3 |
-    When executing query:
+    When executing control query:
       """
       MATCH ()-[r1:R1]->()<-[r2:R2]-()-[r3:R3]->()
       RETURN r1, r2, r3
