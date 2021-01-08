@@ -30,7 +30,7 @@
 
 Feature: TypeConversion4 - To String
 
-  Scenario: `toString()` handling integer literal
+  Scenario: [1] `toString()` handling integer literal
     Given any graph
     When executing query:
       """
@@ -41,7 +41,7 @@ Feature: TypeConversion4 - To String
       | '42' |
     And no side effects
 
-  Scenario: `toString()` handling boolean literal
+  Scenario: [2] `toString()` handling boolean literal
     Given any graph
     When executing query:
       """
@@ -52,7 +52,7 @@ Feature: TypeConversion4 - To String
       | 'true' |
     And no side effects
 
-  Scenario: `toString()` handling inlined boolean
+  Scenario: [3] `toString()` handling inlined boolean
     Given any graph
     When executing query:
       """
@@ -63,7 +63,7 @@ Feature: TypeConversion4 - To String
       | 'false' |
     And no side effects
 
-  Scenario: `toString()` handling boolean properties
+  Scenario: [4] `toString()` handling boolean properties
     Given an empty graph
     And having executed:
       """
@@ -79,7 +79,7 @@ Feature: TypeConversion4 - To String
       | 'true'              |
     And no side effects
 
-  Scenario: `toString()` should work on Any type
+  Scenario: [5] `toString()` should work on Any type
     Given any graph
     When executing query:
       """
@@ -90,7 +90,7 @@ Feature: TypeConversion4 - To String
       | ['1', '2.3', 'true', 'apa'] |
     And no side effects
 
-  Scenario: `toString()` on a list of integers
+  Scenario: [6] `toString()` on a list of integers
     Given any graph
     When executing query:
       """
@@ -102,7 +102,7 @@ Feature: TypeConversion4 - To String
       | ['1', '2', '3'] |
     And no side effects
 
-  Scenario: `toString()` on node property
+  Scenario: [7] `toString()` on node property
     Given an empty graph
     And having executed:
       """
@@ -120,7 +120,7 @@ Feature: TypeConversion4 - To String
       | '4'                |
     And no side effects
 
-  Scenario: `toString()` should accept potentially correct types 1
+  Scenario: [8] `toString()` should accept potentially correct types 1
     Given any graph
     When executing query:
       """
@@ -134,7 +134,7 @@ Feature: TypeConversion4 - To String
       | 'x'      |
     And no side effects
 
-  Scenario: `toString()` should accept potentially correct types 2
+  Scenario: [9] `toString()` should accept potentially correct types 2
     Given any graph
     When executing query:
       """
@@ -149,7 +149,7 @@ Feature: TypeConversion4 - To String
     And no side effects
 
   @NegativeTest
-  Scenario Outline: `toString()` failing on invalid arguments
+  Scenario Outline: [10] `toString()` failing on invalid arguments
     Given an empty graph
     And having executed:
       """
