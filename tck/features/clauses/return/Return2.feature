@@ -181,7 +181,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | false        |
     And no side effects
 
-  Scenario: [11]RETURN does not lose precision on large integers
+  Scenario: [11] RETURN does not lose precision on large integers
     Given an empty graph
     And having executed:
       """
