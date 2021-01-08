@@ -30,7 +30,7 @@
 
 Feature: Mathematical13 - Square root
 
-  Scenario: `sqrt()` returning float values
+  Scenario: [1] `sqrt()` returning float values
     Given any graph
     When executing query:
       """
