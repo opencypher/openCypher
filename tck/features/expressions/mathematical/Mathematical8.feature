@@ -30,7 +30,7 @@
 
 Feature: Mathematical8 - ArithmeticPrecedence
 
-  Scenario: Arithmetic precedence test
+  Scenario: [1] Arithmetic precedence test
     Given any graph
     When executing query:
       """
@@ -41,7 +41,7 @@ Feature: Mathematical8 - ArithmeticPrecedence
       | 1                  |
     And no side effects
 
-  Scenario: Arithmetic precedence with parenthesis test
+  Scenario: [2] Arithmetic precedence with parenthesis test
     Given any graph
     When executing query:
       """
