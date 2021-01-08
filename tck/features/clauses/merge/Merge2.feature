@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Merge2 - Merge Node - On Create
+Feature: Merge2 - Merge node - on create
 
   Scenario: [1] Merge node with label add label on create
     Given an empty graph

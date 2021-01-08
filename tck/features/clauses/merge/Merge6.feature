@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Merge6 - Merge Relationships - On Create
+Feature: Merge6 - Merge relationships - on create
 
   Scenario: [1] Using ON CREATE on a node
     Given an empty graph
