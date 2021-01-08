@@ -55,11 +55,6 @@
     </dependency>
 
     <dependency>
-      <groupId>io.cucumber</groupId>
-      <artifactId>cucumber-junit</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
     </dependency>
@@ -69,9 +64,33 @@
       <artifactId>antlr4-runtime</artifactId>
     </dependency>
 
-    <!-- Test deps -->
+    <dependency>
+      <groupId>org.scalatest</groupId>
+      <artifactId>scalatest_${scala.binary.version}</artifactId>
+    </dependency>
 
     <dependency>
+      <groupId>org.opencypher</groupId>
+      <artifactId>tck-api_${scala.binary.version}</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opencypher</groupId>
+      <artifactId>grammar</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opencypher</groupId>
+      <artifactId>grammar</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+    </dependency>
+
+    <!-- Test deps -->
+
+    <!--dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
@@ -87,39 +106,17 @@
       <groupId>org.junit.vintage</groupId>
       <artifactId>junit-vintage-engine</artifactId>
       <scope>test</scope>
+    </dependency-->
+
+    <dependency>
+        <groupId>org.junit.platform</groupId>
+        <artifactId>junit-platform-engine</artifactId>
+        <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-runner</artifactId>
-      <version>${dep.junit.platform.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_${scala.binary.version}</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.opencypher</groupId>
-      <artifactId>tck-api_${scala.binary.version}</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.opencypher</groupId>
-      <artifactId>grammar</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.opencypher</groupId>
-      <artifactId>grammar</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
+      <groupId>co.helmethair</groupId>
+      <artifactId>scalatest-junit-runner</artifactId>
       <scope>test</scope>
     </dependency>
 
