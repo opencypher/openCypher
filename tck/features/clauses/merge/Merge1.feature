@@ -242,7 +242,7 @@ Feature: Merge1 - Merge Node
       | +nodes      | 2 |
       | +properties | 2 |
 
-  Scenario: Merge should bind a path
+  Scenario: [13] Merge should bind a path
     Given an empty graph
     When executing query:
       """
@@ -256,7 +256,7 @@ Feature: Merge1 - Merge Node
       | +nodes      | 1 |
       | +properties | 1 |
 
-  Scenario: [13] Merges should not be able to match on deleted nodes
+  Scenario: [14] Merges should not be able to match on deleted nodes
     Given an empty graph
     And having executed:
       """
@@ -280,7 +280,7 @@ Feature: Merge1 - Merge Node
       | -properties | 2 |
 
   @NegativeTest
-  Scenario: [14] Fail when merge a node that is already bound
+  Scenario: [15] Fail when merge a node that is already bound
     Given any graph
     When executing query:
       """
@@ -290,7 +290,7 @@ Feature: Merge1 - Merge Node
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   @NegativeTest
-  Scenario: [15] Fail when using parameter as node predicate in MERGE
+  Scenario: [16] Fail when using parameter as node predicate in MERGE
     Given any graph
     When executing query:
       """
@@ -300,7 +300,7 @@ Feature: Merge1 - Merge Node
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
   @NegativeTest
-  Scenario: [16] Fail on merging node with null property
+  Scenario: [17] Fail on merging node with null property
     Given any graph
     When executing query:
       """
