@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Mathematical13 - SquareRoot
+Feature: Mathematical13 - Square root
 
   Scenario: `sqrt()` returning float values
     Given any graph

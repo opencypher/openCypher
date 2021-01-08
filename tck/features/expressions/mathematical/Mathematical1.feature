@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: Mathematical1 - UnaryDelimiter
+Feature: Mathematical1 - Unary delimiter

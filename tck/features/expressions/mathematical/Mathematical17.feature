@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: Mathematical17 - InverseTrigonometricFunctions
+Feature: Mathematical17 - Inverse trigonometric functions
