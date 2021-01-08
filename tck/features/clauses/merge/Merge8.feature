@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Merge8 - Merge Relationships - On Match and On Create
+Feature: Merge8 - Merge relationships - on match and on create
 
   Scenario: [1] Using ON CREATE and ON MATCH
     Given an empty graph

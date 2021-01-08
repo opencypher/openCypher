@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Merge3 - Merge Node - On Match
+Feature: Merge3 - Merge node - on match
 
   Scenario: [1] Merge should be able to set labels on match
     Given an empty graph

@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Merge1 - Merge Node
+Feature: Merge1 - Merge node
 
   Scenario: [1] Merge node when no nodes exist
     Given an empty graph

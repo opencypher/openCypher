@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Merge7 - Merge Relationships - On Match
+Feature: Merge7 - Merge relationships - on match
 
   Scenario: [1] Using ON MATCH on created node
     Given an empty graph

@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Merge4 - Merge Node - On Match and On Create
+Feature: Merge4 - Merge node - on match and on create
 
   Scenario: [1] Merge should be able to set labels on match and on create
     Given an empty graph
