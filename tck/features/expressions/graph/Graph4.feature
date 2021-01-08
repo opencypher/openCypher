@@ -137,7 +137,7 @@ Feature: Graph4 - Edge relationship type
       | []      |
 
   @NegativeTest
-  Scenario: Failing when using `type()` on a node
+  Scenario: [7] Failing when using `type()` on a node
     Given any graph
     When executing query:
       """
