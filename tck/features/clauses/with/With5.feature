@@ -50,7 +50,7 @@ Feature: With5 - Implicit grouping with DISTINCT
       | 'B'  |
     And no side effects
 
-  Scenario: Handling DISTINCT with lists in maps
+  Scenario: [2] Handling DISTINCT with lists in maps
     Given an empty graph
     And having executed:
       """
