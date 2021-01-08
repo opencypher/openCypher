@@ -27,41 +27,28 @@
  */
 package org.opencypher.tools.tck
 
-import io.cucumber.datatable.DataTable
+import org.opencypher.tools.tck.SideEffectOps.Diff
 import org.opencypher.tools.tck.constants.TCKSideEffects
-
-import scala.collection.JavaConverters._
+import org.scalatest.funspec.AnyFunSpecLike
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Validates side effects expectations. A valid side effect has one of the specified names in TCKSideEffects, and a
   * quantity that is an integer greater than zero.
   */
-object validateSideEffects extends (DataTable => Option[String]) {
+trait ValidateSideEffects extends AnyFunSpecLike with Matchers {
 
-  override def apply(table: DataTable): Option[String] = {
-    val keys = table.transpose().row(0).asScala
-    val values = table.transpose().rows(1).asList.asScala
+  def validateSideEffects(expectation: Diff): Unit = {
+    val keys = expectation.v.keySet
+    val values = expectation.v.values
 
-    val msg = s"""${checkKeys(keys)}
-                 |${checkValues(values)}""".stripMargin
-
-    if (msg.trim.isEmpty) None
-    else Some(msg)
-  }
-
-  def checkKeys(keys: Seq[String]): String = {
-    val badKeys = keys.filterNot(TCKSideEffects.ALL)
-
-    if (badKeys.isEmpty) ""
-    else s"Invalid side effect keys: ${badKeys.mkString(", ")}"
-  }
-
-  def checkValues(values: Seq[String]): String = {
-    val badValues = values.filterNot { value =>
-      value.forall(Character.isDigit) && Integer.valueOf(value) > 0
+    it("has no invalid keys") {
+      import org.scalatest.enablers.Emptiness.emptinessOfGenTraversable
+      (keys -- TCKSideEffects.ALL) shouldBe empty
     }
-    if (badValues.isEmpty) ""
-    else s"Invalid side effect values: ${badValues.mkString(", ")}"
-  }
 
+    it("has only number greater than zero") {
+      all (values) should be > 0
+    }
+  }
 }

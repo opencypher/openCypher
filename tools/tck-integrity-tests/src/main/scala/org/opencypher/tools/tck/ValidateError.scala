@@ -28,36 +28,24 @@
 package org.opencypher.tools.tck
 
 import org.opencypher.tools.tck.constants.{TCKErrorDetails, TCKErrorTypes}
+import org.scalatest.funspec.AnyFunSpecLike
+import org.scalatest.matchers.should.Matchers
 
 /**
-  * This function will validate a TCK error specification, which consists of three parts: type, phase and detail. Each
-  * of these parts needs to be one of a pre-defined set of constants in order to be valid. If the triple is invalid, a
-  * message will be returned explaining the invalid part(s), otherwise None will be returned.
+  * This function validates a TCK error specification, which consists of three parts: type, phase and detail. Each
+  * of these parts needs to be one of a pre-defined set of constants in order to be valid.
   */
-object validateError extends ((String, String, String) => Option[String]) {
+trait ValidateError extends AnyFunSpecLike with Matchers {
 
-  override def apply(typ: String, phase: String, detail: String): Option[String] = {
-    val msg = s"""${checkType(typ)}
-                 |${checkPhase(phase)}
-                 |${checkDetail(detail)}""".stripMargin
-
-    if (msg.trim.isEmpty) None
-    else Some(msg)
+  def validateError(typ: String, phase: String, detail: String): Unit = {
+    it("has valid type") {
+      TCKErrorTypes.ALL should contain (typ)
+    }
+    it("has valid phase") {
+      Set("runtime", "compile time") should contain (phase)
+    }
+    it("has valid detail") {
+      TCKErrorDetails.ALL should contain (detail)
+    }
   }
-
-  def checkType(typ: String): String = {
-    if (TCKErrorTypes.ALL(typ)) ""
-    else s"Invalid error type: $typ"
-  }
-
-  def checkPhase(phase: String): String = {
-    if (phase == "runtime" || phase == "compile time") ""
-    else s"Invalid error phase: $phase"
-  }
-
-  def checkDetail(detail: String): String = {
-    if (TCKErrorDetails.ALL(detail)) ""
-    else s"Invalid error detail: $detail"
-  }
-
 }
