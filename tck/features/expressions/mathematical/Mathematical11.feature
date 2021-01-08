@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Mathematical11 - SignedNumbersFunctions
+Feature: Mathematical11 - Signed numbers functions
 
   Scenario: [1] Absolute function
     Given any graph

@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: Mathematical9 - MathematicalConstants
+Feature: Mathematical9 - Mathematical constants

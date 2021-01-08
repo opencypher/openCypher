@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: Mathematical15 - DegreesAndRadians
+Feature: Mathematical15 - Degrees and radians

@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: Mathematical10 - RandomNumbers
+Feature: Mathematical10 - Random numbers

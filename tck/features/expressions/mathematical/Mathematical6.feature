@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: Mathematical6 - ModuloDivision
+Feature: Mathematical6 - Modulo division

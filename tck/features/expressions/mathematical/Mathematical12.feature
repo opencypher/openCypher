@@ -28,4 +28,4 @@
 
 #encoding: utf-8
 
-Feature: Mathematical12 - RoundingNumbers
+Feature: Mathematical12 - Rounding numbers
