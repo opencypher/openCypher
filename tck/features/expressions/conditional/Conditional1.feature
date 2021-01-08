@@ -30,7 +30,7 @@
 
 Feature: Conditional1 - Coalesce Expression
 
-  Scenario: Run coalesce
+  Scenario: [1] Run coalesce
     Given an empty graph
     And having executed:
       """
