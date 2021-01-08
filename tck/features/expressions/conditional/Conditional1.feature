@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Conditional1 - Coalesce Expression
+Feature: Conditional1 - Coalesce expression
 
   Scenario: [1] Run coalesce
     Given an empty graph
