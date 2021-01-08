@@ -30,7 +30,7 @@
 
 Feature: Mathematical11 - SignedNumbersFunctions
 
-  Scenario: Absolute function
+  Scenario: [1] Absolute function
     Given any graph
     When executing query:
       """
