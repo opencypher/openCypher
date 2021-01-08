@@ -30,7 +30,7 @@
 
 Feature: Mathematical2 - Addition
 
-  Scenario: Allow addition
+  Scenario: [1] Allow addition
     Given an empty graph
     And having executed:
       """
