@@ -27,16 +27,15 @@
  */
 package org.opencypher.tools.tck
 
+import io.cucumber.core.gherkin.StepType
 import org.opencypher.tools.tck.api.ControlQuery
 import org.opencypher.tools.tck.api.ExecQuery
 import org.opencypher.tools.tck.api.Execute
 import org.opencypher.tools.tck.api.ExpectError
 import org.opencypher.tools.tck.api.ExpectResult
 import org.opencypher.tools.tck.api.InitQuery
-import org.opencypher.tools.tck.api.Scenario
 import org.opencypher.tools.tck.api.SideEffects
 import org.opencypher.tools.tck.api.Step
-import org.opencypher.tools.tck.constants.TCKTags
 import org.scalatest.OptionValues
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -51,7 +50,7 @@ trait ValidateSteps extends AnyFunSpecLike with Matchers with OptionValues with 
   def validateSteps(steps: List[Step], tags: Set[String]): Unit = {
 
     class DescribedStep(s: Step) {
-      def description: String = s"step ${s.source.getKeyWord.trim} ${s.source.getText} in line ${s.source.getLine}"
+      def description: String = s"step `${s.source.getKeyWord.trim} ${s.source.getText}` in line ${s.source.getLine}"
     }
     implicit def toDescribedStep(s: Step): DescribedStep = new DescribedStep(s)
 
@@ -87,73 +86,61 @@ trait ValidateSteps extends AnyFunSpecLike with Matchers with OptionValues with 
       (numberOfExpectResultSteps + numberOfExpectErrorSteps) should equal(numberOfExecQuerySteps + numberOfControlQuerySteps)
     }
 
-    val numberOfExplicitSideEffectSteps = steps.count {
-      case se:SideEffects if se.source.getKeyWord.trim.toLowerCase == "and" => true
-      case _ => false
-    }
-    val numberOfImplicitSideEffectSteps = steps.count {
-      case se:SideEffects if se.source.getKeyWord.trim.toLowerCase == "then" => true
-      case _ => false
-    }
     they("have as many explicit `And side effects` step or implicit SideEffects step as `When executing query` steps") {
+      val numberOfExplicitSideEffectSteps = steps.count {
+        case se:SideEffects if se.source.getType == StepType.AND => true
+        case _ => false
+      }
+      val numberOfImplicitSideEffectSteps = steps.count {
+        case se:SideEffects if se.source.getType == StepType.THEN => true
+        case _ => false
+      }
       (numberOfExplicitSideEffectSteps + numberOfImplicitSideEffectSteps) shouldBe numberOfExecQuerySteps
     }
 
-    it("starts with a `Given` step") {
-      steps.head.isGivenStep shouldBe true
+    they("start with a `Given` step") {
+      steps.head.source.getType == StepType.GIVEN
     }
 
-    val stepPairs = steps zip steps.tail
+    describe("have the right order, so that") {
+      val stepPairs = steps zip steps.tail
 
-    describe("have every explicit `And side effects` step and implicit SideEffects step preceded by a `Then expect results` or `Then expect error` step, respectively, so that") {
-      stepPairs foreach {
-        case (predecessor, se:SideEffects) if se.source.getKeyWord.trim.toLowerCase == "and" =>
-          it(s"${se.description} is preceded by a `Then expect results` step") {
-            predecessor should matchPattern { case _:ExpectResult => }
-          }
-        case (predecessor, se:SideEffects) if se.source.getKeyWord.trim.toLowerCase == "then" =>
-          it(s"${se.description} is preceded by a `Then expect error` step") {
-            predecessor should matchPattern { case _:ExpectError => }
-          }
-        case _ => Unit
-      }
-    }
-
-    describe("have every `Then expect results` preceded by a `When executing query` or `When executing control query` step, so that") {
       stepPairs foreach {
         case (predecessor, er:ExpectResult) =>
           it(s"${er.description} is preceded by a `When executing query` or `When executing control query` step") {
             predecessor should matchPattern { case Execute(_, ExecQuery | ControlQuery, _) => }
           }
-        case _ => Unit
-      }
-    }
-
-    describe("have every `Then expect error` preceded by a `When executing query` step, so that") {
-      stepPairs foreach {
         case (predecessor, ee:ExpectError) =>
           it(s"${ee.description} is preceded by a `When executing query` step") {
             predecessor should matchPattern { case Execute(_, ExecQuery, _) => }
           }
+        case (predecessor, se:SideEffects) if se.source.getType == StepType.AND =>
+          it(s"${se.description} is preceded by a `Then expect results` step") {
+            predecessor should matchPattern { case _:ExpectResult => }
+          }
+        case (predecessor, se:SideEffects) if se.source.getType == StepType.THEN =>
+          it(s"${se.description} is preceded by a `Then expect error` step") {
+            predecessor should matchPattern { case _:ExpectError => }
+          }
         case _ => Unit
       }
-    }
 
-    they("have every `Then expect error` succeeded by nothing (i.e. the last step)") {
-      stepPairs should not contain matchPattern { case (_:ExpectError, _) => }
-    }
+      they("every `Then expect error` step is not succeeded by anything, i.e. is the last step") {
+        stepPairs should not contain matchPattern { case (_:ExpectError, _) => }
+      }
 
-    they("have every `Given` and `And having executed` step before any `When executing query` or `When executing control query` step") {
-      steps.lastIndexWhere {
-        case Execute(_, InitQuery, _) => true
-        case _ => false
-      } should be < steps.indexWhere {
-        case Execute(_, ExecQuery, _) => true
-        case _ => false
+      they("every `Given` and `And having executed` step before any `When executing query` or `When executing control query` step") {
+        steps.lastIndexWhere {
+          case Execute(_, InitQuery, _) => true
+          case _ => false
+        } should be < steps.indexWhere {
+          case Execute(_, ExecQuery, _) => true
+          case _ => false
+        }
       }
     }
 
-    describe("have") {
+    describe("have valid step parameters, so that") {
       steps foreach {
         case e:Execute =>
           describe(s"the query of ${e.description}") {
@@ -161,7 +148,7 @@ trait ValidateSteps extends AnyFunSpecLike with Matchers with OptionValues with 
           }
         case se:SideEffects =>
           describe(s"the expectation of ${se.description}") {
-            validateSideEffects(se.expected)
+            validateSideEffects(se)
           }
         case ee:ExpectError =>
           describe(s"the error detail of ${ee.description}") {
