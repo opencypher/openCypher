@@ -136,7 +136,7 @@ Feature: Literals2 - Decimal integer
       """
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
-  @NegativeTest
+  @NegativeTest @skipGrammarCheck
   Scenario: [11] Fail on an integer containing a alphabetic character
     Given any graph
     When executing query:
@@ -145,7 +145,7 @@ Feature: Literals2 - Decimal integer
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
-  @NegativeTest
+  @NegativeTest @skipGrammarCheck
   Scenario: [12] Fail on an integer containing a invalid symbol character
     Given any graph
     When executing query:
