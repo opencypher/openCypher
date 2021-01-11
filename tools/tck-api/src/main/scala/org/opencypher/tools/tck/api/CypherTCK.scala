@@ -34,7 +34,6 @@ import java.util
 
 import io.cucumber.core.gherkin.DataTableArgument
 import io.cucumber.core.gherkin.DocStringArgument
-import io.cucumber.core.gherkin.StepType
 import io.cucumber.core.gherkin.vintage.GherkinVintageFeatureParser
 import org.opencypher.tools.tck.SideEffectOps.Diff
 import org.opencypher.tools.tck._
@@ -259,8 +258,6 @@ case class Feature(scenarios: Seq[Scenario])
 
 sealed trait Step {
   val source: io.cucumber.core.gherkin.Step
-
-  def isGivenStep: Boolean = source.getType == StepType.GIVEN
 }
 
 case class SideEffects(expected: Diff = Diff(), source: io.cucumber.core.gherkin.Step) extends Step {
