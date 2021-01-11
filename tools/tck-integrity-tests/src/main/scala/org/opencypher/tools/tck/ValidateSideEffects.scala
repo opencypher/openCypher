@@ -50,11 +50,15 @@ trait ValidateSideEffects extends AnyFunSpecLike with Matchers {
       (keys -- TCKSideEffects.ALL) shouldBe empty
     }
 
-    it("has only numbers greater than zero in step parameter") {
-      // note this tests that principally valid zero side effects are not listed in the scenario's gherkin code
-      val dataTable = step.source.getArgument.asInstanceOf[DataTableArgument].cells().asScala.map(_.asScala.toList).toList
-      val map = dataTable.map { r => r.head -> r.tail.head.toInt }.toMap
-      all (map.values) should be > 0
+    it("has only numbers greater than zero in step parameter (or no parameter)") {
+      if(step.source.getArgument != null) {
+        // note this tests that principally valid zero side effects are not listed in the scenario's gherkin code
+        val dataTable = step.source.getArgument.asInstanceOf[DataTableArgument].cells().asScala.map(_.asScala.toList).toList
+        val map = dataTable.map { r => r.head -> r.tail.head.toInt }.toMap
+        all (map.values) should be > 0
+      } else {
+        succeed
+      }
     }
 
     it("has only numbers greater or equal zero, after filled with zero") {
