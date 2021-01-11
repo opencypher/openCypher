@@ -34,12 +34,15 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.util.Failure
 import scala.util.Success
+import scala.util.Try
 
 trait ValidateQuery extends AnyFunSpecLike with Matchers {
 
   def validateQuery(query: String, tags: Set[String] = Set.empty[String]): Unit = {
     it(s"has a syntax conforming to the grammar (or the scenario has the ${TCKTags.SKIP_GRAMMAR_CHECK} tag)") {
-      (Antlr4TestUtils.parse(query), tags contains TCKTags.SKIP_GRAMMAR_CHECK) should matchPattern {
+      val parsed = Try(Antlr4TestUtils.parse(query))
+      val hasSkipGrammarCheckTag = tags contains TCKTags.SKIP_GRAMMAR_CHECK
+      (parsed, hasSkipGrammarCheckTag) should matchPattern {
         case (Failure(_), true) =>
         case (Success(_), false) =>
       }
