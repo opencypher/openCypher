@@ -194,7 +194,7 @@ Feature: Match4 - Match variable length patterns scenarios
       | (:A)  | (:C)   |
     And no side effects
 
-  @NegativeTest
+  @NegativeTest @skipGrammarCheck
   Scenario: [9] Fail when asterisk operator is missing
     Given an empty graph
     And having executed:
@@ -237,7 +237,7 @@ Feature: Match4 - Match variable length patterns scenarios
       """
     Then a SyntaxError should be raised at compile time: InvalidRelationshipPattern
 
-  @NegativeTest
+  @NegativeTest @skipGrammarCheck
   Scenario: [10] Fail on negative bound
     Given an empty graph
     And having executed:
