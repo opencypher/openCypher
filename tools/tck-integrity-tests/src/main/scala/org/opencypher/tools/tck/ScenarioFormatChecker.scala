@@ -50,12 +50,14 @@ trait ScenarioFormatChecker extends AnyFunSpecLike with Matchers with OptionValu
       currentGroup match {
         case Total =>
           Total.children.foreach(spawnTests)
+        case _:Tag => Unit
         case g: ContainerGroup =>
           describe(g.description) {
             g.children.foreach(spawnTests)
           }
         case i: Item =>
           describe(i.description) {
+            print(".")
             validateScenario(i.scenario)
           }
         case _ => Unit
