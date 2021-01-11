@@ -91,7 +91,7 @@ Feature: Call2 - Procedure arguments
       | 'Berlin' | 49           |
     And no side effects
 
-  @NegativeTest
+  @NegativeTest @skipGrammarCheck
   Scenario: [4] In-query call to procedure that takes arguments fails when trying to pass them implicitly
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
