@@ -36,7 +36,18 @@
         <artifactId>scala-maven-plugin</artifactId>
       </plugin>
       <plugin>
+        <groupId>org.scalatest</groupId>
+        <artifactId>scalatest-maven-plugin</artifactId>
+        <configuration>
+          <parallel>true</parallel>
+          <!--skipTests>true</skipTests-->
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!--skipTests>true</skipTests-->
+        </configuration>
       </plugin>
     </plugins>
 
