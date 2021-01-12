@@ -110,7 +110,7 @@ trait ValidateSteps extends AppendedClues with Matchers with OptionValues with V
         withClue(s"${ee.description} is not succeeded by anything, i.e. is the last step") {
           fail(s"${ee.description} is succeeded by ${successor.description}")
         }
-      case _ => Unit
+      case _ => succeed
     }
 
     withClue("every `Given` and `And having executed` step before any `When executing query` or `When executing control query` step") {
