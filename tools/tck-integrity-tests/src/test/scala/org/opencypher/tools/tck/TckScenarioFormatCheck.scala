@@ -28,10 +28,15 @@
 package org.opencypher.tools.tck
 
 import org.opencypher.tools.tck.api.CypherTCK
-import org.scalatest.funspec.AnyFunSpecLike
 
-class TckScenarioFormatCheck extends AnyFunSpecLike with ScenarioFormatChecker {
+class TckScenarioFormatCheck extends ScenarioFormatChecker {
   describe("Among all TCK scenarios") {
     create(CypherTCK.allTckScenarios)
+  }
+}
+
+object TckScenarioFormatCheck {
+  def main(args: Array[String]): Unit = {
+    (new TckScenarioFormatCheck).execute()
   }
 }
