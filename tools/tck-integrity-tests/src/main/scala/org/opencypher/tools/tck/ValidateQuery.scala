@@ -54,7 +54,7 @@ trait ValidateQuery extends AnyFunSpecLike with Matchers {
         }
 
         it(s"has either a syntax conforming to the style requirements or the scenario has the ${TCKTags.SKIP_STYLE_CHECK} tag") {
-          val normalizedQuery = normalize(query)
+          val normalizedQuery = NormalizeQueryStyle(query)
           (query, tags contains TCKTags.SKIP_STYLE_CHECK) should matchPattern {
             case (x, false) if normalizedQuery == x =>
             case (_, true) =>
@@ -69,96 +69,8 @@ trait ValidateQuery extends AnyFunSpecLike with Matchers {
         }
 
         it(s"has a syntax conforming to the style requirements") {
-          query shouldBe normalize(query)
+          query shouldBe NormalizeQueryStyle(query)
         }
     }
   }
-
-  def normalize(query: String): String = {
-    // TODO: Write a proper style checker, that is able to interpret context and do proper parsing
-    // The result will probably be similar to the class Prettifier in the neo4j repository, which
-    // we could use, but a dependency on neo4j that way would be very smelly.
-
-    val lowerCased = lowerCaseKeywords.foldLeft(query) {
-      case (q, word) => q.replaceAll(s"(?i)(?!:)(^|[^a-zA-Z])$word ", s"$$1$word ")
-    }
-
-    val upperCased = upperCaseKeywords.foldLeft(lowerCased) {
-      case (q, word) => q.replaceAll(s"(?i)(^|[^a-zA-Z])$word ", s"$$1$word ")
-    }
-
-    val onlySingleQuotes = upperCased.replaceAll("\"([^']+)\"", "'$1'")
-
-    val spaceAfterComma = if (onlySingleQuotes.contains("'")) {
-      onlySingleQuotes // it's difficult to find out whether the comma is in a string or not... just avoid this case
-    } else onlySingleQuotes.replaceAll(",([^ \\n])", ", $1")
-
-    // Do negative lookbehind and lookahead to not requires changes for times like 12:00
-    val spaceAfterColon = spaceAfterComma.replaceAll("(?<!\\d\\d):(?!\\d\\d)([^A-Z ])", ": $1")
-
-    val noIllegals = if (spaceAfterColon.contains("'")) spaceAfterColon // literal strings
-    else illegal.foldLeft(spaceAfterColon) {
-      case (q, word) => q.replaceAll(s"(?i)(?!:)(^|[^a-zA-Z])$word", "$1")
-    }
-
-    noIllegals
-  }
-
-  private val lowerCaseKeywords = Set(
-    "true",
-    "false",
-    "null",
-    "exists",
-    "filter",
-    "count",
-    "toInt",
-    "collect",
-    "extract")
-
-  private val upperCaseKeywords = Set(
-    "MATCH",
-    "OPTIONAL",
-    "WHERE",
-    "RETURN",
-    "ORDER",
-    "BY",
-    "CREATE",
-    "ON",
-    "DETACH",
-    "DELETE",
-    "WITH",
-    "SKIP",
-    "LIMIT",
-    "ASC",
-    "DESC",
-    "CALL",
-    "STARTS",
-    "ENDS",
-    "WITH",
-    "CONTAINS",
-    "DISTINCT",
-    "OR",
-    "XOR",
-    "AND",
-    "IN",
-    "UNIQUE",
-    "IS NOT NULL",
-    "IS NULL",
-    "AS",
-    "UNION")
-
-  private val illegal = Set(
-    "LOAD",
-    "CSV",
-    "INDEX",
-    "DROP",
-    "CONSTRAINT",
-    "PERIODIC",
-    "COMMIT",
-    "WHEN",
-    "CASE",
-    "THEN",
-    "ELSE",
-    "ASSERT",
-    "SCAN")
 }
