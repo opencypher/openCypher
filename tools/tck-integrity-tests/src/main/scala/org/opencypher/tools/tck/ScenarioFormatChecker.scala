@@ -57,9 +57,10 @@ trait ScenarioFormatChecker extends AnyFunSpecLike with Matchers with OptionValu
           }
         case i: Item =>
           describe(i.description) {
-            print(".")
             validateScenario(i.scenario)
           }
+          print(".")
+          Console.flush()
         case _ => Unit
       }
     }
