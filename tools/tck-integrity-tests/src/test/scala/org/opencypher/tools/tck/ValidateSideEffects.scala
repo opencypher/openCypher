@@ -6,6 +6,8 @@ import org.opencypher.tools.tck.constants.TCKSideEffects
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.JavaConverters._
+
 /**
  * Validates side effects expectations. A valid side effect has one of the specified names in TCKSideEffects, and a
  * quantity that is an integer greater than zero.
