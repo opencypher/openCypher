@@ -32,8 +32,6 @@ import org.scalatest.matchers.should.Matchers
 
 class ValidateQueryTest extends AnyFunSpecLike with Matchers {
 
-  private val validateQuery = new ValidateQuery(){}
-
   it("should accept keyword labels") {
     assertCorrect("CREATE (s1:Start {id: 1})")
   }
@@ -112,11 +110,11 @@ class ValidateQueryTest extends AnyFunSpecLike with Matchers {
   }
 
   private def assertCorrect(query: String) = {
-    query shouldBe validateQuery.normalize(query)
+    query shouldBe NormalizeQueryStyle(query)
   }
 
   private def assertIncorrect(query: String, normalized: String) = {
-    query should not be validateQuery.normalize(query)
-    validateQuery.normalize(query) shouldBe normalized
+    query should not be NormalizeQueryStyle(query)
+    NormalizeQueryStyle(query) shouldBe normalized
   }
 }
