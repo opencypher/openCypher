@@ -216,7 +216,7 @@
   <production name="Set">
     SET &WS; <non-terminal ref="SetItem"/>
     <repeat>
-      , <non-terminal ref="SetItem"/>
+       &WS; , &WS; <non-terminal ref="SetItem"/>
     </repeat>
   </production>
 
