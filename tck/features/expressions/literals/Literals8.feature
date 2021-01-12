@@ -314,7 +314,7 @@ Feature: Literals8 - Maps
       """
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
-  @NegativeTest
+  @NegativeTest @skipGrammarCheck
   Scenario: [21] Fail on a map containing key with dot
     Given any graph
     When executing query:
