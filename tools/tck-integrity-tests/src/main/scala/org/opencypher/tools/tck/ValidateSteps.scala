@@ -144,7 +144,7 @@ trait ValidateSteps extends AnyFunSpecLike with Matchers with OptionValues with 
       steps foreach {
         case e:Execute =>
           describe(s"the query of ${e.description}") {
-            validateQuery(e.query, tags)
+            validateQuery(e, tags)
           }
         case se:SideEffects =>
           describe(s"the expectation of ${se.description}") {
