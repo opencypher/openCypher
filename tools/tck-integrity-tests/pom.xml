@@ -17,6 +17,9 @@
 
   <properties>
     <project.rootdir>${project.basedir}/../..</project.rootdir>
+    <default.jupiter.test.mode>concurrent</default.jupiter.test.mode>
+    <default.jupiter.classes.test.mode>concurrent</default.jupiter.classes.test.mode>
+    <forkCounts>2C</forkCounts>
   </properties>
 
   <licenses>
