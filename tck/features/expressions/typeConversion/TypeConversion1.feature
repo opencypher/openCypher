@@ -83,7 +83,7 @@ Feature: TypeConversion1 - To Boolean
     And no side effects
 
   @NegativeTest
-  Scenario Outline: [5] `toBoolean()` on invalid types
+  Scenario Outline: [5] `toBoolean()` on invalid types '<invalid>'
     Given any graph
     When executing query:
       """

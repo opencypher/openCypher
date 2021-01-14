@@ -97,7 +97,7 @@ Feature: TypeConversion3 - To Float
     And no side effects
 
   @NegativeTest
-  Scenario Outline: [6] `toFloat()` failing on invalid arguments
+  Scenario Outline: [6] `toFloat()` failing on invalid arguments '<invalid>'
     Given an empty graph
     And having executed:
       """

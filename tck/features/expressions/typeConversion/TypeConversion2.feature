@@ -122,7 +122,7 @@ Feature: TypeConversion2 - To Integer
     And no side effects
 
   @NegativeTest
-  Scenario Outline: [8] `toInteger()` failing on invalid arguments
+  Scenario Outline: [8] `toInteger()` failing on invalid arguments '<invalid>'
     Given an empty graph
     And having executed:
       """

@@ -149,7 +149,7 @@ Feature: TypeConversion4 - To String
     And no side effects
 
   @NegativeTest
-  Scenario Outline: `toString()` failing on invalid arguments
+  Scenario Outline: `toString()` failing on invalid arguments '<invalid>'
     Given an empty graph
     And having executed:
       """
