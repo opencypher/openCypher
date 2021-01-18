@@ -1,131 +1,131 @@
 <?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.opencypher</groupId>
-    <artifactId>tools</artifactId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>org.opencypher</groupId>
+        <artifactId>tools</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>tck-integrity-tests_2.12</artifactId>
-  <name>openCypher TCK Integrity Tests</name>
-  <url>http://opencypher.org</url>
-  <description>openCypher Technology Compatibility Kit Integrity Tests</description>
+    <artifactId>tck-integrity-tests_2.12</artifactId>
+    <name>openCypher TCK Integrity Tests</name>
+    <url>http://opencypher.org</url>
+    <description>openCypher Technology Compatibility Kit Integrity Tests</description>
 
-  <properties>
-    <project.rootdir>${project.basedir}/../..</project.rootdir>
-    <default.jupiter.test.mode>concurrent</default.jupiter.test.mode>
-    <default.jupiter.classes.test.mode>concurrent</default.jupiter.classes.test.mode>
-    <forkCounts>2C</forkCounts>
-  </properties>
+    <properties>
+        <project.rootdir>${project.basedir}/../..</project.rootdir>
+        <default.jupiter.test.mode>concurrent</default.jupiter.test.mode>
+        <default.jupiter.classes.test.mode>concurrent</default.jupiter.classes.test.mode>
+        <forkCounts>2C</forkCounts>
+    </properties>
 
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-    </license>
-  </licenses>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>net.alchim31.maven</groupId>
-        <artifactId>scala-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.scalatest</groupId>
-        <artifactId>scalatest-maven-plugin</artifactId>
-        <configuration>
-          <parallel>true</parallel>
-          <!--skipTests>true</skipTests-->
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <!--skipTests>true</skipTests-->
-        </configuration>
-      </plugin>
-    </plugins>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest-maven-plugin</artifactId>
+                <configuration>
+                    <parallel>true</parallel>
+                    <!--skipTests>true</skipTests-->
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!--skipTests>true</skipTests-->
+                </configuration>
+            </plugin>
+        </plugins>
 
-    <resources>
-      <resource>
-        <directory>../../grammar</directory>
-        <includes>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
-  </build>
+        <resources>
+            <resource>
+                <directory>../../grammar</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 
-  <dependencies>
+    <dependencies>
 
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-library</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+        </dependency>
 
-    <!-- Test deps -->
+        <!-- Test deps -->
 
-    <dependency>
-      <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_${scala.binary.version}</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.opencypher</groupId>
+            <artifactId>tck-api_${scala.binary.version}</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.opencypher</groupId>
-      <artifactId>tck-api_${scala.binary.version}</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.opencypher</groupId>
+            <artifactId>grammar</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>io.cucumber</groupId>
-      <artifactId>cucumber-scala_${scala.binary.version}</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.opencypher</groupId>
+            <artifactId>grammar</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+        </dependency>
 
-    <dependency>
-      <groupId>org.opencypher</groupId>
-      <artifactId>grammar</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-scala_${scala.binary.version}</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.opencypher</groupId>
-      <artifactId>grammar</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-    </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.antlr</groupId>
-      <artifactId>antlr4-runtime</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.binary.version}</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency><!-- for the use of org.unit.Assert in org.opencypher.tools.grammar.Antlr4TestUtils -->
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency><!-- for the use of org.unit.Assert in org.opencypher.tools.grammar.Antlr4TestUtils -->
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-        <groupId>org.junit.platform</groupId>
-        <artifactId>junit-platform-engine</artifactId>
-        <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>co.helmethair</groupId>
-      <artifactId>scalatest-junit-runner</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>co.helmethair</groupId>
+            <artifactId>scalatest-junit-runner</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-  </dependencies>
+    </dependencies>
 </project>
