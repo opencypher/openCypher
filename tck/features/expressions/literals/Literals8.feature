@@ -348,7 +348,7 @@ Feature: Literals8 - Maps
       """
       RETURN {1} AS literal
       """
-    Then a SyntaxError should be raised at compile time: MissingParameter
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   @NegativeTest @skipGrammarCheck
   Scenario: [25] Fail on a map containing a list without key
