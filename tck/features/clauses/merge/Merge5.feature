@@ -524,4 +524,4 @@ Feature: Merge5 - Merge relationships
       CREATE (a), (b)
       MERGE (a)-[r:X {num: null}]->(b)
       """
-    Then a SemanticError should be raised at compile time: MergeReadOwnWrites
+    Then a SemanticError should be raised at runtime: MergeReadOwnWrites

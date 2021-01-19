@@ -306,4 +306,4 @@ Feature: Merge1 - Merge node
       """
       MERGE ({num: null})
       """
-    Then a SemanticError should be raised at compile time: MergeReadOwnWrites
+    Then a SemanticError should be raised at runtime: MergeReadOwnWrites
