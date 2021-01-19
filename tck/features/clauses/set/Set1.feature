@@ -186,7 +186,7 @@ Feature: Set1 - Set a Property
       CREATE (a)
       SET a.maplist = [{num: 1}]
       """
-    Then a TypeError should be raised at compile time: InvalidPropertyType
+    Then a TypeError should be raised at runtime: InvalidPropertyType
 
   Scenario: [11] Set multiple node properties
     Given an empty graph
