@@ -121,7 +121,7 @@ Feature: List1 - Dynamic Element Access
       WITH $expr AS expr, $idx AS idx
       RETURN expr[idx]
       """
-    Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
+    Then a TypeError should be raised at compile time: ListElementAccessByNonInteger
 
   @NegativeTest
   Scenario: [8] Fail at compile time when attempting to index with a non-integer into a list
