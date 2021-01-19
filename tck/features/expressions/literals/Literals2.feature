@@ -152,4 +152,4 @@ Feature: Literals2 - Decimal integer
       """
       RETURN 9223372#54775808 AS literal
       """
-    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
