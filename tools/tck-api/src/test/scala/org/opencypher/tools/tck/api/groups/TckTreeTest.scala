@@ -204,10 +204,10 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
   }
 
   describe("The given list of four scenarios in a top-level feature, the TckTree") {
-    val scr1A = createScenario(List[String](), "ftr1", Some(1), "a", None, Set[String]())
-    val scr2B = createScenario(List[String](), "ftr1", Some(2), "b", None, Set[String]())
-    val scr3A = createScenario(List[String](), "ftr1", Some(3), "a", None, Set[String]())
-    val scr3B = createScenario(List[String](), "ftr1", Some(3), "b", None, Set[String]())
+    val scr1A = createScenario(List[String](), "ftr1", Some(1), "a", None, None, Set[String]())
+    val scr2B = createScenario(List[String](), "ftr1", Some(2), "b", None, None, Set[String]())
+    val scr3A = createScenario(List[String](), "ftr1", Some(3), "a", None, None, Set[String]())
+    val scr3B = createScenario(List[String](), "ftr1", Some(3), "b", None, None, Set[String]())
 
     val scenarios = rand.shuffle(List(scr1A, scr2B, scr3A, scr3B))
     val tckTree = TckTree(scenarios)
@@ -242,8 +242,8 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
   }
 
   describe("The given list of two scenarios from a scenario outline in a top-level feature, the TckTree") {
-    val scr1 = createScenario(List[String](), "ftr1", Some(1), "scr", Some(1), Set[String]())
-    val scr2 = createScenario(List[String](), "ftr1", Some(1), "scr", Some(2), Set[String]())
+    val scr1 = createScenario(List[String](), "ftr1", Some(1), "scr", Some(1), None, Set[String]())
+    val scr2 = createScenario(List[String](), "ftr1", Some(1), "scr", Some(2), Some("two"), Set[String]())
 
     val scenarios = rand.shuffle(List(scr1, scr2))
     val tckTree = TckTree(scenarios)
@@ -255,8 +255,8 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
         Total -> Set(scr1, scr2),
         Feature("ftr1", Total) -> Set(scr1, scr2),
         ScenarioOutline(Some(1), "scr", Feature("ftr1", Total)) -> Set(scr1, scr2),
-        ExampleItem(1, scr1, ScenarioOutline(Some(1), "scr", Feature("ftr1", Total))) -> Set(scr1),
-        ExampleItem(2, scr2, ScenarioOutline(Some(1), "scr", Feature("ftr1", Total))) -> Set(scr2),
+        ExampleItem(1, None, scr1, ScenarioOutline(Some(1), "scr", Feature("ftr1", Total))) -> Set(scr1),
+        ExampleItem(2, Some("two"), scr2, ScenarioOutline(Some(1), "scr", Feature("ftr1", Total))) -> Set(scr2),
       )
 
       tckTree.groupedScenarios should equal(expected)
@@ -267,8 +267,8 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
         Total,
         Feature("ftr1", Total),
         ScenarioOutline(Some(1), "scr", Feature("ftr1", Total)),
-        ExampleItem(1, scr1, ScenarioOutline(Some(1), "scr", Feature("ftr1", Total))),
-        ExampleItem(2, scr2, ScenarioOutline(Some(1), "scr", Feature("ftr1", Total))),
+        ExampleItem(1, None, scr1, ScenarioOutline(Some(1), "scr", Feature("ftr1", Total))),
+        ExampleItem(2, Some("two"), scr2, ScenarioOutline(Some(1), "scr", Feature("ftr1", Total))),
       )
 
       tckTree.groupsOrderedDepthFirst should equal(expected)
@@ -276,10 +276,10 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
   }
 
   describe("The given list of four scenarios, the TckTree") {
-    val scrA = createScenario(List[String](), "ftr5", Some(1), "scrA", None, Set[String]())
-    val scrB = createScenario(List[String](), "ftr1", Some(1), "scrB", None, Set[String]("A"))
-    val scrC = createScenario(List[String]("b"), "ftr11", Some(1), "scrC", None, Set[String]("A"))
-    val scrD = createScenario(List[String]("b"), "ftr3", Some(1), "scrD", None, Set[String]("B"))
+    val scrA = createScenario(List[String](), "ftr5", Some(1), "scrA", None, None, Set[String]())
+    val scrB = createScenario(List[String](), "ftr1", Some(1), "scrB", None, None, Set[String]("A"))
+    val scrC = createScenario(List[String]("b"), "ftr11", Some(1), "scrC", None, None, Set[String]("A"))
+    val scrD = createScenario(List[String]("b"), "ftr3", Some(1), "scrD", None, None, Set[String]("B"))
 
     val scenarios = rand.shuffle(List(scrA, scrB, scrC, scrD))
     val tckTree = TckTree(scenarios)
@@ -375,17 +375,17 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
   }
 
   describe("The given list of ten scenarios, the TckTree") {
-    val scrA = createScenario(List[String](), "ftr5 - a", Some(1), "a", None, Set[String]())
-    val scrB = createScenario(List[String](), "ftr1 - b", Some(1), "b", None, Set[String]("A"))
-    val scrC = createScenario(List[String](), "ftr1 - b", Some(2), "c", None, Set[String]("A"))
-    val scrD = createScenario(List[String]("b"), "ftr11 - c", Some(1), "d", None, Set[String]("A", "C"))
-    val scrE = createScenario(List[String]("b"), "ftr11", Some(1), "e", None, Set[String]("A", "C"))
-    val scrF1 = createScenario(List[String]("a", "b"), "ftr2", Some(1), "f", Some(1), Set[String]("C"))
-    val scrF2 = createScenario(List[String]("a", "b"), "ftr2", Some(1), "f", Some(2), Set[String]("C"))
-    val scrG = createScenario(List[String]("a", "b"), "ftr", Some(1), "g", None, Set[String]("D"))
-    val scrH = createScenario(List[String]("b"), "ftr11 - b", Some(1), "h", None, Set[String]("D", "2"))
-    val scrI = createScenario(List[String]("b"), "ftr3", Some(1), "i", None, Set[String]("B"))
-    val scrJ = createScenario(List[String]("a", "b"), "ftrX", Some(1), "j", None, Set[String]("11"))
+    val scrA = createScenario(List[String](), "ftr5 - a", Some(1), "a", None, None, Set[String]())
+    val scrB = createScenario(List[String](), "ftr1 - b", Some(1), "b", None, None, Set[String]("A"))
+    val scrC = createScenario(List[String](), "ftr1 - b", Some(2), "c", None, None, Set[String]("A"))
+    val scrD = createScenario(List[String]("b"), "ftr11 - c", Some(1), "d", None, None, Set[String]("A", "C"))
+    val scrE = createScenario(List[String]("b"), "ftr11", Some(1), "e", None, None, Set[String]("A", "C"))
+    val scrF1 = createScenario(List[String]("a", "b"), "ftr2", Some(1), "f", Some(1), None, Set[String]("C"))
+    val scrF2 = createScenario(List[String]("a", "b"), "ftr2", Some(1), "f", Some(2), Some("two"), Set[String]("C"))
+    val scrG = createScenario(List[String]("a", "b"), "ftr", Some(1), "g", None, None, Set[String]("D"))
+    val scrH = createScenario(List[String]("b"), "ftr11 - b", Some(1), "h", None, None, Set[String]("D", "2"))
+    val scrI = createScenario(List[String]("b"), "ftr3", Some(1), "i", None, None, Set[String]("B"))
+    val scrJ = createScenario(List[String]("a", "b"), "ftrX", Some(1), "j", None, None, Set[String]("11"))
 
     val scenarios = rand.shuffle(List(scrA, scrB, scrC, scrD, scrE, scrF1, scrF2, scrG, scrH, scrI, scrJ))
     val tckTree = TckTree(scenarios)
@@ -414,8 +414,8 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
         ScenarioItem(scrG, ftr) -> Set(scrG),
         ftr2 -> Set(scrF1, scrF2),
         ScenarioOutline(Some(1), "f", ftr2) -> Set(scrF1, scrF2),
-        ExampleItem(1, scrF1, ScenarioOutline(Some(1), "f", ftr2)) -> Set(scrF1),
-        ExampleItem(2, scrF2, ScenarioOutline(Some(1), "f", ftr2)) -> Set(scrF2),
+        ExampleItem(1, None, scrF1, ScenarioOutline(Some(1), "f", ftr2)) -> Set(scrF1),
+        ExampleItem(2, Some("two"), scrF2, ScenarioOutline(Some(1), "f", ftr2)) -> Set(scrF2),
         ftrX -> Set(scrJ),
         ScenarioItem(scrJ, ftrX) -> Set(scrJ),
         scB -> Set(scrD, scrE, scrH, scrI),
@@ -447,8 +447,8 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
         ScenarioItem(scrD, Tag("C")) -> Set(scrD),
         ScenarioItem(scrE, Tag("C")) -> Set(scrE),
         ScenarioOutline(Some(1), "f", Tag("C")) -> Set(scrF1, scrF2),
-        ExampleItem(1, scrF1, ScenarioOutline(Some(1), "f", Tag("C"))) -> Set(scrF1),
-        ExampleItem(2, scrF2, ScenarioOutline(Some(1), "f", Tag("C"))) -> Set(scrF2),
+        ExampleItem(1, None, scrF1, ScenarioOutline(Some(1), "f", Tag("C"))) -> Set(scrF1),
+        ExampleItem(2, Some("two"), scrF2, ScenarioOutline(Some(1), "f", Tag("C"))) -> Set(scrF2),
         Tag("D") -> Set(scrG, scrH),
         ScenarioItem(scrG, Tag("D")) -> Set(scrG),
         ScenarioItem(scrH, Tag("D")) -> Set(scrH),
@@ -467,8 +467,8 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
         ScenarioItem(scrG, ftr),
         ftr2,
         ScenarioOutline(Some(1), "f", ftr2),
-        ExampleItem(1, scrF1, ScenarioOutline(Some(1), "f", ftr2)),
-        ExampleItem(2, scrF2, ScenarioOutline(Some(1), "f", ftr2)),
+        ExampleItem(1, None, scrF1, ScenarioOutline(Some(1), "f", ftr2)),
+        ExampleItem(2, Some("two"), scrF2, ScenarioOutline(Some(1), "f", ftr2)),
         ftrX,
         ScenarioItem(scrJ, ftrX),
         scB,
@@ -500,8 +500,8 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
         ScenarioItem(scrD, Tag("C")),
         ScenarioItem(scrE, Tag("C")),
         ScenarioOutline(Some(1), "f", Tag("C")),
-        ExampleItem(1, scrF1, ScenarioOutline(Some(1), "f", Tag("C"))),
-        ExampleItem(2, scrF2, ScenarioOutline(Some(1), "f", Tag("C"))),
+        ExampleItem(1, None, scrF1, ScenarioOutline(Some(1), "f", Tag("C"))),
+        ExampleItem(2, Some("two"), scrF2, ScenarioOutline(Some(1), "f", Tag("C"))),
         Tag("D"),
         ScenarioItem(scrG, Tag("D")),
         ScenarioItem(scrH, Tag("D")),

@@ -77,17 +77,17 @@ class GroupCanonicalOrderingTest extends AnyFunSpec with GroupTest {
     val ftr = Feature("ftr", Total)
 
     val expected = Seq(
-      ScenarioItem(createScenario(List(), ftr.name, Some(1), "alpha", None, Set()), ftr),
+      ScenarioItem(createScenario(List(), ftr.name, Some(1), "alpha", None, None, Set()), ftr),
       ScenarioOutline(Some(1), "gamma", ftr),
-      ScenarioItem(createScenario(List(), ftr.name, Some(2), "alpha", None, Set()), ftr),
+      ScenarioItem(createScenario(List(), ftr.name, Some(2), "alpha", None, None, Set()), ftr),
       ScenarioOutline(Some(2), "beta", ftr),
-      ScenarioItem(createScenario(List(), ftr.name, Some(2), "gamma", None, Set()), ftr),
+      ScenarioItem(createScenario(List(), ftr.name, Some(2), "gamma", None, None, Set()), ftr),
       ScenarioOutline(Some(3), "gamma", ftr),
-      ScenarioItem(createScenario(List(), ftr.name, Some(23), "alpha", None, Set()), ftr),
-      ScenarioItem(createScenario(List(), ftr.name, Some(23), "delta", None, Set()), ftr),
-      ScenarioItem(createScenario(List(), ftr.name, None, "aaa", None, Set()), ftr),
+      ScenarioItem(createScenario(List(), ftr.name, Some(23), "alpha", None, None, Set()), ftr),
+      ScenarioItem(createScenario(List(), ftr.name, Some(23), "delta", None, None, Set()), ftr),
+      ScenarioItem(createScenario(List(), ftr.name, None, "aaa", None, None, Set()), ftr),
       ScenarioOutline(None, "ac", ftr),
-      ScenarioItem(createScenario(List(), ftr.name, None, "uwvxyz", None, Set()), ftr),
+      ScenarioItem(createScenario(List(), ftr.name, None, "uwvxyz", None, None, Set()), ftr),
     )
 
     testOrderingOfSortedShuffles(expected, (s: Seq[Numbered]) => s.sorted)
@@ -95,14 +95,14 @@ class GroupCanonicalOrderingTest extends AnyFunSpec with GroupTest {
 
   describe("ExampleItem groups should be ordered by their index") {
     val scrOut = ScenarioOutline(Some(1), "alpha", Feature("ftr", Total))
-    val scr = createScenario(List(), scrOut.parentGroup.name, None, scrOut.name, Some(1), Set())
+    val scr = createScenario(List(), scrOut.parentGroup.name, None, scrOut.name, Some(1), None, Set())
 
     val expected = Seq(
-      ExampleItem(1, scr, scrOut),
-      ExampleItem(2, scr, scrOut),
-      ExampleItem(4, scr, scrOut),
-      ExampleItem(77, scr, scrOut),
-      ExampleItem(123, scr, scrOut),
+      ExampleItem(1, Some("xyz"), scr, scrOut),
+      ExampleItem(2, Some("abc"), scr, scrOut),
+      ExampleItem(4, None, scr, scrOut),
+      ExampleItem(77, Some("123"), scr, scrOut),
+      ExampleItem(123, Some("edf"), scr, scrOut),
     )
 
     testOrderingOfSortedShuffles(expected, (s: Seq[ExampleItem]) => s.sorted)
