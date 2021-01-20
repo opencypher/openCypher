@@ -45,3 +45,56 @@ Feature: Outline
       | 1      | 1      | 1      |
       | 2      | 2      | 2      |
       | 3      | 3      | 3      |
+
+  @numbered
+  Scenario Outline: [2] Outline Test with some and overlapping example name #Example: <exampleName>
+    Given an empty graph
+    When executing query:
+      """
+      RETURN <sample>
+      """
+    Then the result should be, in any order:
+      | <column> |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | sample | column | result | exampleName |
+      | 1      | 1      | 1      | one         |
+      | 2      | 2      | 2      |             |
+      | 3      | 3      | 3      | threeFour   |
+      | 4      | 4      | 4      | threeFour   |
+
+  @numbered @fullyNamed
+  Scenario Outline: [3] Outline Test with all example name #Example: <exampleName>
+    Given an empty graph
+    When executing query:
+      """
+      RETURN <sample>
+      """
+    Then the result should be, in any order:
+      | <column> |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | sample | column | result | exampleName |
+      | 1      | 1      | 1      | one         |
+      | 2      | 2      | 2      | two         |
+      | 3      | 3      | 3      | three       |
+
+  @numbered @fullyNamed
+  Scenario Outline: [4] Outline Test with a single example #Example: <exampleName>
+    Given an empty graph
+    When executing query:
+      """
+      RETURN <sample>
+      """
+    Then the result should be, in any order:
+      | <column> |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | sample | column | result | exampleName |
+      | 1      | 1      | 1      | one         |
