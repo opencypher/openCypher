@@ -52,6 +52,14 @@ trait ValidateScenario extends AppendedClues with Matchers with OptionValues wit
       scenarioSignaturesBefore should not contain scenarioSignature
     }
 
+    withClue("scenario with an example name should have an example index") {
+      (scenario.exampleName, scenario.exampleIndex) should matchPattern {
+        case (Some(_), Some(_)) =>
+        case (None, _) =>
+        // (Some(_), None) is the not allowed case
+      }
+    }
+
     withClue("scenario has a `@NegativeTest` tag and a `Then expect error` step or neither") {
       (scenario.steps exists {
         case _: ExpectError => true
