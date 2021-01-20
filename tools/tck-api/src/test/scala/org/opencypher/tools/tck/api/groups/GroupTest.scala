@@ -38,7 +38,7 @@ import org.opencypher.tools.tck.api.Step
 import org.scalatest.matchers.should.Matchers
 
 trait GroupTest extends Matchers {
-  def createScenario(categories: List[String], featureName: String, number: Option[Int], name: String, index: Option[Int], tags: Set[String]): Scenario = {
+  def createScenario(categories: List[String], featureName: String, number: Option[Int], name: String, index: Option[Int], exampleName: Option[String], tags: Set[String]): Scenario = {
     val dummyPickle: Pickle = new io.cucumber.core.gherkin.Pickle() {
       override val getKeyword: String = ""
 
@@ -92,7 +92,7 @@ trait GroupTest extends Matchers {
     val dummySteps: List[Step] = List[Step](Dummy(dummyPickleStep), Measure(dummyPickleStep))
     val dummyPath: java.nio.file.Path = new java.io.File("ftr1.feature").toPath
 
-    Scenario(categories, featureName, number, name, index, tags, dummySteps, dummyPickle, dummyPath)
+    Scenario(categories, featureName, number, name, index, exampleName, tags, dummySteps, dummyPickle, dummyPath)
   }
 
 }
