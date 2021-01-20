@@ -83,7 +83,7 @@ Feature: TypeConversion1 - To Boolean
     And no side effects
 
   @NegativeTest
-  Scenario Outline: [5] `toBoolean()` on invalid types
+  Scenario Outline: [5] `toBoolean()` on invalid types #Example: <exampleName>
     Given any graph
     When executing query:
       """
@@ -93,8 +93,8 @@ Feature: TypeConversion1 - To Boolean
     Then a TypeError should be raised at runtime: InvalidArgumentValue
 
     Examples:
-      | invalid |
-      | []      |
-      | {}      |
-      | 1       |
-      | 1.0     |
+      | invalid | exampleName |
+      | []      | list        |
+      | {}      | map         |
+      | 1       | integer     |
+      | 1.0     | float       |
