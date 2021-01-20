@@ -47,7 +47,7 @@ class TCKApiTest extends AnyFunSuite with Matchers {
   }
 
   test("example index of non-outline scenarios") {
-    val nonOutlineScenarios = scenarios.filterNot(s => s.featureName == "Outline" && s.name == "Outline Test")
+    val nonOutlineScenarios = scenarios.filterNot(s => s.featureName == "Outline" && s.name.startsWith("Outline Test"))
     all (nonOutlineScenarios) should have ('exampleIndex (None))
   }
 
@@ -59,6 +59,21 @@ class TCKApiTest extends AnyFunSuite with Matchers {
         s2.source.getLocation.getLine > s.source.getLocation.getLine
       })
     })
+  }
+
+  test("example name of non-outline scenarios should have not an example name") {
+    val nonOutlineScenarios = scenarios.filterNot(s => s.featureName == "Outline" && s.name.startsWith("Outline Test"))
+    nonOutlineScenarios.foreach(s => s.exampleName should be (None))
+  }
+
+  test("example name of outline scenarios with named examples should have an example name") {
+    val namedOutlineScenarios = scenarios.filter(s => s.featureName == "Outline" && s.name.startsWith("Outline Test") && s.tags.contains("@fullyNamed"))
+    namedOutlineScenarios.foreach(s => s.exampleName should not be None)
+  }
+
+  test("scenarios with an example name should have an example index") {
+    val scenariosWithExampleName = scenarios.filter(_.exampleName.nonEmpty)
+    scenariosWithExampleName.foreach(s => s.exampleIndex should not be None)
   }
 
   test("numbered scenarios have a number") {

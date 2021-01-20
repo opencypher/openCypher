@@ -110,12 +110,12 @@ class ScenarioTest extends AnyFunSuite with Matchers {
 
   test("Check equality of equal scenarios differing in source") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", Some(2), "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(2), "s", None, None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("2", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", Some(2), "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(2), "s", None, None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 2).getSteps.get(0)), Measure(pickle("3", "s", 2).getSteps.get(1))),
       pickle("1", "s", 2), new java.io.File("A/B/f.feature").toPath
     )
@@ -125,12 +125,12 @@ class ScenarioTest extends AnyFunSuite with Matchers {
 
   test("Check equality of equal scenarios not differing in source") {
     val scenarioBefore: Scenario = Scenario(
-      List[String]("A", "B"), "f", Some(2), "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(2), "s", None, None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("2", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
     val scenarioAfter: Scenario = Scenario(
-      List[String]("A", "B"), "f", Some(2), "s", None, Set[String]("S", "T"),
+      List[String]("A", "B"), "f", Some(2), "s", None, None, Set[String]("S", "T"),
       List[Step](Dummy(pickle("1", "s", 1).getSteps.get(0)), Measure(pickle("2", "s", 1).getSteps.get(1))),
       pickle("1", "s", 1), new java.io.File("A/B/f.feature").toPath
     )
