@@ -102,11 +102,11 @@ Feature: List11 - Create a list from a range
     Given any graph
     When executing query:
       """
-      WITH 0 AS start, [1, 2, 500, 1000, 1500] AS endList, [-1000, -3, -2, -1, 1, 2, 3, 1000] AS stepList
-      UNWIND endList AS `end`
+      WITH 0 AS start, [1, 2, 500, 1000, 1500] AS stopList, [-1000, -3, -2, -1, 1, 2, 3, 1000] AS stepList
+      UNWIND stopList AS stop
       UNWIND stepList AS step
-      WITH start, `end`, step, range(start, `end`, step) AS list
-      WITH start, `end`, step, list, sign(`end`-start) <> sign(step) AS empty
+      WITH start, stop, step, range(start, stop, step) AS list
+      WITH start, stop, step, list, sign(stop-start) <> sign(step) AS empty
       RETURN ALL(ok IN collect((size(list) = 0) = empty) WHERE ok) AS okay
       """
     Then the result should be, in any order:
