@@ -101,7 +101,7 @@ object GenerateTCKIndexDoc {
 
     tckTree.groupsOrderedDepthFirst map {
       case Total =>
-        """= TCK Index
+        Some("""= TCK Index
           |
           |The TCK is split into categories based on language constructs.
           |The two main groups are clauses and expressions.
@@ -109,15 +109,17 @@ object GenerateTCKIndexDoc {
           |Within each member, there are additional categories.
           |
           |There is also an `uncategorized` and `precategorized` directory containing uncategorized features.
-          |""".stripMargin
+          |""".stripMargin)
       case sc@ScenarioCategory(name, _) => {
         val prettyName = name.substring(0,1).toUpperCase + name.substring(1).replaceAll("([A-Z])", " $1")
-        System.lineSeparator() + s"=${"=" * sc.indent} $prettyName" + System.lineSeparator()
+        Some(System.lineSeparator() + s"=${"=" * sc.indent} $prettyName" + System.lineSeparator())
       }
       case Feature(name, _) =>
-        s"* $name"
-      case _ => ""
-    } mkString(System.lineSeparator)
+        Some(s"* $name")
+      case _ => None
+    } collect {
+      case Some(line) => line
+    } mkString System.lineSeparator()
   }
 
   def write(indexDoc: String): Unit = {
