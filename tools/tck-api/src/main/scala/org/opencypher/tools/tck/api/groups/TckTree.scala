@@ -57,7 +57,7 @@ case class TckTree(scenarios: Seq[Scenario]) extends GroupTreeBasics {
       scenario.exampleIndex.
         map(i => {
           val o = ScenarioOutline(scenario.number, scenario.name, parent)
-          val e = ExampleItem(i, scenario, o)
+          val e = ExampleItem(i, scenario.exampleName, scenario, o)
           Seq[Group](o, e)
         }).getOrElse(Seq[Group](ScenarioItem(scenario, parent)))
     )

@@ -128,9 +128,9 @@ case class ScenarioItem(override val scenario: Scenario, override val parentGrou
   override def name: String = scenario.name
 }
 
-case class ExampleItem(index: Int, override val scenario: Scenario, override val parentGroup: ScenarioOutline) extends Item {
-  override def description = s"#$index"
-  override def name: String = s"#$index"
+case class ExampleItem(index: Int, exampleName: Option[String], override val scenario: Scenario, override val parentGroup: ScenarioOutline) extends Item {
+  override def description = s"#$index${exampleName.map(n => " ("+n+")").getOrElse("")}"
+  override def name: String = s"#$index${exampleName.map(n => " ("+n+")").getOrElse("")}"
 }
 
 object ExampleItem {
