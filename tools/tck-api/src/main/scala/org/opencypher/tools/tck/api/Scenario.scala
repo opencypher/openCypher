@@ -45,20 +45,21 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-case class Scenario(categories: List[String], featureName: String, number: Option[Int], name: String, exampleIndex: Option[Int], tags: Set[String], steps: List[Step], source: io.cucumber.core.gherkin.Pickle, sourceFile: Path) {
+case class Scenario(categories: List[String], featureName: String, number: Option[Int], name: String, exampleIndex: Option[Int], exampleName: Option[String], tags: Set[String], steps: List[Step], source: io.cucumber.core.gherkin.Pickle, sourceFile: Path) {
 
   self =>
 
-  override def toString = s"""${ categories.mkString("/") } :: "$featureName" ::${number.map(ix => " ["+ix+"]").getOrElse("")} "$name" ${exampleIndex.map(ix => "#"+ix).getOrElse("")} ${ if (tags.nonEmpty) tags.mkString(" (", " ", ")") else "" }"""
+  override def toString = s"""${ categories.mkString("/") } :: "$featureName" ::${number.map(ix => " ["+ix+"]").getOrElse("")} "$name" ${exampleIndex.map(ix => "#"+ix).getOrElse("")}${exampleName.map(n => " ("+n+")").getOrElse("")}${ if (tags.nonEmpty) tags.mkString(" (", " ", ")") else "" }"""
 
   override def equals(obj: Any): Boolean = {
     obj match {
-      case Scenario(thatCategories, thatFeatureName, thatNumber, thatName, thatExampleIndex, thatTags, thatSteps, thatSource, _) =>
+      case Scenario(thatCategories, thatFeatureName, thatNumber, thatName, thatExampleIndex, thatExampleName, thatTags, thatSteps, thatSource, _) =>
         thatCategories == categories &&
         thatFeatureName == featureName &&
         thatNumber == number &&
         thatName == name &&
         thatExampleIndex == exampleIndex &&
+        thatExampleName == exampleName &&
         thatTags == tags &&
         thatSteps == steps &&
         Pickle(thatSource) == Pickle(source)
