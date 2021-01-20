@@ -105,7 +105,7 @@ trait PageBasic {
   }
 
   def scenarioTitle(scenario: Scenario): String =
-    scenario.name + scenario.exampleIndex.map(i => " #" + i).getOrElse("")
+    scenario.name + scenario.exampleIndex.map(i => " #" + i).getOrElse("") + scenario.exampleName.map(n => " (" + n + ")").getOrElse("")
 
   def scenarioLocationFrag(scenario: Scenario,
                            collection: Option[String] = None,

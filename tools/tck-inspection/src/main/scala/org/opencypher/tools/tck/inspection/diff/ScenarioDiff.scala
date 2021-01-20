@@ -43,6 +43,7 @@ object ScenarioDiffTag {
   case object StepsChanged extends ScenarioDiffTag
   case object SourceChanged extends ScenarioDiffTag
   case object ExampleIndexChanged extends ScenarioDiffTag
+  case object ExampleNameChanged extends ScenarioDiffTag
   case object PotentiallyRenamed extends ScenarioDiffTag
   case object Different extends ScenarioDiffTag
 }
@@ -59,16 +60,18 @@ case class ScenarioDiff(before: Scenario, after: Scenario) extends Diff[Scenario
 
   lazy val exampleIndex: ElementDiff[Option[Int]] = ElementDiff(before.exampleIndex, after.exampleIndex)
 
+  lazy val exampleName: ElementDiff[Option[String]] = ElementDiff(before.exampleName, after.exampleName)
+
   lazy val tags: SetDiff[String] = SetDiff(before.tags, after.tags)
 
   lazy val steps: LCSbasedListDiff[Step] = LCSbasedListDiff(before.steps, after.steps)
 
   lazy val diffTags: Set[ScenarioDiffTag] = diffTags(before, after)
 
-  lazy val potentialDuplicate: Boolean = diffTags subsetOf Set[ScenarioDiffTag](Moved, Retagged, ExampleIndexChanged, StepsChanged, PotentiallyRenamed)
+  lazy val potentialDuplicate: Boolean = diffTags subsetOf Set[ScenarioDiffTag](Moved, Retagged, ExampleIndexChanged, ExampleNameChanged, StepsChanged, PotentiallyRenamed)
 
   private def diffTags(before: Scenario, after: Scenario): Set[ScenarioDiffTag] = {
-    val diff = Set[ScenarioDiffTag](Unchanged, SourceUnchanged, SourceChanged, Moved, NumberChanged, Retagged, StepsChanged, ExampleIndexChanged, PotentiallyRenamed).filter {
+    val diff = Set[ScenarioDiffTag](Unchanged, SourceUnchanged, SourceChanged, Moved, NumberChanged, Retagged, StepsChanged, ExampleIndexChanged, ExampleNameChanged, PotentiallyRenamed).filter {
       case Unchanged => before.equals(after)
       case SourceUnchanged =>
         before.equals(after) &&
@@ -97,6 +100,16 @@ case class ScenarioDiff(before: Scenario, after: Scenario) extends Diff[Scenario
           !number.changed &&
           !name.changed &&
           exampleIndex.changed &&
+          !tags.changed &&
+          !steps.changed &&
+          Pickle(after.source) == Pickle(before.source)
+      case ExampleNameChanged =>
+        !categories.changed &&
+          !featureName.changed &&
+          !number.changed &&
+          !name.changed &&
+          !exampleIndex.changed &&
+          exampleName.changed &&
           !tags.changed &&
           !steps.changed &&
           Pickle(after.source) == Pickle(before.source)
