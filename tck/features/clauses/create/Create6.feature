@@ -30,22 +30,7 @@
 
 Feature: Create6 - Create clause interoperation with other clauses
 
-  Scenario: [1] Merge followed by multiple creates
-    Given an empty graph
-    When executing query:
-      """
-      MERGE (t:T {id: 42})
-      CREATE (f:R)
-      CREATE (t)-[:REL]->(f)
-      """
-    Then the result should be empty
-    And the side effects should be:
-      | +nodes         | 2 |
-      | +relationships | 1 |
-      | +labels        | 2 |
-      | +properties    | 1 |
-
-  Scenario: [2] Limiting to zero results after creating nodes affects the result set but not the side effects
+  Scenario: [1] Limiting to zero results after creating nodes affects the result set but not the side effects
     Given an empty graph
     When executing query:
       """
@@ -60,7 +45,7 @@ Feature: Create6 - Create clause interoperation with other clauses
       | +labels        | 1 |
       | +properties    | 1 |
 
-  Scenario: [3] Skipping all results after creating nodes affects the result set but not the side effects
+  Scenario: [2] Skipping all results after creating nodes affects the result set but not the side effects
     Given an empty graph
     When executing query:
       """
@@ -75,7 +60,7 @@ Feature: Create6 - Create clause interoperation with other clauses
       | +labels        | 1 |
       | +properties    | 1 |
 
-  Scenario: [4] Skipping and limiting to a few results after creating nodes does not affect the result set nor the side effects
+  Scenario: [3] Skipping and limiting to a few results after creating nodes does not affect the result set nor the side effects
     Given an empty graph
     When executing query:
       """
@@ -93,7 +78,7 @@ Feature: Create6 - Create clause interoperation with other clauses
       | +labels        | 1 |
       | +properties    | 5 |
 
-  Scenario: [5] Skipping zero result and limiting to all results after creating nodes does not affect the result set nor the side effects
+  Scenario: [4] Skipping zero result and limiting to all results after creating nodes does not affect the result set nor the side effects
     Given an empty graph
     When executing query:
       """
@@ -114,7 +99,7 @@ Feature: Create6 - Create clause interoperation with other clauses
       | +labels        | 1 |
       | +properties    | 5 |
 
-  Scenario: [6] Limiting to zero results after creating relationships affects the result set but not the side effects
+  Scenario: [5] Limiting to zero results after creating relationships affects the result set but not the side effects
     Given an empty graph
     When executing query:
       """
@@ -129,7 +114,7 @@ Feature: Create6 - Create clause interoperation with other clauses
       | +relationships | 1 |
       | +properties    | 1 |
 
-  Scenario: [7] Skipping all results after creating relationships affects the result set but not the side effects
+  Scenario: [6] Skipping all results after creating relationships affects the result set but not the side effects
     Given an empty graph
     When executing query:
       """
@@ -144,7 +129,7 @@ Feature: Create6 - Create clause interoperation with other clauses
       | +relationships | 1 |
       | +properties    | 1 |
 
-  Scenario: [8] Skipping and limiting to a few results after creating relationships does not affect the result set nor the side effects
+  Scenario: [7] Skipping and limiting to a few results after creating relationships does not affect the result set nor the side effects
     Given an empty graph
     When executing query:
       """
@@ -162,7 +147,7 @@ Feature: Create6 - Create clause interoperation with other clauses
       | +relationships | 5  |
       | +properties    | 5  |
 
-  Scenario: [9] Skipping zero result and limiting to all results after creating relationships does not affect the result set nor the side effects
+  Scenario: [8] Skipping zero result and limiting to all results after creating relationships does not affect the result set nor the side effects
     Given an empty graph
     When executing query:
       """

@@ -240,3 +240,18 @@ Feature: Create3 - Interoperation with other clauses
     And the side effects should be:
       | +nodes         | 2 |
       | +relationships | 2 |
+
+  Scenario: [13] Merge followed by multiple creates
+    Given an empty graph
+    When executing query:
+      """
+      MERGE (t:T {id: 42})
+      CREATE (f:R)
+      CREATE (t)-[:REL]->(f)
+      """
+    Then the result should be empty
+    And the side effects should be:
+      | +nodes         | 2 |
+      | +relationships | 1 |
+      | +labels        | 2 |
+      | +properties    | 1 |
