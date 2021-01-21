@@ -28,24 +28,4 @@
 
 #encoding: utf-8
 
-Feature: Delete6 - Negative scenarios
-
-  @NegativeTest
-  Scenario: [1] Failing when using undefined variable in DELETE
-    Given any graph
-    When executing query:
-      """
-      MATCH (a)
-      DELETE x
-      """
-    Then a SyntaxError should be raised at compile time: UndefinedVariable
-
-  @NegativeTest
-  Scenario: [2] Failing when deleting an integer expression
-    Given any graph
-    When executing query:
-      """
-      MATCH ()
-      DELETE 1 + 1
-      """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+Feature: Delete6 - Persistence of delete clause side effects
