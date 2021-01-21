@@ -220,7 +220,7 @@ Feature: Create6 - Persistence of create clause side effects
       | +relationships | 5  |
       | +properties    | 5  |
 
-  Scenario: [12] Filtering after creating nodes affects the result set but not the side effects
+  Scenario: [12] Filtering after creating relationships affects the result set but not the side effects
     Given an empty graph
     When executing query:
       """
@@ -235,9 +235,9 @@ Feature: Create6 - Persistence of create clause side effects
       | 2   |
       | 4   |
     And the side effects should be:
-      | +nodes         | 5 |
-      | +labels        | 1 |
-      | +properties    | 5 |
+      | +nodes         | 10 |
+      | +relationships | 5  |
+      | +properties    | 5  |
 
   Scenario: [13] Aggregating in `RETURN` after creating relationships affects the result set but not the side effects
     Given an empty graph
