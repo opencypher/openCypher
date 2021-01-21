@@ -44,4 +44,258 @@ Feature: Create6 - Create clause interoperation with other clauses
       | +relationships | 1 |
       | +labels        | 2 |
       | +properties    | 1 |
+
+  Scenario: [2] Limiting to zero results after creating nodes affects the result set but not the side effects
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (n:N {num: 42})
+      RETURN n
+      LIMIT 0
+      """
+    Then the result should be, in any order:
+      | n |
+    And the side effects should be:
+      | +nodes         | 1 |
+      | +labels        | 1 |
+      | +properties    | 1 |
+
+  Scenario: [3] Limiting to fewer results after creating nodes affects the result set but not the side effects
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [42,42,42,42,42] AS x
+      CREATE (n:N {num: x})
+      RETURN n.num AS num
+      LIMIT 3
+      """
+    Then the result should be, in any order:
+      | num |
+      | 42  |
+      | 42  |
+      | 42  |
+    And the side effects should be:
+      | +nodes         | 5 |
+      | +labels        | 1 |
+      | +properties    | 5 |
+
+  Scenario: [4] Limiting to more results after creating nodes does not affect the result set nor the side effects
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [42,42,42,42,42] AS x
+      CREATE (n:N {num: x})
+      RETURN n.num AS num
+      LIMIT 10
+      """
+    Then the result should be, in any order:
+      | num |
+      | 42  |
+      | 42  |
+      | 42  |
+      | 42  |
+      | 42  |
+    And the side effects should be:
+      | +nodes         | 5 |
+      | +labels        | 1 |
+      | +properties    | 5 |
+
+  Scenario: [5] Skipping all results after creating nodes affects the result set but not the side effects
+    Given an empty graph
+    When executing query:
+      """
+      CREATE (n:N {num: 42})
+      RETURN n
+      SKIP 1
+      """
+    Then the result should be, in any order:
+      | n |
+    And the side effects should be:
+      | +nodes         | 1 |
+      | +labels        | 1 |
+      | +properties    | 1 |
+
+  Scenario: [6] Skipping a few results after creating nodes affects the result set but not the side effects
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [42,42,42,42,42] AS x
+      CREATE (n:N {num: x})
+      RETURN n.num AS num
+      SKIP 3
+      """
+    Then the result should be, in any order:
+      | num |
+      | 42  |
+      | 42  |
+    And the side effects should be:
+      | +nodes         | 5 |
+      | +labels        | 1 |
+      | +properties    | 5 |
+
+  Scenario: [7] Skipping zero results after creating nodes does not affect the result set nor the side effects
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [42,42,42,42,42] AS x
+      CREATE (n:N {num: x})
+      RETURN n.num AS num
+      SKIP 0
+      """
+    Then the result should be, in any order:
+      | num |
+      | 42  |
+      | 42  |
+      | 42  |
+      | 42  |
+      | 42  |
+    And the side effects should be:
+      | +nodes         | 5 |
+      | +labels        | 1 |
+      | +properties    | 5 |
+
+  Scenario: [8] Skipping and limiting to a few results after creating nodes does not affect the result set nor the side effects
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [42,42,42,42,42] AS x
+      CREATE (n:N {num: x})
+      RETURN n.num AS num
+      SKIP 2 LIMIT 2
+      """
+    Then the result should be, in any order:
+      | num |
+      | 42  |
+      | 42  |
+    And the side effects should be:
+      | +nodes         | 5 |
+      | +labels        | 1 |
+      | +properties    | 5 |
+
+  Scenario: [9] Limiting to zero results after creating relationships affects the result set but not the side effects
+    Given an empty graph
+    When executing query:
+      """
+      CREATE ()-[r:R {num: 42}]->()
+      RETURN r
+      LIMIT 0
+      """
+    Then the result should be, in any order:
+      | r |
+    And the side effects should be:
+      | +nodes         | 2 |
+      | +relationships | 1 |
+      | +properties    | 1 |
+
+  Scenario: [10] Limiting to fewer results after creating relationships affects the result set but not the side effects
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [42,42,42,42,42] AS x
+      CREATE ()-[r:R {num: x}]->()
+      RETURN r.num AS num
+      LIMIT 3
+      """
+    Then the result should be, in any order:
+      | num |
+      | 42  |
+      | 42  |
+      | 42  |
+    And the side effects should be:
+      | +nodes         | 10 |
+      | +relationships | 5  |
+      | +properties    | 5  |
+
+  Scenario: [11] Limiting to more results after creating relationships does not affect the result set nor the side effects
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [42,42,42,42,42] AS x
+      CREATE ()-[r:R {num: x}]->()
+      RETURN r.num AS num
+      LIMIT 10
+      """
+    Then the result should be, in any order:
+      | num |
+      | 42  |
+      | 42  |
+      | 42  |
+      | 42  |
+      | 42  |
+    And the side effects should be:
+      | +nodes         | 10 |
+      | +relationships | 5  |
+      | +properties    | 5  |
+
+  Scenario: [12] Skipping all results after creating relationships affects the result set but not the side effects
+    Given an empty graph
+    When executing query:
+      """
+      CREATE ()-[r:R {num: 42}]->()
+      RETURN r
+      SKIP 1
+      """
+    Then the result should be, in any order:
+      | r |
+    And the side effects should be:
+      | +nodes         | 2 |
+      | +relationships | 1 |
+      | +properties    | 1 |
+
+  Scenario: [13] Skipping a few results after creating relationships affects the result set but not the side effects
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [42,42,42,42,42] AS x
+      CREATE ()-[r:R {num: x}]->()
+      RETURN r.num AS num
+      SKIP 3
+      """
+    Then the result should be, in any order:
+      | num |
+      | 42  |
+      | 42  |
+    And the side effects should be:
+      | +nodes         | 10 |
+      | +relationships | 5  |
+      | +properties    | 5  |
+
+  Scenario: [14] Skipping zero results after creating relationships does not affect the result set nor the side effects
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [42,42,42,42,42] AS x
+      CREATE ()-[r:R {num: x}]->()
+      RETURN r.num AS num
+      SKIP 0
+      """
+    Then the result should be, in any order:
+      | num |
+      | 42  |
+      | 42  |
+      | 42  |
+      | 42  |
+      | 42  |
+    And the side effects should be:
+      | +nodes         | 10 |
+      | +relationships | 5  |
+      | +properties    | 5  |
+
+  Scenario: [15] Skipping and limiting to a few results after creating relationships does not affect the result set nor the side effects
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [42,42,42,42,42] AS x
+      CREATE ()-[r:R {num: x}]->()
+      RETURN r.num AS num
+      SKIP 2 LIMIT 2
+      """
+    Then the result should be, in any order:
+      | num |
+      | 42  |
+      | 42  |
+    And the side effects should be:
+      | +nodes         | 10 |
+      | +relationships | 5  |
+      | +properties    | 5  |
       
