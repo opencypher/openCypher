@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Create6 - Persistence of create side effects
+Feature: Create6 - Persistence of create clause side effects
 
   Scenario: [1] Limiting to zero results after creating nodes affects the result set but not the side effects
     Given an empty graph
