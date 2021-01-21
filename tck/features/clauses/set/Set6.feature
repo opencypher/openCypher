@@ -137,7 +137,7 @@ Feature: Set6 - Set clause interoperation with other clauses
     Then the result should be, in any order:
       | n |
     And the side effects should be:
-      | +label | 1 |
+      | +labels | 1 |
 
   Scenario: [6] Skipping all results after adding a label on a node affects the result set but not the side effects
     Given an empty graph
@@ -155,7 +155,7 @@ Feature: Set6 - Set clause interoperation with other clauses
     Then the result should be, in any order:
       | n |
     And the side effects should be:
-      | +label | 1 |
+      | +labels | 1 |
 
   Scenario: [7] Skipping and limiting to a few results after adding a label on a node affects the result set but not the side effects
     Given an empty graph
@@ -179,7 +179,7 @@ Feature: Set6 - Set clause interoperation with other clauses
       | 42  |
       | 42  |
     And the side effects should be:
-      | +label | 5 |
+      | +labels | 1 |
 
   Scenario: [8] Skipping zero result and limiting to all results after adding a label on a node does not affect the result set nor the side effects
     Given an empty graph
@@ -206,7 +206,7 @@ Feature: Set6 - Set clause interoperation with other clauses
       | 42  |
       | 42  |
     And the side effects should be:
-      | +label | 5 |
+      | +labels | 1 |
 
   Scenario: [9] Limiting to zero results after setting a property on a relationship affects the result set but not the side effects
     Given an empty graph
@@ -250,11 +250,11 @@ Feature: Set6 - Set clause interoperation with other clauses
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[r:R {num: 1}]->()
-      CREATE ()-[r:R {num: 2}]->()
-      CREATE ()-[r:R {num: 3}]->()
-      CREATE ()-[r:R {num: 4}]->()
-      CREATE ()-[r:R {num: 5}]->()
+      CREATE ()-[:R {num: 1}]->()
+      CREATE ()-[:R {num: 2}]->()
+      CREATE ()-[:R {num: 3}]->()
+      CREATE ()-[:R {num: 4}]->()
+      CREATE ()-[:R {num: 5}]->()
       """
     When executing query:
       """
@@ -275,11 +275,11 @@ Feature: Set6 - Set clause interoperation with other clauses
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[r:R {num: 1}]->()
-      CREATE ()-[r:R {num: 2}]->()
-      CREATE ()-[r:R {num: 3}]->()
-      CREATE ()-[r:R {num: 4}]->()
-      CREATE ()-[r:R {num: 5}]->()
+      CREATE ()-[:R {num: 1}]->()
+      CREATE ()-[:R {num: 2}]->()
+      CREATE ()-[:R {num: 3}]->()
+      CREATE ()-[:R {num: 4}]->()
+      CREATE ()-[:R {num: 5}]->()
       """
     When executing query:
       """
