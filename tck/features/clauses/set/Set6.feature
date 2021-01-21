@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Set6 - Set clause interoperation with other clauses
+Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [1] Limiting to zero results after setting a property on a node affects the result set but not the side effects
     Given an empty graph
