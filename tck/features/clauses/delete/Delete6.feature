@@ -127,7 +127,7 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [5] Filtering after deleting nodes affects the result set but not the side effects
     Given an empty graph
-    When executing query:
+    And having executed:
       """
       CREATE (:N {num: 1})
       CREATE (:N {num: 2})
@@ -149,13 +149,13 @@ Feature: Delete6 - Persistence of delete clause side effects
       | 2   |
       | 4   |
     And the side effects should be:
-      | -nodes         | 5 |
-      | -labels        | 1 |
-      | -properties    | 5 |
+      | -nodes      | 5 |
+      | -labels     | 1 |
+      | -properties | 5 |
 
   Scenario: [6] Aggregating in `RETURN` after deleting nodes affects the result set but not the side effects
     Given an empty graph
-    When executing query:
+    And having executed:
       """
       CREATE (:N {num: 1})
       CREATE (:N {num: 2})
@@ -174,13 +174,13 @@ Feature: Delete6 - Persistence of delete clause side effects
       | sum |
       | 15  |
     And the side effects should be:
-      | -nodes         | 5 |
-      | -labels        | 1 |
-      | -properties    | 5 |
+      | -nodes      | 5 |
+      | -labels     | 1 |
+      | -properties | 5 |
 
   Scenario: [7] Aggregating in `WITH` after deleting nodes affects the result set but not the side effects
     Given an empty graph
-    When executing query:
+    And having executed:
       """
       CREATE (:N {num: 1})
       CREATE (:N {num: 2})
@@ -200,9 +200,9 @@ Feature: Delete6 - Persistence of delete clause side effects
       | sum |
       | 15  |
     And the side effects should be:
-      | -nodes         | 5 |
-      | -labels        | 1 |
-      | -properties    | 5 |
+      | -nodes      | 5 |
+      | -labels     | 1 |
+      | -properties | 5 |
 
   Scenario: [8] Limiting to zero results after deleting relationships affects the result set but not the side effects
     Given an empty graph
@@ -297,7 +297,7 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [12] Filtering after deleting relationships affects the result set but not the side effects
     Given an empty graph
-    When executing query:
+    And having executed:
       """
       CREATE ()-[:R {num: 1}]->()
       CREATE ()-[:R {num: 2}]->()
@@ -324,7 +324,7 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [13] Aggregating in `RETURN` after deleting relationships affects the result set but not the side effects
     Given an empty graph
-    When executing query:
+    And having executed:
       """
       CREATE ()-[:R {num: 1}]->()
       CREATE ()-[:R {num: 2}]->()
@@ -348,7 +348,7 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [14] Aggregating in `WITH` after deleting relationships affects the result set but not the side effects
     Given an empty graph
-    When executing query:
+    And having executed:
       """
       CREATE ()-[:R {num: 1}]->()
       CREATE ()-[:R {num: 2}]->()
