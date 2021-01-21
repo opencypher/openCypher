@@ -30,7 +30,7 @@
 
 Feature: Set6 - Persistence of set clause side effects
 
-  Scenario: [1] Limiting to zero results after setting a property on a node affects the result set but not the side effects
+  Scenario: [1] Limiting to zero results after setting a property on nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
       """
@@ -49,7 +49,7 @@ Feature: Set6 - Persistence of set clause side effects
       | +properties | 1 |
       | -properties | 1 |
 
-  Scenario: [2] Skipping all results after setting a property on a node affects the result set but not the side effects
+  Scenario: [2] Skipping all results after setting a property on nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
       """
@@ -68,7 +68,7 @@ Feature: Set6 - Persistence of set clause side effects
       | +properties | 1 |
       | -properties | 1 |
 
-  Scenario: [3] Skipping and limiting to a few results after setting a property on a node affects the result set but not the side effects
+  Scenario: [3] Skipping and limiting to a few results after setting a property on nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
       """
@@ -93,7 +93,7 @@ Feature: Set6 - Persistence of set clause side effects
       | +properties | 5 |
       | -properties | 5 |
 
-  Scenario: [4] Skipping zero results and limiting to all results after setting a property on a node does not affect the result set nor the side effects
+  Scenario: [4] Skipping zero results and limiting to all results after setting a property on nodes does not affect the result set nor the side effects
     Given an empty graph
     And having executed:
       """
@@ -121,7 +121,81 @@ Feature: Set6 - Persistence of set clause side effects
       | +properties | 5 |
       | -properties | 5 |
 
-  Scenario: [5] Limiting to zero results after adding a label on a node affects the result set but not the side effects
+  Scenario: [5] Filtering after setting a property on nodes affects the result set but not the side effects
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:N {num: 1})
+      CREATE (:N {num: 2})
+      CREATE (:N {num: 3})
+      CREATE (:N {num: 4})
+      CREATE (:N {num: 5})
+      """
+    When executing query:
+      """
+      MATCH (n:N)
+      SET n.num = n.num + 1
+      WITH n
+      WHERE n.num % 2 = 0
+      RETURN n.num AS num
+      """
+    Then the result should be, in any order:
+      | num |
+      | 2   |
+      | 4   |
+      | 6   |
+    And the side effects should be:
+      | +properties | 5 |
+      | -properties | 5 |
+
+  Scenario: [6] Aggregating in `RETURN` after setting a property on nodes affects the result set but not the side effects
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:N {num: 1})
+      CREATE (:N {num: 2})
+      CREATE (:N {num: 3})
+      CREATE (:N {num: 4})
+      CREATE (:N {num: 5})
+      """
+    When executing query:
+      """
+      MATCH (n:N)
+      SET n.num = n.num + 1
+      RETURN sum(n.num) AS sum
+      """
+    Then the result should be, in any order:
+      | sum |
+      | 20  |
+    And the side effects should be:
+      | +properties | 5 |
+      | -properties | 5 |
+
+  Scenario: [7] Aggregating in `WITH` after setting a property on nodes affects the result set but not the side effects
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:N {num: 1})
+      CREATE (:N {num: 2})
+      CREATE (:N {num: 3})
+      CREATE (:N {num: 4})
+      CREATE (:N {num: 5})
+      """
+    When executing query:
+      """
+      MATCH (n:N)
+      SET n.num = n.num + 1
+      WITH sum(n.num) AS sum
+      RETURN sum
+      """
+    Then the result should be, in any order:
+      | sum |
+      | 20  |
+    And the side effects should be:
+      | +properties | 5 |
+      | -properties | 5 |
+
+  Scenario: [8] Limiting to zero results after adding a label on nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
       """
@@ -139,7 +213,7 @@ Feature: Set6 - Persistence of set clause side effects
     And the side effects should be:
       | +labels | 1 |
 
-  Scenario: [6] Skipping all results after adding a label on a node affects the result set but not the side effects
+  Scenario: [9] Skipping all results after adding a label on nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
       """
@@ -157,7 +231,7 @@ Feature: Set6 - Persistence of set clause side effects
     And the side effects should be:
       | +labels | 1 |
 
-  Scenario: [7] Skipping and limiting to a few results after adding a label on a node affects the result set but not the side effects
+  Scenario: [10] Skipping and limiting to a few results after adding a label on nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
       """
@@ -181,7 +255,7 @@ Feature: Set6 - Persistence of set clause side effects
     And the side effects should be:
       | +labels | 1 |
 
-  Scenario: [8] Skipping zero result and limiting to all results after adding a label on a node does not affect the result set nor the side effects
+  Scenario: [11] Skipping zero result and limiting to all results after adding a label on nodes does not affect the result set nor the side effects
     Given an empty graph
     And having executed:
       """
@@ -208,7 +282,77 @@ Feature: Set6 - Persistence of set clause side effects
     And the side effects should be:
       | +labels | 1 |
 
-  Scenario: [9] Limiting to zero results after setting a property on a relationship affects the result set but not the side effects
+  Scenario: [12] Filtering after adding a label on nodes affects the result set but not the side effects
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:N {num: 1})
+      CREATE (:N {num: 2})
+      CREATE (:N {num: 3})
+      CREATE (:N {num: 4})
+      CREATE (:N {num: 5})
+      """
+    When executing query:
+      """
+      MATCH (n:N)
+      SET n:Foo
+      WITH n
+      WHERE n.num % 2 = 0
+      RETURN n.num AS num
+      """
+    Then the result should be, in any order:
+      | num |
+      | 2   |
+      | 4   |
+    And the side effects should be:
+      | +labels | 1 |
+
+  Scenario: [13] Aggregating in `RETURN` after adding a label on nodes affects the result set but not the side effects
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:N {num: 1})
+      CREATE (:N {num: 2})
+      CREATE (:N {num: 3})
+      CREATE (:N {num: 4})
+      CREATE (:N {num: 5})
+      """
+    When executing query:
+      """
+      MATCH (n:N)
+      SET n:Foo
+      RETURN sum(n.num) AS sum
+      """
+    Then the result should be, in any order:
+      | sum |
+      | 15  |
+    And the side effects should be:
+      | +labels | 1 |
+
+  Scenario: [14] Aggregating in `WITH` after adding a label on nodes affects the result set but not the side effects
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:N {num: 1})
+      CREATE (:N {num: 2})
+      CREATE (:N {num: 3})
+      CREATE (:N {num: 4})
+      CREATE (:N {num: 5})
+      """
+    When executing query:
+      """
+      MATCH (n:N)
+      SET n:Foo
+      WITH sum(n.num) AS sum
+      RETURN sum
+      """
+    Then the result should be, in any order:
+      | sum |
+      | 15  |
+    And the side effects should be:
+      | +labels | 1 |
+
+  Scenario: [15] Limiting to zero results after setting a property on relationships affects the result set but not the side effects
     Given an empty graph
     And having executed:
       """
@@ -227,7 +371,7 @@ Feature: Set6 - Persistence of set clause side effects
       | +properties | 1 |
       | -properties | 1 |
 
-  Scenario: [10] Skipping all results after setting a property on a relationship affects the result set but not the side effects
+  Scenario: [16] Skipping all results after setting a property on relationships affects the result set but not the side effects
     Given an empty graph
     And having executed:
       """
@@ -246,7 +390,7 @@ Feature: Set6 - Persistence of set clause side effects
       | +properties | 1 |
       | -properties | 1 |
 
-  Scenario: [11] Skipping and limiting to a few results after setting a property on a relationship affects the result set but not the side effects
+  Scenario: [17] Skipping and limiting to a few results after setting a property on relationships affects the result set but not the side effects
     Given an empty graph
     And having executed:
       """
@@ -271,7 +415,7 @@ Feature: Set6 - Persistence of set clause side effects
       | +properties | 5 |
       | -properties | 5 |
 
-  Scenario: [12] Skipping zero result and limiting to all results after setting a property on a relationship does not affect the result set nor the side effects
+  Scenario: [18] Skipping zero result and limiting to all results after setting a property on relationships does not affect the result set nor the side effects
     Given an empty graph
     And having executed:
       """
@@ -295,6 +439,80 @@ Feature: Set6 - Persistence of set clause side effects
       | 42  |
       | 42  |
       | 42  |
+    And the side effects should be:
+      | +properties | 5 |
+      | -properties | 5 |
+
+  Scenario: [19] Filtering after setting a property on relationships affects the result set but not the side effects
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:R {num: 1}]->()
+      CREATE ()-[:R {num: 2}]->()
+      CREATE ()-[:R {num: 3}]->()
+      CREATE ()-[:R {num: 4}]->()
+      CREATE ()-[:R {num: 5}]->()
+      """
+    When executing query:
+      """
+      MATCH ()-[r:R]->()
+      SET r.num = r.num + 1
+      WITH r
+      WHERE r.num % 2 = 0
+      RETURN r.num AS num
+      """
+    Then the result should be, in any order:
+      | num |
+      | 2   |
+      | 4   |
+      | 6   |
+    And the side effects should be:
+      | +properties | 5 |
+      | -properties | 5 |
+
+  Scenario: [20] Aggregating in `RETURN` after setting a property on relationships affects the result set but not the side effects
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:R {num: 1}]->()
+      CREATE ()-[:R {num: 2}]->()
+      CREATE ()-[:R {num: 3}]->()
+      CREATE ()-[:R {num: 4}]->()
+      CREATE ()-[:R {num: 5}]->()
+      """
+    When executing query:
+      """
+      MATCH ()-[r:R]->()
+      SET r.num = r.num + 1
+      RETURN sum(r.num) AS sum
+      """
+    Then the result should be, in any order:
+      | sum |
+      | 20  |
+    And the side effects should be:
+      | +properties | 5 |
+      | -properties | 5 |
+
+  Scenario: [21] Aggregating in `WITH` after setting a property on relationships affects the result set but not the side effects
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:R {num: 1}]->()
+      CREATE ()-[:R {num: 2}]->()
+      CREATE ()-[:R {num: 3}]->()
+      CREATE ()-[:R {num: 4}]->()
+      CREATE ()-[:R {num: 5}]->()
+      """
+    When executing query:
+      """
+      MATCH ()-[r:R]->()
+      SET r.num = r.num + 1
+      WITH sum(r.num) AS sum
+      RETURN sum
+      """
+    Then the result should be, in any order:
+      | sum |
+      | 20  |
     And the side effects should be:
       | +properties | 5 |
       | -properties | 5 |
