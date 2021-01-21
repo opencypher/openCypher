@@ -79,7 +79,7 @@ Feature: Create6 - Create clause interoperation with other clauses
     Given an empty graph
     When executing query:
       """
-      UNWIND [42,42,42,42,42] AS x
+      UNWIND [42, 42, 42, 42, 42] AS x
       CREATE (n:N {num: x})
       RETURN n.num AS num
       SKIP 2 LIMIT 2
@@ -97,7 +97,7 @@ Feature: Create6 - Create clause interoperation with other clauses
     Given an empty graph
     When executing query:
       """
-      UNWIND [42,42,42,42,42] AS x
+      UNWIND [42, 42, 42, 42, 42] AS x
       CREATE (n:N {num: x})
       RETURN n.num AS num
       SKIP 0 LIMIT 5
@@ -148,7 +148,7 @@ Feature: Create6 - Create clause interoperation with other clauses
     Given an empty graph
     When executing query:
       """
-      UNWIND [42,42,42,42,42] AS x
+      UNWIND [42, 42, 42, 42, 42] AS x
       CREATE ()-[r:R {num: x}]->()
       RETURN r.num AS num
       SKIP 2 LIMIT 2
@@ -166,7 +166,7 @@ Feature: Create6 - Create clause interoperation with other clauses
     Given an empty graph
     When executing query:
       """
-      UNWIND [42,42,42,42,42] AS x
+      UNWIND [42, 42, 42, 42, 42] AS x
       CREATE ()-[r:R {num: x}]->()
       RETURN r.num AS num
       SKIP 0 LIMIT 5
