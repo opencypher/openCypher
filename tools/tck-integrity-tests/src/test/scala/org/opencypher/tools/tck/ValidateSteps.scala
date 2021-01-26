@@ -54,6 +54,7 @@ trait ValidateSteps extends AppendedClues with Matchers with OptionValues with V
         numberOfImplicitSideEffectSteps = 0
     var positionLastInitQuery = Int.MinValue
     var positionFirstExecQuery = Int.MaxValue
+
     steps.zipWithIndex foreach {
       case (Execute(_, InitQuery, _), ix) => positionLastInitQuery = Math.max(positionLastInitQuery, ix)
       case (Execute(_, ExecQuery, _), ix) => numberOfExecQuerySteps += 1
