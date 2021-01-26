@@ -32,8 +32,7 @@ import org.opencypher.tools.tck.api.SideEffects
 import org.opencypher.tools.tck.constants.TCKSideEffects
 import org.scalatest.AppendedClues
 import org.scalatest.Assertion
-import org.scalatest.funspec.AnyFunSpecLike
-import org.scalatest.funspec.AsyncFunSpecLike
+import org.scalatest.enablers.Emptiness.emptinessOfGenTraversable
 import org.scalatest.matchers.should.Matchers
 
 import scala.collection.JavaConverters._
@@ -45,7 +44,6 @@ trait ValidateSideEffects extends AppendedClues with Matchers with DescribeStepH
     val values = step.expected.v.values
 
     withClue(s"the expectation of ${step.description} has no invalid keys") {
-      import org.scalatest.enablers.Emptiness.emptinessOfGenTraversable
       (keys -- TCKSideEffects.ALL) shouldBe empty
     }
 
