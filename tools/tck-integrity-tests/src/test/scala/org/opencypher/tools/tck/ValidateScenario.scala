@@ -42,7 +42,7 @@ trait ValidateScenario extends AppendedClues with Matchers with OptionValues wit
   private val scenarioNamesByFeature = scala.collection.mutable.HashMap[(List[String], String), scala.collection.mutable.HashMap[String, List[Int]]]()
 
   def validateScenario(scenario: Scenario): Assertion = {
-    withClue("scenario has a number, greater zero") {
+    withClue("scenario has a number, greater than zero") {
       scenario.number.value should be > 0
     }
 
