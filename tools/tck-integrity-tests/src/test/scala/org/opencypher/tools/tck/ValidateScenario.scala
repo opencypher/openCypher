@@ -33,13 +33,11 @@ import org.opencypher.tools.tck.constants.TCKTags
 import org.scalatest.AppendedClues
 import org.scalatest.Assertion
 import org.scalatest.OptionValues
-import org.scalatest.funspec.AnyFunSpecLike
-import org.scalatest.funspec.AsyncFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
 trait ValidateScenario extends AppendedClues with Matchers with OptionValues with ValidateSteps {
 
-  private val scenarioNamesByFeature = scala.collection.mutable.HashMap[(List[String], String), scala.collection.mutable.HashMap[String, List[Int]]]()
+  private val scenarioNamesByFeature = scala.collection.mutable.HashMap[(List[String], String), List[(String, Option[Int])]]()
 
   def validateScenario(scenario: Scenario): Assertion = {
     withClue("scenario has a number, greater than zero") {
@@ -47,12 +45,11 @@ trait ValidateScenario extends AppendedClues with Matchers with OptionValues wit
     }
 
     withClue("scenario has a unique name in feature") {
-      val key: (List[String], String) = (scenario.categories, scenario.featureName)
-      val name = scenario.name
-      val lineNumber = scenario.source.getLocation.getLine
-      val scenarioNames = scenarioNamesByFeature.getOrElseUpdate(key, scala.collection.mutable.HashMap[String, List[Int]]())
-      val lineNumbers = scenarioNames.getOrElseUpdate(name, List[Int]())
-      lineNumbers should not contain lineNumber
+      val featureSignature: (List[String], String) = (scenario.categories, scenario.featureName)
+      val scenarioSignature = (scenario.name, scenario.exampleIndex)
+      val scenarioSignaturesBefore = scenarioNamesByFeature.getOrElseUpdate(featureSignature, List[(String, Option[Int])]())
+      scenarioNamesByFeature.update(featureSignature, scenarioSignaturesBefore :+ scenarioSignature)
+      scenarioSignaturesBefore should not contain scenarioSignature
     }
 
     withClue("scenario has a `@NegativeTest` tag and a `Then expect error` step or neither") {
