@@ -105,7 +105,6 @@ class ValidateQueryTest extends AnyFunSpecLike with Matchers {
 
   it("no illegal words accepted") {
     assertIncorrect("LOAD CSV", " ")
-    assertIncorrect("CASE WHEN THEN ELSE", "   ")
     assertIncorrect("CREATE CONSTRAINT ON", "CREATE  ON")
   }
 
