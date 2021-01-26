@@ -43,6 +43,7 @@ trait ValidateQuery extends AppendedClues with Matchers with DescribeStepHelper 
 
   def validateQuery(execute: Execute, tags: Set[String] = Set.empty[String]): Assertion = {
     val query = execute.query
+    val normalized = normalize(query)
     execute.qt match {
       case ExecQuery =>
         withClue(s"the query of ${execute.description} has either a syntax conforming to the grammar or the scenario has the ${TCKTags.SKIP_GRAMMAR_CHECK} tag") {
@@ -54,10 +55,9 @@ trait ValidateQuery extends AppendedClues with Matchers with DescribeStepHelper 
           }
         }
 
-        withClue(s"the query of ${execute.description} has either a syntax conforming to the style requirements or the scenario has the ${TCKTags.SKIP_STYLE_CHECK} tag") {
-          val normalizedQuery = normalize(query)
+        withClue(s"the query of ${execute.description} has either a syntax conforming to the style requirements or the scenario has the ${TCKTags.SKIP_STYLE_CHECK} tag; expected style: $normalized") {
           (query, tags contains TCKTags.SKIP_STYLE_CHECK) should matchPattern {
-            case (x, false) if normalizedQuery == x =>
+            case (x, false) if normalized == x =>
             case (_, true) =>
           }
         }
@@ -68,8 +68,8 @@ trait ValidateQuery extends AppendedClues with Matchers with DescribeStepHelper 
           }
         }
 
-        withClue(s"the query of ${execute.description} has a syntax conforming to the style requirements") {
-          query shouldBe normalize(query)
+        withClue(s"the query of ${execute.description} has a syntax conforming to the style requirements; expected style: $normalized") {
+          query shouldBe normalized
         }
     }
   }
