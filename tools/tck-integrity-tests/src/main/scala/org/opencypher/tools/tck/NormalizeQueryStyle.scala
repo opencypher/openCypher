@@ -100,7 +100,11 @@ object NormalizeQueryStyle extends (String => String) {
     "IS NOT NULL",
     "IS NULL",
     "AS",
-    "UNION")
+    "UNION",
+    "WHEN",
+    "CASE",
+    "THEN",
+    "ELSE")
 
   private val illegal = Set(
     "LOAD",
@@ -110,10 +114,6 @@ object NormalizeQueryStyle extends (String => String) {
     "CONSTRAINT",
     "PERIODIC",
     "COMMIT",
-    "WHEN",
-    "CASE",
-    "THEN",
-    "ELSE",
     "ASSERT",
     "SCAN")
 }
