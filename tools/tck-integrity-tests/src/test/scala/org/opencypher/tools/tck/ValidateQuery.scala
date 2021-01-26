@@ -28,8 +28,11 @@
 package org.opencypher.tools.tck
 
 import org.opencypher.tools.grammar.Antlr4TestUtils
+import org.opencypher.tools.tck.api.ControlQuery
 import org.opencypher.tools.tck.api.ExecQuery
 import org.opencypher.tools.tck.api.Execute
+import org.opencypher.tools.tck.api.InitQuery
+import org.opencypher.tools.tck.api.SideEffectQuery
 import org.opencypher.tools.tck.constants.TCKTags
 import org.scalatest.AppendedClues
 import org.scalatest.Assertion
@@ -61,7 +64,7 @@ trait ValidateQuery extends AppendedClues with Matchers with DescribeStepHelper 
             case (_, true) =>
           }
         }
-      case _ =>
+      case InitQuery | ControlQuery =>
         withClue(s"the query of ${execute.description} has a syntax conforming to the grammar") {
           parse(query) should matchPattern {
             case Success(_) =>
@@ -71,6 +74,7 @@ trait ValidateQuery extends AppendedClues with Matchers with DescribeStepHelper 
         withClue(s"the query of ${execute.description} has a syntax conforming to the style requirements; expected style: $normalized") {
           query shouldBe normalized
         }
+      case SideEffectQuery => succeed
     }
   }
 
