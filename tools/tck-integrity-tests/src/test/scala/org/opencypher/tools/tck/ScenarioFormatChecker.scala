@@ -50,11 +50,11 @@ trait ScenarioFormatChecker extends AsyncFunSpec with Matchers with OptionValues
     def spawnTests(currentGroup: Group): Unit = {
       currentGroup match {
         case Total =>
-          Total.children.foreach(spawnTests)
+          Total.children.toSeq.sorted.foreach(spawnTests)
         case _: Tag => Unit
         case g: ContainerGroup =>
           describe(g.description) {
-            g.children.foreach(spawnTests)
+            g.children.toSeq.sorted.foreach(spawnTests)
           }
         case i: Item =>
           it(i.description) {
