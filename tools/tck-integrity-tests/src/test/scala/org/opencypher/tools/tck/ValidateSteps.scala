@@ -87,7 +87,7 @@ trait ValidateSteps extends AppendedClues with Matchers with OptionValues with V
       (numberOfExplicitSideEffectSteps + numberOfImplicitSideEffectSteps) shouldBe numberOfExecQuerySteps
     }
 
-    withClue("scenario start with a `Given` step") {
+    withClue("scenario starts with a `Given` step") {
       steps.head.source.getType shouldBe StepType.GIVEN
     }
 
