@@ -31,7 +31,7 @@ import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.nio.file._
 import java.util
-
+import io.cucumber.core.gherkin
 import io.cucumber.core.gherkin.DataTableArgument
 import io.cucumber.core.gherkin.DocStringArgument
 import io.cucumber.core.gherkin.vintage.GherkinVintageFeatureParser
@@ -50,6 +50,7 @@ import scala.collection.JavaConverters._
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
+import scala.util.matching.Regex
 
 object CypherTCK {
 
@@ -120,9 +121,26 @@ object CypherTCK {
     parseFeature(featureFile, featureString, categories)
   }
 
-  private val pickleNamePattern1 = "^(((?! #Example: ).)+)(?: #Example: (.*)?)?$".r
-
   def parseFeature(featureFile: Path, featureString: String, categories: Seq[String]): Feature = {
+
+    case class NameExtractedPickle(pickle: gherkin.Pickle, nameAndNumber: String, exampleName: Option[String])
+
+    object parsePickleName extends (gherkin.Pickle => NameExtractedPickle) {
+      private val exampleNamePattern = "^(((?! #Example: ).)+)(?: #Example: (.*)?)?$".r
+
+      def apply(pickle: gherkin.Pickle): NameExtractedPickle = pickle.getName match {
+        case exampleNamePattern(nameAndNumber, _, null) => NameExtractedPickle(pickle, nameAndNumber, None)
+        case exampleNamePattern(nameAndNumber, _, exampleName) => NameExtractedPickle(pickle, nameAndNumber, Some(exampleName))
+        case _ => NameExtractedPickle(pickle, pickle.getName, None)
+      }
+    }
+
+    case class PickleGroupingKey(keyword: String, pickleName: String)
+
+    object formPickleGroupingKey extends (NameExtractedPickle => PickleGroupingKey) {
+      def apply(pickle: NameExtractedPickle): PickleGroupingKey = PickleGroupingKey(pickle.pickle.getKeyword, pickle.nameAndNumber)
+    }
+
     Try(parser.parse(featureFile.toUri, featureString, null)) match {
       case Success(featureOption) =>
         if(featureOption.isPresent) {
@@ -131,25 +149,18 @@ object CypherTCK {
           // filters out scenarios with TCKTags.IGNORE
           val included = pickles.filterNot(tagNames(_) contains TCKTags.IGNORE)
 
-          val includedWithExtractedName = included.map(p => {
-            p.getName match {
-              case pickleNamePattern1(pickleName, _, null) => (p, pickleName, None)
-              case pickleNamePattern1(pickleName, _, exampleName) => (p, pickleName, Some(exampleName))
-              case _ => (p, p.getName, None)
-            }
-          })
-
-          val includedGroupedByKeywordAndName = includedWithExtractedName.groupBy(t => (t._1.getKeyword, t._2))
-          val includedGroupedAndSorted = includedGroupedByKeywordAndName.mapValues(_.sortBy(_._1.getLocation.getLine))
+          val includedWithExtractedName = included.map(parsePickleName)
+          val includedGroupedByKeywordAndName = includedWithExtractedName.groupBy(formPickleGroupingKey)
+          val includedGroupedAndSorted = includedGroupedByKeywordAndName.mapValues(_.sortBy(_.pickle.getLocation.getLine))
 
           val featureName = feature.getName
           val scenarios = includedGroupedAndSorted.flatMap {
-            case (("Scenario Outline", _), pickles) =>
+            case (PickleGroupingKey("Scenario Outline", _), pickles) =>
                 pickles.zipWithIndex.map {
-                  case (pickle, exampleIndex) => toScenario(categories, featureName, pickle._2, Some(exampleIndex), pickle._3, pickle._1, featureFile)
+                  case (pickle, exampleIndex) => toScenario(categories, featureName, pickle.nameAndNumber, Some(exampleIndex), pickle.exampleName, pickle.pickle, featureFile)
                 }
-            case (("Scenario", _), pickles) =>
-                pickles.map(pickle => toScenario(categories, featureName, pickle._2, None, pickle._3, pickle._1, featureFile))
+            case (PickleGroupingKey("Scenario", _), pickles) =>
+                pickles.map(pickle => toScenario(categories, featureName, pickle.nameAndNumber, None, pickle.exampleName, pickle.pickle, featureFile))
           }.toSeq
           TCKEvents.setFeature(FeatureRead(featureName, featureFile.toUri, featureString))
           Feature(scenarios)
@@ -160,16 +171,16 @@ object CypherTCK {
     }
   }
 
-  private val pickleNamePattern2 = "^\\Q[\\E([0-9]+)\\Q]\\E (.+)$".r
+  private val scenarioNumberPattern = "^\\Q[\\E([0-9]+)\\Q]\\E (.+)$".r
 
-  private def parsePickleName(pickleName: String): (String, Option[Int]) = {
-    pickleName match {
-      case pickleNamePattern2(number, name) => (name, Some(number.toInt))
-      case _ => (pickleName, None)
+  private def parseNameAndNumber(nameAndNumber: String): (String, Option[Int]) = {
+    nameAndNumber match {
+      case scenarioNumberPattern(number, name) => (name, Some(number.toInt))
+      case _ => (nameAndNumber, None)
     }
   }
 
-  private def toScenario(categories: Seq[String], featureName: String, pickleName: String, exampleIndex: Option[Int], exampleName: Option[String], pickle: io.cucumber.core.gherkin.Pickle, sourceFile: Path): Scenario = {
+  private def toScenario(categories: Seq[String], featureName: String, nameAndNumber: String, exampleIndex: Option[Int], exampleName: Option[String], pickle: io.cucumber.core.gherkin.Pickle, sourceFile: Path): Scenario = {
 
     val tags = tagNames(pickle)
     val shouldValidate = !tags.contains(TCKTags.ALLOW_CUSTOM_ERRORS)
@@ -255,7 +266,7 @@ object CypherTCK {
       }
       scenarioSteps
     }.toList
-    val (name, number) = parsePickleName(pickleName)
+    val (name, number) = parseNameAndNumber(nameAndNumber)
     Scenario(categories.toList, featureName, number, name, exampleIndex, exampleName, tags, steps, pickle, sourceFile)
   }
 
