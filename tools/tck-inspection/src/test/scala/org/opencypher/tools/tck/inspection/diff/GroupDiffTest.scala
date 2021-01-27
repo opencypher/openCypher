@@ -187,6 +187,23 @@ class GroupDiffTest extends AnyFunSuite with Matchers {
     result.removedScenarios should equal(Set())
   }
 
+  test("Diff a group with scenarios from an outline with a change in example name") {
+    val scr0 = Scenario(List[String](), "ftr1", Some(1), "scrB", Some(0), None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scr1 = Scenario(List[String](), "ftr1", Some(1), "scrB", Some(1), Some("a"), Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scr2 = Scenario(List[String](), "ftr1", Some(1), "scrB", Some(2), None, Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val scr1x = Scenario(List[String](), "ftr1", Some(1), "scrB", Some(1), Some("b"), Set[String](), List[Step](), dummyPickle, dummyPath("ftr1.feature"))
+    val result = GroupDiff(Seq(scr0, scr1, scr2), Seq(scr0, scr1x, scr2))
+
+    val scr1scr1xDiff = ScenarioDiff(scr1, scr1x)
+    scr1scr1xDiff.diffTags should equal(Set(ExampleNameChanged))
+
+    result.unchangedScenarios should equal(Set(scr0, scr2))
+    result.movedScenarios should equal(Set())
+    result.changedScenarios should equal(Set(scr1scr1xDiff))
+    result.addedScenarios should equal(Set())
+    result.removedScenarios should equal(Set())
+  }
+
   test("Diff a group with one scenario has changed tags, one is added, one is removed") {
     val stepsA = List[Step](Dummy(dummyPickleStep))
     val stepsB = List[Step](Dummy(dummyPickleStep), Measure(dummyPickleStep))
