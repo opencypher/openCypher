@@ -107,13 +107,10 @@ object GenerateTCKIndexDoc {
           |The two main groups are clauses and expressions.
           |Each group enumerates its members.
           |Within each member, there are additional categories.
-          |
-          |There is also an `uncategorized` and `precategorized` directory containing uncategorized features.
           |""".stripMargin)
-      case sc@ScenarioCategory(name, _) => {
+      case sc@ScenarioCategory(name, _) =>
         val prettyName = name.substring(0,1).toUpperCase + name.substring(1).replaceAll("([A-Z])", " $1")
         Some(System.lineSeparator() + s"=${"=" * sc.indent} $prettyName" + System.lineSeparator())
-      }
       case Feature(name, _) =>
         Some(s"* $name")
       case _ => None
