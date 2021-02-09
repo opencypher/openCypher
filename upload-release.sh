@@ -47,11 +47,11 @@ echo "Done!"
 
 echo "Building archives with TCK and grammar source files..."
 zip ${RELEASE_VERSION}/grammar-${RELEASE_VERSION}.zip grammar/*.xml
-zip ${RELEASE_VERSION}/tck-${RELEASE_VERSION}.zip tck/features/*.feature
+zip -r ${RELEASE_VERSION}/tck-${RELEASE_VERSION}.zip tck/features/* tck/index.adoc
 echo "Done!"
 
 echo "Artifacts all built!"
 
 echo "Uploading artifacts to S3..."
-aws s3 sync --acl public-read ${RELEASE_VERSION} s3://artifacts.opencypher.org/${RELEASE_VERSION}
+#aws s3 sync --acl public-read ${RELEASE_VERSION} s3://artifacts.opencypher.org/${RELEASE_VERSION}
 echo "Done!"
