@@ -53,5 +53,5 @@ echo "Done!"
 echo "Artifacts all built!"
 
 echo "Uploading artifacts to S3..."
-#aws s3 sync --acl public-read ${RELEASE_VERSION} s3://artifacts.opencypher.org/${RELEASE_VERSION}
+aws s3 sync --acl public-read ${RELEASE_VERSION} s3://artifacts.opencypher.org/${RELEASE_VERSION}
 echo "Done!"
