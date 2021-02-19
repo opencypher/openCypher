@@ -140,7 +140,7 @@ Procedures may be called standalone either using explicitly passed arguments or 
 The `YIELD` subclause may only be omitted in the standalone form of `CALL` to call a procedure that does not return any result fields.
 In this case the query will return as many (empty) rows as produced by the called procedure.
 
-A further simplification allowed in the standalone form is to use `YIELD *` to denote that all non-deprecated result fields produced by the procedure implementation are returned by the statement.
+A further simplification allowed in the standalone form is to use `YIELD *` to denote that all result fields produced by the procedure implementation are returned by the statement.
 The `YIELD *` form is _only_ allowed in the standalone form of `CALL`.
 
 Different forms of standalone calls are detailed next.
@@ -169,7 +169,7 @@ Note that missing parameters are taken to be `null`.
 
 ===== Calling without specifying the names of yielded result fields
 
-Standalone calls that use the `YIELD *` subclause will always project all non-deprecated result fields.
+Standalone calls that use the `YIELD *` subclause will always project all result fields.
 
 Again consider a call to the procedure `myProc(name``::``STRING?``,``id``::``INTEGER?)``::`` (last``::``STRING?)`:
 
@@ -250,7 +250,7 @@ RETURN row.bar
 Procedure names consist of two parts:
 
 * The namespace which syntactically is a dot-separated list of variable names.
-* The actual name which syntactically is as variable name.
+* The actual name which syntactically is a variable name.
 
 Please consult the appendix regarding recommended procedure naming conventions.
 
@@ -319,8 +319,8 @@ Similar to variable names, it is recommended that sub-namespaces and procedure n
 |.. CALL proc(..) YIELD .. |In-Statement|Explicit        |New Fields|Given
 |CALL proc(..) YIELD ..    |Standalone  |Explicit        |New Fields|Given
 |CALL proc YIELD ..        |Standalone  |Implicit        |New Fields|Given
-|CALL proc(..) YIELD *     |Standalone  |Explicit        |New Fields|Non-Deprecated
-|CALL proc YIELD *         |Standalone  |Implicit        |New Fields|Non-Deprecated
+|CALL proc(..) YIELD *     |Standalone  |Explicit        |New Fields|All
+|CALL proc YIELD *         |Standalone  |Implicit        |New Fields|All
 |CALL proc                 |Standalone  |Implicit        |No Fields |None
 |CALL proc(..)             |Standalone  |Explicit        |No Fields |None
 |==================================================================================
@@ -339,4 +339,4 @@ Legend:
 * New (variable) bindings
 ** `None`: The call yields no new variables
 ** `Given`: The call yields the given new variables in the order specified
-** `Non-Deprecated`: The call yields all non-deprecated result fields as new variables in the order specified by the procedure's result signature
+** `All`: The call yields all result fields as new variables in the order specified by the procedure's result signature
