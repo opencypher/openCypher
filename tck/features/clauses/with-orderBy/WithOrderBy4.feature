@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: WithOrderBy4 - Order by in combination with projection
+Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [1] Matching using a relationship that is already bound, in conjunction with aggregation and ORDER BY
     Given an empty graph
