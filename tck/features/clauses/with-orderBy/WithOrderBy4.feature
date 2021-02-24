@@ -29,8 +29,355 @@
 #encoding: utf-8
 
 Feature: WithOrderBy4 - Order by in combination with projection and aliasing
+# LIMIT is used in the following scenarios to surface the effects or WITH ... ORDER BY ...
+# which are otherwise lost after the WITH clause according to Cypher semantics
 
-  Scenario: [1] Matching using a relationship that is already bound, in conjunction with aggregation and ORDER BY
+  Scenario: [1] Order by a projected expression
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num + num2 = 5
+             (:A {num: 5, num2: 2}), //num + num2 = 7
+             (:A {num: 9, num2: 0}), //num + num2 = 9
+             (:A {num: 3, num2: 3}), //num + num2 = 6
+             (:A {num: 7, num2: 1})  //num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a, a.num + a.num2 AS sum
+        ORDER BY a.num + a.num2
+        LIMIT 3
+      RETURN a, sum
+      """
+    Then the result should be, in any order:
+      | a                      | sum |
+      | (:A {num: 1, num2: 4}) | 5   |
+      | (:A {num: 3, num2: 3}) | 6   |
+      | (:A {num: 5, num2: 2}) | 7   |
+    And no side effects
+
+  Scenario: [2] Order by an alias of a projected expression
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num + num2 = 5
+             (:A {num: 5, num2: 2}), //num + num2 = 7
+             (:A {num: 9, num2: 0}), //num + num2 = 9
+             (:A {num: 3, num2: 3}), //num + num2 = 6
+             (:A {num: 7, num2: 1})  //num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a, a.num + a.num2 AS sum
+        ORDER BY sum
+        LIMIT 3
+      RETURN a, sum
+      """
+    Then the result should be, in any order:
+      | a                      | sum |
+      | (:A {num: 1, num2: 4}) | 5   |
+      | (:A {num: 3, num2: 3}) | 6   |
+      | (:A {num: 5, num2: 2}) | 7   |
+    And no side effects
+
+  Scenario: [3] Order by two projected expressions with order priority being different than projection order
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
+             (:A {num: 5, num2: 2}), //num2 % 3 = 2, num + num2 = 7
+             (:A {num: 9, num2: 0}), //num2 % 3 = 0, num + num2 = 9
+             (:A {num: 3, num2: 3}), //num2 % 3 = 0, num + num2 = 6
+             (:A {num: 7, num2: 1})  //num2 % 3 = 1, num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a, a.num + a.num2 AS sum, a.num2 % 3 AS mod
+        ORDER BY a.num2 % 3, a.num + a.num2
+        LIMIT 3
+      RETURN a, sum, mod
+      """
+    Then the result should be, in any order:
+      | a                      | sum | mod |
+      | (:A {num: 3, num2: 3}) | 6   | 0   |
+      | (:A {num: 9, num2: 0}) | 9   | 0   |
+      | (:A {num: 1, num2: 4}) | 5   | 1   |
+    And no side effects
+
+  Scenario: [4] Order by one projected expression and one alias of a projected expression with order priority being different than projection order
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
+             (:A {num: 5, num2: 2}), //num2 % 3 = 2, num + num2 = 7
+             (:A {num: 9, num2: 0}), //num2 % 3 = 0, num + num2 = 9
+             (:A {num: 3, num2: 3}), //num2 % 3 = 0, num + num2 = 6
+             (:A {num: 7, num2: 1})  //num2 % 3 = 1, num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a, a.num + a.num2 AS sum, a.num2 % 3 AS mod
+        ORDER BY a.num2 % 3, sum
+        LIMIT 3
+      RETURN a, sum, mod
+      """
+    Then the result should be, in any order:
+      | a                      | sum | mod |
+      | (:A {num: 3, num2: 3}) | 6   | 0   |
+      | (:A {num: 9, num2: 0}) | 9   | 0   |
+      | (:A {num: 1, num2: 4}) | 5   | 1   |
+    And no side effects
+
+  Scenario: [5] Order by one alias of a projected expression and one projected expression with order priority being different than projection order
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
+             (:A {num: 5, num2: 2}), //num2 % 3 = 2, num + num2 = 7
+             (:A {num: 9, num2: 0}), //num2 % 3 = 0, num + num2 = 9
+             (:A {num: 3, num2: 3}), //num2 % 3 = 0, num + num2 = 6
+             (:A {num: 7, num2: 1})  //num2 % 3 = 1, num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a, a.num + a.num2 AS sum, a.num2 % 3 AS mod
+        ORDER BY mod, a.num + a.num2
+        LIMIT 3
+      RETURN a, sum, mod
+      """
+    Then the result should be, in any order:
+      | a                      | sum | mod |
+      | (:A {num: 3, num2: 3}) | 6   | 0   |
+      | (:A {num: 9, num2: 0}) | 9   | 0   |
+      | (:A {num: 1, num2: 4}) | 5   | 1   |
+    And no side effects
+
+  Scenario: [6] Order by aliases of two projected expressions with order priority being different than projection order
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
+             (:A {num: 5, num2: 2}), //num2 % 3 = 2, num + num2 = 7
+             (:A {num: 9, num2: 0}), //num2 % 3 = 0, num + num2 = 9
+             (:A {num: 3, num2: 3}), //num2 % 3 = 0, num + num2 = 6
+             (:A {num: 7, num2: 1})  //num2 % 3 = 1, num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a, a.num + a.num2 AS sum, a.num2 % 3 AS mod
+        ORDER BY mod, sum
+        LIMIT 3
+      RETURN a, sum, mod
+      """
+    Then the result should be, in any order:
+      | a                      | sum | mod |
+      | (:A {num: 3, num2: 3}) | 6   | 0   |
+      | (:A {num: 9, num2: 0}) | 9   | 0   |
+      | (:A {num: 1, num2: 4}) | 5   | 1   |
+    And no side effects
+
+  Scenario: [7] Order by an alias of a projected expression where the alias shadows an existing variable
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
+             (:A {num: 5, num2: 2}), //num2 % 3 = 2, num + num2 = 7
+             (:A {num: 9, num2: 0}), //num2 % 3 = 0, num + num2 = 9
+             (:A {num: 3, num2: 3}), //num2 % 3 = 0, num + num2 = 6
+             (:A {num: 7, num2: 1})  //num2 % 3 = 1, num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a, a.num2 % 3 AS x
+      WITH a, a.num + a.num2 AS x
+        ORDER BY x
+        LIMIT 3
+      RETURN a, x
+      """
+    Then the result should be, in any order:
+      | a                      | x |
+      | (:A {num: 1, num2: 4}) | 5 |
+      | (:A {num: 3, num2: 3}) | 6 |
+      | (:A {num: 5, num2: 2}) | 7 |
+    And no side effects
+
+  Scenario: [8] Order by non-projected existing variable
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
+             (:A {num: 5, num2: 2}), //num2 % 3 = 2, num + num2 = 7
+             (:A {num: 9, num2: 0}), //num2 % 3 = 0, num + num2 = 9
+             (:A {num: 3, num2: 3}), //num2 % 3 = 0, num + num2 = 6
+             (:A {num: 7, num2: 1})  //num2 % 3 = 1, num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a, a.num + a.num2 AS sum
+      WITH a, a.num2 % 3 AS mod
+        ORDER BY sum
+        LIMIT 3
+      RETURN a, mod
+      """
+    Then the result should be, in any order:
+      | a                      | mod |
+      | (:A {num: 1, num2: 4}) | 1   |
+      | (:A {num: 3, num2: 3}) | 0   |
+      | (:A {num: 5, num2: 2}) | 2   |
+    And no side effects
+
+  Scenario: [9] Order by an alias of a projected expression containing the variable shadowed by the alias
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
+             (:A {num: 5, num2: 2}), //num2 % 3 = 2, num + num2 = 7
+             (:A {num: 9, num2: 0}), //num2 % 3 = 0, num + num2 = 9
+             (:A {num: 3, num2: 3}), //num2 % 3 = 0, num + num2 = 6
+             (:A {num: 7, num2: 1})  //num2 % 3 = 1, num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a.num2 AS x
+      WITH x % 3 AS x
+        ORDER BY x
+        LIMIT 3
+      RETURN x
+      """
+    Then the result should be, in any order:
+      | x |
+      | 0 |
+      | 0 |
+      | 1 |
+    And no side effects
+
+  Scenario: [10] Order by a non-projected expression containing an alias of a projected expression containing the variable shadowed by the alias
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
+             (:A {num: 5, num2: 2}), //num2 % 3 = 2, num + num2 = 7
+             (:A {num: 9, num2: 0}), //num2 % 3 = 0, num + num2 = 9
+             (:A {num: 3, num2: 3}), //num2 % 3 = 0, num + num2 = 6
+             (:A {num: 7, num2: 1})  //num2 % 3 = 1, num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a.num2 AS x
+      WITH x % 3 AS x
+        ORDER BY x * -1
+        LIMIT 3
+      RETURN x
+      """
+    Then the result should be, in any order:
+      | x |
+      | 2 |
+      | 1 |
+      | 1 |
+    And no side effects
+
+  Scenario: [11] Order by an aggregate projection
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
+             (:A {num: 5, num2: 2}), //num2 % 3 = 2, num + num2 = 7
+             (:A {num: 9, num2: 0}), //num2 % 3 = 0, num + num2 = 9
+             (:A {num: 3, num2: 3}), //num2 % 3 = 0, num + num2 = 6
+             (:A {num: 7, num2: 1})  //num2 % 3 = 1, num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a.num2 % 3 AS mod, sum(a.num + a.num2) AS sum
+        ORDER BY sum(a.num + a.num2)
+        LIMIT 2
+      RETURN mod, sum
+      """
+    Then the result should be, in any order:
+      | mod | sum |
+      | 2   | 7   |
+      | 1   | 13  |
+    And no side effects
+
+  Scenario: [12] Order by an aliased aggregate projection
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
+             (:A {num: 5, num2: 2}), //num2 % 3 = 2, num + num2 = 7
+             (:A {num: 9, num2: 0}), //num2 % 3 = 0, num + num2 = 9
+             (:A {num: 3, num2: 3}), //num2 % 3 = 0, num + num2 = 6
+             (:A {num: 7, num2: 1})  //num2 % 3 = 1, num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a.num2 % 3 AS mod, sum(a.num + a.num2) AS sum
+        ORDER BY sum
+        LIMIT 2
+      RETURN mod, sum
+      """
+    Then the result should be, in any order:
+      | mod | sum |
+      | 2   | 7   |
+      | 1   | 13  |
+    And no side effects
+
+  @NegativeTest
+  Scenario: [13] Fail on ordering by a non-projected aggregation on a variable
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
+             (:A {num: 5, num2: 2}), //num2 % 3 = 2, num + num2 = 7
+             (:A {num: 9, num2: 0}), //num2 % 3 = 0, num + num2 = 9
+             (:A {num: 3, num2: 3}), //num2 % 3 = 0, num + num2 = 6
+             (:A {num: 7, num2: 1})  //num2 % 3 = 1, num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a, a.num + a.num2 AS sum
+      WITH a.num2 % 3 AS mod, min(sum) AS min
+        ORDER BY sum(sum)
+        LIMIT 2
+      RETURN mod, min
+      """
+    Then a SyntaxError should be raised at compile time: UndefinedVariable
+
+  @NegativeTest
+  Scenario: [14] Fail on ordering by a non-projected aggregation on an expression
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
+             (:A {num: 5, num2: 2}), //num2 % 3 = 2, num + num2 = 7
+             (:A {num: 9, num2: 0}), //num2 % 3 = 0, num + num2 = 9
+             (:A {num: 3, num2: 3}), //num2 % 3 = 0, num + num2 = 6
+             (:A {num: 7, num2: 1})  //num2 % 3 = 1, num + num2 = 8
+      """
+    When executing query:
+      """
+      MATCH (a:A)
+      WITH a.num2 % 3 AS mod, min(a.num + a.num2) AS min
+        ORDER BY sum(a.num + a.num2)
+        LIMIT 2
+      RETURN mod, min
+      """
+    Then a SyntaxError should be raised at compile time: UndefinedVariable
+
+  Scenario: [15] Matching using a relationship that is already bound, in conjunction with aggregation and ORDER BY
     Given an empty graph
     And having executed:
       """
