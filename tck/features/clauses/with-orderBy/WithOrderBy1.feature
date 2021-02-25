@@ -711,12 +711,11 @@ Feature: WithOrderBy1 - Order by a single variable
     Given an empty graph
     And having executed:
       """
-      CREATE (:A {list: [2, 2]}),
-             (:B {list: [2, -2]}),
-             (:C {list: [1, 2]}),
-             (:D {list: [300, 0]}),
-             (:E {list: [1, -20]}),
-             (:F {list: [2, -2, 100]})
+      CREATE (:A {list: [2, -2]}),
+             (:B {list: [1, 2]}),
+             (:C {list: [300, 0]}),
+             (:D {list: [1, -20]}),
+             (:E {list: [2, -2, 100]})
       """
     When executing query:
       """
@@ -729,9 +728,9 @@ Feature: WithOrderBy1 - Order by a single variable
       """
     Then the result should be, in any order:
       | a                      | list      |
-      | (:C {list: [1, 2]})    | [1, 2]    |
-      | (:E {list: [1, -20]})  | [1, -20]  |
-      | (:B {list: [2, -2]})   | [2, -2]   |
+      | (:B {list: [1, 2]})    | [1, 2]    |
+      | (:D {list: [1, -20]})  | [1, -20]  |
+      | (:A {list: [2, -2]})   | [2, -2]   |
     And no side effects
 
     Examples:
@@ -744,12 +743,11 @@ Feature: WithOrderBy1 - Order by a single variable
     Given an empty graph
     And having executed:
       """
-      CREATE (:A {list: [2, 2]}),
-             (:B {list: [2, -2]}),
-             (:C {list: [1, 2]}),
-             (:D {list: [300, 0]}),
-             (:E {list: [1, -20]}),
-             (:F {list: [2, -2, 100]})
+      CREATE (:A {list: [2, -2]}),
+             (:B {list: [1, 2]}),
+             (:C {list: [300, 0]}),
+             (:D {list: [1, -20]}),
+             (:E {list: [2, -2, 100]})
       """
     When executing query:
       """
@@ -762,9 +760,9 @@ Feature: WithOrderBy1 - Order by a single variable
       """
     Then the result should be, in any order:
       | a                         | list         |
-      | (:D {list: [300, 0]})     | [300, 0]     |
-      | (:A {list: [2, 2]})       | [2, 2]       |
-      | (:F {list: [2, -2, 100]}) | [2, -2, 100] |
+      | (:C {list: [300, 0]})     | [300, 0]     |
+      | (:E {list: [2, -2, 100]}) | [2, -2, 100] |
+      | (:A {list: [2, -2]})      | [2, -2]   |
     And no side effects
 
     Examples:
