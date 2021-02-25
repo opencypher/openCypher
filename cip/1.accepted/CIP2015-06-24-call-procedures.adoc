@@ -139,10 +139,11 @@ Procedures may be called standalone either using explicitly passed arguments or 
 
 The `YIELD` subclause may be omitted in the standalone form of `CALL`. 
 In this case all result fields produced by the procedure implementation are returned by the statement.
-For procedure that does not return any result fields, the query will return as many (empty) rows as produced by the called procedure.
+For a procedure that does not return any result fields, the query will return as many (empty) rows as produced by the called procedure.
 
-Another subclause allowed in the standalone form is `YIELD *`, which denotes that all result fields produced by the procedure implementation are returned by the statement.
-For procedure that does not return any result fields, the query will return as many (empty) rows as produced by the called procedure.
+A special argument `*` (star) may be given to the `YIELD` subclause in the standalone form.
+This denotes that all result fields produced by the procedure implementation are returned by the statement.
+For a procedure that does not return any result fields, the query will return as many (empty) rows as produced by the called procedure.
 The `YIELD *` form is _only_ allowed in the standalone form of `CALL`.
 
 Different forms of standalone calls are detailed next.
@@ -202,7 +203,7 @@ CALL myProc YIELD *
 
 ===== Calling with implicitly passed arguments (parameters) and omitting `YIELD`
 
-As a further simplification, the `YIELD` subcluase can be omitted alltogether from a standalone procedure call, leading to an even more concise syntax:
+As a further simplification, the `YIELD` subclause can be omitted altogether in a standalone procedure call, leading to an even more concise syntax:
 
 .Standalone procedure call with omitted `YIELD` and implicitly passed arguments
 [source, cypher]
