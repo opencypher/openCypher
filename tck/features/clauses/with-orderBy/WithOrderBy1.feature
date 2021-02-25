@@ -162,6 +162,48 @@ Feature: WithOrderBy1 - Order by a single variable
     Given an empty graph
     When executing query:
       """
+      UNWIND [date({year: 1910, month: 5, day: 6}),
+              date({year: 1980, month: 12, day: 24}),
+              date({year: 1984, month: 10, day: 12}),
+              date({year: 1985, month: 5, day: 6}),
+              date({year: 1980, month: 10, day: 24}),
+              date({year: 1984, month: 10, day: 11})] AS dates
+      WITH dates
+        ORDER BY dates
+        LIMIT 2
+      RETURN dates
+      """
+    Then the result should be, in order:
+      | dates        |
+      | '1910-05-06' |
+      | '1980-10-24' |
+    And no side effects
+
+  Scenario: [10] Sort order lists in the expected reverse order
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [date({year: 1910, month: 5, day: 6}),
+              date({year: 1980, month: 12, day: 24}),
+              date({year: 1984, month: 10, day: 12}),
+              date({year: 1985, month: 5, day: 6}),
+              date({year: 1980, month: 10, day: 24}),
+              date({year: 1984, month: 10, day: 11})] AS dates
+      WITH dates
+        ORDER BY dates DESC
+        LIMIT 2
+      RETURN dates
+      """
+    Then the result should be, in order:
+      | dates        |
+      | '1985-05-06' |
+      | '1984-10-12' |
+    And no side effects
+
+  Scenario: [11] Sort lists in the expected order
+    Given an empty graph
+    When executing query:
+      """
       UNWIND [[], ['a'], ['a', 1], [1], [1, 'a'], [1, null], [null, 1], [null, 2]] AS lists
       WITH lists
         ORDER BY lists
@@ -176,14 +218,14 @@ Feature: WithOrderBy1 - Order by a single variable
       | [1]       |
     And no side effects
 
-  Scenario: [10] Sort order lists in the expected reverse order
+  Scenario: [12] Sort order lists in the expected reverse order
     Given an empty graph
     When executing query:
       """
       UNWIND [[], ['a'], ['a', 1], [1], [1, 'a'], [1, null], [null, 1], [null, 2]] AS lists
       WITH lists
-        ORDER BY lists
-        LIMIT 4 DESC
+        ORDER BY lists DESC
+        LIMIT 4
       RETURN lists
       """
     Then the result should be, in order:
@@ -434,11 +476,11 @@ Feature: WithOrderBy1 - Order by a single variable
     Given an empty graph
     And having executed:
       """
-      CREATE (:A {name: "lorem"}),
-             (:B {name: "ipsum"}),
-             (:C {name: "dolor"}),
-             (:D {name: "sit"}),
-             (:E {name: "amet"})
+      CREATE (:A {name: 'lorem'}),
+             (:B {name: 'ipsum'}),
+             (:C {name: 'dolor'}),
+             (:D {name: 'sit'}),
+             (:E {name: 'amet'})
       """
     When executing query:
       """
@@ -451,9 +493,9 @@ Feature: WithOrderBy1 - Order by a single variable
       """
     Then the result should be, in any order:
       | a                    | name    |
-      | (:E {name: "amet"})  | "amet"  |
-      | (:C {name: "dolor"}) | "dolor" |
-      | (:B {name: "ipsum"}) | "ipsum" |
+      | (:E {name: 'amet'})  | 'amet'  |
+      | (:C {name: 'dolor'}) | 'dolor' |
+      | (:B {name: 'ipsum'}) | 'ipsum' |
     And no side effects
 
     Examples:
@@ -466,11 +508,11 @@ Feature: WithOrderBy1 - Order by a single variable
     Given an empty graph
     And having executed:
       """
-      CREATE (:A {name: "lorem"}),
-             (:B {name: "ipsum"}),
-             (:C {name: "dolor"}),
-             (:D {name: "sit"}),
-             (:E {name: "amet"})
+      CREATE (:A {name: 'lorem'}),
+             (:B {name: 'ipsum'}),
+             (:C {name: 'dolor'}),
+             (:D {name: 'sit'}),
+             (:E {name: 'amet'})
       """
     When executing query:
       """
@@ -483,9 +525,9 @@ Feature: WithOrderBy1 - Order by a single variable
       """
     Then the result should be, in any order:
       | a                    | name    |
-      | (:D {name: "sit"})   | "sit"   |
-      | (:A {name: "lorem"}) | "lorem" |
-      | (:B {name: "ipsum"}) | "ipsum" |
+      | (:D {name: 'sit'})   | 'sit'   |
+      | (:A {name: 'lorem'}) | 'lorem' |
+      | (:B {name: 'ipsum'}) | 'ipsum' |
     And no side effects
 
     Examples:
@@ -555,6 +597,69 @@ Feature: WithOrderBy1 - Order by a single variable
 
     Examples:
       | sort           |
-      | num DESC       |
-      | num DESCENDING |
+      | list DESC       |
+      | list DESCENDING |
+
+  Scenario Outline: [23] Sort binding table in ascending order by a date variable projected from a node property
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {date: date({year: 1910, month: 5, day: 6})}),
+             (:B {date: date({year: 1980, month: 12, day: 24})}),
+             (:C {date: date({year: 1984, month: 10, day: 12})}),
+             (:D {date: date({year: 1985, month: 5, day: 6})}),
+             (:E {date: date({year: 1980, month: 10, day: 24})}),
+             (:F {date: date({year: 1984, month: 10, day: 11})})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a, a.date AS date
+      WITH a, date
+        ORDER BY <sort>
+        LIMIT 2
+      RETURN a, date
+      """
+    Then the result should be, in any order:
+      | a                         | date         |
+      | (:A {date: '1910-05-06'}) | '1910-05-06' |
+      | (:E {date: '1980-10-24'}) | '1980-10-24' |
+    And no side effects
+
+    Examples:
+      | sort           |
+      | date           |
+      | date ASC       |
+      | date ASCENDING |
+
+  Scenario Outline: [24] Sort binding table in descending order by a date variable projected from a node property
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {date: date({year: 1910, month: 5, day: 6})}),
+             (:B {date: date({year: 1980, month: 12, day: 24})}),
+             (:C {date: date({year: 1984, month: 10, day: 12})}),
+             (:D {date: date({year: 1985, month: 5, day: 6})}),
+             (:E {date: date({year: 1980, month: 10, day: 24})}),
+             (:F {date: date({year: 1984, month: 10, day: 11})})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a, a.date AS date
+      WITH a, date
+        ORDER BY <sort>
+        LIMIT 2
+      RETURN a, date
+      """
+    Then the result should be, in any order:
+      | a                         | date         |
+      | (:D {date: '1985-05-06'}) | '1985-05-06' |
+      | (:C {date: '1984-10-12'}) | '1984-10-12' |
+    And no side effects
+
+    Examples:
+      | sort            |
+      | date DESC       |
+      | date DESCENDING |
 
