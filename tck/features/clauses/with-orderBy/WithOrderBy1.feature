@@ -280,7 +280,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | '12:31:14.645876124' |
     And no side effects
 
-  Scenario: [11] Sort distinct types in the expected order
+  Scenario: [15] Sort distinct types in the expected order
     Given an empty graph
     And having executed:
       """
@@ -304,7 +304,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | <(:N)-[:REL]->()> |
     And no side effects
 
-  Scenario: [12] Sort distinct types in the expected reverse order
+  Scenario: [16] Sort distinct types in the expected reverse order
     Given an empty graph
     And having executed:
       """
@@ -328,7 +328,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | 'text'            |
     And no side effects
 
-  Scenario Outline: [13] Sort binding table in ascending order by a boolean variable projected from a node property
+  Scenario Outline: [17] Sort binding table in ascending order by a boolean variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -360,7 +360,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | bool ASC       |
       | bool ASCENDING |
 
-  Scenario Outline: [14] Sort binding table in descending order by a boolean variable projected from a node property
+  Scenario Outline: [18] Sort binding table in descending order by a boolean variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -390,7 +390,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | bool DESC       |
       | bool DESCENDING |
 
-  Scenario Outline: [15] Sort binding table in ascending order by an integer variable projected from a node property
+  Scenario Outline: [19] Sort binding table in ascending order by an integer variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -422,7 +422,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num ASC       |
       | num ASCENDING |
 
-  Scenario Outline: [16] Sort binding table in descending order by an integer variable projected from a node property
+  Scenario Outline: [20] Sort binding table in descending order by an integer variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -453,7 +453,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num DESC       |
       | num DESCENDING |
 
-  Scenario Outline: [17] Sort binding table in ascending order by a float variable projected from a node property
+  Scenario Outline: [21] Sort binding table in ascending order by a float variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -485,7 +485,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num ASC       |
       | num ASCENDING |
 
-  Scenario Outline: [18] Sort binding table in descending order by a float variable projected from a node property
+  Scenario Outline: [22] Sort binding table in descending order by a float variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -516,7 +516,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num DESC       |
       | num DESCENDING |
 
-  Scenario Outline: [19] Sort binding table in ascending order by a string variable projected from a node property
+  Scenario Outline: [23] Sort binding table in ascending order by a string variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -548,7 +548,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num ASC       |
       | num ASCENDING |
 
-  Scenario Outline: [20] Sort binding table in descending order by a string variable projected from a node property
+  Scenario Outline: [24] Sort binding table in descending order by a string variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -579,7 +579,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num DESC       |
       | num DESCENDING |
 
-  Scenario Outline: [21] Sort binding table in ascending order by a list variable projected from a node property
+  Scenario Outline: [25] Sort binding table in ascending order by a list variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -612,7 +612,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | list ASC       |
       | list ASCENDING |
 
-  Scenario Outline: [22] Sort binding table in descending order by a list variable projected from a node property
+  Scenario Outline: [26] Sort binding table in descending order by a list variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -644,7 +644,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | list DESC       |
       | list DESCENDING |
 
-  Scenario Outline: [23] Sort binding table in ascending order by a date variable projected from a node property
+  Scenario Outline: [27] Sort binding table in ascending order by a date variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -676,7 +676,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | date ASC       |
       | date ASCENDING |
 
-  Scenario Outline: [24] Sort binding table in descending order by a date variable projected from a node property
+  Scenario Outline: [28] Sort binding table in descending order by a date variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -707,7 +707,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | date DESC       |
       | date DESCENDING |
 
-  Scenario Outline: [25] Sort binding table in ascending order by a local time variable projected from a node property
+  Scenario Outline: [29] Sort binding table in ascending order by a local time variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -740,7 +740,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | time ASC       |
       | time ASCENDING |
 
-  Scenario Outline: [26] Sort binding table in descending order by a local time variable projected from a node property
+  Scenario Outline: [30] Sort binding table in descending order by a local time variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -771,3 +771,30 @@ Feature: WithOrderBy1 - Order by a single variable
       | sort            |
       | date DESC       |
       | date DESCENDING |
+
+  Scenario Outline: [31] Sort order should be consistent with comparisons where comparisons are defined
+    Given an empty graph
+    When executing query:
+      """
+      WITH <values> AS values
+      WITH values, size(values) AS numOfValues
+      UNWIND values AS value
+      WITH size([ x in values WHERE x < value ]) AS x, value, numOfValues
+        ORDER BY value
+      WITH numOfValues, collect(x) AS orderedX
+      RETURN orderedX = range(0, numOfValues-1) AS equal
+      """
+    Then the result should be, in any order:
+      | equal |
+      | true  |
+    And no side effects
+
+    Examples:
+      | values                                                                                                                                                                                                                                                                                                                                              |
+      | [true, false]                                                                                                                                                                                                                                                                                                                                       |
+      | [351, -3974856, 93, -3, 123, 0, 3, -2, 20934587, 1, 20934585, 20934586, -10]                                                                                                                                                                                                                                                                        |
+      | [351.5, -3974856.01, -3.203957, 123.0002, 123.0001, 123.00013, 123.00011, 0.0100000, 0.0999999, 0.00000001, 3.0, 209345.87, -10.654]                                                                                                                                                                                                                |
+      | ['Sort', 'order', ' ', 'should', 'be', '', 'consistent', 'with', 'comparisons', ', ', 'where', 'comparisons are', 'defined', '!']                                                                                                                                                                                                                      |
+      | [[2, 2], [2, -2], [1, 2], [], [1], [300, 0], [1, -20], [2, -2, 100]]                                                                                                                                                                                                                                                                                |
+      | [date({year: 1910, month: 5, day: 6}), date({year: 1980, month: 12, day: 24}), date({year: 1984, month: 10, day: 12}), date({year: 1985, month: 5, day: 6}), date({year: 1980, month: 10, day: 24}), date({year: 1984, month: 10, day: 11})]                                                                                                        |
+      | [localtime({hour: 10, minute: 35}), localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}), localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876124}), localtime({hour: 12, minute: 35, second: 13}), localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123}), localtime({hour: 12, minute: 31, second: 15})] |
