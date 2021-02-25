@@ -253,7 +253,7 @@ Feature: WithOrderBy1 - Order by a single variable
       """
     Then the result should be, in order:
       | localtimes           |
-      | '10:35:00'           |
+      | '10:35'              |
       | '12:30:14.645876123' |
       | '12:31:14.645876123' |
     And no side effects
@@ -543,10 +543,10 @@ Feature: WithOrderBy1 - Order by a single variable
     And no side effects
 
     Examples:
-      | sort          |
-      | num           |
-      | num ASC       |
-      | num ASCENDING |
+      | sort           |
+      | name           |
+      | name ASC       |
+      | name ASCENDING |
 
   Scenario Outline: [24] Sort binding table in descending order by a string variable projected from a node property
     Given an empty graph
@@ -575,9 +575,9 @@ Feature: WithOrderBy1 - Order by a single variable
     And no side effects
 
     Examples:
-      | sort           |
-      | num DESC       |
-      | num DESCENDING |
+      | sort            |
+      | name DESC       |
+      | name DESCENDING |
 
   Scenario Outline: [25] Sort binding table in ascending order by a list variable projected from a node property
     Given an empty graph
@@ -729,7 +729,7 @@ Feature: WithOrderBy1 - Order by a single variable
       """
     Then the result should be, in any order:
       | a                                 | time                 |
-      | (:A {time: '10:35:00'})           | '10:35:00'           |
+      | (:A {time: '10:35'})              | '10:35'              |
       | (:E {time: '12:30:14.645876123'}) | '12:30:14.645876123' |
       | (:B {time: '12:31:14.645876123'}) | '12:31:14.645876123' |
     And no side effects
@@ -754,11 +754,11 @@ Feature: WithOrderBy1 - Order by a single variable
     When executing query:
       """
       MATCH (a)
-      WITH a, a.date AS date
-      WITH a, date
+      WITH a, a.time AS time
+      WITH a, time
         ORDER BY <sort>
         LIMIT 3
-      RETURN a, date
+      RETURN a, time
       """
     Then the result should be, in any order:
       | a                                 | time                 |
@@ -769,10 +769,10 @@ Feature: WithOrderBy1 - Order by a single variable
 
     Examples:
       | sort            |
-      | date DESC       |
-      | date DESCENDING |
+      | time DESC       |
+      | time DESCENDING |
 
-  Scenario Outline: [31] Sort order should be consistent with comparisons where comparisons are defined
+  Scenario Outline: [31] Sort order should be consistent with comparisons where comparisons are defined #Example: <exampleName>
     Given an empty graph
     When executing query:
       """
@@ -790,11 +790,40 @@ Feature: WithOrderBy1 - Order by a single variable
     And no side effects
 
     Examples:
-      | values                                                                                                                                                                                                                                                                                                                                              |
-      | [true, false]                                                                                                                                                                                                                                                                                                                                       |
-      | [351, -3974856, 93, -3, 123, 0, 3, -2, 20934587, 1, 20934585, 20934586, -10]                                                                                                                                                                                                                                                                        |
-      | [351.5, -3974856.01, -3.203957, 123.0002, 123.0001, 123.00013, 123.00011, 0.0100000, 0.0999999, 0.00000001, 3.0, 209345.87, -10.654]                                                                                                                                                                                                                |
-      | ['Sort', 'order', ' ', 'should', 'be', '', 'consistent', 'with', 'comparisons', ', ', 'where', 'comparisons are', 'defined', '!']                                                                                                                                                                                                                      |
-      | [[2, 2], [2, -2], [1, 2], [], [1], [300, 0], [1, -20], [2, -2, 100]]                                                                                                                                                                                                                                                                                |
-      | [date({year: 1910, month: 5, day: 6}), date({year: 1980, month: 12, day: 24}), date({year: 1984, month: 10, day: 12}), date({year: 1985, month: 5, day: 6}), date({year: 1980, month: 10, day: 24}), date({year: 1984, month: 10, day: 11})]                                                                                                        |
-      | [localtime({hour: 10, minute: 35}), localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}), localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876124}), localtime({hour: 12, minute: 35, second: 13}), localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123}), localtime({hour: 12, minute: 31, second: 15})] |
+      | exampleName | values                                                                                                                                                                                                                                                                                                                                              |
+      | booleans    | [true, false]                                                                                                                                                                                                                                                                                                                                       |
+      | integers    | [351, -3974856, 93, -3, 123, 0, 3, -2, 20934587, 1, 20934585, 20934586, -10]                                                                                                                                                                                                                                                                        |
+      | floats      | [351.5, -3974856.01, -3.203957, 123.0002, 123.0001, 123.00013, 123.00011, 0.0100000, 0.0999999, 0.00000001, 3.0, 209345.87, -10.654]                                                                                                                                                                                                                |
+      | string      | ['Sort', 'order', ' ', 'should', 'be', '', 'consistent', 'with', 'comparisons', ', ', 'where', 'comparisons are', 'defined', '!']                                                                                                                                                                                                                   |
+      | lists       | [[2, 2], [2, -2], [1, 2], [], [1], [300, 0], [1, -20], [2, -2, 100]]                                                                                                                                                                                                                                                                                |
+      | dates       | [date({year: 1910, month: 5, day: 6}), date({year: 1980, month: 12, day: 24}), date({year: 1984, month: 10, day: 12}), date({year: 1985, month: 5, day: 6}), date({year: 1980, month: 10, day: 24}), date({year: 1984, month: 10, day: 11})]                                                                                                        |
+      | times       | [localtime({hour: 10, minute: 35}), localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}), localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876124}), localtime({hour: 12, minute: 35, second: 13}), localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123}), localtime({hour: 12, minute: 31, second: 15})] |
+
+  Scenario Outline: [32] Fail on order by an undefined variable #Example: <exampleName>
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A), (:A), (:B), (:B), (:C)
+      """
+    When executing query:
+      """
+      MATCH (a:A), (b:B), (c:C)
+      WITH a, b
+      WITH a
+        ORDER BY <sort>
+      RETURN a
+      """
+    Then a SyntaxError should be raised at compile time: UndefinedVariable
+
+    Examples:
+      | sort         | exampleName   |
+      | c            | out of scope  |
+      | c ASC        | out of scope  |
+      | c ASCENDING  | out of scope  |
+      | c DESC       | out of scope  |
+      | c DESCENDING | out of scope  |
+      | d            | never defined |
+      | d ASC        | never defined |
+      | d ASCENDING  | never defined |
+      | d DESC       | never defined |
+      | d DESCENDING | never defined |
