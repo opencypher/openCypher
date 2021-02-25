@@ -141,10 +141,9 @@ The `YIELD` subclause may be omitted in the standalone form of `CALL`.
 In this case all result fields produced by the procedure implementation are returned by the statement.
 For a procedure that does not return any result fields, the query will return as many (empty) rows as produced by the called procedure.
 
-A special argument `*` (star) may be given to the `YIELD` subclause in the standalone form.
+A special argument `*` (star) may be given to the `YIELD` subclause in the standalone form only.
 This denotes that all result fields produced by the procedure implementation are returned by the statement.
 For a procedure that does not return any result fields, the query will return as many (empty) rows as produced by the called procedure.
-The `YIELD *` form is _only_ allowed in the standalone form of `CALL`.
 
 Different forms of standalone calls are detailed next.
 
@@ -172,9 +171,17 @@ Note that missing parameters are taken to be `null`.
 
 ===== Calling without specifying the names of yielded result fields
 
-Standalone calls that use the `YIELD *` subclause will always project all result fields.
+Standalone calls that omits the `YIELD` clause or use the `YIELD *` subclause will always project all result fields.
 
 Again consider a call to the procedure `myProc(name``::``STRING?``,``id``::``INTEGER?)``::`` (last``::``STRING?)`:
+
+.Standalone call to a procedure omitting `YIELD`
+[source, cypher]
+----
+CALL myProc("Donald", 12)
+----
+
+This is the same as executing:
 
 .Standalone call to a procedure using `YIELD *`
 [source, cypher]
@@ -182,43 +189,31 @@ Again consider a call to the procedure `myProc(name``::``STRING?``,``id``::``INT
 CALL myProc("Donald", 12) YIELD *
 ----
 
-This is the same as executing:
+Which in turn is the same as executing:
 
-.In-statement call to a procedure equivalent to a standalone call using `YIELD *`
+.In-statement call to a procedure, explicitly yielding all columns:
 [source, cypher]
 ----
 CALL myProc("Donald", 12) YIELD last
 RETURN *
 ----
 
-===== Calling with implicitly passed arguments (parameters) and with `YIELD *`
+===== Calling with implicitly passed arguments (parameters) and without specifying the names of yielded result fields
 
-Both simplifications may be used in a single standalone procedure call, leading to a concise syntax for just executing a single procedure call:
+Both simplifications above may be used in a single standalone procedure call, leading to a concise syntax for just executing a single procedure call:
 
-.Standalone procedure call with `YIELD *`
+.Standalone procedure call with `YIELD *` and implicitly passed arguments
 [source, cypher]
 ----
 CALL myProc YIELD *
 ----
 
-===== Calling with implicitly passed arguments (parameters) and omitting `YIELD`
-
-As a further simplification, the `YIELD` subclause can be omitted altogether in a standalone procedure call, leading to an even more concise syntax:
+Which is equivalent to executing the even more concise:
 
 .Standalone procedure call with omitted `YIELD` and implicitly passed arguments
 [source, cypher]
 ----
 CALL myProc
-----
-
-==== Standalone call with omitted `YIELD` clause
-
-Standalone calls without `YIELD` are supported for all procedures:
-
-.Standalone procedure call with omitted `YIELD` and explicitly passed arguments
-[source, cypher]
-----
-CALL myProc($arg)
 ----
 
 ==== Filtering yielded records
