@@ -162,6 +162,42 @@ Feature: WithOrderBy1 - Order by a single variable
     Given an empty graph
     When executing query:
       """
+      UNWIND [[], ['a'], ['a', 1], [1], [1, 'a'], [1, null], [null, 1], [null, 2]] AS lists
+      WITH lists
+        ORDER BY lists
+        LIMIT 4
+      RETURN lists
+      """
+    Then the result should be, in order:
+      | lists     |
+      | []        |
+      | ['a']     |
+      | ['a', 1]  |
+      | [1]       |
+    And no side effects
+
+  Scenario: [10] Sort lists in the expected reverse order
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [[], ['a'], ['a', 1], [1], [1, 'a'], [1, null], [null, 1], [null, 2]] AS lists
+      WITH lists
+        ORDER BY lists DESC
+        LIMIT 4
+      RETURN lists
+      """
+    Then the result should be, in order:
+      | lists     |
+      | [null, 2] |
+      | [null, 1] |
+      | [1, null] |
+      | [1, 'a']  |
+    And no side effects
+
+  Scenario: [11] Sort dates in the expected order
+    Given an empty graph
+    When executing query:
+      """
       UNWIND [date({year: 1910, month: 5, day: 6}),
               date({year: 1980, month: 12, day: 24}),
               date({year: 1984, month: 10, day: 12}),
@@ -179,7 +215,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1980-10-24' |
     And no side effects
 
-  Scenario: [10] Sort order lists in the expected reverse order
+  Scenario: [12] Sort dates in the expected reverse order
     Given an empty graph
     When executing query:
       """
@@ -200,40 +236,48 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1984-10-12' |
     And no side effects
 
-  Scenario: [11] Sort lists in the expected order
+  Scenario: [13] Sort local times in the expected order
     Given an empty graph
     When executing query:
       """
-      UNWIND [[], ['a'], ['a', 1], [1], [1, 'a'], [1, null], [null, 1], [null, 2]] AS lists
-      WITH lists
-        ORDER BY lists
-        LIMIT 4
-      RETURN lists
+      UNWIND [localtime({hour: 10, minute: 35}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876124}),
+              localtime({hour: 12, minute: 35, second: 13}),
+              localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123}),
+              localtime({hour: 12, minute: 31, second: 15})] AS localtimes
+      WITH localtimes
+        ORDER BY localtimes
+        LIMIT 3
+      RETURN localtimes
       """
     Then the result should be, in order:
-      | lists     |
-      | []        |
-      | ['a']     |
-      | ['a', 1]  |
-      | [1]       |
+      | localtimes           |
+      | '10:35:00'           |
+      | '12:30:14.645876123' |
+      | '12:31:14.645876123' |
     And no side effects
 
-  Scenario: [12] Sort order lists in the expected reverse order
+  Scenario: [14] Sort local times in the expected reverse order
     Given an empty graph
     When executing query:
       """
-      UNWIND [[], ['a'], ['a', 1], [1], [1, 'a'], [1, null], [null, 1], [null, 2]] AS lists
-      WITH lists
-        ORDER BY lists DESC
-        LIMIT 4
-      RETURN lists
+      UNWIND [localtime({hour: 10, minute: 35}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
+              localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876124}),
+              localtime({hour: 12, minute: 35, second: 13}),
+              localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123}),
+              localtime({hour: 12, minute: 31, second: 15})] AS localtimes
+      WITH localtimes
+        ORDER BY localtimes DESC
+        LIMIT 3
+      RETURN localtimes
       """
     Then the result should be, in order:
-      | lists     |
-      | [null, 2] |
-      | [null, 1] |
-      | [1, null] |
-      | [1, 'a']  |
+      | localtimes           |
+      | '12:35:13'           |
+      | '12:31:15'           |
+      | '12:31:14.645876124' |
     And no side effects
 
   Scenario: [11] Sort distinct types in the expected order
@@ -596,7 +640,7 @@ Feature: WithOrderBy1 - Order by a single variable
     And no side effects
 
     Examples:
-      | sort           |
+      | sort            |
       | list DESC       |
       | list DESCENDING |
 
@@ -663,3 +707,67 @@ Feature: WithOrderBy1 - Order by a single variable
       | date DESC       |
       | date DESCENDING |
 
+  Scenario Outline: [25] Sort binding table in ascending order by a local time variable projected from a node property
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {time: localtime({hour: 10, minute: 35})}),
+             (:B {time: localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})}),
+             (:C {time: localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876124})}),
+             (:D {time: localtime({hour: 12, minute: 35, second: 13})}),
+             (:E {time: localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123})}),
+             (:F {time: localtime({hour: 12, minute: 31, second: 15})})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a, a.time AS time
+      WITH a, time
+        ORDER BY <sort>
+        LIMIT 3
+      RETURN a, time
+      """
+    Then the result should be, in any order:
+      | a                                 | time                 |
+      | (:A {time: '10:35:00'})           | '10:35:00'           |
+      | (:E {time: '12:30:14.645876123'}) | '12:30:14.645876123' |
+      | (:B {time: '12:31:14.645876123'}) | '12:31:14.645876123' |
+    And no side effects
+
+    Examples:
+      | sort           |
+      | time           |
+      | time ASC       |
+      | time ASCENDING |
+
+  Scenario Outline: [26] Sort binding table in descending order by a local time variable projected from a node property
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {time: localtime({hour: 10, minute: 35})}),
+             (:B {time: localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})}),
+             (:C {time: localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876124})}),
+             (:D {time: localtime({hour: 12, minute: 35, second: 13})}),
+             (:E {time: localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123})}),
+             (:F {time: localtime({hour: 12, minute: 31, second: 15})})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a, a.date AS date
+      WITH a, date
+        ORDER BY <sort>
+        LIMIT 3
+      RETURN a, date
+      """
+    Then the result should be, in any order:
+      | a                                 | time                 |
+      | (:D {time: '12:35:13'})           | '12:35:13'           |
+      | (:F {time: '12:31:15'})           | '12:31:15'           |
+      | (:C {time: '12:31:14.645876124'}) | '12:31:14.645876124' |
+    And no side effects
+
+    Examples:
+      | sort            |
+      | date DESC       |
+      | date DESCENDING |
