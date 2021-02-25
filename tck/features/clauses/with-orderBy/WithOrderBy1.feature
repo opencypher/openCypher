@@ -280,7 +280,51 @@ Feature: WithOrderBy1 - Order by a single variable
       | '12:31:14.645876124' |
     And no side effects
 
-  Scenario: [15] Sort distinct types in the expected order
+  Scenario: [15] Sort times in the expected order
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [time({hour: 10, minute: 35, timezone: '-08:00'}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876124, timezone: '+01:00'}),
+              time({hour: 12, minute: 35, second: 15, timezone: '+05:00'}),
+              time({hour: 12, minute: 30, second: 14, nanosecond: 645876123, timezone: '+01:01'}),
+              time({hour: 12, minute: 35, second: 15, timezone: '+01:00'})] AS times
+      WITH times
+        ORDER BY times
+        LIMIT 3
+      RETURN times
+      """
+    Then the result should be, in order:
+      | times                      |
+      | '12:35:15+05:00'           |
+      | '12:30:14.645876123+01:01' |
+      | '12:31:14.645876123+01:00' |
+    And no side effects
+
+  Scenario: [16] Sort times in the expected reverse order
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [time({hour: 10, minute: 35, timezone: '-08:00'}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
+              time({hour: 12, minute: 31, second: 14, nanosecond: 645876124, timezone: '+01:00'}),
+              time({hour: 12, minute: 35, second: 15, timezone: '+05:00'}),
+              time({hour: 12, minute: 30, second: 14, nanosecond: 645876123, timezone: '+01:01'}),
+              time({hour: 12, minute: 35, second: 15, timezone: '+01:00'})] AS times
+      WITH times
+        ORDER BY times DESC
+        LIMIT 3
+      RETURN times
+      """
+    Then the result should be, in order:
+      | times                      |
+      | '10:35-08:00'              |
+      | '12:35:15+01:00'           |
+      | '12:31:14.645876124+01:00' |
+    And no side effects
+
+  Scenario: [17] Sort distinct types in the expected order
     Given an empty graph
     And having executed:
       """
@@ -304,7 +348,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | <(:N)-[:REL]->()> |
     And no side effects
 
-  Scenario: [16] Sort distinct types in the expected reverse order
+  Scenario: [18] Sort distinct types in the expected reverse order
     Given an empty graph
     And having executed:
       """
@@ -328,7 +372,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | 'text'            |
     And no side effects
 
-  Scenario Outline: [17] Sort binding table in ascending order by a boolean variable projected from a node property
+  Scenario Outline: [19] Sort binding table in ascending order by a boolean variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -360,7 +404,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | bool ASC       |
       | bool ASCENDING |
 
-  Scenario Outline: [18] Sort binding table in descending order by a boolean variable projected from a node property
+  Scenario Outline: [20] Sort binding table in descending order by a boolean variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -390,7 +434,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | bool DESC       |
       | bool DESCENDING |
 
-  Scenario Outline: [19] Sort binding table in ascending order by an integer variable projected from a node property
+  Scenario Outline: [21] Sort binding table in ascending order by an integer variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -422,7 +466,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num ASC       |
       | num ASCENDING |
 
-  Scenario Outline: [20] Sort binding table in descending order by an integer variable projected from a node property
+  Scenario Outline: [22] Sort binding table in descending order by an integer variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -453,7 +497,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num DESC       |
       | num DESCENDING |
 
-  Scenario Outline: [21] Sort binding table in ascending order by a float variable projected from a node property
+  Scenario Outline: [23] Sort binding table in ascending order by a float variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -485,7 +529,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num ASC       |
       | num ASCENDING |
 
-  Scenario Outline: [22] Sort binding table in descending order by a float variable projected from a node property
+  Scenario Outline: [24] Sort binding table in descending order by a float variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -516,7 +560,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num DESC       |
       | num DESCENDING |
 
-  Scenario Outline: [23] Sort binding table in ascending order by a string variable projected from a node property
+  Scenario Outline: [25] Sort binding table in ascending order by a string variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -548,7 +592,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | name ASC       |
       | name ASCENDING |
 
-  Scenario Outline: [24] Sort binding table in descending order by a string variable projected from a node property
+  Scenario Outline: [26] Sort binding table in descending order by a string variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -579,7 +623,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | name DESC       |
       | name DESCENDING |
 
-  Scenario Outline: [25] Sort binding table in ascending order by a list variable projected from a node property
+  Scenario Outline: [27] Sort binding table in ascending order by a list variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -612,7 +656,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | list ASC       |
       | list ASCENDING |
 
-  Scenario Outline: [26] Sort binding table in descending order by a list variable projected from a node property
+  Scenario Outline: [28] Sort binding table in descending order by a list variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -644,7 +688,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | list DESC       |
       | list DESCENDING |
 
-  Scenario Outline: [27] Sort binding table in ascending order by a date variable projected from a node property
+  Scenario Outline: [29] Sort binding table in ascending order by a date variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -676,7 +720,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | date ASC       |
       | date ASCENDING |
 
-  Scenario Outline: [28] Sort binding table in descending order by a date variable projected from a node property
+  Scenario Outline: [30] Sort binding table in descending order by a date variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -707,7 +751,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | date DESC       |
       | date DESCENDING |
 
-  Scenario Outline: [29] Sort binding table in ascending order by a local time variable projected from a node property
+  Scenario Outline: [31] Sort binding table in ascending order by a local time variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -740,7 +784,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | time ASC       |
       | time ASCENDING |
 
-  Scenario Outline: [30] Sort binding table in descending order by a local time variable projected from a node property
+  Scenario Outline: [32] Sort binding table in descending order by a local time variable projected from a node property
     Given an empty graph
     And having executed:
       """
@@ -772,7 +816,72 @@ Feature: WithOrderBy1 - Order by a single variable
       | time DESC       |
       | time DESCENDING |
 
-  Scenario Outline: [31] Sort order should be consistent with comparisons where comparisons are defined #Example: <exampleName>
+  Scenario Outline: [33] Sort binding table in ascending order by a time variable projected from a node property
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {time: time({hour: 10, minute: 35, timezone: '-08:00'})}),
+             (:B {time: time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})}),
+             (:C {time: time({hour: 12, minute: 31, second: 14, nanosecond: 645876124, timezone: '+01:00'})}),
+             (:D {time: time({hour: 12, minute: 35, second: 15, timezone: '+05:00'})}),
+             (:E {time: time({hour: 12, minute: 30, second: 14, nanosecond: 645876123, timezone: '+01:01'})}),
+             (:F {time: time({hour: 12, minute: 35, second: 15, timezone: '+01:00'})})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a, a.time AS time
+      WITH a, time
+        ORDER BY <sort>
+        LIMIT 3
+      RETURN a, time
+      """
+    Then the result should be, in any order:
+      | a                                       | time                       |
+      | (:D {time: '12:35:15+05:00'})           | '12:35:15+05:00'           |
+      | (:E {time: '12:30:14.645876123+01:01'}) | '12:30:14.645876123+01:01' |
+      | (:B {time: '12:31:14.645876123+01:00'}) | '12:31:14.645876123+01:00' |
+    And no side effects
+
+    Examples:
+      | sort           |
+      | time           |
+      | time ASC       |
+      | time ASCENDING |
+
+  Scenario Outline: [34] Sort binding table in descending order by a time variable projected from a node property
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {time: time({hour: 10, minute: 35, timezone: '-08:00'})}),
+             (:B {time: time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})}),
+             (:C {time: time({hour: 12, minute: 31, second: 14, nanosecond: 645876124, timezone: '+01:00'})}),
+             (:D {time: time({hour: 12, minute: 35, second: 15, timezone: '+05:00'})}),
+             (:E {time: time({hour: 12, minute: 30, second: 14, nanosecond: 645876123, timezone: '+01:01'})}),
+             (:F {time: time({hour: 12, minute: 35, second: 15, timezone: '+01:00'})})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a, a.time AS time
+      WITH a, time
+        ORDER BY <sort>
+        LIMIT 3
+      RETURN a, time
+      """
+    Then the result should be, in any order:
+      | a                                       | time                       |
+      | (:A {time: '10:35-08:00'})              | '10:35-08:00'              |
+      | (:F {time: '12:35:15+01:00'})           | '12:35:15+01:00'           |
+      | (:C {time: '12:31:14.645876124+01:00'}) | '12:31:14.645876124+01:00' |
+    And no side effects
+
+    Examples:
+      | sort            |
+      | time DESC       |
+      | time DESCENDING |
+
+  Scenario Outline: [35] Sort order should be consistent with comparisons where comparisons are defined #Example: <exampleName>
     Given an empty graph
     When executing query:
       """
@@ -790,16 +899,17 @@ Feature: WithOrderBy1 - Order by a single variable
     And no side effects
 
     Examples:
-      | exampleName | values                                                                                                                                                                                                                                                                                                                                              |
-      | booleans    | [true, false]                                                                                                                                                                                                                                                                                                                                       |
-      | integers    | [351, -3974856, 93, -3, 123, 0, 3, -2, 20934587, 1, 20934585, 20934586, -10]                                                                                                                                                                                                                                                                        |
-      | floats      | [351.5, -3974856.01, -3.203957, 123.0002, 123.0001, 123.00013, 123.00011, 0.0100000, 0.0999999, 0.00000001, 3.0, 209345.87, -10.654]                                                                                                                                                                                                                |
-      | string      | ['Sort', 'order', ' ', 'should', 'be', '', 'consistent', 'with', 'comparisons', ', ', 'where', 'comparisons are', 'defined', '!']                                                                                                                                                                                                                   |
-      | lists       | [[2, 2], [2, -2], [1, 2], [], [1], [300, 0], [1, -20], [2, -2, 100]]                                                                                                                                                                                                                                                                                |
-      | dates       | [date({year: 1910, month: 5, day: 6}), date({year: 1980, month: 12, day: 24}), date({year: 1984, month: 10, day: 12}), date({year: 1985, month: 5, day: 6}), date({year: 1980, month: 10, day: 24}), date({year: 1984, month: 10, day: 11})]                                                                                                        |
-      | times       | [localtime({hour: 10, minute: 35}), localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}), localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876124}), localtime({hour: 12, minute: 35, second: 13}), localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123}), localtime({hour: 12, minute: 31, second: 15})] |
+      | exampleName | values                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+      | booleans    | [true, false]                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+      | integers    | [351, -3974856, 93, -3, 123, 0, 3, -2, 20934587, 1, 20934585, 20934586, -10]                                                                                                                                                                                                                                                                                                                                                                  |
+      | floats      | [351.5, -3974856.01, -3.203957, 123.0002, 123.0001, 123.00013, 123.00011, 0.0100000, 0.0999999, 0.00000001, 3.0, 209345.87, -10.654]                                                                                                                                                                                                                                                                                                          |
+      | string      | ['Sort', 'order', ' ', 'should', 'be', '', 'consistent', 'with', 'comparisons', ', ', 'where', 'comparisons are', 'defined', '!']                                                                                                                                                                                                                                                                                                             |
+      | lists       | [[2, 2], [2, -2], [1, 2], [], [1], [300, 0], [1, -20], [2, -2, 100]]                                                                                                                                                                                                                                                                                                                                                                          |
+      | dates       | [date({year: 1910, month: 5, day: 6}), date({year: 1980, month: 12, day: 24}), date({year: 1984, month: 10, day: 12}), date({year: 1985, month: 5, day: 6}), date({year: 1980, month: 10, day: 24}), date({year: 1984, month: 10, day: 11})]                                                                                                                                                                                                  |
+      | localtimes  | [localtime({hour: 10, minute: 35}), localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}), localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876124}), localtime({hour: 12, minute: 35, second: 13}), localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123}), localtime({hour: 12, minute: 31, second: 15})]                                                                                           |
+      | times       | [time({hour: 10, minute: 35, timezone: '-08:00'}), time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}), time({hour: 12, minute: 31, second: 14, nanosecond: 645876124, timezone: '+01:00'}), time({hour: 12, minute: 35, second: 15, timezone: '+05:00'}), time({hour: 12, minute: 30, second: 14, nanosecond: 645876123, timezone: '+01:01'}), time({hour: 12, minute: 35, second: 15, timezone: '+01:00'})] |
 
-  Scenario Outline: [32] Fail on order by an undefined variable #Example: <exampleName>
+  Scenario Outline: [36] Fail on order by an undefined variable #Example: <exampleName>
     Given an empty graph
     And having executed:
       """
