@@ -244,8 +244,7 @@ Feature: WithOrderBy1 - Order by a single variable
               localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
               localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876124}),
               localtime({hour: 12, minute: 35, second: 13}),
-              localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123}),
-              localtime({hour: 12, minute: 31, second: 15})] AS localtimes
+              localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123})] AS localtimes
       WITH localtimes
         ORDER BY localtimes
         LIMIT 3
@@ -266,8 +265,7 @@ Feature: WithOrderBy1 - Order by a single variable
               localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123}),
               localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876124}),
               localtime({hour: 12, minute: 35, second: 13}),
-              localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123}),
-              localtime({hour: 12, minute: 31, second: 15})] AS localtimes
+              localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123})] AS localtimes
       WITH localtimes
         ORDER BY localtimes DESC
         LIMIT 3
@@ -276,8 +274,8 @@ Feature: WithOrderBy1 - Order by a single variable
     Then the result should be, in order:
       | localtimes           |
       | '12:35:13'           |
-      | '12:31:15'           |
       | '12:31:14.645876124' |
+      | '12:31:14.645876123' |
     And no side effects
 
   Scenario: [15] Sort times in the expected order
@@ -288,8 +286,7 @@ Feature: WithOrderBy1 - Order by a single variable
               time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
               time({hour: 12, minute: 31, second: 14, nanosecond: 645876124, timezone: '+01:00'}),
               time({hour: 12, minute: 35, second: 15, timezone: '+05:00'}),
-              time({hour: 12, minute: 30, second: 14, nanosecond: 645876123, timezone: '+01:01'}),
-              time({hour: 12, minute: 35, second: 15, timezone: '+01:00'})] AS times
+              time({hour: 12, minute: 30, second: 14, nanosecond: 645876123, timezone: '+01:01'})] AS times
       WITH times
         ORDER BY times
         LIMIT 3
@@ -310,8 +307,7 @@ Feature: WithOrderBy1 - Order by a single variable
               time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'}),
               time({hour: 12, minute: 31, second: 14, nanosecond: 645876124, timezone: '+01:00'}),
               time({hour: 12, minute: 35, second: 15, timezone: '+05:00'}),
-              time({hour: 12, minute: 30, second: 14, nanosecond: 645876123, timezone: '+01:01'}),
-              time({hour: 12, minute: 35, second: 15, timezone: '+01:00'})] AS times
+              time({hour: 12, minute: 30, second: 14, nanosecond: 645876123, timezone: '+01:01'})] AS times
       WITH times
         ORDER BY times DESC
         LIMIT 3
@@ -320,8 +316,8 @@ Feature: WithOrderBy1 - Order by a single variable
     Then the result should be, in order:
       | times                      |
       | '10:35-08:00'              |
-      | '12:35:15+01:00'           |
       | '12:31:14.645876124+01:00' |
+      | '12:31:14.645876123+01:00' |
     And no side effects
 
   Scenario: [17] Sort local date times in the expected order
@@ -762,7 +758,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | a                         | list         |
       | (:C {list: [300, 0]})     | [300, 0]     |
       | (:E {list: [2, -2, 100]}) | [2, -2, 100] |
-      | (:A {list: [2, -2]})      | [2, -2]   |
+      | (:A {list: [2, -2]})      | [2, -2]      |
     And no side effects
 
     Examples:
@@ -840,9 +836,8 @@ Feature: WithOrderBy1 - Order by a single variable
       CREATE (:A {time: localtime({hour: 10, minute: 35})}),
              (:B {time: localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})}),
              (:C {time: localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876124})}),
-             (:D {time: localtime({hour: 12, minute: 35, second: 13})}),
-             (:E {time: localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123})}),
-             (:F {time: localtime({hour: 12, minute: 31, second: 15})})
+             (:D {time: localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123})}),
+             (:E {time: localtime({hour: 12, minute: 31, second: 15})})
       """
     When executing query:
       """
@@ -856,7 +851,7 @@ Feature: WithOrderBy1 - Order by a single variable
     Then the result should be, in any order:
       | a                                 | time                 |
       | (:A {time: '10:35'})              | '10:35'              |
-      | (:E {time: '12:30:14.645876123'}) | '12:30:14.645876123' |
+      | (:D {time: '12:30:14.645876123'}) | '12:30:14.645876123' |
       | (:B {time: '12:31:14.645876123'}) | '12:31:14.645876123' |
     And no side effects
 
@@ -873,9 +868,8 @@ Feature: WithOrderBy1 - Order by a single variable
       CREATE (:A {time: localtime({hour: 10, minute: 35})}),
              (:B {time: localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876123})}),
              (:C {time: localtime({hour: 12, minute: 31, second: 14, nanosecond: 645876124})}),
-             (:D {time: localtime({hour: 12, minute: 35, second: 13})}),
-             (:E {time: localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123})}),
-             (:F {time: localtime({hour: 12, minute: 31, second: 15})})
+             (:D {time: localtime({hour: 12, minute: 30, second: 14, nanosecond: 645876123})}),
+             (:E {time: localtime({hour: 12, minute: 31, second: 15})})
       """
     When executing query:
       """
@@ -888,9 +882,9 @@ Feature: WithOrderBy1 - Order by a single variable
       """
     Then the result should be, in any order:
       | a                                 | time                 |
-      | (:D {time: '12:35:13'})           | '12:35:13'           |
-      | (:F {time: '12:31:15'})           | '12:31:15'           |
+      | (:E {time: '12:31:15'})           | '12:31:15'           |
       | (:C {time: '12:31:14.645876124'}) | '12:31:14.645876124' |
+      | (:B {time: '12:31:14.645876123'}) | '12:31:14.645876123' |
     And no side effects
 
     Examples:
@@ -906,8 +900,7 @@ Feature: WithOrderBy1 - Order by a single variable
              (:B {time: time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})}),
              (:C {time: time({hour: 12, minute: 31, second: 14, nanosecond: 645876124, timezone: '+01:00'})}),
              (:D {time: time({hour: 12, minute: 35, second: 15, timezone: '+05:00'})}),
-             (:E {time: time({hour: 12, minute: 30, second: 14, nanosecond: 645876123, timezone: '+01:01'})}),
-             (:F {time: time({hour: 12, minute: 35, second: 15, timezone: '+01:00'})})
+             (:E {time: time({hour: 12, minute: 30, second: 14, nanosecond: 645876123, timezone: '+01:01'})})
       """
     When executing query:
       """
@@ -939,8 +932,7 @@ Feature: WithOrderBy1 - Order by a single variable
              (:B {time: time({hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+01:00'})}),
              (:C {time: time({hour: 12, minute: 31, second: 14, nanosecond: 645876124, timezone: '+01:00'})}),
              (:D {time: time({hour: 12, minute: 35, second: 15, timezone: '+05:00'})}),
-             (:E {time: time({hour: 12, minute: 30, second: 14, nanosecond: 645876123, timezone: '+01:01'})}),
-             (:F {time: time({hour: 12, minute: 35, second: 15, timezone: '+01:00'})})
+             (:E {time: time({hour: 12, minute: 30, second: 14, nanosecond: 645876123, timezone: '+01:01'})})
       """
     When executing query:
       """
@@ -954,8 +946,8 @@ Feature: WithOrderBy1 - Order by a single variable
     Then the result should be, in any order:
       | a                                       | time                       |
       | (:A {time: '10:35-08:00'})              | '10:35-08:00'              |
-      | (:F {time: '12:35:15+01:00'})           | '12:35:15+01:00'           |
       | (:C {time: '12:31:14.645876124+01:00'}) | '12:31:14.645876124+01:00' |
+      | (:B {time: '12:31:14.645876123+01:00'}) | '12:31:14.645876123+01:00' |
     And no side effects
 
     Examples:
