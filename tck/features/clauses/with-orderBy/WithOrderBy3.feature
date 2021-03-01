@@ -260,36 +260,35 @@ Feature: WithOrderBy3 - Order by multiple expressions
       | a.num DESC, a.text ASC, 4+((a.num*2)%2) DESC  | 4   | a    |
 
   Scenario Outline: [7] The order direction cannot be overwritten
-    Given an any graph
+    Given any graph
     When executing query:
       """
-      UNWIND [1, 2, 3, 4] AS a
+      UNWIND [1, 2, 3]
       WITH a
         ORDER BY <sort>
-        LIMIT 2
+        LIMIT 1
       RETURN a
       """
     Then the result should be, in any order:
-      | a     |
-      | <1st> |
-      | <2nd> |
+      | a       |
+      | <value> |
     And no side effects
 
     Examples:
-      | sort              | 1st | 2nd |
-      | a ASC, a DESC     | 1   | 2   |
-      | a+2 ASC, a+2 DESC | 1   | 2   |
-      | a*a ASC, a*a DESC | 1   | 2   |
-      | a DESC, a ASC     | 2   | 1   |
-      | a+2 DESC, a+2 ASC | 2   | 1   |
-      | a*a DESC, a*a ASC | 2   | 1   |
+      | sort              | value |
+      | a ASC, a DESC     | 1     |
+      | a+2 ASC, a+2 DESC | 1     |
+      | a*a ASC, a*a DESC | 1     |
+      | a DESC, a ASC     | 3     |
+      | a+2 DESC, a+2 ASC | 3     |
+      | a*a DESC, a*a ASC | 3     |
 
   @NegativeTest
   Scenario Outline: [8] Fail on order by any number of undefined variables in any position #Example: <exampleName>
-    Given an any graph
+    Given any graph
     When executing query:
       """
-      WITH 1 AS a, WITH 'b' AS b, WITH 3 AS c, WITH true AS d
+      WITH 1 AS a, 'b' AS b, 3 AS c, true AS d
       WITH a, b
       WITH a
         ORDER BY <sort>
@@ -329,33 +328,3 @@ Feature: WithOrderBy3 - Order by multiple expressions
       | a, c, e, b          | mixed         |
       | b, c, a, f, a       | mixed         |
       | d, f, b, b, f, c, a | mixed         |
-
-
-  Scenario Outline: [9] The order direction cannot be overwritten
-    Given an any graph
-    When executing query:
-      """
-      UNWIND ['a', 'abc', '', 'ab', 'ipsum', 'lorem'] AS text
-      UNWIND [3, -2, 1, 4, 6] AS num
-      UNWIND [false, true] AS bool
-      UNWIND [300.5, 0.002, 1, -40.8] AS num2
-      UNWIND [[], ['a'], ['a', 1], [1], [1, 'a'], [1, null]] AS lists
-      WITH a
-        ORDER BY <sort>
-        LIMIT 2
-      RETURN a
-      """
-    Then the result should be, in any order:
-      | a     |
-      | <1st> |
-      | <2nd> |
-    And no side effects
-
-    Examples:
-      | sort              | 1st | 2nd |
-      | a ASC, a DESC     | 1   | 2   |
-      | a+2 ASC, a+2 DESC | 1   | 2   |
-      | a*a ASC, a*a DESC | 1   | 2   |
-      | a DESC, a ASC     | 2   | 1   |
-      | a+2 DESC, a+2 ASC | 2   | 1   |
-      | a*a DESC, a*a ASC | 2   | 1   |
