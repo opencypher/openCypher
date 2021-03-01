@@ -161,7 +161,7 @@ Feature: WithOrderBy3 - Order by multiple expressions
     Then the result should be, in any order:
       | a                             |
       | (:A {num: 9, bool: true})  |
-      | (:B {num: 5, bool: true})    |
+      | (:D {num: -41, bool: true})    |
       | (:E {num: 7054, bool: false}) |
       | (:B {num: 5, bool: false})   |
     And no side effects
@@ -263,7 +263,7 @@ Feature: WithOrderBy3 - Order by multiple expressions
     Given any graph
     When executing query:
       """
-      UNWIND [1, 2, 3]
+      UNWIND [1, 2, 3] AS a
       WITH a
         ORDER BY <sort>
         LIMIT 1
