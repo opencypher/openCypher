@@ -1081,7 +1081,48 @@ Feature: WithOrderBy1 - Order by a single variable
       | datetime DESC       |
       | datetime DESCENDING |
 
-  Scenario Outline: [43] Sort order should be consistent with comparisons where comparisons are defined #Example: <exampleName>
+  Scenario Outline: [43] Sorting by a variable that is only partially orderable on a non-distinct binding table
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [0, 2, 1, 2, 0, 1] AS x
+      WITH x
+        ORDER BY x <dir>
+        LIMIT 2
+      RETURN x
+      """
+    Then the result should be, in any order:
+      | x   |
+      | <x> |
+      | <x> |
+    And no side effects
+
+    Examples:
+      | dir  | x |
+      | ASC  | 0 |
+      | DESC | 2 |
+
+  Scenario Outline: [44] Sorting by a variable that is only partially orderable on a binding table made distinct
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [0, 2, 1, 2, 0, 1] AS x
+      WITH DISTINCT x
+        ORDER BY x <dir>
+        LIMIT 1
+      RETURN x
+      """
+    Then the result should be, in any order:
+      | x   |
+      | <x> |
+    And no side effects
+
+    Examples:
+      | dir  | x |
+      | ASC  | 0 |
+      | DESC | 2 |
+
+  Scenario Outline: [45] Sort order should be consistent with comparisons where comparisons are defined #Example: <exampleName>
     Given an empty graph
     When executing query:
       """
@@ -1112,7 +1153,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | datetimes      | [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 30, second: 14, nanosecond: 12, timezone: '+00:15'}), datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+00:17'}), datetime({year: 1, month: 1, day: 1, hour: 1, minute: 1, second: 1, nanosecond: 1, timezone: '-11:59'}), datetime({year: 9999, month: 9, day: 9, hour: 9, minute: 59, second: 59, nanosecond: 999999999, timezone: '+11:59'}), datetime({year: 1980, month: 12, day: 11, hour: 12, minute: 31, second: 14, timezone: '-11:59'})] |
 
   @NegativeTest
-  Scenario Outline: [44] Fail on order by an undefined variable #Example: <exampleName>
+  Scenario Outline: [46] Fail on order by an undefined variable #Example: <exampleName>
     Given an empty graph
     And having executed:
       """
