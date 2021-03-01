@@ -29,3 +29,333 @@
 #encoding: utf-8
 
 Feature: WithOrderBy3 - Order by multiple expressions
+# LIMIT is used in the following scenarios to surface the effects or WITH ... ORDER BY ...
+# which are otherwise lost after the WITH clause according to Cypher semantics
+
+  Scenario Outline: [1] Sort binding table by two expressions, both in ascending order
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 9, bool: true}),
+             (:B {num: 5, bool: false}),
+             (:C {num: -30, bool: false}),
+             (:D {num: -41, bool: true}),
+             (:E {num: 7054, bool: false})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a
+        ORDER BY <sort>
+        LIMIT 4
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                             |
+      | (:C {num: -30, bool: false})  |
+      | (:B {num: 5, bool: false})    |
+      | (:E {num: 7054, bool: false}) |
+      | (:D {num: -41, bool: true})   |
+    And no side effects
+
+    Examples:
+      | sort                              |
+      | a.bool, a.num                     |
+      | a.bool, a.num ASC                 |
+      | a.bool, a.num ASCENDING           |
+      | a.bool ASC, a.num                 |
+      | a.bool ASC, a.num ASC             |
+      | a.bool ASC, a.num ASCENDING       |
+      | a.bool ASCENDING, a.num           |
+      | a.bool ASCENDING, a.num ASC       |
+      | a.bool ASCENDING, a.num ASCENDING |
+
+  Scenario Outline: [2] Sort binding table by two expressions, first in ascending order, second in descending order
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 9, bool: true}),
+             (:B {num: 5, bool: false}),
+             (:C {num: -30, bool: false}),
+             (:D {num: -41, bool: true}),
+             (:E {num: 7054, bool: false})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a
+        ORDER BY <sort>
+        LIMIT 4
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                             |
+      | (:C {num: -30, bool: false})  |
+      | (:B {num: 5, bool: false})    |
+      | (:E {num: 7054, bool: false}) |
+      | (:A {num: 9, bool: true})     |
+    And no side effects
+
+    Examples:
+      | sort                               |
+      | a.bool, a.num DESC                 |
+      | a.bool, a.num DESCENDING           |
+      | a.bool ASC, a.num DESC             |
+      | a.bool ASC, a.num DESCENDING       |
+      | a.bool ASCENDING, a.num DESC       |
+      | a.bool ASCENDING, a.num DESCENDING |
+
+  Scenario Outline: [3] Sort binding table by two expressions, first in descending order, second in ascending order
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 9, bool: true}),
+             (:B {num: 5, bool: false}),
+             (:C {num: -30, bool: false}),
+             (:D {num: -41, bool: true}),
+             (:E {num: 7054, bool: false})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a
+        ORDER BY <sort>
+        LIMIT 4
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                            |
+      | (:D {num: -41, bool: true})  |
+      | (:A {num: 9, bool: true})    |
+      | (:C {num: -30, bool: false}) |
+      | (:B {num: 5, bool: false})   |
+    And no side effects
+
+    Examples:
+      | sort                               |
+      | a.bool DESC, a.num                 |
+      | a.bool DESC, a.num ASC             |
+      | a.bool DESC, a.num ASCENDING       |
+      | a.bool DESCENDING, a.num           |
+      | a.bool DESCENDING, a.num ASC       |
+      | a.bool DESCENDING, a.num ASCENDING |
+
+  Scenario Outline: [4] Sort binding table by two expressions, both in descending order
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A {num: 9, bool: true}),
+             (:B {num: 5, bool: false}),
+             (:C {num: -30, bool: false}),
+             (:D {num: -41, bool: true}),
+             (:E {num: 7054, bool: false})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a
+        ORDER BY <sort>
+        LIMIT 4
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                             |
+      | (:A {num: 9, bool: true})  |
+      | (:B {num: 5, bool: true})    |
+      | (:E {num: 7054, bool: false}) |
+      | (:B {num: 5, bool: false})   |
+    And no side effects
+
+    Examples:
+      | sort                                |
+      | a.bool DESC, a.num DESC             |
+      | a.bool DESC, a.num DESCENDING       |
+      | a.bool DESCENDING, a.num DESC       |
+      | a.bool DESCENDING, a.num DESCENDING |
+
+  Scenario Outline: [5] An expression without explicit sort direction is sorted in ascending order
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({num: 3, text: 'a'}),
+             ({num: 3, text: 'b'}),
+             ({num: 1, text: 'a'}),
+             ({num: 1, text: 'b'}),
+             ({num: 2, text: 'a'}),
+             ({num: 2, text: 'b'}),
+             ({num: 4, text: 'a'}),
+             ({num: 4, text: 'b'})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a
+        ORDER BY a.num % 2 <dir1>, a.num, a.text <dir2>
+        LIMIT 1
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                                    |
+      | ({num: <num>, text: '<text>'}) |
+    And no side effects
+
+    Examples:
+      | dir1 | dir2 | num | text |
+      | ASC  | ASC  | 2   | a    |
+      | ASC  | DESC | 2   | b    |
+      | DESC | DESC | 1   | b    |
+      | DESC | ASC  | 1   | a    |
+
+  Scenario Outline: [6] An constant expression does not influence the order determined by other expression before and after the constant expression
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({num: 3, text: 'a'}),
+             ({num: 3, text: 'b'}),
+             ({num: 1, text: 'a'}),
+             ({num: 1, text: 'b'}),
+             ({num: 2, text: 'a'}),
+             ({num: 2, text: 'b'}),
+             ({num: 4, text: 'a'}),
+             ({num: 4, text: 'b'})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a
+        ORDER BY <sort>
+        LIMIT 1
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a                                    |
+      | ({num: <num>, text: '<text>'}) |
+    And no side effects
+
+    Examples:
+      | sort                                          | num | text |
+      | 4+((a.num*2)%2) ASC, a.num ASC, a.text ASC    | 1   | a    |
+      | 4+((a.num*2)%2) DESC, a.num ASC, a.text ASC   | 1   | a    |
+      | a.num ASC, 4+((a.num*2)%2) ASC, a.text ASC    | 1   | a    |
+      | a.num ASC, 4+((a.num*2)%2) DESC, a.text ASC   | 1   | a    |
+      | a.num ASC, a.text ASC, 4+((a.num*2)%2) ASC    | 1   | a    |
+      | a.num ASC, a.text ASC, 4+((a.num*2)%2) DESC   | 1   | a    |
+      | 4+((a.num*2)%2) ASC, a.num ASC, a.text DESC   | 1   | b    |
+      | 4+((a.num*2)%2) DESC, a.num ASC, a.text DESC  | 1   | b    |
+      | a.num ASC, 4+((a.num*2)%2) ASC, a.text DESC   | 1   | b    |
+      | a.num ASC, 4+((a.num*2)%2) DESC, a.text DESC  | 1   | b    |
+      | a.num ASC, a.text DESC, 4+((a.num*2)%2) ASC   | 1   | b    |
+      | a.num ASC, a.text DESC, 4+((a.num*2)%2) DESC  | 1   | b    |
+      | 4+((a.num*2)%2) ASC, a.num DESC, a.text DESC  | 4   | b    |
+      | 4+((a.num*2)%2) DESC, a.num DESC, a.text DESC | 4   | b    |
+      | a.num DESC, 4+((a.num*2)%2) ASC, a.text DESC  | 4   | b    |
+      | a.num DESC, 4+((a.num*2)%2) DESC, a.text DESC | 4   | b    |
+      | a.num DESC, a.text DESC, 4+((a.num*2)%2) ASC  | 4   | b    |
+      | a.num DESC, a.text DESC, 4+((a.num*2)%2) DESC | 4   | b    |
+      | 4+((a.num*2)%2) ASC, a.num DESC, a.text ASC   | 4   | a    |
+      | 4+((a.num*2)%2) DESC, a.num DESC, a.text ASC  | 4   | a    |
+      | a.num DESC, 4+((a.num*2)%2) ASC, a.text ASC   | 4   | a    |
+      | a.num DESC, 4+((a.num*2)%2) DESC, a.text ASC  | 4   | a    |
+      | a.num DESC, a.text ASC, 4+((a.num*2)%2) ASC   | 4   | a    |
+      | a.num DESC, a.text ASC, 4+((a.num*2)%2) DESC  | 4   | a    |
+
+  Scenario Outline: [7] The order direction cannot be overwritten
+    Given an any graph
+    When executing query:
+      """
+      UNWIND [1, 2, 3, 4] AS a
+      WITH a
+        ORDER BY <sort>
+        LIMIT 2
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a     |
+      | <1st> |
+      | <2nd> |
+    And no side effects
+
+    Examples:
+      | sort              | 1st | 2nd |
+      | a ASC, a DESC     | 1   | 2   |
+      | a+2 ASC, a+2 DESC | 1   | 2   |
+      | a*a ASC, a*a DESC | 1   | 2   |
+      | a DESC, a ASC     | 2   | 1   |
+      | a+2 DESC, a+2 ASC | 2   | 1   |
+      | a*a DESC, a*a ASC | 2   | 1   |
+
+  @NegativeTest
+  Scenario Outline: [8] Fail on order by any number of undefined variables in any position #Example: <exampleName>
+    Given an any graph
+    When executing query:
+      """
+      WITH 1 AS a, WITH 'b' AS b, WITH 3 AS c, WITH true AS d
+      WITH a, b
+      WITH a
+        ORDER BY <sort>
+      RETURN a
+      """
+    Then a SyntaxError should be raised at compile time: UndefinedVariable
+
+    Examples:
+      | sort                | exampleName   |
+      | a, c                | out of scope  |
+      | a, c ASC            | out of scope  |
+      | a, c DESC           | out of scope  |
+      | a, c, d             | out of scope  |
+      | a, c ASC, d         | out of scope  |
+      | a, c DESC, d        | out of scope  |
+      | c, a, d             | out of scope  |
+      | c ASC, a, d         | out of scope  |
+      | c DESC, a, d        | out of scope  |
+      | c, d, a             | out of scope  |
+      | b, c, d, a          | out of scope  |
+      | c, b, c, d, a       | out of scope  |
+      | c, d, b, b, d, c, a | out of scope  |
+      | a, e                | never defined |
+      | a, e ASC            | never defined |
+      | a, e DESC           | never defined |
+      | a, e, f             | never defined |
+      | a, e ASC, f         | never defined |
+      | a, e DESC, f        | never defined |
+      | e, a, f             | never defined |
+      | e ASC, a, f         | never defined |
+      | e DESC, a, f        | never defined |
+      | e, f, a             | never defined |
+      | b, e, f, a          | never defined |
+      | e, b, e, f, a       | never defined |
+      | e, f, b, b, f, e, a | never defined |
+      | a, c, e             | mixed         |
+      | a, c, e, b          | mixed         |
+      | b, c, a, f, a       | mixed         |
+      | d, f, b, b, f, c, a | mixed         |
+
+
+  Scenario Outline: [9] The order direction cannot be overwritten
+    Given an any graph
+    When executing query:
+      """
+      UNWIND ['a', 'abc', '', 'ab', 'ipsum', 'lorem'] AS text
+      UNWIND [3, -2, 1, 4, 6] AS num
+      UNWIND [false, true] AS bool
+      UNWIND [300.5, 0.002, 1, -40.8] AS num2
+      UNWIND [[], ['a'], ['a', 1], [1], [1, 'a'], [1, null]] AS lists
+      WITH a
+        ORDER BY <sort>
+        LIMIT 2
+      RETURN a
+      """
+    Then the result should be, in any order:
+      | a     |
+      | <1st> |
+      | <2nd> |
+    And no side effects
+
+    Examples:
+      | sort              | 1st | 2nd |
+      | a ASC, a DESC     | 1   | 2   |
+      | a+2 ASC, a+2 DESC | 1   | 2   |
+      | a*a ASC, a*a DESC | 1   | 2   |
+      | a DESC, a ASC     | 2   | 1   |
+      | a+2 DESC, a+2 ASC | 2   | 1   |
+      | a*a DESC, a*a ASC | 2   | 1   |
