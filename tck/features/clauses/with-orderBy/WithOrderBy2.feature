@@ -29,6 +29,8 @@
 #encoding: utf-8
 
 Feature: WithOrderBy2 - Order by a single expression
+# LIMIT is used in the following scenarios to surface the effects or WITH ... ORDER BY ...
+# which are otherwise lost after the WITH clause according to Cypher semantics
 
   Scenario: [1] ORDER BY on an aggregating key
     Given an empty graph
