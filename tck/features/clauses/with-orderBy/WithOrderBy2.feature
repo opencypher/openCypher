@@ -72,8 +72,49 @@ Feature: WithOrderBy2 - Order by a single expression
       | 'B'  |
     And no side effects
 
+  Scenario Outline: [3] Sorting by an expression that is only partially orderable on a non-distinct binding table
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [0, 2, 1, 2, 0, 1] AS x
+      WITH x
+        ORDER BY 5 * x + 4 <dir>
+        LIMIT 2
+      RETURN x
+      """
+    Then the result should be, in any order:
+      | x   |
+      | <x> |
+      | <x> |
+    And no side effects
+
+    Examples:
+      | dir  | x |
+      | ASC  | 0 |
+      | DESC | 2 |
+
+  Scenario Outline: [4] Sorting by an expression that is only partially orderable on a binding table made distinct
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [0, 2, 1, 2, 0, 1] AS x
+      WITH DISTINCT x
+        ORDER BY 5 * x + 4 <dir>
+        LIMIT 1
+      RETURN x
+      """
+    Then the result should be, in any order:
+      | x   |
+      | <x> |
+    And no side effects
+
+    Examples:
+      | dir  | x |
+      | ASC  | 0 |
+      | DESC | 2 |
+
   @NegativeTest
-  Scenario: [3] Fail on aggregation in ORDER BY after WITH
+  Scenario: [5] Fail on aggregation in ORDER BY after WITH
     Given any graph
     When executing query:
       """
