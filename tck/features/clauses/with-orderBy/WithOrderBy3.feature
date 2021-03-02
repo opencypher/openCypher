@@ -32,7 +32,7 @@ Feature: WithOrderBy3 - Order by multiple expressions
 # LIMIT is used in the following scenarios to surface the effects or WITH ... ORDER BY ...
 # which are otherwise lost after the WITH clause according to Cypher semantics
 
-  Scenario Outline: [1] Sort binding table by two expressions, both in ascending order
+  Scenario Outline: [1] Sort by two expressions, both in ascending order
     Given an empty graph
     And having executed:
       """
@@ -70,7 +70,7 @@ Feature: WithOrderBy3 - Order by multiple expressions
       | a.bool ASCENDING, a.num ASC       |
       | a.bool ASCENDING, a.num ASCENDING |
 
-  Scenario Outline: [2] Sort binding table by two expressions, first in ascending order, second in descending order
+  Scenario Outline: [2] Sort by two expressions, first in ascending order, second in descending order
     Given an empty graph
     And having executed:
       """
@@ -105,7 +105,7 @@ Feature: WithOrderBy3 - Order by multiple expressions
       | a.bool ASCENDING, a.num DESC       |
       | a.bool ASCENDING, a.num DESCENDING |
 
-  Scenario Outline: [3] Sort binding table by two expressions, first in descending order, second in ascending order
+  Scenario Outline: [3] Sort by two expressions, first in descending order, second in ascending order
     Given an empty graph
     And having executed:
       """
@@ -140,7 +140,7 @@ Feature: WithOrderBy3 - Order by multiple expressions
       | a.bool DESCENDING, a.num ASC       |
       | a.bool DESCENDING, a.num ASCENDING |
 
-  Scenario Outline: [4] Sort binding table by two expressions, both in descending order
+  Scenario Outline: [4] Sort by two expressions, both in descending order
     Given an empty graph
     And having executed:
       """
@@ -284,7 +284,7 @@ Feature: WithOrderBy3 - Order by multiple expressions
       | a*a DESC, a*a ASC | 3     |
 
   @NegativeTest
-  Scenario Outline: [8] Fail on order by any number of undefined variables in any position #Example: <exampleName>
+  Scenario Outline: [8] Fail on sorting by any number of undefined variables in any position #Example: <exampleName>
     Given any graph
     When executing query:
       """
