@@ -567,9 +567,9 @@ Feature: WithOrderBy1 - Order by a single variable
       """
     Then the result should be, in any order:
       | a                | num  |
-      | (:A {num: 9})    | 9    |
-      | (:C {num: 30})   | 30   |
       | (:E {num: 7054}) | 7054 |
+      | (:C {num: 30})   | 30   |
+      | (:A {num: 9})    | 9    |
     And no side effects
 
     Examples:
