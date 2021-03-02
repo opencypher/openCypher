@@ -77,7 +77,7 @@ Feature: WithOrderBy2 - Order by a single expression
       MATCH (a)
       WITH a
         ORDER BY <sort>
-        LIMIT 2
+        LIMIT 3
       RETURN a
       """
     Then the result should be, in any order:
@@ -362,10 +362,10 @@ Feature: WithOrderBy2 - Order by a single expression
     And no side effects
 
     Examples:
-      | sort                                            |
-      | date + duration({months: 1, days: 2})           |
-      | date + duration({months: 1, days: 2}) ASC       |
-      | date + duration({months: 1, days: 2}) ASCENDING |
+      | sort                                              |
+      | a.date + duration({months: 1, days: 2})           |
+      | a.date + duration({months: 1, days: 2}) ASC       |
+      | a.date + duration({months: 1, days: 2}) ASCENDING |
 
   Scenario Outline: [12] Sort by a date expression in descending order
     Given an empty graph
@@ -393,9 +393,9 @@ Feature: WithOrderBy2 - Order by a single expression
     And no side effects
 
     Examples:
-      | sort                                             |
-      | date + duration({months: 1, days: 2}) DESC       |
-      | date + duration({months: 1, days: 2}) DESCENDING |
+      | sort                                               |
+      | a.date + duration({months: 1, days: 2}) DESC       |
+      | a.date + duration({months: 1, days: 2}) DESCENDING |
 
   Scenario Outline: [13] Sort by a local time expression in ascending order
     Given an empty graph
@@ -423,10 +423,10 @@ Feature: WithOrderBy2 - Order by a single expression
     And no side effects
 
     Examples:
-      | sort                                    |
-      | time + duration({minutes: 6})           |
-      | time + duration({minutes: 6}) ASC       |
-      | time + duration({minutes: 6}) ASCENDING |
+      | sort                                      |
+      | a.time + duration({minutes: 6})           |
+      | a.time + duration({minutes: 6}) ASC       |
+      | a.time + duration({minutes: 6}) ASCENDING |
 
   Scenario Outline: [14] Sort by a local time expression in descending order
     Given an empty graph
@@ -454,9 +454,9 @@ Feature: WithOrderBy2 - Order by a single expression
     And no side effects
 
     Examples:
-      | sort                                     |
-      | time + duration({minutes: 6}) DESC       |
-      | time + duration({minutes: 6}) DESCENDING |
+      | sort                                       |
+      | a.time + duration({minutes: 6}) DESC       |
+      | a.time + duration({minutes: 6}) DESCENDING |
 
   Scenario Outline: [15] Sort by a time expression in ascending order
     Given an empty graph
@@ -484,10 +484,10 @@ Feature: WithOrderBy2 - Order by a single expression
     And no side effects
 
     Examples:
-      | sort                                    |
-      | time + duration({minutes: 6})           |
-      | time + duration({minutes: 6}) ASC       |
-      | time + duration({minutes: 6}) ASCENDING |
+      | sort                                      |
+      | a.time + duration({minutes: 6})           |
+      | a.time + duration({minutes: 6}) ASC       |
+      | a.time + duration({minutes: 6}) ASCENDING |
 
   Scenario Outline: [16] Sort by a time expression in descending order
     Given an empty graph
@@ -515,9 +515,9 @@ Feature: WithOrderBy2 - Order by a single expression
     And no side effects
 
     Examples:
-      | sort                                     |
-      | time + duration({minutes: 6}) DESC       |
-      | time + duration({minutes: 6}) DESCENDING |
+      | sort                                       |
+      | a.time + duration({minutes: 6}) DESC       |
+      | a.time + duration({minutes: 6}) DESCENDING |
 
   Scenario Outline: [17] Sort by a local date time expression in ascending order
     Given an empty graph
@@ -545,10 +545,10 @@ Feature: WithOrderBy2 - Order by a single expression
     And no side effects
 
     Examples:
-      | sort                                                 |
-      | datetime + duration({days: 4, minutes: 6})           |
-      | datetime + duration({days: 4, minutes: 6}) ASC       |
-      | datetime + duration({days: 4, minutes: 6}) ASCENDING |
+      | sort                                                   |
+      | a.datetime + duration({days: 4, minutes: 6})           |
+      | a.datetime + duration({days: 4, minutes: 6}) ASC       |
+      | a.datetime + duration({days: 4, minutes: 6}) ASCENDING |
 
   Scenario Outline: [18] Sort by a local date time expression in descending order
     Given an empty graph
@@ -576,9 +576,9 @@ Feature: WithOrderBy2 - Order by a single expression
     And no side effects
 
     Examples:
-      | sort                                                  |
-      | datetime + duration({days: 4, minutes: 6}) DESC       |
-      | datetime + duration({days: 4, minutes: 6}) DESCENDING |
+      | sort                                                    |
+      | a.datetime + duration({days: 4, minutes: 6}) DESC       |
+      | a.datetime + duration({days: 4, minutes: 6}) DESCENDING |
 
   Scenario Outline: [19] Sort by a date time expression in ascending order
     Given an empty graph
@@ -606,10 +606,10 @@ Feature: WithOrderBy2 - Order by a single expression
     And no side effects
 
     Examples:
-      | sort               |
-      | datetime + duration({days: 4, minutes: 6})           |
-      | datetime + duration({days: 4, minutes: 6}) ASC       |
-      | datetime + duration({days: 4, minutes: 6}) ASCENDING |
+      | sort                                                   |
+      | a.datetime + duration({days: 4, minutes: 6})           |
+      | a.datetime + duration({days: 4, minutes: 6}) ASC       |
+      | a.datetime + duration({days: 4, minutes: 6}) ASCENDING |
 
   Scenario Outline: [20] Sort by a date time expression in descending order
     Given an empty graph
@@ -637,9 +637,9 @@ Feature: WithOrderBy2 - Order by a single expression
     And no side effects
 
     Examples:
-      | sort                                                  |
-      | datetime + duration({days: 4, minutes: 6}) DESC       |
-      | datetime + duration({days: 4, minutes: 6}) DESCENDING |
+      | sort                                                    |
+      | a.datetime + duration({days: 4, minutes: 6}) DESC       |
+      | a.datetime + duration({days: 4, minutes: 6}) DESCENDING |
 
   Scenario Outline: [21] Sort by an expression that is only partially orderable on a non-distinct binding table
     Given an empty graph
@@ -654,21 +654,21 @@ Feature: WithOrderBy2 - Order by a single expression
     When executing query:
       """
       MATCH (a)
-      WITH a.name
+      WITH a.name AS name
         ORDER BY a.name + 'C' <dir>
         LIMIT 2
-      RETURN name, cnt
+      RETURN name
       """
     Then the result should be, in any order:
-      | x   |
-      | <x> |
-      | <x> |
+      | name |
+      | <x>  |
+      | <x>  |
     And no side effects
 
     Examples:
-      | dir  | x    |
-      | ASC  | 'AC' |
-      | DESC | 'CC' |
+      | dir  | x   |
+      | ASC  | 'A' |
+      | DESC | 'C' |
 
   Scenario Outline: [22] Sort by an expression that is only partially orderable on a non-distinct binding table, but used as a grouping key
     Given an empty graph
@@ -685,12 +685,11 @@ Feature: WithOrderBy2 - Order by a single expression
       MATCH (a)
       WITH a.name AS name, count(*) AS cnt
         ORDER BY a.name <dir>
-        LIMIT 2
+        LIMIT 1
       RETURN name, cnt
       """
     Then the result should be, in any order:
       | name | cnt |
-      | <x>  | 2   |
       | <x>  | 2   |
     And no side effects
 
@@ -714,19 +713,18 @@ Feature: WithOrderBy2 - Order by a single expression
       MATCH (a)
       WITH a.name AS name, count(*) AS cnt
         ORDER BY a.name + 'C' <dir>
-        LIMIT 2
+        LIMIT 1
       RETURN name, cnt
       """
     Then the result should be, in any order:
       | name | cnt |
       | <x>  | 2   |
-      | <x>  | 2   |
     And no side effects
 
     Examples:
-      | dir  | x    |
-      | ASC  | 'AC' |
-      | DESC | 'CC' |
+      | dir  | x   |
+      | ASC  | 'A' |
+      | DESC | 'C' |
 
   Scenario Outline: [24] Sort by an expression that is only partially orderable on a non-distinct binding table, but made distinct
     Given an empty graph
@@ -743,12 +741,11 @@ Feature: WithOrderBy2 - Order by a single expression
       MATCH (a)
       WITH DISTINCT a.name AS name
         ORDER BY a.name <dir>
-        LIMIT 2
+        LIMIT 1
       RETURN *
       """
     Then the result should be, in any order:
       | name |
-      | <x>  |
       | <x>  |
     And no side effects
 
