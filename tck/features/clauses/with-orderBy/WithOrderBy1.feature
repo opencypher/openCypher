@@ -32,7 +32,7 @@ Feature: WithOrderBy1 - Order by a single variable
 # LIMIT is used in the following scenarios to surface the effects or WITH ... ORDER BY ...
 # which are otherwise lost after the WITH clause according to Cypher semantics
 
-  Scenario: [1] Sort booleans in the expected order
+  Scenario: [1] Sort booleans in ascending order
     Given an empty graph
     When executing query:
       """
@@ -47,7 +47,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | false |
     And no side effects
 
-  Scenario: [2] Sort booleans in the expected reverse order
+  Scenario: [2] Sort booleans in descending order
     Given an empty graph
     When executing query:
       """
@@ -62,7 +62,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | true  |
     And no side effects
 
-  Scenario: [3] Sort integers in the expected order
+  Scenario: [3] Sort integers in ascending order
     Given an empty graph
     When executing query:
       """
@@ -78,7 +78,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | 2    |
     And no side effects
 
-  Scenario: [4] Sort integers in the expected reverse order
+  Scenario: [4] Sort integers in descending order
     Given an empty graph
     When executing query:
       """
@@ -94,7 +94,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | 2    |
     And no side effects
 
-  Scenario: [5] Sort floats in the expected order
+  Scenario: [5] Sort floats in ascending order
     Given an empty graph
     When executing query:
       """
@@ -110,7 +110,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | 1.5    |
     And no side effects
 
-  Scenario: [6] Sort floats in the expected order
+  Scenario: [6] Sort floats in descending order
     Given an empty graph
     When executing query:
       """
@@ -126,7 +126,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | 1.5    |
     And no side effects
 
-  Scenario: [7] Sort strings in the expected order
+  Scenario: [7] Sort strings in ascending order
     Given an empty graph
     When executing query:
       """
@@ -142,7 +142,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | ' '     |
     And no side effects
 
-  Scenario: [8] Sort strings in the expected reverse order
+  Scenario: [8] Sort strings in descending order
     Given an empty graph
     When executing query:
       """
@@ -158,7 +158,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | '.*'    |
     And no side effects
 
-  Scenario: [9] Sort lists in the expected order
+  Scenario: [9] Sort lists in ascending order
     Given an empty graph
     When executing query:
       """
@@ -176,7 +176,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | [1]       |
     And no side effects
 
-  Scenario: [10] Sort lists in the expected reverse order
+  Scenario: [10] Sort lists in descending order
     Given an empty graph
     When executing query:
       """
@@ -194,7 +194,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | [1, 'a']  |
     And no side effects
 
-  Scenario: [11] Sort dates in the expected order
+  Scenario: [11] Sort dates in ascending order
     Given an empty graph
     When executing query:
       """
@@ -215,7 +215,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1980-10-24' |
     And no side effects
 
-  Scenario: [12] Sort dates in the expected reverse order
+  Scenario: [12] Sort dates in descending order
     Given an empty graph
     When executing query:
       """
@@ -236,7 +236,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1984-10-12' |
     And no side effects
 
-  Scenario: [13] Sort local times in the expected order
+  Scenario: [13] Sort local times in ascending order
     Given an empty graph
     When executing query:
       """
@@ -257,7 +257,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | '12:31:14.645876123' |
     And no side effects
 
-  Scenario: [14] Sort local times in the expected reverse order
+  Scenario: [14] Sort local times in descending order
     Given an empty graph
     When executing query:
       """
@@ -278,7 +278,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | '12:31:14.645876123' |
     And no side effects
 
-  Scenario: [15] Sort times in the expected order
+  Scenario: [15] Sort times in ascending order
     Given an empty graph
     When executing query:
       """
@@ -299,7 +299,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | '12:31:14.645876123+01:00' |
     And no side effects
 
-  Scenario: [16] Sort times in the expected reverse order
+  Scenario: [16] Sort times in descending order
     Given an empty graph
     When executing query:
       """
@@ -320,7 +320,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | '12:31:14.645876123+01:00' |
     And no side effects
 
-  Scenario: [17] Sort local date times in the expected order
+  Scenario: [17] Sort local date times in ascending order
     Given an empty graph
     When executing query:
       """
@@ -341,7 +341,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1984-10-11T12:30:14.000000012' |
     And no side effects
 
-  Scenario: [18] Sort local date times in the expected reverse order
+  Scenario: [18] Sort local date times in descending order
     Given an empty graph
     When executing query:
       """
@@ -362,7 +362,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1984-10-11T12:30:14.000000012' |
     And no side effects
 
-  Scenario: [19] Sort date times in the expected order
+  Scenario: [19] Sort date times in ascending order
     Given an empty graph
     When executing query:
       """
@@ -383,7 +383,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1984-10-11T12:31:14.645876123+00:17' |
     And no side effects
 
-  Scenario: [20] Sort date times in the expected reverse order
+  Scenario: [20] Sort date times in descending order
     Given an empty graph
     When executing query:
       """
@@ -404,7 +404,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1984-10-11T12:31:14.645876123+00:17' |
     And no side effects
 
-  Scenario: [21] Sort distinct types in the expected order
+  Scenario: [21] Sort distinct types in ascending order
     Given an empty graph
     And having executed:
       """
@@ -428,7 +428,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | <(:N)-[:REL]->()> |
     And no side effects
 
-  Scenario: [22] Sort distinct types in the expected reverse order
+  Scenario: [22] Sort distinct types in descending order
     Given an empty graph
     And having executed:
       """
@@ -452,7 +452,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | 'text'            |
     And no side effects
 
-  Scenario Outline: [23] Sort binding table in ascending order by a boolean variable projected from a node property
+  Scenario Outline: [23] Sort by a boolean variable projected from a node property in ascending order
     Given an empty graph
     And having executed:
       """
@@ -484,7 +484,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | bool ASC       |
       | bool ASCENDING |
 
-  Scenario Outline: [24] Sort binding table in descending order by a boolean variable projected from a node property
+  Scenario Outline: [24] Sort by a boolean variable projected from a node property in descending order
     Given an empty graph
     And having executed:
       """
@@ -514,7 +514,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | bool DESC       |
       | bool DESCENDING |
 
-  Scenario Outline: [25] Sort binding table in ascending order by an integer variable projected from a node property
+  Scenario Outline: [25] Sort by an integer variable projected from a node property in ascending order
     Given an empty graph
     And having executed:
       """
@@ -546,7 +546,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num ASC       |
       | num ASCENDING |
 
-  Scenario Outline: [26] Sort binding table in descending order by an integer variable projected from a node property
+  Scenario Outline: [26] Sort by an integer variable projected from a node property in descending order
     Given an empty graph
     And having executed:
       """
@@ -577,7 +577,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num DESC       |
       | num DESCENDING |
 
-  Scenario Outline: [27] Sort binding table in ascending order by a float variable projected from a node property
+  Scenario Outline: [27] Sort by a float variable projected from a node property in ascending order
     Given an empty graph
     And having executed:
       """
@@ -609,7 +609,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num ASC       |
       | num ASCENDING |
 
-  Scenario Outline: [28] Sort binding table in descending order by a float variable projected from a node property
+  Scenario Outline: [28] Sort by a float variable projected from a node property in descending order
     Given an empty graph
     And having executed:
       """
@@ -640,7 +640,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | num DESC       |
       | num DESCENDING |
 
-  Scenario Outline: [29] Sort binding table in ascending order by a string variable projected from a node property
+  Scenario Outline: [29] Sort by a string variable projected from a node property in ascending order
     Given an empty graph
     And having executed:
       """
@@ -672,7 +672,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | name ASC       |
       | name ASCENDING |
 
-  Scenario Outline: [30] Sort binding table in descending order by a string variable projected from a node property
+  Scenario Outline: [30] Sort by a string variable projected from a node property in descending order
     Given an empty graph
     And having executed:
       """
@@ -703,7 +703,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | name DESC       |
       | name DESCENDING |
 
-  Scenario Outline: [31] Sort binding table in ascending order by a list variable projected from a node property
+  Scenario Outline: [31] Sort by a list variable projected from a node property in ascending order
     Given an empty graph
     And having executed:
       """
@@ -735,7 +735,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | list ASC       |
       | list ASCENDING |
 
-  Scenario Outline: [32] Sort binding table in descending order by a list variable projected from a node property
+  Scenario Outline: [32] Sort by a list variable projected from a node property in descending order
     Given an empty graph
     And having executed:
       """
@@ -766,7 +766,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | list DESC       |
       | list DESCENDING |
 
-  Scenario Outline: [33] Sort binding table in ascending order by a date variable projected from a node property
+  Scenario Outline: [33] Sort by a date variable projected from a node property in ascending order
     Given an empty graph
     And having executed:
       """
@@ -798,7 +798,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | date ASC       |
       | date ASCENDING |
 
-  Scenario Outline: [34] Sort binding table in descending order by a date variable projected from a node property
+  Scenario Outline: [34] Sort by a date variable projected from a node property in descending order
     Given an empty graph
     And having executed:
       """
@@ -829,7 +829,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | date DESC       |
       | date DESCENDING |
 
-  Scenario Outline: [35] Sort binding table in ascending order by a local time variable projected from a node property
+  Scenario Outline: [35] Sort by a local time variable projected from a node property in ascending order
     Given an empty graph
     And having executed:
       """
@@ -861,7 +861,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | time ASC       |
       | time ASCENDING |
 
-  Scenario Outline: [36] Sort binding table in descending order by a local time variable projected from a node property
+  Scenario Outline: [36] Sort by a local time variable projected from a node property in descending order
     Given an empty graph
     And having executed:
       """
@@ -892,7 +892,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | time DESC       |
       | time DESCENDING |
 
-  Scenario Outline: [37] Sort binding table in ascending order by a time variable projected from a node property
+  Scenario Outline: [37] Sort by a time variable projected from a node property in ascending order
     Given an empty graph
     And having executed:
       """
@@ -924,7 +924,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | time ASC       |
       | time ASCENDING |
 
-  Scenario Outline: [38] Sort binding table in descending order by a time variable projected from a node property
+  Scenario Outline: [38] Sort by a time variable projected from a node property in descending order
     Given an empty graph
     And having executed:
       """
@@ -955,7 +955,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | time DESC       |
       | time DESCENDING |
 
-  Scenario Outline: [39] Sort binding table in ascending order by a local date time variable projected from a node property
+  Scenario Outline: [39] Sort by a local date time variable projected from a node property in ascending order
     Given an empty graph
     And having executed:
       """
@@ -987,7 +987,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | datetime ASC       |
       | datetime ASCENDING |
 
-  Scenario Outline: [40] Sort binding table in descending order by a local date time variable projected from a node property
+  Scenario Outline: [40] Sort by a local date time variable projected from a node property in descending order
     Given an empty graph
     And having executed:
       """
@@ -1018,7 +1018,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | datetime DESC       |
       | datetime DESCENDING |
 
-  Scenario Outline: [41] Sort binding table in ascending order by a date time variable projected from a node property
+  Scenario Outline: [41] Sort by a date time variable projected from a node property in ascending order
     Given an empty graph
     And having executed:
       """
@@ -1050,7 +1050,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | datetime ASC       |
       | datetime ASCENDING |
 
-  Scenario Outline: [42] Sort binding table in descending order by a date time variable projected from a node property
+  Scenario Outline: [42] Sort by a date time variable projected from a node property in descending order
     Given an empty graph
     And having executed:
       """
@@ -1153,7 +1153,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | datetimes      | [datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 30, second: 14, nanosecond: 12, timezone: '+00:15'}), datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 31, second: 14, nanosecond: 645876123, timezone: '+00:17'}), datetime({year: 1, month: 1, day: 1, hour: 1, minute: 1, second: 1, nanosecond: 1, timezone: '-11:59'}), datetime({year: 9999, month: 9, day: 9, hour: 9, minute: 59, second: 59, nanosecond: 999999999, timezone: '+11:59'}), datetime({year: 1980, month: 12, day: 11, hour: 12, minute: 31, second: 14, timezone: '-11:59'})] |
 
   @NegativeTest
-  Scenario Outline: [46] Fail on order by an undefined variable #Example: <exampleName>
+  Scenario Outline: [46] Fail on sorting by an undefined variable #Example: <exampleName>
     Given an empty graph
     And having executed:
       """
