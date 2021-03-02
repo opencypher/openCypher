@@ -32,7 +32,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 # LIMIT is used in the following scenarios to surface the effects or WITH ... ORDER BY ...
 # which are otherwise lost after the WITH clause according to Cypher semantics
 
-  Scenario: [1] Order by a projected expression
+  Scenario: [1] Sort by a projected expression
     Given an empty graph
     And having executed:
       """
@@ -57,7 +57,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | (:A {num: 5, num2: 2}) | 7   |
     And no side effects
 
-  Scenario: [2] Order by an alias of a projected expression
+  Scenario: [2] Sort by an alias of a projected expression
     Given an empty graph
     And having executed:
       """
@@ -82,7 +82,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | (:A {num: 5, num2: 2}) | 7   |
     And no side effects
 
-  Scenario: [3] Order by two projected expressions with order priority being different than projection order
+  Scenario: [3] Sort by two projected expressions with order priority being different than projection order
     Given an empty graph
     And having executed:
       """
@@ -107,7 +107,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | (:A {num: 1, num2: 4}) | 5   | 1   |
     And no side effects
 
-  Scenario: [4] Order by one projected expression and one alias of a projected expression with order priority being different than projection order
+  Scenario: [4] Sort by one projected expression and one alias of a projected expression with order priority being different than projection order
     Given an empty graph
     And having executed:
       """
@@ -132,7 +132,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | (:A {num: 1, num2: 4}) | 5   | 1   |
     And no side effects
 
-  Scenario: [5] Order by one alias of a projected expression and one projected expression with order priority being different than projection order
+  Scenario: [5] Sort by one alias of a projected expression and one projected expression with order priority being different than projection order
     Given an empty graph
     And having executed:
       """
@@ -157,7 +157,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | (:A {num: 1, num2: 4}) | 5   | 1   |
     And no side effects
 
-  Scenario: [6] Order by aliases of two projected expressions with order priority being different than projection order
+  Scenario: [6] Sort by aliases of two projected expressions with order priority being different than projection order
     Given an empty graph
     And having executed:
       """
@@ -182,7 +182,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | (:A {num: 1, num2: 4}) | 5   | 1   |
     And no side effects
 
-  Scenario: [7] Order by an alias of a projected expression where the alias shadows an existing variable
+  Scenario: [7] Sort by an alias of a projected expression where the alias shadows an existing variable
     Given an empty graph
     And having executed:
       """
@@ -208,7 +208,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | (:A {num: 5, num2: 2}) | 7 |
     And no side effects
 
-  Scenario: [8] Order by non-projected existing variable
+  Scenario: [8] Sort by non-projected existing variable
     Given an empty graph
     And having executed:
       """
@@ -234,7 +234,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | (:A {num: 5, num2: 2}) | 2   |
     And no side effects
 
-  Scenario: [9] Order by an alias of a projected expression containing the variable shadowed by the alias
+  Scenario: [9] Sort by an alias of a projected expression containing the variable shadowed by the alias
     Given an empty graph
     And having executed:
       """
@@ -260,7 +260,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | 1 |
     And no side effects
 
-  Scenario: [10] Order by a non-projected expression containing an alias of a projected expression containing the variable shadowed by the alias
+  Scenario: [10] Sort by a non-projected expression containing an alias of a projected expression containing the variable shadowed by the alias
     Given an empty graph
     And having executed:
       """
@@ -286,7 +286,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | 1 |
     And no side effects
 
-  Scenario: [11] Order by an aggregate projection
+  Scenario: [11] Sort by an aggregate projection
     Given an empty graph
     And having executed:
       """
@@ -310,7 +310,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | 1   | 13  |
     And no side effects
 
-  Scenario: [12] Order by an aliased aggregate projection
+  Scenario: [12] Sort by an aliased aggregate projection
     Given an empty graph
     And having executed:
       """
@@ -335,7 +335,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
     And no side effects
 
   @NegativeTest
-  Scenario: [13] Fail on ordering by a non-projected aggregation on a variable
+  Scenario: [13] Fail on sorting by a non-projected aggregation on a variable
     Given an empty graph
     And having executed:
       """
@@ -357,7 +357,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
   @NegativeTest
-  Scenario: [14] Fail on ordering by a non-projected aggregation on an expression
+  Scenario: [14] Fail on sorting by a non-projected aggregation on an expression
     Given an empty graph
     And having executed:
       """
@@ -377,7 +377,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
-  Scenario: [15] Matching using a relationship that is already bound, in conjunction with aggregation and ORDER BY
+  Scenario: [15] Sort by an aliased aggregate projection does allow subsequent matching
     Given an empty graph
     And having executed:
       """
