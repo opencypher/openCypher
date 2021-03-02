@@ -233,31 +233,31 @@ Feature: WithOrderBy3 - Order by multiple expressions
     And no side effects
 
     Examples:
-      | sort                                          | num | text |
-      | 4+((a.num*2)%2) ASC, a.num ASC, a.text ASC    | 1   | a    |
-      | 4+((a.num*2)%2) DESC, a.num ASC, a.text ASC   | 1   | a    |
-      | a.num ASC, 4+((a.num*2)%2) ASC, a.text ASC    | 1   | a    |
-      | a.num ASC, 4+((a.num*2)%2) DESC, a.text ASC   | 1   | a    |
-      | a.num ASC, a.text ASC, 4+((a.num*2)%2) ASC    | 1   | a    |
-      | a.num ASC, a.text ASC, 4+((a.num*2)%2) DESC   | 1   | a    |
-      | 4+((a.num*2)%2) ASC, a.num ASC, a.text DESC   | 1   | b    |
-      | 4+((a.num*2)%2) DESC, a.num ASC, a.text DESC  | 1   | b    |
-      | a.num ASC, 4+((a.num*2)%2) ASC, a.text DESC   | 1   | b    |
-      | a.num ASC, 4+((a.num*2)%2) DESC, a.text DESC  | 1   | b    |
-      | a.num ASC, a.text DESC, 4+((a.num*2)%2) ASC   | 1   | b    |
-      | a.num ASC, a.text DESC, 4+((a.num*2)%2) DESC  | 1   | b    |
-      | 4+((a.num*2)%2) ASC, a.num DESC, a.text DESC  | 4   | b    |
-      | 4+((a.num*2)%2) DESC, a.num DESC, a.text DESC | 4   | b    |
-      | a.num DESC, 4+((a.num*2)%2) ASC, a.text DESC  | 4   | b    |
-      | a.num DESC, 4+((a.num*2)%2) DESC, a.text DESC | 4   | b    |
-      | a.num DESC, a.text DESC, 4+((a.num*2)%2) ASC  | 4   | b    |
-      | a.num DESC, a.text DESC, 4+((a.num*2)%2) DESC | 4   | b    |
-      | 4+((a.num*2)%2) ASC, a.num DESC, a.text ASC   | 4   | a    |
-      | 4+((a.num*2)%2) DESC, a.num DESC, a.text ASC  | 4   | a    |
-      | a.num DESC, 4+((a.num*2)%2) ASC, a.text ASC   | 4   | a    |
-      | a.num DESC, 4+((a.num*2)%2) DESC, a.text ASC  | 4   | a    |
-      | a.num DESC, a.text ASC, 4+((a.num*2)%2) ASC   | 4   | a    |
-      | a.num DESC, a.text ASC, 4+((a.num*2)%2) DESC  | 4   | a    |
+      | sort                                                | num | text |
+      | 4 + ((a.num * 2) % 2) ASC, a.num ASC, a.text ASC    | 1   | a    |
+      | 4 + ((a.num * 2) % 2) DESC, a.num ASC, a.text ASC   | 1   | a    |
+      | a.num ASC, 4 + ((a.num * 2) % 2) ASC, a.text ASC    | 1   | a    |
+      | a.num ASC, 4 + ((a.num * 2) % 2) DESC, a.text ASC   | 1   | a    |
+      | a.num ASC, a.text ASC, 4 + ((a.num * 2) % 2) ASC    | 1   | a    |
+      | a.num ASC, a.text ASC, 4 + ((a.num * 2) % 2) DESC   | 1   | a    |
+      | 4 + ((a.num * 2) % 2) ASC, a.num ASC, a.text DESC   | 1   | b    |
+      | 4 + ((a.num * 2) % 2) DESC, a.num ASC, a.text DESC  | 1   | b    |
+      | a.num ASC, 4 + ((a.num * 2) % 2) ASC, a.text DESC   | 1   | b    |
+      | a.num ASC, 4 + ((a.num * 2) % 2) DESC, a.text DESC  | 1   | b    |
+      | a.num ASC, a.text DESC, 4 + ((a.num * 2) % 2) ASC   | 1   | b    |
+      | a.num ASC, a.text DESC, 4 + ((a.num * 2) % 2) DESC  | 1   | b    |
+      | 4 + ((a.num * 2) % 2) ASC, a.num DESC, a.text DESC  | 4   | b    |
+      | 4 + ((a.num * 2) % 2) DESC, a.num DESC, a.text DESC | 4   | b    |
+      | a.num DESC, 4 + ((a.num * 2) % 2) ASC, a.text DESC  | 4   | b    |
+      | a.num DESC, 4 + ((a.num * 2) % 2) DESC, a.text DESC | 4   | b    |
+      | a.num DESC, a.text DESC, 4 + ((a.num * 2) % 2) ASC  | 4   | b    |
+      | a.num DESC, a.text DESC, 4 + ((a.num * 2) % 2) DESC | 4   | b    |
+      | 4 + ((a.num * 2) % 2) ASC, a.num DESC, a.text ASC   | 4   | a    |
+      | 4 + ((a.num * 2) % 2) DESC, a.num DESC, a.text ASC  | 4   | a    |
+      | a.num DESC, 4 + ((a.num * 2) % 2) ASC, a.text ASC   | 4   | a    |
+      | a.num DESC, 4 + ((a.num * 2) % 2) DESC, a.text ASC  | 4   | a    |
+      | a.num DESC, a.text ASC, 4 + ((a.num * 2) % 2) ASC   | 4   | a    |
+      | a.num DESC, a.text ASC, 4 + ((a.num * 2) % 2) DESC  | 4   | a    |
 
   Scenario Outline: [7] The order direction cannot be overwritten
     Given any graph
@@ -275,13 +275,17 @@ Feature: WithOrderBy3 - Order by multiple expressions
     And no side effects
 
     Examples:
-      | sort              | value |
-      | a ASC, a DESC     | 1     |
-      | a+2 ASC, a+2 DESC | 1     |
-      | a*a ASC, a*a DESC | 1     |
-      | a DESC, a ASC     | 3     |
-      | a+2 DESC, a+2 ASC | 3     |
-      | a*a DESC, a*a ASC | 3     |
+      | sort                  | value |
+      | a ASC, a DESC         | 1     |
+      | a + 2 ASC, a + 2 DESC | 1     |
+      | a * a ASC, a * a DESC | 1     |
+      | a ASC, -1 * a ASC     | 1     |
+      | -1 * a DESC, a ASC    | 1     |
+      | a DESC, a ASC         | 3     |
+      | a + 2 DESC, a + 2 ASC | 3     |
+      | a * a DESC, a * a ASC | 3     |
+      | a DESC, -1 * a DESC   | 3     |
+      | -1 * a ASC, a DESC    | 3     |
 
   @NegativeTest
   Scenario Outline: [8] Fail on sorting by any number of undefined variables in any position #Example: <exampleName>
