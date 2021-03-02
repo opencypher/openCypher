@@ -160,10 +160,10 @@ Feature: WithOrderBy3 - Order by multiple expressions
       """
     Then the result should be, in any order:
       | a                             |
-      | (:A {num: 9, bool: true})  |
-      | (:D {num: -41, bool: true})    |
+      | (:A {num: 9, bool: true})     |
+      | (:D {num: -41, bool: true})   |
       | (:E {num: 7054, bool: false}) |
-      | (:B {num: 5, bool: false})   |
+      | (:B {num: 5, bool: false})    |
     And no side effects
 
     Examples:
@@ -195,7 +195,7 @@ Feature: WithOrderBy3 - Order by multiple expressions
       RETURN a
       """
     Then the result should be, in any order:
-      | a                                    |
+      | a                              |
       | ({num: <num>, text: '<text>'}) |
     And no side effects
 
@@ -228,7 +228,7 @@ Feature: WithOrderBy3 - Order by multiple expressions
       RETURN a
       """
     Then the result should be, in any order:
-      | a                                    |
+      | a                              |
       | ({num: <num>, text: '<text>'}) |
     And no side effects
 
