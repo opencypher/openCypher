@@ -1081,7 +1081,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | datetime DESC       |
       | datetime DESCENDING |
 
-  Scenario Outline: [43] Sorting by a variable that is only partially orderable on a non-distinct binding table
+  Scenario Outline: [43] Sort by a variable that is only partially orderable on a non-distinct binding table
     Given an empty graph
     When executing query:
       """
@@ -1102,7 +1102,7 @@ Feature: WithOrderBy1 - Order by a single variable
       | ASC  | 0 |
       | DESC | 2 |
 
-  Scenario Outline: [44] Sorting by a variable that is only partially orderable on a binding table made distinct
+  Scenario Outline: [44] Sort by a variable that is only partially orderable on a non-distinct binding table, but made distinct
     Given an empty graph
     When executing query:
       """
