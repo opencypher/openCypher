@@ -61,7 +61,7 @@ public @interface Attribute
     String name() default "";
 
     /**
-     * Whether this attribute is optional or mandatory. The default is for an atribute to be mandatory.
+     * Whether this attribute is optional or mandatory. The default is for an attribute to be mandatory.
      *
      * If the {@linkplain #uri() namespace} of this attribute is not the same as the
      * {@linkplain Element#uri() namespace} of the enclosing class, the attribute <b>must</b> be specified as optional.
