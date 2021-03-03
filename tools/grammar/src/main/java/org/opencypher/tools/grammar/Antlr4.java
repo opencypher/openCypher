@@ -147,7 +147,7 @@ public class Antlr4 extends BnfWriter {
             output.append("fragment ");
             lexerRule(rule.getKey()).append(" : ");
             if (set.name() != null && !set.isControlCharacter()) {
-                // antrl 4.7.2 is thought to accept all the names we know except the control
+                // antlr 4.7.2 is thought to accept all the names we know except the control
                 // characters
                 output.append("[\\p{").append(set.name()).append("}]");
             }
