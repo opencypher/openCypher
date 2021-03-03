@@ -428,7 +428,7 @@ The semantics of a few actual aggregation functions depends on the used notions 
 * `stdev(expr)` returns the standard deviation of the aggregated values (assuming they represent a random sample), or `0` if the list of aggregated values is empty.
 * `stdevp(expr)` returns the standard deviation of the aggregated values (assuming they form a complete population), or `0` if the list of aggregated values is empty.
 * `percentile_disc(expr)` computes the inverse distribution function (assuming a discrete distribution model), or `0` if the list of aggregated values is empty.
-* `percentile_cont(expr)` computes the inverse distribution function (assuming a continous distribution model), or `0` if the list of aggregated values is empty.
+* `percentile_cont(expr)` computes the inverse distribution function (assuming a continuous distribution model), or `0` if the list of aggregated values is empty.
 
 
 [[conceptual-model]]
