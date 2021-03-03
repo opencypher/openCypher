@@ -30,7 +30,7 @@
 
 Feature: Match8 - Match clause interoperation with other clauses
 
-  Scenario: [1] Pattern independented of bound variables results in cross product
+  Scenario: [1] Pattern independent of bound variables results in cross product
     Given an empty graph
     And having executed:
       """
