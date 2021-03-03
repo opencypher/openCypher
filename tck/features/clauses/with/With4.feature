@@ -71,7 +71,7 @@ Feature: With4 - Variable aliasing
       | (:End {num: 42}) |
     And no side effects
 
-  Scenario: [3] Aliasing expression to exsiting variable name
+  Scenario: [3] Aliasing expression to existing variable name
     Given an empty graph
     And having executed:
       """
