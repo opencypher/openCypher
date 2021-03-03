@@ -304,7 +304,7 @@ It is recommended that procedure namespaces are chosen in accordance with the fo
 
 * `dbms.` Top-level namespace for procedures that operate on the underlying database management system.
 * `db.` Top-level namespace for procedures that operate on the currently selected database.
-* User-defined procedures are recommended to use a namespace that starts with a reverse domain name and may optionally by followed by custom sub-namespaces (e.g. like the namespace `com.my-company.myModule` being used by the procedure `com.my-comany.myModule.myProc()`)
+* User-defined procedures are recommended to use a namespace that starts with a reverse domain name and may optionally by followed by custom sub-namespaces (e.g. like the namespace `com.my-company.myModule` being used by the procedure `com.my-company.myModule.myProc()`)
 
 Similar to variable names, it is recommended that sub-namespaces and procedure names start with a lower-case character and combine multiple words using camel-case.
 
