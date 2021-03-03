@@ -79,7 +79,7 @@ public class G4Processor
         Gee4Lexer lexer = new Gee4Lexer(inStream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         Gee4Parser parser = new Gee4Parser(tokens);
-        // leaving the old listeners in gives a nice error messsage
+        // leaving the old listeners in gives a nice error message
         // parser.removeErrorListeners();
         // lexer.removeErrorListeners();
         lexer.addErrorListener(new FailingErrorListener());

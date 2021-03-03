@@ -87,7 +87,7 @@ public class BNFProcessor
         BNFLexer lexer = new BNFLexer(inStream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         BNFParser parser = new BNFParser(tokens);
-        // leaving the old listeners in gives a nice error messsage
+        // leaving the old listeners in gives a nice error message
         // parser.removeErrorListeners();
         // lexer.removeErrorListeners();
         lexer.addErrorListener(new FailingErrorListener());
