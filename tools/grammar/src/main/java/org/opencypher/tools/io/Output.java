@@ -780,7 +780,7 @@ public interface Output extends Appendable, Closeable
      * <code>Character</code>} by delegating to methods on specific {@link CharSequence} implementations if present.
      *
      * @param str   the character sequence to get the code point from.
-     * @param index the index in the character sequnce the get the code point at.
+     * @param index the index in the character sequence the get the code point at.
      * @return the code point value of the character(s) at the {@code index} of the character sequence.
      * @throws IndexOutOfBoundsException if the {@code index} argument is negative or not less than the {@linkplain
      *                                   CharSequence#length() length of the contents} of the character sequence.
