@@ -61,7 +61,7 @@ dotPattern : DOT_PATTERN;
 QUOTED_STRING : '\'' ( '\\' . | ~'\'' )*? '\'' ;
 NEGATED_STRING : '~' QUOTED_STRING ;
 CHAR_SET : '[' ( ~']' )*? ']' ;
-//  including ] in a charset is really difficutl. this will swallow the end ] if \ the last character in the set
+//  including ] in a charset is really difficult. this will swallow the end ] if \ the last character in the set
 //CHAR_SET : '[' ( ~']' | '\\' ']')* ']' ;
 NEGATED_CHAR_SET : '~' CHAR_SET ;
 DOT_PATTERN : ( '.' '*'? '?'? ) ;
