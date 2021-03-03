@@ -88,7 +88,7 @@ trait PageBasic {
   )
 
   def listScenariosPage(scenarios: Group => Option[Set[Scenario]], group: Group, kind: Option[Frag], showSingleScenarioURL: Scenario => String, openScenarioInEditorURL: Scenario => String ): Text.TypedTag[String] = {
-    val scenarioSeq = scenarios(group).map(_.toSeq.sortBy(s => (s.categories.mkString("/"), s.featureName, s.name, s.exampleIndex))).getOrElse(Seq.empty[Scenario])
+    val scenarioSeq = scenarios(group).map(_.toSeq.sortBy(s => (s.categories.mkString("/"), s.featureName, s.number, s.name, s.exampleIndex))).getOrElse(Seq.empty[Scenario])
     page(
       pageTitle(scenarioSeq.size, kind.mapToFrag(k => frag(" ", k)), " scenario(s) in group ", i(group.toString)),
       ul(
@@ -96,6 +96,7 @@ trait PageBasic {
           li(
             scenarioLocationFrag(s),
             inlineSpacer(),
+            s.number.map(n => frag(s"[$n]", inlineSpacer())).getOrElse(frag()),
             link(showSingleScenarioURL(s), scenarioTitle(s)),
             inlineSpacer(),
             blankLink(openScenarioInEditorURL(s), "[code]"),
