@@ -46,7 +46,7 @@ An important observation is that the rest of the query never sees the matches th
 
 In this model, the `MATCH` clause uses both the expressed pattern and the `WHERE` expression to identify matches in the graph, which are then selected for use in the following clauses of the query with no further evaluation. This is done by considering the `WHERE` expression at every step of the matching process.
 
-For example, given the same data as perviously, “++MATCH (a)-->(b) WHERE a.name = "Bob"++” would only match connected pairs of nodes where the first of that pair has a name propery of ‘Bob’. ie:
+For example, given the same data as previously, “++MATCH (a)-->(b) WHERE a.name = "Bob"++” would only match connected pairs of nodes where the first of that pair has a name propery of ‘Bob’. ie:
 
 [options="header"]
 |========================================================================
