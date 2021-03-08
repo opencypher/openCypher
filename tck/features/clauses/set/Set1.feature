@@ -167,7 +167,6 @@ Feature: Set1 - Set a Property
       | null |
     And no side effects
 
-  @NegativeTest
   Scenario: [9] Failing when using undefined variable in SET
     Given any graph
     When executing query:
@@ -178,7 +177,6 @@ Feature: Set1 - Set a Property
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
-  @NegativeTest
   Scenario: [10] Failing when setting a list of maps as a property
     Given any graph
     When executing query:
