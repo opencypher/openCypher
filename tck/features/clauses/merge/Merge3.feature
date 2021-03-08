@@ -104,7 +104,6 @@ Feature: Merge3 - Merge node - on match
       | +labels     | 1 |
       | +properties | 1 |
 
-  @NegativeTest
   Scenario: [5] Fail when using undefined variable in ON MATCH
     Given any graph
     When executing query:

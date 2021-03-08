@@ -443,7 +443,6 @@ Feature: Merge5 - Merge relationships
       | +properties    | 1 |
       | -properties    | 2 |
 
-  @NegativeTest
   Scenario: [22] Fail when imposing new predicates on a variable that is already bound
     Given any graph
     When executing query:
@@ -453,7 +452,6 @@ Feature: Merge5 - Merge relationships
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
-  @NegativeTest
   Scenario: [23] Fail when merging relationship without type
     Given any graph
     When executing query:
@@ -463,7 +461,6 @@ Feature: Merge5 - Merge relationships
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
-  @NegativeTest
   Scenario: [24] Fail when merging relationship without type, no colon
     Given any graph
     When executing query:
@@ -473,7 +470,6 @@ Feature: Merge5 - Merge relationships
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
-  @NegativeTest
   Scenario: [25] Fail when merging relationship with more than one type
     Given any graph
     When executing query:
@@ -483,7 +479,6 @@ Feature: Merge5 - Merge relationships
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
-  @NegativeTest
   Scenario: [26] Fail when merging relationship that is already bound
     Given any graph
     When executing query:
@@ -493,7 +488,6 @@ Feature: Merge5 - Merge relationships
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
-  @NegativeTest
   Scenario: [27] Fail when using parameter as relationship predicate in MERGE
     Given any graph
     When executing query:
@@ -505,7 +499,6 @@ Feature: Merge5 - Merge relationships
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
-  @NegativeTest
   Scenario: [28] Fail when using variable length relationship in MERGE
     Given any graph
     When executing query:
@@ -516,7 +509,6 @@ Feature: Merge5 - Merge relationships
       """
     Then a SyntaxError should be raised at compile time: CreatingVarLength
 
-  @NegativeTest
   Scenario: [29] Fail on merging relationship with null property
     Given any graph
     When executing query:

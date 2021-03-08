@@ -113,7 +113,6 @@ Feature: Merge2 - Merge node - on create
       | +labels     | 1 |
       | +properties | 1 |
 
-  @NegativeTest
   Scenario: [6] Fail when using undefined variable in ON CREATE
     Given any graph
     When executing query:

@@ -279,7 +279,6 @@ Feature: Merge1 - Merge node
       | -nodes      | 2 |
       | -properties | 2 |
 
-  @NegativeTest
   Scenario: [15] Fail when merge a node that is already bound
     Given any graph
     When executing query:
@@ -289,7 +288,6 @@ Feature: Merge1 - Merge node
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
-  @NegativeTest
   Scenario: [16] Fail when using parameter as node predicate in MERGE
     Given any graph
     When executing query:
@@ -299,7 +297,6 @@ Feature: Merge1 - Merge node
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
-  @NegativeTest
   Scenario: [17] Fail on merging node with null property
     Given any graph
     When executing query:
