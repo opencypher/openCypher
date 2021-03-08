@@ -149,7 +149,6 @@ Feature: Match2 - Match relationships
       | a1 | r | b2 |
     And no side effects
 
-  @NegativeTest
   Scenario: [8] Fail when using parameter as relationship predicate in MATCH
     Given any graph
     When executing query:
@@ -159,7 +158,6 @@ Feature: Match2 - Match relationships
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
-  @NegativeTest
   Scenario Outline: [9] Fail when a node has the same variable in a preceding MATCH
     Given any graph
     When executing query:
@@ -199,7 +197,6 @@ Feature: Match2 - Match relationships
       | (s), (a)-[q]-(b), (r), (s)-[]->(t)<-[]-(b) |
       | (s), (a)-[q]-(b), (t), (s)-[]->(r)<-[]-(b) |
 
-  @NegativeTest
   Scenario Outline: [10] Fail when a path has the same variable in a preceding MATCH
     Given any graph
     When executing query:
@@ -232,7 +229,6 @@ Feature: Match2 - Match relationships
       | (x), (a)-[q*]-(b), r = (s)-[p]->(t)<-[]-(b) |
       | (x), (a)-[q]-(b), r = (s)-[p*]->(t)<-[]-(b) |
 
-  @NegativeTest
   Scenario Outline: [11] Fail when a node has the same variable in the same pattern
     Given any graph
     When executing query:
@@ -262,7 +258,6 @@ Feature: Match2 - Match relationships
       | (r), (a)-[q]-(b), (s), (s)-[r]-(t)-[]-(b)   |
       | (r), (a)-[q]-(b), (s), (s)-[r]->(t)<-[]-(b) |
 
-  @NegativeTest
   Scenario Outline: [12] Fail when a path has the same variable in the same pattern
     Given any graph
     When executing query:
@@ -283,7 +278,6 @@ Feature: Match2 - Match relationships
       | (a)-[p]-(s)-[]-(b), r = (s)-[*]-(t), (t), (t)-[r]-(b)  |
       | (a)-[p]-(s)-[]-(b), r = (s)-[*]-(t), (t), (t)-[r*]-(b) |
 
-  @NegativeTest
   Scenario Outline: [13] Fail when matching a relationship variable bound to a value
     Given any graph
     When executing query:

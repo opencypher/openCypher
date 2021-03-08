@@ -553,7 +553,6 @@ Feature: Match3 - Match fixed length patterns
       | b |
     And no side effects
 
-  @NegativeTest
   Scenario: [29] Fail when re-using a relationship in the same pattern
     Given any graph
     When executing query:
@@ -563,7 +562,6 @@ Feature: Match3 - Match fixed length patterns
       """
     Then a SyntaxError should be raised at compile time: RelationshipUniquenessViolation
 
-  @NegativeTest
   Scenario: [30] Fail when using a list or nodes as a node
     Given any graph
     When executing query:
