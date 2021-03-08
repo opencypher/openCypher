@@ -47,7 +47,6 @@ Feature: Boolean4 - NOT logical operations
       | ({name: 'a'}) |
     And no side effects
 
-  @NegativeTest
   Scenario Outline: [2] Fail when using NOT on a non-boolean literal
     Given any graph
     When executing query:
