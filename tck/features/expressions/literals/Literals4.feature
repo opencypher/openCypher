@@ -118,7 +118,6 @@ Feature: Literals4 - Octal integer
       | -9223372036854775808 |
     And no side effects
 
-  @NegativeTest
   Scenario: [9] Fail on a too large octal integer
     Given any graph
     When executing query:
@@ -127,7 +126,6 @@ Feature: Literals4 - Octal integer
       """
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
-  @NegativeTest
   Scenario: [10] Fail on a too small octal integer
     Given any graph
     When executing query:
