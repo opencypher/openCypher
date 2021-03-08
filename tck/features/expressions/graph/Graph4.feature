@@ -114,7 +114,6 @@ Feature: Graph4 - Edge relationship type
       | 'T'           |
     And no side effects
 
-  @NegativeTest
   Scenario Outline: [6] `type()` failing on invalid arguments
     Given an empty graph
     And having executed:
@@ -136,7 +135,6 @@ Feature: Graph4 - Edge relationship type
       | ''      |
       | []      |
 
-  @NegativeTest
   Scenario: [7] Failing when using `type()` on a node
     Given any graph
     When executing query:

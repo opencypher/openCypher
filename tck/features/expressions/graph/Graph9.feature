@@ -111,7 +111,6 @@ Feature: Graph9 - Property existence check
       | null              |
     And no side effects
 
-  @NegativeTest
   Scenario: [6] Fail when checking existence of a non-property and non-pattern
     Given any graph
     When executing query:
