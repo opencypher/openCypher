@@ -82,7 +82,6 @@ Feature: TypeConversion1 - To Boolean
       | null |
     And no side effects
 
-  @NegativeTest
   Scenario Outline: [5] `toBoolean()` on invalid types #Example: <exampleName>
     Given any graph
     When executing query:
