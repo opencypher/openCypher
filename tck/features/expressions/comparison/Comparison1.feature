@@ -312,7 +312,6 @@ Feature: Comparison1 - Equality
       | null  |
     And no side effects
 
-  @NegativeTest
   Scenario: [17] Failing when comparing to an undefined variable
     Given any graph
     When executing query:
