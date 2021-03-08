@@ -60,13 +60,6 @@ trait ValidateScenario extends AppendedClues with Matchers with OptionValues wit
       }
     }
 
-    withClue("scenario has a `@NegativeTest` tag and a `Then expect error` step or neither") {
-      (scenario.steps exists {
-        case _: ExpectError => true
-        case _ => false
-      }) should equal(scenario.tags contains TCKTags.NEGATIVE_TEST)
-    }
-
     validateSteps(scenario.steps, scenario.tags)
   }
 }
