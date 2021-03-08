@@ -61,7 +61,6 @@ Feature: Map2 - Dynamic Value Access
       | 'Apa' |
     And no side effects
 
-  @NegativeTest
   Scenario: [3] Fail at runtime when attempting to index with an Int into a Map
     Given any graph
     And parameters are:
@@ -74,7 +73,6 @@ Feature: Map2 - Dynamic Value Access
       """
     Then a TypeError should be raised at runtime: MapElementAccessByNonString
 
-  @NegativeTest
   Scenario: [4] Fail at runtime when trying to index into a map with a non-string
     Given any graph
     And parameters are:
@@ -87,7 +85,6 @@ Feature: Map2 - Dynamic Value Access
       """
     Then a TypeError should be raised at runtime: MapElementAccessByNonString
 
-  @NegativeTest
   Scenario: [5] Fail at runtime when trying to index something which is not a map
     Given any graph
     And parameters are:

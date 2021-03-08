@@ -43,7 +43,6 @@ Feature: Map1 - Static value access
       | 0             |
     And no side effects
 
-  @NegativeTest
   Scenario: [2] Fail when performing property access on a non-map
     Given any graph
     When executing query:
