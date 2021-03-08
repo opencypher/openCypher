@@ -211,20 +211,21 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
     val fooUri: URI = getClass.getResource("cucumber").toURI
     val scenarios: Seq[Scenario] = CypherTCK.parseFeatures(fooUri).flatMap(_.scenarios)
     val expectedCountOutput: String =
-      """Total               13
-        || foo                8
-        || | bar              6
-        || | | boo            4
-        || | | | Boo          1
-        || | | | Test 2       3
-        || | | Test 1         2
-        || | dummy            2
-        || | | Dummy          2
-        || Foo                5
-        || @Fail              3
-        || @TestA             2
-        || @TestB             1
-        || @TestC             3""".stripMargin
+      """Total                13
+        || foo                 8
+        || | bar               6
+        || | | boo             4
+        || | | | Boo           1
+        || | | | Test 2        3
+        || | | Test 1          2
+        || | dummy             2
+        || | | Dummy           2
+        || Foo                 5
+        || @Fail               3
+        || @NegativeTest       4
+        || @TestA              2
+        || @TestB              1
+        || @TestC              3""".stripMargin
     CountScenarios.reportCountsInPrettyPrint(TckTree(scenarios)) should equal(expectedCountOutput)
   }
 
@@ -375,24 +376,25 @@ class CountScenariosTest extends AnyFunSuite with Matchers {
     val scenariosBefore: Seq[Scenario] = CypherTCK.parseFeatures(fooUriBefore).flatMap(_.scenarios)
     val scenariosAfter: Seq[Scenario] = CypherTCK.parseFeatures(fooUriAfter).flatMap(_.scenarios)
     val expectedResult: String =
-      """Group          unchanged  moved only  changed more  added  removed
-        |––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-        |Total                 12           1             0      0        0
-        |- foo                  7           1             0      0        0
-        |  - bar                5           0             0      0        1
-        |    - boo              3           0             0      0        1
-        |      - Boo            0           0             0      0        1
-        |      - Test 2         3           0             0      0        0
-        |    - Test 1           2           0             0      0        0
-        |  - dummy              2           0             0      0        0
-        |    - Dummy            2           0             0      0        0
-        |  - new                0           0             0      1        0
-        |    - New              0           0             0      1        0
-        |- Foo                  5           0             0      0        0
-        |- @Fail                3           0             0      0        0
-        |- @TestA               2           0             0      0        0
-        |- @TestB               1           0             0      0        0
-        |- @TestC               2           1             0      0        0""".stripMargin
+      """Group           unchanged  moved only  changed more  added  removed
+        |–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+        |Total                  12           1             0      0        0
+        |- foo                   7           1             0      0        0
+        |  - bar                 5           0             0      0        1
+        |    - boo               3           0             0      0        1
+        |      - Boo             0           0             0      0        1
+        |      - Test 2          3           0             0      0        0
+        |    - Test 1            2           0             0      0        0
+        |  - dummy               2           0             0      0        0
+        |    - Dummy             2           0             0      0        0
+        |  - new                 0           0             0      1        0
+        |    - New               0           0             0      1        0
+        |- Foo                   5           0             0      0        0
+        |- @Fail                 3           0             0      0        0
+        |- @NegativeTest         4           0             0      0        0
+        |- @TestA                2           0             0      0        0
+        |- @TestB                1           0             0      0        0
+        |- @TestC                2           1             0      0        0""".stripMargin
     CountScenarios.reportDiffCountsInPrettyPrint(TckTreeDiff(
       TckTree(scenariosBefore),
       TckTree(scenariosAfter)
