@@ -387,7 +387,6 @@ Feature: Match6 - Match named paths scenarios
       | <({name: 'A'})-[:KNOWS]->({name: 'B'})-[:KNOWS]->({name: 'C'})> |
     And no side effects
 
-  @NegativeTest
   Scenario Outline: [21] Fail when a node has the same variable in a preceding MATCH
     Given any graph
     When executing query:
@@ -415,7 +414,6 @@ Feature: Match6 - Match named paths scenarios
       | (a)-[r*]-(s)-[]-(b), (p), (t)-[]-(b)  |
       | (a)-[r]-(p)<-[*]-(b), (t), (t)-[]-(b) |
 
-  @NegativeTest
   Scenario Outline: [22] Fail when a relationship has the same variable in a preceding MATCH
     Given any graph
     When executing query:
@@ -444,7 +442,6 @@ Feature: Match6 - Match named paths scenarios
       | (a)-[r*]-(s)-[p]-(b), (t), (t)-[]-(b) |
       | (a)-[r]-(s)<-[p]-(b), (t), (t)-[]-(b) |
 
-  @NegativeTest
   Scenario Outline: [23] Fail when a node has the same variable in the same pattern
     Given any graph
     When executing query:
@@ -477,7 +474,6 @@ Feature: Match6 - Match named paths scenarios
       | (a)-[r]-(p)-[]-(b), p = (s)-[]-(t), (t), (t)-[]-(b)   |
       | (a)-[r]-(p)<-[*]-(b), p = (s)-[]-(t), (t), (t)-[]-(b) |
 
-  @NegativeTest
   Scenario Outline: [24] Fail when a relationship has the same variable in the same pattern
     Given any graph
     When executing query:
@@ -510,7 +506,6 @@ Feature: Match6 - Match named paths scenarios
       | (a)-[r]-(s)-[p]-(b), p = (s)-[]-(t), (t), (t)-[]-(b)   |
       | (a)-[r]-(s)<-[p*]-(b), p = (s)-[]-(t), (t), (t)-[]-(b) |
 
-  @NegativeTest
   Scenario Outline: [25] Fail when matching a path variable bound to a value
     Given any graph
     When executing query:
