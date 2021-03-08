@@ -166,7 +166,7 @@ Feature: Literals6 - String
       | '🧐🍌❖⋙⚐' |
     And no side effects
 
-  @NegativeTest @skipGrammarCheck
+  @skipGrammarCheck
   Scenario: [13] Failing on incorrect unicode literal
     Given any graph
     When executing query:
