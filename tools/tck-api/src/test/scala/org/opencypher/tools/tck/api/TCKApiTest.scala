@@ -27,8 +27,9 @@
  */
 package org.opencypher.tools.tck.api
 
-import java.net.URI
+import org.opencypher.tools.tck.constants.TCKTags
 
+import java.net.URI
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
@@ -91,5 +92,10 @@ class TCKApiTest extends AnyFunSuite with Matchers {
     val someLevelScenarios = scenarios.filter(_.featureName == "Test")
     someLevelScenarios.foreach(_.sourceFile should
       equal(java.nio.file.Paths.get(fooUri).resolve("foo/bar/boo/Test.feature")))
+  }
+
+  test("scenarios with an ExpectError step have the TCKTags.NEGATIVE_TEST tag") {
+    val negativeTestScenarios = scenarios.filter(_.name == "Fail")
+    negativeTestScenarios.foreach(_.tags should contain (TCKTags.NEGATIVE_TEST))
   }
 }
