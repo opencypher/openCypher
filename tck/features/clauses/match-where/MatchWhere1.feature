@@ -269,7 +269,6 @@ Feature: MatchWhere1 - Filter single variable
       | x |
     And no side effects
 
-  @NegativeTest
   Scenario: [14] Fail when filtering path with property predicate
     Given any graph
     When executing query:
@@ -281,7 +280,6 @@ Feature: MatchWhere1 - Filter single variable
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  @NegativeTest
   Scenario: [15] Fail on aggregation in WHERE
     Given any graph
     When executing query:
