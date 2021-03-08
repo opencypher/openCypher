@@ -287,7 +287,6 @@ Feature: WithOrderBy3 - Order by multiple expressions
       | a DESC, -1 * a DESC   | 3     |
       | -1 * a ASC, a DESC    | 3     |
 
-  @NegativeTest
   Scenario Outline: [8] Fail on sorting by any number of undefined variables in any position #Example: <exampleName>
     Given any graph
     When executing query:

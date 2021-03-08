@@ -754,7 +754,6 @@ Feature: WithOrderBy2 - Order by a single expression
       | ASC  | 'A' |
       | DESC | 'C' |
 
-  @NegativeTest
   Scenario Outline: [25] Fail on sorting by an aggregation
     Given any graph
     When executing query:
