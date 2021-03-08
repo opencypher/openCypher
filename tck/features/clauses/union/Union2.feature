@@ -101,7 +101,6 @@ Feature: Union2 - Union All
       | (:B) |
     And no side effects
 
-  @NegativeTest
   Scenario: [5] Failing when UNION ALL has different columns
     Given any graph
     When executing query:

@@ -98,7 +98,6 @@ Feature: Union1 - Union
       | (:B) |
     And no side effects
 
-  @NegativeTest
   Scenario: [5] Failing when UNION has different columns
     Given any graph
     When executing query:
