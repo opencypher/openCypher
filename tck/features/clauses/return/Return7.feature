@@ -46,7 +46,6 @@ Feature: Return7 - Return all variables
       | (:Start) | () | <(:Start)-[:T]->()> |
     And no side effects
 
-  @NegativeTest
   Scenario: [2] Fail when using RETURN * without variables in scope
     Given any graph
     When executing query:

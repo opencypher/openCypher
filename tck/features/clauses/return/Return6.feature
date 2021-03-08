@@ -248,7 +248,6 @@ Feature: Return6 - Implicit grouping with aggregates
       | 'a'  | ['c', 'b'] | 1   |
     And no side effects
 
-  @NegativeTest
   Scenario: [14] Aggregates in aggregates
     Given any graph
     When executing query:
@@ -257,7 +256,6 @@ Feature: Return6 - Implicit grouping with aggregates
       """
     Then a SyntaxError should be raised at compile time: NestedAggregation
 
-  @NegativeTest
   Scenario: [15] Using `rand()` in aggregations
     Given any graph
     When executing query:
