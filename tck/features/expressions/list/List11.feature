@@ -114,7 +114,6 @@ Feature: List11 - Create a list from a range
       | true |
     And no side effects
 
-  @NegativeTest
   Scenario Outline: [4] Fail on invalid arguments for `range()`
     Given any graph
     When executing query:
@@ -130,7 +129,6 @@ Feature: List11 - Create a list from a range
       | -2    | 8    | 0    |
       | 2     | -8   | 0    |
 
-  @NegativeTest
   Scenario Outline: [5] Fail on invalid argument types for `range()`
     Given any graph
     When executing query:

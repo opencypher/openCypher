@@ -97,7 +97,6 @@ Feature: List1 - Dynamic Element Access
       | 'Apa' |
     And no side effects
 
-  @NegativeTest
   Scenario: [6] Fail at runtime when attempting to index with a String into a List
     Given any graph
     And parameters are:
@@ -110,7 +109,6 @@ Feature: List1 - Dynamic Element Access
       """
     Then a TypeError should be raised at runtime: ListElementAccessByNonInteger
 
-  @NegativeTest
   Scenario: [7] Fail at runtime when trying to index into a list with a list
     Given any graph
     And parameters are:
@@ -123,7 +121,6 @@ Feature: List1 - Dynamic Element Access
       """
     Then a TypeError should be raised at compile time: ListElementAccessByNonInteger
 
-  @NegativeTest
   Scenario: [8] Fail at compile time when attempting to index with a non-integer into a list
     Given any graph
     When executing query:
@@ -133,7 +130,6 @@ Feature: List1 - Dynamic Element Access
       """
     Then a SyntaxError should be raised at compile time: ListElementAccessByNonInteger
 
-  @NegativeTest
   Scenario: [9] Fail at runtime when trying to index something which is not a list
     Given any graph
     And parameters are:
