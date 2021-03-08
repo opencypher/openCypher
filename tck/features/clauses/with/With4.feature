@@ -90,7 +90,6 @@ Feature: With4 - Variable aliasing
       | 'King Kong'  |
     And no side effects
 
-  @NegativeTest
   Scenario: [4] Fail when forwarding multiple aliases with the same name
     Given any graph
     When executing query:
@@ -100,7 +99,6 @@ Feature: With4 - Variable aliasing
       """
     Then a SyntaxError should be raised at compile time: ColumnNameConflict
 
-  @NegativeTest
   Scenario: [5] Fail when not aliasing expressions in WITH
     Given any graph
     When executing query:
