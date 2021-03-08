@@ -96,7 +96,6 @@ Feature: TypeConversion3 - To Float
       | 4.0   |
     And no side effects
 
-  @NegativeTest
   Scenario Outline: [6] `toFloat()` failing on invalid arguments
     Given an empty graph
     And having executed:
