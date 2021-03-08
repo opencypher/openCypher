@@ -86,7 +86,6 @@ Feature: Graph10 - Retrieve all properties as a property map
       | {name: 'Popeye', level: 9001} |
     And no side effects
 
-  @NegativeTest
   Scenario: [5] `properties()` failing on an integer literal
     Given any graph
     When executing query:
@@ -95,7 +94,6 @@ Feature: Graph10 - Retrieve all properties as a property map
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  @NegativeTest
   Scenario: [6] `properties()` failing on a string literal
     Given any graph
     When executing query:
@@ -104,7 +102,6 @@ Feature: Graph10 - Retrieve all properties as a property map
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  @NegativeTest
   Scenario: [7] `properties()` failing on a list of booleans
     Given any graph
     When executing query:

@@ -31,7 +31,6 @@
 Feature: Graph6 - Static property access
   # Accessing a property of a node or edge by using a symbolic name as the key.
 
-  @NegativeTest
   Scenario: [1] Fail when performing property access on a non-graph element
     Given an empty graph
     And having executed:

@@ -137,7 +137,6 @@ Feature: Graph3 - Node labels
       | null      | null         |
     And no side effects
 
-  @NegativeTest
   Scenario: [8] `labels()` failing on a path
     Given an empty graph
     And having executed:
@@ -151,7 +150,6 @@ Feature: Graph3 - Node labels
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  @NegativeTest
   Scenario: [9] `labels()` failing on invalid arguments
     Given an empty graph
     And having executed:
