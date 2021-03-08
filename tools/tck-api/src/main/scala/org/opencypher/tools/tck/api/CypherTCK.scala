@@ -267,7 +267,16 @@ object CypherTCK {
       scenarioSteps
     }.toList
     val (name, number) = parseNameAndNumber(nameAndNumber)
-    Scenario(categories.toList, featureName, number, name, exampleIndex, exampleName, tags, steps, pickle, sourceFile)
+    val tagsInferred = {
+      if (steps.exists {
+        case ExpectError(_, _, _, _) => true
+        case _ => false
+      })
+        tags + TCKTags.NEGATIVE_TEST
+      else
+        tags
+    }
+    Scenario(categories.toList, featureName, number, name, exampleIndex, exampleName, tagsInferred, steps, pickle, sourceFile)
   }
 
   private def tagNames(pickle: io.cucumber.core.gherkin.Pickle): Set[String] = pickle.getTags.asScala.toSet
