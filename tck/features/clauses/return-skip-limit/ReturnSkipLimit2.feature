@@ -177,7 +177,6 @@ Feature: ReturnSkipLimit2 - Limit
       | 2     | 1        |
     And no side effects
 
-  @NegativeTest
   Scenario: [9] Fail when using non-constants in LIMIT
     Given any graph
     When executing query:
@@ -186,7 +185,6 @@ Feature: ReturnSkipLimit2 - Limit
       """
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
-  @NegativeTest
   Scenario: [10] Negative parameter for LIMIT should fail
     Given any graph
     And having executed:
@@ -204,7 +202,6 @@ Feature: ReturnSkipLimit2 - Limit
       """
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
-  @NegativeTest
   Scenario: [11] Negative parameter for LIMIT with ORDER BY should fail
     Given any graph
     And having executed:
@@ -222,7 +219,6 @@ Feature: ReturnSkipLimit2 - Limit
       """
     Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
 
-  @NegativeTest
   Scenario: [12] Fail when using negative value in LIMIT 1
     Given any graph
     When executing query:
@@ -233,7 +229,6 @@ Feature: ReturnSkipLimit2 - Limit
       """
     Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
 
-  @NegativeTest
   Scenario: [13] Fail when using negative value in LIMIT 2
     Given any graph
     And having executed:
@@ -249,7 +244,6 @@ Feature: ReturnSkipLimit2 - Limit
       """
     Then a SyntaxError should be raised at compile time: NegativeIntegerArgument
 
-  @NegativeTest
   Scenario: [14] Floating point parameter for LIMIT should fail
     Given any graph
     And having executed:
@@ -267,7 +261,6 @@ Feature: ReturnSkipLimit2 - Limit
       """
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
-  @NegativeTest
   Scenario: [15] Floating point parameter for LIMIT with ORDER BY should fail
     Given any graph
     And having executed:
@@ -285,7 +278,6 @@ Feature: ReturnSkipLimit2 - Limit
       """
     Then a SyntaxError should be raised at runtime: InvalidArgumentType
 
-  @NegativeTest
   Scenario: [16] Fail when using floating point in LIMIT 1
     Given any graph
     When executing query:
@@ -296,7 +288,6 @@ Feature: ReturnSkipLimit2 - Limit
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  @NegativeTest
   Scenario: [17] Fail when using floating point in LIMIT 2
     Given any graph
     And having executed:
