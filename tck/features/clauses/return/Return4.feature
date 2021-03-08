@@ -178,7 +178,6 @@ Feature: Return4 - Column renaming
       | 42  | 42  | {name: 1} |
     And no side effects
 
-  @NegativeTest
   Scenario: [10] Fail when returning multiple columns with same name
     Given any graph
     When executing query:

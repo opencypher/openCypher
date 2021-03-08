@@ -249,7 +249,6 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
     And the side effects should be:
       | -relationships | 1 |
 
-  @NegativeTest
   Scenario: [15] Fail when returning properties of deleted nodes
     Given an empty graph
     And having executed:
@@ -264,7 +263,6 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       """
     Then a EntityNotFound should be raised at runtime: DeletedEntityAccess
 
-  @NegativeTest
   Scenario: [16] Fail when returning labels of deleted nodes
     Given an empty graph
     And having executed:
@@ -279,7 +277,6 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       """
     Then a EntityNotFound should be raised at runtime: DeletedEntityAccess
 
-  @NegativeTest
   Scenario: [17] Fail when returning properties of deleted relationships
     Given an empty graph
     And having executed:
@@ -294,7 +291,6 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       """
     Then a EntityNotFound should be raised at runtime: DeletedEntityAccess
 
-  @NegativeTest
   Scenario: [18] Fail on projecting a non-existent function
     Given any graph
     When executing query:

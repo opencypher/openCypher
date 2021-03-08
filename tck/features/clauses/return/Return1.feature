@@ -46,7 +46,6 @@ Feature: Return1 - Return single variable (correct return of values according to
       | ({numbers: [1, 2, 3]}) |
     And no side effects
 
-  @NegativeTest
   Scenario: [2] Fail when returning an undefined variable
     Given any graph
     When executing query:
