@@ -113,7 +113,6 @@ Feature: Delete1 - Deleting nodes
     Then the result should be empty
     And no side effects
 
-  @NegativeTest
   Scenario: [7] Failing when deleting connected nodes
     Given an empty graph
     And having executed:
@@ -130,7 +129,6 @@ Feature: Delete1 - Deleting nodes
       """
     Then a ConstraintVerificationFailed should be raised at runtime: DeleteConnectedNode
 
-  @NegativeTest
   Scenario: [8] Failing when deleting a label
     Given any graph
     When executing query:
