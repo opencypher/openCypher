@@ -137,11 +137,13 @@ In this case, the trailing `RETURN` clause is omitted and all projected fields a
 
 Procedures may be called standalone either using explicitly passed arguments or using implicitly passed arguments constructed from statement parameters.
 
-The `YIELD` subclause may only be omitted in the standalone form of `CALL` to call a procedure that does not return any result fields.
-In this case the query will return as many (empty) rows as produced by the called procedure.
+The `YIELD` subclause may be omitted in the standalone form of `CALL`. 
+In this case all result fields produced by the procedure implementation are returned by the statement.
+For a procedure that does not return any result fields, the query will return as many (empty) rows as produced by the called procedure.
 
-A further simplification allowed in the standalone form is to use `YIELD *` to denote that all non-deprecated result fields produced by the procedure implementation are returned by the statement.
-The `YIELD *` form is _only_ allowed in the standalone form of `CALL`.
+A special argument `*` (star) may be given to the `YIELD` subclause in the standalone form only.
+This denotes that all result fields produced by the procedure implementation are returned by the statement.
+For a procedure that does not return any result fields, the query will return as many (empty) rows as produced by the called procedure.
 
 Different forms of standalone calls are detailed next.
 
@@ -169,9 +171,17 @@ Note that missing parameters are taken to be `null`.
 
 ===== Calling without specifying the names of yielded result fields
 
-Standalone calls that use the `YIELD *` subclause will always project all non-deprecated result fields.
+Standalone calls that omits the `YIELD` clause or use the `YIELD *` subclause will always project all result fields.
 
 Again consider a call to the procedure `myProc(name``::``STRING?``,``id``::``INTEGER?)``::`` (last``::``STRING?)`:
+
+.Standalone call to a procedure omitting `YIELD`
+[source, cypher]
+----
+CALL myProc("Donald", 12)
+----
+
+This is the same as executing:
 
 .Standalone call to a procedure using `YIELD *`
 [source, cypher]
@@ -179,42 +189,31 @@ Again consider a call to the procedure `myProc(name``::``STRING?``,``id``::``INT
 CALL myProc("Donald", 12) YIELD *
 ----
 
-This is the same as executing:
+Which in turn is the same as executing:
 
-.In-statement call to a procedure equivalent to a standalone call using `YIELD *`
+.In-statement call to a procedure, explicitly yielding all columns:
 [source, cypher]
 ----
 CALL myProc("Donald", 12) YIELD last
 RETURN *
 ----
 
-===== Calling with implicitly passed arguments (parameters) and with `YIELD *`
+===== Calling with implicitly passed arguments (parameters) and without specifying the names of yielded result fields
 
-Both simplifications may be used in a single standalone procedure call, leading to a very concise syntax for just executing a single procedure call:
+Both simplifications above may be used in a single standalone procedure call, leading to a concise syntax for just executing a single procedure call:
 
-.Simplified standalone procedure call
+.Standalone procedure call with `YIELD *` and implicitly passed arguments
 [source, cypher]
 ----
 CALL myProc YIELD *
 ----
 
-==== Standalone call to a procedure that does not return result fields
+Which is equivalent to executing the even more concise:
 
-Standalone calls without `YIELD` are only supported for procedures that do not return result fields:
-
-.Standalone call to a procedure that does not return result fields
+.Standalone procedure call with omitted `YIELD` and implicitly passed arguments
 [source, cypher]
 ----
-CALL myProc($arg)
-----
-
-Omitting all result fields when calling a procedure may still be achieved using an in-statement call:
-
-.In-statement call to a procedure that omits all result fields
-[source, cypher]
-----
-CALL myProc($arg)
-RETURN "ok"
+CALL myProc
 ----
 
 ==== Filtering yielded records
@@ -250,7 +249,7 @@ RETURN row.bar
 Procedure names consist of two parts:
 
 * The namespace which syntactically is a dot-separated list of variable names.
-* The actual name which syntactically is as variable name.
+* The actual name which syntactically is a variable name.
 
 Please consult the appendix regarding recommended procedure naming conventions.
 
@@ -312,17 +311,17 @@ Similar to variable names, it is recommended that sub-namespaces and procedure n
 == Appendix: Procedure call patterns
 
 .Procedure call patterns
-[frame="topbot",cols="3l,1m,2a,2a,1m", options="header,footer"]
+[frame="topbot",cols="3l,1m,2a,1m", options="header,footer"]
 |==================================================================================
-|Statement template        |Mode        |Argument Passing|May Return|New Bindings
-|.. CALL proc(..)          |In-Statement|Explicit        |New Fields|None
-|.. CALL proc(..) YIELD .. |In-Statement|Explicit        |New Fields|Given
-|CALL proc(..) YIELD ..    |Standalone  |Explicit        |New Fields|Given
-|CALL proc YIELD ..        |Standalone  |Implicit        |New Fields|Given
-|CALL proc(..) YIELD *     |Standalone  |Explicit        |New Fields|Non-Deprecated
-|CALL proc YIELD *         |Standalone  |Implicit        |New Fields|Non-Deprecated
-|CALL proc                 |Standalone  |Implicit        |No Fields |None
-|CALL proc(..)             |Standalone  |Explicit        |No Fields |None
+|Statement template        |Mode        |Argument Passing|New Bindings
+|.. CALL proc(..)          |In-Statement|Explicit        |None
+|.. CALL proc(..) YIELD .. |In-Statement|Explicit        |Given
+|CALL proc(..) YIELD ..    |Standalone  |Explicit        |Given
+|CALL proc YIELD ..        |Standalone  |Implicit        |Given
+|CALL proc(..) YIELD *     |Standalone  |Explicit        |All
+|CALL proc YIELD *         |Standalone  |Implicit        |All
+|CALL proc                 |Standalone  |Implicit        |All
+|CALL proc(..)             |Standalone  |Explicit        |All
 |==================================================================================
 
 Legend:
@@ -333,10 +332,7 @@ Legend:
 * Argument passing
 ** `Explicit`: Arguments are passed explicitly directly after the procedure name
 ** `Implicit`: Arguments are passed implicitly via the statement parameters
-* May return
-** `New Fields`: This procedure call pattern may be used with procedures that may or may not return result fields.
-** `No Fields`: This procedure call pattern is _only_ available for procedures that do not return any result fields.
 * New (variable) bindings
 ** `None`: The call yields no new variables
 ** `Given`: The call yields the given new variables in the order specified
-** `Non-Deprecated`: The call yields all non-deprecated result fields as new variables in the order specified by the procedure's result signature
+** `All`: The call yields all result fields as new variables in the order specified by the procedure's result signature
