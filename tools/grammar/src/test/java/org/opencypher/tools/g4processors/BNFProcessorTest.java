@@ -382,7 +382,7 @@ public class BNFProcessorTest {
 		// can i eat my own dog food
 		assertEquals(intermediateBNF, finalBNF);
 		// but can i handle everything ?
-		// not yet - somethings get wrapped in { }
+		// not yet - some things get wrapped in { }
 //		assertEquals(firstBNF, intermediateBNF);
 	}
 	

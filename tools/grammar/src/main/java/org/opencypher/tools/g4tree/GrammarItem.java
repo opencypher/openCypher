@@ -86,7 +86,7 @@ public interface GrammarItem
     /**
      * Reserialise showing the internal structure of the grammar. This is based on the 
      * rules of the "orignal BNF" g4, and may not correspond to how the user thinks of the
-     * structre
+     * structure
      * @param indent how much to indent each level of the structure
      * @return a String showing the internals and values in the grammar
      */

@@ -54,7 +54,7 @@ public class G4Processor
     {
         try
             {
-            return processAntrlStream(new ANTLRInputStream(inStream));
+            return processAntlrStream(new ANTLRInputStream(inStream));
         } catch (IOException e)
         {
             throw new RuntimeException("Failed to read or convert java.io.InputStream", e);
@@ -65,8 +65,8 @@ public class G4Processor
     {
         try
         {
-            // when back on antrl 4.7.1, use CharStreams.fromFileName(scriptFile)
-            return processAntrlStream(new ANTLRFileStream(fileName));
+            // when back on antlr 4.7.1, use CharStreams.fromFileName(scriptFile)
+            return processAntlrStream(new ANTLRFileStream(fileName));
         } catch (IOException e)
         {
             throw new RuntimeException("Failed to find or read " + fileName, e);
@@ -74,12 +74,12 @@ public class G4Processor
 
     }
 
-    private Grammar processAntrlStream(CharStream inStream)
+    private Grammar processAntlrStream(CharStream inStream)
     {
         Gee4Lexer lexer = new Gee4Lexer(inStream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         Gee4Parser parser = new Gee4Parser(tokens);
-        // leaving the old listeners in gives a nice error messsage
+        // leaving the old listeners in gives a nice error message
         // parser.removeErrorListeners();
         // lexer.removeErrorListeners();
         lexer.addErrorListener(new FailingErrorListener());

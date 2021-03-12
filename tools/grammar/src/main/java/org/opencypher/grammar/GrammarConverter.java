@@ -200,7 +200,7 @@ public class GrammarConverter {
     private Term convertText(FreeTextItem item) {
         LOGGER.debug("free text {}.", item.getContent());
         // treat as a literal, since we don't have a grammar object to hold it.
-        //  there's an issue with line breaks - something upstream woudl convert them to 
+        //  there's an issue with line breaks - something upstream would convert them to 
         //  line feed character set, so special case them
         return literal("!! " + item.getContent());
     }

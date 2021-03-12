@@ -46,7 +46,7 @@ An important observation is that the rest of the query never sees the matches th
 
 In this model, the `MATCH` clause uses both the expressed pattern and the `WHERE` expression to identify matches in the graph, which are then selected for use in the following clauses of the query with no further evaluation. This is done by considering the `WHERE` expression at every step of the matching process.
 
-For example, given the same data as perviously, “++MATCH (a)-->(b) WHERE a.name = "Bob"++” would only match connected pairs of nodes where the first of that pair has a name propery of ‘Bob’. ie:
+For example, given the same data as previously, “++MATCH (a)-->(b) WHERE a.name = "Bob"++” would only match connected pairs of nodes where the first of that pair has a name property of ‘Bob’. ie:
 
 [options="header"]
 |========================================================================
@@ -356,7 +356,7 @@ The same query, when interpreted according to model 2 gives:
 
 To achieve the same results as model 1, the query could be rewritten such that the part of the `WHERE` expression that uses the optional identifiers is instead made an explicit filter after a `WITH` clause, ie: “++MATCH (a)-[?]->(b) WHERE (a.name = "Bob" OR a.name = "Sue") WITH a, b WHERE b.name = "Sue"++”.
 
-[small]#Note: As discussed previously, the use of an optional identifer in a `WHERE` filter for any expression other than an `IS NULL` check, renders the optionality irrelevant. Thus an equally valid alternative for this example is to use the expression “++MATCH (a)-->(b) WHERE (a.name = "Bob" OR a.name = "Sue") AND b.name = "Sue"++”. This will give the same result in both models of evaluation.#
+[small]#Note: As discussed previously, the use of an optional identifier in a `WHERE` filter for any expression other than an `IS NULL` check, renders the optionality irrelevant. Thus an equally valid alternative for this example is to use the expression “++MATCH (a)-->(b) WHERE (a.name = "Bob" OR a.name = "Sue") AND b.name = "Sue"++”. This will give the same result in both models of evaluation.#
 
 Considering an example that won’t match anything after starting with node 5 (‘Bob’): “++MATCH (a)-[?]->(b?) WHERE (a.name = "Bob" OR a.name = "Sue") AND b.name = "Lou"++”. This gives the following when evaluated under model 1:
 

@@ -30,7 +30,7 @@ Refer to the link:CIP-PROCESS.adoc[Cypher Improvement Process] document for more
 * Cypher Technology Compatibility Kit (TCK), `/tck`
 ** Contains a set of Cucumber features that define Cypher behaviour, and documentation on how to use it.
 * openCypher developer tools, `/tools`
-** Contains code that tests the integrity of the repository, generates release artifacts, and aids implementors of openCypher.
+** Contains code that tests the integrity of the repository, generates release artifacts, and aids implementers of openCypher.
 
 == Contact us
 

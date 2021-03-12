@@ -218,7 +218,7 @@ public class G4ProcessorTest {
 		        .production( "test", charactersOfSet("TAB")).build()));
 	}
 	
-	//  G4 serialiser can't do these sensibly yet (or possibly even correctly)
+	//  G4 serializer can't do these sensibly yet (or possibly even correctly)
 	@Test
 	public void negCharset() {
 		roundTripG4(grammar( "test" )

@@ -77,7 +77,7 @@ public class ISO14977Test
     @Test
     public void shouldRenderCaseInsensitiveLiteral() throws Exception
     {
-    	// to ensure reproducability (via a set) the letters are sorted
+    	// to ensure reproducibility (via a set) the letters are sorted
         verify( production( "foo", caseInsensitive( "LIteR@L" ) ),
                 "foo = L,I,T,E,R,'@',L ;",
                 "",
