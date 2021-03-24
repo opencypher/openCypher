@@ -29,3 +29,102 @@
 #encoding: utf-8
 
 Feature: Call5 - Results projection
+
+  Scenario: [1] Explicit procedure result projection
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
+      | in   | out   |
+      | null | 'nix' |
+    When executing query:
+      """
+      CALL test.my.proc(null) YIELD out
+      RETURN out
+      """
+    Then the result should be, in order:
+      | out   |
+      | 'nix' |
+    And no side effects
+
+  Scenario: [2] Rename procedure call output in RETURN clause
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
+      | in   | out   |
+      | null | 'nix' |
+    When executing query:
+      """
+      CALL test.my.proc(null) YIELD out
+      RETURN out as a
+      """
+    Then the result should be, in order:
+      | a   |
+      | 'nix' |
+    And no side effects
+
+  Scenario: [3] Explicit procedure result projection with RETURN *
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
+      | in   | out   |
+      | null | 'nix' |
+    When executing query:
+      """
+      CALL test.my.proc(null) YIELD out
+      RETURN *
+      """
+    Then the result should be, in order:
+      | out   |
+      | 'nix' |
+    And no side effects
+
+  Scenario: [4] Project procedure results between query scopes with WITH clause
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
+      | in   | out   |
+      | null | 'nix' |
+    When executing query:
+      """
+      CALL test.my.proc(null) YIELD out
+      WITH out RETURN out
+      """
+    Then the result should be, in order:
+      | out   |
+      | 'nix' |
+    And no side effects
+
+  Scenario: [5] Project procedure results between query scopes with WITH clause and rename the projection
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
+      | in   | out   |
+      | null | 'nix' |
+    When executing query:
+      """
+      CALL test.my.proc(null) YIELD out
+      WITH out as a RETURN a
+      """
+    Then the result should be, in order:
+      | a   |
+      | 'nix' |
+    And no side effects
+
+  @NegativeTest
+  Scenario: [6] Yield wrong type - integer as string
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
+      | in   | out   |
+      | null | 1 |
+    When executing query:
+      """
+      CALL test.my.proc(null)
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  @NegativeTest
+  Scenario: [7] Yield wrong type - string as integer
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
+      | in   | out   |
+      | null | 'nix' |
+    When executing query:
+      """
+      CALL test.my.proc(null)
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
