@@ -104,3 +104,34 @@ Feature: Call5 - Results projection
       | a   |
       | 'nix' |
     And no side effects
+
+  Scenario: [6] Respect the YIELD order - 1
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
+      | in   | A   |  B   |
+      | null | 1   |  2   |
+    When executing query:
+      """
+      CALL test.my.proc(null) YIELD A, B
+      WITH out as a RETURN a
+      """
+    Then the result should be, in order:
+      | A   |  B   |
+      | 1   |  2   |
+    And no side effects
+
+  Scenario: [6] Respect the YIELD order - 2
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
+      | in   | A   |  B   |
+      | null | 1   |  2   |
+    When executing query:
+      """
+      CALL test.my.proc(null) YIELD B, A
+      WITH out as a RETURN a
+      """
+    Then the result should be, in order:
+      | B   |  A   |
+      | 2   |  1   |
+    And no side effects
+
