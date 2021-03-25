@@ -104,27 +104,3 @@ Feature: Call5 - Results projection
       | a   |
       | 'nix' |
     And no side effects
-
-  @NegativeTest
-  Scenario: [6] Yield wrong type - integer as string
-    Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
-      | in   | out   |
-      | null | 1 |
-    When executing query:
-      """
-      CALL test.my.proc(null)
-      """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentType
-
-  @NegativeTest
-  Scenario: [7] Yield wrong type - string as integer
-    Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: INTEGER?):
-      | in   | out   |
-      | null | 'nix' |
-    When executing query:
-      """
-      CALL test.my.proc(null)
-      """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentType
