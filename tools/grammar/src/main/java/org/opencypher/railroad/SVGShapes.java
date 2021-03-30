@@ -28,6 +28,8 @@
 package org.opencypher.railroad;
 
 import java.awt.Font;
+import java.util.Formatter;
+import java.util.Locale;
 import java.util.function.Function;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -41,8 +43,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.opencypher.tools.io.Output;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import static java.lang.String.format;
 
 public class SVGShapes implements ShapeRenderer.Shapes<XMLStreamException>
 {
@@ -435,5 +435,10 @@ public class SVGShapes implements ShapeRenderer.Shapes<XMLStreamException>
     private void endTag() throws XMLStreamException
     {
         writer.writeEndElement();
+    }
+
+    private static String format( String format, Object... args )
+    {
+        return String.format( Locale.US, format, args );
     }
 }
