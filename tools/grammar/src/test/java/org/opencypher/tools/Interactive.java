@@ -87,7 +87,7 @@ public class Interactive<T, R> implements TestRule
         String command = System.getProperty( "sun.java.command" );
         if (/*we can inspect the command line*/command != null )
         {
-            if (/*running from Intellij*/command.contains( "com.intellij.rt.execution.junit.JUnitStarter" ) )
+            if (/*running from Intellij*/command.matches( "com\\.intellij\\.rt\\.(execution\\.)?junit\\.JUnitStarter .*" ) )
             {
                 if ( command.endsWith( " " + className + "," + methodName ) )
                 {

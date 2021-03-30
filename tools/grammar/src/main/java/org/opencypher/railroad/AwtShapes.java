@@ -181,6 +181,81 @@ public final class AwtShapes implements ShapeRenderer.Shapes<RuntimeException>
     @Override
     public Path<RuntimeException> path( Style style )
     {
-        throw new UnsupportedOperationException( "not implemented" );
+        return new LinePath( style );
+    }
+
+    private class LinePath implements Path<RuntimeException>
+    {
+        private final Style style;
+        private PathPosition start;
+        double x, y;
+
+        public LinePath( Style style )
+        {
+
+            this.style = style;
+        }
+
+        @Override
+        public void arc( double rx, double ry, double xAxisRotation, boolean largeArc, boolean sweep, double x, double y )
+        {
+            throw new UnsupportedOperationException( "not implemented" );
+        }
+
+        @Override
+        public void closePath()
+        {
+            if ( start != null )
+            {
+                lineTo( start.x, start.y );
+            }
+        }
+
+        @Override
+        public void moveTo( double x, double y )
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public void lineTo( double x, double y )
+        {
+            if ( start == null )
+            {
+                start = new PathPosition( this.x, this.y );
+            }
+            AwtShapes.this.line( style, this.x, this.y, x, y );
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public void quadTo( double x1, double y1, double x2, double y2 )
+        {
+            throw new UnsupportedOperationException( "not implemented" );
+        }
+
+        @Override
+        public void cubicTo( double x1, double y1, double x2, double y2, double x3, double y3 )
+        {
+            throw new UnsupportedOperationException( "not implemented" );
+        }
+
+        @Override
+        public void close() throws RuntimeException
+        {
+        }
+    }
+
+    private static class PathPosition
+    {
+        final double x, y;
+
+        PathPosition( double x, double y )
+        {
+            this.x = x;
+            this.y = y;
+        }
     }
 }
