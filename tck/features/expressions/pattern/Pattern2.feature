@@ -89,6 +89,7 @@ Feature: Pattern2 - Number of Pattern Matches
 
   # TODO: Scenario Outline for counting multi-hop patterns
 
+  @skipGrammarCheck
   Scenario Outline: [3] Fail when pattern is a single node pattern
     Given any graph
     When executing query:
@@ -106,6 +107,7 @@ Feature: Pattern2 - Number of Pattern Matches
       | (:A {})       |
       | (:A {num: 6}) |
 
+  @skipGrammarCheck
   Scenario Outline: [4] Fail when pattern binds a new variable
     Given any graph
     When executing query:
