@@ -75,37 +75,7 @@ Feature: Call5 - Results projection
       | 'nix' |
     And no side effects
 
-  Scenario: [4] Project procedure results between query scopes with WITH clause
-    Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
-      | in   | out   |
-      | null | 'nix' |
-    When executing query:
-      """
-      CALL test.my.proc(null) YIELD out
-      WITH out RETURN out
-      """
-    Then the result should be, in order:
-      | out   |
-      | 'nix' |
-    And no side effects
-
-  Scenario: [5] Project procedure results between query scopes with WITH clause and rename the projection
-    Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
-      | in   | out   |
-      | null | 'nix' |
-    When executing query:
-      """
-      CALL test.my.proc(null) YIELD out
-      WITH out as a RETURN a
-      """
-    Then the result should be, in order:
-      | a     |
-      | 'nix' |
-    And no side effects
-
-  Scenario Outline: [6] The order of yield items is irrelevant
+  Scenario Outline: [4] The order of yield items is irrelevant
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
       | in   | a | b |
@@ -119,8 +89,93 @@ Feature: Call5 - Results projection
       | a | b |
       | 1 | 2 |
     And no side effects
-    
+
     Examples:
       | yield |
       | a, b  |
       | b, a  |
+
+  Scenario Outline: [5] Rename Single output
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
+      | in   | a | b |
+      | null | 1 | 2 |
+    When executing query:
+      """
+      CALL test.my.proc(null) YIELD a, b as c
+      RETURN a, c
+      """
+    Then the result should be, in order:
+      | a | c |
+      | 1 | 2 |
+    And no side effects
+
+  Scenario Outline: [6] Rename all outputs
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
+      | in   | a | b |
+      | null | 1 | 2 |
+    When executing query:
+      """
+      CALL test.my.proc(null) YIELD a as b, b as d
+      RETURN b, d
+      """
+    Then the result should be, in order:
+      | b | d |
+      | 1 | 2 |
+    And no side effects
+
+  Scenario Outline: [7] Rename single output to an unbound variable name
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
+      | in   | a | b |
+      | null | 1 | 2 |
+    When executing query:
+      """
+      CALL test.my.proc(null) YIELD a as b, b as c
+      RETURN b, c
+      """
+    Then the result should be, in order:
+      | b | c |
+      | 1 | 2 |
+    And no side effects
+
+  Scenario Outline: [8] Rename all outputs to unbound variable names
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
+      | in   | a | b |
+      | null | 1 | 2 |
+    When executing query:
+      """
+      CALL test.my.proc(null) YIELD a as b, b as a
+      RETURN b, a
+      """
+    Then the result should be, in order:
+      | b | a |
+      | 1 | 2 |
+    And no side effects
+
+  Scenario Outline: [9] Fail on renaming to an already bound variable name
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
+      | in   | a | b |
+      | null | 1 | 2 |
+    When executing query:
+      """
+      CALL test.my.proc(null) YIELD a, b as a
+      RETURN a
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+
+  Scenario Outline: [9] Fail on renaming all outputs to the same variable name
+    Given an empty graph
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
+      | in   | a | b |
+      | null | 1 | 2 |
+    When executing query:
+      """
+      CALL test.my.proc(null) YIELD a as c, b as c
+      RETURN c
+      """
+    Then a SyntaxError should be raised at compile time: VariableAlreadyBound
