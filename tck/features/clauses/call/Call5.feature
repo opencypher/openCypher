@@ -95,65 +95,35 @@ Feature: Call5 - Results projection
       | a, b  |
       | b, a  |
 
-  Scenario Outline: [5] Rename Single output
+  Scenario Outline: [6] Rename outputs to unbound variable names
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
       | in   | a | b |
       | null | 1 | 2 |
     When executing query:
       """
-      CALL test.my.proc(null) YIELD a, b as c
-      RETURN a, c
+      CALL test.my.proc(null) YIELD <rename>
+      RETURN <a>, <b>
       """
     Then the result should be, in order:
-      | a | c |
-      | 1 | 2 |
+      | <a> | <b> |
+      | 1   | 2   |
     And no side effects
-
-  Scenario Outline: [6] Rename all outputs
-    Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
-      | in   | a | b |
-      | null | 1 | 2 |
-    When executing query:
-      """
-      CALL test.my.proc(null) YIELD a as b, b as d
-      RETURN b, d
-      """
-    Then the result should be, in order:
-      | b | d |
-      | 1 | 2 |
-    And no side effects
-
-  Scenario Outline: [7] Rename single output to an unbound variable name
-    Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
-      | in   | a | b |
-      | null | 1 | 2 |
-    When executing query:
-      """
-      CALL test.my.proc(null) YIELD a as b, b as c
-      RETURN b, c
-      """
-    Then the result should be, in order:
-      | b | c |
-      | 1 | 2 |
-    And no side effects
-
-  Scenario Outline: [8] Rename all outputs to unbound variable names
-    Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
-      | in   | a | b |
-      | null | 1 | 2 |
-    When executing query:
-      """
-      CALL test.my.proc(null) YIELD a as b, b as a
-      RETURN b, a
-      """
-    Then the result should be, in order:
-      | b | a |
-      | 1 | 2 |
-    And no side effects
+    
+    Examples:
+      | <rename>       | <a> | <b> |
+      | a AS c, b AS d | c   | d   |
+      | a AS b, b AS d | b   | d   |
+      | a AS c, b AS a | c   | a   |
+      | a AS b, b AS a | b   | a   |
+      | a AS c, b AS b | c   | b   |
+      | a AS c, b      | c   | b   |
+      | a AS a, b AS d | a   | d   |
+      | a, b AS d      | a   | d   |
+      | a AS a, b AS b | a   | b   |
+      | a AS a, b      | a   | b   |
+      | a, b AS b      | a   | b   |
+    
 
   Scenario Outline: [9] Fail on renaming to an already bound variable name
     Given an empty graph
@@ -166,7 +136,6 @@ Feature: Call5 - Results projection
       RETURN a
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
-
 
   Scenario Outline: [9] Fail on renaming all outputs to the same variable name
     Given an empty graph
