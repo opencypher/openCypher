@@ -94,21 +94,21 @@ Feature: Call5 - Results projection
       | <a> | <b> |
       | 1   | 2   |
     And no side effects
-    
+
     Examples:
-      | <rename>       | <a> | <b> |
-      | a AS c, b AS d | c   | d   |
-      | a AS b, b AS d | b   | d   |
-      | a AS c, b AS a | c   | a   |
-      | a AS b, b AS a | b   | a   |
-      | a AS c, b AS b | c   | b   |
-      | a AS c, b      | c   | b   |
-      | a AS a, b AS d | a   | d   |
-      | a, b AS d      | a   | d   |
-      | a AS a, b AS b | a   | b   |
-      | a AS a, b      | a   | b   |
-      | a, b AS b      | a   | b   |
-    
+      | rename         | a | b |
+      | a AS c, b AS d | c | d |
+      | a AS b, b AS d | b | d |
+      | a AS c, b AS a | c | a |
+      | a AS b, b AS a | b | a |
+      | a AS c, b AS b | c | b |
+      | a AS c, b      | c | b |
+      | a AS a, b AS d | a | d |
+      | a, b AS d      | a | d |
+      | a AS a, b AS b | a | b |
+      | a AS a, b      | a | b |
+      | a, b AS b      | a | b |
+
 
   Scenario: [5] Fail on renaming to an already bound variable name
     Given an empty graph
