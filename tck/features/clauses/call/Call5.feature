@@ -45,22 +45,7 @@ Feature: Call5 - Results projection
       | 'nix' |
     And no side effects
 
-  Scenario: [2] Rename procedure call output in RETURN clause
-    Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
-      | in   | out   |
-      | null | 'nix' |
-    When executing query:
-      """
-      CALL test.my.proc(null) YIELD out AS a
-      RETURN a
-      """
-    Then the result should be, in order:
-      | a     |
-      | 'nix' |
-    And no side effects
-
-  Scenario: [3] Explicit procedure result projection with RETURN *
+  Scenario: [2] Explicit procedure result projection with RETURN *
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
       | in   | out   |
@@ -75,7 +60,7 @@ Feature: Call5 - Results projection
       | 'nix' |
     And no side effects
 
-  Scenario Outline: [4] The order of yield items is irrelevant
+  Scenario Outline: [3] The order of yield items is irrelevant
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
       | in   | a | b |
@@ -95,7 +80,7 @@ Feature: Call5 - Results projection
       | a, b  |
       | b, a  |
 
-  Scenario Outline: [6] Rename outputs to unbound variable names
+  Scenario Outline: [4] Rename outputs to unbound variable names
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
       | in   | a | b |
@@ -125,7 +110,7 @@ Feature: Call5 - Results projection
       | a, b AS b      | a   | b   |
     
 
-  Scenario Outline: [9] Fail on renaming to an already bound variable name
+  Scenario: [5] Fail on renaming to an already bound variable name
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
       | in   | a | b |
@@ -137,7 +122,7 @@ Feature: Call5 - Results projection
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
-  Scenario Outline: [9] Fail on renaming all outputs to the same variable name
+  Scenario: [6] Fail on renaming all outputs to the same variable name
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
       | in   | a | b |
