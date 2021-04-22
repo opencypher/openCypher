@@ -74,7 +74,7 @@ Feature: Call6 - Call clause interoperation with other clauses
     When executing query:
       """
       CALL test.my.proc(null) YIELD out
-      WITH out as a RETURN a
+      WITH out AS a RETURN a
       """
     Then the result should be, in order:
       | a     |
