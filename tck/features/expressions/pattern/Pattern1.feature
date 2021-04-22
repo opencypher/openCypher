@@ -30,7 +30,7 @@
 
 Feature: Pattern1 - Existential Pattern Match
 
-  Scenario Outline: [1] Matching on any single outgoing directed connection
+  Scenario: [1] Matching on any single outgoing directed connection
     Given an empty graph
     And having executed:
       """
@@ -46,7 +46,7 @@ Feature: Pattern1 - Existential Pattern Match
       | (:B) |
     And no side effects
 
-  Scenario Outline: [2] Matching on a single undirected connection
+  Scenario: [2] Matching on a single undirected connection
     Given an empty graph
     And having executed:
       """
@@ -64,7 +64,7 @@ Feature: Pattern1 - Existential Pattern Match
       | (:D) |
     And no side effects
 
-  Scenario Outline: [3] Matching on any single incoming directed connection
+  Scenario: [3] Matching on any single incoming directed connection
     Given an empty graph
     And having executed:
       """
@@ -82,7 +82,7 @@ Feature: Pattern1 - Existential Pattern Match
       | (:D) |
     And no side effects
 
-  Scenario Outline: [4] Matching on a specific type of single outgoing directed connection
+  Scenario: [4] Matching on a specific type of single outgoing directed connection
     Given an empty graph
     And having executed:
       """
@@ -97,7 +97,7 @@ Feature: Pattern1 - Existential Pattern Match
       | (:A) |
     And no side effects
 
-  Scenario Outline: [5] Matching on a specific type of single undirected connection
+  Scenario: [5] Matching on a specific type of single undirected connection
     Given an empty graph
     And having executed:
       """
@@ -114,7 +114,7 @@ Feature: Pattern1 - Existential Pattern Match
       | (:D) |
     And no side effects
 
-  Scenario Outline: [6] Matching on a specific type of single incoming directed connection
+  Scenario: [6] Matching on a specific type of single incoming directed connection
     Given an empty graph
     And having executed:
       """
@@ -130,7 +130,7 @@ Feature: Pattern1 - Existential Pattern Match
       | (:D) |
     And no side effects
 
-  Scenario Outline: [7] Matching on a specific type of a variable length outgoing directed connection
+  Scenario: [7] Matching on a specific type of a variable length outgoing directed connection
     Given an empty graph
     And having executed:
       """
@@ -145,7 +145,7 @@ Feature: Pattern1 - Existential Pattern Match
       | (:A) |
     And no side effects
 
-  Scenario Outline: [8] Matching on a specific type of variable length undirected connection
+  Scenario: [8] Matching on a specific type of variable length undirected connection
     Given an empty graph
     And having executed:
       """
@@ -162,7 +162,7 @@ Feature: Pattern1 - Existential Pattern Match
       | (:D) |
     And no side effects
 
-  Scenario Outline: [9] Matching on a specific type of variable length incoming directed connection
+  Scenario: [9] Matching on a specific type of variable length incoming directed connection
     Given an empty graph
     And having executed:
       """
@@ -178,7 +178,7 @@ Feature: Pattern1 - Existential Pattern Match
       | (:D) |
     And no side effects
 
-  Scenario Outline: [10] Matching on a specific type of undirected connection with length 2
+  Scenario: [10] Matching on a specific type of undirected connection with length 2
     Given an empty graph
     And having executed:
       """
@@ -192,4 +192,143 @@ Feature: Pattern1 - Existential Pattern Match
       | n    |
       | (:B) |
       | (:D) |
+    And no side effects
+
+  Scenario: [10] Fail on introducing unbounded variable in pattern
+    Given any graph
+    When executing query:
+      """
+      MATCH (n) WHERE (n)-->(m) RETURN n
+      """
+    Then a SyntaxError should be raised at compile time: UndefinedVariable
+
+  Scenario: [11] Fail on checking self pattern
+    Given any graph
+    When executing query:
+      """
+      MATCH (n) WHERE (n) RETURN n
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  Scenario: [12] Matching two nodes on a single directed connection between them
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
+      """
+    When executing query:
+      """
+      MATCH (n), (m) WHERE (n)-->(m) RETURN n. m
+      """
+    Then the result should be, in any order:
+      | n    | m    |
+      | (:A) | (:B) |
+      | (:B) | (:A) |
+      | (:A) | (:C) |
+      | (:A) | (:D) |
+    And no side effects
+
+  Scenario: [13] Matching two nodes on a single undirected connection between them
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
+      """
+    When executing query:
+      """
+      MATCH (n), (m) WHERE (n)--(m) RETURN n. m
+      """
+    Then the result should be, in any order:
+      | n    | m    |
+      | (:A) | (:B) |
+      | (:B) | (:A) |
+      | (:A) | (:C) |
+      | (:C) | (:A) |
+      | (:A) | (:D) |
+      | (:A) | (:D) |
+    And no side effects
+
+
+  Scenario: [14] Matching two nodes on a specific type of single outgoing directed connection
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
+      """
+    When executing query:
+      """
+      MATCH (n), (m) WHERE (n)-[:REL1]->(m) RETURN n
+      """
+    Then the result should be, in any order:
+      | n    | m    |
+      | (:A) | (:B) |
+      | (:A) | (:D) |
+    And no side effects
+
+  Scenario: [15] Matching two nodes on a specific type of single undirected connection
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
+      """
+    When executing query:
+      """
+      MATCH (n), (m) WHERE (n)-[:REL1]-(m) RETURN n
+      """
+    Then the result should be, in any order:
+      | n    | m    |
+      | (:A) | (:B) |
+      | (:B) | (:A) |
+      | (:A) | (:D) |
+      | (:D) | (:A) |
+    And no side effects
+
+  Scenario: [16] Matching two nodes on a specific type of a variable length outgoing directed connection
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
+      """
+    When executing query:
+      """
+      MATCH (n), (m) WHERE (n)-[:REL1*]->(m) RETURN n
+      """
+    Then the result should be, in any order:
+      | n    | m    |
+      | (:A) | (:B) |
+      | (:A) | (:D) |
+    And no side effects
+
+  Scenario: [17] Matching two nodes on a specific type of variable length undirected connection
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
+      """
+    When executing query:
+      """
+      MATCH (n), (m) WHERE (n)-[:REL1*]-(m) RETURN n
+      """
+    Then the result should be, in any order:
+      | n    | m    |
+      | (:A) | (:B) |
+      | (:A) | (:D) |
+      | (:D) | (:B) |
+      | (:B) | (:D) |
+    And no side effects
+
+  Scenario: [18] Matching two nodes on a specific type of undirected connection with length 2
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
+      """
+    When executing query:
+      """
+      MATCH (n), (m) WHERE (n)-[:REL1*2]-(m) RETURN n
+      """
+    Then the result should be, in any order:
+      | n    | m    |
+      | (:D) | (:B) |
+      | (:B) | (:D) |
     And no side effects
