@@ -111,3 +111,80 @@ Feature: List6 - List size
       | (a)-[r:REL]->(b)                           |
       | (a)-[r:REL]->(:C)<-[s:REL]-(a {num: 5})    |
       | ()-[r:REL]*0..2->(c:C)<-[s:REL]-({num: 5}) |
+
+  Scenario: [7] Using size of pattern comprehension to test existence
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:X {num: 42}), (:X {num: 43})
+      CREATE (a)-[:T]->()
+      """
+    When executing query:
+      """
+      MATCH (n:X)
+      RETURN n, size([(n)--() | 1]) > 0 AS b
+      """
+    Then the result should be, in any order:
+      | n              | b     |
+      | (:X {num: 42}) | true  |
+      | (:X {num: 43}) | false |
+    And no side effects
+
+  Scenario: [8] Get node degree via size of pattern comprehension
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (x:X),
+        (x)-[:T]->(),
+        (x)-[:T]->(),
+        (x)-[:T]->()
+      """
+    When executing query:
+      """
+      MATCH (a:X)
+      RETURN size([(a)-->() | 1]) AS length
+      """
+    Then the result should be, in any order:
+      | length |
+      | 3      |
+    And no side effects
+
+  Scenario: [9] Get node degree via size of pattern comprehension that specifies a relationship type
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (x:X),
+        (x)-[:T]->(),
+        (x)-[:T]->(),
+        (x)-[:T]->(),
+        (x)-[:OTHER]->()
+      """
+    When executing query:
+      """
+      MATCH (a:X)
+      RETURN size([(a)-[:T]->() | 1]) AS length
+      """
+    Then the result should be, in any order:
+      | length |
+      | 3      |
+    And no side effects
+
+  Scenario: [10] Get node degree via size of pattern comprehension that specifies multiple relationship types
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (x:X),
+        (x)-[:T]->(),
+        (x)-[:T]->(),
+        (x)-[:T]->(),
+        (x)-[:OTHER]->()
+      """
+    When executing query:
+      """
+      MATCH (a:X)
+      RETURN size([(a)-[:T|OTHER]->() | 1]) AS length
+      """
+    Then the result should be, in any order:
+      | length |
+      | 4      |
+    And no side effects
