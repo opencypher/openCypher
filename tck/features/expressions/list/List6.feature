@@ -91,6 +91,7 @@ Feature: List6 - List size
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @skipGrammarCheck
   Scenario Outline: [6] Fail for `size()` on pattern that is not a parenthesized expression
     Given any graph
     When executing query:
