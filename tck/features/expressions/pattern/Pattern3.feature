@@ -86,25 +86,7 @@ Feature: Pattern3 - Pattern Comprehension
       | [<(:A)-[:T]->(:B)>] |
     And no side effects
 
-  Scenario: [4] Using pattern comprehension to test existence
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:X {num: 42}), (:X {num: 43})
-      CREATE (a)-[:T]->()
-      """
-    When executing query:
-      """
-      MATCH (n:X)
-      RETURN n, size([(n)--() | 1]) > 0 AS b
-      """
-    Then the result should be, in any order:
-      | n              | b     |
-      | (:X {num: 42}) | true  |
-      | (:X {num: 43}) | false |
-    And no side effects
-
-  Scenario: [5] Introducing new node variable in pattern comprehension
+  Scenario: [4] Introducing new node variable in pattern comprehension
     Given an empty graph
     And having executed:
       """
@@ -122,7 +104,7 @@ Feature: Pattern3 - Pattern Comprehension
       | []      |
     And no side effects
 
-  Scenario: [6] Introducing new relationship variable in pattern comprehension
+  Scenario: [5] Introducing new relationship variable in pattern comprehension
     Given an empty graph
     And having executed:
       """
@@ -140,66 +122,7 @@ Feature: Pattern3 - Pattern Comprehension
       | []      |
     And no side effects
 
-  Scenario: [7] Get node degree via size of pattern comprehension
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (x:X),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:T]->()
-      """
-    When executing query:
-      """
-      MATCH (a:X)
-      RETURN size([(a)-->() | 1]) AS length
-      """
-    Then the result should be, in any order:
-      | length |
-      | 3      |
-    And no side effects
-
-  Scenario: [8] Get node degree via size of pattern comprehension that specifies a relationship type
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (x:X),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:OTHER]->()
-      """
-    When executing query:
-      """
-      MATCH (a:X)
-      RETURN size([(a)-[:T]->() | 1]) AS length
-      """
-    Then the result should be, in any order:
-      | length |
-      | 3      |
-    And no side effects
-
-  Scenario: [9] Get node degree via size of pattern comprehension that specifies multiple relationship types
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (x:X),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:OTHER]->()
-      """
-    When executing query:
-      """
-      MATCH (a:X)
-      RETURN size([(a)-[:T|OTHER]->() | 1]) AS length
-      """
-    Then the result should be, in any order:
-      | length |
-      | 4      |
-    And no side effects
-
-  Scenario: [10] Aggregating on pattern comprehension
+  Scenario: [6] Aggregating on pattern comprehension
     Given an empty graph
     And having executed:
       """
@@ -216,7 +139,7 @@ Feature: Pattern3 - Pattern Comprehension
       | 3 |
     And no side effects
 
-  Scenario: [11] Pattern comprehension inside list comprehension
+  Scenario: [7] Pattern comprehension inside list comprehension
     Given an empty graph
     And having executed:
       """
@@ -240,7 +163,7 @@ Feature: Pattern3 - Pattern Comprehension
       | (:X {n: 2}) | [0, 1] |
     And no side effects
 
-  Scenario: [12] Using a pattern comprehension in a WITH
+  Scenario: [8] Using a pattern comprehension in a WITH
     Given an empty graph
     And having executed:
       """
@@ -259,7 +182,7 @@ Feature: Pattern3 - Pattern Comprehension
       | [<(:A)-[:T]->(:C)>, <(:A)-[:T]->(:B)>] | 2 |
     And no side effects
 
-  Scenario: [13] Using a variable-length pattern comprehension in a WITH
+  Scenario: [9] Using a variable-length pattern comprehension in a WITH
     Given an empty graph
     And having executed:
       """
@@ -276,7 +199,7 @@ Feature: Pattern3 - Pattern Comprehension
       | [<(:A)-[:T]->(:B)>] | 1 |
     And no side effects
 
-  Scenario: [14] Using pattern comprehension in RETURN
+  Scenario: [10] Using pattern comprehension in RETURN
     Given an empty graph
     And having executed:
       """
@@ -295,7 +218,7 @@ Feature: Pattern3 - Pattern Comprehension
       | []                  |
     And no side effects
 
-  Scenario: [15] Pattern comprehension and ORDER BY
+  Scenario: [11] Pattern comprehension and ORDER BY
     Given an empty graph
     And having executed:
       """
