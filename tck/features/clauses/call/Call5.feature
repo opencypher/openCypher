@@ -117,7 +117,7 @@ Feature: Call5 - Results projection
       | null | 1 | 2 |
     When executing query:
       """
-      CALL test.my.proc(null) YIELD a, b as a
+      CALL test.my.proc(null) YIELD a, b AS a
       RETURN a
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
@@ -129,7 +129,7 @@ Feature: Call5 - Results projection
       | null | 1 | 2 |
     When executing query:
       """
-      CALL test.my.proc(null) YIELD a as c, b as c
+      CALL test.my.proc(null) YIELD a AS c, b AS c
       RETURN c
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
