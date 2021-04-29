@@ -90,3 +90,24 @@ Feature: List6 - List size
       RETURN size(p)
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  Scenario Outline: [6] Fail for `size()` on pattern that is not a parenthesized expression
+    Given any graph
+    When executing query:
+      """
+      RETURN size(<pattern>)
+      """
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
+
+    Examples:
+      | pattern                                    |
+      | (a {})                                     |
+      | (a {num: 123})                             |
+      | ()--()                                     |
+      | ()--(a)                                    |
+      | (a)-->()                                   |
+      | (a)<--(a)                                  |
+      | (a)-[:REL]->(b)                            |
+      | (a)-[r:REL]->(b)                           |
+      | (a)-[r:REL]->(:C)<-[s:REL]-(a {num: 5})    |
+      | ()-[r:REL]*0..2->(c:C)<-[s:REL]-({num: 5}) |
