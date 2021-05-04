@@ -28,7 +28,12 @@
 package org.opencypher.tools.grammar;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -60,19 +65,79 @@ import static org.opencypher.tools.io.HtmlTag.head;
 import static org.opencypher.tools.io.HtmlTag.html;
 import static org.opencypher.tools.io.HtmlTag.meta;
 
-public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Linker, ISO14977.HtmlLinker
+public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Linker, HtmlLinker
 {
-    private final Diagram.BuilderOptions options;
+    interface Options extends Diagram.BuilderOptions
+    {
+        default ProductionDetailsLinker productionDetailsLink()
+        {
+            return null;
+        }
+
+        default BnfFlavour bnfFlavour()
+        {
+            return ISO14977::html;
+        }
+    }
+
+    public interface BnfFlavour
+    {
+        void bnf( HtmlTag parent, Production production, HtmlLinker linker );
+
+        static BnfFlavour fromString( String value )
+        {
+            throw new UnsupportedOperationException( "not implemented" );
+        }
+    }
+
+    public interface ProductionDetailsLinker
+    {
+        String productionDetailsLink( String production );
+
+        static ProductionDetailsLinker fromString( String template )
+        {
+            MessageFormat format = new MessageFormat( template );
+            return input -> format.format( new Object[]{input} );
+        }
+    }
+
+    private final Options options;
+    private final ProductionDetailsLinker detailsLinker;
+    private final BnfFlavour bnfFlavour;
 
     public static void main( String... args ) throws Exception
     {
         main( RailRoadDiagramPages::new, RailRoadDiagramPages::generate, args );
     }
 
+    public static void generate( Grammar grammar, Output output, Map<String,?> properties ) throws IOException, XMLStreamException
+    {
+        new RailRoadDiagramPages( properties ).generate( grammar, output );
+    }
+
     private RailRoadDiagramPages( Map<?, ?> properties )
     {
         super( properties );
-        this.options = options( Diagram.BuilderOptions.class );
+        this.options = options( Options.class );
+        this.bnfFlavour = options.bnfFlavour();
+        this.detailsLinker = options.productionDetailsLink();
+    }
+
+    @Override
+    protected <T> T transform( Class<T> type, String value )
+    {
+        if ( type == BnfFlavour.class )
+        {
+            return type.cast( BnfFlavour.fromString( value ) );
+        }
+        else if ( type == ProductionDetailsLinker.class )
+        {
+            return type.cast( ProductionDetailsLinker.fromString( value ) );
+        }
+        else
+        {
+            return super.transform( type, value );
+        }
     }
 
     private void generate( Grammar grammar, Output output ) throws IOException, XMLStreamException
@@ -89,6 +154,31 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
             }, outputDir );
             diagram.render( renderer, canvas );
             diagrams++;
+        }
+        try ( Output backlinks = Output.output( outputDir.resolve( "backlinks.js" ) ) )
+        {
+            backlinks.println( "var backlinks = {" );
+            grammar.accept( production ->
+            {
+                backlinks.append( "  " ).append( '"' ).append( production.name() ).append( '"' ).append( ": [" );
+                for ( Production source : production.referencedFrom() )
+                {
+                    backlinks.append( '"' ).append( source.name() ).append( '"' ).append( ", " );
+                }
+                backlinks.println( "]," );
+            } );
+            backlinks.println( "};" );
+        }
+        try
+        {
+            Files.copy(
+                    Path.of( getClass().getResource( "/explore-backlinks.js" ).toURI() ),
+                    outputDir.resolve( "explore-backlinks.js" ),
+                    StandardCopyOption.REPLACE_EXISTING );
+        }
+        catch ( NullPointerException | URISyntaxException e )
+        {
+            throw new IOException( "Failed to copy 'explore-backlinks.js'", e );
         }
         output.append( "Rendered " ).append( diagrams ).println( " diagrams." );
     }
@@ -125,10 +215,24 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
         String svg = production.name() + ".svg";
         try ( HtmlTag.Html html = html( dir.resolve( production.name() + ".html" ) ) )
         {
-            html.head( head( "title", production.name() ), meta( "charset", "UTF-8" ) );
+            html.head(
+                    head( "title", production.name() ), meta( "charset", "UTF-8" ),
+                    head( "script", null, attr( "src", "backlinks.js" ) ),
+                    head( "script", null, attr( "src", "explore-backlinks.js" ) ) );
             try ( HtmlTag body = html.body() )
             {
-                body.textTag( "h1", production.name() );
+                String detailsLink = null;
+                if ( this.detailsLinker != null && (null != (detailsLink = this.detailsLinker.productionDetailsLink( production.name() ))) )
+                {
+                    try ( HtmlTag h1 = body.tag( "h1" ) )
+                    {
+                        h1.a( detailsLink, production.name() );
+                    }
+                }
+                else
+                {
+                    body.textTag( "h1", production.name() );
+                }
                 body.tag( "object", attr( "data", svg ), attr( "type", "image/svg+xml" ) ).close();
                 String description = production.description();
                 if ( description != null )
@@ -137,22 +241,22 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
                     body.text( description );
                 }
                 body.textTag( "h2", "EBNF" );
+                bnf( body, production );
                 for ( NonTerminal nonTerminal : production.references() )
                 {
                     Production site = nonTerminal.declaringProduction();
                     if ( site.skip() )
                     {
-                        ISO14977.html( body, site, this );
+                        bnf( body, production );
                     }
                 }
-                ISO14977.html( body, production, this );
                 production.definition().accept( new InlinedProductions()
                 {
                     @Override
                     void inline( Production production )
                     {
                         body.tag( "a", attr( "name", production.name() ) ).close();
-                        ISO14977.html( body, production, RailRoadDiagramPages.this );
+                        bnf( body, production );
                     }
                 } );
                 Collection<Production> references = production.referencedFrom();
@@ -163,7 +267,7 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
                     {
                         for ( Production reference : references )
                         {
-                            try ( HtmlTag li = ul.tag( "li" ) )
+                            try ( HtmlTag li = ul.tag( "li", attr( "class", "backlink" ), attr( "backlink", reference.name() ) ) )
                             {
                                 String name = reference.name();
                                 li.a( referenceLink( name ), name );
@@ -173,6 +277,11 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
                 }
             }
         }
+    }
+
+    private void bnf( HtmlTag body, Production production )
+    {
+        bnfFlavour.bnf( body, production, this );
     }
 
     private static abstract class InlinedProductions implements TermVisitor<RuntimeException>, Consumer<Grammar.Term>

@@ -34,6 +34,7 @@ import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collector;
@@ -176,6 +177,7 @@ public interface Grammar
 
     static Term oneOf( Term first, Term... alternatives )
     {
+        Objects.requireNonNull( first, "first term" );
         if ( alternatives == null || alternatives.length == 0 )
         {
             return first;
@@ -217,6 +219,7 @@ public interface Grammar
 
     static Term sequence( Term first, Term... more )
     {
+        Objects.requireNonNull( first, "first term" );
         if ( more == null || more.length == 0 )
         {
             return first;

@@ -278,9 +278,24 @@ public final class HtmlTag implements AutoCloseable
      *
      * @return the underlying {@link Output}
      */
-    public Output output()
+    public Output textOutput()
     {
-        return output;
+        return new Output()
+        {
+            @Override
+            public Output append( char x )
+            {
+                if ( x == '<' )
+                {
+                    output.append( "&lt;" );
+                }
+                else
+                {
+                    output.append( x );
+                }
+                return this;
+            }
+        };
     }
 
     public static final class HeadTag

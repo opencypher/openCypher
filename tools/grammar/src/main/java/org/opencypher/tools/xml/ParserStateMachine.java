@@ -130,6 +130,10 @@ class ParserStateMachine extends DefaultHandler2
         if ( uri.isEmpty() )
         {
             uri = prefixToUri.get( "" );
+            if ( uri == null )
+            {
+                uri = "";
+            }
         }
         if ( !node.builder.attribute( required, node.value, resolver, uri, name, type, value ) )
         {
@@ -201,8 +205,7 @@ class ParserStateMachine extends DefaultHandler2
             Object value = child.create( this.value );
             if ( value instanceof LocationAware )
             {
-                ((LocationAware) value).location(
-                        locator.getSystemId(), locator.getLineNumber(), locator.getColumnNumber() );
+                ((LocationAware) value).location( locator.getSystemId(), locator.getLineNumber(), locator.getColumnNumber() );
             }
             return new Node( this, child, value );
         }
@@ -258,6 +261,10 @@ class ParserStateMachine extends DefaultHandler2
                 {
                     builder.header( value, comment );
                 }
+            }
+            if ( value instanceof LocationAware )
+            {
+                ((LocationAware) value).location( locator.getSystemId(), locator.getLineNumber(), locator.getColumnNumber()  );
             }
             return new RootNode( builder, value );
         }

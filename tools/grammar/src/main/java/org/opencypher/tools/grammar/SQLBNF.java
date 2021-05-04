@@ -32,11 +32,8 @@ import static org.opencypher.tools.io.Output.output;
 
 import java.io.OutputStream;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -94,7 +91,6 @@ public class SQLBNF extends BnfWriter
         }
     }
 
-    
     public static void main( String... args ) throws Exception
     {
         Main.execute( SQLBNF::write, args );
@@ -117,18 +113,6 @@ public class SQLBNF extends BnfWriter
         {
             new SQLBNF.Html( code, linker ).visitProduction( production );
         }
-    }
-
-    public interface HtmlLinker
-    {
-        String referenceLink( NonTerminal reference );
-
-        default String charsetLink( CharacterSet charset )
-        {
-            return charsetLink( CharacterSet.Unicode.toSetString( charset ) );
-        }
-
-        String charsetLink( String charset );
     }
 
     /*
@@ -164,7 +148,7 @@ public class SQLBNF extends BnfWriter
 
         Html( HtmlTag html, HtmlLinker linker )
         {
-            super( html.output() );
+            super( html.textOutput() );
             this.html = html;
             this.linker = linker;
         }
