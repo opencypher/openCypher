@@ -95,18 +95,6 @@ public class ISO14977 extends BnfWriter
         }
     }
 
-    public interface HtmlLinker
-    {
-        String referenceLink( NonTerminal reference );
-
-        default String charsetLink( CharacterSet charset )
-        {
-            return charsetLink( CharacterSet.Unicode.toSetString( charset ) );
-        }
-
-        String charsetLink( String charset );
-    }
-
     private ISO14977( Output output )
     {
         super( output );
@@ -119,7 +107,7 @@ public class ISO14977 extends BnfWriter
 
         Html( HtmlTag html, HtmlLinker linker )
         {
-            super( html.output() );
+            super( html.textOutput() );
             this.html = html;
             this.linker = linker;
         }

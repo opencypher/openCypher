@@ -30,6 +30,7 @@ package org.opencypher.grammar;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 import org.opencypher.tools.xml.Child;
 
@@ -88,6 +89,15 @@ abstract class Container extends Node implements Terms
     final void literal( char[] buffer, int start, int length )
     {
         LiteralNode.fromCharacters( buffer, start, length, this::add );
+    }
+
+    final Node addAll( Iterable<? extends Grammar.Term> terms )
+    {
+        for ( Grammar.Term term : terms )
+        {
+            term.addTo( this );
+        }
+        return this;
     }
 
     final Node addAll( Grammar.Term first, Grammar.Term... more )

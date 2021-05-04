@@ -210,6 +210,8 @@ abstract class Tool implements Function<Method, Object>
                 return awtFont( key, param );
             case FX_FONT:
                 return fxFont( key, param );
+            default:
+                return transform( type, param );
             }
         }
         else if ( value == null )
@@ -223,6 +225,11 @@ abstract class Tool implements Function<Method, Object>
                 return fxFont( key, lookup( name + ".family" ) );
             }
         }
+        return null;
+    }
+
+    protected <T> T transform( Class<T> type, String value )
+    {
         return null;
     }
 
