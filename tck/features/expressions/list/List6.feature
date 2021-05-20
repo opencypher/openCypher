@@ -104,11 +104,11 @@ Feature: List6 - List size
       | ()--()                                     |
       | ()--(a)                                    |
       | (a)-->()                                   |
-      | (a)<--(a)                                  |
+      | (a)<--(a {})                               |
       | (a)-[:REL]->(b)                            |
       | (a)-[r:REL]->(b)                           |
       | (a)-[r:REL]->(:C)<-[s:REL]-(a {num: 5})    |
-      | ()-[r:REL*0..2]->(c:C)<-[s:REL]-({num: 5}) |
+      | ()-[r:REL*0..2]->()<-[s:REL]-(:A {num: 5}) |
 
   Scenario: [7] Using size of pattern comprehension to test existence
     Given an empty graph
