@@ -91,8 +91,7 @@ Feature: List6 - List size
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  @skipGrammarCheck
-  Scenario Outline: [6] Fail for `size()` on pattern that is not a parenthesized expression
+  Scenario Outline: [6] Fail for `size()` on pattern predicates
     Given any graph
     When executing query:
       """
@@ -102,8 +101,6 @@ Feature: List6 - List size
 
     Examples:
       | pattern                                    |
-      | (a {})                                     |
-      | (a {num: 123})                             |
       | ()--()                                     |
       | ()--(a)                                    |
       | (a)-->()                                   |
@@ -111,7 +108,7 @@ Feature: List6 - List size
       | (a)-[:REL]->(b)                            |
       | (a)-[r:REL]->(b)                           |
       | (a)-[r:REL]->(:C)<-[s:REL]-(a {num: 5})    |
-      | ()-[r:REL]*0..2->(c:C)<-[s:REL]-({num: 5}) |
+      | ()-[r:REL*0..2]->(c:C)<-[s:REL]-({num: 5}) |
 
   Scenario: [7] Using size of pattern comprehension to test existence
     Given an empty graph
