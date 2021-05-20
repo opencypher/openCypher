@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Pattern3 - Pattern Comprehension
+Feature: Pattern2 - Pattern Comprehension
 
   Scenario: [1] Returning a pattern comprehension
     Given an empty graph
@@ -236,4 +236,3 @@ Feature: Pattern3 - Pattern Comprehension
       | [<({time: 10})-[:T]->({time: 20})>] |
       | [<({time: 20})<-[:T]-({time: 10})>] |
     And no side effects
-
