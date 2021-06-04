@@ -312,6 +312,7 @@
       <non-terminal ref="RelationshipsPattern"/>
       <non-terminal ref="ParenthesizedExpression"/>
       <non-terminal ref="FunctionInvocation"/>
+      <non-terminal ref="ExistentialSubquery"/>
       &var;
     </alt>
   </production>
