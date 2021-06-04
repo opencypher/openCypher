@@ -391,6 +391,18 @@
     <non-terminal ref="SymbolicName" rr:title="function name"/>
   </production>
 
+  <production name="ExistentialSubquery">
+    EXISTS &WS; { &WS;
+    <alt>
+      <non-terminal ref="RegularQuery" rr:title="full existential subquery"/>
+      <seq>
+        <non-terminal ref="Pattern"/>
+        <opt>&WS; <non-terminal ref="Where"/></opt>
+      </seq>
+    </alt>
+    &WS; }
+  </production>
+
   <production name="ExplicitProcedureInvocation">
     <non-terminal ref="ProcedureName"/>
     &WS; ( &WS;
