@@ -387,13 +387,10 @@
   </production>
 
   <production name="FunctionName" rr:inline="true">
-    <alt>
-      <seq>
-        <non-terminal ref="Namespace" rr:title="function namespace"/>
-        <non-terminal ref="SymbolicName" rr:title="function name"/>
-      </seq>
-      EXISTS
-    </alt>
+    <seq>
+      <non-terminal ref="Namespace" rr:title="function namespace"/>
+      <non-terminal ref="SymbolicName" rr:title="function name"/>
+    </seq>
   </production>
 
   <production name="ExplicitProcedureInvocation">
