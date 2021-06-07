@@ -441,7 +441,7 @@
     [ &WS;
       <opt><non-terminal ref="Variable"/> &WS; = &WS;</opt>
       <non-terminal ref="RelationshipsPattern"/> &WS;
-      <opt>&WS;<non-terminal ref="Where"/> &WS;</opt>
+      <opt><non-terminal ref="Where"/> &WS;</opt>
       | &WS; <non-terminal ref="Expression"/> &WS;
     ]
   </production>
