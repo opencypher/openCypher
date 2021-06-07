@@ -455,14 +455,14 @@
 
   <production name="CaseExpression">
     <alt>
-      <seq>CASE <repeat min="1">&WS; <non-terminal ref="CaseAlternatives"/></repeat></seq>
-      <seq>CASE &WS; &expr; <repeat min="1">&WS; <non-terminal ref="CaseAlternatives"/></repeat></seq>
+      <seq>CASE <repeat min="1">&WS; <non-terminal ref="CaseAlternative"/></repeat></seq>
+      <seq>CASE &WS; &expr; <repeat min="1">&WS; <non-terminal ref="CaseAlternative"/></repeat></seq>
     </alt>
     <opt>&WS; ELSE &WS; &expr;</opt>
     &WS; END
   </production>
 
-  <production name="CaseAlternatives" rr:inline="true">
+  <production name="CaseAlternative" rr:inline="true">
     WHEN &WS; &expr; &WS; THEN &WS; &expr;
   </production>
 
