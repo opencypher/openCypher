@@ -4,7 +4,7 @@
 :toc-placement: macro
 :source-highlighter: codemirror
 
-*Authors:* Andrés Taylor <andres@neotechnology.com>
+*Authors:* Andrés Taylor <andres@neotechnology.com>, Hannes Voigt <hannes.voigt@neo4j.com>
 
 
 [abstract]
@@ -17,88 +17,175 @@ toc::[]
 
 == Background
 
-In a way, Cypher already has existential subqueries - pattern predicates checking for the existence of subgraphs.
-This form is helpful, but not exhaustive in the types of subqueries that users want to be able to express.
+openCypher has two language constructs that allow testing of existence. Namely
+
+* property existence predicate: `exists( n.prop )`, which is grammarically a https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L381[<FunctionInvocation>]
+* pattern predicates for the existence of subgraphs, which is grammarically a https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L360[<RelationshipsPattern>]
+
+Both are allowed as https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L296[<Atom>]s of expressions.
+
+Note that a <RelationshipsPattern> appearing in an expression is evaluated to a list containing the matches of the pattern.
+In a predicate context this list gets coerced to a boolean, letting this <RelationshipsPattern> behave like a predicate although is actually is a list expression.
+As a result, <RelationshipsPattern>s appear to behave differently depending on the context they are appearing in.
+Further, https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L432[<PatternComprehension>] offer a more powerful and syntaxtically better separated means to   get lists of matches for a pattern within expressions.
+
+The understanding of subqueries in Cypher has evolved and Cypher gained a proper https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L277[<NullOperatorExpression>] expression (`IS [ NOT ] NULL`), cf. https://github.com/opencypher/openCypher/blob/master/cip/1.accepted/CIP2018-10-29-EXISTS-and-IS-NOT-NULL.adoc[CIP2018-10-29 EXISTS and IS NOT NULL].
+Both developments and the issues around <RelationshipsPattern>s suggest the need for a refinement of language constructs that allow testing of existence.
 
 == Proposal
 
-To make this feature more powerful, this CIP suggests the addition of a new function `exists()`, and a keyword `EXISTS {}`, allowing for two different predicates:
+CIP proposes the addition of a new function `exists()`, and a keyword `EXISTS {}`, allowing for two different predicates:
 
-* Property existence checking
-* Subquery existence checking
+* Restricting <RelationshipsPattern> to predicate contexts and boolean evaluation
+* Adding two forms of existential subqueries denoted with the keyword `EXISTS`:
+** Full existential subquery based on a https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml#L76[<RegularQuery>]
+** Simple existential subquery based on a single https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L56[<Pattern>] and an optional https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L47[<Where>] clause
+* Removing of `exists( n.prop )` in favor of the https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L277[<NullOperatorExpression>], which is a restatement of what has been accepted with https://github.com/opencypher/openCypher/blob/master/cip/1.accepted/CIP2018-10-29-EXISTS-and-IS-NOT-NULL.adoc[CIP2018-10-29 EXISTS and IS NOT NULL]
 
 === Syntax
 
+==== Grammar
+
+[source,bnf]
 ----
-expression = <current definition of expression>
-           | property exists
-           | subquery exists
-           | simple subquery exists
-           ;
+<Atom> ::=
+    ...
+  | <RelationshipsPattern>
+  | <ExistentialSubquery>
 
-property exists = "exists", "(", expression ")"
-                ;
+<ExistentialSubquery> ::=
+    <SimpleExistentialSubquery>
+  | <FullExistentialSubquery>
 
-subquery exists = "EXISTS", "{", read only clause, { read only clause }, "}" ;
+<FullExistentialSubquery> ::=
+  "EXISTS" "{" <RegularQuery> "}"
 
-simple subquery exists = "EXISTS", "{", simple match, "}" ;
+<SimpleExistentialSubquery> ::=
+  "EXISTS" "{" <SimpleMatch> "}"
 
-simple match = pattern, { ",", pattern }, [ "WHERE", predicate ] ;
-
-read only clause = match
-                 | unwind
-                 | with
-                 ;
+<SimpleMatch> ::=
+  <Pattern> [ <Where> ]
 ----
+Links to existing openCypher grammar non-terminals:
+https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L296[<Atom>],
+https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L360[<RelationshipsPattern>],
+https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml#L76[<RegularQuery>],
+https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L56[<Pattern>],
+https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L47[<Where>]
+
+==== Rules
+
+* A <RelationshipsPattern> shall only be contained in sites whose expected type is exactly boolean. Specifically, a <RelationshipsPattern> shall only be simply contained in
+** https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L47[<Where>], used in
+*** https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml#L183[<Match>]
+*** https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml#L293[<With>]
+*** https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml#L275[<YieldItems>]
+*** https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L365[<FilterExpression>], used in
+**** https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L307[`ALL`], https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L308[`ANY`], https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L309[`NONE`], https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L310[`SINGLE`]
+**** https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L425[<ListComprehension>])
+*** https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L432[<PatternComprehension>]
+** https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L457[<CaseAlternative>]
+* The `<RegularQuery>` contained in a <SimpleExistentialSubquery> shall not contain any https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml#L145[<UpdatingClause>] nor procedure or function calls with any side effects
 
 === Semantics
 
-All forms of `EXISTS {}` accomplish the same task: checking whether a particular pattern exists in the graph.
-They are expressions, and as such must be side-effect free; that is, the subqueries in `EXISTS {}` must not be updating queries.
-All forms of `EXISTS {}` are scalar expressions - they return a single boolean value, and this value is never `null`.
+<RelationshipsPattern>, <SimpleExistentialSubquery>, and <FullExistentialSubquery> accomplish the same task: checking whether the result of a subquery is not empty.
 
-==== Property exists
+All three forms,
 
-In the property checking form, any expression is accepted as the input.
-If the input expression evaluates to `null`, `exists()` will evaluate to `false`. For any other value, it will evaluate to `true`.
-This form of `exists()` is equivalent to checking for `null` using `IS NOT NULL`: `exists(expr)` is equivalent to `expr IS NOT NULL`.
+* Are boolean expressions, i.e. return a single boolean value
+* Never return `null`
+* Are side effect-free, i.e. <FullExistentialSubquery> shall not contain any <UpdatingClause> or other sources of side effects
+* Can contain variables and parameters from the outer queries
 
-This form is there to make property existence checking idiomatic in Cypher - we do not want the user thinking of missing properties as checking for `null` values.
+<RelationshipsPattern> shall not to introduce new variables.
 
-==== Subquery exists
+Both forms of <ExistentialSubquery> (<SimpleExistentialSubquery> and <FullExistentialSubquery>) are allowed to introduce new variables.
+These variables necessarily shall have a name different from the names of all variables available from the outer queries.
+Any variables introduced in a <ExistentialSubquery> are not available on the outside.
 
-When checking for the existence of subqueries, variables and parameters from the outer query are available in the subquery.
-Variables introduced in the subquery are not available on the outside.
+<RelationshipsPattern> and <SimpleExistentialSubquery> are syntactically simpler and semantically less powerful forms of <FullExistentialSubquery>.
+Hence, the semantics of <RelationshipsPattern> and <SimpleExistentialSubquery> can be defined as syntax transformations to <FullExistentialSubquery>.
 
-For each matching subgraph evaluated with `EXISTS {}`, the result value must be `true` if the subquery finds at least one matching row.
-If no matches are found, `false` should be returned.
+==== `<RelationshipsPattern>`
 
-The subquery used in `EXISTS {}` has to follow the following rules:
+A `<RelationshipsPattern>` _RP_ is effectively replaced by the expression
 
- * It has to be a read-only query. Updating the graph as part of a predicate is not allowed.
- * It cannot end in a `RETURN` clause, nor may it contain `UNION`.
- * When `WITH` ends the subquery, it is able to change the cardinality of the subquery.
- In other words, since the `WITH` clause may include `WHERE`, `SKIP`, and/or `LIMIT`, the clause can with these sub-clauses turn a query that produces rows into one that does not.
- * It may use nested `EXISTS {}` predicates.
+`EXISTS { MATCH _RP_ RETURN 1 }`
 
-==== Simple subquery exists
+==== `<SimpleExistentialSubquery>`
 
-When the subquery can be described with a single `MATCH-WHERE` clause, the `MATCH` keyword can be omitted, as in example 2A and B.
-The difference between this form and a simple pattern predicate, which is already available, is that this form allows for introducing new variables inside the `EXISTS {}` scope.
+A `<SimpleExistentialSubquery>` _SES_ is effectively replaced by the expression
+
+`EXISTS { MATCH _SES_ RETURN 1 }`
+
+==== `<FullExistentialSubquery>`
+
+A <FullExistentialSubquery> _FES_ is effectively evaluated as follows:
+
+* Let _OUTER_VARIABLES_ be the current working record for which the expression containing _FES_ is evaluated.
+* Let _NESTED_QUERY_ be the <RegularQuery> immediately contained in _FES_.
+* Let _RESULT_TABLE_ be the table resulting from evaluating _NESTED_QUERY_ on a driving table comprising _OUTER_VARIABLES_.
+* Case:
+** If _RESULT_TABLE_ is an empty table (cardinality is zero), then the result of _FES_ is [underline]#*_False_*#.
+** Otherwise, the result of _FES_ is [underline]#*_True_*#.
 
 === Examples
 
-_Example 1A:_
+==== Property existence test
+
+_Example 1:_
 
 Return all nodes that have a property named `slogan`.
 [source, cypher]
 ----
 MATCH (actor)
-WHERE exists(actor.slogan)
+WHERE actor.slogan IS NOT NULL
 RETURN actor
 ----
 
+==== Pattern predicates in boolean expression context
+
 _Example 2A:_
+
+Find all actors who won an award.
+
+[source, cypher]
+----
+MATCH (actor:Actor) WHERE (actor)-[:WON]->(:Award)
+RETURN actor
+----
+
+_Example 2B:_
+
+Find all actors with their major accolade.
+
+[source, cypher]
+----
+MATCH (actor:Actor)
+RETURN actor,
+  CASE actor
+    WHEN (actor)-[:WON]->(:Oscar) THEN 'Oscar winner'
+    WHEN (actor)-[:WON]->(:GoldenGlobe) THEN 'Golden Globe winner'
+    ELSE 'None'
+  END AS accolade
+----
+
+_Example 2C:_
+
+Find all movies that have at least one award-winning actor in their cast.
+
+[source, cypher]
+----
+MATCH (movie:Movie)<-[:ACTED_IN]-(actor:Actor)
+WITH movie, collect(actor) AS cast
+WHERE ANY(actor IN cast WHERE (actor)-[:WON]->(:Award))
+RETURN movie
+----
+
+==== Existential subqueries
+
+_Example 3A:_
 
 Find all actors who have acted together with another actor with the same name.
 
@@ -112,7 +199,7 @@ WHERE EXISTS {
 RETURN actor
 ----
 
-_Example 2B:_
+_Example 3B:_
 
 Find all actors who have acted together with another actor with the same name on at least two movies.
 
@@ -127,11 +214,6 @@ WHERE EXISTS {
 }
 RETURN actor
 ----
-
-=== Interaction with existing features
-
-The `EXISTS {}` subquery clause renders obsolete the current pattern predicate syntax.
-This allows the pattern predicates to be deprecated and/or removed in favour of `EXISTS {}`.
 
 == What others do
 
@@ -156,7 +238,7 @@ RETURN person
 
 This proposal also allows for powerful subqueries, for example using aggregation inside the `EXISTS {}` query.
 
-.Find all teams that have at least two members who have worked on successful projects.
+Find all teams that have at least two members who have worked on successful projects.
 [source, cypher]
 ----
 MATCH (team:Team)
@@ -170,6 +252,9 @@ WHERE EXISTS {
 }
 RETURN team
 ----
+
+However, pattern predicates have a readability advantage in narrow cases.
+Hence, this proposal retains them while removing their confusing meaning outside boolean expression context.
 
 == Caveats to this proposal
 
