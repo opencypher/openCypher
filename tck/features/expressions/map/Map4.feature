@@ -30,12 +30,12 @@
 
 Feature: Map4 - Field existence check
 
-  Scenario Outline: [1] `exists()` with literal maps
+  Scenario Outline: [1] `IS NOT NULL` with literal maps
     Given any graph
     When executing query:
       """
       WITH <map> AS map
-      RETURN exists(map.<key>) AS result
+      RETURN map.<key> IS NOT NULL AS result
       """
     Then the result should be, in any order:
       | result   |
@@ -57,14 +57,14 @@ Feature: Map4 - Field existence check
       | {notName: 0}                        | name    | false  |
       | {}                                  | name    | false  |
 
-  Scenario: [2] Using `exists()` on null map
+  Scenario: [2] Using `IS NOT NULL` on null map
     Given any graph
     When executing query:
       """
       WITH null AS m, { prop: 3 } AS n
-      RETURN exists(m.prop), exists((null).prop)
+      RETURN m.prop IS NOT NULL AS a, (null).prop IS NOT NULL AS b
       """
     Then the result should be, in any order:
-      | exists(m.prop) | exists((null).prop) |
-      | null           | null                |
+      | a    | b    |
+      | null | null |
     And no side effects
