@@ -88,7 +88,7 @@ Feature: WithWhere5 - Filter on predicate resulting in null
       """
       MATCH (:Root {name: 'x'})-->(i:TextNode)
       WITH i
-      WHERE i.var > 'te' AND exists(i.var)
+      WHERE i.var > 'te' AND i.var IS NOT NULL
       RETURN i
       """
     Then the result should be, in any order:
@@ -110,7 +110,7 @@ Feature: WithWhere5 - Filter on predicate resulting in null
       """
       MATCH (:Root {name: 'x'})-->(i)
       WITH i
-      WHERE i.var > 'te' OR exists(i.var)
+      WHERE i.var > 'te' OR i.var IS NOT NULL
       RETURN i
       """
     Then the result should be, in any order:
