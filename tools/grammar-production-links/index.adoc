@@ -1,6 +1,6 @@
 = openCypher grammar production linking
 
-The `grammarLink.html` provides the possibility to link to a production name in the link:../../grammar[openCypher grammar files] without hard-coding the line number.
+The `grammarLink.html` provides the possibility to stably link a production by name in the link:../../grammar[openCypher grammar files] without hard-coding the line number.
 
 == Demo
 
@@ -19,6 +19,10 @@ Links with errors
 
 == Usage
 
-To link to production _X_ point your link to
+To link to production _X_ of the openCypher grammar in the HEAD point your link to
 
 `https://raw.githack.com/hvub/openCypher/link-to-grammar-production/tools/grammar-production-links/grammarLink.html?p=_X_`
+
+== Background
+
+The `grammarLink.html` executes JavaScript on load that loads and parse the openCypher grammar `*.xml` files for the production provide as argument for GET parameter `p`.
