@@ -309,7 +309,7 @@
       <seq>NONE    &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
       <seq>SINGLE  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
       <non-terminal ref="ShortestPathPattern"/>
-      <non-terminal ref="RelationshipPattern"/>
+      <non-terminal ref="RelationshipsPattern"/>
       <non-terminal ref="ParenthesizedExpression"/>
       <non-terminal ref="FunctionInvocation"/>
       <non-terminal ref="ExistentialSubquery"/>
@@ -358,7 +358,7 @@
     ( &WS; &expr; &WS; )
   </production>
 
-  <production name="RelationshipPattern" rr:inline="true">
+  <production name="RelationshipsPattern" rr:inline="true">
     <non-terminal ref="NodePattern"/>
     <repeat min="1">&WS;<non-terminal ref="PatternElementChain"/></repeat>
   </production>
@@ -440,7 +440,7 @@
   <production name="PatternComprehension">
     [ &WS;
       <opt><non-terminal ref="Variable"/> &WS; = &WS;</opt>
-      <non-terminal ref="RelationshipPattern"/> &WS;
+      <non-terminal ref="RelationshipsPattern"/> &WS;
       <opt><non-terminal ref="Where"/> &WS;</opt>
       | &WS; <non-terminal ref="Expression"/> &WS;
     ]
