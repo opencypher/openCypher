@@ -20,23 +20,23 @@ toc::[]
 openCypher has two language constructs that allow testing of existence. Namely
 
 * property existence predicate: `exists( n.prop )`, which is grammarically a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=FunctionInvocation[<FunctionInvocation>]
-* pattern predicates for the existence of subgraphs, which is grammarically a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipPattern[<RelationshipPattern>]
+* pattern predicates for the existence of subgraphs, which is grammarically a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>]
 
 Both are allowed as https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Atom[<Atom>]s of expressions.
 
-Note that a <RelationshipPattern> appearing in an expression is evaluated to a list containing the matches of the pattern.
-In a predicate context this list gets coerced to a boolean (empty list -> [underline]#*_False_*#, non-empty list -> [underline]#*_True_*#), letting this <RelationshipPattern> behave like a predicate although it actually is a list expression.
-As a result, https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipPattern[<RelationshipPattern>s] appear to behave differently depending on the context in which they appear.
+Note that a <RelationshipsPattern> appearing in an expression is evaluated to a list containing the matches of the pattern.
+In a predicate context this list gets coerced to a boolean (empty list -> [underline]#*_False_*#, non-empty list -> [underline]#*_True_*#), letting this <RelationshipsPattern> behave like a predicate although it actually is a list expression.
+As a result, https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>s] appear to behave differently depending on the context in which they appear.
 Further, https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternComprehension[<PatternComprehension>] offer a more powerful and syntaxtically better separated means to   get lists of matches for a pattern within expressions.
 
 The understanding of subqueries in Cypher has evolved and Cypher gained a proper https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NullOperatorExpression[<NullOperatorExpression>] (`IS [ NOT ] NULL`), cf. https://github.com/opencypher/openCypher/blob/master/cip/1.accepted/CIP2018-10-29-EXISTS-and-IS-NOT-NULL.adoc[CIP2018-10-29 EXISTS and IS NOT NULL].
-Both developments and the issues around <RelationshipPattern>s suggest the need for a refinement of the language constructs that allow testing of existence.
+Both developments and the issues around <RelationshipsPattern>s suggest the need for a refinement of the language constructs that allow testing of existence.
 
 == Proposal
 
 CIP proposes:
 
-* Restricting https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipPattern[<RelationshipPattern>] to predicate contexts and boolean evaluation
+* Restricting https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] to predicate contexts and boolean evaluation
 * Adding two forms of existential subqueries denoted with `EXISTS { ... }`:
 ** Full existential subquery based on a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RegularQuery[<RegularQuery>]
 ** Simple existential subquery based on a single https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Pattern[<Pattern>] and an optional https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Where[<Where>] clause
@@ -50,7 +50,7 @@ CIP proposes:
 ----
 <Atom> ::=
     ...
-  | <RelationshipPattern>
+  | <RelationshipsPattern>
   | <ExistentialSubquery>
 
 <ExistentialSubquery> ::=
@@ -71,7 +71,7 @@ Note that the openCypher grammar does not list <SimpleExistentialSubquery>, <Sim
 
 ==== Syntax Rules
 
-* A https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipPattern[<RelationshipPattern>] shall only be contained in sites whose expected type is exactly boolean. Specifically, a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipPattern[<RelationshipPattern>] shall only be simply contained in
+* A https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] shall only be contained in sites whose expected type is exactly boolean. Specifically, a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] shall only be simply contained in
 ** <Where>, used in
 *** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Match[<Match>]
 *** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=With[<With>]
@@ -85,7 +85,7 @@ Note that the openCypher grammar does not list <SimpleExistentialSubquery>, <Sim
 
 === Semantics
 
-https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipPattern[<RelationshipPattern>], <SimpleExistentialSubquery>, and <FullExistentialSubquery> accomplish the same task: checking whether the result of a subquery is not empty.
+https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>], <SimpleExistentialSubquery>, and <FullExistentialSubquery> accomplish the same task: checking whether the result of a subquery is not empty.
 
 All three forms,
 
@@ -94,18 +94,18 @@ All three forms,
 * Are side effect-free, i.e. <FullExistentialSubquery> shall not contain any <UpdatingClause> or other sources of side effects
 * Can contain variables and parameters from the outer queries
 
-https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipPattern[<RelationshipPattern>] shall not to introduce new variables.
+https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] shall not to introduce new variables.
 
 Both forms of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ExistentialSubquery[<ExistentialSubquery>] (<SimpleExistentialSubquery> and <FullExistentialSubquery>) are allowed to introduce new variables.
 These variables necessarily shall have a name different from the names of all variables available from the outer queries.
 Any variables introduced in an <ExistentialSubquery> are not available on the outside.
 
-https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipPattern[<RelationshipPattern>] and <SimpleExistentialSubquery> are syntactically simpler and semantically less powerful forms of <FullExistentialSubquery>.
-The semantics of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipPattern[<RelationshipPattern>] and <SimpleExistentialSubquery> can be defined as syntax transformations to <FullExistentialSubquery>.
+https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] and <SimpleExistentialSubquery> are syntactically simpler and semantically less powerful forms of <FullExistentialSubquery>.
+The semantics of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] and <SimpleExistentialSubquery> can be defined as syntax transformations to <FullExistentialSubquery>.
 
-==== <RelationshipPattern>
+==== <RelationshipsPattern>
 
-A https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipPattern[<RelationshipPattern>] _RP_ is effectively replaced by the expression
+A https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] _RP_ is effectively replaced by the expression
 
 `EXISTS { MATCH _RP_ RETURN 1 }`
 
