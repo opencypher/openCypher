@@ -25,4 +25,4 @@ To link to production _X_ of the openCypher grammar in the HEAD point your link 
 
 == Background
 
-The `grammarLink.html` executes JavaScript on load that loads and parse the openCypher grammar `*.xml` files for the production provide as argument for GET parameter `p`.
+The `grammarLink.html` executes JavaScript on load that parses the openCypher grammar `*.xml` files for the definition of the production provided as argument for GET parameter `p` and then redirects to the file and line number where it found the production definition.
