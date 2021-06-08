@@ -39,11 +39,11 @@ Feature: Return3 - Return multiple expressions (if column order correct)
     When executing query:
       """
       MATCH (a)
-      RETURN exists(a.id), a IS NOT NULL
+      RETURN a.id IS NOT NULL AS a, a IS NOT NULL AS b
       """
     Then the result should be, in any order:
-      | exists(a.id) | a IS NOT NULL |
-      | false        | true          |
+      | a     | b    |
+      | false | true |
     And no side effects
 
   Scenario: [2] Returning multiple node property values
