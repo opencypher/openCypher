@@ -10,7 +10,7 @@
 [abstract]
 .Abstract
 --
-This CIP introduces `EXISTS`, a function and a keyword for checking the existence of properties, simple patterns and full subqueries.
+This CIP introduces existential subquery and cleans up previously existing language constructs for testing of existence.
 --
 
 toc::[]
@@ -25,19 +25,19 @@ openCypher has two language constructs that allow testing of existence. Namely
 Both are allowed as https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L296[<Atom>]s of expressions.
 
 Note that a <RelationshipsPattern> appearing in an expression is evaluated to a list containing the matches of the pattern.
-In a predicate context this list gets coerced to a boolean, letting this <RelationshipsPattern> behave like a predicate although is actually is a list expression.
-As a result, <RelationshipsPattern>s appear to behave differently depending on the context they are appearing in.
+In a predicate context this list gets coerced to a boolean (empty list -> [underline]#*_False_*#, non-empty list -> [underline]#*_True_*#), letting this <RelationshipsPattern> behave like a predicate although it actually is a list expression.
+As a result, <RelationshipsPattern>s appear to behave differently depending on the context in which they appear.
 Further, https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L432[<PatternComprehension>] offer a more powerful and syntaxtically better separated means to   get lists of matches for a pattern within expressions.
 
-The understanding of subqueries in Cypher has evolved and Cypher gained a proper https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L277[<NullOperatorExpression>] expression (`IS [ NOT ] NULL`), cf. https://github.com/opencypher/openCypher/blob/master/cip/1.accepted/CIP2018-10-29-EXISTS-and-IS-NOT-NULL.adoc[CIP2018-10-29 EXISTS and IS NOT NULL].
-Both developments and the issues around <RelationshipsPattern>s suggest the need for a refinement of language constructs that allow testing of existence.
+The understanding of subqueries in Cypher has evolved and Cypher gained a proper https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L277[<NullOperatorExpression>] (`IS [ NOT ] NULL`), cf. https://github.com/opencypher/openCypher/blob/master/cip/1.accepted/CIP2018-10-29-EXISTS-and-IS-NOT-NULL.adoc[CIP2018-10-29 EXISTS and IS NOT NULL].
+Both developments and the issues around <RelationshipsPattern>s suggest the need for a refinement of the language constructs that allow testing of existence.
 
 == Proposal
 
-CIP proposes the addition of a new function `exists()`, and a keyword `EXISTS {}`, allowing for two different predicates:
+CIP proposes:
 
 * Restricting <RelationshipsPattern> to predicate contexts and boolean evaluation
-* Adding two forms of existential subqueries denoted with the keyword `EXISTS`:
+* Adding two forms of existential subqueries denoted with `EXISTS { ... }`:
 ** Full existential subquery based on a https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml#L76[<RegularQuery>]
 ** Simple existential subquery based on a single https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L56[<Pattern>] and an optional https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L47[<Where>] clause
 * Removing of `exists( n.prop )` in favor of the https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L277[<NullOperatorExpression>], which is a restatement of what has been accepted with https://github.com/opencypher/openCypher/blob/master/cip/1.accepted/CIP2018-10-29-EXISTS-and-IS-NOT-NULL.adoc[CIP2018-10-29 EXISTS and IS NOT NULL]
@@ -66,26 +66,20 @@ CIP proposes the addition of a new function `exists()`, and a keyword `EXISTS {}
 <SimpleMatch> ::=
   <Pattern> [ <Where> ]
 ----
-Links to existing openCypher grammar non-terminals:
-https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L296[<Atom>],
-https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L360[<RelationshipsPattern>],
-https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml#L76[<RegularQuery>],
-https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L56[<Pattern>],
-https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L47[<Where>]
 
-==== Rules
+==== Syntax Rules
 
 * A <RelationshipsPattern> shall only be contained in sites whose expected type is exactly boolean. Specifically, a <RelationshipsPattern> shall only be simply contained in
-** https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L47[<Where>], used in
+** <Where>, used in
 *** https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml#L183[<Match>]
 *** https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml#L293[<With>]
 *** https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml#L275[<YieldItems>]
 *** https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L365[<FilterExpression>], used in
 **** https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L307[`ALL`], https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L308[`ANY`], https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L309[`NONE`], https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L310[`SINGLE`]
-**** https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L425[<ListComprehension>])
+**** https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L425[<ListComprehension>]
 *** https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L432[<PatternComprehension>]
 ** https://github.com/opencypher/openCypher/blob/master/grammar/basic-grammar.xml#L457[<CaseAlternative>]
-* The `<RegularQuery>` contained in a <SimpleExistentialSubquery> shall not contain any https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml#L145[<UpdatingClause>] nor procedure or function calls with any side effects
+* The <RegularQuery> contained in a <SimpleExistentialSubquery> shall not contain any https://github.com/opencypher/openCypher/blob/master/grammar/cypher.xml#L145[<UpdatingClause>] nor procedure or function calls with any side effects
 
 === Semantics
 
@@ -102,24 +96,24 @@ All three forms,
 
 Both forms of <ExistentialSubquery> (<SimpleExistentialSubquery> and <FullExistentialSubquery>) are allowed to introduce new variables.
 These variables necessarily shall have a name different from the names of all variables available from the outer queries.
-Any variables introduced in a <ExistentialSubquery> are not available on the outside.
+Any variables introduced in an <ExistentialSubquery> are not available on the outside.
 
 <RelationshipsPattern> and <SimpleExistentialSubquery> are syntactically simpler and semantically less powerful forms of <FullExistentialSubquery>.
-Hence, the semantics of <RelationshipsPattern> and <SimpleExistentialSubquery> can be defined as syntax transformations to <FullExistentialSubquery>.
+The semantics of <RelationshipsPattern> and <SimpleExistentialSubquery> can be defined as syntax transformations to <FullExistentialSubquery>.
 
-==== `<RelationshipsPattern>`
+==== <RelationshipsPattern>
 
-A `<RelationshipsPattern>` _RP_ is effectively replaced by the expression
+A <RelationshipsPattern> _RP_ is effectively replaced by the expression
 
 `EXISTS { MATCH _RP_ RETURN 1 }`
 
-==== `<SimpleExistentialSubquery>`
+==== <SimpleExistentialSubquery>
 
-A `<SimpleExistentialSubquery>` _SES_ is effectively replaced by the expression
+A <SimpleExistentialSubquery> _SES_ is effectively replaced by the expression
 
 `EXISTS { MATCH _SES_ RETURN 1 }`
 
-==== `<FullExistentialSubquery>`
+==== <FullExistentialSubquery>
 
 A <FullExistentialSubquery> _FES_ is effectively evaluated as follows:
 
