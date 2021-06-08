@@ -75,12 +75,12 @@ Feature: Graph9 - Property existence check
     When executing query:
       """
       MATCH (n)
-      RETURN n.missing IS NOT NULL AS missing,
-             n.exists IS NOT NULL AS exists
+      RETURN n.missing IS NOT NULL,
+             n.exists IS NOT NULL
       """
     Then the result should be, in any order:
-      | missing | exists |
-      | false   | true   |
+      | n.missing IS NOT NULL | n.exists IS NOT NULL |
+      | false                 | true                 |
     And no side effects
 
   Scenario: [4] Property existence check on optional non-null node
@@ -92,12 +92,12 @@ Feature: Graph9 - Property existence check
     When executing query:
       """
       OPTIONAL MATCH (n)
-      RETURN n.missing IS NOT NULL AS missing,
-             n.exists IS NOT NULL AS exists
+      RETURN n.missing IS NOT NULL,
+             n.notMissing IS NOT NULL
       """
     Then the result should be, in any order:
-      | missing | exists |
-      | false   | true   |
+      | n.missing IS NOT NULL | n.exists IS NOT NULL |
+      | false                 | true                 |
     And no side effects
 
   Scenario: [5] Property existence check on null node
@@ -105,9 +105,9 @@ Feature: Graph9 - Property existence check
     When executing query:
       """
       OPTIONAL MATCH (n)
-      RETURN n.missing IS NOT NULL AS missing
+      RETURN n.missing IS NOT NULL
       """
     Then the result should be, in any order:
-      | missing |
-      | null    |
+      | n.missing IS NOT NULL |
+      | null                  |
     And no side effects
