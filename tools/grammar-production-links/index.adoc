@@ -6,23 +6,27 @@ The `grammarLink.html` provides the possibility to stably link a production by n
 
 Links to existing productions
 
-* link:https://raw.githack.com/hvub/openCypher/link-to-grammar-production/tools/grammar-production-links/grammarLink.html?p=RegularQuery[RegularQuery]
-* link:https://raw.githack.com/hvub/openCypher/link-to-grammar-production/tools/grammar-production-links/grammarLink.html?p=Atom[Atom]
-* link:https://raw.githack.com/hvub/openCypher/link-to-grammar-production/tools/grammar-production-links/grammarLink.html?p=NullOperatorExpression[NullOperatorExpression]
-* link:https://raw.githack.com/hvub/openCypher/link-to-grammar-production/tools/grammar-production-links/grammarLink.html?p=UpdatingClause[UpdatingClause]
-* link:https://raw.githack.com/hvub/openCypher/link-to-grammar-production/tools/grammar-production-links/grammarLink.html?p=CypherOption[CypherOption]
+* link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RegularQuery[RegularQuery]
+* link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Atom[Atom]
+* link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NullOperatorExpression[NullOperatorExpression]
+* link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=UpdatingClause[UpdatingClause]
+* link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=CypherOption[CypherOption]
 
 Links with errors
 
-* link:https://raw.githack.com/hvub/openCypher/link-to-grammar-production/tools/grammar-production-links/grammarLink.html?p=FooBarABC[Non-existing production given]
-* link:https://raw.githack.com/hvub/openCypher/link-to-grammar-production/tools/grammar-production-links/grammarLink.html[No production given]
+* link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=FooBarABC[Non-existing production given]
+* link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html[No production given]
+
+The link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/demoForm.html[demo form] provides a demo with free input.
 
 == Usage
 
-To link to production _X_ of the openCypher grammar in the HEAD point your link to
+To link to production _X_ of the openCypher grammar in the HEAD point your link to URL
 
-`https://raw.githack.com/hvub/openCypher/link-to-grammar-production/tools/grammar-production-links/grammarLink.html?p=_X_`
+`https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=_X_`
+
+The link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/demoForm.html[demo form] generates the URL upon input of a production name.
 
 == Background
 
-The `grammarLink.html` executes JavaScript on load that parses the openCypher grammar `*.xml` files for the definition of the production provided as argument for GET parameter `p` and then redirects to the file and line number where it found the production definition.
+The `grammarLink.html` executes JavaScript when load that parses the openCypher grammar `*.xml` files for the definition of the production provided as argument for GET parameter `p` and then redirects to the file and line number where it found the production definition.
