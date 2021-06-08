@@ -30,7 +30,7 @@
 
 Feature: Graph9 - Property existence check
 
-  Scenario: [1] `exists()` with dynamic property lookup
+  Scenario: [1] Property existence with dynamic property lookup
     Given an empty graph
     And having executed:
       """
@@ -40,7 +40,7 @@ Feature: Graph9 - Property existence check
     When executing query:
       """
       MATCH (n:Person)
-      WHERE exists(n['name'])
+      WHERE n['name'] IS NOT NULL
       RETURN n
       """
     Then the result should be, in any order:
@@ -48,7 +48,8 @@ Feature: Graph9 - Property existence check
       | (:Person {name: 'foo'}) |
     And no side effects
 
-  Scenario: [2] `exists()` is case insensitive
+  @skipStyleCheck
+  Scenario: [2] Property existence is case insensitive
     Given an empty graph
     And having executed:
       """
@@ -57,7 +58,7 @@ Feature: Graph9 - Property existence check
     When executing query:
       """
       MATCH (n:X)
-      RETURN n, EXIsTS(n.prop) AS b
+      RETURN n, n.prop Is noT nULl AS b
       """
     Then the result should be, in any order:
       | n               | b     |
@@ -74,12 +75,12 @@ Feature: Graph9 - Property existence check
     When executing query:
       """
       MATCH (n)
-      RETURN exists(n.missing),
-             exists(n.exists)
+      RETURN n.missing IS NOT NULL AS missing,
+             n.exists IS NOT NULL AS exists
       """
     Then the result should be, in any order:
-      | exists(n.missing) | exists(n.exists) |
-      | false             | true             |
+      | missing | exists |
+      | false   | true   |
     And no side effects
 
   Scenario: [4] Property existence check on optional non-null node
@@ -91,12 +92,12 @@ Feature: Graph9 - Property existence check
     When executing query:
       """
       OPTIONAL MATCH (n)
-      RETURN exists(n.missing),
-             exists(n.exists)
+      RETURN n.missing IS NOT NULL AS missing,
+             n.exists IS NOT NULL AS exists
       """
     Then the result should be, in any order:
-      | exists(n.missing) | exists(n.exists) |
-      | false             | true             |
+      | missing | exists |
+      | false   | true   |
     And no side effects
 
   Scenario: [5] Property existence check on null node
@@ -104,18 +105,9 @@ Feature: Graph9 - Property existence check
     When executing query:
       """
       OPTIONAL MATCH (n)
-      RETURN exists(n.missing)
+      RETURN n.missing IS NOT NULL AS missing
       """
     Then the result should be, in any order:
-      | exists(n.missing) |
-      | null              |
+      | missing |
+      | null    |
     And no side effects
-
-  Scenario: [6] Fail when checking existence of a non-property and non-pattern
-    Given any graph
-    When executing query:
-      """
-      MATCH (n)
-      RETURN exists(n.num + 1)
-      """
-    Then a SyntaxError should be raised at compile time: InvalidArgumentExpression
