@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<script type="text/javascript">
+    const githubOCGrammarPrefix = 'https://github.com/opencypher/openCypher/blob/master/grammar/';
+    const githubOCGrammarRawPrefix = 'https://raw.githubusercontent.com/opencypher/openCypher/master/grammar/';
+    const githubOCGrammarFiles = [
+        'basic-grammar.xml',
+        'cypher.xml',
+        'commands.xml',
+        'pre-parser.xml',
+        'start.xml'
+    ];
+
+    function lineOf(text, substring) {
+        var line = 0, matchedChars = 0;
+
+        for (var i = 0; i < text.length; i++) {
+            text[i] === substring[matchedChars] ? matchedChars++ : matchedChars = 0;
+
+            if (matchedChars === substring.length){
+                return line;
+            }
+            if (text[i] === '\n'){
+                line++;
+            }
+        }
+
+        return  -1;
+    }
+
+    window.onload = function(){
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.has('p')) {
+            const production = urlParams.get('p');
+            const searchTerm = 'name="' + production;
+            for(const file of githubOCGrammarFiles) {
+                document.body.innerHTML += 'searching for &lt;' + production + '&gt; in ' + file + ' ...</br>'
+                const request = new XMLHttpRequest();
+                request.open('GET', githubOCGrammarRawPrefix + file, true);
+                request.send(null);
+                request.onreadystatechange = function () {
+                    if (request.readyState === 4 && request.status === 200) {
+                        var type = request.getResponseHeader('Content-Type');
+                        console.log(type);
+                        if (type.indexOf('text') !== 1) {
+                            const grammarRaw = request.responseText;
+                            const line = lineOf(grammarRaw, searchTerm)
+                            if (line > -1) {
+                                window.location.replace(githubOCGrammarPrefix + file + '#L' + (line + 1));
+                            } else {
+                                document.body.innerHTML += '&lt;' + production + '&gt; in ' + file + '</br>'
+                            }
+                        }
+                    } else {
+                    }
+                }
+                console.log(request);
+            }
+        } else {
+            document.body.innerHTML += 'no production name provide to GET parameter p</br>'
+        }
+    }
+</script>
+<body>
+
+</body>
+</html>

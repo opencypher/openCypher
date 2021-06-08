@@ -1,0 +1,22 @@
+= openCypher grammar production linking
+
+The `grammarLink.html` provides the possibility to link to a production name in the link:../../grammar[openCypher grammar files] without hard-coding the line number.
+
+== Demo
+
+Links to existing productions
+
+* link:grammarLink.html?p=RegularQuery[RegularQuery]
+* link:grammarLink.html?p=Atom[Atom]
+* link:grammarLink.html?p=NullOperatorExpression[NullOperatorExpression]
+* link:grammarLink.html?p=UpdatingClause[UpdatingClause]
+* link:grammarLink.html?p=CypherOption[CypherOption]
+
+Links with errors
+
+* link:grammarLink.html?p=FooBarABC[Non-existing production given ]
+* link:grammarLink.html[No production given]
+
+== Usage
+
+To link to production _X_ point your link to `grammarLink.html?p=_X_`
