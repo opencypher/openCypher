@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Grammar Link Demo Form</title>
+</head>
+<script type="application/javascript">
+    function updateUrlOutput() {
+        const p = document.getElementById('inputp').value;
+        document.getElementById('urloutput').innerText = 'https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=' + p;
+    }
+
+    function copyToClipboard() {
+        const el = document.createElement('textarea');
+        el.value = document.getElementById("urloutput").innerText;
+        el.setAttribute('readonly', '');
+        el.style.position = 'absolute';
+        el.style.left = '-9999px';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+    }
+</script>
+<body>
+<form action="https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html" method="get">
+    <div>Production name: <input id="inputp" type="text" name="p" oninput="updateUrlOutput()" onchange="updateUrlOutput()" /> <input type="submit" value="Go!" /></div>
+</form>
+<div>Link url:</div>
+<pre id="urloutput"></pre>
+<div><button onclick="copyToClipboard()">Copy to clipboard</button></div>
+</body>
+</html>
