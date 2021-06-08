@@ -85,7 +85,7 @@ Feature: MatchWhere5 - Filter on predicate resulting in null
     When executing query:
       """
       MATCH (:Root {name: 'x'})-->(i:TextNode)
-      WHERE i.var > 'te' AND exists(i.var)
+      WHERE i.var > 'te' AND i.var IS NOT NULL
       RETURN i
       """
     Then the result should be, in any order:
@@ -106,7 +106,7 @@ Feature: MatchWhere5 - Filter on predicate resulting in null
     When executing query:
       """
       MATCH (:Root {name: 'x'})-->(i)
-      WHERE i.var > 'te' OR exists(i.var)
+      WHERE i.var > 'te' OR i.var IS NOT NULL
       RETURN i
       """
     Then the result should be, in any order:
