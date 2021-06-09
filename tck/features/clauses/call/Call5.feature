@@ -62,7 +62,7 @@ Feature: Call5 - Results projection
 
   Scenario Outline: [3] The order of yield items is irrelevant
     Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (a :: INTEGER?, b :: INTEGER?) :
       | in   | a | b |
       | null | 1 | 2 |
     When executing query:
@@ -82,7 +82,7 @@ Feature: Call5 - Results projection
 
   Scenario Outline: [4] Rename outputs to unbound variable names
     Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (a :: INTEGER?, b :: INTEGER?) :
       | in   | a | b |
       | null | 1 | 2 |
     When executing query:
@@ -112,7 +112,7 @@ Feature: Call5 - Results projection
 
   Scenario: [5] Fail on renaming to an already bound variable name
     Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (a :: INTEGER?, b :: INTEGER?) :
       | in   | a | b |
       | null | 1 | 2 |
     When executing query:
@@ -124,7 +124,7 @@ Feature: Call5 - Results projection
 
   Scenario: [6] Fail on renaming all outputs to the same variable name
     Given an empty graph
-    And there exists a procedure test.my.proc(in :: INTEGER?) :: (A :: INTEGER?, B :: INTEGER?) :
+    And there exists a procedure test.my.proc(in :: INTEGER?) :: (a :: INTEGER?, b :: INTEGER?) :
       | in   | a | b |
       | null | 1 | 2 |
     When executing query:
