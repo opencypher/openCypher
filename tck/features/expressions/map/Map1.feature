@@ -113,13 +113,13 @@ Feature: Map1 - Static value access
       WITH <exp> AS nonMap
       RETURN nonMap.num
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then a TypeError should be raised at compile time: InvalidArgumentType
 
     Examples:
-      | exp          |
-      | 123          |
-      | 42.45        |
-      | true         |
-      | false        |
-      | 'string'     |
-      | [123, true]  |
+      | exp         |
+      | 123         |
+      | 42.45       |
+      | true        |
+      | false       |
+      | 'string'    |
+      | [123, true] |

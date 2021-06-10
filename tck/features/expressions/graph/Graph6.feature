@@ -132,7 +132,7 @@ Feature: Graph6 - Static property access
       RETURN r.missing
       """
     Then the result should be, in any order:
-      | n.missing |
+      | r.missing |
       | null      |
     And no side effects
 
@@ -160,13 +160,13 @@ Feature: Graph6 - Static property access
       WITH <exp> AS nonGraphElement
       RETURN nonGraphElement.num
       """
-    Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+    Then a TypeError should be raised at compile time: InvalidArgumentType
 
     Examples:
-      | exp      |
-      | 123      |
-      | 42.45    |
-      | true     |
-      | false    |
-      | 'string' |
-      | [123, n] |
+      | exp         |
+      | 123         |
+      | 42.45       |
+      | true        |
+      | false       |
+      | 'string'    |
+      | [123, true] |
