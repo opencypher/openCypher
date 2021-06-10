@@ -90,8 +90,9 @@ Feature: Pattern2 - Pattern Comprehension
     Given an empty graph
     And having executed:
       """
-      CREATE (a), (b {name: 'val'})
+      CREATE (a), (b {name: 'val'}), (c)
       CREATE (a)-[:T]->(b)
+      CREATE (b)-[:T]->(c)
       """
     When executing query:
       """
@@ -101,6 +102,7 @@ Feature: Pattern2 - Pattern Comprehension
     Then the result should be, in any order:
       | list    |
       | ['val'] |
+      | [null]  |
       | []      |
     And no side effects
 
@@ -108,8 +110,9 @@ Feature: Pattern2 - Pattern Comprehension
     Given an empty graph
     And having executed:
       """
-      CREATE (a), (b)
+      CREATE (a), (b), (c)
       CREATE (a)-[:T {name: 'val'}]->(b)
+      CREATE (b)-[:T]->(c)
       """
     When executing query:
       """
@@ -119,6 +122,7 @@ Feature: Pattern2 - Pattern Comprehension
     Then the result should be, in any order:
       | list    |
       | ['val'] |
+      | [null]  |
       | []      |
     And no side effects
 
