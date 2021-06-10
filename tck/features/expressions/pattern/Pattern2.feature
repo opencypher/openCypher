@@ -62,11 +62,11 @@ Feature: Pattern2 - Pattern Comprehension
     When executing query:
       """
       MATCH (n:A)
-      RETURN [p = (n)-->(:B) | p]
+      RETURN [p = (n)-->(:B) | p] AS aToB
       """
     Then the result should be, in any order:
-      | [p = (n)-->(:B) \| p] |
-      | [<(:A)-[:T]->(:B)>]   |
+      | aToB                |
+      | [<(:A)-[:T]->(:B)>] |
     And no side effects
 
   Scenario: [3] Returning a pattern comprehension with bound nodes
