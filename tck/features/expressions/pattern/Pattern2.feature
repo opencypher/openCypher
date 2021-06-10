@@ -30,7 +30,7 @@
 
 Feature: Pattern2 - Pattern Comprehension
 
-  Scenario: [1] Returning a pattern comprehension
+  Scenario: [1] Return a pattern comprehension
     Given an empty graph
     And having executed:
       """
@@ -50,7 +50,7 @@ Feature: Pattern2 - Pattern Comprehension
       | []                                     |
     And no side effects
 
-  Scenario: [2] Returning a pattern comprehension with label predicate
+  Scenario: [2] Return a pattern comprehension with label predicate
     Given an empty graph
     And having executed:
       """
@@ -69,7 +69,7 @@ Feature: Pattern2 - Pattern Comprehension
       | [<(:A)-[:T]->(:B)>] |
     And no side effects
 
-  Scenario: [3] Returning a pattern comprehension with bound nodes
+  Scenario: [3] Return a pattern comprehension with bound nodes
     Given an empty graph
     And having executed:
       """
@@ -86,7 +86,7 @@ Feature: Pattern2 - Pattern Comprehension
       | [<(:A)-[:T]->(:B)>] |
     And no side effects
 
-  Scenario: [4] Introducing new node variable in pattern comprehension
+  Scenario: [4] Introduce a new node variable in pattern comprehension
     Given an empty graph
     And having executed:
       """
@@ -104,7 +104,7 @@ Feature: Pattern2 - Pattern Comprehension
       | []      |
     And no side effects
 
-  Scenario: [5] Introducing new relationship variable in pattern comprehension
+  Scenario: [5] Introduce a new relationship variable in pattern comprehension
     Given an empty graph
     And having executed:
       """
@@ -122,7 +122,7 @@ Feature: Pattern2 - Pattern Comprehension
       | []      |
     And no side effects
 
-  Scenario: [6] Aggregating on pattern comprehension
+  Scenario: [6] Aggregate on a pattern comprehension
     Given an empty graph
     And having executed:
       """
@@ -139,7 +139,7 @@ Feature: Pattern2 - Pattern Comprehension
       | 3 |
     And no side effects
 
-  Scenario: [7] Pattern comprehension inside list comprehension
+  Scenario: [7] Use a pattern comprehension inside a list comprehension
     Given an empty graph
     And having executed:
       """
@@ -163,7 +163,7 @@ Feature: Pattern2 - Pattern Comprehension
       | (:X {n: 2}) | [0, 1] |
     And no side effects
 
-  Scenario: [8] Using a pattern comprehension in a WITH
+  Scenario: [8] Use a pattern comprehension in WITH
     Given an empty graph
     And having executed:
       """
@@ -182,7 +182,7 @@ Feature: Pattern2 - Pattern Comprehension
       | [<(:A)-[:T]->(:C)>, <(:A)-[:T]->(:B)>] | 2 |
     And no side effects
 
-  Scenario: [9] Using a variable-length pattern comprehension in a WITH
+  Scenario: [9] Use a variable-length pattern comprehension in WITH
     Given an empty graph
     And having executed:
       """
@@ -199,7 +199,7 @@ Feature: Pattern2 - Pattern Comprehension
       | [<(:A)-[:T]->(:B)>] | 1 |
     And no side effects
 
-  Scenario: [10] Using pattern comprehension in RETURN
+  Scenario: [10] Use a pattern comprehension in RETURN
     Given an empty graph
     And having executed:
       """
@@ -218,7 +218,7 @@ Feature: Pattern2 - Pattern Comprehension
       | []                  |
     And no side effects
 
-  Scenario: [11] Pattern comprehension and ORDER BY
+  Scenario: [11] Use a pattern comprehension and ORDER BY
     Given an empty graph
     And having executed:
       """
