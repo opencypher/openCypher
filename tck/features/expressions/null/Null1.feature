@@ -87,8 +87,35 @@ Feature: Null1 - IS NULL validation
       | true  |
     And no side effects
 
+  Scenario Outline: [5] IS NULL on a map
+    Given any graph
+    When executing query:
+      """
+      WITH <map> AS map
+      RETURN map.<key> IS NULL AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | map                             | key   | result |
+      | {name: 'Mats', name2: 'Pontus'} | name  | false  |
+      | {name: 'Mats', name2: 'Pontus'} | name2 | false  |
+      | {name: 'Mats', name2: null}     | name  | false  |
+      | {name: 'Mats', name2: null}     | name2 | true   |
+      | {name: null}                    | name  | true   |
+      | {name: null, name2: null}       | name  | true   |
+      | {name: null, name2: null}       | name2 | true   |
+      | {notName: null, notName2: null} | name  | true   |
+      | {notName: 0, notName2: null}    | name  | true   |
+      | {notName: 0}                    | name  | true   |
+      | {}                              | name  | true   |
+      | null                            | name  | true   |
+
   @skipStyleCheck
-  Scenario: [5] IS NULL is case insensitive
+  Scenario: [6] IS NULL is case insensitive
     Given an empty graph
     And having executed:
       """
