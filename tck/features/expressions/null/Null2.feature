@@ -95,8 +95,8 @@ Feature: Null2 - IS NOT NULL validation
       RETURN map.<key> IS NOT NULL AS result
       """
     Then the result should be, in any order:
-      | map.name IS NOT NULL |
-      | <result>             |
+      | result   |
+      | <result> |
     And no side effects
 
     Examples:
