@@ -34,20 +34,20 @@ Feature: Pattern2 - Pattern Comprehension
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A)
-      CREATE (a)-[:T]->(:B),
-             (a)-[:T]->(:C)
+      CREATE (a:A), (b:B)
+      CREATE (a)-[:T]->(b),
+             (b)-[:T]->(:C)
       """
     When executing query:
       """
       MATCH (n)
-      RETURN [p = (n)-->() | p] AS ps
+      RETURN [p = (n)-->() | p] AS list
       """
     Then the result should be, in any order:
-      | ps                                     |
-      | [<(:A)-[:T]->(:C)>, <(:A)-[:T]->(:B)>] |
-      | []                                     |
-      | []                                     |
+      | list                |
+      | [<(:A)-[:T]->(:B)>] |
+      | [<(:B)-[:T]->(:C)>] |
+      | []                  |
     And no side effects
 
   Scenario: [2] Return a pattern comprehension with label predicate
@@ -62,10 +62,10 @@ Feature: Pattern2 - Pattern Comprehension
     When executing query:
       """
       MATCH (n:A)
-      RETURN [p = (n)-->(:B) | p] AS aToB
+      RETURN [p = (n)-->(:B) | p] AS list
       """
     Then the result should be, in any order:
-      | aToB                |
+      | list                |
       | [<(:A)-[:T]->(:B)>] |
     And no side effects
 
@@ -79,10 +79,10 @@ Feature: Pattern2 - Pattern Comprehension
     When executing query:
       """
       MATCH (a:A), (b:B)
-      RETURN [p = (a)-->(b) | p] AS paths
+      RETURN [p = (a)-->(b) | p] AS list
       """
     Then the result should be, in any order:
-      | paths               |
+      | list                |
       | [<(:A)-[:T]->(:B)>] |
     And no side effects
 
@@ -91,8 +91,8 @@ Feature: Pattern2 - Pattern Comprehension
     And having executed:
       """
       CREATE (a), (b {name: 'val'}), (c)
-      CREATE (a)-[:T]->(b)
-      CREATE (b)-[:T]->(c)
+      CREATE (a)-[:T]->(b),
+             (b)-[:T]->(c)
       """
     When executing query:
       """
@@ -111,8 +111,8 @@ Feature: Pattern2 - Pattern Comprehension
     And having executed:
       """
       CREATE (a), (b), (c)
-      CREATE (a)-[:T {name: 'val'}]->(b)
-      CREATE (b)-[:T]->(c)
+      CREATE (a)-[:T {name: 'val'}]->(b),
+             (b)-[:T]->(c)
       """
     When executing query:
       """
