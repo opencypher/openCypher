@@ -154,14 +154,9 @@ Feature: Graph6 - Static property access
     And no side effects
 
   Scenario Outline: [9] Fail when performing property access on a non-graph element
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({num: 42})
-      """
+    Given any graph
     When executing query:
       """
-      MATCH (n)
       WITH <exp> AS nonGraphElement
       RETURN nonGraphElement.num
       """
@@ -169,7 +164,6 @@ Feature: Graph6 - Static property access
 
     Examples:
       | exp      |
-      | n.num    |
       | 123      |
       | 42.45    |
       | true     |
