@@ -35,12 +35,13 @@ Feature: Map1 - Static value access
     Given any graph
     When executing query:
       """
-      WITH {exists: 42, notMissing: null} AS m
-      RETURN m.missing, m.notMissing, m.exists
+      WITH {existing: 42, notMissing: null} AS m
+      RETURN m.missing, m.notMissing, m.existing
       """
     Then the result should be, in any order:
-      | m.missing | m.notMissing | m.exists |
-      | null      | null         | 42       |
+      | m.missing | m.notMissing | m.existing |
+      | null      | null         | 42         |
+    And no side effects
 
   Scenario: [2] Statically access a field of a null map
     Given any graph
@@ -58,12 +59,12 @@ Feature: Map1 - Static value access
     Given any graph
     When executing query:
       """
-      WITH [123, {exists: 42, notMissing: null}] AS list
-      RETURN list[1].missing, list[1].notMissing, list[1].exists
+      WITH [123, {existing: 42, notMissing: null}] AS list
+      RETURN (list[1]).missing, (list[1]).notMissing, (list[1]).existing
       """
     Then the result should be, in any order:
-      | list[1].missing | list[1].notMissing | list[1].exists |
-      | null            | null               | 42             |
+      | (list[1]).missing | (list[1]).notMissing | (list[1]).existing |
+      | null              | null                 | 42                 |
     And no side effects
 
   Scenario Outline: [4] Statically access a field is case-sensitive

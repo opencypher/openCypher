@@ -35,32 +35,32 @@ Feature: Graph6 - Static property access
     Given an empty graph
     And having executed:
       """
-      CREATE ({exists: 42, missing: null})
+      CREATE ({existing: 42, missing: null})
       """
     When executing query:
       """
       MATCH (n)
-      RETURN n.missing, n.missingToo, n.exists
+      RETURN n.missing, n.missingToo, n.existing
       """
     Then the result should be, in any order:
-      | n.missing | n.missingToo | n.exists |
-      | null      | null         | 42       |
+      | n.missing | n.missingToo | n.existing |
+      | null      | null         | 42         |
     And no side effects
 
   Scenario: [2] Statically access a property of a optional non-null node
     Given an empty graph
     And having executed:
       """
-      CREATE ({exists: 42, missing: null})
+      CREATE ({existing: 42, missing: null})
       """
     When executing query:
       """
       OPTIONAL MATCH (n)
-      RETURN n.missing, n.missingToo, n.exists
+      RETURN n.missing, n.missingToo, n.existing
       """
     Then the result should be, in any order:
-      | n.missing | n.missingToo | n.exists |
-      | null      | null         | 42       |
+      | n.missing | n.missingToo | n.existing |
+      | null      | null         | 42         |
     And no side effects
 
   Scenario: [3] Statically access a property of a null node
@@ -79,49 +79,49 @@ Feature: Graph6 - Static property access
     Given an empty graph
     And having executed:
       """
-      CREATE ({exists: 42, missing: null})
+      CREATE ({existing: 42, missing: null})
       """
     When executing query:
       """
       MATCH (n)
       WITH [123, n] AS list
-      RETURN list[1].missing, list[1].missingToo, list[1].exists
+      RETURN (list[1]).missing, (list[1]).missingToo, (list[1]).existing
       """
     Then the result should be, in any order:
-      | list[1].missing | list[1].missingToo | list[1].exists |
-      | null            | null               | 42             |
+      | (list[1]).missing | (list[1]).missingToo | (list[1]).existing |
+      | null              | null                 | 42                 |
     And no side effects
 
   Scenario: [5] Statically access a property of a non-null relationship
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[:REL {exists: 42, missing: null}]->()
+      CREATE ()-[:REL {existing: 42, missing: null}]->()
       """
     When executing query:
       """
       MATCH ()-[r]->()
-      RETURN r.missing, r.missingToo, r.exists
+      RETURN r.missing, r.missingToo, r.existing
       """
     Then the result should be, in any order:
-      | r.missing | r.missingToo | r.exists |
-      | null      | null         | 42       |
+      | r.missing | r.missingToo | r.existing |
+      | null      | null         | 42         |
     And no side effects
 
   Scenario: [6] Statically access a property of a optional non-null relationship
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[:REL {exists: 42, missing: null}]->()
+      CREATE ()-[:REL {existing: 42, missing: null}]->()
       """
     When executing query:
       """
       OPTIONAL MATCH ()-[r]->()
-      RETURN r.missing, r.missingToo, r.exists
+      RETURN r.missing, r.missingToo, r.existing
       """
     Then the result should be, in any order:
-      | r.missing | r.missingToo | r.exists |
-      | null      | null         | 42       |
+      | r.missing | r.missingToo | r.existing |
+      | null      | null         | 42         |
     And no side effects
 
   Scenario: [7] Statically access a property of a null relationship
@@ -140,17 +140,17 @@ Feature: Graph6 - Static property access
     Given an empty graph
     And having executed:
       """
-      CREATE ()-[:REL {exists: 42, missing: null}]->()
+      CREATE ()-[:REL {existing: 42, missing: null}]->()
       """
     When executing query:
       """
       MATCH ()-[r]->()
       WITH [123, r] AS list
-      RETURN list[1].missing, list[1].missingToo, list[1].exists
+      RETURN (list[1]).missing, (list[1]).missingToo, (list[1]).existing
       """
     Then the result should be, in any order:
-      | list[1].missing | list[1].missingToo | list[1].exists |
-      | null            | null               | 42             |
+      | (list[1]).missing | (list[1]).missingToo | (list[1]).existing |
+      | null              | null                 | 42                 |
     And no side effects
 
   Scenario Outline: [9] Fail when performing property access on a non-graph element
