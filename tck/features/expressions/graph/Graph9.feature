@@ -28,68 +28,84 @@
 
 #encoding: utf-8
 
-Feature: Graph9 - Property existence check
+Feature: Graph9 - Retrieve all properties as a property map
 
-  Scenario: [1] Property existence with dynamic property lookup
+  Scenario: [1] `properties()` on a node
     Given an empty graph
     And having executed:
       """
-      CREATE (:Person {name: 'foo'}),
-             (:Person)
+      CREATE (n:Person {name: 'Popeye', level: 9001})
       """
     When executing query:
       """
-      MATCH (n:Person)
-      WHERE n['name'] IS NOT NULL
-      RETURN n
+      MATCH (p:Person)
+      RETURN properties(p) AS m
       """
     Then the result should be, in any order:
-      | n                       |
-      | (:Person {name: 'foo'}) |
+      | m                             |
+      | {name: 'Popeye', level: 9001} |
     And no side effects
 
-  Scenario: [3] Property existence check on non-null node
+  Scenario: [2] `properties()` on a relationship
     Given an empty graph
     And having executed:
       """
-      CREATE ({exists: 42})
+      CREATE (n)-[:R {name: 'Popeye', level: 9001}]->(n)
       """
     When executing query:
       """
-      MATCH (n)
-      RETURN n.missing IS NOT NULL,
-             n.exists IS NOT NULL
+      MATCH ()-[r:R]->()
+      RETURN properties(r) AS m
       """
     Then the result should be, in any order:
-      | n.missing IS NOT NULL | n.exists IS NOT NULL |
-      | false                 | true                 |
+      | m                             |
+      | {name: 'Popeye', level: 9001} |
     And no side effects
 
-  Scenario: [4] Property existence check on optional non-null node
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({exists: 42})
-      """
+  Scenario: [3] `properties()` on null
+    Given any graph
     When executing query:
       """
-      OPTIONAL MATCH (n)
-      RETURN n.missing IS NOT NULL,
-             n.notMissing IS NOT NULL
+      OPTIONAL MATCH (n:DoesNotExist)
+      OPTIONAL MATCH (n)-[r:NOT_THERE]->()
+      RETURN properties(n), properties(r), properties(null)
       """
     Then the result should be, in any order:
-      | n.missing IS NOT NULL | n.exists IS NOT NULL |
-      | false                 | true                 |
+      | properties(n) | properties(r) | properties(null) |
+      | null          | null          | null             |
     And no side effects
 
-  Scenario: [5] Property existence check on null node
-    Given an empty graph
+  Scenario: [4] `properties()` on a map
+    Given any graph
     When executing query:
       """
-      OPTIONAL MATCH (n)
-      RETURN n.missing IS NOT NULL
+      RETURN properties({name: 'Popeye', level: 9001}) AS m
       """
     Then the result should be, in any order:
-      | n.missing IS NOT NULL |
-      | null                  |
+      | m                             |
+      | {name: 'Popeye', level: 9001} |
     And no side effects
+
+  Scenario: [5] `properties()` failing on an integer literal
+    Given any graph
+    When executing query:
+      """
+      RETURN properties(1)
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  Scenario: [6] `properties()` failing on a string literal
+    Given any graph
+    When executing query:
+      """
+      RETURN properties('Cypher')
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+  Scenario: [7] `properties()` failing on a list of booleans
+    Given any graph
+    When executing query:
+      """
+      RETURN properties([true, false])
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
