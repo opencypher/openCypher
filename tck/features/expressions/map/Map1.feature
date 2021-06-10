@@ -31,7 +31,7 @@
 Feature: Map1 - Static value access
 # Static value access refers to the dot-operator – <expression resulting in a map>.<identify> – which does not allow any dynamic computation of the map key – i.e. <identify>.
 
-  Scenario: [1] Statically access field of a map resulting from an expression
+  Scenario: [1] Statically access a field of a map resulting from an expression
     Given any graph
     When executing query:
       """
@@ -43,7 +43,70 @@ Feature: Map1 - Static value access
       | 0             |
     And no side effects
 
-  Scenario: [2] Fail when performing property access on a non-map
+  Scenario: [2] Statically access a field on null results in null
+    Given any graph
+    When executing query:
+      """
+      RETURN null.num
+      """
+    Then the result should be, in any order:
+      | null.num |
+      | null     |
+    And no side effects
+
+  Scenario: [3] Statically access a field with null results in null
+    Given any graph
+    When executing query:
+      """
+      WITH {num: 0} AS map
+      RETURN map.null
+      """
+    Then the result should be, in any order:
+      | null.num |
+      | null     |
+    And no side effects
+
+  Scenario Outline: [4] Statically access a field is case-sensitive
+    Given any graph
+    When executing query:
+      """
+      WITH <map> AS map
+      RETURN map.<key> AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | map                            | key  | result   |
+      | {name: 'Mats', nome: 'Pontus'} | name | 'Mats'   |
+      | {name: 'Mats', Name: 'Pontus'} | name | 'Mats'   |
+      | {name: 'Mats', Name: 'Pontus'} | Name | 'Pontus' |
+      | {name: 'Mats', Name: 'Pontus'} | nAMe | null     |
+
+  Scenario Outline: [5] Statically access a field with a delimited identifier
+    Given any graph
+    When executing query:
+      """
+      WITH <map> AS map
+      RETURN map.<key> AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | map                            | key    | result   |
+      | {name: 'Mats', nome: 'Pontus'} | `name` | 'Mats'   |
+      | {name: 'Mats', nome: 'Pontus'} | `nome` | 'Pontus' |
+      | {name: 'Mats', nome: 'Pontus'} | `Mats` | null     |
+      | {name: 'Mats', nome: 'Pontus'} | `null` | null     |
+      | {null: 'Mats', NULL: 'Pontus'} | `null` | 'Mats'   |
+      | {null: 'Mats', NULL: 'Pontus'} | `NULL` | 'Pontus' |
+
+  Scenario: [6] Fail when performing property access on a non-map
     Given any graph
     When executing query:
       """
