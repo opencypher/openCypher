@@ -86,3 +86,21 @@ Feature: Null1 - IS NULL validation
       | value |
       | true  |
     And no side effects
+
+  @skipStyleCheck
+  Scenario: [5] IS NULL is case insensitive
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:X {prop: 42}), (:X)
+      """
+    When executing query:
+      """
+      MATCH (n:X)
+      RETURN n, n.prop iS NuLl AS b
+      """
+    Then the result should be, in any order:
+      | n               | b     |
+      | (:X {prop: 42}) | false |
+      | (:X)            | true  |
+    And no side effects

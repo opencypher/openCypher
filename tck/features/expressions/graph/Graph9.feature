@@ -48,24 +48,6 @@ Feature: Graph9 - Property existence check
       | (:Person {name: 'foo'}) |
     And no side effects
 
-  @skipStyleCheck
-  Scenario: [2] Property existence is case insensitive
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (a:X {prop: 42}), (:X)
-      """
-    When executing query:
-      """
-      MATCH (n:X)
-      RETURN n, n.prop Is noT nULl AS b
-      """
-    Then the result should be, in any order:
-      | n               | b     |
-      | (:X {prop: 42}) | true  |
-      | (:X)            | false |
-    And no side effects
-
   Scenario: [3] Property existence check on non-null node
     Given an empty graph
     And having executed:
