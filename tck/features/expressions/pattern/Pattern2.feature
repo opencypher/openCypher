@@ -158,7 +158,7 @@ Feature: Pattern2 - Pattern Comprehension
       """
     When executing query:
       """
-      MATCH p = (n:X)-->(b)
+      MATCH p = (n:X)-->()
       RETURN n, [x IN nodes(p) | size([(x)-->(:Y) | 1])] AS list
       """
     Then the result should be, in any order:
@@ -171,9 +171,9 @@ Feature: Pattern2 - Pattern Comprehension
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A)
-      CREATE (a)-[:T]->(:B),
-             (a)-[:T]->(:C)
+      CREATE (a:A), (b:B)
+      CREATE (a)-[:T]->(b),
+             (b)-[:T]->(:C)
       """
     When executing query:
       """
@@ -182,8 +182,9 @@ Feature: Pattern2 - Pattern Comprehension
       RETURN ps, c
       """
     Then the result should be, in any order:
-      | ps                                     | c |
-      | [<(:A)-[:T]->(:C)>, <(:A)-[:T]->(:B)>] | 2 |
+      | ps                  | c |
+      | [<(:A)-[:T]->(:B)>] | 1 |
+      | [<(:B)-[:T]->(:C)>] | 1 |
     And no side effects
 
   Scenario: [9] Use a variable-length pattern comprehension in WITH
