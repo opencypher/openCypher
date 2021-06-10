@@ -86,3 +86,17 @@ Feature: Map3 - Keys function
       | {k: 1, l: null}       | ['k', 'l']      |
       | {k: null, l: null}    | ['k', 'l']      |
       | {k: 1, l: null, m: 1} | ['k', 'l', 'm'] |
+
+  Scenario: [5] Using `keys()` and `IN` to check field existence
+    Given an any graph
+    When executing query:
+      """
+      WITH {exists: 42, notMissing: null} AS map
+      RETURN 'exists' IN keys(map) AS a,
+             'notMissing' IN keys(map) AS b,
+             'missing' IN keys(map) AS c
+      """
+    Then the result should be, in any order:
+      | a    | b    | c     |
+      | true | true | false |
+    And no side effects
