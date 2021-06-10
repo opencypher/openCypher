@@ -31,39 +31,39 @@
 Feature: Map1 - Static value access
 # Static value access refers to the dot-operator – <expression resulting in a map>.<identify> – which does not allow any dynamic computation of the map key – i.e. <identify>.
 
-  Scenario: [1] Statically access a field of a map resulting from an expression
+  Scenario: [1] Statically access a field of a non-null map
     Given any graph
     When executing query:
       """
-      WITH [{num: 0}, 1] AS list
-      RETURN (list[0]).num
+      WITH {exists: 42, notMissing: null} AS m
+      RETURN m.missing, m.notMissing, m.exists
       """
     Then the result should be, in any order:
-      | (list[0]).num |
-      | 0             |
+      | m.missing | m.notMissing | m.exists |
+      | null      | null         | 42       |
+
+  Scenario: [2] Statically access a field of a null map
+    Given any graph
+    When executing query:
+      """
+      WITH null AS m
+      RETURN m.missing
+      """
+    Then the result should be, in any order:
+      | n.missing |
+      | null      |
     And no side effects
 
-  Scenario: [2] Statically access a field on null results in null
+  Scenario: [3] Statically access a field of a map resulting from an expression
     Given any graph
     When executing query:
       """
-      RETURN null.num
+      WITH [123, {exists: 42, notMissing: null}] AS list
+      RETURN list[1].missing, list[1].notMissing, list[1].exists
       """
     Then the result should be, in any order:
-      | null.num |
-      | null     |
-    And no side effects
-
-  Scenario: [3] Statically access a field with null results in null
-    Given any graph
-    When executing query:
-      """
-      WITH {num: 0} AS map
-      RETURN map.null
-      """
-    Then the result should be, in any order:
-      | null.num |
-      | null     |
+      | list[1].missing | list[1].notMissing | list[1].exists |
+      | null            | null               | 42             |
     And no side effects
 
   Scenario Outline: [4] Statically access a field is case-sensitive
@@ -106,11 +106,21 @@ Feature: Map1 - Static value access
       | {null: 'Mats', NULL: 'Pontus'} | `null` | 'Mats'   |
       | {null: 'Mats', NULL: 'Pontus'} | `NULL` | 'Pontus' |
 
-  Scenario: [6] Fail when performing property access on a non-map
+  Scenario Outline: [6] Fail when performing property access on a non-map
     Given any graph
     When executing query:
       """
-      WITH [{num: 0}, 1] AS list
-      RETURN (list[1]).num
+      WITH <exp> AS nonMap
+      RETURN nonMap.num
       """
     Then a TypeError should be raised at runtime: PropertyAccessOnNonMap
+
+    Examples:
+      | exp          |
+      | 123          |
+      | 42.45        |
+      | true         |
+      | false        |
+      | 'string'     |
+      | [123, true]  |
+      | {num: 1}.num |
