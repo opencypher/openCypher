@@ -104,3 +104,21 @@ Feature: Null2 - IS NOT NULL validation
       | {name: 'Mats', name2: 'Pontus'} | true   |
       | {name: null}                    | false  |
       | {notName: 0, notName2: null}    | false  |
+
+  @skipStyleCheck
+  Scenario: [6] IS NOT NULL is case insensitive
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:X {prop: 42}), (:X)
+      """
+    When executing query:
+      """
+      MATCH (n:X)
+      RETURN n, n.prop Is noT nULl AS b
+      """
+    Then the result should be, in any order:
+      | n               | b     |
+      | (:X {prop: 42}) | true  |
+      | (:X)            | false |
+    And no side effects
