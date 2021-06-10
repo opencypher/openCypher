@@ -79,7 +79,7 @@ Feature: Pattern2 - Pattern Comprehension
     When executing query:
       """
       MATCH (a:A), (b:B)
-      RETURN [p = (a)-[*]->(b) | p] AS paths
+      RETURN [p = (a)-->(b) | p] AS paths
       """
     Then the result should be, in any order:
       | paths               |
