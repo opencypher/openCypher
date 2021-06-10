@@ -50,7 +50,7 @@ Feature: Map1 - Static value access
       RETURN m.missing
       """
     Then the result should be, in any order:
-      | n.missing |
+      | m.missing |
       | null      |
     And no side effects
 
@@ -123,4 +123,3 @@ Feature: Map1 - Static value access
       | false        |
       | 'string'     |
       | [123, true]  |
-      | {num: 1}.num |
