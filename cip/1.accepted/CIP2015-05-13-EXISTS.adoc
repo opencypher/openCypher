@@ -17,7 +17,8 @@ toc::[]
 
 == Background
 
-openCypher has two language constructs that allow testing of existence. Namely
+openCypher has two language constructs that allow testing of existence. 
+Namely
 
 * property existence predicate: `exists( n.prop )`, which is grammatically a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=FunctionInvocation[<FunctionInvocation>]
 * pattern predicates for the existence of subgraphs, which is grammatically a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>]
