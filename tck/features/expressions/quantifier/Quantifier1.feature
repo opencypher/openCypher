@@ -78,11 +78,11 @@ Feature: Quantifier1 - None quantifier
       | [2, 3]                 | x = 2     | false  |
       | [3, 2, 3]              | x = 2     | false  |
       | [2, 3, 2]              | x = 2     | false  |
-      | [2, -10, 3, 9, 0]      | x < 10    | true   |
+      | [2, -10, 3, 9, 0]      | x < 10    | false  |
       | [2, -10, 3, 2, 10]     | x < 10    | false  |
       | [2, -10, 3, 21, 10]    | x < 10    | false  |
       | [200, -10, 36, 21, 10] | x < 10    | false  |
-      | [200, 15, 36, 21, 10]  | x < 10    | false  |
+      | [200, 15, 36, 21, 10]  | x < 10    | true   |
 
   Scenario Outline: [3] None quantifier on list literal containing floats
     Given any graph
