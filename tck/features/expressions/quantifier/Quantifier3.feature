@@ -256,7 +256,7 @@ Feature: Quantifier3 - Any quantifier
     Given any graph
     When executing query:
       """
-      RETURN any(x IN <list> WHERE <condition> IS NULL) AS result
+      RETURN any(x IN <list> WHERE <condition>) AS result
       """
     Then the result should be, in any order:
       | result   |

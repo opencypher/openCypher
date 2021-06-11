@@ -256,7 +256,7 @@ Feature: Quantifier2 - Single quantifier
     Given any graph
     When executing query:
       """
-      RETURN single(x IN <list> WHERE <condition> IS NULL) AS result
+      RETURN single(x IN <list> WHERE <condition>) AS result
       """
     Then the result should be, in any order:
       | result   |
