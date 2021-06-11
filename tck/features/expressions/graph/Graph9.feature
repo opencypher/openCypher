@@ -63,7 +63,7 @@ Feature: Graph9 - Retrieve all properties as a property map
     And no side effects
 
   Scenario: [3] `properties()` on null
-    Given any graph
+    Given an empty graph
     When executing query:
       """
       OPTIONAL MATCH (n:DoesNotExist)
