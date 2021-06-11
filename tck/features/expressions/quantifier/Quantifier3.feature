@@ -244,12 +244,12 @@ Feature: Quantifier3 - Any quantifier
       | [34, 0, 8, 900]          | true   |
       | [null]                   | false  |
       | [null, null]             | false  |
-      | [0, null]                | false  |
-      | [2, null]                | false  |
-      | [null, 2]                | false  |
-      | [34, 0, null, 8, 900]    | false  |
-      | [34, 0, null, 8, null]   | false  |
-      | [null, 123, null, null]  | false  |
+      | [0, null]                | true   |
+      | [2, null]                | true   |
+      | [null, 2]                | true   |
+      | [34, 0, null, 8, 900]    | true   |
+      | [34, 0, null, 8, null]   | true   |
+      | [null, 123, null, null]  | true   |
       | [null, null, null, null] | false  |
 
   Scenario Outline: [10] Any quantifier can nest itself and other quantifiers
@@ -347,7 +347,7 @@ Feature: Quantifier3 - Any quantifier
       UNWIND([x IN inputList WHERE rand() > 0.75 | x]) AS x9
       WITH *, rand() AS s WHERE rand() > 0.75
       WITH [x IN [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9] WHERE rand() > s | x] AS list WHERE single(<operands>)
-      WITH any(x IN list WHERE <operands>) AS result, count(*) AS cnt
+      WITH any(<operands>) AS result, count(*) AS cnt
       RETURN result
       """
     Then the result should be, in any order:
