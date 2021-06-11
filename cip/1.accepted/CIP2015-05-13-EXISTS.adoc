@@ -35,7 +35,7 @@ Both developments and the issues around <RelationshipsPattern>s suggest the need
 
 == Proposal
 
-CIP proposes:
+This CIP proposes:
 
 * Restricting https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] to predicate contexts and boolean evaluation
 * Adding two forms of existential subqueries denoted with `EXISTS { ... }`:
