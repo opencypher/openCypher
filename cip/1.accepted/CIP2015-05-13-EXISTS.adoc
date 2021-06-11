@@ -25,7 +25,7 @@ Namely
 
 Both are allowed as https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Atom[<Atom>]s of expressions.
 
-Note that a <RelationshipsPattern> appearing in an expression is evaluated to a list containing the matches of the pattern.
+Note that a <RelationshipsPattern> appearing in an expression is evaluated to a list of paths containing the matches of the pattern.
 In a predicate context this list gets coerced to a boolean (empty list -> [underline]#*_False_*#, non-empty list -> [underline]#*_True_*#), letting this <RelationshipsPattern> behave like a predicate although it actually is a list expression.
 As a result, https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>s] appear to behave differently depending on the context in which they appear.
 Further, https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternComprehension[<PatternComprehension>] offer a more powerful and syntaxtically better separated means to   get lists of matches for a pattern within expressions.
