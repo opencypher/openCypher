@@ -41,7 +41,7 @@ This CIP proposes:
 * Adding two forms of existential subqueries denoted with `EXISTS { ... }`:
 ** Full existential subquery based on a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RegularQuery[<RegularQuery>]
 ** Simple existential subquery based on a single https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Pattern[<Pattern>] and an optional https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Where[<Where>] clause
-* Removing of `exists( n.prop )` in favor of the https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NullOperatorExpression[<NullOperatorExpression>], which is a restatement of what has been accepted with https://github.com/opencypher/openCypher/blob/master/cip/1.accepted/CIP2018-10-29-EXISTS-and-IS-NOT-NULL.adoc[CIP2018-10-29 EXISTS and IS NOT NULL]
+* Removing `exists( n.prop )` in favor of the https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NullOperatorExpression[<NullOperatorExpression>], which is a restatement of what has been accepted with https://github.com/opencypher/openCypher/blob/master/cip/1.accepted/CIP2018-10-29-EXISTS-and-IS-NOT-NULL.adoc[CIP2018-10-29 EXISTS and IS NOT NULL]
 
 === Syntax
 
