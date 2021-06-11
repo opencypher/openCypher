@@ -59,13 +59,13 @@ This CIP proposes:
   | <FullExistentialSubquery>
 
 <SimpleExistentialSubquery> ::=
-  "EXISTS" "{" <SimpleMatch> "}"
+  "EXISTS", "{", <SimpleMatch>, "}"
 
 <FullExistentialSubquery> ::=
-  "EXISTS" "{" <RegularQuery> "}"
+  "EXISTS", "{", <RegularQuery>, "}"
 
 <SimpleMatch> ::=
-  <Pattern> [ <Where> ]
+  <Pattern>, [ <Where> ]
 ----
 
 Note that the openCypher grammar does not list <SimpleExistentialSubquery>, <SimpleMatch>, and <FullExistentialSubquery> as separate productions but represents them inline of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ExistentialSubquery[<ExistentialSubquery>].
