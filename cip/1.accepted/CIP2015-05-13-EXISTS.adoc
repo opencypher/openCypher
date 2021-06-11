@@ -127,6 +127,8 @@ A <FullExistentialSubquery> _FES_ is effectively evaluated as follows:
 ** If _RESULT_TABLE_ is an empty table (cardinality is zero), then the result of _FES_ is [underline]#*_False_*#.
 ** Otherwise, the result of _FES_ is [underline]#*_True_*#.
 
+Note that all fields in _RESULT_TABLE_ are ignored and only the number of rows in _RESULT_TABLE_ is relevant for the result of _FES_.
+
 === Examples
 
 ==== Property existence test
