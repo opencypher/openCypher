@@ -95,7 +95,7 @@ All three forms,
 * Are side effect-free, i.e. <FullExistentialSubquery> shall not contain any <UpdatingClause> or other sources of side effects
 * Can contain variables and parameters from the outer queries
 
-https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] shall not to introduce new variables.
+https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] shall not introduce new variables.
 
 Both forms of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ExistentialSubquery[<ExistentialSubquery>] (<SimpleExistentialSubquery> and <FullExistentialSubquery>) are allowed to introduce new variables.
 These variables necessarily shall have a name different from the names of all variables available from the outer queries.
