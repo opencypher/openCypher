@@ -10,7 +10,7 @@
 [abstract]
 .Abstract
 --
-This CIP introduces existential subquery and cleans up previously existing language constructs for testing of existence.
+This CIP introduces existential subqueries and cleans up previously existing language constructs for existence testing.
 --
 
 toc::[]
