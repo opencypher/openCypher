@@ -99,7 +99,7 @@ https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-li
 
 Both forms of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ExistentialSubquery[<ExistentialSubquery>] (<SimpleExistentialSubquery> and <FullExistentialSubquery>) are allowed to introduce new variables.
 These variables necessarily shall have a name different from the names of all variables available from the outer queries.
-Any variables introduced in an <ExistentialSubquery> are not available on the outside.
+Any variables introduced in an <ExistentialSubquery> are not available outside the subquery context.
 
 https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] and <SimpleExistentialSubquery> are syntactically simpler and semantically less powerful forms of <FullExistentialSubquery>.
 The semantics of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] and <SimpleExistentialSubquery> can be defined as syntax transformations to <FullExistentialSubquery>.
