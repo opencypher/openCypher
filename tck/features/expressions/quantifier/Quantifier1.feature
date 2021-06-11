@@ -256,7 +256,7 @@ Feature: Quantifier1 - None quantifier
     Given any graph
     When executing query:
       """
-      RETURN none(x IN <list> WHERE <condition> IS NULL) AS result
+      RETURN none(x IN <list> WHERE <condition>) AS result
       """
     Then the result should be, in any order:
       | result   |
