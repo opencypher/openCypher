@@ -179,7 +179,99 @@ Feature: Quantifier1 - None quantifier
       | [{a: 2, b: 5}, {a: 2, b: 5}, {a: 2, b: 5}] | x.a = 2   | false  |
       | [{a: 4}, {a: 4}, {a: 4}]                   | x.a = 2   | true   |
 
-  Scenario Outline: [7] None quantifier on lists containing nulls
+  Scenario: [7] None quantifier on list containing nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s1:SRelationships), (s2:SNodes)
+      CREATE (a:A {name: 'a'}), (b:B {name: 'b'})
+      CREATE (aa:A {name: 'a'}), (ab:B {name: 'b'}),
+             (ba:A {name: 'a'}), (bb:B {name: 'b'})
+      CREATE (aaa:A {name: 'a'}), (aab:B {name: 'b'}),
+             (aba:A {name: 'a'}), (abb:B {name: 'b'}),
+             (baa:A {name: 'a'}), (bab:B {name: 'b'}),
+             (bba:A {name: 'a'}), (bbb:B {name: 'b'})
+      CREATE (s1)-[:I]->(s2),
+             (s2)-[:RA {name: 'a'}]->(a), (s2)-[:RB {name: 'b'}]->(b)
+      CREATE (a)-[:RA {name: 'a'}]->(aa), (a)-[:RB {name: 'b'}]->(ab),
+             (b)-[:RA {name: 'a'}]->(ba), (b)-[:RB {name: 'b'}]->(bb)
+      CREATE (aa)-[:RA {name: 'a'}]->(aaa), (aa)-[:RB {name: 'b'}]->(aab),
+             (ab)-[:RA {name: 'a'}]->(aba), (ab)-[:RB {name: 'b'}]->(abb),
+             (ba)-[:RA {name: 'a'}]->(baa), (ba)-[:RB {name: 'b'}]->(bab),
+             (bb)-[:RA {name: 'a'}]->(bba), (bb)-[:RB {name: 'b'}]->(bbb)
+      """
+    When executing query:
+      """
+      MATCH p = (:SNodes)-[*0..3]->(x)
+      WITH tail(nodes(p)) AS nodes
+      RETURN nodes, none(x IN nodes WHERE x.name = 'a') AS result
+      """
+    Then the result should be, in any order:
+      | nodes                                                  | result |
+      | []                                                     | true   |
+      | [(:A {name: 'a'})]                                     | false  |
+      | [(:A {name: 'a'}), (:A {name: 'a'})]                   | false  |
+      | [(:A {name: 'a'}), (:A {name: 'a'}), (:A {name: 'a'})] | false  |
+      | [(:A {name: 'a'}), (:A {name: 'a'}), (:B {name: 'b'})] | false  |
+      | [(:A {name: 'a'}), (:B {name: 'b'})]                   | false  |
+      | [(:A {name: 'a'}), (:B {name: 'b'}), (:A {name: 'a'})] | false  |
+      | [(:A {name: 'a'}), (:B {name: 'b'}), (:B {name: 'b'})] | false  |
+      | [(:B {name: 'b'})]                                     | true   |
+      | [(:B {name: 'b'}), (:A {name: 'a'})]                   | false  |
+      | [(:B {name: 'b'}), (:A {name: 'a'}), (:A {name: 'a'})] | false  |
+      | [(:B {name: 'b'}), (:A {name: 'a'}), (:B {name: 'b'})] | false  |
+      | [(:B {name: 'b'}), (:B {name: 'b'})]                   | true   |
+      | [(:B {name: 'b'}), (:B {name: 'b'}), (:A {name: 'a'})] | false  |
+      | [(:B {name: 'b'}), (:B {name: 'b'}), (:B {name: 'b'})] | true   |
+    And no side effects
+
+  Scenario: [8] None quantifier on list containing relationships
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s1:SRelationships), (s2:SNodes)
+      CREATE (a:A {name: 'a'}), (b:B {name: 'b'})
+      CREATE (aa:A {name: 'a'}), (ab:B {name: 'b'}),
+             (ba:A {name: 'a'}), (bb:B {name: 'b'})
+      CREATE (aaa:A {name: 'a'}), (aab:B {name: 'b'}),
+             (aba:A {name: 'a'}), (abb:B {name: 'b'}),
+             (baa:A {name: 'a'}), (bab:B {name: 'b'}),
+             (bba:A {name: 'a'}), (bbb:B {name: 'b'})
+      CREATE (s1)-[:I]->(s2),
+             (s2)-[:RA {name: 'a'}]->(a), (s2)-[:RB {name: 'b'}]->(b)
+      CREATE (a)-[:RA {name: 'a'}]->(aa), (a)-[:RB {name: 'b'}]->(ab),
+             (b)-[:RA {name: 'a'}]->(ba), (b)-[:RB {name: 'b'}]->(bb)
+      CREATE (aa)-[:RA {name: 'a'}]->(aaa), (aa)-[:RB {name: 'b'}]->(aab),
+             (ab)-[:RA {name: 'a'}]->(aba), (ab)-[:RB {name: 'b'}]->(abb),
+             (ba)-[:RA {name: 'a'}]->(baa), (ba)-[:RB {name: 'b'}]->(bab),
+             (bb)-[:RA {name: 'a'}]->(bba), (bb)-[:RB {name: 'b'}]->(bbb)
+      """
+    When executing query:
+      """
+      MATCH p = (:SRelationships)-[*0..4]->(x)
+      WITH tail(relationships(p)) AS relationships, COUNT(*) AS c
+      RETURN relationships, none(x IN relationships WHERE x.name = 'a') AS result
+      """
+    Then the result should be, in any order:
+      | relationships                                             | result |
+      | []                                                        | true   |
+      | [[:RA {name: 'a'}]]                                       | false  |
+      | [[:RA {name: 'a'}], [:RA {name: 'a'}]]                    | false  |
+      | [[:RA {name: 'a'}], [:RA {name: 'a'}], [:RA {name: 'a'}]] | false  |
+      | [[:RA {name: 'a'}], [:RA {name: 'a'}], [:RB {name: 'b'}]] | false  |
+      | [[:RA {name: 'a'}], [:RB {name: 'b'}]]                    | false  |
+      | [[:RA {name: 'a'}], [:RB {name: 'b'}], [:RA {name: 'a'}]] | false  |
+      | [[:RA {name: 'a'}], [:RB {name: 'b'}], [:RB {name: 'b'}]] | false  |
+      | [[:RB {name: 'b'}]]                                       | true   |
+      | [[:RB {name: 'b'}], [:RA {name: 'a'}]]                    | false  |
+      | [[:RB {name: 'b'}], [:RA {name: 'a'}], [:RA {name: 'a'}]] | false  |
+      | [[:RB {name: 'b'}], [:RA {name: 'a'}], [:RB {name: 'b'}]] | false  |
+      | [[:RB {name: 'b'}], [:RB {name: 'b'}]]                    | true   |
+      | [[:RB {name: 'b'}], [:RB {name: 'b'}], [:RA {name: 'a'}]] | false  |
+      | [[:RB {name: 'b'}], [:RB {name: 'b'}], [:RB {name: 'b'}]] | true   |
+    And no side effects
+
+  Scenario Outline: [9] None quantifier on lists containing nulls
     Given any graph
     When executing query:
       """
@@ -200,7 +292,7 @@ Feature: Quantifier1 - None quantifier
       | [34, 0, null, 5, 900]   | x < 10    | false  |
       | [34, 10, null, 15, 900] | x < 10    | null   |
 
-  Scenario Outline: [8] None quantifier with IS NULL predicate
+  Scenario Outline: [10] None quantifier with IS NULL predicate
     Given any graph
     When executing query:
       """
@@ -226,7 +318,7 @@ Feature: Quantifier1 - None quantifier
       | [null, 123, null, null]  | false  |
       | [null, null, null, null] | false  |
 
-  Scenario Outline: [9] None quantifier with IS NOT NULL predicate
+  Scenario Outline: [11] None quantifier with IS NOT NULL predicate
     Given any graph
     When executing query:
       """
@@ -252,7 +344,7 @@ Feature: Quantifier1 - None quantifier
       | [null, 123, null, null]  | false  |
       | [null, null, null, null] | true   |
 
-  Scenario Outline: [10] None quantifier can nest itself and other quantifiers
+  Scenario Outline: [12] None quantifier can nest itself and other quantifiers
     Given any graph
     When executing query:
       """
@@ -274,7 +366,7 @@ Feature: Quantifier1 - None quantifier
       | [['abc'], ['abc', 'def']] | all(y IN x WHERE y = 'def')    | true   |
       | [['abc'], ['abc', 'def']] | all(y IN x WHERE y = 'abc')    | false  |
 
-  Scenario: [11] None quantifier is always true if the predicate is statically false and the list is not empty
+  Scenario: [13] None quantifier is always true if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
       """
@@ -301,7 +393,7 @@ Feature: Quantifier1 - None quantifier
       | true   |
     And no side effects
 
-  Scenario: [12] None quantifier is always false if the predicate is statically true and the list is not empty
+  Scenario: [14] None quantifier is always false if the predicate is statically true and the list is not empty
     Given any graph
     When executing query:
       """
@@ -328,7 +420,7 @@ Feature: Quantifier1 - None quantifier
       | false  |
     And no side effects
 
-  Scenario Outline: [13] Fail none quantifier on type mismatch between list elements and predicate
+  Scenario Outline: [15] Fail none quantifier on type mismatch between list elements and predicate
     Given any graph
     When executing query:
       """
