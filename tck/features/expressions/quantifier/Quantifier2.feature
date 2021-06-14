@@ -30,7 +30,18 @@
 
 Feature: Quantifier2 - Single quantifier
 
-  Scenario Outline: [1] Single quantifier on list literal
+  Scenario: [1] Single quantifier is always false on empty list
+    Given any graph
+    When executing query:
+      """
+      RETURN single(x IN [] WHERE true) AS a, single(x IN [] WHERE false) AS b, single(x IN [] WHERE x) AS c
+      """
+    Then the result should be, in any order:
+      | a     | b     | c     |
+      | false | false | false |
+    And no side effects
+
+  Scenario Outline: [2] Single quantifier on list literal
     Given any graph
     When executing query:
       """
@@ -53,7 +64,7 @@ Feature: Quantifier2 - Single quantifier
       | [true, true, true]     | x         | false  |
       | [false, false, false]  | x         | false  |
 
-  Scenario Outline: [2] Single quantifier on list literal containing integers
+  Scenario Outline: [3] Single quantifier on list literal containing integers
     Given any graph
     When executing query:
       """
@@ -84,7 +95,7 @@ Feature: Quantifier2 - Single quantifier
       | [200, -10, 36, 21, 10] | x < 10    | true   |
       | [200, 15, 36, 21, 10]  | x < 10    | false  |
 
-  Scenario Outline: [3] Single quantifier on list literal containing floats
+  Scenario Outline: [4] Single quantifier on list literal containing floats
     Given any graph
     When executing query:
       """
@@ -110,7 +121,7 @@ Feature: Quantifier2 - Single quantifier
       | [3.5, 2.1, 3.5]            | x = 2.1   | true   |
       | [2.1, 3.5, 2.1]            | x = 2.1   | false  |
 
-  Scenario Outline: [4] Single quantifier on list literal containing strings
+  Scenario Outline: [5] Single quantifier on list literal containing strings
     Given any graph
     When executing query:
       """
@@ -133,7 +144,7 @@ Feature: Quantifier2 - Single quantifier
       | ['abc', 'abc', 'abc'] | size(x) = 3 | false  |
       | ['ef', 'ef', 'ef']    | size(x) = 3 | false  |
 
-  Scenario Outline: [5] Single quantifier on list literal containing lists
+  Scenario Outline: [6] Single quantifier on list literal containing lists
     Given any graph
     When executing query:
       """
@@ -156,7 +167,7 @@ Feature: Quantifier2 - Single quantifier
       | [[1, 2, 3], [1, 2, 3], [1, 2, 3]] | size(x) = 3 | false  |
       | [['a'], ['a'], ['a']]             | size(x) = 3 | false  |
 
-  Scenario Outline: [6] Single quantifier on list literal containing maps
+  Scenario Outline: [7] Single quantifier on list literal containing maps
     Given any graph
     When executing query:
       """
@@ -179,7 +190,7 @@ Feature: Quantifier2 - Single quantifier
       | [{a: 2, b: 5}, {a: 2, b: 5}, {a: 2, b: 5}] | x.a = 2   | false  |
       | [{a: 4}, {a: 4}, {a: 4}]                   | x.a = 2   | false  |
 
-  Scenario: [7] Single quantifier on list containing nodes
+  Scenario: [8] Single quantifier on list containing nodes
     Given an empty graph
     And having executed:
       """
@@ -225,7 +236,7 @@ Feature: Quantifier2 - Single quantifier
       | [(:B {name: 'b'}), (:B {name: 'b'}), (:B {name: 'b'})] | false  |
     And no side effects
 
-  Scenario: [8] Single quantifier on list containing relationships
+  Scenario: [9] Single quantifier on list containing relationships
     Given an empty graph
     And having executed:
       """
@@ -271,7 +282,7 @@ Feature: Quantifier2 - Single quantifier
       | [[:RB {name: 'b'}], [:RB {name: 'b'}], [:RB {name: 'b'}]] | false  |
     And no side effects
 
-  Scenario Outline: [9] Single quantifier on lists containing nulls
+  Scenario Outline: [10] Single quantifier on lists containing nulls
     Given any graph
     When executing query:
       """
@@ -293,7 +304,7 @@ Feature: Quantifier2 - Single quantifier
       | [34, 10, null, 15, 900] | x < 10    | null   |
       | [4, 0, null, -15, 9]    | x < 10    | false  |
 
-  Scenario Outline: [10] Single quantifier with IS NULL predicate
+  Scenario Outline: [11] Single quantifier with IS NULL predicate
     Given any graph
     When executing query:
       """
@@ -319,7 +330,7 @@ Feature: Quantifier2 - Single quantifier
       | [null, 123, null, null]  | false  |
       | [null, null, null, null] | false  |
 
-  Scenario Outline: [11] Single quantifier with IS NOT NULL predicate
+  Scenario Outline: [12] Single quantifier with IS NOT NULL predicate
     Given any graph
     When executing query:
       """
@@ -345,7 +356,7 @@ Feature: Quantifier2 - Single quantifier
       | [null, 123, null, null]  | true   |
       | [null, null, null, null] | false  |
 
-  Scenario Outline: [12] Single quantifier can nest itself and other quantifiers
+  Scenario Outline: [13] Single quantifier can nest itself and other quantifiers
     Given any graph
     When executing query:
       """
@@ -367,7 +378,7 @@ Feature: Quantifier2 - Single quantifier
       | [['abc'], ['abc', 'def']] | all(y IN x WHERE y = 'abc')    | true   |
       | [['abc'], ['abc', 'def']] | all(y IN x WHERE y = 'def')    | false  |
 
-  Scenario: [13] Single quantifier is always false if the predicate is statically false and the list is not empty
+  Scenario: [14] Single quantifier is always false if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
       """
@@ -390,7 +401,7 @@ Feature: Quantifier2 - Single quantifier
       | false  |
     And no side effects
 
-  Scenario: [14] Single quantifier is always false if the predicate is statically true and the list has more than one element
+  Scenario: [15] Single quantifier is always false if the predicate is statically true and the list has more than one element
     Given any graph
     When executing query:
       """
@@ -413,7 +424,7 @@ Feature: Quantifier2 - Single quantifier
       | false  |
     And no side effects
 
-  Scenario: [15] Single quantifier is always true if the predicate is statically true and the list has exactly one non-null element
+  Scenario: [16] Single quantifier is always true if the predicate is statically true and the list has exactly one non-null element
     Given any graph
     When executing query:
       """
@@ -427,7 +438,7 @@ Feature: Quantifier2 - Single quantifier
       | true   |
     And no side effects
 
-  Scenario Outline: [16] Fail single quantifier on type mismatch between list elements and predicate
+  Scenario Outline: [17] Fail single quantifier on type mismatch between list elements and predicate
     Given any graph
     When executing query:
       """

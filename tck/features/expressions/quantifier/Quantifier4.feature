@@ -30,7 +30,18 @@
 
 Feature: Quantifier4 - All quantifier
 
-  Scenario Outline: [1] All quantifier on list literal
+  Scenario: [1] All quantifier is always true on empty list
+    Given any graph
+    When executing query:
+      """
+      RETURN all(x IN [] WHERE true) AS a, all(x IN [] WHERE false) AS b, all(x IN [] WHERE x) AS c
+      """
+    Then the result should be, in any order:
+      | a    | b    | c    |
+      | true | true | true |
+    And no side effects
+
+  Scenario Outline: [2] All quantifier on list literal
     Given any graph
     When executing query:
       """
@@ -53,7 +64,7 @@ Feature: Quantifier4 - All quantifier
       | [true, true, true]     | x         | true   |
       | [false, false, false]  | x         | false  |
 
-  Scenario Outline: [2] All quantifier on list literal containing integers
+  Scenario Outline: [3] All quantifier on list literal containing integers
     Given any graph
     When executing query:
       """
@@ -84,7 +95,7 @@ Feature: Quantifier4 - All quantifier
       | [200, -10, 36, 21, 10] | x < 10    | false  |
       | [200, 15, 36, 21, 10]  | x < 10    | false  |
 
-  Scenario Outline: [3] All quantifier on list literal containing floats
+  Scenario Outline: [4] All quantifier on list literal containing floats
     Given any graph
     When executing query:
       """
@@ -110,7 +121,7 @@ Feature: Quantifier4 - All quantifier
       | [3.5, 2.1, 3.5]            | x = 2.1   | false  |
       | [2.1, 3.5, 2.1]            | x = 2.1   | false  |
 
-  Scenario Outline: [4] All quantifier on list literal containing strings
+  Scenario Outline: [5] All quantifier on list literal containing strings
     Given any graph
     When executing query:
       """
@@ -133,7 +144,7 @@ Feature: Quantifier4 - All quantifier
       | ['abc', 'abc', 'abc'] | size(x) = 3 | true   |
       | ['ef', 'ef', 'ef']    | size(x) = 3 | false  |
 
-  Scenario Outline: [5] All quantifier on list literal containing lists
+  Scenario Outline: [6] All quantifier on list literal containing lists
     Given any graph
     When executing query:
       """
@@ -156,7 +167,7 @@ Feature: Quantifier4 - All quantifier
       | [[1, 2, 3], [1, 2, 3], [1, 2, 3]] | size(x) = 3 | true   |
       | [['a'], ['a'], ['a']]             | size(x) = 3 | false  |
 
-  Scenario Outline: [6] All quantifier on list literal containing maps
+  Scenario Outline: [7] All quantifier on list literal containing maps
     Given any graph
     When executing query:
       """
@@ -179,7 +190,7 @@ Feature: Quantifier4 - All quantifier
       | [{a: 2, b: 5}, {a: 2, b: 5}, {a: 2, b: 5}] | x.a = 2   | true   |
       | [{a: 4}, {a: 4}, {a: 4}]                   | x.a = 2   | false  |
 
-  Scenario: [7] All quantifier on list containing nodes
+  Scenario: [8] All quantifier on list containing nodes
     Given an empty graph
     And having executed:
       """
@@ -225,7 +236,7 @@ Feature: Quantifier4 - All quantifier
       | [(:B {name: 'b'}), (:B {name: 'b'}), (:B {name: 'b'})] | false  |
     And no side effects
 
-  Scenario: [8] All quantifier on list containing relationships
+  Scenario: [9] All quantifier on list containing relationships
     Given an empty graph
     And having executed:
       """
@@ -271,7 +282,7 @@ Feature: Quantifier4 - All quantifier
       | [[:RB {name: 'b'}], [:RB {name: 'b'}], [:RB {name: 'b'}]] | false  |
     And no side effects
 
-  Scenario Outline: [9] All quantifier on lists containing nulls
+  Scenario Outline: [10] All quantifier on lists containing nulls
     Given any graph
     When executing query:
       """
@@ -293,7 +304,7 @@ Feature: Quantifier4 - All quantifier
       | [34, 10, null, 15, 900] | x < 10    | false  |
       | [4, 0, null, -15, 9]    | x < 10    | null   |
 
-  Scenario Outline: [10] All quantifier with IS NULL predicate
+  Scenario Outline: [11] All quantifier with IS NULL predicate
     Given any graph
     When executing query:
       """
@@ -319,7 +330,7 @@ Feature: Quantifier4 - All quantifier
       | [null, 123, null, null]  | false  |
       | [null, null, null, null] | true   |
 
-  Scenario Outline: [11] All quantifier with IS NOT NULL predicate
+  Scenario Outline: [12] All quantifier with IS NOT NULL predicate
     Given any graph
     When executing query:
       """
@@ -345,7 +356,7 @@ Feature: Quantifier4 - All quantifier
       | [null, 123, null, null]  | false  |
       | [null, null, null, null] | false  |
 
-  Scenario Outline: [12] All quantifier can nest itself and other quantifiers
+  Scenario Outline: [13] All quantifier can nest itself and other quantifiers
     Given any graph
     When executing query:
       """
@@ -367,7 +378,7 @@ Feature: Quantifier4 - All quantifier
       | [['abc'], ['abc', 'def']] | all(y IN x WHERE y <> 'ghi')   | true   |
       | [['abc'], ['abc', 'def']] | all(y IN x WHERE y = 'abc')    | false  |
 
-  Scenario: [13] All quantifier is always false if the predicate is statically false and the list is not empty
+  Scenario: [14] All quantifier is always false if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
       """
@@ -390,7 +401,7 @@ Feature: Quantifier4 - All quantifier
       | false  |
     And no side effects
 
-  Scenario: [14] All quantifier is always true if the predicate is statically true and the list is not empty
+  Scenario: [15] All quantifier is always true if the predicate is statically true and the list is not empty
     Given any graph
     When executing query:
       """
@@ -413,7 +424,7 @@ Feature: Quantifier4 - All quantifier
       | true   |
     And no side effects
 
-  Scenario Outline: [15] All quantifier is always equal the none quantifier on the boolean negative of the predicate
+  Scenario Outline: [16] All quantifier is always equal the none quantifier on the boolean negative of the predicate
     Given any graph
     When executing query:
       """
@@ -443,7 +454,7 @@ Feature: Quantifier4 - All quantifier
       | x < 7     |
       | x >= 3    |
 
-  Scenario Outline: [16] All quantifier is always equal the boolean negative of the any quantifier on the boolean negative of the predicate
+  Scenario Outline: [17] All quantifier is always equal the boolean negative of the any quantifier on the boolean negative of the predicate
     Given any graph
     When executing query:
       """
@@ -473,7 +484,7 @@ Feature: Quantifier4 - All quantifier
       | x < 7     |
       | x >= 3    |
 
-  Scenario Outline: [16] Fail all quantifier on type mismatch between list elements and predicate
+  Scenario Outline: [18] Fail all quantifier on type mismatch between list elements and predicate
     Given any graph
     When executing query:
       """

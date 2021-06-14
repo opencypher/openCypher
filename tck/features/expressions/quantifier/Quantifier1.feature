@@ -30,7 +30,18 @@
 
 Feature: Quantifier1 - None quantifier
 
-  Scenario Outline: [1] None quantifier on list literal containing booleans
+  Scenario: [1] None quantifier is always true on empty list
+    Given any graph
+    When executing query:
+      """
+      RETURN none(x IN [] WHERE true) AS a, none(x IN [] WHERE false) AS b, none(x IN [] WHERE x) AS c
+      """
+    Then the result should be, in any order:
+      | a    | b    | c    |
+      | true | true | true |
+    And no side effects
+
+  Scenario Outline: [2] None quantifier on list literal containing booleans
     Given any graph
     When executing query:
       """
@@ -53,7 +64,7 @@ Feature: Quantifier1 - None quantifier
       | [true, true, true]     | x         | false  |
       | [false, false, false]  | x         | true   |
 
-  Scenario Outline: [2] None quantifier on list literal containing integers
+  Scenario Outline: [3] None quantifier on list literal containing integers
     Given any graph
     When executing query:
       """
@@ -84,7 +95,7 @@ Feature: Quantifier1 - None quantifier
       | [200, -10, 36, 21, 10] | x < 10    | false  |
       | [200, 15, 36, 21, 10]  | x < 10    | true   |
 
-  Scenario Outline: [3] None quantifier on list literal containing floats
+  Scenario Outline: [4] None quantifier on list literal containing floats
     Given any graph
     When executing query:
       """
@@ -110,7 +121,7 @@ Feature: Quantifier1 - None quantifier
       | [3.5, 2.1, 3.5]            | x = 2.1   | false  |
       | [2.1, 3.5, 2.1]            | x = 2.1   | false  |
 
-  Scenario Outline: [4] None quantifier on list literal containing strings
+  Scenario Outline: [5] None quantifier on list literal containing strings
     Given any graph
     When executing query:
       """
@@ -133,7 +144,7 @@ Feature: Quantifier1 - None quantifier
       | ['abc', 'abc', 'abc'] | size(x) = 3 | false  |
       | ['ef', 'ef', 'ef']    | size(x) = 3 | true   |
 
-  Scenario Outline: [5] None quantifier on list literal containing lists
+  Scenario Outline: [6] None quantifier on list literal containing lists
     Given any graph
     When executing query:
       """
@@ -156,7 +167,7 @@ Feature: Quantifier1 - None quantifier
       | [[1, 2, 3], [1, 2, 3], [1, 2, 3]] | size(x) = 3 | false  |
       | [['a'], ['a'], ['a']]             | size(x) = 3 | true   |
 
-  Scenario Outline: [6] None quantifier on list literal containing maps
+  Scenario Outline: [7] None quantifier on list literal containing maps
     Given any graph
     When executing query:
       """
@@ -179,7 +190,7 @@ Feature: Quantifier1 - None quantifier
       | [{a: 2, b: 5}, {a: 2, b: 5}, {a: 2, b: 5}] | x.a = 2   | false  |
       | [{a: 4}, {a: 4}, {a: 4}]                   | x.a = 2   | true   |
 
-  Scenario: [7] None quantifier on list containing nodes
+  Scenario: [8] None quantifier on list containing nodes
     Given an empty graph
     And having executed:
       """
@@ -225,7 +236,7 @@ Feature: Quantifier1 - None quantifier
       | [(:B {name: 'b'}), (:B {name: 'b'}), (:B {name: 'b'})] | true   |
     And no side effects
 
-  Scenario: [8] None quantifier on list containing relationships
+  Scenario: [9] None quantifier on list containing relationships
     Given an empty graph
     And having executed:
       """
@@ -271,7 +282,7 @@ Feature: Quantifier1 - None quantifier
       | [[:RB {name: 'b'}], [:RB {name: 'b'}], [:RB {name: 'b'}]] | true   |
     And no side effects
 
-  Scenario Outline: [9] None quantifier on lists containing nulls
+  Scenario Outline: [10] None quantifier on lists containing nulls
     Given any graph
     When executing query:
       """
@@ -293,7 +304,7 @@ Feature: Quantifier1 - None quantifier
       | [34, 10, null, 15, 900] | x < 10    | null   |
       | [4, 0, null, -15, 9]    | x < 10    | false  |
 
-  Scenario Outline: [10] None quantifier with IS NULL predicate
+  Scenario Outline: [11] None quantifier with IS NULL predicate
     Given any graph
     When executing query:
       """
@@ -319,7 +330,7 @@ Feature: Quantifier1 - None quantifier
       | [null, 123, null, null]  | false  |
       | [null, null, null, null] | false  |
 
-  Scenario Outline: [11] None quantifier with IS NOT NULL predicate
+  Scenario Outline: [12] None quantifier with IS NOT NULL predicate
     Given any graph
     When executing query:
       """
@@ -345,7 +356,7 @@ Feature: Quantifier1 - None quantifier
       | [null, 123, null, null]  | false  |
       | [null, null, null, null] | true   |
 
-  Scenario Outline: [12] None quantifier can nest itself and other quantifiers
+  Scenario Outline: [13] None quantifier can nest itself and other quantifiers
     Given any graph
     When executing query:
       """
@@ -367,7 +378,7 @@ Feature: Quantifier1 - None quantifier
       | [['abc'], ['abc', 'def']] | all(y IN x WHERE y = 'def')    | true   |
       | [['abc'], ['abc', 'def']] | all(y IN x WHERE y = 'abc')    | false  |
 
-  Scenario: [13] None quantifier is always true if the predicate is statically false and the list is not empty
+  Scenario: [14] None quantifier is always true if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
       """
@@ -390,7 +401,7 @@ Feature: Quantifier1 - None quantifier
       | true   |
     And no side effects
 
-  Scenario: [14] None quantifier is always false if the predicate is statically true and the list is not empty
+  Scenario: [15] None quantifier is always false if the predicate is statically true and the list is not empty
     Given any graph
     When executing query:
       """
@@ -413,7 +424,7 @@ Feature: Quantifier1 - None quantifier
       | false  |
     And no side effects
 
-  Scenario Outline: [15] None quantifier is always equal the boolean negative of the any quantifier
+  Scenario Outline: [16] None quantifier is always equal the boolean negative of the any quantifier
     Given any graph
     When executing query:
       """
@@ -443,7 +454,7 @@ Feature: Quantifier1 - None quantifier
       | x < 7     |
       | x >= 3    |
 
-  Scenario Outline: [15] None quantifier is always equal the all quantifier on the boolean negative of the predicate
+  Scenario Outline: [17] None quantifier is always equal the all quantifier on the boolean negative of the predicate
     Given any graph
     When executing query:
       """
@@ -473,7 +484,7 @@ Feature: Quantifier1 - None quantifier
       | x < 7     |
       | x >= 3    |
 
-  Scenario Outline: [16] Fail none quantifier on type mismatch between list elements and predicate
+  Scenario Outline: [18] Fail none quantifier on type mismatch between list elements and predicate
     Given any graph
     When executing query:
       """
