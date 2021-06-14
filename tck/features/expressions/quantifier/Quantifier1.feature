@@ -412,7 +412,67 @@ Feature: Quantifier1 - None quantifier
       | false  |
     And no side effects
 
-  Scenario Outline: [15] Fail none quantifier on type mismatch between list elements and predicate
+  Scenario Outline: [15] None quantifier is always equal the boolean negative of the any quantifier
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3, 4, 5, 6, 7, 8, 9] AS inputList
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      WITH none(x IN list WHERE <predicate>) = (NOT any(x IN list WHERE <predicate>)) AS result, count(*) AS cnt
+      RETURN result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+    Examples:
+      | predicate |
+      | x = 2     |
+      | x % 2 = 0 |
+      | x % 3 = 0 |
+      | x < 7     |
+      | x >= 3    |
+
+  Scenario Outline: [15] None quantifier is always equal the all quantifier on the boolean negative of the predicate
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3, 4, 5, 6, 7, 8, 9] AS inputList
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      WITH none(x IN list WHERE <predicate>) = all(x IN list WHERE NOT (<predicate>)) AS result, count(*) AS cnt
+      RETURN result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+    Examples:
+      | predicate |
+      | x = 2     |
+      | x % 2 = 0 |
+      | x % 3 = 0 |
+      | x < 7     |
+      | x >= 3    |
+
+  Scenario Outline: [16] Fail none quantifier on type mismatch between list elements and predicate
     Given any graph
     When executing query:
       """
