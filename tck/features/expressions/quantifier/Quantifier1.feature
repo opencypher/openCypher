@@ -291,6 +291,7 @@ Feature: Quantifier1 - None quantifier
       | [null, 2]               | x = 2     | false  |
       | [34, 0, null, 5, 900]   | x < 10    | false  |
       | [34, 10, null, 15, 900] | x < 10    | null   |
+      | [4, 0, null, -15, 9]    | x < 10    | false  |
 
   Scenario Outline: [10] None quantifier with IS NULL predicate
     Given any graph

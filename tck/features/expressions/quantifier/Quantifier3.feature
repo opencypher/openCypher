@@ -291,6 +291,7 @@ Feature: Quantifier3 - Any quantifier
       | [null, 2]               | x = 2     | true   |
       | [34, 0, null, 5, 900]   | x < 10    | true   |
       | [34, 10, null, 15, 900] | x < 10    | null   |
+      | [4, 0, null, -15, 9]    | x < 10    | true   |
 
   Scenario Outline: [10] Any quantifier with IS NULL predicate
     Given any graph
@@ -412,21 +413,26 @@ Feature: Quantifier3 - Any quantifier
       | true   |
     And no side effects
 
-  Scenario Outline: [15] Any quantifier is always true if the single quantifier is true on the same operands
+  Scenario Outline: [15] Any quantifier is always true if the single or the all quantifier is true
     Given any graph
     When executing query:
       """
-      WITH [1, 2, 3, 4, 5, 6, 7, 8, 9] AS inputList
+      UNWIND [{list: [2], fixed: true},
+              {list: [6], fixed: true},
+              {list: [1, 2, 3, 4, 5, 6, 7, 8, 9], fixed: false}] AS input
+      WITH CASE WHEN input.fixed THEN input.list ELSE NULL END AS fixedList,
+           CASE WHEN NOT input.fixed THEN input.list ELSE [1] END AS inputList
       UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH fixedList, inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
       UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH fixedList, inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
       UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      WITH list WHERE single(<operands>)
+      WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH fixedList, inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      WITH COALESCE(fixedList, list) AS list
+      WITH list WHERE single(<operands>) OR all(<operands>)
       WITH any(<operands>) AS result, count(*) AS cnt
       RETURN result
       """
@@ -503,38 +509,7 @@ Feature: Quantifier3 - Any quantifier
       | x < 7     |
       | x >= 3    |
 
-  Scenario Outline: [18] Any quantifier is always true if the all quantifier is true
-    Given any graph
-    When executing query:
-      """
-      WITH [1, 2, 3, 4, 5, 6, 7, 8, 9] AS inputList
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      WITH list WHERE all(<operands>)
-      WITH any(<operands>) AS result, count(*) AS cnt
-      RETURN result
-      """
-    Then the result should be, in any order:
-      | result |
-      | true   |
-    And no side effects
-
-    Examples:
-      | operands                  |
-      | x IN list WHERE x = 2     |
-      | x IN list WHERE x % 2 = 0 |
-      | x IN list WHERE x % 3 = 0 |
-      | x IN list WHERE x < 7     |
-      | x IN list WHERE x >= 3    |
-
-  Scenario Outline: [19] Fail any quantifier on type mismatch between list elements and predicate
+  Scenario Outline: [18] Fail any quantifier on type mismatch between list elements and predicate
     Given any graph
     When executing query:
       """
