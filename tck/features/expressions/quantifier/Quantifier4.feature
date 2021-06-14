@@ -30,3 +30,460 @@
 
 Feature: Quantifier4 - All quantifier
 
+  Scenario Outline: [1] All quantifier on list literal
+    Given any graph
+    When executing query:
+      """
+      RETURN all(x IN <list> WHERE <condition>) AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | list                   | condition | result |
+      | []                     | x         | true   |
+      | [true]                 | x         | true   |
+      | [false]                | x         | false  |
+      | [true, false]          | x         | false  |
+      | [false, true]          | x         | false  |
+      | [true, false, true]    | x         | false  |
+      | [false, true, false]   | x         | false  |
+      | [true, true, true]     | x         | true   |
+      | [false, false, false]  | x         | false  |
+
+  Scenario Outline: [2] All quantifier on list literal containing integers
+    Given any graph
+    When executing query:
+      """
+      RETURN all(x IN <list> WHERE <condition>) AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | list                   | condition | result |
+      | []                     | x = 2     | true   |
+      | [1]                    | x = 2     | false  |
+      | [1, 3]                 | x = 2     | false  |
+      | [1, 3, 20, 5000]       | x = 2     | false  |
+      | [20, 3, 5000, -2]      | x = 2     | false  |
+      | [2]                    | x = 2     | true   |
+      | [1, 2]                 | x = 2     | false  |
+      | [1, 2, 3]              | x = 2     | false  |
+      | [2, 2]                 | x = 2     | true   |
+      | [2, 3]                 | x = 2     | false  |
+      | [3, 2, 3]              | x = 2     | false  |
+      | [2, 3, 2]              | x = 2     | false  |
+      | [2, -10, 3, 9, 0]      | x < 10    | true   |
+      | [2, -10, 3, 2, 10]     | x < 10    | false  |
+      | [2, -10, 3, 21, 10]    | x < 10    | false  |
+      | [200, -10, 36, 21, 10] | x < 10    | false  |
+      | [200, 15, 36, 21, 10]  | x < 10    | false  |
+
+  Scenario Outline: [3] All quantifier on list literal containing floats
+    Given any graph
+    When executing query:
+      """
+      RETURN all(x IN <list> WHERE <condition>) AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | list                       | condition | result |
+      | []                         | x = 2.1   | true   |
+      | [1.1]                      | x = 2.1   | false  |
+      | [1.1, 3.5]                 | x = 2.1   | false  |
+      | [1.1, 3.5, 20.0, 50.42435] | x = 2.1   | false  |
+      | [20.0, 3.4, 50.2, -2.1]    | x = 2.1   | false  |
+      | [2.1]                      | x = 2.1   | true   |
+      | [1.43, 2.1]                | x = 2.1   | false  |
+      | [1.43, 2.1, 3.5]           | x = 2.1   | false  |
+      | [2.1, 2.1]                 | x = 2.1   | true   |
+      | [2.1, 3.5]                 | x = 2.1   | false  |
+      | [3.5, 2.1, 3.5]            | x = 2.1   | false  |
+      | [2.1, 3.5, 2.1]            | x = 2.1   | false  |
+
+  Scenario Outline: [4] All quantifier on list literal containing strings
+    Given any graph
+    When executing query:
+      """
+      RETURN all(x IN <list> WHERE <condition>) AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | list                  | condition   | result |
+      | []                    | size(x) = 3 | true   |
+      | ['abc']               | size(x) = 3 | true   |
+      | ['ef']                | size(x) = 3 | false  |
+      | ['abc', 'ef']         | size(x) = 3 | false  |
+      | ['ef', 'abc']         | size(x) = 3 | false  |
+      | ['abc', 'ef', 'abc']  | size(x) = 3 | false  |
+      | ['ef', 'abc', 'ef']   | size(x) = 3 | false  |
+      | ['abc', 'abc', 'abc'] | size(x) = 3 | true   |
+      | ['ef', 'ef', 'ef']    | size(x) = 3 | false  |
+
+  Scenario Outline: [5] All quantifier on list literal containing lists
+    Given any graph
+    When executing query:
+      """
+      RETURN all(x IN <list> WHERE <condition>) AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | list                              | condition   | result |
+      | []                                | size(x) = 3 | true   |
+      | [[1, 2, 3]]                       | size(x) = 3 | true   |
+      | [['a']]                           | size(x) = 3 | false  |
+      | [[1, 2, 3], ['a']]                | size(x) = 3 | false  |
+      | [['a'], [1, 2, 3]]                | size(x) = 3 | false  |
+      | [[1, 2, 3], ['a'], [1, 2, 3]]     | size(x) = 3 | false  |
+      | [['a'], [1, 2, 3], ['a']]         | size(x) = 3 | false  |
+      | [[1, 2, 3], [1, 2, 3], [1, 2, 3]] | size(x) = 3 | true   |
+      | [['a'], ['a'], ['a']]             | size(x) = 3 | false  |
+
+  Scenario Outline: [6] All quantifier on list literal containing maps
+    Given any graph
+    When executing query:
+      """
+      RETURN all(x IN <list> WHERE <condition>) AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | list                                       | condition | result |
+      | []                                         | x.a = 2   | true   |
+      | [{a: 2, b: 5}]                             | x.a = 2   | true   |
+      | [{a: 4}]                                   | x.a = 2   | false  |
+      | [{a: 2, b: 5}, {a: 4}]                     | x.a = 2   | false  |
+      | [{a: 4}, {a: 2, b: 5}]                     | x.a = 2   | false  |
+      | [{a: 2, b: 5}, {a: 4}, {a: 2, b: 5}]       | x.a = 2   | false  |
+      | [{a: 4}, {a: 2, b: 5}, {a: 4}]             | x.a = 2   | false  |
+      | [{a: 2, b: 5}, {a: 2, b: 5}, {a: 2, b: 5}] | x.a = 2   | true   |
+      | [{a: 4}, {a: 4}, {a: 4}]                   | x.a = 2   | false  |
+
+  Scenario: [7] All quantifier on list containing nodes
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s1:SRelationships), (s2:SNodes)
+      CREATE (a:A {name: 'a'}), (b:B {name: 'b'})
+      CREATE (aa:A {name: 'a'}), (ab:B {name: 'b'}),
+             (ba:A {name: 'a'}), (bb:B {name: 'b'})
+      CREATE (aaa:A {name: 'a'}), (aab:B {name: 'b'}),
+             (aba:A {name: 'a'}), (abb:B {name: 'b'}),
+             (baa:A {name: 'a'}), (bab:B {name: 'b'}),
+             (bba:A {name: 'a'}), (bbb:B {name: 'b'})
+      CREATE (s1)-[:I]->(s2),
+             (s2)-[:RA {name: 'a'}]->(a), (s2)-[:RB {name: 'b'}]->(b)
+      CREATE (a)-[:RA {name: 'a'}]->(aa), (a)-[:RB {name: 'b'}]->(ab),
+             (b)-[:RA {name: 'a'}]->(ba), (b)-[:RB {name: 'b'}]->(bb)
+      CREATE (aa)-[:RA {name: 'a'}]->(aaa), (aa)-[:RB {name: 'b'}]->(aab),
+             (ab)-[:RA {name: 'a'}]->(aba), (ab)-[:RB {name: 'b'}]->(abb),
+             (ba)-[:RA {name: 'a'}]->(baa), (ba)-[:RB {name: 'b'}]->(bab),
+             (bb)-[:RA {name: 'a'}]->(bba), (bb)-[:RB {name: 'b'}]->(bbb)
+      """
+    When executing query:
+      """
+      MATCH p = (:SNodes)-[*0..3]->(x)
+      WITH tail(nodes(p)) AS nodes
+      RETURN nodes, all(x IN nodes WHERE x.name = 'a') AS result
+      """
+    Then the result should be, in any order:
+      | nodes                                                  | result |
+      | []                                                     | true   |
+      | [(:A {name: 'a'})]                                     | true   |
+      | [(:A {name: 'a'}), (:A {name: 'a'})]                   | true   |
+      | [(:A {name: 'a'}), (:A {name: 'a'}), (:A {name: 'a'})] | true   |
+      | [(:A {name: 'a'}), (:A {name: 'a'}), (:B {name: 'b'})] | false  |
+      | [(:A {name: 'a'}), (:B {name: 'b'})]                   | false  |
+      | [(:A {name: 'a'}), (:B {name: 'b'}), (:A {name: 'a'})] | false  |
+      | [(:A {name: 'a'}), (:B {name: 'b'}), (:B {name: 'b'})] | false  |
+      | [(:B {name: 'b'})]                                     | false  |
+      | [(:B {name: 'b'}), (:A {name: 'a'})]                   | false  |
+      | [(:B {name: 'b'}), (:A {name: 'a'}), (:A {name: 'a'})] | false  |
+      | [(:B {name: 'b'}), (:A {name: 'a'}), (:B {name: 'b'})] | false  |
+      | [(:B {name: 'b'}), (:B {name: 'b'})]                   | false  |
+      | [(:B {name: 'b'}), (:B {name: 'b'}), (:A {name: 'a'})] | false  |
+      | [(:B {name: 'b'}), (:B {name: 'b'}), (:B {name: 'b'})] | false  |
+    And no side effects
+
+  Scenario: [8] All quantifier on list containing relationships
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (s1:SRelationships), (s2:SNodes)
+      CREATE (a:A {name: 'a'}), (b:B {name: 'b'})
+      CREATE (aa:A {name: 'a'}), (ab:B {name: 'b'}),
+             (ba:A {name: 'a'}), (bb:B {name: 'b'})
+      CREATE (aaa:A {name: 'a'}), (aab:B {name: 'b'}),
+             (aba:A {name: 'a'}), (abb:B {name: 'b'}),
+             (baa:A {name: 'a'}), (bab:B {name: 'b'}),
+             (bba:A {name: 'a'}), (bbb:B {name: 'b'})
+      CREATE (s1)-[:I]->(s2),
+             (s2)-[:RA {name: 'a'}]->(a), (s2)-[:RB {name: 'b'}]->(b)
+      CREATE (a)-[:RA {name: 'a'}]->(aa), (a)-[:RB {name: 'b'}]->(ab),
+             (b)-[:RA {name: 'a'}]->(ba), (b)-[:RB {name: 'b'}]->(bb)
+      CREATE (aa)-[:RA {name: 'a'}]->(aaa), (aa)-[:RB {name: 'b'}]->(aab),
+             (ab)-[:RA {name: 'a'}]->(aba), (ab)-[:RB {name: 'b'}]->(abb),
+             (ba)-[:RA {name: 'a'}]->(baa), (ba)-[:RB {name: 'b'}]->(bab),
+             (bb)-[:RA {name: 'a'}]->(bba), (bb)-[:RB {name: 'b'}]->(bbb)
+      """
+    When executing query:
+      """
+      MATCH p = (:SRelationships)-[*0..4]->(x)
+      WITH tail(relationships(p)) AS relationships, COUNT(*) AS c
+      RETURN relationships, all(x IN relationships WHERE x.name = 'a') AS result
+      """
+    Then the result should be, in any order:
+      | relationships                                             | result |
+      | []                                                        | true   |
+      | [[:RA {name: 'a'}]]                                       | true   |
+      | [[:RA {name: 'a'}], [:RA {name: 'a'}]]                    | true   |
+      | [[:RA {name: 'a'}], [:RA {name: 'a'}], [:RA {name: 'a'}]] | true   |
+      | [[:RA {name: 'a'}], [:RA {name: 'a'}], [:RB {name: 'b'}]] | false  |
+      | [[:RA {name: 'a'}], [:RB {name: 'b'}]]                    | false  |
+      | [[:RA {name: 'a'}], [:RB {name: 'b'}], [:RA {name: 'a'}]] | false  |
+      | [[:RA {name: 'a'}], [:RB {name: 'b'}], [:RB {name: 'b'}]] | false  |
+      | [[:RB {name: 'b'}]]                                       | false  |
+      | [[:RB {name: 'b'}], [:RA {name: 'a'}]]                    | false  |
+      | [[:RB {name: 'b'}], [:RA {name: 'a'}], [:RA {name: 'a'}]] | false  |
+      | [[:RB {name: 'b'}], [:RA {name: 'a'}], [:RB {name: 'b'}]] | false  |
+      | [[:RB {name: 'b'}], [:RB {name: 'b'}]]                    | false  |
+      | [[:RB {name: 'b'}], [:RB {name: 'b'}], [:RA {name: 'a'}]] | false  |
+      | [[:RB {name: 'b'}], [:RB {name: 'b'}], [:RB {name: 'b'}]] | false  |
+    And no side effects
+
+  Scenario Outline: [9] All quantifier on lists containing nulls
+    Given any graph
+    When executing query:
+      """
+      RETURN all(x IN <list> WHERE <condition>) AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | list                    | condition | result |
+      | [null]                  | x = 2     | null   |
+      | [null, null]            | x = 2     | null   |
+      | [0, null]               | x = 2     | false  |
+      | [2, null]               | x = 2     | null   |
+      | [null, 2]               | x = 2     | null   |
+      | [34, 0, null, 5, 900]   | x < 10    | false  |
+      | [34, 10, null, 15, 900] | x < 10    | false  |
+      | [4, 0, null, -15, 9]    | x < 10    | null   |
+
+  Scenario Outline: [10] All quantifier with IS NULL predicate
+    Given any graph
+    When executing query:
+      """
+      RETURN all(x IN <list> WHERE x IS NULL) AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | list                     | result |
+      | []                       | true   |
+      | [0]                      | false  |
+      | [34, 0, 8, 900]          | false  |
+      | [null]                   | true   |
+      | [null, null]             | true   |
+      | [0, null]                | false  |
+      | [2, null]                | false  |
+      | [null, 2]                | false  |
+      | [34, 0, null, 8, 900]    | false  |
+      | [34, 0, null, 8, null]   | false  |
+      | [null, 123, null, null]  | false  |
+      | [null, null, null, null] | true   |
+
+  Scenario Outline: [11] All quantifier with IS NOT NULL predicate
+    Given any graph
+    When executing query:
+      """
+      RETURN all(x IN <list> WHERE x IS NOT NULL) AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | list                     | result |
+      | []                       | true   |
+      | [0]                      | true   |
+      | [34, 0, 8, 900]          | true   |
+      | [null]                   | false  |
+      | [null, null]             | false  |
+      | [0, null]                | false  |
+      | [2, null]                | false  |
+      | [null, 2]                | false  |
+      | [34, 0, null, 8, 900]    | false  |
+      | [34, 0, null, 8, null]   | false  |
+      | [null, 123, null, null]  | false  |
+      | [null, null, null, null] | false  |
+
+  Scenario Outline: [12] All quantifier can nest itself and other quantifiers
+    Given any graph
+    When executing query:
+      """
+      RETURN all(x IN <list> WHERE <condition>) AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | list                      | condition                      | result |
+      | [['abc'], ['abc', 'def']] | none(y IN x WHERE y = 'ghi')   | true   |
+      | [['abc'], ['abc', 'def']] | none(y IN x WHERE y = 'def')   | false  |
+      | [['abc'], ['abc', 'def']] | single(y IN x WHERE y = 'abc') | true   |
+      | [['abc'], ['abc', 'def']] | single(y IN x WHERE y = 'ghi') | false  |
+      | [['abc'], ['abc', 'def']] | any(y IN x WHERE y = 'abc')    | true   |
+      | [['abc'], ['abc', 'def']] | any(y IN x WHERE y = 'ghi')    | false  |
+      | [['abc'], ['abc', 'def']] | all(y IN x WHERE y <> 'ghi')   | true   |
+      | [['abc'], ['abc', 'def']] | all(y IN x WHERE y = 'abc')    | false  |
+
+  Scenario: [13] All quantifier is always false if the predicate is statically false and the list is not empty
+    Given any graph
+    When executing query:
+      """
+      WITH [1, null, true, 4.5, 'abc', false, '', [234, false], {a: null, b: true, c: 15.2}, {}, [], [null], [[{b: [null]}]]] AS inputList
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      WITH list WHERE size(list) > 0
+      WITH all(x IN list WHERE false) AS result, count(*) AS cnt
+      RETURN result
+      """
+    Then the result should be, in any order:
+      | result |
+      | false  |
+    And no side effects
+
+  Scenario: [14] All quantifier is always true if the predicate is statically true and the list is not empty
+    Given any graph
+    When executing query:
+      """
+      WITH [1, null, true, 4.5, 'abc', false, '', [234, false], {a: null, b: true, c: 15.2}, {}, [], [null], [[{b: [null]}]]] AS inputList
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      WITH list WHERE size(list) > 0
+      WITH all(x IN list WHERE true) AS result, count(*) AS cnt
+      RETURN result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+  Scenario Outline: [15] All quantifier is always equal the none quantifier on the boolean negative of the predicate
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3, 4, 5, 6, 7, 8, 9] AS inputList
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      WITH all(x IN list WHERE <predicate>) = none(x IN list WHERE NOT (<predicate>)) AS result, count(*) AS cnt
+      RETURN result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+    Examples:
+      | predicate |
+      | x = 2     |
+      | x % 2 = 0 |
+      | x % 3 = 0 |
+      | x < 7     |
+      | x >= 3    |
+
+  Scenario Outline: [16] All quantifier is always equal the boolean negative of the any quantifier on the boolean negative of the predicate
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3, 4, 5, 6, 7, 8, 9] AS inputList
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      WITH all(x IN list WHERE <predicate>) = (NOT any(x IN list WHERE NOT (<predicate>))) AS result, count(*) AS cnt
+      RETURN result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+    Examples:
+      | predicate |
+      | x = 2     |
+      | x % 2 = 0 |
+      | x % 3 = 0 |
+      | x < 7     |
+      | x >= 3    |
+
+  Scenario Outline: [16] Fail all quantifier on type mismatch between list elements and predicate
+    Given any graph
+    When executing query:
+      """
+      RETURN all(x IN <list> WHERE <condition>) AS result
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+    Examples:
+      | list                              | condition |
+      | ['Clara']                         | x % 2 = 0 |
+      | [false, true]                     | x % 2 = 0 |
+      | ['Clara', 'Bob', 'Dave', 'Alice'] | x % 2 = 0 |
+      # add examples with heterogeneously-typed lists
