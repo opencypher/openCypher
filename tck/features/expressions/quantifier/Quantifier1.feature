@@ -484,7 +484,43 @@ Feature: Quantifier1 - None quantifier
       | x < 7     |
       | x >= 3    |
 
-  Scenario Outline: [18] Fail none quantifier on type mismatch between list elements and predicate
+  Scenario Outline: [18] None quantifier is always equal whether the size of the list filtered with same the predicate is zero
+    Given any graph
+    When executing query:
+      """
+      UNWIND [{list: [2], fixed: true},
+              {list: [6], fixed: true},
+              {list: [7], fixed: true},
+              {list: [1, 2, 3, 4, 5, 6, 7, 8, 9], fixed: false}] AS input
+      WITH CASE WHEN input.fixed THEN input.list ELSE null END AS fixedList,
+           CASE WHEN NOT input.fixed THEN input.list ELSE [1] END AS inputList
+      UNWIND inputList AS x
+      WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH fixedList, inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH fixedList, inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH fixedList, inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      WITH coalesce(fixedList, list) AS list
+      WITH none(x IN list WHERE <predicate>) = (size([x IN list WHERE <predicate> | x]) = 0) AS result, count(*) AS cnt
+      RETURN result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+    Examples:
+      | predicate |
+      | x = 2     |
+      | x % 2 = 0 |
+      | x % 3 = 0 |
+      | x < 7     |
+      | x >= 3    |
+
+  Scenario Outline: [19] Fail none quantifier on type mismatch between list elements and predicate
     Given any graph
     When executing query:
       """
