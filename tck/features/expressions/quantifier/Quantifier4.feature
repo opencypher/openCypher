@@ -356,11 +356,11 @@ Feature: Quantifier4 - All quantifier
       | [null, 123, null, null]  | false  |
       | [null, null, null, null] | false  |
 
-  Scenario Outline: [13] All quantifier can nest itself and other quantifiers
+  Scenario Outline: [13] All quantifier can nest itself and other quantifiers on nested lists
     Given any graph
     When executing query:
       """
-      RETURN all(x IN <list> WHERE <condition>) AS result
+      RETURN all(x IN [['abc'], ['abc', 'def']] WHERE <condition>) AS result
       """
     Then the result should be, in any order:
       | result   |
@@ -368,17 +368,40 @@ Feature: Quantifier4 - All quantifier
     And no side effects
 
     Examples:
-      | list                      | condition                      | result |
-      | [['abc'], ['abc', 'def']] | none(y IN x WHERE y = 'ghi')   | true   |
-      | [['abc'], ['abc', 'def']] | none(y IN x WHERE y = 'def')   | false  |
-      | [['abc'], ['abc', 'def']] | single(y IN x WHERE y = 'abc') | true   |
-      | [['abc'], ['abc', 'def']] | single(y IN x WHERE y = 'ghi') | false  |
-      | [['abc'], ['abc', 'def']] | any(y IN x WHERE y = 'abc')    | true   |
-      | [['abc'], ['abc', 'def']] | any(y IN x WHERE y = 'ghi')    | false  |
-      | [['abc'], ['abc', 'def']] | all(y IN x WHERE y <> 'ghi')   | true   |
-      | [['abc'], ['abc', 'def']] | all(y IN x WHERE y = 'abc')    | false  |
+      | condition                      | result |
+      | none(y IN x WHERE y = 'ghi')   | true   |
+      | none(y IN x WHERE y = 'def')   | false  |
+      | single(y IN x WHERE y = 'abc') | true   |
+      | single(y IN x WHERE y = 'ghi') | false  |
+      | any(y IN x WHERE y = 'abc')    | true   |
+      | any(y IN x WHERE y = 'ghi')    | false  |
+      | all(y IN x WHERE y <> 'ghi')   | true   |
+      | all(y IN x WHERE y = 'abc')    | false  |
 
-  Scenario: [14] All quantifier is always false if the predicate is statically false and the list is not empty
+  Scenario Outline: [14] All quantifier can nest itself and other quantifiers on the same list
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3, 4, 5, 6, 7, 8, 9] AS list
+      RETURN all(x IN list WHERE <condition>) AS result
+      """
+    Then the result should be, in any order:
+      | result   |
+      | <result> |
+    And no side effects
+
+    Examples:
+      | condition                            | result |
+      | none(y IN list WHERE x = 10 * y)     | true   |
+      | none(y IN list WHERE x = y)          | false  |
+      | single(y IN list WHERE x = y)        | true   |
+      | single(y IN list WHERE x < y)        | false  |
+      | any(y IN list WHERE x % y = 0)       | true   |
+      | any(y IN list WHERE x < y)           | false  |
+      | all(y IN list WHERE abs(x - y) < 10) | true   |
+      | all(y IN list WHERE x < y + 7)       | false  |
+
+  Scenario: [15] All quantifier is always false if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
       """
@@ -401,7 +424,7 @@ Feature: Quantifier4 - All quantifier
       | false  |
     And no side effects
 
-  Scenario: [15] All quantifier is always true if the predicate is statically true and the list is not empty
+  Scenario: [16] All quantifier is always true if the predicate is statically true and the list is not empty
     Given any graph
     When executing query:
       """
@@ -424,7 +447,7 @@ Feature: Quantifier4 - All quantifier
       | true   |
     And no side effects
 
-  Scenario Outline: [16] All quantifier is always equal the none quantifier on the boolean negative of the predicate
+  Scenario Outline: [17] All quantifier is always equal the none quantifier on the boolean negative of the predicate
     Given any graph
     When executing query:
       """
@@ -454,7 +477,7 @@ Feature: Quantifier4 - All quantifier
       | x < 7     |
       | x >= 3    |
 
-  Scenario Outline: [17] All quantifier is always equal the boolean negative of the any quantifier on the boolean negative of the predicate
+  Scenario Outline: [18] All quantifier is always equal the boolean negative of the any quantifier on the boolean negative of the predicate
     Given any graph
     When executing query:
       """
@@ -484,7 +507,7 @@ Feature: Quantifier4 - All quantifier
       | x < 7     |
       | x >= 3    |
 
-  Scenario Outline: [18] All quantifier is always equal whether the size of the list filtered with same the predicate is equal the size of the unfiltered list
+  Scenario Outline: [19] All quantifier is always equal whether the size of the list filtered with same the predicate is equal the size of the unfiltered list
     Given any graph
     When executing query:
       """
@@ -520,7 +543,7 @@ Feature: Quantifier4 - All quantifier
       | x < 7     |
       | x >= 3    |
 
-  Scenario Outline: [19] Fail all quantifier on type mismatch between list elements and predicate
+  Scenario Outline: [20] Fail all quantifier on type mismatch between list elements and predicate
     Given any graph
     When executing query:
       """
