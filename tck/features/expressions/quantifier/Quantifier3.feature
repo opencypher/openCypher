@@ -457,5 +457,3 @@ Feature: Quantifier3 - Any quantifier
       | [false, true]                     | x % 2 = 0 |
       | ['Clara', 'Bob', 'Dave', 'Alice'] | x % 2 = 0 |
       # add examples with heterogeneously-typed lists
-
-
