@@ -443,7 +443,98 @@ Feature: Quantifier3 - Any quantifier
       | x IN list WHERE x < 7     |
       | x IN list WHERE x >= 3    |
 
-  Scenario Outline: [16] Fail any quantifier on type mismatch between list elements and predicate
+  Scenario Outline: [16] Any quantifier is always equal the boolean negative of the none quantifier
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3, 4, 5, 6, 7, 8, 9] AS inputList
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      WITH any(x IN list WHERE <predicate>) = (NOT none(x IN list WHERE <predicate>)) AS result, count(*) AS cnt
+      RETURN result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+    Examples:
+      | predicate |
+      | x = 2     |
+      | x % 2 = 0 |
+      | x % 3 = 0 |
+      | x < 7     |
+      | x >= 3    |
+
+  Scenario Outline: [17] Any quantifier is always equal the boolean negative of the all quantifier on the boolean negative of the predicate
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3, 4, 5, 6, 7, 8, 9] AS inputList
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      WITH any(x IN list WHERE <predicate>) = (NOT all(x IN list WHERE NOT (<predicate>))) AS result, count(*) AS cnt
+      RETURN result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+    Examples:
+      | predicate |
+      | x = 2     |
+      | x % 2 = 0 |
+      | x % 3 = 0 |
+      | x < 7     |
+      | x >= 3    |
+
+  Scenario Outline: [18] Any quantifier is always true if the all quantifier is true
+    Given any graph
+    When executing query:
+      """
+      WITH [1, 2, 3, 4, 5, 6, 7, 8, 9] AS inputList
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      UNWIND inputList AS x
+      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
+      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
+      WITH list WHERE all(<operands>)
+      WITH any(<operands>) AS result, count(*) AS cnt
+      RETURN result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+    Examples:
+      | operands                  |
+      | x IN list WHERE x = 2     |
+      | x IN list WHERE x % 2 = 0 |
+      | x IN list WHERE x % 3 = 0 |
+      | x IN list WHERE x < 7     |
+      | x IN list WHERE x >= 3    |
+
+  Scenario Outline: [19] Fail any quantifier on type mismatch between list elements and predicate
     Given any graph
     When executing query:
       """
