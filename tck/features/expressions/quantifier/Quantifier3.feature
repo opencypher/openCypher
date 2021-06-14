@@ -420,7 +420,7 @@ Feature: Quantifier3 - Any quantifier
       UNWIND [{list: [2], fixed: true},
               {list: [6], fixed: true},
               {list: [1, 2, 3, 4, 5, 6, 7, 8, 9], fixed: false}] AS input
-      WITH CASE WHEN input.fixed THEN input.list ELSE NULL END AS fixedList,
+      WITH CASE WHEN input.fixed THEN input.list ELSE null END AS fixedList,
            CASE WHEN NOT input.fixed THEN input.list ELSE [1] END AS inputList
       UNWIND inputList AS x
       WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
@@ -431,7 +431,7 @@ Feature: Quantifier3 - Any quantifier
       UNWIND inputList AS x
       WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
       WITH fixedList, inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      WITH COALESCE(fixedList, list) AS list
+      WITH coalesce(fixedList, list) AS list
       WITH list WHERE single(<operands>) OR all(<operands>)
       WITH any(<operands>) AS result, count(*) AS cnt
       RETURN result
