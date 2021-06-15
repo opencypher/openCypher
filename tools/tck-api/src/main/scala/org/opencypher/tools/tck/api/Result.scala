@@ -39,7 +39,7 @@ import scala.compat.Platform.EOL
   */
 case class StringRecords(header: List[String], rows: List[Map[String, String]]) {
   def asValueRecords: CypherValueRecords = {
-    val converted = rows.map(_.mapValues(CypherValue(_)))
+    val converted = rows.map(_.map { case (k, v) => (k, CypherValue(v)) })
     CypherValueRecords(header, converted)
   }
 }
@@ -69,7 +69,7 @@ case class CypherValueRecords(header: List[String], rows: List[Map[String, Cyphe
 
 object CypherValueRecords {
   def fromRows(header: List[String], data: List[Map[String, String]], orderedLists: Boolean): CypherValueRecords = {
-    val parsed = data.map(row => row.mapValues(v => CypherValue(v, orderedLists)).view.force)
+    val parsed = data.map(row => row.map { case (k, v) => (k, CypherValue(v, orderedLists)) })
     CypherValueRecords(header, parsed)
   }
 

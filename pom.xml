@@ -29,6 +29,7 @@
   <properties>
     <dep.antlr4.version>4.7.2</dep.antlr4.version>
     <dep.batik.version>1.13</dep.batik.version>
+    <dep.cask.version>0.2.9</dep.cask.version>
     <dep.cucumber.version>5.7.0</dep.cucumber.version>
     <dep.hamcrest.version>2.2</dep.hamcrest.version>
     <dep.junit.platform.version>1.7.0</dep.junit.platform.version>
@@ -373,6 +374,14 @@
       </activation>
       <properties>
         <forkCounts>1C</forkCounts>
+      </properties>
+    </profile>
+    <profile>
+      <id>scala213</id>
+      <properties>
+        <dep.scala.version>2.13.6</dep.scala.version>
+        <dep.cask.version>0.3.7</dep.cask.version>
+        <scala.binary.version>2.13</scala.binary.version>
       </properties>
     </profile>
   </profiles>

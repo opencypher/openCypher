@@ -21,7 +21,7 @@
   <properties>
     <project.rootdir>${project.basedir}/..</project.rootdir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <dep.fastparse.version>2.1.0</dep.fastparse.version>
+    <dep.fastparse.version>2.1.3</dep.fastparse.version>
   </properties>
 
   <licenses>

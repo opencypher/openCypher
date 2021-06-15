@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tck-inspection_2.12</artifactId>
+    <artifactId>tck-inspection_${scala.binary.version}</artifactId>
     <name>openCypher TCK Inspection</name>
     <url>http://opencypher.org</url>
     <description>Tools for inspecting openCypher TCK scenarios</description>
@@ -58,13 +58,13 @@
 
         <dependency>
             <groupId>com.lihaoyi</groupId>
-            <artifactId>cask_2.12</artifactId>
-            <version>0.2.9</version>
+            <artifactId>cask_${scala.binary.version}</artifactId>
+            <version>${dep.cask.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.lihaoyi</groupId>
-            <artifactId>scalatags_2.12</artifactId>
+            <artifactId>scalatags_${scala.binary.version}</artifactId>
             <version>0.7.0</version>
         </dependency>
 

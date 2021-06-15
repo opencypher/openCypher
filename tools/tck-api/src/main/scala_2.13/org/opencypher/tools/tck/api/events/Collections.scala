@@ -25,47 +25,26 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck
+package org.opencypher.tools.tck.api.events
 
-import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.groups.ContainerGroup
-import org.opencypher.tools.tck.api.groups.Group
-import org.opencypher.tools.tck.api.groups.Item
-import org.opencypher.tools.tck.api.groups.Tag
-import org.opencypher.tools.tck.api.groups.TckTree
-import org.opencypher.tools.tck.api.groups.Total
-import org.scalatest.OptionValues
-import org.scalatest.ParallelTestExecution
-import org.scalatest.funspec.AsyncFunSpec
-import org.scalatest.matchers.should.Matchers
+import scala.collection.mutable
 
-import scala.concurrent.Future
+object Collections {
 
-trait ScenarioFormatChecker extends AsyncFunSpec with Matchers with OptionValues with ValidateScenario with ParallelTestExecution {
+  trait Subscriber[-Evt, -Pub] {
+    def notify(pub: Pub, event: Evt): Unit
+  }
 
-  def create(scenarios: Seq[Scenario]): Unit = {
+  trait Publisher[Evt] {
+    private val subs: mutable.Buffer[Subscriber[Evt, Publisher[Evt]]] = mutable.Buffer()
 
-    implicit val tck: TckTree = TckTree(scenarios)
-
-    def spawnTests(currentGroup: Group): Unit = {
-      currentGroup match {
-        case Total =>
-          Total.children.toSeq.sorted.foreach(spawnTests)
-        case _: Tag => ()
-        case g: ContainerGroup =>
-          describe(g.description) {
-            g.children.toSeq.sorted.foreach(spawnTests)
-          }
-        case i: Item =>
-          it(i.description) {
-            Future {
-              validateScenario(i.scenario)
-            }
-          }
-        case _ => ()
-      }
+    def subscribe(sub: Subscriber[Evt, Publisher[Evt]]): Unit = {
+      subs += sub
     }
 
-    spawnTests(Total)
+    def removeSubscriptions() = subs.clear()
+
+    def publish(e: Evt) = subs.foreach(_.notify(this, e))
   }
+
 }

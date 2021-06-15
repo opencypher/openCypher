@@ -64,7 +64,7 @@ public class CucumberReportAdapterTest {
         Path featureFile = featuresPath.relativize(featuresPath.resolve("Foo.feature"));
         String content = getResource("Foo.feature");
 
-        Seq<Scenario> scenariosSeq = CypherTCK.parseFeature(featureFile, content, JavaConverters.asScalaBuffer(new java.util.ArrayList<String>())).scenarios();
+        Seq<Scenario> scenariosSeq = CypherTCK.parseFeature(featureFile, content, JavaConverters.asScalaBuffer(new java.util.ArrayList<String>()).toSeq()).scenarios();
         java.util.List<Scenario> scenarios = JavaConverters.seqAsJavaList(scenariosSeq);
 
         AbstractFunction0<Graph> graph = graph();
