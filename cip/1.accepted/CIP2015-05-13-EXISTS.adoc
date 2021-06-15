@@ -163,7 +163,7 @@ Find all actors with their major accolade.
 ----
 MATCH (actor:Actor)
 RETURN actor,
-  CASE actor
+  CASE
     WHEN (actor)-[:WON]->(:Oscar) THEN 'Oscar winner'
     WHEN (actor)-[:WON]->(:GoldenGlobe) THEN 'Golden Globe winner'
     ELSE 'None'
