@@ -82,6 +82,8 @@ Note that the openCypher grammar does not list <SimpleExistentialSubquery>, <Sim
 **** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ListComprehension[<ListComprehension>]
 *** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternComprehension[<PatternComprehension>]
 ** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=CaseAlternative[<CaseAlternative>]
+** Expression with boolean operands https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NotExpression[`NOT`], https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AndExpression[`AND`], https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=OrExpression[`OR`], https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=XorExpression[`XOR`]
+** Arguments in function calls and procedure calls where the respective parameter type in the function/procedure signature is exactly boolean
 * The https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RegularQuery[<RegularQuery>] contained in a <FullExistentialSubquery> shall not contain any https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=UpdatingClause[<UpdatingClause>] nor procedure or function calls that are not known to be free of side effects.
 
 === Semantics
