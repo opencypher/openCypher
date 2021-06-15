@@ -72,7 +72,7 @@ Note that the openCypher grammar does not list <SimpleExistentialSubquery>, <Sim
 
 ==== Syntax Rules
 
-* A https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] shall only be contained in sites whose expected type is exactly boolean. Specifically, a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] shall only be simply contained in
+* A https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] shall only be contained in sites whose expected type is exactly boolean. To give the most frequent examples, a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] can be simply contained in
 ** <Where>, used in
 *** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Match[<Match>]
 *** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=With[<With>]
