@@ -194,13 +194,31 @@ Feature: Pattern1 - Pattern predicate
       | (:D) |
     And no side effects
 
-  Scenario: [10] Fail on introducing unbounded variable in pattern
+  Scenario Outline: [10] Fail on introducing unbounded variables in pattern
     Given any graph
     When executing query:
-      """
-      MATCH (n) WHERE (n)-->(m) RETURN n
-      """
+	      """
+	      MATCH (n) WHERE <pattern> RETURN n
+	      """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
+
+    Examples:
+      | pattern                                 |
+      | (a)                                     |
+      | (n)-->(a)                               |
+      | (a)-->(n)                               |
+      | (n)<--(a)                               |
+      | (n)--(a)                                |
+      | (n)-[r]->()                             |
+      | ()-[r]->(n)                             |
+      | (n)<-[r]-()                             |
+      | (n)-[r]-()                              |
+      | ()-[r]->()                              |
+      | ()<-[r]-()                              |
+      | ()-[r]-()                               |
+      | (n)-[r:REL]->(a {num: 5})               |
+      | (n)-[r:REL*0..2]->(a {num: 5})          |
+      | (n)-[r:REL]->(:C)<-[s:REL]-(a {num: 5}) |
 
   Scenario: [11] Fail on checking self pattern
     Given any graph
