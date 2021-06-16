@@ -39,7 +39,7 @@
     <dep.maven.source.plugin.version>3.2.1</dep.maven.source.plugin.version>
     <dep.maven.surefire.plugin.version>2.22.2</dep.maven.surefire.plugin.version>
     <dep.scala.maven.plugin.version>3.4.4</dep.scala.maven.plugin.version>
-    <dep.scala.version>2.12.10</dep.scala.version>
+    <dep.scala.version>${scala.version}</dep.scala.version>
     <dep.scalatest.version>3.2.2</dep.scalatest.version>
     <dep.scalatest.runner.version>0.1.8</dep.scalatest.runner.version>
     <dep.xmlgraphics-commons.version>2.4</dep.xmlgraphics-commons.version>
@@ -54,6 +54,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.rootdir>${project.basedir}</project.rootdir>
     <scala.binary.version>2.12</scala.binary.version>
+    <scala.version/>
     <test.runner.jvm/>
     <test.runner.jvm.settings.additional/>
     <test.runner.jvm.settings>
@@ -352,6 +353,19 @@
           <version>${dep.maven.compiler.plugin.version}</version>
         </plugin>
 
+        <plugin>
+          <groupId>org.spurint.maven.plugins</groupId>
+          <artifactId>scala-cross-maven-plugin</artifactId>
+          <version>0.3.0</version>
+          <executions>
+            <execution>
+              <id>rewrite-pom</id>
+              <goals>
+                <goal>rewrite-pom</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -377,11 +391,21 @@
       </properties>
     </profile>
     <profile>
-      <id>scala213</id>
+      <id>scala-212</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
       <properties>
-        <dep.scala.version>2.13.6</dep.scala.version>
+        <scala.version>2.12.13</scala.version>
+        <scala.binary.version>2.12</scala.binary.version>
+      </properties>
+    </profile>
+    <profile>
+      <id>scala-213</id>
+      <properties>
         <dep.cask.version>0.3.7</dep.cask.version>
         <scala.binary.version>2.13</scala.binary.version>
+        <scala.version>2.13.6</scala.version>
       </properties>
     </profile>
   </profiles>
