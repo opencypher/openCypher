@@ -247,12 +247,24 @@ Feature: Pattern1 - Pattern predicate
     And no side effects
 
   Scenario: [13] Fail on matching two nodes on a single undirected connection between them
-    Given any graph
+    Given an empty graph
+    And having executed:
+	       """
+	       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
+	       """
     When executing query:
-      """
-      MATCH (n), (m) WHERE (n)--(m) RETURN n. m
-      """
-    Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
+	      """
+	      MATCH (n), (m) WHERE (n)--(m) RETURN n, m
+	      """
+    Then the result should be, in any order:
+      | n    | m    |
+      | (:A) | (:B) |
+      | (:B) | (:A) |
+      | (:A) | (:C) |
+      | (:A) | (:D) |
+      | (:C) | (:A) |
+      | (:D) | (:A) |
+    And no side effects
 
 
   Scenario: [14] Matching two nodes on a specific type of single outgoing directed connection
