@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Pattern1 - Existential Pattern Match
+Feature: Pattern1 - Pattern predicate
 
   Scenario: [1] Matching on any single outgoing directed connection
     Given an empty graph
