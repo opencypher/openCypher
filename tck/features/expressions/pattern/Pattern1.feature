@@ -350,3 +350,66 @@ Feature: Pattern1 - Pattern predicate
       | (:D) | (:B) |
       | (:B) | (:D) |
     And no side effects
+
+
+  Scenario: [19] Using a negated existential pattern predicate
+    Given an empty graph
+    And having executed:
+	      """
+	      CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
+	      """
+    When executing query:
+	      """
+	      MATCH (n) WHERE NOT (n)-[:REL2]-() RETURN n
+	      """
+    Then the result should be, in any order:
+      | n    |
+      | (:A) |
+    And no side effects
+
+  Scenario: [20] Using two existential pattern predicates in a conjunction
+    Given an empty graph
+    And having executed:
+	      """
+	      CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
+	      """
+    When executing query:
+	      """
+	      MATCH (n) WHERE (n)-[:REL1]-() AND (n)-[:REL3]-() RETURN n
+	      """
+    Then the result should be, in any order:
+      | n    |
+      | (:A) |
+    And no side effects
+
+  Scenario: [21] Using two existential pattern predicates in a disjunction
+    Given an empty graph
+    And having executed:
+	      """
+	      CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
+	      """
+    When executing query:
+	      """
+	      MATCH (n) WHERE (n)-[:REL1]-() OR (n)-[:REL2]-() RETURN n
+	      """
+    Then the result should be, in any order:
+      | n    |
+      | (:A) |
+      | (:B) |
+    And no side effects
+
+  Scenario: [22] Fail on using pattern in RETURN projection
+    Given any graph
+    When executing query:
+	      """
+	      MATCH (n) RETURN (n)-->()
+	      """
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
+
+  Scenario: [23] Fail on using pattern in WITH projection
+    Given any graph
+    When executing query:
+	      """
+	      MATCH (n) WITH (n)-->() RETURN n
+	      """
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
