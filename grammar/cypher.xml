@@ -206,11 +206,11 @@
   </production>
 
   <production name="Create">
-    <seq>CREATE &WS; <non-terminal ref="Pattern"/></seq>
+    CREATE &WS; <non-terminal ref="Pattern"/>
   </production>
 
   <production name="CreateUnique" oc:legacy="true">
-    <seq>CREATE &SP; UNIQUE &WS; <non-terminal ref="Pattern"/></seq>
+    CREATE &SP; UNIQUE &WS; <non-terminal ref="Pattern"/>
   </production>
 
   <production name="Set">
@@ -230,11 +230,9 @@
   </production>
 
   <production name="Delete">
-    <seq>
-      <opt>DETACH &SP;</opt>
-      DELETE &WS; &expr;
-      <repeat>&WS; , &WS; &expr;</repeat>
-    </seq>
+    <opt>DETACH &SP;</opt>
+    DELETE &WS; &expr;
+    <repeat>&WS; , &WS; &expr;</repeat>
   </production>
 
   <production name="Remove">
@@ -287,18 +285,14 @@
 
 
   <production name="With" scope:rule="new">
-    <seq>
-      WITH
-      <non-terminal ref="ProjectionBody"/>
-      <opt>&WS;<non-terminal ref="Where"/></opt>
-    </seq>
+    WITH
+    <non-terminal ref="ProjectionBody"/>
+    <opt>&WS;<non-terminal ref="Where"/></opt>
   </production>
 
   <production name="Return">
-    <seq>
-      RETURN
-      <non-terminal ref="ProjectionBody"/>
-    </seq>
+    RETURN
+    <non-terminal ref="ProjectionBody"/>
   </production>
 
   <production name="ProjectionBody">
@@ -337,7 +331,7 @@
   </production>
 
   <production name="SortItem" rr:inline="true">
-    <seq>&expr; <opt>&WS; <alt>ASCENDING ASC DESCENDING DESC</alt></opt></seq>
+    &expr; <opt>&WS; <alt>ASCENDING ASC DESCENDING DESC</alt></opt>
   </production>
 
   <production name="Hint" oc:legacy="true">
