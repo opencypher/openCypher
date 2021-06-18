@@ -262,16 +262,14 @@
   </production>
 
   <production name="StringOperatorExpression" rr:inline="true">
-    <seq>
-      <alt>
-        <non-terminal ref="RegularExpression"/>
-        <seq>&SP; STARTS &SP; WITH</seq>
-        <seq>&SP; ENDS &SP; WITH</seq>
-        <seq>&SP; CONTAINS</seq>
-      </alt>
-      &WS;
-      <non-terminal ref="PropertyOrLabelsExpression"/>
-    </seq>
+    <alt>
+      <non-terminal ref="RegularExpression"/>
+      <seq>&SP; STARTS &SP; WITH</seq>
+      <seq>&SP; ENDS &SP; WITH</seq>
+      <seq>&SP; CONTAINS</seq>
+    </alt>
+    &WS;
+    <non-terminal ref="PropertyOrLabelsExpression"/>
   </production>
 
   <production name="NullOperatorExpression" rr:inline="true">
@@ -282,7 +280,7 @@
   </production>
 
   <production name="RegularExpression" oc:legacy="true">
-    <seq>&WS; =~</seq>
+    &WS; =~
   </production>
 
   <production name="PropertyOrLabelsExpression" rr:inline="true">
@@ -336,7 +334,7 @@
   </production>
 
   <production name="ListLiteral">
-    <seq> [ &WS; <opt> &expr; &WS; <repeat> , &WS; &expr; &WS; </repeat> </opt> ] </seq>
+    [ &WS; <opt> &expr; &WS; <repeat> , &WS; &expr; &WS; </repeat> </opt> ]
   </production>
 
   <production name="Reduce" rr:inline="true" oc:legacy="true">
@@ -570,10 +568,8 @@
   </production>
 
   <production name="OctalInteger" oc:lexer="true">
-    <seq>
-      <non-terminal ref="ZeroDigit"/>
-      <repeat min="1"><non-terminal ref="OctDigit"/></repeat>
-    </seq>
+    <non-terminal ref="ZeroDigit"/>
+    <repeat min="1"><non-terminal ref="OctDigit"/></repeat>
   </production>
 
   <production name="HexLetter" oc:lexer="true">
@@ -640,11 +636,9 @@
   </production>
 
   <production name="RegularDecimalReal" oc:lexer="true">
-    <seq>
-      <repeat><non-terminal ref="Digit"/></repeat>
-      .
-      <repeat min="1"><non-terminal ref="Digit"/></repeat>
-    </seq>
+    <repeat><non-terminal ref="Digit"/></repeat>
+    .
+    <repeat min="1"><non-terminal ref="Digit"/></repeat>
   </production>
 
   <!-- \ EXPRESSIONS / -->
