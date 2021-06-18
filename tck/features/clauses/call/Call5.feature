@@ -133,3 +133,40 @@ Feature: Call5 - Results projection
       RETURN c
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
+
+  @skipGrammarCheck
+  Scenario: [7] Fail on in-query call to procedure with YIELD *
+    Given an empty graph
+    And there exists a procedure test.my.proc(name :: STRING?, id :: INTEGER?) :: (city :: STRING?, country_code :: INTEGER?):
+      | name     | id | city      | country_code |
+      | 'Andres' | 1  | 'Malmö'   | 46           |
+      | 'Tobias' | 1  | 'Malmö'   | 46           |
+      | 'Mats'   | 1  | 'Malmö'   | 46           |
+      | 'Stefan' | 1  | 'Berlin'  | 49           |
+      | 'Stefan' | 2  | 'München' | 49           |
+      | 'Petra'  | 1  | 'London'  | 44           |
+    When executing query:
+      """
+      CALL test.my.proc('Stefan', 1) YIELD *
+      RETURN city, country_code
+      """
+    Then a SyntaxError should be raised at compile time: UnexpectedSyntax
+
+  Scenario: [8] Allow standalone call to procedure with YIELD *
+    Given an empty graph
+    And there exists a procedure test.my.proc(name :: STRING?, id :: INTEGER?) :: (city :: STRING?, country_code :: INTEGER?):
+      | name     | id | city      | country_code |
+      | 'Andres' | 1  | 'Malmö'   | 46           |
+      | 'Tobias' | 1  | 'Malmö'   | 46           |
+      | 'Mats'   | 1  | 'Malmö'   | 46           |
+      | 'Stefan' | 1  | 'Berlin'  | 49           |
+      | 'Stefan' | 2  | 'München' | 49           |
+      | 'Petra'  | 1  | 'London'  | 44           |
+    When executing query:
+      """
+      CALL test.my.proc('Stefan', 1) YIELD *
+      """
+    Then the result should be, in order:
+      | city     | country_code |
+      | 'Berlin' | 49           |
+    And no side effects
