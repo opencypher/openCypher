@@ -254,39 +254,35 @@
   </production>
 
   <production name="InQueryCall">
-    <seq>
-      CALL &SP;
-      <non-terminal ref="ExplicitProcedureInvocation"/>
-      <opt>&WS; YIELD &SP; <non-terminal ref="YieldItems"/></opt>
-    </seq>
+    CALL &SP;
+    <non-terminal ref="ExplicitProcedureInvocation"/>
+    <opt>&WS; YIELD &SP; <non-terminal ref="YieldItems"/></opt>
   </production>
 
   <production name="StandaloneCall">
-    <seq>
-      CALL &SP;
+    CALL &SP;
+    <alt>
+      <non-terminal ref="ExplicitProcedureInvocation"/>
+      <non-terminal ref="ImplicitProcedureInvocation"/>
+    </alt>
+    <opt>
+      &WS; YIELD &SP;
       <alt>
-        <non-terminal ref="ExplicitProcedureInvocation"/>
-        <non-terminal ref="ImplicitProcedureInvocation"/>
+        *
+        <non-terminal ref="YieldItems"/>
       </alt>
-      <opt>&SP; YIELD &SP; <non-terminal ref="YieldItems"/></opt>
-    </seq>
+    </opt>
   </production>
 
   <production name="YieldItems" rr:inline="true">
-    <seq>
-      <alt>
-        *
-        <seq>
-          <non-terminal ref="YieldItem"/>
-          <repeat>&WS; , &WS;<non-terminal ref="YieldItem"/></repeat>
-        </seq>
-      </alt>
-      <opt>&WS; <non-terminal ref="Where"/></opt>
-    </seq>
+    <non-terminal ref="YieldItem"/>
+    <repeat>&WS; , &WS;<non-terminal ref="YieldItem"/></repeat>
+    <opt>&WS; <non-terminal ref="Where"/></opt>
   </production>
 
   <production name="YieldItem" rr:inline="true">
-    <seq><opt><non-terminal ref="ProcedureResultField"/> &SP; AS &SP;</opt> &var;</seq>
+    <opt><non-terminal ref="ProcedureResultField"/> &SP; AS &SP;</opt>
+    &var;
   </production>
 
 
