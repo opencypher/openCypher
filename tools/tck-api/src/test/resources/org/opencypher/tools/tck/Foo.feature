@@ -47,6 +47,38 @@ Feature: Foo
       """
     Then a SyntaxError should be raised at compile time: UnknownFunction
 
+  Scenario: Fail with any type
+    Given an empty graph
+    When executing query:
+      """
+      RETURN foo()
+      """
+    Then a Error should be raised at compile time: UnknownFunction
+
+  Scenario: Fail at any time
+    Given an empty graph
+    When executing query:
+      """
+      RETURN foo()
+      """
+    Then a SyntaxError should be raised at any time: UnknownFunction
+
+  Scenario: Fail with any detail
+    Given an empty graph
+    When executing query:
+      """
+      RETURN foo()
+      """
+    Then a SyntaxError should be raised at compile time: *
+
+  Scenario: Fail with any type and detail at any type
+    Given an empty graph
+    When executing query:
+      """
+      RETURN foo()
+      """
+    Then a Error should be raised at any time: *
+
   @ignore
   Scenario: Ignored
     Given an unsupported step
