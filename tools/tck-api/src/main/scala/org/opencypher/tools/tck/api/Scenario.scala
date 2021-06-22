@@ -28,7 +28,6 @@
 package org.opencypher.tools.tck.api
 
 import java.nio.file.Path
-
 import org.opencypher.tools.tck.SideEffectOps
 import org.opencypher.tools.tck.SideEffectOps._
 import org.opencypher.tools.tck.api.Graph.Result
@@ -37,6 +36,9 @@ import org.opencypher.tools.tck.api.events.TCKEvents.StepFinished
 import org.opencypher.tools.tck.api.events.TCKEvents.StepStarted
 import org.opencypher.tools.tck.api.events.TCKEvents.setStepFinished
 import org.opencypher.tools.tck.api.events.TCKEvents.setStepStarted
+import org.opencypher.tools.tck.constants.TCKErrorDetails
+import org.opencypher.tools.tck.constants.TCKErrorPhases
+import org.opencypher.tools.tck.constants.TCKErrorTypes
 import org.opencypher.tools.tck.values.CypherValue
 
 import scala.compat.Platform.EOL
@@ -124,17 +126,17 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
           case (ctx, e @ ExpectError(errorType, phase, detail, _)) =>
             ctx.lastResult match {
               case Left(error) =>
-                if (error.errorType != errorType)
+                if (error.errorType != errorType && error.errorType != TCKErrorTypes.ERROR && errorType != TCKErrorTypes.ERROR)
                   Left(
                     ScenarioFailedException(
                       s"Wrong error type: expected $errorType, got ${error.errorType}",
                       error.exception.orNull))
-                if (error.phase != phase)
+                if (error.phase != phase && error.phase != TCKErrorPhases.ANY_TIME && phase != TCKErrorPhases.ANY_TIME)
                   Left(
                     ScenarioFailedException(
                       s"Wrong error phase: expected $phase, got ${error.phase}",
                       error.exception.orNull))
-                if (error.detail != detail)
+                if (error.detail != detail && error.detail != TCKErrorDetails.ANY && detail != TCKErrorDetails.ANY)
                   Left(
                     ScenarioFailedException(
                       s"Wrong error detail: expected $detail, got ${error.detail}",
