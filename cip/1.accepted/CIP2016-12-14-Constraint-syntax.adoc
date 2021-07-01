@@ -20,12 +20,14 @@ toc::[]
 Cypher has a loose notion of a schema, in which nodes and relationships may take very heterogeneous forms, both in terms of properties and in graph patterns.
 Constraints allow us to mould the heterogeneous nature of the property graph into a more regular form.
 
+
 == Proposal
 
 This CIP specifies the general syntax for constraint definition (and constraint removal), and provides several examples of possible use cases for constraints.
 However, the specification does not otherwise specify or limit the space of expressible constraints that the syntax and semantics allow.
 
 This specification also covers the return structure of constraint commands, see <<return-record>>.
+
 
 === Syntax
 
@@ -53,11 +55,13 @@ For details on `UNIQUE` and `NODE KEY`, see the dedicated sections below: <<uniq
 The term 'constraint expression' is used in the following to describe the expressions that constitute the body of the constraint predicate.
 In other words, the `expression` or `property-expression` grammar references in the above syntax.
 
+
 ==== Constraint names
 
 All constraints provide the user the option to specify a nonempty _name_ at constraint creation time.
 This name is subsequently the handle with which a user may refer to the constraint, for example when dropping it.
 In the case where a name is not provided, the system will generate a unique name.
+
 
 ==== Removing constraints
 
@@ -69,10 +73,12 @@ A constraint is removed by referring to its name.
 DROP CONSTRAINT foo
 ----
 
+
 ==== Plurality
 
 The syntax allows for multiple constraint creations to be requested simultaneously, by using the `CREATE CONSTRAINTS ...` syntax.
 This is a syntactic shorthand for specifying each individual constraint separately and combining the return records (see <<return-record>>) as a `UNION`.
+
 
 === Semantics
 
@@ -86,6 +92,7 @@ The semantics for constraints follow these general rules:
 
 4. The constraint expression must be deterministic and free of side effects (such as graph mutations).
 
+
 ==== Errors
 
 The following list describes the situations in which an error will be raised:
@@ -96,10 +103,12 @@ The following list describes the situations in which an error will be raised:
 * Attempting to drop a constraint referencing a non-existent name.
 * Attempting to modify the graph in such a way that it would violate a constraint.
 
+
 ==== Mutability
 
 Once a constraint has been added, it may not be amended.
 Should a user wish to change a constraint definition, the constraint has to be dropped and added anew with an updated structure.
+
 
 [[uniqueness]]
 ==== Uniqueness
@@ -115,6 +124,7 @@ CREATE CONSTRAINT only_one_person_per_name
 FOR (p:Person)
 REQUIRE UNIQUE p.name
 ----
+
 
 [[node-key]]
 ==== Node key
@@ -143,10 +153,12 @@ REQUIRE UNIQUE p.name
 REQUIRE exists(p.name)
 ----
 
+
 ==== Compositionality
 
 It is possible to define multiple `REQUIRE` clauses within the scope of the same constraint.
 The semantics between these is that of a conjunction (under standard 2-valued boolean logic) between the constraint predicates of the clauses, such that the constraint is upheld if and only if for all `REQUIRE` clauses, the joint predicate evaluates to `true`.
+
 
 [[return-record]]
 ==== Return record
@@ -158,13 +170,16 @@ The result record has a fixed structure, with three string fields: `name`, `defi
 A constraint command will always return exactly one record, if successful.
 Note that also `DROP CONSTRAINT` will return a record.
 
+
 ===== Name
 
 This field contains the name of the constraint, either user- or system-defined.
 
+
 ===== Definition
 
 This field contains the constraint definition, which is the contents of the constraint creation command following (and including) the `FOR` clause.
+
 
 ===== Details
 
@@ -186,6 +201,7 @@ name         | definition                                     | details
 myConstraint | FOR (n:NODE)                                   | n/a
              | REQUIRE NODE KEY n.prop1, n.prop2              |
 ----
+
 
 === Examples
 
@@ -321,10 +337,12 @@ FOR p = ()-[:R*]-()
 REQUIRE acyclic(p)
 ----
 
+
 === Interaction with existing features
 
 The main interaction between the constraints and the rest of the language occurs during updating statements.
 Existing constraints will cause some updating statements to fail, thereby fulfilling the main purpose of this feature.
+
 
 === Alternatives
 
@@ -340,6 +358,7 @@ The use of an existing expression to express uniqueness -- instead of using the 
 FOR (p:Person), (q:Person)
 REQUIRE p.email <> q.email AND p <> q
 ----
+
 
 == What others do
 
@@ -387,12 +406,14 @@ ALTER TABLE Person
 ADD CONSTRAINT uc_PersonID UNIQUE (P_Id,LastName)
 ----
 
+
 == Benefits to this proposal
 
 Constraints make Cypher's notion of schema more well-defined, allowing users to maintain graphs in a more regular, easier-to-manage form.
 
 Additionally, this specification is deliberately defining a constraint _language_ within which a great deal of possible concrete constraints are made possible.
 This allows different implementers of Cypher to independently choose how to limit the scope of supported constraint expressions that fit their model and targeted use cases, while retaining a common and consistent semantic and syntactic model.
+
 
 == Caveats to this proposal
 
