@@ -128,6 +128,22 @@ Once a constraint has been added, it may not be amended.
 Should a user wish to change a constraint definition, the constraint has to be dropped and added anew with an updated structure.
 
 
+[[grouped-expression]]
+==== Grouped expression
+
+This CIP introduces the concept of a _grouped expression_, consisting of one or more property expressions.
+A grouped expression expresses a new value type in Cypher: a tuple type.
+This type exists only for the purposes of the `IS UNIQUE` and `IS NODE KEY` operators and this CIP does not further extend its applicability.
+
+The tuple type is composed of the types of the property expressions.
+These rules apply:
+
+. When one of the contained property expressions is `null`, the tuple type is also `null`.
+. When compared for equality to another tuple type, the comparison is equivalent to comparing the property expressions of the tuples respectively, in a conjunction.
+
+A wider definition is not necessary for this type to satisfy the requirements of the `IS UNIQUE` and `IS NODE KEY` operators.
+
+
 [[uniqueness]]
 ==== Uniqueness
 
@@ -178,12 +194,6 @@ REQUIRE p.name IS NOT NULL
 REQUIRE p.email IS NOT NULL
 REQUIRE p.address IS NOT NULL
 ----
-
-
-[[grouped-expression]]
-==== Grouped expression
-
-// TODO
 
 
 ==== Compositionality
