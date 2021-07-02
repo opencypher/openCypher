@@ -36,22 +36,48 @@ The constraint syntax is defined as follows:
 .Grammar definition for constraint syntax.
 [source, ebnf]
 ----
-constraint command    = create-constraint | drop-constraint ;
-add-constraint        = "CREATE", "CONSTRAINT", [ constraint-name ], "FOR", pattern, "REQUIRE", constraint-predicate, { "REQUIRE", constraint-predicate } ;
-constraint-name       = symbolic-name ;
-constraint-predicate  = expression | unique | node-key ;
-unique                = "UNIQUE", property-expression ;
-node-key              = "NODE KEY", property-expression, { ",", property-expression } ;
-drop-constraint       = "DROP", "CONSTRAINT", constraint-name ;
+<ConstraintCommand> ::=
+    <CreateConstraint>
+  | <DropConstraint> ;
+
+<DropConstraint> ::=
+    "DROP", "CONSTRAINT", <SymbolicName> ;
+
+<CreateConstraint> ::=
+    "CREATE", "CONSTRAINT", [ <SymbolicName> ],
+    "FOR", <Pattern>,
+    "REQUIRE", <ConstraintPredicate>,
+    { "REQUIRE", <ConstraintPredicate> } ;
+
+<ConstraintPredicate> ::=
+    <Expression>
+  | <Unique>
+  | <NodeKey> ;
+
+<Unique> ::=
+    <GroupedPropertyExpression>, "IS", "UNIQUE" ;
+
+<NodeKey> ::=
+    <GroupedPropertyExpression>, "IS", "NODE", "KEY" ;
+
+<GroupedPropertyExpression> ::=
+    <PropertyExpression>
+  | "(", <PropertyExpression>, { ",", <PropertyExpression> }, ")" ;
 ----
 
-The `REQUIRE` clause works exactly like the `WHERE` clause in a standard Cypher query, with the addition of also supporting the special constraint operators `UNIQUE` and `NODE KEY`.
-This allows for very complex concrete constraint definitions (using custom predicates) within the specified syntax.
+References to existing grammar parts:
 
-For details on `UNIQUE` and `NODE KEY`, see the dedicated sections below: <<uniqueness>>, <<node-key>>.
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=SymbolicName[<SymbolicName>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Pattern[<Pattern>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Expression[<Expression>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PropertyExpression[<PropertyExpression>]
+
+The `REQUIRE` clause works exactly like the `WHERE` clause in a standard Cypher query, with the addition of also supporting the special constraint operators `IS UNIQUE`, `IS NODE KEY`, and the new `<GroupedExpression>` expression.
+This allows for complex concrete constraint definitions (using custom predicates) within the specified syntax.
+
+For details on `IS UNIQUE`, `IS NODE KEY`, and `<GroupedExpression>`, see the dedicated sections below: <<uniqueness>>, <<node-key>>, <<grouped-expression>>.
 
 The term 'constraint expression' is used in the following to describe the expressions that constitute the body of the constraint predicate.
-In other words, the `expression` or `property-expression` grammar references in the above syntax.
 
 
 ==== Constraint names
@@ -144,6 +170,11 @@ FOR (p:Person)
 REQUIRE UNIQUE p.name
 REQUIRE exists(p.name)
 ----
+
+[[grouped-expression]]
+==== Grouped expression
+
+// TODO
 
 
 ==== Compositionality
