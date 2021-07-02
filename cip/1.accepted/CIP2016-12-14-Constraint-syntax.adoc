@@ -102,11 +102,11 @@ DROP CONSTRAINT foo
 
 The semantics for constraints follow these general rules:
 
-1. The constraint pattern define the constraint _domain_, where all entities that would be returned by a `MATCH` clause with the same pattern constitute the domain, with one notable exception (see <<domain-exception, 3.>>).
+1. The constraint pattern define the constraint _domain_, where all elements that would be returned by a `MATCH` clause with the same pattern constitute the domain, with one notable exception (see <<domain-exception, 3.>>).
 
 2. The constraint expressions defined in the `REQUIRE` clauses of the constraint definition must all evaluate to `true`, at all times.
 
-3. [[domain-exception]]Entities for which a constraint expression evaluate to `null` under Cypher's ternary logic are _excluded_ from the constraint domain, even if they fit within the constraint pattern.
+3. [[domain-exception]]Elements for which a constraint expression evaluate to `null` under Cypher's ternary logic are _excluded_ from the constraint domain, even if they fit within the constraint pattern.
 
 4. The constraint expression must be deterministic and free of side effects (such as graph mutations).
 
@@ -133,7 +133,7 @@ Should a user wish to change a constraint definition, the constraint has to be d
 
 The new operator `UNIQUE` is only valid as part of a constraint predicate.
 It takes as argument a single property expression, and asserts that this property is unique across the domain of the constraint.
-Following on rule <<domain-exception,3.>> above, entities for which the property is not defined (is `null`) are not part of the constraint domain.
+Following on rule <<domain-exception,3.>> above, elements for which the property is not defined (is `null`) are not part of the constraint domain.
 
 .Example of a constraint definition using `UNIQUE`, over the domain of nodes labeled with `:Person`:
 [source, cypher]
@@ -149,8 +149,8 @@ REQUIRE UNIQUE p.name
 
 The new operator `NODE KEY` is only valid as part of a constraint predicate.
 It takes as argument one or more property expressions, and asserts that the combination of the evaluated values of the expressions (forming a tuple) is unique across the constraint domain.
-It further asserts that the property expressions all exist on the entities of the domain, and thus avoids applicability of rule <<domain-exception, 3.>> above.
-The domain of a node key constraint is thus exactly defined as all entities which fit the constraint pattern.
+It further asserts that the property expressions all exist on the elements of the domain, and thus avoids applicability of rule <<domain-exception, 3.>> above.
+The domain of a node key constraint is thus exactly defined as all elements which fit the constraint pattern.
 
 .Example of a constraint definition using `NODE KEY`, over the domain of nodes labeled with `:Person`:
 [source, cypher]
@@ -428,4 +428,4 @@ This allows different implementers of Cypher to independently choose how to limi
 
 == Caveats to this proposal
 
-Some constraints may prove challenging to enforce in a system seeking to implement the contents of this CIP, as these generally require scanning through large parts of the graph to locate conflicting entities.
+Some constraints may prove challenging to enforce in a system seeking to implement the contents of this CIP, as these generally require scanning through large parts of the graph to locate conflicting elements.
