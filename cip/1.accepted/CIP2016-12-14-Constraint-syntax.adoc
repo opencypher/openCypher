@@ -385,6 +385,9 @@ Alternative syntaxes have been discussed:
 * `ASSERT`, `ENFORCE`, `IMPLIES` instead of `REQUIRE`
 * `ADD` instead of `CREATE`
 ** It is desirable for verb pairs for modifying operations to be consistent in the language, and recent discussions are (so far informally) suggesting `INSERT`/`DELETE` to be used for data modification, thus making `CREATE` and `DROP` available for schema modification such as constraints.
+* Using a prefix model for uniqueness and node keys, alike `REQUIRE UNIQUE (n.a, n.b)`
+** This was discarded in favour of the suffix model due to similarity with already existing `IS NOT NULL`.
+   Prefix operators are uncommon in Cypher.
 
 The use of an existing expression to express uniqueness -- instead of using the operator `IS UNIQUE` -- becomes unwieldy for multiple properties, as exemplified by the following:
 ----
