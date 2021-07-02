@@ -72,6 +72,16 @@ References to existing grammar parts:
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Expression[<Expression>]
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PropertyExpression[<PropertyExpression>]
 
+References to new grammar parts:
+
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Command[<ConstraintCommand>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=CreateConstraint[<CreateConstraint>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=DropConstraint[<DropConstraint>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ConstraintPredicate[<ConstraintPredicate>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Unique[<Unique>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NodeKey[<NodeKey>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=GroupedPropertyExpression[<GroupedPropertyExpression>]
+
 The `REQUIRE` clause works exactly like the `WHERE` clause in a standard Cypher query, with the addition of also supporting the special constraint operators `IS UNIQUE`, `IS NODE KEY`, and the new `<GroupedExpression>` expression.
 This allows for complex concrete constraint definitions (using custom predicates) within the specified syntax.
 

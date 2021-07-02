@@ -68,41 +68,41 @@
 
   <!-- / NEW CONSTRAINT SYNTAX \ -->
 
-  <production name="CreateConstraint">
-    CREATE &SP; CONSTRAINT &SP; <non-terminal ref="ConstraintName"/> &SP;
-    FOR &SP; <non-terminal ref="ConstraintPattern"/> &SP;
-    REQUIRE &SP; <non-terminal ref="ConstraintExpression"/>
-  </production>
-
   <production name="DropConstraint">
-    DROP &SP; CONSTRAINT &SP; <non-terminal ref="ConstraintName"/>
+    DROP &SP; CONSTRAINT &SP; <non-terminal ref="SymbolicName"/>
   </production>
 
-  <production name="ConstraintName">
-    <non-terminal ref="SymbolicName"/>
+  <production name="CreateConstraint">
+    CREATE &SP; CONSTRAINT &SP; <non-terminal ref="SymbolicName"/> &SP;
+    FOR &SP; <non-terminal ref="Pattern"/> &SP;
+    REQUIRE &SP; <non-terminal ref="ConstraintPredicate"/>
   </production>
 
-  <production name="ConstraintPattern">
+  <production name="ConstraintPredicate">
     <alt>
-      <seq>( &var; &label; ) </seq>
-      <seq>( ) - [ &var; <non-terminal ref='RelType'/> ] - ( ) </seq>
-    </alt>
-  </production>
-
-  <production name="ConstraintExpression">
-    <alt>
-      <non-terminal ref="Uniqueness"/>
-      <non-terminal ref="NodeKey"/>
       <non-terminal ref="Expression"/>
+      <non-terminal ref="Unique"/>
+      <non-terminal ref="NodeKey"/>
     </alt>
   </production>
 
-  <production name="Uniqueness">
-    UNIQUE &SP; <non-terminal ref="PropertyExpression"/>
+  <production name="Unique">
+    <non-terminal ref="GroupedPropertyExpression"/> &SP; IS &SP; UNIQUE
   </production>
 
   <production name="NodeKey">
-    NODE &SP; KEY &SP; <non-terminal ref="PropertyExpression"/> <repeat>&WS; , &WS; <non-terminal ref="PropertyExpression"/></repeat>
+    <non-terminal ref="GroupedPropertyExpression"/> &SP; IS &SP; NODE &SP; KEY
+  </production>
+
+  <production name="GroupedPropertyExpression">
+    <alt>
+      <non-terminal ref="PropertyExpression"/>
+      <seq>
+        ( &WS; <non-terminal ref="PropertyExpression"/>
+        <repeat>&WS; , &WS; <non-terminal ref="PropertyExpression"/></repeat>
+        &WS; )
+      </seq>
+    </alt>
   </production>
 
   <!-- / LEGACY COMMANDS \ -->

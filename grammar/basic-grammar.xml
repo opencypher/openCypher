@@ -149,7 +149,7 @@
     </alt>
   </production>
 
-  <production name="RelType" rr:inline="true">
+  <production name="RelType" rr:inline="true" oc:legacy="true">
     : &WS; <non-terminal ref="RelTypeName"/>
   </production>
 
@@ -714,6 +714,9 @@
       OF
       ADD
       DROP
+      NODE
+      KEY
+      UNIQUE
     </alt>
   </production>
 
@@ -728,8 +731,6 @@
       ANY
       NONE
       SINGLE
-      NODE
-      KEY
     </alt>
   </production>
 
