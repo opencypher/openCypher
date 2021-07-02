@@ -131,16 +131,17 @@ Should a user wish to change a constraint definition, the constraint has to be d
 [[uniqueness]]
 ==== Uniqueness
 
-The new operator `UNIQUE` is only valid as part of a constraint predicate.
-It takes as argument a single property expression, and asserts that this property is unique across the domain of the constraint.
-Following on rule <<domain-exception,3.>> above, elements for which the property is not defined (is `null`) are not part of the constraint domain.
+The new operator `IS UNIQUE` is only valid as part of a constraint predicate.
+It takes as argument a <<grouped-expression, grouped expression>>, and asserts that it is unique across the domain of the constraint.
+Following on rule <<domain-exception,3.>> above, elements for which the grouped expression is `null` are not part of the constraint domain.
+In particular, in the case where the grouped expression is a single property expression, this means that the uniqueness constraint does not hinder the existence of multiple elements having a `null` value for the specified property.
 
-.Example of a constraint definition using `UNIQUE`, over the domain of nodes labeled with `:Person`:
+.Example of a constraint definition using `IS UNIQUE`, over the domain of nodes labeled with `:Person`:
 [source, cypher]
 ----
 CREATE CONSTRAINT only_one_person_per_name
 FOR (p:Person)
-REQUIRE UNIQUE p.name
+REQUIRE p.name IS UNIQUE
 ----
 
 
@@ -160,14 +161,14 @@ FOR (p:Person)
 REQUIRE NODE KEY p.name, p.email, p.address
 ----
 
-In the context of a single property, a semantically equivalent constraint is achieved by composing the use of the `UNIQUE` operator with `exists()` predicates, as exemplified by:
+In the context of a single property, a semantically equivalent constraint is achieved by composing the use of the `IS UNIQUE` operator with `exists()` predicates, as exemplified by:
 
 .Example of a constraint definition equivalent to a `NODE KEY` on a single property `name`:
 [source, cypher]
 ----
 CREATE CONSTRAINT person_details
 FOR (p:Person)
-REQUIRE UNIQUE p.name
+REQUIRE p.name IS UNIQUE
 REQUIRE exists(p.name)
 ----
 
@@ -252,7 +253,7 @@ Owing to the duplication of the `rgb` property, the following attempt at adding 
 ----
 CREATE CONSTRAINT only_one_color_per_rgb
 FOR (c:Color)
-REQUIRE UNIQUE c.rgb
+REQUIRE c.rgb IS UNIQUE
 ----
 
 Now, consider the following query which retrieves the RGB value of a color with a given `name`:
@@ -364,7 +365,7 @@ Alternative syntaxes have been discussed:
 * `ADD` instead of `CREATE`
 ** It is desirable for verb pairs for modifying operations to be consistent in the language, and recent discussions are (so far informally) suggesting `INSERT`/`DELETE` to be used for data modification, thus making `CREATE` and `DROP` available for schema modification such as constraints.
 
-The use of an existing expression to express uniqueness -- instead of using the operator `UNIQUE` -- becomes unwieldy for multiple properties, as exemplified by the following:
+The use of an existing expression to express uniqueness -- instead of using the operator `IS UNIQUE` -- becomes unwieldy for multiple properties, as exemplified by the following:
 ----
 FOR (p:Person), (q:Person)
 REQUIRE p.email <> q.email AND p <> q
@@ -383,7 +384,7 @@ In SQL, the following constraints exist (inspired by http://www.w3schools.com/sq
 * `DEFAULT` - Specifies a default value for a column.
 
 The `NOT NULL` SQL constraint is expressible using an `exists()` constraint predicate.
-The `UNIQUE` SQL constraint is exactly as Cypher's `UNIQUE` constraint predicate.
+The `UNIQUE` SQL constraint is exactly as Cypher's `IS UNIQUE` constraint predicate.
 The `PRIMARY KEY` SQL constraint is exactly as Cypher's `NODE KEY` constraint predicate.
 
 SQL constraints may be introduced at table creation time in a `CREATE TABLE` statement, or in an `ALTER TABLE` statement:
