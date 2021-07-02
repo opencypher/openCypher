@@ -340,4 +340,5 @@ REQUIRE (n.p1, n.p2, n.p3) IS NODE KEY§
 CREATE CONSTRAINT nodeKey
 FOR (n:Node)
 REQUIRE (  n.p1   ,n.p2,   n.p3    ) IS    NODE   KEY§
-DROP CONSTRAINT foo§
+DROP CONSTRAINT node§
+DROP CONSTRAINT key§
