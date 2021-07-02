@@ -279,7 +279,7 @@ Now, consider the following query which retrieves the RGB value of a color with 
 [source, cypher]
 ----
 MATCH (c:Color {name: $name})
-WHERE exists(c.rgb)
+WHERE c.rgb IS NOT NULL
 RETURN c.rgb
 ----
 
@@ -290,7 +290,7 @@ It may, however, be eliminated by the introduction of a constraint asserting the
 ----
 CREATE CONSTRAINT colors_must_have_rgb
 FOR (c:Color)
-REQUIRE exists(c.rgb)
+REQUIRE c.rgb IS NOT NULL
 ----
 
 Any updating statement that would create a `:Color` node without specifying an `rgb` property for it would now fail.
@@ -314,7 +314,7 @@ More complex constraint definitions are considered below:
 ----
 CREATE CONSTRAINT person_properties
 FOR (p:Person)
-REQUIRE exists(p.name) AND exists(p.email)
+REQUIRE p.name IS NOT NULL AND p.email IS NOT NULL
 ----
 
 .Using larger pattern
