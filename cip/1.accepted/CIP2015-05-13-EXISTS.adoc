@@ -47,7 +47,8 @@ This CIP proposes:
 
 ==== Grammar
 
-[source,bnf]
+.Grammar definition for existential subquery syntax.
+[source, ebnf]
 ----
 <Atom> ::=
     ...
