@@ -148,29 +148,37 @@ REQUIRE p.name IS UNIQUE
 [[node-key]]
 ==== Node key
 
-The new operator `NODE KEY` is only valid as part of a constraint predicate.
-It takes as argument one or more property expressions, and asserts that the combination of the evaluated values of the expressions (forming a tuple) is unique across the constraint domain.
-It further asserts that the property expressions all exist on the elements of the domain, and thus avoids applicability of rule <<domain-exception, 3.>> above.
+The new operator `IS NODE KEY` is only valid as part of a constraint predicate.
+It takes as argument a <<grouped-expression, grouped expression>>, and asserts that two conditions hold:
+
+. [[not-null]]Each property expression within the grouped expression cannot be `null`.
+. The grouped expression is unique across the domain of the constraint.
+
+By way of <<not-null, 1.>> the node key constraint avoids applicability of rule <<domain-exception, 3.>> above.
 The domain of a node key constraint is thus exactly defined as all elements which fit the constraint pattern.
 
-.Example of a constraint definition using `NODE KEY`, over the domain of nodes labeled with `:Person`:
+.Example of a constraint definition using `IS NODE KEY`, over the domain of nodes labeled with `:Person`:
 [source, cypher]
 ----
 CREATE CONSTRAINT person_details
 FOR (p:Person)
-REQUIRE NODE KEY p.name, p.email, p.address
+REQUIRE (p.name, p.email, p.address) IS NODE KEY
 ----
 
-In the context of a single property, a semantically equivalent constraint is achieved by composing the use of the `IS UNIQUE` operator with `exists()` predicates, as exemplified by:
+The node key constraint can be equivalently expressed using a combination of the `IS UNIQUE` and `IS NOT NULL` operators.
+The below example illustrates this.
 
-.Example of a constraint definition equivalent to a `NODE KEY` on a single property `name`:
+.Example of a constraint definition using `IS UNIQUE` and `IS NOT NULL`, over the domain of nodes labeled with `:Person`:
 [source, cypher]
 ----
 CREATE CONSTRAINT person_details
 FOR (p:Person)
-REQUIRE p.name IS UNIQUE
-REQUIRE exists(p.name)
+REQUIRE (p.name, p.email, p.address) IS UNIQUE
+REQUIRE p.name IS NOT NULL
+REQUIRE p.email IS NOT NULL
+REQUIRE p.address IS NOT NULL
 ----
+
 
 [[grouped-expression]]
 ==== Grouped expression
@@ -214,7 +222,7 @@ The contents of this field are left unspecified, to be used for implementation-s
 ----
 CREATE CONSTRAINT myConstraint
 FOR (n:Node)
-REQUIRE NODE KEY n.prop1, n.prop2
+REQUIRE (n.prop1, n.prop2) IS NODE KEY
 ----
 
 A correct result record for it could be:
@@ -223,7 +231,7 @@ A correct result record for it could be:
 name         | definition                                     | details
 -----------------------------------------------------------------------
 myConstraint | FOR (n:NODE)                                   | n/a
-             | REQUIRE NODE KEY n.prop1, n.prop2              |
+             | REQUIRE (n.prop1, n.prop2) IS NODE KEY         |
 ----
 
 
@@ -283,7 +291,7 @@ If we instead want to make the _combination_ of the properties `name` and `rgb` 
 ----
 CREATE CONSTRAINT color_schema
 FOR (c:Color)
-REQUIRE NODE KEY c.rgb, c.name
+REQUIRE (c.rgb, c.name) IS NODE KEY
 ----
 
 This constraint will make sure that all `:Color` nodes has a value for their `rgb` and `name` properties, and that the combination is unique across all the nodes.
@@ -385,7 +393,7 @@ In SQL, the following constraints exist (inspired by http://www.w3schools.com/sq
 
 The `NOT NULL` SQL constraint is expressible using an `exists()` constraint predicate.
 The `UNIQUE` SQL constraint is exactly as Cypher's `IS UNIQUE` constraint predicate.
-The `PRIMARY KEY` SQL constraint is exactly as Cypher's `NODE KEY` constraint predicate.
+The `PRIMARY KEY` SQL constraint is exactly as Cypher's `IS NODE KEY` constraint predicate.
 
 SQL constraints may be introduced at table creation time in a `CREATE TABLE` statement, or in an `ALTER TABLE` statement:
 
