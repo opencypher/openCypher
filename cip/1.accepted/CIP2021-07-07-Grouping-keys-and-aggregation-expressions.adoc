@@ -1,0 +1,46 @@
+= CIP2015-05-13 Existential subqueries
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Authors:* Andrés Taylor <andres@neotechnology.com>, Hannes Voigt <hannes.voigt@neo4j.com>
+
+
+[abstract]
+.Abstract
+--
+
+--
+
+toc::[]
+
+== Background
+
+
+== Proposal
+
+
+=== Syntax
+
+
+==== Grammar
+
+
+==== Syntax Rules
+
+
+=== Semantics
+
+
+=== Examples
+
+
+== What others do
+
+
+== Benefits to this proposal
+
+
+== Caveats to this proposal
+
