@@ -183,8 +183,10 @@ should produce a result that is grouped by `a` and `agg` should be computed for 
 |===
 |a|agg
 
-|1|32 //(1 + (2*3 + 3*4) - 3) * 2
-|2|24 //(2 + (3*5) - 5) * 2
+|1|32
+//(1 + (2*3 + 3*4) - 3) * 2
+|2|24
+//(2 + (3*5) - 5) * 2
 |===
 
 // TODO extend rewrite semantics
