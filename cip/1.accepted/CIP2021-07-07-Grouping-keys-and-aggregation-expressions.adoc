@@ -19,37 +19,9 @@ toc::[]
 
 === Problem
 
-Cypher allows grouping and aggregating (form here on just referred to as _aggregation_) the driving table in the WITH and in the RETURN clause.
+In this CIP we assume the following baseline semantics as a given and well-defined.
 
-Formally, the aggregation of a driving table _D_ can be described formally as
-pass:q[γ<sub>_K_, _A_</sub>(D)] where
-
-* _K_ is a (possibly empty) set of grouping keys _k_ and every _k_ is a variable in the driving table _D_, and
-* _A_ is a non-empty set of aggregation functions _agg_(_x_)_ where _x_ being a variable in the driving table _D_
-
-The WITH and the RETURN clause also allow projecting the driving table including the computation of new columns (in database theory, this is called extended projection).
-
-The projection of a driving table _D_ can be described formally as pass:q[π<sub>_P_</sub>(D)] where
-
-* _P_ is a nonempty set of pair _(ex, al)_ where
-** _ex_ is a tree of operations of the expression sub-language where each of the leaves is either
-*** a constant (such as a value literal or a label),
-*** a parameter, or
-*** a variable in the driving table _D_; and
-** _al_ is variable name -- also called in _alias_ in this context -- that different from all other variables _x_ with (·, _x_) ∈ _P_.
-
-The WITH and the RETURN clauses also allow renaming, ordering and truncating the driving table, but let's ignore these aspects for now.
-
-The WITH and the RETURN clause denoted the parameters for projection (_P_) and aggregation (_K_ and _A_) with a single nonempty list _L_ of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ProjectionItem[<ProjectionItem>] `_ex_ AS _al_` where _ex_ is an expression and _al_ is an alias.
-The expression of an <ProjectionItem> is allowed to contain aggregation functions.
-Consequently, the semantics of both clause has to specify how _P_, _K_, and _A_ are defined for a given _L_.
-
-It has been documented on multiple occasions (e.g. cf. http://opencypher.org/articles/2017/07/27/ocig1-aggregations-article/[First oCIG Meeting]) the existing semantics or Cypher is imprecise how _P_, _K_, and _A_ are defined for a given _L_.
-This proposal provides a precise semantics.
-
-=== Analysis
-
-Consider a driving table
+We also assume following driving table in examples:
 
 .Example driving table
 |===
@@ -60,15 +32,46 @@ Consider a driving table
 |2|3|5
 |===
 
-and the RETURN clause
+==== Baseline aggregation
 
-.Q1
+Cypher allows grouping and aggregating (form here on just referred to as _aggregation_) the driving table in the WITH and in the RETURN clause.
+
+Formally, the aggregation of a driving table _D_ can be described formally as
+pass:q[γ<sub>_K_, _A_</sub>(_D_)] where
+
+* _K_ is a (possibly empty) set of pairs (_k_, _al_) where
+** _k_ is a variable -- called a _grouping key_ -- in the driving table _D_,
+** _al_ is variable name -- also called an _alias_ -- that different from all other aliases _x_ with (·, _x_) ∈ _K_., and
+* _A_ is a non-empty set of triple (_agg_, _x_, _al_) where
+** _agg_ is an aggregation function and
+** _x_ is a variable in the driving table _D_
+** _al_ is variable name -- also called an _alias_ -- that different from all other aliases _x_ with (·, ·, _x_) ∈ _A_ or _x_ with (·, _x_) ∈ _K_.
+
+Assuming _K_ = {(_k_~1~, _ka_~1~), (_k_~2~, _ka_~1~), ..., (_k~N~_, _ka~N~_)} and _A_ = {(_agg_~1~, _x_~1~, _al_~1~), (_agg_~2~, _x_~2~, _al_~2~), ..., (_agg~M~_, _x~M~_, _al~M~_)}, the Cypher equivalent of pass:q[γ<sub>_K_, _A_</sub>(_D_)] is
+
+[source, cypher, subs="quotes"]
+----
+WITH _k_~1~ AS _ka_~1~, _k_~2~ AS _ka_~2~, ..., _k~N~_ AS _ka~N~_,
+     _agg_~1~(_x_~1~) AS _al_~1~, _agg_~2~(_x_~2~) AS _al_~2~, ..., _agg~M~_(_x~M~_) AS _al~M~_
+----
+
+and
+
+[source, cypher, subs="quotes"]
+----
+RETURN _k_~1~ AS _k_~1~, _k_~2~ AS _k_~2~, ..., _k~N~_ AS _k~N~_,
+       _agg_~1~(_x_~1~) AS _al_~1~, _agg_~2~(_x_~2~) AS _al_~2~, ..., _agg~M~_(_x~M~_) AS _al~M~_
+----
+
+Accordingly
+
+.[[Q1]]Q1
 [source, cypher]
 ----
 RETURN a AS a, SUM(c) AS sumC
 ----
 
-Intuitively, it seems clear that the result should be grouped by `a` and the sum of all `c` should be computed as `sumC` for each group, so that result would be:
+Grouped the driving table by `a` and computes the sum of all `c` as `sumC` for each group, so that result is:
 
 .Result Q1
 |===
@@ -78,34 +81,71 @@ Intuitively, it seems clear that the result should be grouped by `a` and the sum
 |2|5
 |===
 
-The RETURN clause
+==== Baseline projection
 
-.Q2
+The WITH and the RETURN clause also allow projecting the driving table including the computation of new columns (in database theory, this is called extended projection).
+
+The projection of a driving table _D_ can be described formally as π__~P~__(_D_) where
+
+* _P_ is a nonempty set of pairs (_ex_, _al_) where
+** _ex_ is a tree of operations of the expression sub-language where each of the leaves is either
+*** a constant (such as a value literal or a label),
+*** a parameter, or
+*** a variable in the driving table _D_; and
+** _al_ is an _alias_ that different from all other aliases _x_ with (·, _x_) ∈ _P_.
+
+Assuming _P_ = {(_ex_~1~, _al_~1~), (_ex_~2~, _al_~2~), ..., (_ex~N~_, _al~N~_)}, the Cypher equivalent of π__~P~__(_D_) is
+
+[source, cypher, subs="quotes"]
+----
+WITH _ex_~1~ AS _al_~1~, _ex_~2~ AS _al_~2~, ..., _ex~N~_ AS _al~N~_
+----
+
+and
+
+[source, cypher, subs="quotes"]
+----
+RETURN _ex_~1~ AS _al_~1~, _ex_~2~ AS _al_~2~, ..., _ex~N~_ AS _al~N~_
+----
+
+Accordingly, the RETURN clause
+
+.[[Q2]]Q2
 [source, cypher]
 ----
-RETURN a AS a, SUM(b*c) AS sumBC
+RETURN b-a AS x, b*c AS y
 ----
 
-is intuitively clear in the same way.
-The result should be grouped by `a` and the sum of all products of `b` and `c` should be computed as `sumBC` for each group, so that result would be:
+projects each row in the driving table to `b` minus `a` (as `x`) and the product of `b` and `c` (as `y`), so that result is:
 
 .Result Q2
 |===
-|a|sumBC
+|x|y
 
-|1|18
-|2|15
+|1|6
+|2|12
+|1|15
 |===
 
-Similarly, the RETURN clause
+The WITH and the RETURN clauses also allow ordering and truncating the driving table, but let's ignore these aspects in this CIP.
 
-.Q3
+==== Beyond baseline semantics -- simple rewrite semantics
+
+Cypher's WITH and the RETURN are syntactically more flexible when the two baseline semantics. In particular, they allow mixing aggregation and projection rather freely.
+Specifically, the WITH and the RETURN clause denoted the parameters for projection (_P_) and aggregation (_K_ and _A_) with a single nonempty set _L_ of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ProjectionItem[<ProjectionItem>]s `_ex_ AS _al_` where
+
+* _ex_ is an expression that is allowed to contain aggregation functions and
+* _al_ is an alias.
+
+For instance, the RETURN clause
+
+.[[Q3]]Q3
 [source, cypher]
 ----
 RETURN b-a AS x, SUM(b*c) AS sumBC
 ----
 
-should produce a result that is grouped by `b` minus `a` (as `x`) and the sum of all products of `b` and `c` should be computed as `sumBC` for each group, so that result would be:
+should produce a result that is grouped by `b` minus `a` (as `x`) and the sum of all products of `b` and `c` should be computed as `sumBC` for each group, so that result is:
 
 .Result Q3
 |===
@@ -115,24 +155,29 @@ should produce a result that is grouped by `b` minus `a` (as `x`) and the sum of
 |2|12
 |===
 
-In all three cases, the semantics can be described as follows.
-The set of <ProjectionItem>s _L_ is split in two set _LK_ and _LA_, so that
+The semantics of such an RETURN (and WITH) clause can be described as a rewrite to the two baseline semantics combined by Cypher's linear composition.
 
-* _LA_ are all <ProjectionItem>s `_aggex_ AS _al_` in _L_ that contain an aggregation function, i.e. where _aggex_ is of the form _agg_(_ex_) and _ex_ is a valid expression
-* _LK_ are all remaining <ProjectionItem>s in _L_ but no _LA_, i.e. _LK_ = _L_ - _LA_
+For this purpose, the <ProjectionItem>s in _L_ can be spilt into _aggregates_ and _grouping keys_:
 
-Further
+* A <ProjectionItem> _p_ is an aggregate if it is of the form `_agg_(_ex_) AS _al_`, where
+** _agg_ is an aggregation function,
+** _ex_ is a valid expression, and
+** _al_ is an alias; and
+* A <ProjectionItem> _p_ is a grouping key if is not an aggregate
 
-* For a <ProjectionItem> _p_ = `_ex_ AS _al_`,
-** If _p_ ∈ _LK_
-*** Let `PROJ(_p_)` be `_ex_ AS _al_` and
-*** Let `AGGR(_p_)` be `_al_ AS _al_`
-** If _p_ ∈ _LA_ and _ex_ = _agg_(_x_)
-*** Let `PROJ(_p_)` be `_x_ AS _al_` and
-*** Let `AGGR(_p_)` be `_agg_(_al_) AS _al_`
-* For a set of <ProjectionItem>s _L_ = {_p1_, _p2_, ... _pn_},
-** Let `PROJ(_L_)` be `PROJ(_p1_), PROJ(_p2_), ..., PROJ(_pn_)` and
-** Let `AGGR(_L_)` be `AGGR(_p1_), AGGR(_p2_), ..., AGGR(_pn_)`
+Hence, for a <ProjectionItem> _p_
+
+* If _p_ is of the form `_ex_ AS _al_`
+** Let `PROJ(_p_)` be `_ex_ AS _al_` and
+** Let `AGGR(_p_)` be `_al_ AS _al_`
+* If _p_ is of the form `_agg_(_ex_) AS _al_`
+** Let `PROJ(_p_)` be `_x_ AS _al_` and
+** Let `AGGR(_p_)` be `_agg_(_al_) AS _al_`
+
+Further, for a set of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ... _p~N~_},
+
+* Let `PROJ(_L_)` be `PROJ(_p_~1~), PROJ(_p_~2~), ..., PROJ(_p~N~_)` and
+* Let `AGGR(_L_)` be `AGGR(_p_~1~), AGGR(_p_~2~), ..., AGGR(_p~N~_)`
 
 With this the semantics of `RETURN _L_` can be defined as effectively equivalent to
 
@@ -142,7 +187,7 @@ WITH PROJ(_L_)
 RETURN AGGR(_L_)
 ----
 
-Analoguously, the semantics of `WITH _L_` can be defined as effectively equivalent to
+Analogously, the semantics of `WITH _L_` can be defined as effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
@@ -150,7 +195,7 @@ WITH PROJ(_L_)
 WITH AGGR(_L_)
 ----
 
-For instance, Q3 from above (`RETURN b-a AS x, SUM(b*c) AS sumBC`) can be defined as effectively equivalent to
+For instance, <<Q3>> from above (`RETURN b-a AS x, SUM(b*c) AS sumBC`) can be defined as effectively equivalent to
 
 [source, cypher]
 ----
@@ -158,20 +203,24 @@ WITH b-a AS x, b*c AS sumBC
 RETURN x AS x, SUM(sumBC) AS sumBC
 ----
 
+Let's call this the _simple rewrite semantics_ for the WITH and RETURN clause.
+
+==== Beyond simple rewrite semantics
+
 While this solution works nicely for the considered examples, it is limited.
 Specifically, it only supports aggregation function in expressions of the form `_agg_(_ex_)`.
 
 Cypher, however, also allows aggregation functions in expressions of the form, such as
 
-* `_ex1_ + _agg_(_ex2_)`
-* `_agg_(_ex2_) + _ex1_`
-* `_agg1_(_ex2_) + _ex1_ * _agg1_(_ex3_)`
+* `_ex_~1~ + _agg_(_ex_~2~)`
+* `_agg_(_ex_~1~) + _ex_~2~`
+* `_agg_~1~(_ex_~1~) + _ex~2~_ * _agg_~2~(_ex_~3~)`
 
 However, such expressions may still be sensible and useful.
 
 Consider the RETURN clause
 
-.Q4
+.[[Q4]]Q4
 [source, cypher]
 ----
 RETURN a AS a, (a + SUM(b*c) - MIN(c)) * 2 AS agg
@@ -189,9 +238,61 @@ should produce a result that is grouped by `a` and `agg` should be computed for 
 //(2 + (3*5) - 5) * 2
 |===
 
-// TODO extend rewrite semantics
+It has been documented on multiple occasions (e.g. cf. http://opencypher.org/articles/2017/07/27/ocig1-aggregations-article/[First oCIG Meeting]) the existing semantics or Cypher is imprecise on such queries.
 
-For instance, Q4 from above (`RETURN a AS a, (a + SUM(b*c) - MIN(c)) * 2 AS agg`) can be defined as effectively equivalent to
+This proposal provides a precise semantics.
+
+== Proposal
+
+=== Syntax
+
+_None. -- This proposal does not propose and net-new syntax._
+
+=== Semantics
+
+For a <ProjectionItem> _p_ = `_postEx_ AS _al_`, let _AGG_(_p_) be the set of (sub-)expressions _aggex_ of the form _agg_(_preEx_).
+
+The set of <ProjectionItem>s _L_ is split according to _AGG_(_p_) in two cases
+
+* <ProjectionItem>s _p_ in _L_ where _AGG_(_p_) is non-empty
+* <ProjectionItem>s _p_ in _L_ where _AGG_(_p_) is empty
+
+Hence, for a <ProjectionItem> _p_ = `_ex_ AS _al_`,
+
+* If _AGG_(_p_) = ∅
+** Let `PRE_PROJ(_p_)` be `_ex_ AS _al_`,
+** Let `AGGR(_p_)` be `_al_ AS _al_`, and
+** Let `POST_PROJ(_p_)` be `_al_ AS _al_`
+* If _AGG_(_p_) = {`_agg_~1~(_preEx_~1~)`, `_agg_~2~(_preEx_~2~)`, ..., `_aggN_(_preEx_~N~)`} with _N_ > 0
+** Let `PRE_PROJ(_p_)` be `_preEx_~1~ AS _al_+++_+++1, _preEx_~2~ AS _al_+++_+++2, ..., _preEx~N~_ AS _al_+++_+++_N_`,
+** Let `AGGR(_p_)` be `_agg_~1~(_al_+++_+++1) AS _al_+++_+++1, _agg_~2~(_al_+++_+++2) AS _al_+++_+++2, ..., _agg~N~_(_al_+++_+++_N_ AS _al_+++_+++_N_`, and
+** Let `POST_PROJ(_p_)` be `_postEx_ AS _al_` where _postEx_ is _ex_ with each `_agg~i~_(_preEx~i~_)` in _AGG_(_p_) being replaced by `_al_+++_+++_i_` for 1 ≤ _i_ ≤ _N_.
+
+Further, for a set of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ... _p~N~_},
+
+* Let `PRE_PROJ(_L_)` be `PRE_PROJ(_p_~1~), PRE_PROJ(_p_~2~), ..., PRE_PROJ(_p~N~_)`,
+* Let `AGGR(_L_)` be `AGGR(_p_~1~), AGGR(_p_~2~), ..., AGGR(_p~N~_)`, and
+* Let `POST_PROJ(_L_)` be `POST_PROJ(_p_~1~), POST_PROJ(_p_~2~), ..., POST_PROJ(_p~N~_)`.
+
+With this the semantics of `RETURN _L_` can be defined as effectively equivalent to
+
+[source, cypher, subs="quotes"]
+----
+WITH PRE_PROJ(_L_)
+WITH AGGR(_L_)
+RETURN POST_PROJ(_L_)
+----
+
+Analogously, the semantics of `WITH _L_` can be defined as effectively equivalent to
+
+[source, cypher, subs="quotes"]
+----
+WITH PRE_PROJ(_L_)
+WITH AGGR(_L_)
+WITH POST_PROJ(_L_)
+----
+
+For instance, <<Q4>> from above (`RETURN a AS a, (a + SUM(b*c) - MIN(c)) * 2 AS agg`) can be defined as effectively equivalent to
 
 [source, cypher]
 ----
@@ -200,22 +301,7 @@ WITH a AS a, SUM(agg_1) AS agg_1, MIN(agg_2) AS agg_2
 RETURN a AS a, (a + agg_1 - agg_2) * 2 AS agg
 ----
 
-== Proposal
-
-
-
-
-=== Syntax
-
-
-==== Grammar
-
-
-==== Syntax Rules
-
-
-=== Semantics
-
+// TODO syntactic restriction implied by this semantics
 
 === Examples
 
