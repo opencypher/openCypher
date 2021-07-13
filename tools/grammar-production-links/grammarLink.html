@@ -36,7 +36,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         if(urlParams.has('p')) {
             const production = urlParams.get('p');
-            const searchTerm = 'name="' + production;
+            const searchTerm = 'name="' + production + '"';
             for(const file of githubOCGrammarFiles) {
                 document.body.innerHTML += 'searching for &lt;' + production + '&gt; in ' + file + ' ...</br>'
                 const request = new XMLHttpRequest();
