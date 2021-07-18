@@ -25,47 +25,16 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.tools.tck
+package org.opencypher.tools.tck.api.events.mutable
 
-import org.opencypher.tools.tck.api.Scenario
-import org.opencypher.tools.tck.api.groups.ContainerGroup
-import org.opencypher.tools.tck.api.groups.Group
-import org.opencypher.tools.tck.api.groups.Item
-import org.opencypher.tools.tck.api.groups.Tag
-import org.opencypher.tools.tck.api.groups.TckTree
-import org.opencypher.tools.tck.api.groups.Total
-import org.scalatest.OptionValues
-import org.scalatest.ParallelTestExecution
-import org.scalatest.funspec.AsyncFunSpec
-import org.scalatest.matchers.should.Matchers
-
-import scala.concurrent.Future
-
-trait ScenarioFormatChecker extends AsyncFunSpec with Matchers with OptionValues with ValidateScenario with ParallelTestExecution {
-
-  def create(scenarios: Seq[Scenario]): Unit = {
-
-    implicit val tck: TckTree = TckTree(scenarios)
-
-    def spawnTests(currentGroup: Group): Unit = {
-      currentGroup match {
-        case Total =>
-          Total.children.toSeq.sorted.foreach(spawnTests)
-        case _: Tag => ()
-        case g: ContainerGroup =>
-          describe(g.description) {
-            g.children.toSeq.sorted.foreach(spawnTests)
-          }
-        case i: Item =>
-          it(i.description) {
-            Future {
-              validateScenario(i.scenario)
-            }
-          }
-        case _ => ()
-      }
-    }
-
-    spawnTests(Total)
-  }
+/** `Subscriber[A, B]` objects may subscribe to events of type `A`
+ *  published by an object of type `B`. `B` is typically a subtype of
+ *  [[scala.collection.mutable.Publisher]].
+ *
+ *  @author  Matthias Zenger
+ *  @author  Martin Odersky
+ *  @since   1
+ */
+trait Subscriber[-Evt, -Pub] {
+  def notify(pub: Pub, event: Evt): Unit
 }

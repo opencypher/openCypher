@@ -106,7 +106,7 @@ object CypherTCK {
       try {
         fs.foreach(_.close())
       } catch {
-        case _: UnsupportedOperationException => Unit
+        case _: UnsupportedOperationException => ()
       }
     }
   }
@@ -121,7 +121,7 @@ object CypherTCK {
     parseFeature(featureFile, featureString, categories)
   }
 
-  def parseFeature(featureFile: Path, featureString: String, categories: Seq[String]): Feature = {
+  def parseFeature(featureFile: Path, featureString: String, categories: collection.Seq[String]): Feature = {
 
     case class NameExtractedPickle(pickle: gherkin.Pickle, nameAndNumber: String, exampleName: Option[String])
 
@@ -180,7 +180,7 @@ object CypherTCK {
     }
   }
 
-  private def toScenario(categories: Seq[String], featureName: String, nameAndNumber: String, exampleIndex: Option[Int], exampleName: Option[String], pickle: io.cucumber.core.gherkin.Pickle, sourceFile: Path): Scenario = {
+  private def toScenario(categories: collection.Seq[String], featureName: String, nameAndNumber: String, exampleIndex: Option[Int], exampleName: Option[String], pickle: io.cucumber.core.gherkin.Pickle, sourceFile: Path): Scenario = {
 
     val tags = tagNames(pickle)
     val shouldValidate = !tags.contains(TCKTags.ALLOW_CUSTOM_ERRORS)

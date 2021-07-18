@@ -120,9 +120,9 @@ case class BrowserRoutes()(implicit val log: cask.Logger) extends cask.Routes wi
               dt("Command"),
               dd(code(cmd)),
               dt("stdout"),
-              dd(code(out.flatMap(line => Seq[Frag](line, br())).dropRight(1))),
+              dd(code(out.flatMap(line => Seq[Frag](line, br())).dropRight(1).toSeq)),
               dt("stderr"),
-              dd(code(err.flatMap(line => Seq[Frag](line, br())).dropRight(1))),
+              dd(code(err.flatMap(line => Seq[Frag](line, br())).dropRight(1).toSeq)),
               dt("exit code"),
               dd(code(x))
             )

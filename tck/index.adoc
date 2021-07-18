@@ -15,6 +15,7 @@ Within each member, there are additional categories.
 * Call2 - Procedure arguments
 * Call3 - Assignable-type arguments
 * Call4 - Null Arguments
+* Call5 - Results projection
 * Call6 - Call clause interoperation with other clauses
 
 === Create
@@ -24,7 +25,7 @@ Within each member, there are additional categories.
 * Create3 - Interoperation with other clauses
 * Create4 - Large Create Query
 * Create5 - Multiple hops create patterns
-* Create6 - Create clause interoperation with other clauses
+* Create6 - Persistence of create clause side effects
 
 === Delete
 
@@ -33,7 +34,7 @@ Within each member, there are additional categories.
 * Delete3 - Deleting named paths
 * Delete4 - Delete clause interoperation with other clauses
 * Delete5 - Delete clause interoperation with built-in data types
-* Delete6 - Negative scenarios
+* Delete6 - Persistence of delete clause side effects
 
 === Match
 
@@ -72,6 +73,7 @@ Within each member, there are additional categories.
 
 * Remove1 - Remove a Property
 * Remove2 - Remove a Label
+* Remove3 - Persistence of remove clause side effects
 
 === Return
 
@@ -105,6 +107,7 @@ Within each member, there are additional categories.
 * Set3 - Set a Label
 * Set4 - Set all properties with a map
 * Set5 - Set multiple properties with a map
+* Set6 - Persistence of set clause side effects
 
 === Union
 
@@ -128,8 +131,10 @@ Within each member, there are additional categories.
 
 === With-order By
 
+* WithOrderBy1 - Order by a single variable
 * WithOrderBy2 - Order by a single expression
-* WithOrderBy4 - Order by in combination with projection
+* WithOrderBy3 - Order by multiple expressions
+* WithOrderBy4 - Order by in combination with projection and aliasing
 
 === With-skip-limit
 
@@ -182,8 +187,7 @@ Within each member, there are additional categories.
 * Graph6 - Static property access
 * Graph7 - Dynamic property access
 * Graph8 - Property keys function
-* Graph9 - Property existence check
-* Graph10 - Retrieve all properties as a property map
+* Graph9 - Retrieve all properties as a property map
 
 === List
 
@@ -213,7 +217,6 @@ Within each member, there are additional categories.
 * Map1 - Static value access
 * Map2 - Dynamic Value Access
 * Map3 - Keys function
-* Map4 - Field existence check
 
 === Mathematical
 
@@ -237,7 +240,7 @@ Within each member, there are additional categories.
 
 === Pattern
 
-* Pattern3 - Pattern Comprehension
+* Pattern2 - Pattern Comprehension
 
 === String
 

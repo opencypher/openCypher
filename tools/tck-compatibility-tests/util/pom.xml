@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tck-compatibility-tests-util_2.12</artifactId>
+    <artifactId>tck-compatibility-tests-util_2.13</artifactId>
     <name>openCypher TCK Compatibility Tests</name>
     <url>http://opencypher.org</url>
     <description>Tools for running openCypher TCK scenarios on implementations</description>

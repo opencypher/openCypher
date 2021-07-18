@@ -34,11 +34,11 @@
     <dep.junit.platform.version>1.7.0</dep.junit.platform.version>
     <dep.junit.version>5.7.0</dep.junit.version>
     <dep.maven.compiler.plugin.version>3.8.1</dep.maven.compiler.plugin.version>
-    <dep.maven.javadoc.plugin.version>3.2.0</dep.maven.javadoc.plugin.version>
+    <dep.maven.javadoc.plugin.version>3.3.0</dep.maven.javadoc.plugin.version>
     <dep.maven.source.plugin.version>3.2.1</dep.maven.source.plugin.version>
     <dep.maven.surefire.plugin.version>2.22.2</dep.maven.surefire.plugin.version>
-    <dep.scala.maven.plugin.version>3.4.4</dep.scala.maven.plugin.version>
-    <dep.scala.version>2.12.10</dep.scala.version>
+    <dep.scala.maven.plugin.version>4.5.3</dep.scala.maven.plugin.version>
+    <dep.scala.version>2.13.4</dep.scala.version>
     <dep.scalatest.version>3.2.2</dep.scalatest.version>
     <dep.scalatest.runner.version>0.1.8</dep.scalatest.runner.version>
     <dep.xmlgraphics-commons.version>2.4</dep.xmlgraphics-commons.version>
@@ -52,7 +52,7 @@
     <maven.compiler.target>11</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.rootdir>${project.basedir}</project.rootdir>
-    <scala.binary.version>2.12</scala.binary.version>
+    <scala.binary.version>2.13</scala.binary.version>
     <test.runner.jvm/>
     <test.runner.jvm.settings.additional/>
     <test.runner.jvm.settings>

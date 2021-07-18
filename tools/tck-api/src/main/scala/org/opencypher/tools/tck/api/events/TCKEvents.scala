@@ -33,8 +33,6 @@ import java.util.UUID
 import org.opencypher.tools.tck.api.Graph.Result
 import org.opencypher.tools.tck.api.{Scenario, Step}
 
-import scala.collection.mutable
-
 /** Publishes TCK scenario execution events.
   *
   * The available event sources are:

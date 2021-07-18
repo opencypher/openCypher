@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tck-integrity-tests_2.12</artifactId>
+    <artifactId>tck-integrity-tests_2.13</artifactId>
     <name>openCypher TCK Integrity Tests</name>
     <url>http://opencypher.org</url>
     <description>openCypher Technology Compatibility Kit Integrity Tests</description>

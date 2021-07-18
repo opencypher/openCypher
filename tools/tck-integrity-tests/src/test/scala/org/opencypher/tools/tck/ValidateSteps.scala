@@ -64,7 +64,7 @@ trait ValidateSteps extends AppendedClues with Matchers with OptionValues with V
       case (_: ExpectResult, _) => numberOfExpectResultSteps += 1
       case (se: SideEffects, _) if se.source.getType == StepType.AND => numberOfExplicitSideEffectSteps += 1
       case (se: SideEffects, _) if se.source.getType == StepType.THEN => numberOfImplicitSideEffectSteps += 1
-      case _ => Unit
+      case _ => ()
     }
 
     withClue("scenario has exactly one `When executing query` steps") {

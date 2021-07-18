@@ -33,7 +33,7 @@ import org.opencypher.tools.tck.api.Scenario
 import scala.collection.mutable.ArrayBuffer
 import scala.sys.process._
 
-case class ProcessReturn(exitCode: Int, out: Seq[String], err: Seq[String], cmd: String)
+case class ProcessReturn(exitCode: Int, out: collection.Seq[String], err: collection.Seq[String], cmd: String)
 
 object CallingSystemProcesses {
 

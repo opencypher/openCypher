@@ -98,7 +98,7 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
       }
       describe("has every group, except Total, indented one more than their parent group so that") {
         tckTree.groups foreach {
-          case Total => Unit
+          case Total => ()
           case g =>
             it(s"group $g is indented one more than ${g.parent}") {
               g.indent should equal(g.parent.get.indent + 1)
@@ -113,7 +113,7 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
                 case _:ScenarioCategory | Total =>
               }
             }
-          case _ => Unit
+          case _ => ()
         }
       }
       describe("has every Feature group with a parent group which is a ScenarioCategory or Total so that") {
@@ -123,7 +123,7 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
               case _:ScenarioCategory | Total =>
             }
           }
-          case _ => Unit
+          case _ => ()
         }
       }
       describe("has every ScenarioItem group and ScenarioOutline group with a parent group which is a Feature or a Tag so that") {
@@ -140,7 +140,7 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
                 case _:Feature | _:Tag =>
               }
             }
-          case _ => Unit
+          case _ => ()
         }
       }
       describe("has every ExampleItem group with a parent group which is a ScenarioOutline so that") {
@@ -151,7 +151,7 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
                 case _:ScenarioOutline =>
               }
             }
-          case _ => Unit
+          case _ => ()
         }
       }
       describe("has every Tag group with a parent group which is Total so that") {
@@ -160,7 +160,7 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
             it(s"Tag group $t has a parent which is Total") {
               t.parent.value shouldBe Total
             }
-          case _ => Unit
+          case _ => ()
         }
       }
       describe("has every Item group grouping exactly the single scenario referenced in the group object so that") {
@@ -169,7 +169,7 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
             it(s"Item group $i groups its and only its scenario") {
               tckTree.groupedScenarios(i) should equal(Set(i.scenario))
             }
-          case _ => Unit
+          case _ => ()
         }
       }
     }

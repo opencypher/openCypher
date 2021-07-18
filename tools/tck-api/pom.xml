@@ -10,7 +10,7 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>tck-api_2.12</artifactId>
+  <artifactId>tck-api_2.13</artifactId>
   <name>openCypher TCK API</name>
   <url>http://opencypher.org</url>
   <description>openCypher Technology Compatibility Kit API</description>
