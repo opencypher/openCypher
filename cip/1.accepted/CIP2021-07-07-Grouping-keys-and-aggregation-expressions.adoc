@@ -10,18 +10,17 @@
 [abstract]
 .Abstract
 --
-
+This CIP clarifies the semantics of grouping and aggregation functionality in the WITH and the RETURN clause of Cypher.
 --
 
 toc::[]
 
 == Background
 
-=== Problem
-
 In this CIP we assume the following baseline semantics as a given and well-defined.
+Further, we consider a simple rewrite semantics for grouping and aggregation, that lays the foundation for the rewrite semantics that is proposed in the <<Proposal>> section of this CIP.
 
-We also assume following driving table in examples:
+We also use following driving table in most of the CIP's examples:
 
 .Example driving table
 |===
@@ -32,7 +31,7 @@ We also assume following driving table in examples:
 |2|3|5
 |===
 
-==== Baseline aggregation
+=== Baseline aggregation
 
 Cypher allows grouping and aggregating (form here on just referred to as _aggregation_) the driving table in the WITH and in the RETURN clause.
 
@@ -83,7 +82,7 @@ Grouped the driving table by `a` and computes the sum of all `c` as `sumC` for e
 |===
 ====
 
-==== Baseline projection
+=== Baseline projection
 
 The WITH and the RETURN clause also allow projecting the driving table including the computation of new columns (in database theory, this is called extended projection).
 
@@ -134,7 +133,7 @@ projects each row in the driving table to `b` minus `a` (as `x`) and the product
 
 The WITH and the RETURN clauses also allow ordering and truncating the driving table, but let's ignore these aspects in this CIP.
 
-==== Beyond baseline semantics -- simple rewrite semantics[[simpleRewrite]]
+=== Beyond baseline semantics -- simple rewrite semantics[[simpleRewrite]]
 
 Cypher's WITH and the RETURN are syntactically more flexible when the two baseline semantics.
 In particular, they allow mixing aggregation and projection rather freely.
@@ -188,7 +187,7 @@ Further, for a set of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ... _p~N~_},
 * Let `PROJ(_L_)` be `PROJ(_p_~1~), PROJ(_p_~2~), ..., PROJ(_p~N~_)` and
 * Let `AGGR(_L_)` be `AGGR(_p_~1~), AGGR(_p_~2~), ..., AGGR(_p~N~_)`
 
-With this the semantics of `RETURN _L_` can be defined as effectively equivalent to
+With this, `RETURN _L_` can be defined as effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
@@ -196,7 +195,7 @@ WITH PROJ(_L_)
 RETURN AGGR(_L_)
 ----
 
-Analogously, the semantics of `WITH _L_` can be defined as effectively equivalent to
+Analogously, `WITH _L_` can be defined as effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
@@ -204,16 +203,18 @@ WITH PROJ(_L_)
 WITH AGGR(_L_)
 ----
 
+Let's call this the _simple rewrite semantics_ for the WITH and RETURN clause.
+
 .Simple rewrite semantics
 ====
-With this semantics, the RETURN clause in <<Q3>>
+With the simple rewrite semantics, the RETURN clause in <<Q3>>
 
 [source, cypher]
 ----
 RETURN b-a AS x, SUM(b*c) AS sumBC`)
 ----
 
-is defined as effectively equivalent to
+is effectively equivalent to
 
 [source, cypher]
 ----
@@ -222,9 +223,7 @@ RETURN x AS x, SUM(sumBC) AS sumBC
 ----
 ====
 
-Let's call this the _simple rewrite semantics_ for the WITH and RETURN clause.
-
-==== Beyond simple rewrite semantics
+=== Beyond simple rewrite semantics
 
 While this solution works nicely for the considered examples, it is limited.
 Specifically, it only supports aggregation function in expressions of the form `_agg_(_ex_)`.
@@ -293,13 +292,15 @@ _None. -- This proposal does not propose and net-new syntax._
 
 === Semantics
 
-The proposed semantics defined as a rewrite to the baseline semantics (similar to <<simpleRewrite,simple rewrite semantics>> discussed above).
+The proposed grouping and aggregation semantics is defined as a rewrite to the baseline semantics (similar to <<simpleRewrite,simple rewrite semantics>> discussed above).
 The proposed semantics does not cover all queries and hence implies a syntax restriction to rule out queries that are not covered.
 We discuss the rewrite and the syntax restriction in the follow two subsections.
 
 ==== Rewrite
 
-For a <ProjectionItem> _p_ = `_postEx_ AS _al_`, let _AGG_(_p_) be the set of (sub-)expressions _aggex_ of the form _agg_(_preEx_).
+For an expression _ex_, let _AGG_(_ex_) be the set of (sub-)expressions _aggex_ of the form _agg_(_preEx_).
+
+For a <ProjectionItem> _p_ = `_postEx_ AS _al_`, let _AGG_(_p_) be the set of (sub-)expressions _aggex_ of the form _agg_(_preEx_), i.e. _AGG_(_p_) = _AGG_(_postEx_).
 
 The set of <ProjectionItem>s _L_ is split according to _AGG_(_p_) in two cases
 
@@ -323,7 +324,10 @@ Further, for a set of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ... _p~N~_},
 * Let `AGGR(_L_)` be `AGGR(_p_~1~), AGGR(_p_~2~), ..., AGGR(_p~N~_)`, and
 * Let `POST_PROJ(_L_)` be `POST_PROJ(_p_~1~), POST_PROJ(_p_~2~), ..., POST_PROJ(_p~N~_)`.
 
-With this the semantics of `RETURN _L_` can be defined as effectively equivalent to
+[IMPORTANT]
+.Rewrite semantics
+====
+`RETURN _L_` is effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
@@ -332,7 +336,7 @@ WITH AGGR(_L_)
 RETURN POST_PROJ(_L_)
 ----
 
-Analogously, the semantics of `WITH _L_` can be defined as effectively equivalent to
+Analogously, `WITH _L_` is effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
@@ -340,17 +344,18 @@ WITH PRE_PROJ(_L_)
 WITH AGGR(_L_)
 WITH POST_PROJ(_L_)
 ----
+====
 
 .Rewrite semantics
 ====
-With this semantics, the RETURN clause in <<Q4>>
+The RETURN clause in <<Q4>>
 
 [source, cypher]
 ----
 RETURN a AS a, (a + SUM(b*c) - MIN(c)) * 2 AS agg
 ----
 
-is defined as effectively equivalent to
+is effectively equivalent to
 
 [source, cypher]
 ----
@@ -360,7 +365,7 @@ RETURN a AS a, (a + foo_1 - foo_2) * 2 AS foo
 ----
 ====
 
-Note that the semantics proposed here also provides for the mixing of projection and aggregation that the <<simpleRewrite,simple rewrite semantics>> covers, i.e. it is a generalization of the simple rewrite semantics.
+Note that the grouping and aggregation semantics also provides for the mixing of projection and aggregation that the <<simpleRewrite,simple rewrite semantics>> covers, i.e. it is a generalization of the simple rewrite semantics.
 
 .Rewrite semantics on simple mixing of projection and aggregation
 ====
@@ -371,7 +376,7 @@ The RETURN clause in <<Q3>>
 RETURN b-a AS x, SUM(b*c) AS sumBC
 ----
 
-is defined as effectively equivalent to
+is effectively equivalent to
 
 [source, cypher]
 ----
@@ -384,11 +389,19 @@ RETURN x AS x, sumBC_1 AS sumBC
 ==== Syntax restriction
 
 The rewrite does not cover all syntactically possible queries.
+Specifically, any <ProjectItems> containing
+
+* an aggregation function and
+* a sub-expression that is
+** outside any contained aggregation function and
+** not constant under the grouping keys
+
+is not rewritten to valid query.
 
 .Aggregation *not* covered by the rewrite
 ====
 
-By the proposed semantics, the RETURN clause
+By the grouping and aggregation semantics, the RETURN clause
 
 .[[Q6]]Q6
 [source, cypher]
@@ -396,7 +409,7 @@ By the proposed semantics, the RETURN clause
 RETURN a AS a, b + SUM(c) * 2 AS foo
 ----
 
-is defined as effectively equivalent to
+is effectively equivalent to
 
 [source, cypher]
 ----
@@ -410,24 +423,181 @@ However, variable `b` has already by removed from the driving table by the previ
 In other words, the proposed rewrite produce invalid query text for <<Q6>>.
 ====
 
+To prevent such invalid rewrites, this CIP imposes a syntax restriction on RETURN and WITH clauses.
 
+Given a set of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ... _p~N~_}, let GROUPING_KEYS(_L_) be the set of all expressions and _ex_ and aliases _a_ in <ProjectionItem>s _p_ = `_ex_ AS _a_` in _L_ where _AGG_(_p_) is empty.
 
-// TODO syntactic restriction implied by this semantics
-// - as in https://trello-attachments.s3.amazonaws.com/5b484b125e3c6d756d136739/5ff70a2eb9fa9c57a9dbdc1e/dd4878f225c6facb6e40d700a3bbde7b/Implementation_report.pdf
-// -> The non-aggregating sub-expressions of an expression that contains an aggregation MUST be garanteed to be constant under the grouping key.
-// An implementation expected to detect by any of following situation
-// - The whole sub-expression is part of the explicitly projected grouping key (under left-associative parsing)
-// - Each operand in the sub-expression is either:
-//   - Part of the grouping key from being projected explicitly
-//   - A constant
-//   - A parameter
+For an expression _ex_ and projection list _L_, let CONSTANT(_ex_) hold
 
+* If _ex_ is either
+** A aggregation function, i.e. of the form `_agg_(_subEx_)`,
+** A grouping key (either expression or alias), i.e. _o_ ∈ GROUPING_KEYS(_L_),
+** A constant,
+** A parameter
+* or if _ex_ comprises of sub-expression, it only comprises sub-expression _subEx_ for which CONSTANT(_subEx_) holds.
+
+[IMPORTANT]
+.Syntax restriction
+====
+For clauses `WITH _L_` and `RETURN _L_` and every _p_ = `_ex_ AS _a_` in _L_ where _AGG_(_p_) is not empty, CONSTANT(_ex_) shall hold.
+====
+
+.Effect of the restriction
+====
+Under this restriction, <<Q6>> is invalid.
+For sub-expression `b` in <ProjectionItem> `b + foo_1 * 2 AS foo`, _CONSTANT_(`b`) does not hold, since `b` is neither a aggregation function, a grouping key, a constant, a parameter, nor has it any sub-expressions.
+====
+
+==== Column order
+
+The rewrite of grouping and aggregation semantics is defined based on sets.
+In the RETURN clause the _L_ is not a set but a list, though.
+However, _L_ is always a list of distinct <ProjectionItem>s since Cypher does not allow repeating the same alias within a list of <ProjectionItem>s.
+As it is straightforward and obvious how to correctly maintain the column order in the rewrite, it is not further elaborated here.
+
+==== Row ordering and pagination
+
+The WITH and the RETURN clause allow to
+
+* order the rows of the result table with the ORDER BY sub-clause and
+* paginate the result table with the SKIP and LIMIT sub-clauses.
+
+Assuming, the baseline semantics includes ORDER BY, SKIP, and LIMIT capabilities, the grouping and aggregation semantics extends a follows:
+
+[IMPORTANT]
+====
+`RETURN _L_ _ORDER-SKIP-LIMIT_` is effectively equivalent to
+
+[source, cypher, subs="quotes"]
+----
+WITH PRE_PROJ(_L_)
+WITH AGGR(_L_)
+RETURN POST_PROJ(_L_) _ORDER-SKIP-LIMIT_
+----
+
+Analogously, `WITH _L_ _ORDER-SKIP-LIMIT_` is effectively equivalent to
+
+[source, cypher, subs="quotes"]
+----
+WITH PRE_PROJ(_L_)
+WITH AGGR(_L_)
+WITH POST_PROJ(_L_) _ORDER-SKIP-LIMIT_
+----
+====
+
+The https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=SortItem[<SortItem>]s in ORDER BY clause contain an expression.
+Since these expressions are effectively evaluate at the same time as all POST_PROJ(_L_) expressions, the syntax restrictions applies.
+
+[IMPORTANT]
+====
+For `WITH _L_ ORDER BY _SI_` and `RETURN _L_ ORDER BY _SI_` and every _ex_ directly contained in a <SortItem> in _SI_, CONSTANT(_ex_) shall hold.
+====
+
+==== Aliasing
+
+This proposal considers all projects have user-given alias.
+Cypher allows to omit the aliases, particularly in the RETURN clause, though.
+However, the alias omission rules are based on the assumptions that an implementation will infer a more or less reasonable alias if the alias is omitted.
+Hence, it is safe for this proposal to assume that all <ProjectionItem>s have an alias.
 
 === Examples
 
+==== Queries valid under the grouping and aggregation semantics
+
+The following clauses are valid under the grouping and aggregation semantics and the syntax restriction it includes.
+For each example we list why it is valid.
+
+. `RETURN 1 + count(*)`
+* The sub-expression `1` is a constant.
+
+. `RETURN 1, 1 + count(*)`
+* The sub-expression `1` is a constant.
+
+. `RETURN $x + count($x)`
+* The sub-expression `$x` is a parameter.
+
+. `RETURN count($x) + $x`
+* The sub-expression `$x` is a parameter.
+
+. `RETURN 1 + count($x) + $x * 7 + sum($x) + 'cake'`
+* The sub-expressions `1`, `2`, and `'cake'` are constants.
+* The sub-expression `$x` is a parameter.
+
+. `MATCH (a) RETURN a.x, 1 + count(a.x)`
+* The sub-expression `1` is a constant.
+
+. `MATCH (a) RETURN a.x, a.x + count(a.x)`
+* The sub-expression `a.x` is a grouping key.
+
+. `MATCH (a) WITH a.x AS ax RETURN ax, ax + count(ax)`
+* The sub-expression `ax` is a grouping key.
+
+. `MATCH (x) RETURN x.a, x.b, x.c, x.a + x.b + count(x) + x.c`
+* The sub-expressions `x.a`, `x.b`, and `x.c` are grouping keys.
+
+. `MATCH (a) RETURN a.x + 1, a.x + 1 + count(a.x)`
+* The sub-expression `a.x + 1` is a grouping key.
+
+. `MATCH (a) WITH a.x + 1 as ax RETURN ax, ax - 1 + count(ax)`
+* The sub-expression `ax` is a grouping key.
+* The sub-expression `1` is a constant.
+
+. `WITH {a:1, b:2} AS map RETURN map.a, map.a + count(map.b)`
+* The sub-expression `map.a` is a grouping key.
+
+. `MATCH (x) RETURN x.a + x.b + x.c, x.a + x.b + x.c + count(x)`
+* The sub-expression `x.a + x.b + x.c` is a grouping key.
+
+. `MATCH (x) WITH x.a + x.b + x.c AS sum RETURN sum, sum + count(*) + sum`
+* The sub-expression `sum` is a grouping key.
+
+==== Queries invalid under the grouping and aggregation semantics
+
+The following clauses are invalid under the grouping and aggregation semantics and the syntax restriction it includes.
+For each example we list why it is invalid.
+
+. `MATCH (a) RETURN a.x + count(*)`
+* The sub-expression `a.x` is not a grouping key.
+
+. `MATCH (a) RETURN a.x + a.y + count(*) + a.z`
+* The sub-expressions `a.x + a.y` and `a.z` are not grouping keys.
+
+. `MATCH (a) WITH a.x AS ax, a.y AS ay RETURN ax, count(ax) + ay`
+* The sub-expression `ay` is not a grouping key.
+
+. `MATCH path=(a)-[*]-() RETURN length(path) + count(a)`
+* The sub-expression `length(path)` is not a grouping key.
+
+. `WITH {a:1, b:2} AS map RETURN map.a, map.b + count(map.b)`
+* The sub-expression `map.b` is not a grouping key.
+
+. `MATCH (a) RETURN a.x + a.y, a.x + collect(a.x)`
+* The sub-expression `a.x` is not a grouping key.
+
+. `MATCH (a) RETURN a.x * a.x, a.x + collect(a.x)`
+* The sub-expression `a.x` is not a grouping key.
 
 == What others do
 
+All other major query language explicitly delineate grouping key expressions.
+
+For instance, SQL does so by requiring users to list all grouping key expressions in the GROUP BY clause.
+If the GROUP BY clause is present in a query, the projection in the SELECT clause have to fulfill a similar syntax restriction as defined by this CIP.
+The SQL-equivalent of <<Q6>>
+
+[source, sql]
+----
+SELECT a AS a, b + SUM(c) * 2 AS foo
+FROM A
+GROUP BY a
+----
+
+is invalid in SQL as well.
+For instance, PostgreSQL v13 rejects this query with
+
+----
+error: column "a.b" must appear in the GROUP BY clause or be used in an aggregate function
+----
 
 == Benefits to this proposal
 
