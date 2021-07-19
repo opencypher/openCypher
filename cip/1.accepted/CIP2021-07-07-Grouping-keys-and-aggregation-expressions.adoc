@@ -601,6 +601,36 @@ error: column "a.b" must appear in the GROUP BY clause or be used in an aggregat
 
 == Benefits to this proposal
 
+The main advantage of this proposal is, that is clarifies the semantics of grouping and aggregation in the WITH and the RETURN clause and removes imprecision of the previously existing semantics (cf. http://opencypher.org/articles/2017/07/27/ocig1-aggregations-article/[First oCIG Meeting]).
 
 == Caveats to this proposal
 
+From a pure logical standpoint, the syntax restriction only has to rule out sub-expressions of aggregating projection items, which are not constant under the grouping keys.
+However, statically inferring all possible constant sub-expressions is not necessarily easy.
+To this effect, the proposed rules of the syntax restriction are a heuristic, which safely identifies sub-expression that are constant under the grouping keys, but can not identify all such expression theoretically possible.
+
+.Logically correct aggregation ruled out by the syntax restriction
+====
+
+The RETURN clause
+
+.[[Q7]]Q7
+[source, cypher]
+----
+RETURN a AS a, (b - b) + SUM(c) AS foo
+----
+
+is ruled out by the syntax restriction, although sub-expression `(b - b)` is effectively constant.
+It is imaginable that an semantic analyser may figure that `(b - b)` can be simplified to `0` if `b` is know to be numeric, so that the clause effectively is equivalent to
+
+[source, cypher]
+----
+RETURN a AS a, SUM(c) AS foo
+----
+
+which is perfectly valid.
+====
+
+The proposal tries to strike a balance between allowing good number of useful queries while keeping the rules of the syntax restrict reasonable simple.
+
+Also note: For queries that are logically possible but rejected by the syntax restriction, users can always manually rewrite the query with additional explicit projections to make the query syntactically valid while it still produces the desired result.
