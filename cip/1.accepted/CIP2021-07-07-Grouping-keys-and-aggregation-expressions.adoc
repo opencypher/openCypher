@@ -621,7 +621,7 @@ RETURN a AS a, (b - b) + SUM(c) AS foo
 ----
 
 is ruled out by the syntax restriction, although sub-expression `(b - b)` is effectively constant.
-It is imaginable that an semantic analyser may figure that `(b - b)` can be simplified to `0` if `b` is know to be numeric, so that the clause effectively is equivalent to
+It is imaginable that a semantic analyser may figure that `(b - b)` can be simplified to `0` if `b` is know to be numeric, so that the clause effectively is equivalent to
 
 [source, cypher]
 ----
