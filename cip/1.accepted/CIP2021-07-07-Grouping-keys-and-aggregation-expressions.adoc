@@ -133,7 +133,7 @@ projects each row in the driving table to `b` minus `a` (as `x`) and the product
 
 The WITH and the RETURN clauses also allow ordering and truncating the driving table, but let's ignore these aspects in this CIP.
 
-=== Beyond baseline semantics -- simple rewrite semantics[[simpleRewrite]]
+=== Simple rewrite semantics[[simpleRewrite]]
 
 Cypher's WITH and the RETURN are syntactically more flexible when the two baseline semantics.
 In particular, they allow mixing aggregation and projection rather freely.
@@ -223,7 +223,7 @@ RETURN x AS x, SUM(sumBC) AS sumBC
 ----
 ====
 
-=== Beyond simple rewrite semantics
+=== Limits of simple rewrite semantics
 
 While this solution works nicely for the considered examples, it is limited.
 Specifically, it only supports aggregation function in expressions of the form `_agg_(_ex_)`.
