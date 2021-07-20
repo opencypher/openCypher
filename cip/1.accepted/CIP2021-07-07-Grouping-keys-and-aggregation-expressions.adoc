@@ -512,8 +512,7 @@ Given a list of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ..., _p~N~_}, let _GROU
 For an expression _ex_ and a projection list _L_, let _AVAILABLE_TO_ORDER_(_ex_, _L_) hold
 
 * If _ex_ is either
-** A aggregation function, i.e. of the form `_agg_(_subEx_)`,
-** A grouping key, i.e. _ex_ ∈ _GROUPING_KEYS_AND_ALIASES_(_L_),
+** A grouping key or an alias, i.e. _ex_ ∈ _GROUPING_KEYS_AND_ALIASES_(_L_),
 ** A constant, or
 ** A parameter,
 * or if _ex_ comprises of sub-expressions, it only comprises sub-expressions _subEx_ for which _AVAILABLE_TO_ORDER_(_subEx_, _L_) holds.
@@ -618,6 +617,80 @@ For each example we list why it is invalid.
 
 . `MATCH (a)-[]->(b) RETURN a AS x, size(keys(x)) + count(b.y)`
 * The sub-expression `x` is not a grouping key; it is the alias of a grouping key, which are not visible to <ProjectionItem>s within the same clause.
+
+=== Valid orderings
+
+The following clauses exhibit valid row orderings.
+For each example we list why it is valid.
+
+. `RETURN 1 + count(\*) AS x ORDER BY x`
+* The expression `x` is an alias.
+
+. `RETURN 1, 1 + count(*) ORDER BY 2`
+* The expression `1` is a constant.
+
+. `RETURN $x + count($x) ORDER BY $x`
+* The expression `$x` is a parameter.
+
+. `MATCH (a) RETURN a.x, 1 + count(a.x) ORDER BY a.x % 2`
+* The sub-expression `a.x` is a grouping key.
+* The sub-expression `2` is a constant.
+
+. `MATCH (a) WITH a.x AS ax RETURN ax, ax + count(ax) ORDER BY ax`
+* The expression `ax` is a grouping key.
+
+. `MATCH (a)-[]->(b) RETURN a, a.x + count(b.y) ORDER BY a.y`
+* The sub-expression `a` is a grouping key.
+
+. `MATCH (a)-[]->(b) RETURN a, count(b.y) ORDER BY size(keys(a))`
+* The sub-expression `a` is a grouping key.
+
+. `MATCH (x) RETURN x.a, x.b, x.c, x.a + x.b + count(x) + x.c ORDER BY x.a + x.c`
+* The sub-expressions `x.a` and `x.c` are grouping keys.
+
+. `MATCH (a) RETURN a.x + 1, a.x + 1 + count(a.x) ORDER BY a.x + 1`
+* The sub-expression `a.x + 1` is a grouping key.
+
+. `MATCH (a) WITH a.x + 1 as ax RETURN ax, ax - 1 + count(ax)`
+* The sub-expression `ax` is a grouping key.
+* The sub-expression `1` is a constant.
+
+. `MATCH (a) WITH a.x + 1 as ax RETURN ax, ax - 1 + count(ax) ORDER BY ax + 2`
+* The sub-expression `ax` is a grouping key.
+* The sub-expression `2` is a constant.
+
+. `MATCH (a) WITH a.x + 1 as ax RETURN ax AS x, ax - 1 + count(ax) ORDER BY x + 2`
+* The sub-expression `x` is an alias.
+* The sub-expression `2` is a constant.
+
+. `MATCH (a) WITH a.x + 1 as ax RETURN ax AS x, ax - 1 + count(ax) AS y ORDER BY x + 2 - y`
+* The sub-expressions `x` and `y` are aliases.
+* The sub-expression `2` is a constant.
+
+. `WITH {a:1, b:2} AS map RETURN map.a, map.a + count(map.b) ORDER BY map.a`
+* The expression `map.a` is a grouping key.
+
+. `MATCH (x) RETURN x.a + x.b + x.c, x.a + x.b + x.c + count(x) ORDER BY x.a + x.b + x.c`
+* The expression `x.a + x.b + x.c` is a grouping key.
+
+=== Invalid orderings
+
+The following clauses exhibit invalid row orderings.
+For each example we list why it is invalid.
+
+. `RETURN 1 + count(\*) ORDER BY 1 + count(*)`
+* The expression `1 + count(*)` is not a grouping key.
+
+. `MATCH (a) RETURN a.x + 1, a.x + 1 + count(a.x) ORDER BY a.x + 2`
+* The expression `a.x + 2` is not a grouping key.
+* The sub-expression `2` is a constant, but sub-expression `a.x` is not a grouping key.
+
+. `WITH {a:1, b:2} AS map RETURN map.a, map.a + count(map.b) ORDER BY map.b`
+* The sub-expression `map.b` is not a grouping key.
+
+. `MATCH (x) RETURN x.a + x.b + x.c, x.a + x.b + x.c + count(x) ORDER BY x.a + x.c`
+* The expression `x.a + x.c` is not a grouping key.
+* The sub-expressions `x.a` and `x.c` and `x` are not grouping keys, either.
 
 == What others do
 
