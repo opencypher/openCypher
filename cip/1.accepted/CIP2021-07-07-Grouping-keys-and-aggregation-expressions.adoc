@@ -301,8 +301,8 @@ This proposal does not propose any net-new syntax.
 The proposed grouping and aggregation semantics is defined as a rewrite to the baseline semantics (similar to <<Simple rewrite semantics>> discussed above).
 The proposed semantics does not cover all syntactically possible queries and hence requires a syntax restriction to prohibit queries that are not covered.
 We discuss the <<Rewrite>> and the <<Syntax restriction>> in the follow two subsections.
-We simplify this discussion by ignoring column order, row ordering and pagination, and omitted aliases.
-Subsequently, we give a separate and brief consideration of how to these aspects fit into the proposal, cf. <<Column order>>, <<Row ordering and pagination>>, and <<Omitted aliases>>, respectively.
+We simplify this discussion by ignoring row ordering and pagination as well as omitted aliases.
+Subsequently, we give a separate and brief consideration of how to these aspects fit into the proposal, cf. <<Row ordering and pagination>> and <<Omitted aliases>>, respectively.
 
 ==== Rewrite
 
@@ -448,13 +448,6 @@ For clauses `WITH _L_` and `RETURN _L_` and every _p_ = `_ex_ AS _a_` in _L_ whe
 Under this restriction, <<Q5>> is invalid.
 For sub-expression `b` in <ProjectionItem> `b + foo_1 * 2 AS foo`, _CONSTANT_(`b`) does not hold, since `b` is neither a aggregation function, a grouping key, a constant, a parameter, nor has it any sub-expressions.
 ====
-
-==== Column order
-
-The rewrite of grouping and aggregation semantics is defined based on sets.
-In the RETURN clause the _L_ is not a set but a list, though.
-However, _L_ is always a list of distinct <ProjectionItem>s since Cypher does not allow repeating the same alias within a list of <ProjectionItem>s.
-As it is straightforward and obvious how to correctly maintain the column order in the rewrite, it is not further elaborated here.
 
 ==== Row ordering and pagination
 
