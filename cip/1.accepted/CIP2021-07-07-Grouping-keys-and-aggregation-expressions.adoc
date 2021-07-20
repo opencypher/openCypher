@@ -17,10 +17,21 @@ toc::[]
 
 == Background
 
-In this CIP we assume the following baseline semantics as a given and well-defined.
-Further, we consider a simple rewrite semantics for grouping and aggregation, that lays the foundation for the rewrite semantics that is proposed in the <<Proposal>> section of this CIP.
+In this CIP we assume two baseline semantics as a given and well-defined.
+Each baseline semantics captures on capability of the WITH and the RETURN clause in isolation -- similar to https://en.wikipedia.org/wiki/Relational_algebra[relational algebra operators].
 
-We also use following driving table in most of the CIP's examples:
+_<<Baseline projection>>_ :: Describes the projection of binding table
+_<<Baseline aggregation>>_ :: Describes grouping and aggregation of binding table
+
+The WITH and the RETURN clause also allow ordering and truncating the driving table, but we ignore these aspects in the background considerations.
+
+We define a <<Simple rewrite semantics>> for grouping and aggregation.
+As its name suggests, the simple rewrite semantics is defined as a syntax transformation to a linear composition of the baseline semantics.
+The simple rewrite semantics lays the foundation for the rewrite semantics that is proposed in the <<Proposal>> section of this CIP.
+
+We briefly demonstrate the <<Limits of the simple rewrite semantics>> to motivate the proposed semantics.
+
+Further, we use following driving table in most of the CIP's examples:
 
 .Example driving table
 |===
@@ -31,20 +42,69 @@ We also use following driving table in most of the CIP's examples:
 |2|3|5
 |===
 
+=== Baseline projection
+
+The WITH and the RETURN clause allow projecting the driving table including the computation of new columns (in database theory, this is called extended projection).
+
+The projection of a driving table _D_ can be described formally as π__~P~__(_D_) where
+
+* _P_ is a nonempty set of pairs (_ex_, _al_) where
+** _ex_ is a tree of operations of the expression sub-language where each of the leaves is either
+*** a constant (such as a value literal or a label),
+*** a parameter, or
+*** a variable in the driving table _D_; and
+** _al_ is a variable name -- called an _alias_ -- that is different from all other aliases _x_ with (·, _x_) ∈ _P_.
+
+Assuming _P_ = {(_ex_~1~, _al_~1~), (_ex_~2~, _al_~2~), ..., (_ex~N~_, _al~N~_)}, the Cypher equivalent of π__~P~__(_D_) is
+
+[source, cypher, subs="quotes"]
+----
+WITH _ex_~1~ AS _al_~1~, _ex_~2~ AS _al_~2~, ..., _ex~N~_ AS _al~N~_
+----
+
+and
+
+[source, cypher, subs="quotes"]
+----
+RETURN _ex_~1~ AS _al_~1~, _ex_~2~ AS _al_~2~, ..., _ex~N~_ AS _al~N~_
+----
+
+.Baseline projection
+====
+The RETURN clause
+
+.[[Q1]]Q1
+[source, cypher]
+----
+RETURN b-a AS x, b*c AS y
+----
+
+projects each row in the driving table to `b` minus `a` (as `x`) and the product of `b` and `c` (as `y`), so that the result is:
+
+.Result Q1
+|===
+|x|y
+
+|1|6
+|2|12
+|1|15
+|===
+====
+
 === Baseline aggregation
 
-Cypher allows grouping and aggregating (form here on just referred to as _aggregation_) the driving table in the WITH and in the RETURN clause.
+Cypher allows grouping and aggregating (often simply referred to as _aggregation_) the driving table in the WITH and in the RETURN clause.
 
 Formally, the aggregation of a driving table _D_ can be described formally as
 pass:q[γ<sub>_K_, _A_</sub>(_D_)] where
 
 * _K_ is a (possibly empty) set of pairs (_k_, _al_) where
 ** _k_ is a variable -- called a _grouping key_ -- in the driving table _D_,
-** _al_ is variable name -- also called an _alias_ -- that different from all other aliases _x_ with (·, _x_) ∈ _K_., and
+** _al_ is an _alias_ that different from all other aliases _x_ with (·, _x_) ∈ _K_., and
 * _A_ is a non-empty set of triple (_agg_, _x_, _al_) where
 ** _agg_ is an aggregation function and
 ** _x_ is a variable in the driving table _D_
-** _al_ is variable name -- also called an _alias_ -- that different from all other aliases _x_ with (·, ·, _x_) ∈ _A_ or _x_ with (·, _x_) ∈ _K_.
+** _al_ is an alias that different from all other aliases _x_ with (·, ·, _x_) ∈ _A_ and _x_ with (·, _x_) ∈ _K_.
 
 Assuming _K_ = {(_k_~1~, _ka_~1~), (_k_~2~, _ka_~1~), ..., (_k~N~_, _ka~N~_)} and _A_ = {(_agg_~1~, _x_~1~, _al_~1~), (_agg_~2~, _x_~2~, _al_~2~), ..., (_agg~M~_, _x~M~_, _al~M~_)}, the Cypher equivalent of pass:q[γ<sub>_K_, _A_</sub>(_D_)] is
 
@@ -65,15 +125,17 @@ RETURN _k_~1~ AS _k_~1~, _k_~2~ AS _k_~2~, ..., _k~N~_ AS _k~N~_,
 .Baseline aggregation
 ====
 
-.[[Q1]]Q1
+The RETURN clause
+
+.[[Q2]]Q2
 [source, cypher]
 ----
 RETURN a AS a, SUM(c) AS sumC
 ----
 
-Grouped the driving table by `a` and computes the sum of all `c` as `sumC` for each group, so that result is:
+groups the driving table by `a` and computes the sum of all `c` as `sumC` for each group, so that result is:
 
-.Result Q1
+.Result Q2
 |===
 |a|sumC
 
@@ -82,61 +144,11 @@ Grouped the driving table by `a` and computes the sum of all `c` as `sumC` for e
 |===
 ====
 
-=== Baseline projection
+=== Simple rewrite semantics
 
-The WITH and the RETURN clause also allow projecting the driving table including the computation of new columns (in database theory, this is called extended projection).
-
-The projection of a driving table _D_ can be described formally as π__~P~__(_D_) where
-
-* _P_ is a nonempty set of pairs (_ex_, _al_) where
-** _ex_ is a tree of operations of the expression sub-language where each of the leaves is either
-*** a constant (such as a value literal or a label),
-*** a parameter, or
-*** a variable in the driving table _D_; and
-** _al_ is an _alias_ that different from all other aliases _x_ with (·, _x_) ∈ _P_.
-
-Assuming _P_ = {(_ex_~1~, _al_~1~), (_ex_~2~, _al_~2~), ..., (_ex~N~_, _al~N~_)}, the Cypher equivalent of π__~P~__(_D_) is
-
-[source, cypher, subs="quotes"]
-----
-WITH _ex_~1~ AS _al_~1~, _ex_~2~ AS _al_~2~, ..., _ex~N~_ AS _al~N~_
-----
-
-and
-
-[source, cypher, subs="quotes"]
-----
-RETURN _ex_~1~ AS _al_~1~, _ex_~2~ AS _al_~2~, ..., _ex~N~_ AS _al~N~_
-----
-
-.Baseline projection
-====
-The RETURN clause
-
-.[[Q2]]Q2
-[source, cypher]
-----
-RETURN b-a AS x, b*c AS y
-----
-
-projects each row in the driving table to `b` minus `a` (as `x`) and the product of `b` and `c` (as `y`), so that result is:
-
-.Result Q2
-|===
-|x|y
-
-|1|6
-|2|12
-|1|15
-|===
-====
-
-The WITH and the RETURN clauses also allow ordering and truncating the driving table, but let's ignore these aspects in this CIP.
-
-=== Simple rewrite semantics[[simpleRewrite]]
-
-Cypher's WITH and the RETURN are syntactically more flexible when the two baseline semantics.
+Cypher's WITH and RETURN clause are syntactically more flexible than the two baseline semantics.
 In particular, they allow mixing aggregation and projection rather freely.
+
 Specifically, the WITH and the RETURN clause denoted the parameters for projection (_P_) and aggregation (_K_ and _A_) with a single nonempty set _L_ of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ProjectionItem[<ProjectionItem>]s `_ex_ AS _al_` where
 
 * _ex_ is an expression that is allowed to contain aggregation functions and
@@ -163,23 +175,23 @@ should produce a result that is grouped by `b` minus `a` (as `x`) and the sum of
 |===
 ====
 
-The semantics of such an RETURN (and WITH) clause can be described as a rewrite to the two baseline semantics combined by Cypher's linear composition.
+The semantics of such RETURN and WITH clauses can be described as a rewrite to the two baseline semantics combined by Cypher's linear composition.
 
 For this purpose, the <ProjectionItem>s in _L_ can be spilt into _aggregates_ and _grouping keys_:
 
 * A <ProjectionItem> _p_ is an aggregate if it is of the form `_agg_(_ex_) AS _al_`, where
 ** _agg_ is an aggregation function,
-** _ex_ is a valid expression, and
+** _ex_ is an expression, and
 ** _al_ is an alias; and
 * A <ProjectionItem> _p_ is a grouping key if is not an aggregate
 
-Hence, for a <ProjectionItem> _p_
+For a <ProjectionItem> _p_,
 
-* If _p_ is of the form `_ex_ AS _al_`
+* If _p_ is a grouping key of the form `_ex_ AS _al_`
 ** Let `PROJ(_p_)` be `_ex_ AS _al_` and
 ** Let `AGGR(_p_)` be `_al_ AS _al_`
-* If _p_ is of the form `_agg_(_ex_) AS _al_`
-** Let `PROJ(_p_)` be `_x_ AS _al_` and
+* If _p_ is an aggregate of the form `_agg_(_ex_) AS _al_`
+** Let `PROJ(_p_)` be `_ex_ AS _al_` and
 ** Let `AGGR(_p_)` be `_agg_(_al_) AS _al_`
 
 Further, for a set of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ... _p~N~_},
@@ -203,7 +215,7 @@ WITH PROJ(_L_)
 WITH AGGR(_L_)
 ----
 
-Let's call this the _simple rewrite semantics_ for the WITH and RETURN clause.
+We call this the _simple rewrite semantics_ for the WITH and RETURN clause.
 
 .Simple rewrite semantics
 ====
@@ -211,7 +223,7 @@ With the simple rewrite semantics, the RETURN clause in <<Q3>>
 
 [source, cypher]
 ----
-RETURN b-a AS x, SUM(b*c) AS sumBC`)
+RETURN b-a AS x, SUM(b*c) AS sumBC
 ----
 
 is effectively equivalent to
@@ -223,15 +235,15 @@ RETURN x AS x, SUM(sumBC) AS sumBC
 ----
 ====
 
-=== Limits of simple rewrite semantics
+=== Limits of the simple rewrite semantics
 
-While this solution works nicely for the considered examples, it is limited.
-Specifically, it only supports aggregation function in expressions of the form `_agg_(_ex_)`.
+While the simple rewrite semantics works nicely for the considered examples, it is limited.
+Specifically, it only supports aggregation expressions of the form `_agg_(_ex_)`.
 
 Cypher, however, also allows aggregation functions to appear as sub-expression of <ProjectionItem>s, i.e. Cypher allows <ProjectionItem>s with expressions of forms, such as
 
-* `_ex_~1~ + _agg_(_ex_~2~)`
-* `_agg_(_ex_~1~) + _ex_~2~`
+* `_ex_~1~ + _agg_(_ex_~2~)`,
+* `_agg_(_ex_~1~) + _ex_~2~`, and
 * `_agg_~1~(_ex_~1~) + _ex~2~_ * _agg_~2~(_ex_~3~)`
 
 Such expressions can still be sensible and useful.
@@ -246,7 +258,7 @@ The RETURN clause
 RETURN a AS a, (a + SUM(b*c) - MIN(c)) * 2 AS foo
 ----
 
-should produce a result that is grouped by `a` and `foo` should be computed for each group as the sum of all products of `b` and `c` added to the value `a` and multiplied by two, so that result would be:
+should produce a result that is grouped by `a` and `foo` should be computed for each group as the value `a` plus the sum of all products of `b` and `c` minus the smallest value of `c` multiplied by two, so that result is:
 
 .Result Q4
 |===
@@ -261,26 +273,26 @@ should produce a result that is grouped by `a` and `foo` should be computed for 
 
 [NOTE]
 ====
-A less artificial example is calculating the total gross of an order as the discounted sum of line item net values (product price multiplied by amount) in query such as:
+A less artificial example is calculating the total gross of an order as the discounted sum of the net values –– product price multiplied by amount –– of the order's line items in query such as:
 
 .[[Q5]]Q5
 [source, cypher]
 ----
 MATCH
-(c:Customer)-[:LOCATED_IN]->(s:State)
-(c)-[:ORDERED]->(o:Order)
+(c:Customer)-[:LOCATED_IN]->(s:State),
+(c)-[:ORDERED]->(o:Order),
 (o)-[:INCLUDES]->(li:LineItem)-->(p:Product)
 RETURN s AS state, c AS customer, o AS order,
-       SUM(li.amount * p.price) * c.discount * j.vat AS totalGross
+       SUM(li.amount * p.price) * c.discount * s.vat AS totalGross
 ----
 ====
 
-It has been documented on multiple occasions (e.g. cf. http://opencypher.org/articles/2017/07/27/ocig1-aggregations-article/[First oCIG Meeting]) the existing semantics or Cypher is imprecise on such queries.
+It has been documented on multiple occasions (e.g. cf. http://opencypher.org/articles/2017/07/27/ocig1-aggregations-article/[First oCIG Meeting]) that the existing semantics of Cypher is imprecise on such queries.
 
 A precise semantics on such queries has to provide
 
 * A clear definition which <ProjectionItem>s constitute the grouping keys
-* Clear rules for which sub-expressions are allowed in <ProjectionItem>s containing aggregation functions
+* Clear rules which sub-expressions are allowed in <ProjectionItem>s containing aggregation functions
 
 This proposal provides a such precise semantics.
 
@@ -292,7 +304,7 @@ _None. -- This proposal does not propose and net-new syntax._
 
 === Semantics
 
-The proposed grouping and aggregation semantics is defined as a rewrite to the baseline semantics (similar to <<simpleRewrite,simple rewrite semantics>> discussed above).
+The proposed grouping and aggregation semantics is defined as a rewrite to the baseline semantics (similar to <<Simple rewrite semantics>> discussed above).
 The proposed semantics does not cover all queries and hence implies a syntax restriction to rule out queries that are not covered.
 We discuss the rewrite and the syntax restriction in the follow two subsections.
 
