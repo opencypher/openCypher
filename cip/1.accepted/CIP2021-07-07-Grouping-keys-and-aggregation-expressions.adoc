@@ -194,7 +194,7 @@ For a <ProjectionItem> _p_,
 ** Let `_PROJ_(_p_)` be `_ex_ AS _al_` and
 ** Let `_AGGR_(_p_)` be `_agg_(_al_) AS _al_`
 
-With this, `RETURN _p_~1~, _p_~2~, ... _p~N~_` can be defined as effectively equivalent to
+With this, `RETURN _p_~1~, _p_~2~, ..., _p~N~_` can be defined as effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
@@ -202,7 +202,7 @@ WITH _PROJ_(_p_~1~), _PROJ_(_p_~2~), ..., _PROJ_(_p~N~_)
 RETURN _AGGR_(_p_~1~), _AGGR_(_p_~2~), ..., _AGGR_(_p~N~_)
 ----
 
-Analogously, `WITH _p_~1~, _p_~2~, ... _p~N~_` can be defined as effectively equivalent to
+Analogously, `WITH _p_~1~, _p_~2~, ..., _p~N~_` can be defined as effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
@@ -268,7 +268,7 @@ should produce a result that is grouped by `a` and `foo` should be computed for 
 
 [NOTE]
 ====
-A less artificial example is calculating the total gross of an order as the discounted sum of the net values –– product price multiplied by amount –– of the order's line items in query such as:
+A less artificial example is calculating the total gross of an order as the discounted sum of the net values –– product price multiplied by amount –– of the order's line items in a query such as:
 
 [source, cypher]
 ----
@@ -329,7 +329,7 @@ For a <ProjectionItem> _p_ = `_ex_ AS _al_`,
 [IMPORTANT]
 .Rewrite semantics
 ====
-`RETURN _p_~1~, _p_~2~, ... _p~N~_` is effectively equivalent to
+`RETURN _p_~1~, _p_~2~, ..., _p~N~_` is effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
@@ -338,7 +338,7 @@ WITH _AGGR_(_p_~1~), _AGGR_(_p_~2~), ..., _AGGR_(_p~N~_)
 RETURN _POST_PROJ_(_p_~1~), _POST_PROJ_(_p_~2~), ..., _POST_PROJ_(_p~N~_)
 ----
 
-Analogously, `WITH _p_~1~, _p_~2~, ... _p~N~_` is effectively equivalent to
+Analogously, `WITH _p_~1~, _p_~2~, ..., _p~N~_` is effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
@@ -354,7 +354,7 @@ The RETURN clause in <<Q4>>
 
 [source, cypher]
 ----
-RETURN a AS a, (a + SUM(b*c) - MIN(c)) * 2 AS agg
+RETURN a AS a, (a + SUM(b*c) - MIN(c)) * 2 AS foo
 ----
 
 is effectively equivalent to
@@ -395,12 +395,12 @@ Specifically, any <ProjectItems> containing
 
 * an aggregation function and
 * a sub-expression that is
-** outside any contained aggregation function and
+** outside any of the contained aggregation functions and
 ** not constant under the grouping keys
 
 is not rewritten to valid query.
 
-.aggregation *not* covered by the rewrite
+.Aggregation *not* covered by the rewrite
 ====
 By the grouping and aggregation semantics, the RETURN clause
 
@@ -420,33 +420,53 @@ RETURN a AS a, b + foo_1 * 2 AS foo
 ----
 
 Note that variable `b` appears in the <ProjectionItem> `b + foo_1 * 2 AS foo` in the RETURN clause.
-However, variable `b` has already by removed from the driving table by the previous projections.
-In other words, the proposed rewrite produce invalid query text for <<Q5>>.
+However, variable `b` has already been removed from the driving table by the previous projections.
+In other words, the proposed rewrite produces an invalid query for <<Q5>>.
 ====
 
-To prevent such invalid rewrites, this CIP imposes a syntax restriction on RETURN and WITH clauses.
+To prevent such invalid rewrites, this proposal includes a syntax restriction to be imposed on RETURN and WITH clauses.
 
-Given a list of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ... _p~N~_}, let _GROUPING_KEYS_(_L_) be the set of all expressions and _ex_ and aliases _a_ in <ProjectionItem>s _p_ = `_ex_ AS _a_` in _L_ where _AGG_(_p_) is empty.
+Given a list of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ..., _p~N~_}, let _GROUPING_KEYS_(_L_) be the set of all expressions _ex_ for which there is a <ProjectionItem>s _p_ = `_ex_ AS _al_` in _L_ where _AGG_(_p_) is empty.
 
-For an expression _ex_ and projection list _L_, let _CONSTANT_(_ex_) hold
+.Grouping keys
+====
+For the RETURN clause
+
+.[[Q6]]Q6
+[source, cypher]
+----
+RETURN b-a AS x, c AS c, c + SUM(b) AS sumBC
+----
+
+_GROUPING_KEYS_(_L_) is {`b-a`, `x`, `c`}.
+
+====
+
+For an expression _ex_ and a projection list _L_, let _CONSTANT_(_ex_, _L_) hold
 
 * If _ex_ is either
 ** A aggregation function, i.e. of the form `_agg_(_subEx_)`,
-** A grouping key (either expression or alias), i.e. _o_ ∈ _GROUPING_KEYS_(_L_),
-** A constant,
+** A grouping key, i.e. _ex_ ∈ _GROUPING_KEYS_(_L_),
+** A constant, or
 ** A parameter,
-* or if _ex_ comprises of sub-expression, it only comprises sub-expression _subEx_ for which _CONSTANT_(_subEx_) holds.
+* or if _ex_ comprises of sub-expressions, it only comprises sub-expressions _subEx_ for which _CONSTANT_(_subEx_, _L_) holds.
 
 [IMPORTANT]
 .Syntax restriction
 ====
-For clauses `WITH _L_` and `RETURN _L_` and every _p_ = `_ex_ AS _a_` in _L_ where _AGG_(_p_) is not empty, _CONSTANT_(_ex_) shall hold.
+For clauses `WITH _L_` and `RETURN _L_` and every _p_ = `_ex_ AS _a_` in _L_ where _AGG_(_p_) is not empty, _CONSTANT_(_ex_, _L_) shall hold.
 ====
 
-.Effect of the restriction
+.Effect of the syntax restriction
 ====
 Under this restriction, <<Q5>> is invalid.
-For sub-expression `b` in <ProjectionItem> `b + foo_1 * 2 AS foo`, _CONSTANT_(`b`) does not hold, since `b` is neither a aggregation function, a grouping key, a constant, a parameter, nor has it any sub-expressions.
+For sub-expression `b`
+
+* in <ProjectionItem> `b + foo_1 * 2 AS foo`
+* in _L_ = `a AS a, b + foo_1 * 2 AS foo`,
+
+_CONSTANT_(`b`, _L_) does not hold.
+`b` is neither an aggregation function, a grouping key, a constant, a parameter, nor has it any sub-expressions.
 ====
 
 ==== Row ordering and pagination
@@ -456,49 +476,65 @@ The WITH and the RETURN clause allow to
 * order the rows of the result table with the ORDER BY sub-clause and
 * paginate the result table with the SKIP and LIMIT sub-clauses.
 
-Assuming, the baseline semantics includes ORDER BY, SKIP, and LIMIT capabilities, the grouping and aggregation semantics extends a follows:
+Assuming the baseline semantics includes ORDER BY, SKIP, and LIMIT capabilities, the grouping and aggregation semantics extends as follows:
 
 [IMPORTANT]
 ====
-`RETURN _L_ _ORDER-SKIP-LIMIT_` is effectively equivalent to
+`RETURN _p_~1~, _p_~2~, ..., _p~N~_ _ORDER-SKIP-LIMIT_` is effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
-WITH _PRE_PROJ_(_L_)
-WITH _AGGR_(_L_)
-RETURN _POST_PROJ_(_L_) _ORDER-SKIP-LIMIT_
+WITH _PRE_PROJ_(_p_~1~), _PRE_PROJ_(_p_~2~), ..., _PRE_PROJ_(_p~N~_)
+WITH _AGGR_(_p_~1~), _AGGR_(_p_~2~), ..., _AGGR_(_p~N~_)
+RETURN _POST_PROJ_(_p_~1~), _POST_PROJ_(_p_~2~), ..., _POST_PROJ_(_p~N~_) _ORDER-SKIP-LIMIT_
 ----
 
-Analogously, `WITH _L_ _ORDER-SKIP-LIMIT_` is effectively equivalent to
+Analogously, `WITH _p_~1~, _p_~2~, ..., _p~N~_ _ORDER-SKIP-LIMIT_` is effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
-WITH _PRE_PROJ_(_L_)
-WITH _AGGR_(_L_)
-WITH _POST_PROJ_(_L_) _ORDER-SKIP-LIMIT_
+WITH _PRE_PROJ_(_p_~1~), _PRE_PROJ_(_p_~2~), ..., _PRE_PROJ_(_p~N~_)
+WITH _AGGR_(_p_~1~), _AGGR_(_p_~2~), ..., _AGGR_(_p~N~_)
+WITH _POST_PROJ_(_p_~1~), _POST_PROJ_(_p_~2~), ..., _POST_PROJ_(_p~N~_) _ORDER-SKIP-LIMIT_
 ----
 ====
 
-The https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=SortItem[<SortItem>]s in ORDER BY clause contain an expression.
-Since these expressions are effectively evaluate at the same time as all _POST_PROJ_(_L_) expressions, the syntax restrictions applies.
+Every https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=SortItem[<SortItem>] listed in the ORDER BY clause contains an expression.
+Since these expressions are effectively evaluate after all _POST_PROJ_(_p~i~_) expressions, a similar syntax restrictions applies to the <SortItem>s.
+
+However, <SortItem>s can refer to aliases introduced by _POST_PROJ_(_p~i~_).
+
+Given a list of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ..., _p~N~_}, let _GROUPING_KEYS_AND_ALIASES_(_L_) be the set of
+
+* all expressions _ex_ for which there is a <ProjectionItem>s _p_ = `_ex_ AS _al_` in _L_ where _AGG_(_p_) is empty and
+* all aliases _al_ for which there is a <ProjectionItem>s _p_ = `_ex_ AS _al_` in _L_.
+
+For an expression _ex_ and a projection list _L_, let _AVAILABLE_TO_ORDER_(_ex_, _L_) hold
+
+* If _ex_ is either
+** A aggregation function, i.e. of the form `_agg_(_subEx_)`,
+** A grouping key, i.e. _ex_ ∈ _GROUPING_KEYS_AND_ALIASES_(_L_),
+** A constant, or
+** A parameter,
+* or if _ex_ comprises of sub-expressions, it only comprises sub-expressions _subEx_ for which _AVAILABLE_TO_ORDER_(_subEx_, _L_) holds.
 
 [IMPORTANT]
 ====
-For `WITH _L_ ORDER BY _SI_` and `RETURN _L_ ORDER BY _SI_` and every _ex_ directly contained in a <SortItem> in _SI_, _CONSTANT_(_ex_) shall hold.
+For `WITH _L_ ORDER BY _SI_` and `RETURN _L_ ORDER BY _SI_` and every _ex_ contained in a <SortItem> in _SI_, _AVAILABLE_TO_ORDER_(_ex_, _L_) shall hold.
 ====
 
 ==== Omitted aliases
 
-This proposal considers all projects have user-given alias.
+This proposal considers all <ProjectionItem>s have user-given alias.
 Cypher allows to omit the aliases, particularly in the RETURN clause, though.
-However, the alias omission rules are based on the assumptions that an implementation will infer a more or less reasonable alias if the alias is omitted.
+However, the alias omission rules are based on the assumption that an implementation will infer a more or less reasonable alias if an alias is omitted by the user.
 Hence, it is safe for this proposal to assume that all <ProjectionItem>s have an alias.
 
 === Examples
 
-==== Queries valid under the grouping and aggregation semantics
+==== Valid aggregations
 
-The following clauses are valid under the grouping and aggregation semantics and the syntax restriction it includes.
+The following clauses exhibit valid aggregations under the grouping and aggregation semantics and the syntax restriction it includes.
 For each example we list why it is valid.
 
 . `RETURN 1 + count(*)`
@@ -526,6 +562,12 @@ For each example we list why it is valid.
 . `MATCH (a) WITH a.x AS ax RETURN ax, ax + count(ax)`
 * The sub-expression `ax` is a grouping key.
 
+. `MATCH (a)-[]->(b) RETURN a, a.x + count(b.y)`
+* The sub-expression `a` is a grouping key.
+
+. `MATCH (a)-[]->(b) RETURN a, size(keys(a)) + count(b.y)`
+* The sub-expression `a` is a grouping key.
+
 . `MATCH (x) RETURN x.a, x.b, x.c, x.a + x.b + count(x) + x.c`
 * The sub-expressions `x.a`, `x.b`, and `x.c` are grouping keys.
 
@@ -545,9 +587,9 @@ For each example we list why it is valid.
 . `MATCH (x) WITH x.a + x.b + x.c AS sum RETURN sum, sum + count(*) + sum`
 * The sub-expression `sum` is a grouping key.
 
-==== Queries invalid under the grouping and aggregation semantics
+==== Invalid aggregations
 
-The following clauses are invalid under the grouping and aggregation semantics and the syntax restriction it includes.
+The following clauses exhibit invalid aggregations under the grouping and aggregation semantics and the syntax restriction it includes.
 For each example we list why it is invalid.
 
 . `MATCH (a) RETURN a.x + count(*)`
@@ -570,6 +612,12 @@ For each example we list why it is invalid.
 
 . `MATCH (a) RETURN a.x * a.x, a.x + collect(a.x)`
 * The sub-expression `a.x` is not a grouping key.
+
+. `MATCH (a)-[]->(b) RETURN a AS x, x.x + count(b.y)`
+* The sub-expression `x` is not a grouping key; it is the alias of a grouping key, which are not visible to <ProjectionItem>s within the same clause.
+
+. `MATCH (a)-[]->(b) RETURN a AS x, size(keys(x)) + count(b.y)`
+* The sub-expression `x` is not a grouping key; it is the alias of a grouping key, which are not visible to <ProjectionItem>s within the same clause.
 
 == What others do
 
@@ -599,6 +647,8 @@ The main advantage of this proposal is, that is clarifies the semantics of group
 
 == Caveats to this proposal
 
+=== Rules are heuristic
+
 From a pure logical standpoint, the syntax restriction only has to rule out sub-expressions of aggregating projection items, which are not constant under the grouping keys.
 However, statically inferring all possible constant sub-expressions is not necessarily easy.
 To this effect, the proposed rules of the syntax restriction are a heuristic, which safely identifies sub-expression that are constant under the grouping keys, but can not identify all such expression theoretically possible.
@@ -608,7 +658,7 @@ To this effect, the proposed rules of the syntax restriction are a heuristic, wh
 
 The RETURN clause
 
-.[[Q6]]Q6
+.[[Q7]]Q7
 [source, cypher]
 ----
 RETURN a AS a, (b - b) + SUM(c) AS foo
@@ -628,3 +678,29 @@ which is perfectly valid.
 The proposal tries to strike a balance between allowing good number of useful queries while keeping the rules of the syntax restrict reasonable simple.
 
 Also note: For queries that are logically possible but rejected by the syntax restriction, users can always manually rewrite the query with additional explicit projections to make the query syntactically valid while it still produces the desired result.
+
+=== Containment is imprecise
+
+The openCypher grammar does not encode left- or right-deep precedence for chainable operations, cf.
+
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=OrExpression[<OrExpression>],
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=XorExpression[<XorExpression>],
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AndExpression[<AndExpression>],
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ComparisonExpression[<ComparisonExpression>],
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AddOrSubtractExpression[<AddOrSubtractExpression>],
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[<MultiplyDivideModuloExpression>],
+* etc.
+
+The rules of this proposal just refer to "contained sub-expressions".
+Currently, openCypher lacks a clear reference point of what this precisely means.
+
+Most parser technologies result in left- or right-deep parse trees.
+For instance an expression `a+b+c` is typically parsed as `(a+b)+c` or `a+(b+c)`.
+
+Typically, an implementation will decide containment according to its parse tree.
+Hence, one implementation may find `a+b` be contained in `a+b+c` while it finds `b+c` not to be contained in `a+b+c`.
+Another implementation may reach the opposite conclusion w.r.t. containment.
+
+SQL's and GQL's definition of containment does not define containment within repetition, too.
+However, their grammar does not encode chainable operations grammatically with repetition.
+Rather, SQL and GQL use head-recursive grammar productions, which result in a left-deep containment, i.e. `a+b+c` is considered as `(a+b)+c` in these standards.
