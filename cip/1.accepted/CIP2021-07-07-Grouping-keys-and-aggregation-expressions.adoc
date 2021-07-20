@@ -4,7 +4,7 @@
 :toc-placement: macro
 :source-highlighter: codemirror
 
-*Authors:* Andrés Taylor <andres@neotechnology.com>, Hannes Voigt <hannes.voigt@neo4j.com>
+*Authors:* Hannes Voigt <hannes.voigt@neo4j.com>
 
 
 [abstract]
