@@ -149,7 +149,7 @@ groups the driving table by `a` and computes the sum of all `c` as `sumC` for ea
 Cypher's WITH and RETURN clause are syntactically more flexible than the two baseline semantics.
 In particular, they allow mixing aggregation and projection rather freely.
 
-Specifically, the WITH and the RETURN clause denoted the parameters for projection (_P_) and aggregation (_K_ and _A_) with a single nonempty set _L_ of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ProjectionItem[<ProjectionItem>]s `_ex_ AS _al_` where
+Specifically, the WITH and the RETURN clause denoted the parameters for projection (_P_) and aggregation (_K_ and _A_) with a single nonempty duplicate-free list _L_ of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ProjectionItem[<ProjectionItem>]s `_ex_ AS _al_` where
 
 * _ex_ is an expression that is allowed to contain aggregation functions and
 * _al_ is an alias.
@@ -188,31 +188,26 @@ For this purpose, the <ProjectionItem>s in _L_ can be spilt into _aggregates_ an
 For a <ProjectionItem> _p_,
 
 * If _p_ is a grouping key of the form `_ex_ AS _al_`
-** Let `PROJ(_p_)` be `_ex_ AS _al_` and
-** Let `AGGR(_p_)` be `_al_ AS _al_`
+** Let `_PROJ_(_p_)` be `_ex_ AS _al_` and
+** Let `_AGGR_(_p_)` be `_al_ AS _al_`
 * If _p_ is an aggregate of the form `_agg_(_ex_) AS _al_`
-** Let `PROJ(_p_)` be `_ex_ AS _al_` and
-** Let `AGGR(_p_)` be `_agg_(_al_) AS _al_`
+** Let `_PROJ_(_p_)` be `_ex_ AS _al_` and
+** Let `_AGGR_(_p_)` be `_agg_(_al_) AS _al_`
 
-Further, for a set of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ... _p~N~_},
-
-* Let `PROJ(_L_)` be `PROJ(_p_~1~), PROJ(_p_~2~), ..., PROJ(_p~N~_)` and
-* Let `AGGR(_L_)` be `AGGR(_p_~1~), AGGR(_p_~2~), ..., AGGR(_p~N~_)`
-
-With this, `RETURN _L_` can be defined as effectively equivalent to
+With this, `RETURN _p_~1~, _p_~2~, ... _p~N~_` can be defined as effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
-WITH PROJ(_L_)
-RETURN AGGR(_L_)
+WITH _PROJ_(_p_~1~), _PROJ_(_p_~2~), ..., _PROJ_(_p~N~_)
+RETURN _AGGR_(_p_~1~), _AGGR_(_p_~2~), ..., _AGGR_(_p~N~_)
 ----
 
-Analogously, `WITH _L_` can be defined as effectively equivalent to
+Analogously, `WITH _p_~1~, _p_~2~, ... _p~N~_` can be defined as effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
-WITH PROJ(_L_)
-WITH AGGR(_L_)
+WITH _PROJ_(_p_~1~), _PROJ_(_p_~2~), ..., _PROJ_(_p~N~_)
+WITH _AGGR_(_p_~1~), _AGGR_(_p_~2~), ..., _AGGR_(_p~N~_)
 ----
 
 We call this the _simple rewrite semantics_ for the WITH and RETURN clause.
@@ -248,7 +243,7 @@ Cypher, however, also allows aggregation functions to appear as sub-expression o
 
 Such expressions can still be sensible and useful.
 
-.Aggregation functions a sub-expressions
+.aggregation functions a sub-expressions
 ====
 The RETURN clause
 
@@ -300,13 +295,15 @@ This proposal provides a such precise semantics.
 
 === Syntax
 
-_None. -- This proposal does not propose and net-new syntax._
+This proposal does not propose any net-new syntax.
 
 === Semantics
 
 The proposed grouping and aggregation semantics is defined as a rewrite to the baseline semantics (similar to <<Simple rewrite semantics>> discussed above).
-The proposed semantics does not cover all queries and hence implies a syntax restriction to rule out queries that are not covered.
-We discuss the rewrite and the syntax restriction in the follow two subsections.
+The proposed semantics does not cover all syntactically possible queries and hence requires a syntax restriction to prohibit queries that are not covered.
+We discuss the <<Rewrite>> and the <<Syntax restriction>> in the follow two subsections.
+We simplify this discussion by ignoring column order, row ordering and pagination, and omitted aliases.
+Subsequently, we give a separate and brief consideration of how to these aspects fit into the proposal, cf. <<Column order>>, <<Row ordering and pagination>>, and <<Omitted aliases>>, respectively.
 
 ==== Rewrite
 
@@ -314,47 +311,41 @@ For an expression _ex_, let _AGG_(_ex_) be the set of (sub-)expressions _aggex_ 
 
 For a <ProjectionItem> _p_ = `_postEx_ AS _al_`, let _AGG_(_p_) be the set of (sub-)expressions _aggex_ of the form _agg_(_preEx_), i.e. _AGG_(_p_) = _AGG_(_postEx_).
 
-The set of <ProjectionItem>s _L_ is split according to _AGG_(_p_) in two cases
+The <ProjectionItem>s in _L_ is split according to _AGG_(_p_) in two cases
 
-* <ProjectionItem>s _p_ in _L_ where _AGG_(_p_) is non-empty
-* <ProjectionItem>s _p_ in _L_ where _AGG_(_p_) is empty
+* <ProjectionItem>s _p_ in _L_ is an aggregate if _AGG_(_p_) is non-empty
+* <ProjectionItem>s _p_ in _L_ is a grouping key if _AGG_(_p_) is empty
 
-Hence, for a <ProjectionItem> _p_ = `_ex_ AS _al_`,
+For a <ProjectionItem> _p_ = `_ex_ AS _al_`,
 
 * If _AGG_(_p_) = ∅
-** Let `PRE_PROJ(_p_)` be `_ex_ AS _al_`,
-** Let `AGGR(_p_)` be `_al_ AS _al_`, and
-** Let `POST_PROJ(_p_)` be `_al_ AS _al_`
-* If _AGG_(_p_) = {`_agg_~1~(_preEx_~1~)`, `_agg_~2~(_preEx_~2~)`, ..., `_aggN_(_preEx_~N~)`} with _N_ > 0
-** Let `PRE_PROJ(_p_)` be `_preEx_~1~ AS _al_+++_+++1, _preEx_~2~ AS _al_+++_+++2, ..., _preEx~N~_ AS _al_+++_+++_N_`,
-** Let `AGGR(_p_)` be `_agg_~1~(_al_+++_+++1) AS _al_+++_+++1, _agg_~2~(_al_+++_+++2) AS _al_+++_+++2, ..., _agg~N~_(_al_+++_+++_N_ AS _al_+++_+++_N_`, and
-** Let `POST_PROJ(_p_)` be `_postEx_ AS _al_` where _postEx_ is _ex_ with each `_agg~i~_(_preEx~i~_)` in _AGG_(_p_) being replaced by `_al_+++_+++_i_` for 1 ≤ _i_ ≤ _N_.
-
-Further, for a set of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ... _p~N~_},
-
-* Let `PRE_PROJ(_L_)` be `PRE_PROJ(_p_~1~), PRE_PROJ(_p_~2~), ..., PRE_PROJ(_p~N~_)`,
-* Let `AGGR(_L_)` be `AGGR(_p_~1~), AGGR(_p_~2~), ..., AGGR(_p~N~_)`, and
-* Let `POST_PROJ(_L_)` be `POST_PROJ(_p_~1~), POST_PROJ(_p_~2~), ..., POST_PROJ(_p~N~_)`.
+** Let `_PRE_PROJ_(_p_)` be `_ex_ AS _al_`,
+** Let `_AGGR_(_p_)` be `_al_ AS _al_`, and
+** Let `_POST_PROJ_(_p_)` be `_al_ AS _al_`
+* If _AGG_(_p_) = {`_agg_~1~(_preEx_~1~)`, `_agg_~2~(_preEx_~2~)`, ..., `_agg~N~_(_preEx~N~_)`} with _N_ > 0
+** Let `_PRE_PROJ_(_p_)` be `_preEx_~1~ AS _al_+++_+++1, _preEx_~2~ AS _al_+++_+++2, ..., _preEx~N~_ AS _al_+++_+++_N_`,
+** Let `_AGGR_(_p_)` be `_agg_~1~(_al_+++_+++1) AS _al_+++_+++1, _agg_~2~(_al_+++_+++2) AS _al_+++_+++2, ..., _agg~N~_(_al_+++_+++_N_) AS _al_+++_+++_N_`, and
+** Let `_POST_PROJ_(_p_)` be `_postEx_ AS _al_` where _postEx_ is _ex_ with each `_agg~i~_(_preEx~i~_)` in _AGG_(_p_) being replaced by `_al_+++_+++_i_` for 1 ≤ _i_ ≤ _N_.
 
 [IMPORTANT]
 .Rewrite semantics
 ====
-`RETURN _L_` is effectively equivalent to
+`RETURN _p_~1~, _p_~2~, ... _p~N~_` is effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
-WITH PRE_PROJ(_L_)
-WITH AGGR(_L_)
-RETURN POST_PROJ(_L_)
+WITH _PRE_PROJ_(_p_~1~), _PRE_PROJ_(_p_~2~), ..., _PRE_PROJ_(_p~N~_)
+WITH _AGGR_(_p_~1~), _AGGR_(_p_~2~), ..., _AGGR_(_p~N~_)
+RETURN _POST_PROJ_(_p_~1~), _POST_PROJ_(_p_~2~), ..., _POST_PROJ_(_p~N~_)
 ----
 
-Analogously, `WITH _L_` is effectively equivalent to
+Analogously, `WITH _p_~1~, _p_~2~, ... _p~N~_` is effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
-WITH PRE_PROJ(_L_)
-WITH AGGR(_L_)
-WITH POST_PROJ(_L_)
+WITH _PRE_PROJ_(_p_~1~), _PRE_PROJ_(_p_~2~), ..., _PRE_PROJ_(_p~N~_)
+WITH _AGGR_(_p_~1~), _AGGR_(_p_~2~), ..., _AGGR_(_p~N~_)
+WITH _POST_PROJ_(_p_~1~), _POST_PROJ_(_p_~2~), ..., _POST_PROJ_(_p~N~_)
 ----
 ====
 
@@ -377,7 +368,7 @@ RETURN a AS a, (a + foo_1 - foo_2) * 2 AS foo
 ----
 ====
 
-Note that the grouping and aggregation semantics also provides for the mixing of projection and aggregation that the <<simpleRewrite,simple rewrite semantics>> covers, i.e. it is a generalization of the simple rewrite semantics.
+Note that the grouping and aggregation semantics also provides for the mixing of projection and aggregation that the <<Simple rewrite semantics>> covers, i.e. it is a generalization of the simple rewrite semantics.
 
 .Rewrite semantics on simple mixing of projection and aggregation
 ====
@@ -410,9 +401,8 @@ Specifically, any <ProjectItems> containing
 
 is not rewritten to valid query.
 
-.Aggregation *not* covered by the rewrite
+.aggregation *not* covered by the rewrite
 ====
-
 By the grouping and aggregation semantics, the RETURN clause
 
 .[[Q6]]Q6
@@ -437,21 +427,21 @@ In other words, the proposed rewrite produce invalid query text for <<Q6>>.
 
 To prevent such invalid rewrites, this CIP imposes a syntax restriction on RETURN and WITH clauses.
 
-Given a set of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ... _p~N~_}, let GROUPING_KEYS(_L_) be the set of all expressions and _ex_ and aliases _a_ in <ProjectionItem>s _p_ = `_ex_ AS _a_` in _L_ where _AGG_(_p_) is empty.
+Given a list of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ... _p~N~_}, let _GROUPING_KEYS_(_L_) be the set of all expressions and _ex_ and aliases _a_ in <ProjectionItem>s _p_ = `_ex_ AS _a_` in _L_ where _AGG_(_p_) is empty.
 
-For an expression _ex_ and projection list _L_, let CONSTANT(_ex_) hold
+For an expression _ex_ and projection list _L_, let _CONSTANT_(_ex_) hold
 
 * If _ex_ is either
 ** A aggregation function, i.e. of the form `_agg_(_subEx_)`,
-** A grouping key (either expression or alias), i.e. _o_ ∈ GROUPING_KEYS(_L_),
+** A grouping key (either expression or alias), i.e. _o_ ∈ _GROUPING_KEYS_(_L_),
 ** A constant,
-** A parameter
-* or if _ex_ comprises of sub-expression, it only comprises sub-expression _subEx_ for which CONSTANT(_subEx_) holds.
+** A parameter,
+* or if _ex_ comprises of sub-expression, it only comprises sub-expression _subEx_ for which _CONSTANT_(_subEx_) holds.
 
 [IMPORTANT]
 .Syntax restriction
 ====
-For clauses `WITH _L_` and `RETURN _L_` and every _p_ = `_ex_ AS _a_` in _L_ where _AGG_(_p_) is not empty, CONSTANT(_ex_) shall hold.
+For clauses `WITH _L_` and `RETURN _L_` and every _p_ = `_ex_ AS _a_` in _L_ where _AGG_(_p_) is not empty, _CONSTANT_(_ex_) shall hold.
 ====
 
 .Effect of the restriction
@@ -482,30 +472,30 @@ Assuming, the baseline semantics includes ORDER BY, SKIP, and LIMIT capabilities
 
 [source, cypher, subs="quotes"]
 ----
-WITH PRE_PROJ(_L_)
-WITH AGGR(_L_)
-RETURN POST_PROJ(_L_) _ORDER-SKIP-LIMIT_
+WITH _PRE_PROJ_(_L_)
+WITH _AGGR_(_L_)
+RETURN _POST_PROJ_(_L_) _ORDER-SKIP-LIMIT_
 ----
 
 Analogously, `WITH _L_ _ORDER-SKIP-LIMIT_` is effectively equivalent to
 
 [source, cypher, subs="quotes"]
 ----
-WITH PRE_PROJ(_L_)
-WITH AGGR(_L_)
-WITH POST_PROJ(_L_) _ORDER-SKIP-LIMIT_
+WITH _PRE_PROJ_(_L_)
+WITH _AGGR_(_L_)
+WITH _POST_PROJ_(_L_) _ORDER-SKIP-LIMIT_
 ----
 ====
 
 The https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=SortItem[<SortItem>]s in ORDER BY clause contain an expression.
-Since these expressions are effectively evaluate at the same time as all POST_PROJ(_L_) expressions, the syntax restrictions applies.
+Since these expressions are effectively evaluate at the same time as all _POST_PROJ_(_L_) expressions, the syntax restrictions applies.
 
 [IMPORTANT]
 ====
-For `WITH _L_ ORDER BY _SI_` and `RETURN _L_ ORDER BY _SI_` and every _ex_ directly contained in a <SortItem> in _SI_, CONSTANT(_ex_) shall hold.
+For `WITH _L_ ORDER BY _SI_` and `RETURN _L_ ORDER BY _SI_` and every _ex_ directly contained in a <SortItem> in _SI_, _CONSTANT_(_ex_) shall hold.
 ====
 
-==== Aliasing
+==== Omitted aliases
 
 This proposal considers all projects have user-given alias.
 Cypher allows to omit the aliases, particularly in the RETURN clause, though.
