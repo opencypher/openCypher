@@ -270,7 +270,6 @@ should produce a result that is grouped by `a` and `foo` should be computed for 
 ====
 A less artificial example is calculating the total gross of an order as the discounted sum of the net values –– product price multiplied by amount –– of the order's line items in query such as:
 
-.[[Q5]]Q5
 [source, cypher]
 ----
 MATCH
@@ -405,7 +404,7 @@ is not rewritten to valid query.
 ====
 By the grouping and aggregation semantics, the RETURN clause
 
-.[[Q6]]Q6
+.[[Q5]]Q5
 [source, cypher]
 ----
 RETURN a AS a, b + SUM(c) * 2 AS foo
@@ -422,7 +421,7 @@ RETURN a AS a, b + foo_1 * 2 AS foo
 
 Note that variable `b` appears in the <ProjectionItem> `b + foo_1 * 2 AS foo` in the RETURN clause.
 However, variable `b` has already by removed from the driving table by the previous projections.
-In other words, the proposed rewrite produce invalid query text for <<Q6>>.
+In other words, the proposed rewrite produce invalid query text for <<Q5>>.
 ====
 
 To prevent such invalid rewrites, this CIP imposes a syntax restriction on RETURN and WITH clauses.
@@ -446,7 +445,7 @@ For clauses `WITH _L_` and `RETURN _L_` and every _p_ = `_ex_ AS _a_` in _L_ whe
 
 .Effect of the restriction
 ====
-Under this restriction, <<Q6>> is invalid.
+Under this restriction, <<Q5>> is invalid.
 For sub-expression `b` in <ProjectionItem> `b + foo_1 * 2 AS foo`, _CONSTANT_(`b`) does not hold, since `b` is neither a aggregation function, a grouping key, a constant, a parameter, nor has it any sub-expressions.
 ====
 
@@ -585,7 +584,7 @@ All other major query language explicitly delineate grouping key expressions.
 
 For instance, SQL does so by requiring users to list all grouping key expressions in the GROUP BY clause.
 If the GROUP BY clause is present in a query, the projection in the SELECT clause have to fulfill a similar syntax restriction as defined by this CIP.
-The SQL-equivalent of <<Q6>>
+The SQL-equivalent of <<Q5>>
 
 [source, sql]
 ----
@@ -616,7 +615,7 @@ To this effect, the proposed rules of the syntax restriction are a heuristic, wh
 
 The RETURN clause
 
-.[[Q7]]Q7
+.[[Q6]]Q6
 [source, cypher]
 ----
 RETURN a AS a, (b - b) + SUM(c) AS foo
