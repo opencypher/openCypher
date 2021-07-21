@@ -34,7 +34,7 @@ Feature: ExistentialSubquery1 - Simple existential subquery
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A {prop:1})-[:R]->(b:B {prop:1}), (a)-[:R]->(:C {prop:2}), (a)-[:R]->(:D {prop:3})
+      CREATE (a:A {prop: 1})-[:R]->(b:B {prop: 1}), (a)-[:R]->(:C {prop: 2}), (a)-[:R]->(:D {prop: 3})
       """
     When executing query:
       """
@@ -52,7 +52,7 @@ Feature: ExistentialSubquery1 - Simple existential subquery
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A {prop:1})-[:R]->(b:B {prop:1}), (a)-[:R]->(:C {prop:2}), (a)-[:R]->(:D {prop:3})
+      CREATE (a:A {prop: 1})-[:R]->(b:B {prop: 1}), (a)-[:R]->(:C {prop: 2}), (a)-[:R]->(:D {prop: 3})
       """
     When executing query:
       """
@@ -70,7 +70,7 @@ Feature: ExistentialSubquery1 - Simple existential subquery
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A {prop:1})-[:R]->(b:B {prop:1}), (a)-[:R]->(:C {prop:2}), (a)-[:R]->(:D {prop:3})
+      CREATE (a:A {prop: 1})-[:R]->(b:B {prop: 1}), (a)-[:R]->(:C {prop: 2}), (a)-[:R]->(:D {prop: 3})
       """
     When executing query:
       """
@@ -87,7 +87,7 @@ Feature: ExistentialSubquery1 - Simple existential subquery
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A {prop:1})-[:R]->(b:B {prop:1}), (a)-[:R]->(:C {prop:2}), (a)-[:R]->(:D {prop:3})
+      CREATE (a:A {prop: 1})-[:R]->(b:B {prop: 1}), (a)-[:R]->(:C {prop: 2}), (a)-[:R]->(:D {prop: 3})
       """
     When executing query:
       """
