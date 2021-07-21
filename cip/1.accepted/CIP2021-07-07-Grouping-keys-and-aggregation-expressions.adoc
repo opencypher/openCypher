@@ -118,7 +118,7 @@ and
 
 [source, cypher, subs="quotes"]
 ----
-RETURN _k_~1~ AS _k_~1~, _k_~2~ AS _k_~2~, ..., _k~N~_ AS _k~N~_,
+RETURN _k_~1~ AS _ka_~1~, _k_~2~ AS _ka_~2~, ..., _k~N~_ AS _ka~N~_,
        _agg_~1~(_x_~1~) AS _al_~1~, _agg_~2~(_x_~2~) AS _al_~2~, ..., _agg~M~_(_x~M~_) AS _al~M~_
 ----
 
