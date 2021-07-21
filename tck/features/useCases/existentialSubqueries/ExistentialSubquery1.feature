@@ -28,9 +28,9 @@
 
 #encoding: utf-8
 
-Feature: ExistentialSubqueries3 - Nested existential subqueries
+Feature: ExistentialSubquery1 - Simple existential subquery
 
-  Scenario: [1] Nested simple existential subquery
+  Scenario: [1] Simple subquery without WHERE clause
     Given an empty graph
     And having executed:
       """
@@ -39,9 +39,7 @@ Feature: ExistentialSubqueries3 - Nested existential subqueries
     When executing query:
       """
       MATCH (n) WHERE EXISTS {
-        MATCH (m) WHERE EXISTS {
-          (n)-[]->(m) WHERE n.prop = m.prop
-        }
+        (n)-->()
       }
       RETURN n
       """
@@ -50,7 +48,7 @@ Feature: ExistentialSubqueries3 - Nested existential subqueries
       | (:A {prop:1}) |
     And no side effects
 
-  Scenario: [2] Nested full existential subquery
+  Scenario: [2] Simple subquery with WHERE clause
     Given an empty graph
     And having executed:
       """
@@ -59,13 +57,45 @@ Feature: ExistentialSubqueries3 - Nested existential subqueries
     When executing query:
       """
       MATCH (n) WHERE EXISTS {
-        MATCH (m) WHERE EXISTS {
-          MATCH (l) WHERE (l)<--(n)-->(m)
-        }
+        (n)-->(m) WHERE n.prop = m.prop
       }
       RETURN n
       """
     Then the result should be, in any order:
       | n             |
       | (:A {prop:1}) |
+    And no side effects
+
+  Scenario: [3] Simple subquery without WHERE clause, not existing pattern
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A {prop:1})-[:R]->(b:B {prop:1}), (a)-[:R]->(:C {prop:2}), (a)-[:R]->(:D {prop:3})
+      """
+    When executing query:
+      """
+      MATCH (n) WHERE EXISTS {
+        (n)-[:NA]->()
+      }
+      RETURN n
+      """
+    Then the result should be, in any order:
+      | n |
+    And no side effects
+
+  Scenario: [4] Simple subquery with WHERE clause, not existing pattern
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A {prop:1})-[:R]->(b:B {prop:1}), (a)-[:R]->(:C {prop:2}), (a)-[:R]->(:D {prop:3})
+      """
+    When executing query:
+      """
+      MATCH (n) WHERE EXISTS {
+        (n)-[r]->() WHERE type(r) = "NA"
+      }
+      RETURN n
+      """
+    Then the result should be, in any order:
+      | n |
     And no side effects

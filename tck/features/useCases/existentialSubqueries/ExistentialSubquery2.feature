@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: ExistentialSubqueries2 - Full existential subquery
+Feature: ExistentialSubquery2 - Full existential subquery
 
   Scenario: [1] Full existential subquery
     Given an empty graph
