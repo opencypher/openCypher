@@ -213,6 +213,7 @@ WHERE EXISTS {
   WHERE other.name = actor.name
   WITH other, count(*) as c
   WHERE c > 1
+  RETURN true
 }
 RETURN actor
 ----
@@ -251,6 +252,7 @@ WHERE EXISTS {
   }
   WITH team, count(*) AS numAPlayers
   WHERE numAPlayers > 2
+  RETURN true
 }
 RETURN team
 ----
