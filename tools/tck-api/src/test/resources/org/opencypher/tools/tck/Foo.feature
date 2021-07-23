@@ -71,7 +71,7 @@ Feature: Foo
       """
     Then a SyntaxError should be raised at compile time: *
 
-  Scenario: Fail with any type and detail at any type
+  Scenario: Fail with any type and any detail at any type
     Given an empty graph
     When executing query:
       """
