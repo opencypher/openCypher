@@ -267,14 +267,18 @@ object CypherTCK {
       scenarioSteps
     }.toList
     val (name, number) = parseNameAndNumber(nameAndNumber)
-    val tagsInferred = {
-      if (steps.exists {
+    val tagsInferred = tags ++ Set(TCKTags.NEGATIVE_TEST, TCKTags.WILDCARD_ERROR_DETAILS).filter {
+      case TCKTags.NEGATIVE_TEST => steps.exists {
         case ExpectError(_, _, _, _) => true
         case _ => false
-      })
-        tags + TCKTags.NEGATIVE_TEST
-      else
-        tags
+      }
+      case TCKTags.WILDCARD_ERROR_DETAILS => steps.exists {
+        case ExpectError(TCKErrorTypes.ERROR, _, _, _) => true
+        case ExpectError(_, TCKErrorPhases.ANY_TIME, _, _) => true
+        case ExpectError(_, _, TCKErrorDetails.ANY, _) => true
+        case _ => false
+      }
+      case _ => false
     }
     Scenario(categories.toList, featureName, number, name, exampleIndex, exampleName, tagsInferred, steps, pickle, sourceFile)
   }
