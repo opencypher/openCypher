@@ -34,4 +34,5 @@ object TCKTags {
   val SKIP_STYLE_CHECK = "@skipStyleCheck"
   val SKIP_GRAMMAR_CHECK = "@skipGrammarCheck"
   val NEGATIVE_TEST = "@NegativeTest"
+  val WILDCARD_ERROR_DETAILS = "@WildcardErrorDetails"
 }
