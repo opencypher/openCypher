@@ -98,4 +98,9 @@ class TCKApiTest extends AnyFunSuite with Matchers {
     val negativeTestScenarios = scenarios.filter(_.name == "Fail")
     negativeTestScenarios.foreach(_.tags should contain (TCKTags.NEGATIVE_TEST))
   }
+
+  test("scenarios with an error wildcards in an ExpectError step have the TCKTags.WILDCARD_ERROR_DETAILS tag") {
+    val negativeTestScenarios = scenarios.filter(s => s.featureName == "Foo" && s.name.matches("(any time|any type|any detail)"))
+    negativeTestScenarios.foreach(_.tags should contain (TCKTags.WILDCARD_ERROR_DETAILS))
+  }
 }
