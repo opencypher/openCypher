@@ -60,7 +60,7 @@ Feature: ExistentialSubquery3 - Nested existential subquery
       """
       MATCH (n) WHERE EXISTS {
         MATCH (m) WHERE EXISTS {
-          MATCH (l) WHERE (l)<--(n)-->(m)
+          MATCH (l) WHERE (l)<--(n)-->(m) RETURN true
         }
       }
       RETURN n
