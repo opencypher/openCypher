@@ -29,3 +29,46 @@
 #encoding: utf-8
 
 Feature: Boolean2 - OR logical operations
+
+  Scenario: [1] Disjunction of two truth values
+    Given any graph
+    When executing query:
+      """
+      RETURN true OR true AS tt, true OR false AS tf, false OR true AS ft, false OR false AS ff
+      """
+    Then the result should be, in any order:
+      | tt   | tf   | ft   | ff    |
+      | true | true | true | false |
+    And no side effects
+
+  Scenario: [2] Disjunction of three truth values
+    Given any graph
+    When executing query:
+      """
+      RETURN true OR true OR true AS ttt,
+             true OR true OR false AS ttf,
+             true OR false OR true AS tft,
+             true OR false OR false AS tff,
+             false OR true OR true AS ftt,
+             false OR true OR false AS ftf,
+             false OR false OR true AS fft,
+             false OR false OR false AS fff
+      """
+    Then the result should be, in any order:
+      | ttt  | ttf  | tft  | tff  | ftt  | ftf  | fft  | fff   |
+      | true | true | true | true | true | true | true | false |
+    And no side effects
+
+  Scenario: [3] Disjunction of many truth values
+    Given any graph
+    When executing query:
+      """
+      RETURN true OR true OR true OR true OR true OR true OR true OR true OR true OR true OR true AS t,
+             false OR false OR false OR false OR true OR false OR false OR false OR false OR false OR false AS s,
+             true OR false OR false OR false OR true OR false OR false OR true OR true OR true OR false AS m,
+             false OR false OR false OR false OR false OR false OR false OR false OR false OR false OR false AS f
+      """
+    Then the result should be, in any order:
+      | f    | s    | m    | f     |
+      | true | true | true | false |
+    And no side effects
