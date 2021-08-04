@@ -29,3 +29,46 @@
 #encoding: utf-8
 
 Feature: Boolean1 - And logical operations
+
+  Scenario: [1] Conjunction of two truth values
+    Given any graph
+    When executing query:
+      """
+      RETURN true AND true AS tt, true AND false AS tf, false AND true AS ft, false AND false AS ff
+      """
+    Then the result should be, in any order:
+      | tt   | tf    | ft    | ff    |
+      | true | false | false | false |
+    And no side effects
+
+  Scenario: [2] Conjunction of three truth values
+    Given any graph
+    When executing query:
+      """
+      RETURN true AND true AND true AS ttt,
+             true AND true AND false AS ttf,
+             true AND false AND true AS tft,
+             true AND false AND false AS tff,
+             false AND true AND true AS ftt,
+             false AND true AND false AS ftf,
+             false AND false AND true AS fft,
+             false AND false AND false AS fff
+      """
+    Then the result should be, in any order:
+      | ttt  | ttf   | tft   | tff   | ftt   | ftf   | fft   | fff   |
+      | true | false | false | false | false | false | false | false |
+    And no side effects
+
+  Scenario: [3] Conjunction of many truth values
+    Given any graph
+    When executing query:
+      """
+      RETURN true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AS t,
+             false AND false AND false AND false AND true AND false AND false AND false AND false AND false AND false AS s,
+             true AND false AND false AND false AND true AND false AND false AND true AND true AND true AND false AS m,
+             false AND false AND false AND false AND false AND false AND false AND false AND false AND false AND false AS f
+      """
+    Then the result should be, in any order:
+      | f    | s     | m     | f     |
+      | true | false | false | false |
+    And no side effects
