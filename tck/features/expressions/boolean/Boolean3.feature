@@ -30,7 +30,7 @@
 
 Feature: Boolean3 - XOR logical operations
 
-  Scenario: [1] Disjunction of two truth values
+  Scenario: [1] Exclusive disjunction of two truth values
     Given any graph
     When executing query:
       """
@@ -41,7 +41,7 @@ Feature: Boolean3 - XOR logical operations
       | false | true | true | false |
     And no side effects
 
-  Scenario: [2] Disjunction of three truth values
+  Scenario: [2] Exclusive disjunction of three truth values
     Given any graph
     When executing query:
       """
@@ -59,7 +59,7 @@ Feature: Boolean3 - XOR logical operations
       | false | false | false | true | false | true | true | false |
     And no side effects
 
-  Scenario: [3] Disjunction of many truth values
+  Scenario: [3] Exclusive disjunction of many truth values
     Given any graph
     When executing query:
       """
@@ -72,3 +72,29 @@ Feature: Boolean3 - XOR logical operations
       | f    | s     | m    | f     |
       | true | false | true | false |
     And no side effects
+
+  Scenario Outline: [4] Fail on exclusive disjunction of at least one non-booleans
+    Given any graph
+    When executing query:
+      """
+      RETURN <a> XOR <b>
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+    Examples:
+      | a       | b       |
+      | 123     | true    |
+      | 123.4   | false   |
+      | 'foo'   | true    |
+      | [true]  | false   |
+      | {x: []} | true    |
+      | false   | 123     |
+      | true    | 123.4   |
+      | false   | 'foo'   |
+      | true    | [false] |
+      | false   | {x: []} |
+      | 123     | 'foo'   |
+      | 123.4   | 123.4   |
+      | 'foo'   | {x: []} |
+      | [true]  | [false] |
+      | {x: []} | [123]   |
