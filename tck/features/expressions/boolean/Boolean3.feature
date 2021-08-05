@@ -73,7 +73,20 @@ Feature: Boolean3 - XOR logical operations
       | true | false | true | false |
     And no side effects
 
-  Scenario Outline: [4] Fail on exclusive disjunction of at least one non-booleans
+  Scenario: [4] Exclusive disjunction is commutative
+    Given any graph
+    When executing query:
+      """
+      UNWIND [true, false] AS a
+      UNWIND [true, false] AS b
+      RETURN DISTINCT (a XOR b) = (b XOR a) AS result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+  Scenario Outline: [5] Fail on exclusive disjunction of at least one non-booleans
     Given any graph
     When executing query:
       """
