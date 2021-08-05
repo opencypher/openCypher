@@ -86,7 +86,21 @@ Feature: Boolean3 - XOR logical operations
       | true   |
     And no side effects
 
-  Scenario Outline: [5] Fail on exclusive disjunction of at least one non-booleans
+  Scenario: [5] Exclusive disjunction is associative
+    Given any graph
+    When executing query:
+      """
+      UNWIND [true, false] AS a
+      UNWIND [true, false] AS b
+      UNWIND [true, false] AS c
+      RETURN DISTINCT (a XOR (b XOR c)) = ((a XOR b) XOR c) AS result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+  Scenario Outline: [6] Fail on exclusive disjunction of at least one non-booleans
     Given any graph
     When executing query:
       """
