@@ -86,7 +86,21 @@ Feature: Boolean1 - And logical operations
       | true   |
     And no side effects
 
-  Scenario Outline: [5] Fail on conjunction of at least one non-booleans
+  Scenario: [5] Conjunction is associative
+    Given any graph
+    When executing query:
+      """
+      UNWIND [true, false] AS a
+      UNWIND [true, false] AS b
+      UNWIND [true, false] AS c
+      RETURN DISTINCT (a AND (b AND c)) = ((a AND b) AND c) AS result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+  Scenario Outline: [6] Fail on conjunction of at least one non-booleans
     Given any graph
     When executing query:
       """
