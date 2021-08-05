@@ -65,12 +65,13 @@ Feature: Boolean2 - OR logical operations
       """
       RETURN true OR true OR true OR true OR true OR true OR true OR true OR true OR true OR true AS t,
              false OR false OR false OR false OR true OR false OR false OR false OR false OR false OR false AS s,
-             true OR false OR false OR false OR true OR false OR false OR true OR true OR true OR false AS m,
+             true OR false OR false OR false OR true OR false OR false OR true OR true OR true OR false AS m1,
+             true OR true OR false OR false OR true OR false OR false OR true OR true OR true OR false AS m2,
              false OR false OR false OR false OR false OR false OR false OR false OR false OR false OR false AS f
       """
     Then the result should be, in any order:
-      | f    | s    | m    | f     |
-      | true | true | true | false |
+      | t    | s    | m1   | m2   | f     |
+      | true | true | true | true | false |
     And no side effects
 
   Scenario: [4] Disjunction is commutative

@@ -10,7 +10,7 @@
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# WITHOUT WARRANTIES AND CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
@@ -65,12 +65,13 @@ Feature: Boolean1 - And logical operations
       """
       RETURN true AND true AND true AND true AND true AND true AND true AND true AND true AND true AND true AS t,
              false AND false AND false AND false AND true AND false AND false AND false AND false AND false AND false AS s,
-             true AND false AND false AND false AND true AND false AND false AND true AND true AND true AND false AS m,
+             true AND false AND false AND false AND true AND false AND false AND true AND true AND true AND false AS m1,
+             true AND true AND false AND false AND true AND false AND false AND true AND true AND true AND false AS m2,
              false AND false AND false AND false AND false AND false AND false AND false AND false AND false AND false AS f
       """
     Then the result should be, in any order:
-      | f    | s     | m     | f     |
-      | true | false | false | false |
+      | t    | s     | m1     | m2     | f     |
+      | true | false | false  | false  | false |
     And no side effects
 
   Scenario: [4] Conjunction is commutative
