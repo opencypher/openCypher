@@ -71,3 +71,29 @@ Feature: Boolean5 - Interop of logical operations
       | result |
       | true   |
     And no side effects
+
+  Scenario: [4] De Morgan's law: the negation of a disjunction is the conjunction of the negations
+    Given any graph
+    When executing query:
+      """
+      UNWIND [true, false] AS a
+      UNWIND [true, false] AS b
+      RETURN DISTINCT NOT (a OR b) = (NOT (a) AND NOT (b)) AS result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+  Scenario: [5] De Morgan's law: the negation of a conjunction is the disjunction of the negations
+    Given any graph
+    When executing query:
+      """
+      UNWIND [true, false] AS a
+      UNWIND [true, false] AS b
+      RETURN DISTINCT NOT (a AND b) = (NOT (a) OR NOT (b)) AS result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
