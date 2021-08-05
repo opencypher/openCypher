@@ -55,8 +55,8 @@ Feature: Boolean3 - XOR logical operations
              false XOR false XOR false AS fff
       """
     Then the result should be, in any order:
-      | ttt   | ttf   | tft   | tff  | ftt   | ftf  | fft  | fff   |
-      | false | false | false | true | false | true | true | false |
+      | ttt  | ttf   | tft   | tff  | ftt   | ftf  | fft  | fff   |
+      | true | false | false | true | false | true | true | false |
     And no side effects
 
   Scenario: [3] Exclusive disjunction of many truth values
@@ -65,12 +65,13 @@ Feature: Boolean3 - XOR logical operations
       """
       RETURN true XOR true XOR true XOR true XOR true XOR true XOR true XOR true XOR true XOR true XOR true AS t,
              false XOR false XOR false XOR false XOR true XOR false XOR false XOR false XOR false XOR false XOR false AS s,
-             true XOR false XOR false XOR false XOR true XOR false XOR false XOR true XOR true XOR true XOR false AS m,
+             true XOR false XOR false XOR false XOR true XOR false XOR false XOR true XOR true XOR true XOR false AS m1,
+             true XOR true XOR false XOR false XOR true XOR false XOR false XOR true XOR true XOR true XOR false AS m2,
              false XOR false XOR false XOR false XOR false XOR false XOR false XOR false XOR false XOR false XOR false AS f
       """
     Then the result should be, in any order:
-      | f    | s     | m    | f     |
-      | true | false | true | false |
+      | t    | s    | m1   | m2    | f     |
+      | true | true | true | false | false |
     And no side effects
 
   Scenario: [4] Exclusive disjunction is commutative
