@@ -29,3 +29,45 @@
 #encoding: utf-8
 
 Feature: Boolean5 - Interop of logical operations
+
+  Scenario: [1] Disjunction is distributive over conjunction
+    Given any graph
+    When executing query:
+      """
+      UNWIND [true, false] AS a
+      UNWIND [true, false] AS b
+      UNWIND [true, false] AS c
+      RETURN DISTINCT (a OR (b AND c)) = ((a OR b) AND (a OR c)) AS result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+  Scenario: [2] Conjunction is distributive over disjunction
+    Given any graph
+    When executing query:
+      """
+      UNWIND [true, false] AS a
+      UNWIND [true, false] AS b
+      UNWIND [true, false] AS c
+      RETURN DISTINCT (a AND (b OR c)) = ((a AND b) OR (a AND c)) AS result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+  Scenario: [3] Conjunction is distributive over exclusive disjunction
+    Given any graph
+    When executing query:
+      """
+      UNWIND [true, false] AS a
+      UNWIND [true, false] AS b
+      UNWIND [true, false] AS c
+      RETURN DISTINCT (a AND (b XOR c)) = ((a AND b) XOR (a AND c)) AS result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
