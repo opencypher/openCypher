@@ -72,3 +72,29 @@ Feature: Boolean2 - OR logical operations
       | f    | s    | m    | f     |
       | true | true | true | false |
     And no side effects
+
+  Scenario Outline: [4] Fail on disjunction of at least one non-booleans
+    Given any graph
+    When executing query:
+      """
+      RETURN <a> OR <b>
+      """
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
+
+    Examples:
+      | a       | b       |
+      | 123     | true    |
+      | 123.4   | false   |
+      | 'foo'   | true    |
+      | [true]  | false   |
+      | {x: []} | true    |
+      | false   | 123     |
+      | true    | 123.4   |
+      | false   | 'foo'   |
+      | true    | [false] |
+      | false   | {x: []} |
+      | 123     | 'foo'   |
+      | 123.4   | 123.4   |
+      | 'foo'   | {x: []} |
+      | [true]  | [true]  |
+      | {x: []} | [123]   |
