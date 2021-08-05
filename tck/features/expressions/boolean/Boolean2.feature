@@ -73,7 +73,20 @@ Feature: Boolean2 - OR logical operations
       | true | true | true | false |
     And no side effects
 
-  Scenario Outline: [4] Fail on disjunction of at least one non-booleans
+  Scenario: [4] Disjunction is commutative
+    Given any graph
+    When executing query:
+      """
+      UNWIND [true, false] AS a
+      UNWIND [true, false] AS b
+      RETURN DISTINCT (a OR b) = (b OR a) AS result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+  Scenario Outline: [5] Fail on disjunction of at least one non-booleans
     Given any graph
     When executing query:
       """
