@@ -38,8 +38,9 @@ Feature: ExistentialSubquery2 - Full existential subquery
       """
     When executing query:
       """
-      MATCH (n) WHERE EXISTS {
-        MATCH (m) WHERE (n)-->(m) RETURN true
+      MATCH (n) WHERE exists {
+        MATCH (m) WHERE (n)-->(m)
+        RETURN true
       }
       RETURN n
       """
@@ -56,7 +57,7 @@ Feature: ExistentialSubquery2 - Full existential subquery
       """
     When executing query:
       """
-      MATCH (n) WHERE EXISTS {
+      MATCH (n) WHERE exists {
         MATCH (m) WHERE (n)-->(m)
         WITH m, count(*) as numConnections
         WHERE numConnections = 3

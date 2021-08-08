@@ -38,7 +38,7 @@ Feature: ExistentialSubquery1 - Simple existential subquery
       """
     When executing query:
       """
-      MATCH (n) WHERE EXISTS {
+      MATCH (n) WHERE exists {
         (n)-->()
       }
       RETURN n
@@ -56,7 +56,7 @@ Feature: ExistentialSubquery1 - Simple existential subquery
       """
     When executing query:
       """
-      MATCH (n) WHERE EXISTS {
+      MATCH (n) WHERE exists {
         (n)-->(m) WHERE n.prop = m.prop
       }
       RETURN n
@@ -74,7 +74,7 @@ Feature: ExistentialSubquery1 - Simple existential subquery
       """
     When executing query:
       """
-      MATCH (n) WHERE EXISTS {
+      MATCH (n) WHERE exists {
         (n)-[:NA]->()
       }
       RETURN n
@@ -91,7 +91,7 @@ Feature: ExistentialSubquery1 - Simple existential subquery
       """
     When executing query:
       """
-      MATCH (n) WHERE EXISTS {
+      MATCH (n) WHERE exists {
         (n)-[r]->() WHERE type(r) = "NA"
       }
       RETURN n
