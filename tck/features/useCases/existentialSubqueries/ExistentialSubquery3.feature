@@ -38,10 +38,11 @@ Feature: ExistentialSubquery3 - Nested existential subquery
       """
     When executing query:
       """
-      MATCH (n) WHERE EXISTS {
-        MATCH (m) WHERE EXISTS {
+      MATCH (n) WHERE exists {
+        MATCH (m) WHERE exists {
           (n)-[]->(m) WHERE n.prop = m.prop
         }
+        RETURN true
       }
       RETURN n
       """
@@ -58,10 +59,11 @@ Feature: ExistentialSubquery3 - Nested existential subquery
       """
     When executing query:
       """
-      MATCH (n) WHERE EXISTS {
-        MATCH (m) WHERE EXISTS {
+      MATCH (n) WHERE exists {
+        MATCH (m) WHERE exists {
           MATCH (l) WHERE (l)<--(n)-->(m) RETURN true
         }
+        RETURN true
       }
       RETURN n
       """
