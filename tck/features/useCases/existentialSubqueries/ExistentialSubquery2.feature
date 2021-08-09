@@ -59,7 +59,7 @@ Feature: ExistentialSubquery2 - Full existential subquery
       """
       MATCH (n) WHERE exists {
         MATCH (m) WHERE (n)-->(m)
-        WITH m, count(*) as numConnections
+        WITH m, count(*) AS numConnections
         WHERE numConnections = 3
         RETURN true
       }
