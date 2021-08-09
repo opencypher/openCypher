@@ -92,7 +92,7 @@ Feature: ExistentialSubquery1 - Simple existential subquery
     When executing query:
       """
       MATCH (n) WHERE exists {
-        (n)-[r]->() WHERE type(r) = "NA"
+        (n)-[r]->() WHERE type(r) = 'NA'
       }
       RETURN n
       """
