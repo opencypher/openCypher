@@ -45,7 +45,7 @@ For instance, the following tree
  / \
 3   2
 ----
-encodes that the numeric addition is evaluated before the numeric multiplication, so that the expression results in 24.
+encodes that the numeric addition is evaluated before the numeric multiplication, so that the expression results in 20.
 
 However, the query string is a sequence of characters and not a tree.
 The parser turns the query string into such a tree.
@@ -61,13 +61,18 @@ For instance,
 ----
 3+2*4
 ----
-is also a valid notation.
-Without additional rules, it is not possible to unambiguously construct a nesting tree.
-In the particular case, two nesting trees are possible.
-To avoid this kind of ambiguity openCypher (and most other query and programming languages) have _precedence rules_.
+is also a valid expression.
+
+Without additional rules, it is not possible to unambiguously construct a nesting tree for such expression, though.
+In the particular case, two nesting trees are possible:
+
+- `((3+2)*4)`
+- `(3+(2*4))`
+
+To avoid this kind of ambiguity, openCypher (and most other query and programming languages) has _precedence rules_.
 
 Precedence rules (or rules of operator precedence) define the order in which the different kinds of expressions are evaluated.
-For instance, numeric multiplication is evaluated before numeric addition, such that
+For instance, numeric multiplication is evaluated before numeric addition, such that expression
 ----
 3+2*4
 ----
@@ -75,7 +80,7 @@ is effectively evaluated as
 ----
 (3+(2*4))
 ----
-and results in 11 (rather than 24).
+and, hence, results in 11 (rather than 20).
 
 This CIP states the precedence rules of openCypher.
 
