@@ -86,11 +86,18 @@ This CIP states the precedence rules of openCypher.
 
 == Proposal
 
+The precedence in openCypher is defined by _precedence levels_ and _left-to-right precedence_.
+
+=== Precedence levels
+
+The precedence levels are listed in descreasing order in the following <<precedenceLevels,table>>.
+
+.[[precedenceLevels]]Precedence levels
 [cols="<.<1a,<.<4a,<.<4a", options="header"]
 |===
 |Level         |Group         |Operators
 
-|0
+|12
 |Atoms
 |
 
@@ -107,14 +114,14 @@ This CIP states the precedence rules of openCypher.
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[existential subqueries]
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[parenthesized expression]
 
-|1
+|11
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PropertyOrLabelsExpression[Graph element operations]
 |
 
 * property lookup
 * label expressions
 
-.3+|2
+.3+|10
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=StringOperatorExpression[String operations] (left-hand operand)
 |
 
@@ -136,20 +143,20 @@ This CIP states the precedence rules of openCypher.
 * Null predicate
 * Not-null predicate
 
-|3
+|9
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=UnaryAddOrSubtractExpression[Arithmetic additive inverse]
 |
 
 * Unary negative
 * Unary positive
 
-|4
+|8
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PowerOfExpression[Exponentiation] (left-hand and right-hand operand)
 |
 
 * Exponentiation
 
-|5
+|7
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Arithmetic multiplicative operations] (left-hand and right-hand operand)
 |
 
@@ -164,7 +171,7 @@ This CIP states the precedence rules of openCypher.
 * Addition
 * Substraction
 
-|7
+|5
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ComparisonExpression[Comparison operations] (left-hand and right-hand operand)
 |
 
@@ -175,25 +182,25 @@ This CIP states the precedence rules of openCypher.
 * Less
 * Less or Equal
 
-|8
+|4
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NotExpression[Boolean negation] (left-hand and right-hand operand)
 |
 
 * Negation
 
-|9
+|3
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AndExpression[Boolean conjunction] (left-hand and right-hand operand)
 |
 
 * Conjunction
 
-|10
+|2
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=XorExpression[Boolean exclusive disjunction] (left-hand and right-hand operand)
 |
 
 * Exclusive disjunction
 
-|11
+|1
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=OrExpression[Boolean inclusive disjunction] (left-hand and right-hand operand)
 |
 
@@ -201,6 +208,44 @@ This CIP states the precedence rules of openCypher.
 
 |===
 
+[IMPORTANT]
+.Rule of precedence levels
+====
+Operations on level _X_ take precedence over any operation on level _Y_, when _X_ > _Y_, i.e. are of higher precedence.
+Operations can only directly accept operations of higher precedence as operands.
+====
+
+The rule of precedence levels is enforced by the grammar.
+
+The rule of precedence levels does not apply to all operands, though.
+The table points out to which operands (left-hand or left-hand and right-hand) the rule of precedence levels apply.
+
+If an operation has operands to which the precedence levels do not apply according to the table, these operands are syntactically delineate such that there is no ambiguity with regard to the nesting tree.
+For instance, the syntax of the list element access clear delineates the list element index operand by brackets, e.g. `myList[5]`.
+Such clear delinated operands grammatically allow an expression of any precedence level, i.e. grammar encodes the operand as https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Expression[<Expression>].
+
+A prominent expression with a clearly delineated operand is the _parenthesized expression_.
+The parenthesized expression, has a single operand delineated by parentheses, i.e. `( n.prop+6 )` where `n.prop+6` is the delineated operand.
+The parenthesized expression has no other purpose than grammatically allowing expression are operands that do not meet the rule of precedence levels.
+For instance, an arithmetic addition cannot be directly an operand to an arithmetic multiplication by the rule of precedence levels, since addition is of lower precedence than multiplication.
+However, with the help of a parenthesized expression, the user can denote the
+----
+3+(2*4)
+----
+as a valid expression.
+This achieves the desire nesting tree
+----
+    *
+   / \
+ ( )  4
+  |
+  +
+ / \
+3   2
+----
+where the arithmetic addition is an operand to the arithmetic multiplication and, hence, results in 20 (rather than 11).
+
+=== Left-to-right precedence
 
 == What others do
 
