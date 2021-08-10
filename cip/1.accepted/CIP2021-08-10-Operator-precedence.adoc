@@ -71,7 +71,7 @@ In the particular case, two nesting trees are possible:
 
 To avoid this kind of ambiguity, openCypher (and most other query and programming languages) has _precedence rules_.
 
-Precedence rules (or rules of operator precedence) define the order in which the different kinds of expressions are evaluated.
+Precedence rules (or rules of operator precedence) define the order in which the different operators, i.e. the different operators kinds of expressions, are evaluated.
 For instance, numeric multiplication is evaluated before numeric addition, such that expression
 ----
 3+2*4
@@ -85,6 +85,121 @@ and, hence, results in 11 (rather than 20).
 This CIP states the precedence rules of openCypher.
 
 == Proposal
+
+[cols="<.<1a,<.<4a,<.<4a", options="header"]
+|===
+|Level         |Group         |Operators
+
+|0
+|Atoms
+|
+
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Literal[literals]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Variable[variables]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Parameter[parameters]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=CaseExpression[case expressions]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ListComprehension[list comprehensions]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternComprehension[pattern comprehensions]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Reduce[reduce operations]
+* quantifiers
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[pattern predicates]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[function invocations]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[existential subqueries]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[parenthesized expression]
+
+|1
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PropertyOrLabelsExpression[Graph element operations]
+|
+
+* property lookup
+* label expressions
+
+.3+|2
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=StringOperatorExpression[String operations] (left-hand operand)
+|
+
+* Prefix predicate (and right-hand operand)
+* Suffix predicate (and right-hand operand)
+* Contains predicate (and right-hand operand)
+* Regular expression predicate
+
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=StringOperatorExpression[List operations] (left-hand operand)
+|
+
+* List element containment predicate (and right-hand operand)
+* List element access
+* List slicing
+
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NullOperatorExpression[Null operations] (left-hand operand)
+|
+
+* Null predicate
+* Not-null predicate
+
+|3
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=UnaryAddOrSubtractExpression[Arithmetic additive inverse]
+|
+
+* Unary negative
+* Unary positive
+
+|4
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PowerOfExpression[Exponentiation] (left-hand and right-hand operand)
+|
+
+* Exponentiation
+
+|5
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Arithmetic multiplicative operations] (left-hand and right-hand operand)
+|
+
+* Multiplication
+* Division
+* Modulo
+
+|6
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AddOrSubtractExpression[Arithmetic additive operations] (left-hand and right-hand operand)
+|
+
+* Addition
+* Substraction
+
+|7
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ComparisonExpression[Comparison operations] (left-hand and right-hand operand)
+|
+
+* Equal
+* Unequal
+* Greater
+* Greater or Equal
+* Less
+* Less or Equal
+
+|8
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NotExpression[Boolean negation] (left-hand and right-hand operand)
+|
+
+* Negation
+
+|9
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AndExpression[Boolean conjunction] (left-hand and right-hand operand)
+|
+
+* Conjunction
+
+|10
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=XorExpression[Boolean exclusive disjunction] (left-hand and right-hand operand)
+|
+
+* Exclusive disjunction
+
+|11
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=OrExpression[Boolean inclusive disjunction] (left-hand and right-hand operand)
+|
+
+* Inclusive disjunction
+
+|===
 
 
 == What others do
