@@ -80,7 +80,7 @@ Feature: ExistentialSubquery2 - Full existential subquery
     When executing query:
       """
       MATCH (n) WHERE exists {
-        MATCH (m) WHERE (n)-->(m)
+        MATCH (n)-->(m)
         SET m.prop='fail'
       }
       RETURN n
