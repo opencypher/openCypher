@@ -308,6 +308,69 @@ Example expression are
 For chains of the same associative operator all possible operator trees are semantically equivalent.
 ====
 
+Consequently, the example evaluate as follows:
+
+[cols="2a,1a"]
+|====
+|
+[source, cypher]
+----
+RETURN  5 + 4 + 3  AS a,
+       (5 + 4)+ 3  AS b,
+        5 +(4 + 3) AS c
+----
+|
+[options="header"]
+!====
+!a !b !c
+!12!12!12
+!====
+
+|
+[source, cypher]
+----
+RETURN  5 * 4 * 3  AS a,
+       (5 * 4)* 3  AS b,
+        5 *(4 * 3) AS c
+----
+|
+[options="header"]
+!====
+!a !b !c
+!60!60!60
+!====
+
+|
+[source, cypher]
+----
+RETURN  TRUE AND FALSE  AND TRUE  AS a,
+       (TRUE AND FALSE) AND TRUE  AS b,
+        TRUE AND (FALSE AND TRUE) AS c
+----
+|
+[options="header"]
+!====
+!a    !b    !c
+!false!false!false
+!====
+
+|
+[source, cypher]
+----
+RETURN  TRUE OR FALSE  OR TRUE  AS a,
+       (TRUE OR FALSE) OR TRUE  AS b,
+        TRUE OR (FALSE OR TRUE) AS c
+----
+|
+[options="header"]
+!====
+!a   !b   !c
+!true!true!true
+!====
+
+|====
+
+
 ==== Chaining of non-associative or mixed operators
 Non-associative operators that allow chaining with themselves of other operators on the same precedence level are
 
