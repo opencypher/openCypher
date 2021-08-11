@@ -93,7 +93,7 @@ Both are defined in the following.
 
 === Precedence levels
 
-The precedence levels are listed in descending order in the following <<precedenceLevels,table>>.
+The following <<precedenceLevels,table>> lists the precedence levels in descending order.
 
 .[[precedenceLevels]]Precedence levels
 [cols="<.<1a,<.<4a,<.<4a", options="header"]
