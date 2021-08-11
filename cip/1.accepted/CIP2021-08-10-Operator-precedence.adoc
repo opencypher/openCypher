@@ -88,7 +88,7 @@ This CIP states the precedence rules of openCypher.
 
 == Proposal
 
-The precedence in openCypher is defined by (1) _precedence levels_ and (2) _intr level precedence_.
+The precedence in openCypher is defined by (1) _precedence levels_ and (2) _operator associativity_.
 Both are defined in the following two subsections.
 
 === Precedence levels
@@ -248,7 +248,7 @@ This achieves the desire operator tree
 ----
 where the arithmetic addition is an operand to the arithmetic multiplication and, hence, results in `20` (rather than `11`).
 
-=== Intra level precedence
+=== Operator associativity
 
 Most precedence level include multiple operators.
 
@@ -266,9 +266,18 @@ For instance, all the following are valid expressions:
 * `5 % 4 * 3`
 * `5 > 4 >= 3`
 
-Such chained operators fall into four categories:
+Associativity of the operators define the operator tree unambiguously for such expressions.
 
-==== Chaining type-incompatible operators
+Chains of operators fall into four categories:
+
+* _Chains of type-incompatible operators_
+* _Chains of closed unary operators_
+* _Chains of binary operators_
+* _Chains with extra semantics_
+
+Each is discussed in the following subsections, respectively.
+
+==== Chains of type-incompatible operators
 The grammar allows chaining of some operators in https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=StringListNullOperatorExpression[String, list, and null operators], which are
 
 * not type compatible or
@@ -300,7 +309,7 @@ For instance, grammatically allowed operator chains with only a single  valid op
 ** `foo CONTAINS ('bar' IN list)` is invalid because the containment predicate does not accept a boolean as second operand
 
 [IMPORTANT]
-.Chaining of type-incompatible operators
+.Chains of type-incompatible operators
 ====
 Chains of (partly) type-incompatible operators either
 
@@ -308,7 +317,7 @@ Chains of (partly) type-incompatible operators either
 * have only one valid operator tree.
 ====
 
-==== Chaining closed unary operators
+==== Chains of closed unary operators
 Closed unary operators that allow chaining on the same precedence level are
 
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=UnaryAddOrSubtractExpression[Arithmetic additive inverse]
@@ -329,7 +338,16 @@ Example expressions are
 Chains of closed unary operators have an unambiguous operator tree.
 ====
 
-==== Chaining binary operators
+[NOTE]
+.Associativity of unary operators
+====
+The grammar defines if the operand of an unary operator is on the left end or on the right end of the operator's syntax.
+This renders the operator left- or right associative, respectively.
+Nevertheless, the grammar allows only one unambiguous operator tree, in both case.
+====
+
+
+==== Chains of binary operators
 Binary operators that allow chaining with themselves of other operators of compatible result type on the same precedence level are
 
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PowerOfExpression[Exponentiation]
@@ -357,7 +375,7 @@ Example expressions are
 * `TRUE XOR FALSE XOR TRUE`
 
 [IMPORTANT]
-.Chaining of binary operators
+.Chains of binary operators
 ====
 In chains of binary operators, the operator have left-to-right associativity, i.e. for every two operators, the operator appear earlier (more left) in the query string takes precedence and the operator tree is left-deep.
 ====
@@ -365,7 +383,7 @@ In chains of binary operators, the operator have left-to-right associativity, i.
 [NOTE]
 .Associative binary operators
 ====
-Where the semantics of operator is associative (e.g. addition), a right-deep operator tree produces the same result.
+Where the semantics of operator is associative (e.g. addition), a right-deep operator tree produces the same result as a left-deep operator tree.
 ====
 
 Consequently, the examples evaluate as follows:
@@ -528,7 +546,7 @@ RETURN  TRUE XOR FALSE  XOR TRUE  AS a,
 
 |====
 
-==== Chaining with extra semantics
+==== Chains with extra semantics
 Operators whose chaining gives extra semantics are
 
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ComparisonExpression[Comparison operations]
@@ -543,12 +561,18 @@ Example expression are
 * `5 >= 4 < 3`
 
 [IMPORTANT]
-.Chaining with extra semantics
+.Chains with extra semantics
 ====
 Chains with extra semantics, either
 
 a. form a flat operator tree of a single operator, or
 b. their semantics is defined by a syntax transformation to an expression that has an unambiguous operator tree based on the other precedence rules stated in this document.
+====
+
+[NOTE]
+.Associativity of comparison operators
+====
+Because of the extra semantics of a chain of comparison, the comparison operators do not have any observable associativity in openCypher.
 ====
 
 Consequently, the examples evaluate as follows:
@@ -649,15 +673,46 @@ RETURN  5 <= 4 < 3  AS a,
 
 == What others do
 
-openCypher has grammatically all operator in one precedence level hierarchy.
+openCypher has grammatically all operators in one precedence level hierarchy.
 This is similar to how precedence is defined for more programming languages.
 For instance:
 
 * https://docs.oracle.com/javase/tutorial/java/nutsandbolts/operators.html[Java]
 * https://docs.python.org/3/reference/expressions.html#operator-precedence[Python]
 * https://en.cppreference.com/w/cpp/language/operator_precedence[C++]
-* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table[Java Script]
+* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table[Javascript]
 
+The precedence is similar.
+Some minor difference:
+
+* Programming languages have extra operators openCypher does not have, e.g. increment/decrement, bitwise operators, ternary operator, and assignments
+* In Javascript exponentiation is right-to-left associative
+
+SQL encodes large parts of the type compatibility of expressions in the grammar.
+Hence, its precedence hierarchy is partition by type.
+Within one type, SQL's precedence hierarchy is similar.
+
+Chainable operators, such as addition, multiplication, etc. are left-to-right associative in SQL as well.
+However, SQL directly encode that in the grammar, with left-recursive production rules, e.g.
+
+[source, ebnf]
+----
+<numeric value expression> ::=
+    <term>
+  | <numeric value expression> <plus sign> <term>
+  | <numeric value expression> <minus sign> <term>
+
+<term> ::=
+    <factor>
+  | <term> <asterisk> <factor>
+  | <term> <solidus> <factor>
+
+<factor> ::=
+  [ <sign> ] <numeric primary>
+----
+
+Most program and query language do not give chains of comparison operators extra semantics.
+Typically, comparison operators are left-to-right associative.
 
 == Benefits to this proposal
 
