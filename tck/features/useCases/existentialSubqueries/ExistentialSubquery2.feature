@@ -55,7 +55,10 @@ Feature: ExistentialSubquery2 - Full existential subquery
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A {prop: 1})-[:R]->(b:B {prop: 1}), (a)-[:R]->(:C {prop: 2}), (a)-[:R]->(:D {prop: 3})
+      CREATE (a:A {prop: 1})-[:R]->(b:B {prop: 1}), 
+             (a)-[:R]->(:C {prop: 2}), 
+             (a)-[:R]->(d:D {prop: 3}), 
+             (b)-[:R]->(d)
       """
     When executing query:
       """
