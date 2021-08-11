@@ -88,8 +88,8 @@ This CIP states the precedence rules of openCypher.
 
 == Proposal
 
-The precedence in openCypher is defined by (1) _precedence levels_ and (2) _left-to-right precedence_.
-Both are defined in the following.
+The precedence in openCypher is defined by (1) _precedence levels_ and (2) _intr level precedence_.
+Both are defined in the following two subsections.
 
 === Precedence levels
 
@@ -248,7 +248,7 @@ This achieves the desire operator tree
 ----
 where the arithmetic addition is an operand to the arithmetic multiplication and, hence, results in `20` (rather than `11`).
 
-=== Left-to-right precedence
+=== Intra level precedence
 
 Most precedence level include multiple operators.
 
@@ -270,7 +270,7 @@ For instance, all the following are valid expressions:
 
 Such chained expression fall into four categories:
 
-==== Chaining of unary operators
+==== Chaining unary operators
 Unary operators that allow chaining on the same precedence level are
 
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=UnaryAddOrSubtractExpression[Arithmetic additive inverse]
@@ -287,7 +287,7 @@ Example expression are
 The chaining of unary operators has unambiguous operator tree.
 ====
 
-==== Chaining of the same associative operator
+==== Chaining the same associative operator
 Associative operators that allow chaining are
 
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Multiplication]
@@ -371,7 +371,7 @@ RETURN  TRUE OR FALSE  OR TRUE  AS a,
 |====
 
 
-==== Chaining of non-associative or mixed operators
+==== Chaining non-associative or mixed operators
 Non-associative operators that allow chaining with themselves of other operators on the same precedence level are
 
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=StringListNullOperatorExpression[String, list, and null operations] (where type-compatible)
@@ -399,7 +399,7 @@ Example expression are
 In chains of non-associative or mixed operators, for every two operators, the operator appear earlier (more left) in the character string takes precedence, i.e. the operator tree is left-deep.
 ====
 
-==== Chaining gives extra semantics
+==== Chaining with extra semantics
 Operators whose chaining gives extra semantics are
 
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ComparisonExpression[Comparison operations]
@@ -414,9 +414,9 @@ Example expression are
 * `5 >= 4 < 3`
 
 [IMPORTANT]
-.Chaining gives extra semantics
+.Chaining with extra semantics
 ====
-Chains with extra semantics
+Chains with extra semantics, either
 
 a. form a flat operator tree of a single operator, or
 b. their semantics is defined by a syntax transformation to an expression that has an unambiguous operator tree based on the other precedence rules stated in this document.
