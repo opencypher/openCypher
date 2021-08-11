@@ -19,6 +19,7 @@ toc::[]
 
 The expression sub-languages of openCypher (and most other query and programming languages) allow very liberal composition of different elementary expressions into complex expressions through nesting.
 Elementary expression the kinds of expressions the expression sub-languages provides and which for the building blocks of the sub-languages.
+
 Some elementary expressions have zero operands, e.g. literals.
 Most elementary expressions have one or more operands.
 For instance,
@@ -31,13 +32,14 @@ For instance,
 - A case expression has multiple operands -- a value to test, for every case a test value/predicate and a result value, and a default value of the 'else' case
 
 Some operands expect non-values, typically identifiers (variable names, function names, property keys, etc.).
-Such _non-value operands_ do not allow nesting of expressions because expression only resulting in values.
+Such _non-value operands_ do not allow nesting of expressions because expression only result in values.
+
 However, most operands expect values of some types.
 Such _value operands_ allow nesting of all expressions that result in a values of the expected type.
-The nested expressions form a tree and are typically evaluated bottom-up, i.e. all expressions are evaluated that provide an operand before the expression is evaluated that takes these operands.
+The nested expressions form an _operator tree_ and which typically evaluated bottom-up, i.e. all expressions that provide an operand are evaluated before the expression is evaluated that take this operands.
 (Higher-order expression, e.g. list comprehensions, have operands which are exceptions to this bottom-up evaluation.)
-In other words, the nesting tree encodes the evaluation order.
-For instance, the following tree
+In other words, the operator tree encodes the evaluation order.
+For instance, the following operator tree
 ----
     *
    / \
@@ -45,33 +47,33 @@ For instance, the following tree
  / \
 3   2
 ----
-encodes that the numeric addition is evaluated before the numeric multiplication, so that the expression results in 20.
+encodes that the numeric addition is evaluated before the numeric multiplication, so that the expression results in `20`.
 
 However, the query string is a sequence of characters and not a tree.
-The parser turns the query string into such a tree.
-The query string nesting can clearly be denoted by parentheses.
+The parser turns the query string into such an operator tree.
+In the query string, nesting can clearly be denoted by parentheses.
 For instance, the query string
 ----
 ((3+2)*4)
 ----
-allows a parser to unambiguously construct the nesting tree shown above.
+allows a parser to unambiguously construct the operator tree shown above.
 
-For user convenience, better readability, and familiarity with common convention in mathematical notation, openCypher (and most other query and programming languages) allows omitting the parentheses.
+For user convenience, better readability, and familiarity with common conventions in mathematical notation, openCypher (and most other query and programming languages) allows omitting the parentheses.
 For instance,
 ----
 3+2*4
 ----
 is also a valid expression.
 
-Without additional rules, it is not possible to unambiguously construct a nesting tree for such expression, though.
-In the particular case, two nesting trees are possible:
+Without additional rules, however, it is not possible to unambiguously construct a operator tree for such an expression.
+In the particular case, two operator trees are possible:
 
 - `((3+2)*4)`
 - `(3+(2*4))`
 
 To avoid this kind of ambiguity, openCypher (and most other query and programming languages) has _precedence rules_.
 
-Precedence rules (or rules of operator precedence) define the order in which the different operators, i.e. the different operators kinds of expressions, are evaluated.
+Precedence rules (or _rules of operator precedence_) define the order in which the different operators, i.e. the different kinds of expressions, are evaluated.
 For instance, numeric multiplication is evaluated before numeric addition, such that expression
 ----
 3+2*4
@@ -80,7 +82,7 @@ is effectively evaluated as
 ----
 (3+(2*4))
 ----
-and, hence, results in 11 (rather than 20).
+and, hence, results in `11` (rather than `20`).
 
 This CIP states the precedence rules of openCypher.
 
