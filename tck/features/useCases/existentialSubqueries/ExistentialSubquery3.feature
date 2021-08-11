@@ -65,6 +65,29 @@ Feature: ExistentialSubquery3 - Nested existential subquery
       """
       MATCH (n) WHERE exists {
         MATCH (m) WHERE exists {
+          MATCH (l)<-[:R]-(n)-[:R]->(m) RETURN true
+        }
+        RETURN true
+      }
+      RETURN n
+      """
+    Then the result should be, in any order:
+      | n             |
+      | (:A {prop:1}) |
+    And no side effects
+    
+  Scenario: [3] Nested full existential subquery with pattern predicate
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (a:A {prop: 1})-[:R]->(b:B {prop: 1}), 
+             (a)-[:R]->(:C {prop: 2}), 
+             (a)-[:R]->(:D {prop: 3})
+      """
+    When executing query:
+      """
+      MATCH (n) WHERE exists {
+        MATCH (m) WHERE exists {
           MATCH (l) WHERE (l)<-[:R]-(n)-[:R]->(m) RETURN true
         }
         RETURN true
