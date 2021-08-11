@@ -104,18 +104,18 @@ The following <<precedenceLevels,table>> lists the precedence levels in descendi
 |Atoms
 |
 
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Literal[literals]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Variable[variables]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Parameter[parameters]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=CaseExpression[case expressions]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ListComprehension[list comprehensions]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternComprehension[pattern comprehensions]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Reduce[reduce operations]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Literal[Literals]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Variable[Variables]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Parameter[Parameters]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=CaseExpression[Case expressions]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ListComprehension[List comprehensions]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternComprehension[Pattern comprehensions]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Reduce[Reduce operations]
 * quantifiers
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[pattern predicates]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[function invocations]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[existential subqueries]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[parenthesized expression]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[Pattern predicates]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[Function invocations]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[Existential subqueries]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[Parenthesized expression]
 
 |11
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PropertyOrLabelsExpression[Graph element operations]
@@ -186,7 +186,7 @@ The following <<precedenceLevels,table>> lists the precedence levels in descendi
 * Less or Equal
 
 |4
-|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NotExpression[Boolean negation] (left-hand and right-hand operand)
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NotExpression[Boolean negation]
 |
 
 * Negation
@@ -249,6 +249,117 @@ This achieves the desire operator tree
 where the arithmetic addition is an operand to the arithmetic multiplication and, hence, results in `20` (rather than `11`).
 
 === Left-to-right precedence
+
+Most precedence level include multiple operators.
+
+On some levels these operators are grammatical alternatives, e.g. for https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Atom[<Atom>s], and, hence, have unambiguous precendence.
+
+On other levels, however, the grammar allows repetitions of such operators (chaining).
+For instance, all the following are valid expressions:
+
+* `--+-5`
+* `5 + 4 + 3`
+* `5 - 4 - 3`
+* `5 - 4 + 3`
+* `5 * 4 * 3`
+* `5 / 4 / 3`
+* `5 % 4 % 3`
+* `5 % 4 * 3`
+* `5 > 4 >= 3`
+* `list[4..20][2..5][3]`
+
+Such chained expression fall into four categories:
+
+==== Chaining of unary operators
+Unary operators that allow chaining on the same precedence level are
+
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=UnaryAddOrSubtractExpression[Arithmetic additive inverse]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NotExpression[Boolean negation]
+
+Example expression are
+
+* `--+-5`
+* `NOT NOT NOT false`
+
+[IMPORTANT]
+.Chaining of unary operators
+====
+The chaining of unary operators has unambiguous operator tree.
+====
+
+==== Chaining of the same associative operator
+Associative operators that allow chaining are
+
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Multiplication]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AddOrSubtractExpression[Addition]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AndExpression[Boolean conjunction]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=OrExpression[Boolean inclusive disjunction]
+
+Example expression are
+
+* `5 + 4 + 3`
+* `5 * 4 * 3`
+* `TRUE AND FALSE AND TRUE`
+* `TRUE OR FALSE OR TRUE`
+
+[IMPORTANT]
+.Chaining of the same associative operator
+====
+For chains of the same associative operator all possible operator trees are semantically equivalent.
+====
+
+==== Chaining of non-associative or mixed operators
+Non-associative operators that allow chaining with themselves of other operators on the same precedence level are
+
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=StringListNullOperatorExpression[String, list, and null operations] (where type-compatible)
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PowerOfExpression[Exponentiation]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Division]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Modulo]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AddOrSubtractExpression[Substraction]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=OrExpression[Boolean exclusive disjunction]
+
+Example expression are
+
+* `list[4..20][2..5][3]`
+* `'foo' STARTS WITH 'fo' IS NOT NULL`
+* `5 ^ 4 ^ 3`
+* `5 / 4 / 3`
+* `5 % 4 % 3`
+* `5 % 4 * 3`
+* `5 - 4 - 3`
+* `5 + 4 - 3`
+* `TRUE XOR TRUE XOR FALSE`
+
+[IMPORTANT]
+.Chaining of non-associative or mixed operators
+====
+In chains of non-associative or mixed operators, for every two operators, the operator appear earlier (more left) in the character string takes precedence, i.e. the operator tree is left-deep.
+====
+
+==== Chaining gives extra semantics
+Operators whose chaining gives extra semantics are
+
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ComparisonExpression[Comparison operations]
+
+Example expression are
+
+* `5 = 5 = 5`
+* `5 = 4 <> 3`
+* `5 <> 4 > 3`
+* `5 > 4 > 3`
+* `5 > 4 >= 3`
+* `5 >= 4 < 3`
+
+[IMPORTANT]
+.Chaining gives extra semantics
+====
+Chains with extra semantics
+
+a. form a flat operator tree of a single operator, or
+b. their semantics is defined by a syntax transformation to an expression that has an unambiguous operator tree based on the other precedence rules stated in this document.
+====
+
+
 
 == What others do
 
