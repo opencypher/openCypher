@@ -24,7 +24,7 @@ Some elementary expressions have zero operands, e.g. literals.
 Most elementary expressions have one or more operands.
 For instance,
 
-- A arithmetic negation has one operand,
+- An arithmetic negation has one operand,
 - A boolean conjunction has two operands,
 - A property access has two operands -- an element and a property key,
 - A function call has two operands -- a function name and an arguments list,
