@@ -29,6 +29,10 @@ package org.opencypher.tools.tck.api.events
 
 import scala.collection.mutable
 
+/**
+ * This is a cut-down version of these classes from the 2.12 Scala collections API that just provides
+ * the functionality we use.
+ */
 object Collections {
 
   trait Subscriber[-Evt, -Pub] {

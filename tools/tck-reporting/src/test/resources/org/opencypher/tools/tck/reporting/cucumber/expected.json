@@ -64,7 +64,7 @@
           },
           {
             "output": [
-              "-labels:        0\n+labels:        0\n+nodes:         0\n-nodes:         0\n-properties:    0\n+properties:    0\n-relationships: 0\n+relationships: 0"
+              "+labels:        0\n-labels:        0\n+nodes:         0\n-nodes:         0\n+properties:    0\n-properties:    0\n+relationships: 0\n-relationships: 0"
             ],
             "result": {
               "status": "passed"
@@ -125,7 +125,7 @@
           },
           {
             "output": [
-              "-labels:        0\n+labels:        0\n+nodes:         0\n-nodes:         0\n-properties:    0\n+properties:    0\n-relationships: 0\n+relationships: 0"
+              "+labels:        0\n-labels:        0\n+nodes:         0\n-nodes:         0\n+properties:    0\n-properties:    0\n+relationships: 0\n-relationships: 0"
             ],
             "result": {
               "status": "passed"
@@ -201,7 +201,7 @@
           },
           {
             "output": [
-              "-labels:        0\n+labels:        0\n+nodes:         0\n-nodes:         0\n-properties:    0\n+properties:    0\n-relationships: 0\n+relationships: 0"
+              "+labels:        0\n-labels:        0\n+nodes:         0\n-nodes:         0\n+properties:    0\n-properties:    0\n+relationships: 0\n-relationships: 0"
             ],
             "result": {
               "status": "passed"
@@ -277,7 +277,7 @@
           },
           {
             "output": [
-              "-labels:        0\n+labels:        0\n+nodes:         0\n-nodes:         0\n-properties:    0\n+properties:    0\n-relationships: 0\n+relationships: 0"
+              "+labels:        0\n-labels:        0\n+nodes:         0\n-nodes:         0\n+properties:    0\n-properties:    0\n+relationships: 0\n-relationships: 0"
             ],
             "result": {
               "status": "passed"
@@ -353,7 +353,7 @@
           },
           {
             "output": [
-              "-labels:        0\n+labels:        0\n+nodes:         0\n-nodes:         0\n-properties:    0\n+properties:    0\n-relationships: 0\n+relationships: 0"
+              "+labels:        0\n-labels:        0\n+nodes:         0\n-nodes:         0\n+properties:    0\n-properties:    0\n+relationships: 0\n-relationships: 0"
             ],
             "result": {
               "status": "passed"

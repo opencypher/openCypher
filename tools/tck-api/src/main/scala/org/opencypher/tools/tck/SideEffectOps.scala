@@ -32,7 +32,6 @@ import org.opencypher.tools.tck.constants.TCKQueries._
 import org.opencypher.tools.tck.constants.TCKSideEffects._
 import org.opencypher.tools.tck.values.CypherValue
 
-import scala.compat.Platform
 
 object SideEffectOps {
 
@@ -40,11 +39,11 @@ object SideEffectOps {
     override def toString: String = {
       val nonZeroSideEffects = ALL intersect v.keySet
       nonZeroSideEffects.toSeq
-        .sortBy(_.charAt(1))
+        .sortBy(str => (str.charAt(1), str.charAt(0)))
         .map { key =>
           s"${fill(key)}${v(key)}"
         }
-        .mkString(Platform.EOL)
+        .mkString(System.lineSeparator())
     }
 
     private def fill(s: String) = (s + ":                 ").take(16)
