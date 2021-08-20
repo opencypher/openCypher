@@ -548,7 +548,7 @@ For each example we list why it is valid.
 . `RETURN count($x) + $x`
 * The sub-expression `$x` is a parameter.
 
-. `RETURN 1 + count($x) + $x * 7 + sum($x) + 'cake'`
+. `RETURN 1 + count($x) + $x * 2 + sum($x) + 'cake'`
 * The sub-expressions `1`, `2`, and `'cake'` are constants.
 * The sub-expression `$x` is a parameter.
 
