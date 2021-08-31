@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Quantifier5 - None quantifier invariants
+Feature: Quantifier9 - None quantifier invariants
 
   Scenario: [1] None quantifier is always true if the predicate is statically false and the list is not empty
     Given any graph
