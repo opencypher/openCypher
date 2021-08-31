@@ -360,7 +360,7 @@ Feature: Quantifier4 - All quantifier
     Given any graph
     When executing query:
       """
-      RETURN all(x IN [1, null, true, 4.5, 'abc', false] WHERE false)
+      RETURN all(x IN [1, null, true, 4.5, 'abc', false] WHERE false) AS result
       """
     Then the result should be, in any order:
       | result |
