@@ -401,88 +401,44 @@ Feature: Quantifier2 - Single quantifier
       | all(y IN list WHERE x <= y)         | true   |
       | all(y IN list WHERE x <= y + 1)     | false  |
 
-  Scenario: [15] Single quantifier is always false if the predicate is statically false and the list is not empty
+  Scenario: [15] Single quantifier is false if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
       """
-      WITH [1, null, true, 4.5, 'abc', false, '', [234, false], {a: null, b: true, c: 15.2}, {}, [], [null], [[{b: [null]}]]] AS inputList
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      WITH list WHERE size(list) > 0
-      WITH single(x IN list WHERE false) AS result, count(*) AS cnt
-      RETURN result
+      RETURN single(x IN [1, null, true, 4.5, 'abc', false] WHERE false) AS result
       """
     Then the result should be, in any order:
       | result |
       | false  |
     And no side effects
 
-  Scenario: [16] Single quantifier is always false if the predicate is statically true and the list has more than one element
+  Scenario: [16] Single quantifier is false if the predicate is statically true and the list has more than one element
     Given any graph
     When executing query:
       """
-      WITH [1, null, true, 4.5, 'abc', false, '', [234, false], {a: null, b: true, c: 15.2}, {}, [], [null], [[{b: [null]}]]] AS inputList
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      WITH list WHERE size(list) > 1
-      WITH single(x IN list WHERE true) AS result, count(*) AS cnt
-      RETURN result
+      RETURN single(x IN [1, null, true, 4.5, 'abc', false] WHERE true) AS result
       """
     Then the result should be, in any order:
       | result |
       | false  |
     And no side effects
 
-  Scenario: [17] Single quantifier is always true if the predicate is statically true and the list has exactly one non-null element
+  Scenario: [17] Single quantifier is true if the predicate is statically true and the list has exactly one non-null element
     Given any graph
     When executing query:
       """
-      WITH [1, true, 4.5, 'abc', false, '', [234, false], {a: null, b: true, c: 15.2}, {}, [], [null], [[{b: [null]}]]] AS inputList
-      UNWIND inputList AS element
-      WITH single(x IN [element] WHERE true) AS result, count(*) AS cnt
-      RETURN result
+      RETURN single(x IN [1] WHERE true) AS result
       """
     Then the result should be, in any order:
       | result |
       | true   |
     And no side effects
 
-  Scenario Outline: [18] Single quantifier is always equal whether the size of the list filtered with same the predicate is one
+  Scenario Outline: [18] Single quantifier is equal whether the size of the list filtered with same the predicate is one
     Given any graph
     When executing query:
       """
-      UNWIND [{list: [2], fixed: true},
-              {list: [6], fixed: true},
-              {list: [7], fixed: true},
-              {list: [1, 2, 3, 4, 5, 6, 7, 8, 9], fixed: false}] AS input
-      WITH CASE WHEN input.fixed THEN input.list ELSE null END AS fixedList,
-           CASE WHEN NOT input.fixed THEN input.list ELSE [1] END AS inputList
-      UNWIND inputList AS x
-      WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH fixedList, inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH fixedList, inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH fixedList, inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      WITH coalesce(fixedList, list) AS list
-      WITH single(x IN list WHERE <predicate>) = (size([x IN list WHERE <predicate> | x]) = 1) AS result, count(*) AS cnt
-      RETURN result
+      RETURN single(x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE <predicate>) = (size([x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE <predicate> | x]) = 1) AS result
       """
     Then the result should be, in any order:
       | result |
