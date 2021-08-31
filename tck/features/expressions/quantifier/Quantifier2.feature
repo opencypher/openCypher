@@ -356,52 +356,7 @@ Feature: Quantifier2 - Single quantifier
       | [null, 123, null, null]  | true   |
       | [null, null, null, null] | false  |
 
-  Scenario Outline: [13] Single quantifier can nest itself and other quantifiers on nested lists
-    Given any graph
-    When executing query:
-      """
-      RETURN single(x IN [['abc'], ['abc', 'def']] WHERE <condition>) AS result
-      """
-    Then the result should be, in any order:
-      | result   |
-      | <result> |
-    And no side effects
-
-    Examples:
-      | condition                      | result |
-      | none(y IN x WHERE y = 'def')   | true   |
-      | none(y IN x WHERE y = 'ghi')   | false  |
-      | single(y IN x WHERE y = 'def') | true   |
-      | single(y IN x WHERE y = 'abc') | false  |
-      | any(y IN x WHERE y = 'def')    | true   |
-      | any(y IN x WHERE y = 'abc')    | false  |
-      | all(y IN x WHERE y = 'abc')    | true   |
-      | all(y IN x WHERE y = 'def')    | false  |
-
-  Scenario Outline: [14] Single quantifier can nest itself and other quantifiers on the same list
-    Given any graph
-    When executing query:
-      """
-      WITH [1, 2, 3, 4, 5, 6, 7, 8, 9] AS list
-      RETURN single(x IN list WHERE <condition>) AS result
-      """
-    Then the result should be, in any order:
-      | result   |
-      | <result> |
-    And no side effects
-
-    Examples:
-      | condition                           | result |
-      | none(y IN list WHERE x < y)         | true   |
-      | none(y IN list WHERE x % y = 0)     | false  |
-      | single(y IN list WHERE x + y < 5)   | true   |
-      | single(y IN list WHERE x % y = 1)   | false  |
-      | any(y IN list WHERE 2 * x + y > 25) | true   |
-      | any(y IN list WHERE x < y)          | false  |
-      | all(y IN list WHERE x <= y)         | true   |
-      | all(y IN list WHERE x <= y + 1)     | false  |
-
-  Scenario: [15] Single quantifier is false if the predicate is statically false and the list is not empty
+  Scenario: [13] Single quantifier is false if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
       """
@@ -412,7 +367,7 @@ Feature: Quantifier2 - Single quantifier
       | false  |
     And no side effects
 
-  Scenario: [16] Single quantifier is false if the predicate is statically true and the list has more than one element
+  Scenario: [14] Single quantifier is false if the predicate is statically true and the list has more than one element
     Given any graph
     When executing query:
       """
@@ -423,7 +378,7 @@ Feature: Quantifier2 - Single quantifier
       | false  |
     And no side effects
 
-  Scenario: [17] Single quantifier is true if the predicate is statically true and the list has exactly one non-null element
+  Scenario: [15] Single quantifier is true if the predicate is statically true and the list has exactly one non-null element
     Given any graph
     When executing query:
       """
@@ -434,26 +389,7 @@ Feature: Quantifier2 - Single quantifier
       | true   |
     And no side effects
 
-  Scenario Outline: [18] Single quantifier is equal whether the size of the list filtered with same the predicate is one
-    Given any graph
-    When executing query:
-      """
-      RETURN single(x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE <predicate>) = (size([x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE <predicate> | x]) = 1) AS result
-      """
-    Then the result should be, in any order:
-      | result |
-      | true   |
-    And no side effects
-
-    Examples:
-      | predicate |
-      | x = 2     |
-      | x % 2 = 0 |
-      | x % 3 = 0 |
-      | x < 7     |
-      | x >= 3    |
-
-  Scenario Outline: [19] Fail single quantifier on type mismatch between list elements and predicate
+  Scenario Outline: [16] Fail single quantifier on type mismatch between list elements and predicate
     Given any graph
     When executing query:
       """
