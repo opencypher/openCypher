@@ -28,7 +28,7 @@
 
 #encoding: utf-8
 
-Feature: Quantifier1 - None quantifier interop
+Feature: Quantifier5 - None quantifier interop
 
   Scenario Outline: [1] None quantifier can nest itself and other quantifiers on nested lists
     Given any graph
@@ -117,7 +117,7 @@ Feature: Quantifier1 - None quantifier interop
     Given any graph
     When executing query:
       """
-      RETURN none([1, 2, 3, 4, 5, 6, 7, 8, 9] IN list WHERE <predicate>) = (size([x IN list WHERE <predicate> | x]) = 0) AS result
+      RETURN none(x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE <predicate>) = (size([x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE <predicate> | x]) = 0) AS result
       """
     Then the result should be, in any order:
       | result |

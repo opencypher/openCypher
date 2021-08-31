@@ -117,7 +117,7 @@ Feature: Quantifier8 - All quantifier interop
     Given any graph
     When executing query:
       """
-      RETURN all(x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE <predicate>) = (size([x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE <predicate> | x]) = size(list)) AS result
+      RETURN all(x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE <predicate>) = (size([x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE <predicate> | x]) = size([1, 2, 3, 4, 5, 6, 7, 8, 9])) AS result
       """
     Then the result should be, in any order:
       | result |
