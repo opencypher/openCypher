@@ -401,68 +401,33 @@ Feature: Quantifier1 - None quantifier
       | all(y IN list WHERE x < y)             | true   |
       | all(y IN list WHERE x <= y)            | false  |
 
-  Scenario: [15] None quantifier is always true if the predicate is statically false and the list is not empty
+  Scenario: [15] None quantifier is true if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
       """
-      WITH [1, null, true, 4.5, 'abc', false, '', [234, false], {a: null, b: true, c: 15.2}, {}, [], [null], [[{b: [null]}]]] AS inputList
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      WITH list WHERE size(list) > 0
-      WITH none(x IN list WHERE false) AS result, count(*) AS cnt
-      RETURN result
+      RETURN none(x IN [1, null, true, 4.5, 'abc', false] WHERE false) AS result
       """
     Then the result should be, in any order:
       | result |
       | true   |
     And no side effects
 
-  Scenario: [16] None quantifier is always false if the predicate is statically true and the list is not empty
+  Scenario: [16] None quantifier is false if the predicate is statically true and the list is not empty
     Given any graph
     When executing query:
       """
-      WITH [1, null, true, 4.5, 'abc', false, '', [234, false], {a: null, b: true, c: 15.2}, {}, [], [null], [[{b: [null]}]]] AS inputList
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      WITH list WHERE size(list) > 0
-      WITH none(x IN list WHERE true) AS result, count(*) AS cnt
-      RETURN result
+      RETURN none(x IN [1, null, true, 4.5, 'abc', false] WHERE true) AS result
       """
     Then the result should be, in any order:
       | result |
       | false  |
     And no side effects
 
-  Scenario Outline: [17] None quantifier is always equal the boolean negative of the any quantifier
+  Scenario Outline: [17] None quantifier is equal the boolean negative of the any quantifier
     Given any graph
     When executing query:
       """
-      WITH [1, 2, 3, 4, 5, 6, 7, 8, 9] AS inputList
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      WITH none(x IN list WHERE <predicate>) = (NOT any(x IN list WHERE <predicate>)) AS result, count(*) AS cnt
-      RETURN result
+      RETURN none(x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE <predicate>) = (NOT any(x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE <predicate>)) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -477,22 +442,11 @@ Feature: Quantifier1 - None quantifier
       | x < 7     |
       | x >= 3    |
 
-  Scenario Outline: [18] None quantifier is always equal the all quantifier on the boolean negative of the predicate
+  Scenario Outline: [18] None quantifier is equal the all quantifier on the boolean negative of the predicate
     Given any graph
     When executing query:
       """
-      WITH [1, 2, 3, 4, 5, 6, 7, 8, 9] AS inputList
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      WITH none(x IN list WHERE <predicate>) = all(x IN list WHERE NOT (<predicate>)) AS result, count(*) AS cnt
-      RETURN result
+      RETURN none(x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE <predicate>) = all(x IN [1, 2, 3, 4, 5, 6, 7, 8, 9] WHERE NOT (<predicate>)) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -507,28 +461,11 @@ Feature: Quantifier1 - None quantifier
       | x < 7     |
       | x >= 3    |
 
-  Scenario Outline: [19] None quantifier is always equal whether the size of the list filtered with same the predicate is zero
+  Scenario Outline: [19] None quantifier is equal whether the size of the list filtered with same the predicate is zero
     Given any graph
     When executing query:
       """
-      UNWIND [{list: [2], fixed: true},
-              {list: [6], fixed: true},
-              {list: [7], fixed: true},
-              {list: [1, 2, 3, 4, 5, 6, 7, 8, 9], fixed: false}] AS input
-      WITH CASE WHEN input.fixed THEN input.list ELSE null END AS fixedList,
-           CASE WHEN NOT input.fixed THEN input.list ELSE [1] END AS inputList
-      UNWIND inputList AS x
-      WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH fixedList, inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH fixedList, inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      UNWIND inputList AS x
-      WITH fixedList, inputList, x, [ y IN inputList WHERE rand() > 0.5 | y] AS list
-      WITH fixedList, inputList, CASE WHEN rand() < 0.5 THEN reverse(list) ELSE list END + x AS list
-      WITH coalesce(fixedList, list) AS list
-      WITH none(x IN list WHERE <predicate>) = (size([x IN list WHERE <predicate> | x]) = 0) AS result, count(*) AS cnt
-      RETURN result
+      RETURN none([1, 2, 3, 4, 5, 6, 7, 8, 9] IN list WHERE <predicate>) = (size([x IN list WHERE <predicate> | x]) = 0) AS result
       """
     Then the result should be, in any order:
       | result |
