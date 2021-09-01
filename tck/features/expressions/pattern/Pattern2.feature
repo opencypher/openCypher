@@ -236,7 +236,7 @@ Feature: Pattern2 - Pattern Comprehension
       RETURN [p = (liker)--() | p] AS isNew
         ORDER BY liker.time
       """
-    Then the result should be, in any order:
+    Then the result should be, in order:
       | isNew                               |
       | [<({time: 10})-[:T]->({time: 20})>] |
       | [<({time: 20})<-[:T]-({time: 10})>] |

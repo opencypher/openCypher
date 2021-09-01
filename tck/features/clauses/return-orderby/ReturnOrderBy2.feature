@@ -164,7 +164,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
       RETURN n.name, count(*) AS foo
         ORDER BY n.name
       """
-    Then the result should be, in any order:
+    Then the result should be, in order:
       | n.name  | foo |
       | 'nisse' | 1   |
     And no side effects
