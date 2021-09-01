@@ -38,7 +38,7 @@ Feature: Pattern1 - Pattern predicate
       """
     When executing query:
       """
-      MATCH (n) WHERE (n)-->() RETURN n
+      MATCH (n) WHERE (n)-[]->() RETURN n
       """
     Then the result should be, in any order:
       | n    |
@@ -54,7 +54,7 @@ Feature: Pattern1 - Pattern predicate
       """
     When executing query:
       """
-      MATCH (n) WHERE (n)--() RETURN n
+      MATCH (n) WHERE (n)-[]-() RETURN n
       """
     Then the result should be, in any order:
       | n    |
@@ -72,7 +72,7 @@ Feature: Pattern1 - Pattern predicate
       """
     When executing query:
       """
-      MATCH (n) WHERE (n)<--() RETURN n
+      MATCH (n) WHERE (n)<-[]-() RETURN n
       """
     Then the result should be, in any order:
       | n    |
@@ -205,10 +205,10 @@ Feature: Pattern1 - Pattern predicate
     Examples:
       | pattern                                 |
       | (a)                                     |
-      | (n)-->(a)                               |
-      | (a)-->(n)                               |
-      | (n)<--(a)                               |
-      | (n)--(a)                                |
+      | (n)-[]->(a)                             |
+      | (a)-[]->(n)                             |
+      | (n)<-[]-(a)                             |
+      | (n)-[]-(a)                              |
       | (n)-[r]->()                             |
       | ()-[r]->(n)                             |
       | (n)<-[r]-()                             |
@@ -236,7 +236,7 @@ Feature: Pattern1 - Pattern predicate
       """
     When executing query:
       """
-      MATCH (n), (m) WHERE (n)-->(m) RETURN n, m
+      MATCH (n), (m) WHERE (n)-[]->(m) RETURN n, m
       """
     Then the result should be, in any order:
       | n    | m    |
@@ -254,7 +254,7 @@ Feature: Pattern1 - Pattern predicate
 	       """
     When executing query:
 	      """
-	      MATCH (n), (m) WHERE (n)--(m) RETURN n, m
+	      MATCH (n), (m) WHERE (n)-[]-(m) RETURN n, m
 	      """
     Then the result should be, in any order:
       | n    | m    |
@@ -402,7 +402,7 @@ Feature: Pattern1 - Pattern predicate
     Given any graph
     When executing query:
 	      """
-	      MATCH (n) RETURN (n)-->()
+	      MATCH (n) RETURN (n)-[]->()
 	      """
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
@@ -410,7 +410,7 @@ Feature: Pattern1 - Pattern predicate
     Given any graph
     When executing query:
 	      """
-	      MATCH (n) WITH (n)-->() RETURN n
+	      MATCH (n) WITH (n)-[]->() RETURN n
 	      """
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
