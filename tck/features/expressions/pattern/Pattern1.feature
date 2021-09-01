@@ -205,10 +205,10 @@ Feature: Pattern1 - Pattern predicate
     Examples:
       | pattern                                 |
       | (a)                                     |
-      | (n)-[]->(a)                             |
-      | (a)-[]->(n)                             |
-      | (n)<-[]-(a)                             |
-      | (n)-[]-(a)                              |
+      | (n)-[r]->(a)                            |
+      | (a)-[r]->(n)                            |
+      | (n)<-[r]-(a)                            |
+      | (n)-[r]-(a)                             |
       | (n)-[r]->()                             |
       | ()-[r]->(n)                             |
       | (n)<-[r]-()                             |
