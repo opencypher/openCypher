@@ -233,7 +233,7 @@ The parenthesized expression has no other purpose than grammatically allowing ex
 For instance, an arithmetic addition cannot be directly an operand to an arithmetic multiplication by the rule of precedence levels, since addition is of lower precedence than multiplication.
 However, with the help of a parenthesized expression, the user can denote
 ----
-3+(2*4)
+(3+2)*4
 ----
 as a valid expression.
 This achieves the desire operator tree
