@@ -61,7 +61,7 @@ Feature: ReturnSkipLimit2 - Limit
       ORDER BY n.name ASC
       LIMIT 2
       """
-    Then the result should be, in any order:
+    Then the result should be, in order:
       | n             |
       | ({name: 'A'}) |
       | ({name: 'B'}) |
