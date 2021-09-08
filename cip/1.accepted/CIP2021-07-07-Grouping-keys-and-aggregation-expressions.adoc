@@ -17,7 +17,7 @@ toc::[]
 
 == Background
 
-In this CIP we assume two baseline semantics as a given and well-defined.
+In this CIP we assume two baseline semantics as a given and as well-defined.
 Each baseline semantics captures on capability of the WITH and the RETURN clause in isolation -- similar to https://en.wikipedia.org/wiki/Relational_algebra[relational algebra operators].
 
 _<<Baseline projection>>_ :: Describes the projection of binding table
@@ -95,7 +95,7 @@ projects each row in the driving table to `b` minus `a` (as `x`) and the product
 
 Cypher allows grouping and aggregating (often simply referred to as _aggregation_) the driving table in the WITH and in the RETURN clause.
 
-Formally, the aggregation of a driving table _D_ can be described formally as
+Formally, the aggregation of a driving table _D_ can be described as
 pass:q[γ<sub>_K_, _A_</sub>(_D_)] where
 
 * _K_ is a (possibly empty) set of pairs (_k_, _al_) where
@@ -104,7 +104,7 @@ pass:q[γ<sub>_K_, _A_</sub>(_D_)] where
 * _A_ is a non-empty set of triple (_agg_, _x_, _al_) where
 ** _agg_ is an aggregation function and
 ** _x_ is a variable in the driving table _D_
-** _al_ is an alias that different from all other aliases _x_ with (·, ·, _x_) ∈ _A_ and _x_ with (·, _x_) ∈ _K_.
+** _al_ is an alias that is different from all other aliases _x_ with (·, ·, _x_) ∈ _A_ and _x_ with (·, _x_) ∈ _K_.
 
 Assuming _K_ = {(_k_~1~, _ka_~1~), (_k_~2~, _ka_~1~), ..., (_k~N~_, _ka~N~_)} and _A_ = {(_agg_~1~, _x_~1~, _al_~1~), (_agg_~2~, _x_~2~, _al_~2~), ..., (_agg~M~_, _x~M~_, _al~M~_)}, the Cypher equivalent of pass:q[γ<sub>_K_, _A_</sub>(_D_)] is
 
@@ -285,10 +285,10 @@ It has been documented on multiple occasions (e.g. cf. http://opencypher.org/art
 
 A precise semantics on such queries has to provide
 
-* A clear definition which <ProjectionItem>s constitute the grouping keys
-* Clear rules which sub-expressions are allowed in <ProjectionItem>s containing aggregation functions
+* A clear definition of which <ProjectionItem>s constitute the grouping keys
+* Clear rules of which sub-expressions are allowed in <ProjectionItem>s containing aggregation functions
 
-This proposal provides a such precise semantics.
+This proposal provides such a precise semantics.
 
 == Proposal
 
@@ -466,7 +466,7 @@ For sub-expression `b`
 * in _L_ = `a AS a, b + foo_1 * 2 AS foo`,
 
 _CONSTANT_(`b`, _L_) does not hold.
-`b` is neither an aggregation function, a grouping key, a constant, a parameter, nor has it any sub-expressions.
+`b` is neither an aggregation function, a grouping key, a constant, a parameter, nor does it have any sub-expressions.
 ====
 
 ==== Row ordering and pagination
