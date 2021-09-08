@@ -10,7 +10,7 @@
 [abstract]
 .Abstract
 --
-This CIP clarifies the semantics of grouping and aggregation functionality in the WITH and the RETURN clause of Cypher.
+This CIP defines the semantics of grouping and aggregation functionality in the WITH and the RETURN clause of Cypher.
 --
 
 toc::[]
