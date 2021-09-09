@@ -384,13 +384,13 @@ Feature: Pattern1 - Pattern predicate
   Scenario: [21] Using two existential pattern predicates in a disjunction
     Given an empty graph
     And having executed:
-	      """
-	      CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
-	      """
+	"""
+	CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
+	"""
     When executing query:
-	      """
-	      MATCH (n) WHERE (n)-[:REL1]-() OR (n)-[:REL2]-() RETURN n
-	      """
+	"""
+	MATCH (n) WHERE (n)-[:REL1]-() OR (n)-[:REL2]-() RETURN n
+	"""
     Then the result should be, in any order:
       | n    |
       | (:A) |
