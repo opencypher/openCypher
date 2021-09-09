@@ -197,9 +197,9 @@ Feature: Pattern1 - Pattern predicate
   Scenario Outline: [10] Fail on introducing unbounded variables in pattern
     Given any graph
     When executing query:
-	      """
-	      MATCH (n) WHERE <pattern> RETURN n
-	      """
+	"""
+	MATCH (n) WHERE <pattern> RETURN n
+	"""
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
     Examples:
@@ -207,8 +207,8 @@ Feature: Pattern1 - Pattern predicate
       | (a)                                     |
       | (n)-[r]->(a)                            |
       | (a)-[r]->(n)                            |
-      | (n)<-[r]-(a)                            |
-      | (n)-[r]-(a)                             |
+      | (n)<-[r:REL]-(a)                        |
+      | (n)-[r:REL]-(a)                         |
       | (n)-[r]->()                             |
       | ()-[r]->(n)                             |
       | (n)<-[r]-()                             |
