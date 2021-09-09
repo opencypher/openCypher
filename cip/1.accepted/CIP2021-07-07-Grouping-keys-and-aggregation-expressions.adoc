@@ -17,7 +17,7 @@ toc::[]
 
 == Background
 
-In this CIP we assume two baseline semantics as a given and as well-defined.
+In this CIP we assume two baseline semantics as given and well-defined.
 Each baseline semantics captures on capability of the WITH and the RETURN clause in isolation -- similar to https://en.wikipedia.org/wiki/Relational_algebra[relational algebra operators].
 
 _<<Baseline projection>>_ :: Describes the projection of binding table
