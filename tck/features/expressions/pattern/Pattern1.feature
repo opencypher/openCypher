@@ -408,9 +408,9 @@ Feature: Pattern1 - Pattern predicate
   Scenario: [23] Fail on using pattern in WITH projection
     Given any graph
     When executing query:
-	      """
-	      MATCH (n) WITH (n)-[]->() RETURN n
-	      """
+	"""
+	MATCH (n) WITH (n)-[]->() RETURN n
+	"""
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
 Scenario: [24] Fail on using pattern in right-hand side of SET
