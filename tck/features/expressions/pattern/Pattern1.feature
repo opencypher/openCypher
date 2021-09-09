@@ -249,13 +249,13 @@ Feature: Pattern1 - Pattern predicate
   Scenario: [13] Fail on matching two nodes on a single undirected connection between them
     Given an empty graph
     And having executed:
-	       """
-	       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
-	       """
+	 """
+	 CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
+	 """
     When executing query:
-	      """
-	      MATCH (n), (m) WHERE (n)-[]-(m) RETURN n, m
-	      """
+	 """
+	 MATCH (n), (m) WHERE (n)-[:REL1|REL2|REL3|REL4]-(m) RETURN n, m
+	 """
     Then the result should be, in any order:
       | n    | m    |
       | (:A) | (:B) |
@@ -265,7 +265,6 @@ Feature: Pattern1 - Pattern predicate
       | (:C) | (:A) |
       | (:D) | (:A) |
     And no side effects
-
 
   Scenario: [14] Matching two nodes on a specific type of single outgoing directed connection
     Given an empty graph
