@@ -400,9 +400,9 @@ Feature: Pattern1 - Pattern predicate
   Scenario: [22] Fail on using pattern in RETURN projection
     Given any graph
     When executing query:
-	      """
-	      MATCH (n) RETURN (n)-[]->()
-	      """
+	"""
+	MATCH (n) RETURN (n)-[]->()
+	"""
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
   Scenario: [23] Fail on using pattern in WITH projection
