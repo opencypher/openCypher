@@ -419,6 +419,6 @@ Scenario: [24] Fail on using pattern in right-hand side of SET
     Given any graph
     When executing query:
 	"""
-	MATCH (n) SET x.prop =  head(node(head((a)-[:REL]->()))).x
+	MATCH (n) SET n.prop = head(nodes(head((n)-[:REL]->()))).foo
 	"""
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
