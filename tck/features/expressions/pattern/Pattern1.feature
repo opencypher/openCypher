@@ -415,7 +415,7 @@ Feature: Pattern1 - Pattern predicate
 	"""
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
-Scenario: [24] Fail on using pattern in right-hand side of SET
+  Scenario: [24] Fail on using pattern in right-hand side of SET
     Given any graph
     When executing query:
 	"""
