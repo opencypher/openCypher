@@ -363,7 +363,8 @@ Feature: Pattern1 - Pattern predicate
 	"""
     Then the result should be, in any order:
       | n    |
-      | (:A) |
+      | (:C) |
+      | (:D) |
     And no side effects
 
   Scenario: [20] Using two existential pattern predicates in a conjunction
