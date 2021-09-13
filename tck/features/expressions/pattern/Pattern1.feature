@@ -411,7 +411,7 @@ Feature: Pattern1 - Pattern predicate
     Given any graph
     When executing query:
 	"""
-	MATCH (n) WITH (n)-[]->() RETURN n
+	MATCH (n) WITH (n)-[]->() AS x RETURN x
 	"""
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
