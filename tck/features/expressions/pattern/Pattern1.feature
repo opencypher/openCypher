@@ -207,8 +207,8 @@ Feature: Pattern1 - Pattern predicate
       | (a)                                     |
       | (n)-[r]->(a)                            |
       | (a)-[r]->(n)                            |
-      | (n)<-[r:REL]-(a)                        |
-      | (n)-[r:REL]-(a)                         |
+      | (n)<-[r {}]-(a)                        |
+      | (n)-[r {}]-(a)                         |
       | (n)-[r]->()                             |
       | ()-[r]->(n)                             |
       | (n)<-[r]-()                             |
