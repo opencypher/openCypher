@@ -330,8 +330,10 @@ Feature: Pattern1 - Pattern predicate
       | n    | m    |
       | (:A) | (:B) |
       | (:A) | (:D) |
-      | (:D) | (:B) |
+      | (:B) | (:A) |
       | (:B) | (:D) |
+      | (:D) | (:A) |
+      | (:D) | (:B) |
     And no side effects
 
   Scenario: [18] Matching two nodes on a specific type of undirected connection with length 2
