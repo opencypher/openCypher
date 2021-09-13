@@ -396,6 +396,7 @@ Feature: Pattern1 - Pattern predicate
       | n    |
       | (:A) |
       | (:B) |
+      | (:D) |
     And no side effects
 
   Scenario: [22] Fail on using pattern in RETURN projection
