@@ -342,7 +342,7 @@ Feature: Pattern1 - Pattern predicate
       """
     When executing query:
       """
-      MATCH (n), (m) WHERE (n)-[:REL1*2]-(m) RETURN n
+      MATCH (n), (m) WHERE (n)-[:REL1*2]-(m) RETURN n, m
       """
     Then the result should be, in any order:
       | n    | m    |
