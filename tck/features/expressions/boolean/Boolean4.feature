@@ -34,11 +34,11 @@ Feature: Boolean4 - NOT logical operations
     Given any graph
     When executing query:
       """
-      RETURN NOT true AS nt, NOT false AS nf
+      RETURN NOT true AS nt, NOT false AS nf, NOT null AS nn
       """
     Then the result should be, in any order:
-      | nt    | nf   |
-      | false | true |
+      | nt    | nf   | nn   |
+      | false | true | null |
     And no side effects
 
   Scenario: [2] Double logical negation of truth values
