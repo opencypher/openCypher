@@ -37,10 +37,17 @@ Feature: Boolean5 - Interop of logical operations
       UNWIND [true, false] AS a
       UNWIND [true, false] AS b
       UNWIND [true, false] AS c
-      RETURN DISTINCT (a OR (b AND c)) = ((a OR b) AND (a OR c)) AS result
+      RETURN (a OR (b AND c)) = ((a OR b) AND (a OR c)) AS result
       """
     Then the result should be, in any order:
       | result |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
       | true   |
     And no side effects
 
@@ -51,10 +58,17 @@ Feature: Boolean5 - Interop of logical operations
       UNWIND [true, false] AS a
       UNWIND [true, false] AS b
       UNWIND [true, false] AS c
-      RETURN DISTINCT (a AND (b OR c)) = ((a AND b) OR (a AND c)) AS result
+      RETURN (a AND (b OR c)) = ((a AND b) OR (a AND c)) AS result
       """
     Then the result should be, in any order:
       | result |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
       | true   |
     And no side effects
 
@@ -65,10 +79,17 @@ Feature: Boolean5 - Interop of logical operations
       UNWIND [true, false] AS a
       UNWIND [true, false] AS b
       UNWIND [true, false] AS c
-      RETURN DISTINCT (a AND (b XOR c)) = ((a AND b) XOR (a AND c)) AS result
+      RETURN (a AND (b XOR c)) = ((a AND b) XOR (a AND c)) AS result
       """
     Then the result should be, in any order:
       | result |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
       | true   |
     And no side effects
 
@@ -78,10 +99,13 @@ Feature: Boolean5 - Interop of logical operations
       """
       UNWIND [true, false] AS a
       UNWIND [true, false] AS b
-      RETURN DISTINCT NOT (a OR b) = (NOT (a) AND NOT (b)) AS result
+      RETURN NOT (a OR b) = (NOT (a) AND NOT (b)) AS result
       """
     Then the result should be, in any order:
       | result |
+      | true   |
+      | true   |
+      | true   |
       | true   |
     And no side effects
 
@@ -91,9 +115,12 @@ Feature: Boolean5 - Interop of logical operations
       """
       UNWIND [true, false] AS a
       UNWIND [true, false] AS b
-      RETURN DISTINCT NOT (a AND b) = (NOT (a) OR NOT (b)) AS result
+      RETURN NOT (a AND b) = (NOT (a) OR NOT (b)) AS result
       """
     Then the result should be, in any order:
       | result |
+      | true   |
+      | true   |
+      | true   |
       | true   |
     And no side effects
