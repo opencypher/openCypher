@@ -64,73 +64,7 @@ Feature: Null3 - Null evaluation
       | null  |
     And no side effects
 
-  Scenario Outline: [4] Using null in AND
-    Given any graph
-    And parameters are:
-      | lhs | <lhs> |
-      | rhs | <rhs> |
-    When executing query:
-      """
-      RETURN $lhs AND $rhs AS result
-      """
-    Then the result should be, in any order:
-      | result   |
-      | <result> |
-    And no side effects
-
-    Examples:
-      | lhs   | rhs   | result |
-      | null  | null  | null   |
-      | null  | true  | null   |
-      | true  | null  | null   |
-      | null  | false | false  |
-      | false | null  | false  |
-
-  Scenario Outline: [5] Using null in OR
-    Given any graph
-    And parameters are:
-      | lhs | <lhs> |
-      | rhs | <rhs> |
-    When executing query:
-      """
-      RETURN $lhs OR $rhs AS result
-      """
-    Then the result should be, in any order:
-      | result   |
-      | <result> |
-    And no side effects
-
-    Examples:
-      | lhs   | rhs   | result |
-      | null  | null  | null   |
-      | null  | true  | true   |
-      | true  | null  | true   |
-      | null  | false | null   |
-      | false | null  | null   |
-
-  Scenario Outline: [6] Using null in XOR
-    Given any graph
-    And parameters are:
-      | lhs | <lhs> |
-      | rhs | <rhs> |
-    When executing query:
-      """
-      RETURN $lhs XOR $rhs AS result
-      """
-    Then the result should be, in any order:
-      | result   |
-      | <result> |
-    And no side effects
-
-    Examples:
-      | lhs   | rhs   | result |
-      | null  | null  | null   |
-      | null  | true  | null   |
-      | true  | null  | null   |
-      | null  | false | null   |
-      | false | null  | null   |
-
-  Scenario Outline: [7] Using null in IN
+  Scenario Outline: [4] Using null in IN
     Given any graph
     And parameters are:
       | elt  | <elt>  |
