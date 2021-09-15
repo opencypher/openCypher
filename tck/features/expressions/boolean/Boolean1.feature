@@ -80,10 +80,13 @@ Feature: Boolean1 - And logical operations
       """
       UNWIND [true, false] AS a
       UNWIND [true, false] AS b
-      RETURN DISTINCT (a AND b) = (b AND a) AS result
+      RETURN (a AND b) = (b AND a) AS result
       """
     Then the result should be, in any order:
       | result |
+      | true   |
+      | true   |
+      | true   |
       | true   |
     And no side effects
 
@@ -94,10 +97,17 @@ Feature: Boolean1 - And logical operations
       UNWIND [true, false] AS a
       UNWIND [true, false] AS b
       UNWIND [true, false] AS c
-      RETURN DISTINCT (a AND (b AND c)) = ((a AND b) AND c) AS result
+      RETURN (a AND (b AND c)) = ((a AND b) AND c) AS result
       """
     Then the result should be, in any order:
       | result |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
       | true   |
     And no side effects
 
