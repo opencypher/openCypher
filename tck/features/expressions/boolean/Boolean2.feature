@@ -80,10 +80,13 @@ Feature: Boolean2 - OR logical operations
       """
       UNWIND [true, false] AS a
       UNWIND [true, false] AS b
-      RETURN DISTINCT (a OR b) = (b OR a) AS result
+      RETURN (a OR b) = (b OR a) AS result
       """
     Then the result should be, in any order:
       | result |
+      | true   |
+      | true   |
+      | true   |
       | true   |
     And no side effects
 
@@ -94,10 +97,17 @@ Feature: Boolean2 - OR logical operations
       UNWIND [true, false] AS a
       UNWIND [true, false] AS b
       UNWIND [true, false] AS c
-      RETURN DISTINCT (a OR (b OR c)) = ((a OR b) OR c) AS result
+      RETURN (a OR (b OR c)) = ((a OR b) OR c) AS result
       """
     Then the result should be, in any order:
       | result |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
       | true   |
     And no side effects
 
