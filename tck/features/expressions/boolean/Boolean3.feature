@@ -80,10 +80,13 @@ Feature: Boolean3 - XOR logical operations
       """
       UNWIND [true, false] AS a
       UNWIND [true, false] AS b
-      RETURN DISTINCT (a XOR b) = (b XOR a) AS result
+      RETURN (a XOR b) = (b XOR a) AS result
       """
     Then the result should be, in any order:
       | result |
+      | true   |
+      | true   |
+      | true   |
       | true   |
     And no side effects
 
@@ -94,10 +97,17 @@ Feature: Boolean3 - XOR logical operations
       UNWIND [true, false] AS a
       UNWIND [true, false] AS b
       UNWIND [true, false] AS c
-      RETURN DISTINCT (a XOR (b XOR c)) = ((a XOR b) XOR c) AS result
+      RETURN (a XOR (b XOR c)) = ((a XOR b) XOR c) AS result
       """
     Then the result should be, in any order:
       | result |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
+      | true   |
       | true   |
     And no side effects
 
