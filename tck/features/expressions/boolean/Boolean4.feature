@@ -45,11 +45,11 @@ Feature: Boolean4 - NOT logical operations
     Given any graph
     When executing query:
       """
-      RETURN NOT NOT true AS nnt, NOT NOT false AS nnf
+      RETURN NOT NOT true AS nnt, NOT NOT false AS nnf, NOT NOT null AS nnn
       """
     Then the result should be, in any order:
-      | nnt  | nnf   |
-      | true | false |
+      | nnt  | nnf   | nnn  |
+      | true | false | null |
     And no side effects
 
   Scenario: [3] NOT and false
