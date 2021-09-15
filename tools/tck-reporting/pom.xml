@@ -38,7 +38,7 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>${dep.scala.version}</version>
+            <version>${scala.version}</version>
         </dependency>
 
         <dependency>
