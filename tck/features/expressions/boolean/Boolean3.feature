@@ -113,16 +113,24 @@ Feature: Boolean3 - XOR logical operations
       | a       | b       |
       | 123     | true    |
       | 123.4   | false   |
+      | 123.4   | null    |
       | 'foo'   | true    |
+      | []      | false   |
       | [true]  | false   |
+      | [null]  | null    |
+      | {}      | true    |
       | {x: []} | true    |
       | false   | 123     |
       | true    | 123.4   |
       | false   | 'foo'   |
+      | null    | 'foo'   |
+      | true    | []      |
       | true    | [false] |
+      | null    | [null]  |
+      | false   | {}      |
       | false   | {x: []} |
       | 123     | 'foo'   |
       | 123.4   | 123.4   |
       | 'foo'   | {x: []} |
-      | [true]  | [false] |
+      | [true]  | [true]  |
       | {x: []} | [123]   |
