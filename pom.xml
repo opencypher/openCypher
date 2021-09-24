@@ -29,6 +29,7 @@
   <properties>
     <dep.antlr4.version>4.7.2</dep.antlr4.version>
     <dep.batik.version>1.13</dep.batik.version>
+    <dep.cask.version>0.2.9</dep.cask.version>
     <dep.cucumber.version>5.7.0</dep.cucumber.version>
     <dep.hamcrest.version>2.2</dep.hamcrest.version>
     <dep.junit.platform.version>1.7.0</dep.junit.platform.version>
@@ -38,7 +39,6 @@
     <dep.maven.source.plugin.version>3.2.1</dep.maven.source.plugin.version>
     <dep.maven.surefire.plugin.version>2.22.2</dep.maven.surefire.plugin.version>
     <dep.scala.maven.plugin.version>3.4.4</dep.scala.maven.plugin.version>
-    <dep.scala.version>2.12.10</dep.scala.version>
     <dep.scalatest.version>3.2.2</dep.scalatest.version>
     <dep.scalatest.runner.version>0.1.8</dep.scalatest.runner.version>
     <dep.xmlgraphics-commons.version>2.4</dep.xmlgraphics-commons.version>
@@ -53,6 +53,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.rootdir>${project.basedir}</project.rootdir>
     <scala.binary.version>2.12</scala.binary.version>
+    <scala.version>2.12.13</scala.version>
     <test.runner.jvm/>
     <test.runner.jvm.settings.additional/>
     <test.runner.jvm.settings>
@@ -86,7 +87,7 @@
       <dependency>
         <groupId>org.scala-lang</groupId>
         <artifactId>scala-library</artifactId>
-        <version>${dep.scala.version}</version>
+        <version>${scala.version}</version>
       </dependency>
 
       <dependency>
@@ -228,7 +229,7 @@
             </execution>
           </executions>
           <configuration>
-            <scalaVersion>${dep.scala.version}</scalaVersion>
+            <scalaVersion>${scala.version}</scalaVersion>
             <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
           </configuration>
         </plugin>
@@ -351,6 +352,19 @@
           <version>${dep.maven.compiler.plugin.version}</version>
         </plugin>
 
+        <plugin>
+          <groupId>org.spurint.maven.plugins</groupId>
+          <artifactId>scala-cross-maven-plugin</artifactId>
+          <version>0.3.0</version>
+          <executions>
+            <execution>
+              <id>rewrite-pom</id>
+              <goals>
+                <goal>rewrite-pom</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -373,6 +387,18 @@
       </activation>
       <properties>
         <forkCounts>1C</forkCounts>
+      </properties>
+    </profile>
+    <!-- This is all the defaults -->
+    <profile>
+      <id>scala-212</id>
+    </profile>
+    <profile>
+      <id>scala-213</id>
+      <properties>
+        <dep.cask.version>0.3.7</dep.cask.version>
+        <scala.binary.version>2.13</scala.binary.version>
+        <scala.version>2.13.6</scala.version>
       </properties>
     </profile>
   </profiles>

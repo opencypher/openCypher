@@ -29,11 +29,9 @@ package org.opencypher.tools.tck.api.events
 
 import java.net.URI
 import java.util.UUID
-
 import org.opencypher.tools.tck.api.Graph.Result
 import org.opencypher.tools.tck.api.{Scenario, Step}
 
-import scala.collection.mutable
 
 /** Publishes TCK scenario execution events.
   *
@@ -69,11 +67,11 @@ object TCKEvents {
     def apply[T](): Publish[T] = new Publish[T]
   }
 
-  class Publish[T] extends mutable.Publisher[T] {
+  class Publish[T] extends Collections.Publisher[T] {
     def send(event: T): Unit = publish(event)
     def subscribe(callback: T => Unit): Unit = {
-      subscribe(new mutable.Subscriber[T, mutable.Publisher[T]] {
-        override def notify(pub: mutable.Publisher[T], event: T): Unit = {
+      subscribe(new Collections.Subscriber[T, Collections.Publisher[T]] {
+        override def notify(pub: Collections.Publisher[T], event: T): Unit = {
           callback(event)
         }
       })

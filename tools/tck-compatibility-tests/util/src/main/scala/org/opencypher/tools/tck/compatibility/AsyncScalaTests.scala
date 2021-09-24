@@ -50,7 +50,7 @@ trait AsyncScalaTests extends AsyncFunSpec with ParallelTestExecution {
       currentGroup match {
         case Total =>
           Total.children.foreach(spawnTests)
-        case _: Tag => Unit // do not execute scenarios via tags, would be redundant
+        case _: Tag => () // do not execute scenarios via tags, would be redundant
         case g: ContainerGroup =>
           describe(g.description) {
             g.children.foreach(spawnTests)
@@ -65,7 +65,7 @@ trait AsyncScalaTests extends AsyncFunSpec with ParallelTestExecution {
               exec(i.scenario)
             } map { _ => succeed }
           }
-        case _ => Unit
+        case _ => ()
       }
     }
 

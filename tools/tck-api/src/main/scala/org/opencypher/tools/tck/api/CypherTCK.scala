@@ -106,7 +106,7 @@ object CypherTCK {
       try {
         fs.foreach(_.close())
       } catch {
-        case _: UnsupportedOperationException => Unit
+        case _: UnsupportedOperationException => ()
       }
     }
   }

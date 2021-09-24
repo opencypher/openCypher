@@ -149,7 +149,7 @@ class CypherValueParser(val orderedLists: Boolean) {
     * A 'simple' string chunk; without apostrophes or backslash (escape sequence)
     */
   private def stringChunk[_: P]: P[Unit] = {
-    CharsWhile(c => c != ''' && c != '\\')
+    CharsWhile(c => c != '\'' && c != '\\')
   }
   /**
     * We escape apostrophes inside strings using a backslash
