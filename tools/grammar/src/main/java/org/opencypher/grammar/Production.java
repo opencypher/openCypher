@@ -42,7 +42,32 @@ public interface Production
 
     <Scope> Scope scope( Scope scope, ScopeRule.Transformation<Scope> transition );
 
-    <P, T, EX extends Exception> T transform( TermTransformation<P, T, EX> transformation, P parameter ) throws EX;
+    <P, T, EX extends Exception> T transform( TermTransformation<P,T,EX> transformation, P parameter ) throws EX;
+
+    default boolean isEmpty()
+    {
+        Grammar.Term def = definition();
+        if ( def instanceof Node )
+        {
+            Node node = (Node) def;
+            return node.isEpsilon();
+        }
+        else
+        {
+            return def.transform( new TermTransformation<Void,Boolean,RuntimeException>()
+            {   // <pre>
+                @Override public Boolean transformEpsilon( Void param ) { return true; }
+                @Override public Boolean transformAlternatives( Void param, Alternatives alternatives ) { return false; }
+                @Override public Boolean transformSequence( Void param, Sequence sequence ) { return false; }
+                @Override public Boolean transformLiteral( Void param, Literal literal ) { return false; }
+                @Override public Boolean transformNonTerminal( Void param, NonTerminal nonTerminal ) { return false; }
+                @Override public Boolean transformOptional( Void param, Optional optional ) { return false; }
+                @Override public Boolean transformRepetition( Void param, Repetition repetition ) { return false; }
+                @Override public Boolean transformCharacters( Void param, CharacterSet characters ) { return false; }
+                // </pre>
+            }, null );
+        }
+    }
 
     boolean skip();
 
@@ -51,7 +76,7 @@ public interface Production
     boolean legacy();
 
     boolean lexer();
-    
+
     boolean bnfsymbols();
 
     Collection<NonTerminal> references();

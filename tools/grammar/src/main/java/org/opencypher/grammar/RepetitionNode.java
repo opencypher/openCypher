@@ -110,4 +110,14 @@ class RepetitionNode extends Sequenced implements Repetition
             result.append( '}' );
         }
     }
+
+    @Override
+    RepetitionNode copy()
+    {
+        RepetitionNode repetition = new RepetitionNode();
+        repetition.min = this.min;
+        repetition.max = this.max;
+        repetition.norm = this.norm;
+        return repetition;
+    }
 }

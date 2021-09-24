@@ -213,11 +213,12 @@ class Structure
                     }
                     else if ( constructor.getParameterCount() == 1 )
                     {
-                        for ( Class<?> base = constructor.getParameterTypes()[0];
-                              base != Object.class; base = base.getSuperclass() )
-                        {
-                            constructors.putIfAbsent( base, constructor );
-                        }
+                        constructors.put( constructor.getParameterTypes()[0], constructor );
+//                        for ( Class<?> base = constructor.getParameterTypes()[0];
+//                              base != Object.class; base = base.getSuperclass() )
+//                        {
+//                            constructors.putIfAbsent( base, constructor );
+//                        }
                     }
                 }
             }

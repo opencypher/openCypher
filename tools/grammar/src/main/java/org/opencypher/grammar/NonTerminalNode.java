@@ -44,18 +44,23 @@ final class NonTerminalNode extends Node implements NonTerminal
     Boolean skip, inline;
     @Attribute(uri = Grammar.RAILROAD_XML_NAMESPACE, optional = true)
     String title;
-    private ProductionNode production;
+    private ReferenceTarget reference;
     private int index = -1;
     private ProductionNode origin;
 
     @Override
     public ProductionNode production()
     {
-        if ( production == null )
+        if ( reference == null )
         {
             throw new NoSuchElementException( ref );
         }
-        return production;
+        return reference.production();
+    }
+
+    public void externalReference( ForeignReference reference )
+    {
+        this.reference = reference;
     }
 
     @Override
@@ -77,6 +82,16 @@ final class NonTerminalNode extends Node implements NonTerminal
     }
 
     @Override
+    public <T> T resolveReference( ReferenceResolver<T> resolver )
+    {
+        if ( reference == null )
+        {
+            return resolver.unknownReference( this );
+        }
+        return reference.resolve( this, resolver );
+    }
+
+    @Override
     public Production declaringProduction()
     {
         return origin;
@@ -85,18 +100,32 @@ final class NonTerminalNode extends Node implements NonTerminal
     @Override
     boolean resolve( ProductionNode origin, ProductionResolver resolver )
     {
-        production = resolver.resolveProduction( origin, requireNonNull( ref, "non-terminal reference" ) );
-        if ( production != null )
+        if ( index < 0 )
         {
-            production.addReference( this );
-            if ( index < 0 )
-            {
-                this.origin = origin;
-                index = resolver.nextNonTerminalIndex();
-            }
-            return true;
+            this.origin = origin;
+            index = resolver.nextNonTerminalIndex();
         }
-        return false;
+        if ( reference == null )
+        {
+            reference = resolver.resolveProduction( origin, requireNonNull( ref, "non-terminal reference" ) );
+            if ( reference != null )
+            {
+                ((ProductionNode) reference).addReference( this );
+                return true;
+            }
+        }
+//        else if ( reference instanceof ForeignReference )
+//        {
+//            Grammar.Unresolved.Production production = resolver.resolve( (ForeignReference) reference );
+//            if ( production != null )
+//            {
+//                ProductionNode node = production.node;
+//                reference = node;
+//                node.addReference( this );
+//                return true;
+//            }
+//        }
+        return reference != null;
     }
 
     @Override
@@ -112,7 +141,7 @@ final class NonTerminalNode extends Node implements NonTerminal
         {
             return true;
         }
-        if ( obj.getClass() != NonTerminalNode.class )
+        if ( obj == null || obj.getClass() != NonTerminalNode.class )
         {
             return false;
         }

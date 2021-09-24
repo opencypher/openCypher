@@ -27,6 +27,7 @@
  */
 package org.opencypher.tools.io;
 
+import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -299,6 +300,15 @@ public interface Output extends Appendable, Closeable
         return result.toString();
     }
 
+    default Output repeat( int cp, int times )
+    {
+        for ( int i = 0; i < times; i++ )
+        {
+            appendCodePoint( cp );
+        }
+        return this;
+    }
+
     /**
      * An extension of {@link Output} that signals that what was written can be read back.
      */
@@ -353,6 +363,23 @@ public interface Output extends Appendable, Closeable
         {
             return new CharSequenceReader( this, 0, length() );
         }
+
+        default void lines( BiConsumer<String,Integer> lineHandler )
+        {
+            BufferedReader reader = new BufferedReader( reader() );
+            try
+            {
+                String line;
+                for ( int no = 1; null != (line = reader.readLine()); no++ )
+                {
+                    lineHandler.accept( line, no );
+                }
+            }
+            catch ( IOException e )
+            {
+                throw new IllegalStateException( "Should not throw exception when reading from Readable.", e );
+            }
+        }
     }
 
     /**
@@ -361,7 +388,7 @@ public interface Output extends Appendable, Closeable
      * The replacement function can (and is recommended to) be a <i>partial function</i>, only returning replacements
      * for the code points that are to be escaped and returning {@code null} for other code points.
      *
-     * @param str         the character sequence to escape the contents of.
+     * @param str the character sequence to escape the contents of.
      * @param replacement the replacement function that defines how to escape the code points that need escaping.
      * @return this {@code Output} instance to allow invocation chaining.
      */
@@ -376,9 +403,9 @@ public interface Output extends Appendable, Closeable
      * The replacement function can (and is recommended to) be a <i>partial function</i>, only returning replacements
      * for the code points that are to be escaped and returning {@code null} for other code points.
      *
-     * @param str         the character sequence to escape the contents of.
-     * @param start       the position in the given character sequence to start at.
-     * @param end         the position in the given character sequence to end at.
+     * @param str the character sequence to escape the contents of.
+     * @param start the position in the given character sequence to start at.
+     * @param end the position in the given character sequence to end at.
      * @param replacement the replacement function that defines how to escape the code points that need escaping.
      * @return this {@code Output} instance to allow invocation chaining.
      */

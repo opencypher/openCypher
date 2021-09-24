@@ -29,6 +29,7 @@ package org.opencypher.tools.grammar;
 
 import java.io.OutputStream;
 import java.io.Writer;
+import java.nio.file.Path;
 
 import org.opencypher.grammar.CharacterSet;
 import org.opencypher.grammar.Grammar;
@@ -51,7 +52,7 @@ public class ISO14977 extends BnfWriter
         write( grammar, output( writer ) );
     }
 
-    public static void write( Grammar grammar, OutputStream stream )
+    public static void write( Grammar grammar, Path workingDir, OutputStream stream )
     {
         write( grammar, output( stream ) );
     }
@@ -79,6 +80,18 @@ public class ISO14977 extends BnfWriter
     public static void append( Grammar.Term term, Output output )
     {
         term.accept( new ISO14977( output ) );
+    }
+
+    public static void append( Production production, Output output )
+    {
+        new ISO14977( output )
+        {
+            @Override
+            protected void productionEnd()
+            {
+                output.println( " ;" );
+            }
+        }.visitProduction( production );
     }
 
     public static Output string( Output str, Production production )

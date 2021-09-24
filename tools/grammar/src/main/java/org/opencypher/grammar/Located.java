@@ -80,8 +80,9 @@ class Located implements LocationAware
                 return pos;
             }
         }
-        throw new IllegalStateException( "Located objects should share a root, " +
-                                         "and be included from different positions where their trees diverge." );
+//        throw new IllegalStateException( "Located objects should share a root, " +
+//                                         "and be included from different positions where their trees diverge." );
+        return 0;
     }
 
     private static List<Located> trace( Map<String, ? extends Located> locations, Located located )

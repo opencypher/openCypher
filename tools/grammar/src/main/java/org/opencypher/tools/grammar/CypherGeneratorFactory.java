@@ -72,7 +72,7 @@ public class CypherGeneratorFactory extends GeneratorFactory<CypherGeneratorFact
 
     public static void main( String... args ) throws Exception
     {
-        execute( ( grammar, out ) -> {
+        execute( ( grammar, workingDir, out ) -> {
             Output.Readable output = stringBuilder();
             new CypherGeneratorFactory()
             {

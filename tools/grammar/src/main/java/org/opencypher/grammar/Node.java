@@ -105,10 +105,21 @@ abstract class Node extends Grammar.Term implements LocationAware
         return this;
     }
 
+    boolean isEpsilon()
+    {
+        return false;
+    }
+
     static Node epsilon()
     {
         return new Node()
         {
+            @Override
+            boolean isEpsilon()
+            {
+                return true;
+            }
+
             @Override
             public int hashCode()
             {

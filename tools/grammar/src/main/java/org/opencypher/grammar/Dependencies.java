@@ -69,7 +69,7 @@ class Dependencies
                     .append( "Productions used in non-terminals have not been defined:" );
             for ( Map.Entry<String, Set<ProductionNode>> entry : missingProductions.entrySet() )
             {
-                message.append( "\n  " ).append( entry.getKey() );
+                message.append( "\n  '" ).append( entry.getKey() ).append( "'" );
                 String sep = " used from: ";
                 for ( ProductionNode origin : entry.getValue() )
                 {

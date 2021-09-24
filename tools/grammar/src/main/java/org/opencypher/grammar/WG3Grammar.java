@@ -43,11 +43,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.opencypher.tools.xml.XmlParser.xmlParser;
 
 @Element( uri = WG3Grammar.XML_NAMESPACE, name = "grammar" )
-class WG3Grammar implements LocationAware
+class WG3Grammar extends ProtoGrammar implements LocationAware
 {
     public static void main( String[] args ) throws Exception
     {
@@ -59,7 +60,7 @@ class WG3Grammar implements LocationAware
 
     private static void run( Path inputFile ) throws Exception
     {
-        Grammar grammar = XML.parse( inputFile ).grammar.build( Grammar.Builder.Option.ALLOW_ROOTLESS );
+        Grammar grammar = XML.parse( inputFile ).resolve( ProtoGrammar.NO_RESOLVER, ProtoGrammar.ResolutionOption.ALLOW_ROOTLESS );
         SQLBNF.write( grammar, Output.stdOut() );
         Map<String,Object> properties = new HashMap<>();
         properties.put( "RailRoadDiagramPages.outputDir", inputFile.resolveSibling( "railroads" ) );
@@ -69,7 +70,7 @@ class WG3Grammar implements LocationAware
                 .filter( path -> path.toString().toUpperCase().endsWith( "GQL.PDF" ) )
                 .max( Comparator.comparing( ( Path path ) -> path.getFileName().toString() ) )
                 .ifPresent( path -> properties.put( "RailRoadDiagramPages.productionDetailsLink", "../" + path.getFileName().toString() + "#''BNF_{0}''" ) );
-        RailRoadDiagramPages.generate( grammar, Output.stdOut(), properties );
+        RailRoadDiagramPages.generate( grammar, inputFile.getParent(), Output.stdOut(), properties );
     }
 
     static final String XML_NAMESPACE = "";
@@ -88,6 +89,43 @@ class WG3Grammar implements LocationAware
     void add( BnfDef def )
     {
         def.addTo( grammar );
+    }
+
+    @Override
+    String language()
+    {
+        return grammar.language();
+    }
+
+    @Override
+    ProductionNode production( String name )
+    {
+        return grammar.production( name );
+    }
+
+    @Override
+    void setName( String name )
+    {
+        grammar.setName( name );
+    }
+
+    @Override
+    Grammar resolve( Grammar.Resolver resolver, Set<ResolutionOption> options )
+    {
+        options.add( ResolutionOption.ALLOW_ROOTLESS ); // WG3 grammar files does not have a way to define the root
+        return grammar.resolve( resolver, options );
+    }
+
+    @Override
+    void add( ProductionNode production )
+    {
+        grammar.add( production );
+    }
+
+    @Override
+    void apply( Patch patch )
+    {
+        grammar.apply( patch );
     }
 
     @Element( uri = WG3Grammar.XML_NAMESPACE, name = "BNFDef" )
@@ -157,7 +195,7 @@ class WG3Grammar implements LocationAware
             state = state.alt( terms, term.term(), getClass() );
         }
 
-        @Child( {BNF.class, Group.class, Opt.class, Keyword.class, TerminalSymbol.class} )
+        @Child( {BNF.class, Group.class, Monospaced.class, Opt.class, Keyword.class, JsonKeyword.class, TerminalSymbol.class} )
         void seq( Term term )
         {
             state = state.seq( terms, term.term(), getClass() );
@@ -265,21 +303,43 @@ class WG3Grammar implements LocationAware
     {
         @Attribute
         String name;
+        @Attribute( optional = true )
+        String part;
+        @Attribute( optional = true )
+        String standard;
 
         @Override
         public Grammar.Term term()
         {
-            return Grammar.nonTerminal( name );
+            NonTerminalNode nonTerminal = new NonTerminalNode();
+            nonTerminal.ref = name;
+            if (standard != null || part != null )
+            {
+                nonTerminal.externalReference( new WG3Reference( standard, part, name ) );
+            }
+            return nonTerminal;
         }
     }
 
     @Element( uri = WG3Grammar.XML_NAMESPACE, name = "alt" )
     static class Alt extends Body implements Term
     {
+        AllAltsReference allAltsFrom;
+
+        @Child
+        void allAltsFrom( AllAltsReference reference )
+        {
+            this.allAltsFrom = reference;
+        }
     }
 
     @Element( uri = WG3Grammar.XML_NAMESPACE, name = "group" )
     static class Group extends Body implements Term
+    {
+    }
+
+    @Element( uri = WG3Grammar.XML_NAMESPACE, name = "mono" )
+    static class Monospaced extends Body implements Term
     {
     }
 
@@ -307,6 +367,7 @@ class WG3Grammar implements LocationAware
 
         private void add( LiteralNode literal )
         {
+            annotate( literal );
             if ( this.literal != null )
             {
                 SequenceNode seq;
@@ -328,6 +389,10 @@ class WG3Grammar implements LocationAware
             }
         }
 
+        void annotate( LiteralNode literal )
+        {
+        }
+
         @Override
         public Grammar.Term term()
         {
@@ -344,14 +409,33 @@ class WG3Grammar implements LocationAware
     {
     }
 
+    @Element( uri = WG3Grammar.XML_NAMESPACE, name = "sjkw" )
+    static class JsonKeyword extends Literal
+    {
+    }
+
     @Element( uri = WG3Grammar.XML_NAMESPACE, name = "terminalsymbol" )
     static class TerminalSymbol extends Literal
     {
+        @Override
+        void annotate( LiteralNode literal )
+        {
+            literal.caseSensitive = true;
+        }
     }
 
     @Element( uri = WG3Grammar.XML_NAMESPACE, name = "seeTheRules" )
     static class SeeTheRules
     {
+    }
+
+    @Element( uri = WG3Grammar.XML_NAMESPACE, name = "allAltsFrom" )
+    static class AllAltsReference
+    {
+        @Attribute
+        String part;
+        @Attribute( optional = true )
+        String standard;
     }
 
     @Element( uri = WG3Grammar.XML_NAMESPACE, name = "ellipsis" )

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022 "Neo Technology,"
+ * Copyright (c) 2015-2021 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,44 +27,9 @@
  */
 package org.opencypher.grammar;
 
-public interface NonTerminal
+interface ReferenceTarget
 {
-    Production production();
+    ProductionNode production();
 
-    default String productionName()
-    {
-        return production().name();
-    }
-
-    default Grammar.Term productionDefinition()
-    {
-        return production().definition();
-    }
-
-    default <Scope> Scope productionScope( Scope scope, ScopeRule.Transformation<Scope> transition )
-    {
-        return production().scope( scope, transition );
-    }
-
-    boolean skip();
-
-    boolean inline();
-
-    Production declaringProduction();
-
-    String title();
-
-    interface ReferenceResolver<T>
-    {
-        T resolveProduction( Production production );
-
-        T unknownReference( NonTerminal nonTerminal );
-
-        interface WG3<T> extends ReferenceResolver<T>
-        {
-            T resolveWG3Reference( String standard, String part, String production );
-        }
-    }
-
-    <T> T resolveReference( ReferenceResolver<T> resolver );
+    <T> T resolve( NonTerminalNode nonTerminal, NonTerminal.ReferenceResolver<T> resolver );
 }

@@ -39,7 +39,7 @@ import org.opencypher.tools.xml.Element;
 import static java.util.Collections.emptyList;
 
 @Element(uri = Grammar.XML_NAMESPACE, name = "production")
-final class ProductionNode extends Located implements Production
+final class ProductionNode extends Located implements Production, ReferenceTarget
 {
     final String vocabulary;
     @Attribute
@@ -56,7 +56,41 @@ final class ProductionNode extends Located implements Production
 
     public ProductionNode( Root root )
     {
-        this.vocabulary = root.language;
+        this( root.language );
+    }
+
+    public ProductionNode( GrammarAnnotation annotation )
+    {
+        this( annotation.language() );
+    }
+
+    public ProductionNode( GrammarAnnotation.Replace replace )
+    {
+        this( replace.grammar.language() );
+    }
+
+    ProductionNode replace( Node definition )
+    {
+        if ( references != null )
+        {
+            throw new IllegalStateException( "Cannot replace resolved grammar." );
+        }
+        ProductionNode node = new ProductionNode( vocabulary );
+        node.name = this.name;
+        node.definition = definition;
+        node.scopeRule = this.scopeRule;
+        node.description = this.description;
+        node.skip = this.skip;
+        node.inline = this.inline;
+        node.legacy = this.legacy;
+        node.lexer = this.lexer;
+        node.bnfsymbols = this.bnfsymbols;
+        return node;
+    }
+
+    private ProductionNode( String vocabulary )
+    {
+        this.vocabulary = vocabulary;
     }
 
     @Child({AlternativesNode.class, SequenceNode.class, LiteralNode.class, CharacterSetNode.class,
@@ -90,7 +124,7 @@ final class ProductionNode extends Located implements Production
     {
         return name;
     }
-    
+
     @Override
     public String description()
     {
@@ -205,5 +239,17 @@ final class ProductionNode extends Located implements Production
     public String toString()
     {
         return "Production{" + vocabulary + " / " + name + " = " + definition + "}";
+    }
+
+    @Override
+    public ProductionNode production()
+    {
+        return this;
+    }
+
+    @Override
+    public <T> T resolve( NonTerminalNode nonTerminal, NonTerminal.ReferenceResolver<T> resolver )
+    {
+        return resolver.resolveProduction( this );
     }
 }
