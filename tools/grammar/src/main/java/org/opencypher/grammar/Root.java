@@ -29,6 +29,7 @@ package org.opencypher.grammar;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.opencypher.tools.xml.Attribute;
@@ -55,16 +57,8 @@ import static java.util.stream.Collectors.toSet;
 import static org.opencypher.tools.xml.XmlParser.xmlParser;
 
 @Element(uri = Grammar.XML_NAMESPACE, name = "grammar")
-class Root implements Iterable<ProductionNode>
+class Root extends ProtoGrammar implements Iterable<ProductionNode>
 {
-    enum ResolutionOption
-    {
-        ALLOW_ROOTLESS,
-        SKIP_UNUSED_PRODUCTIONS,
-        IGNORE_UNUSED_PRODUCTIONS,
-        INCLUDE_LEGACY
-    }
-
     static final XmlParser<Root> XML = xmlParser( Root.class );
 
     @Attribute
@@ -74,19 +68,25 @@ class Root implements Iterable<ProductionNode>
     final Map<String, VocabularyReference> referencedFiles = new HashMap<>();
 
     @Child
+    @Override
     void add( ProductionNode production )
     {
-        if ( CharacterSetNode.isReserved( production.name ) )
-        {
-            throw new IllegalArgumentException( "Invalid production name: '" + production.name +
-                                                "', it is reserved for well known character sets." );
-        }
-        if ( productions.put( production.name.toLowerCase(), production ) != null )
+        if ( productions.put( productionKey( production.name ), production ) != null )
         {
             throw new IllegalArgumentException( "Duplicate definition of '" + production.name + "' production" );
         }
     }
-    
+
+    private String productionKey( String name )
+    {
+        if ( CharacterSetNode.isReserved( name ) )
+        {
+            throw new IllegalArgumentException( "Invalid production name: '" + name +
+                    "', it is reserved for well known character sets." );
+        }
+        return name.toLowerCase();
+    }
+
     // this is probably naughty, but we need to mark the production, but not a reference
     // special
     void markAsBnfSymbols(String productionName)
@@ -118,19 +118,32 @@ class Root implements Iterable<ProductionNode>
         Description.extract( header, buffer, start, length );
     }
 
-    final Grammar resolve( ResolutionOption... config )
+    @Override
+    String language()
     {
-        Set<ResolutionOption> options = EnumSet.noneOf( ResolutionOption.class );
-        if ( config != null )
-        {
-            Collections.addAll( options, config );
-        }
+        return language;
+    }
+
+    @Override
+    ProductionNode production( String name )
+    {
+        return productions.get( name.toLowerCase() );
+    }
+
+    @Override
+    void setName( String name )
+    {
+        language = name;
+    }
+
+    final Grammar resolve( Grammar.Resolver referenceResolver, Set<ResolutionOption> options )
+    {
         Dependencies dependencies = new Dependencies();
         Set<String> unused = productions.values().stream().map( node -> node.name ).collect( toSet() );
         // find the root production
         if ( !unused.remove( language ) )
         {
-            if ( options.contains( ResolutionOption.ALLOW_ROOTLESS ) )
+            if ( options.contains( ProtoGrammar.ResolutionOption.ALLOW_ROOTLESS ) )
             {
                 productions.values().stream()
                            .filter( production -> Objects.equals( production.vocabulary, language ) )
@@ -144,7 +157,7 @@ class Root implements Iterable<ProductionNode>
         // Filter out legacy productions
         final Set<String> legacyProductions = new HashSet<>();
         final Map<String,ProductionNode> filteredProductions;
-        if ( !options.contains( ResolutionOption.INCLUDE_LEGACY ) )
+        if ( !options.contains( ProtoGrammar.ResolutionOption.INCLUDE_LEGACY ) )
         {
             filteredProductions = new LinkedHashMap<>();
             productions.values().stream()
@@ -157,7 +170,7 @@ class Root implements Iterable<ProductionNode>
             filteredProductions = productions;
         }
         // Resolve non-terminals in all productions; remove references to legacy productions
-        ProductionResolver resolver = new ProductionResolver( filteredProductions, dependencies, unused, options, legacyProductions );
+        ProductionResolver resolver = new ProductionResolver( referenceResolver, filteredProductions, dependencies, unused, options, legacyProductions );
         for ( ProductionNode production : filteredProductions.values() )
         {
             production.resolve( resolver );
@@ -167,7 +180,7 @@ class Root implements Iterable<ProductionNode>
         // report unused productions
         if ( !unused.isEmpty() && !legacyProductions.containsAll( unused.stream().map( String::toLowerCase ).collect( toSet()) ) )
         {
-            if ( !options.contains( ResolutionOption.IGNORE_UNUSED_PRODUCTIONS ) )
+            if ( !options.contains( ProtoGrammar.ResolutionOption.IGNORE_UNUSED_PRODUCTIONS ) )
             {
                 System.err.println( "WARNING! Unused productions:" );
                 for ( String name : unused )
@@ -199,6 +212,74 @@ class Root implements Iterable<ProductionNode>
     public Iterator<ProductionNode> iterator()
     {
         return productions.values().iterator();
+    }
+
+    @Override
+    void apply( Patch patch )
+    {
+        patch.apply( new Mutator()
+        {
+            @Override
+            <P, EX extends Exception> void replaceProduction( String production, ProductionTransformation<P,ProductionNode,EX> transformation, P param ) throws EX
+            {
+                try
+                {
+                    productions.compute( productionKey( production ), ( key, old ) ->
+                    {
+                        if ( old == null )
+                        {
+                            throw new IllegalArgumentException( "No such production: " + production );
+                        }
+                        try
+                        {
+                            return old.transform( transformation, param );
+                        }
+                        catch ( RuntimeException re )
+                        {
+                            throw re;
+                        }
+                        catch ( Exception ex )
+                        {
+                            throw new ExceptionVector( ex );
+                        }
+                    } );
+                }
+                catch ( ExceptionVector ev )
+                {
+                    @SuppressWarnings( "unchecked" ) EX ex = (EX) ev.getCause();
+                    throw ex;
+                }
+            }
+
+            @Override
+            void removeProduction( String production )
+            {
+                if ( null == productions.remove( productionKey( production ) ) )
+                {
+                    throw new IllegalArgumentException( "No such production: " + production );
+                }
+            }
+
+            @Override
+            Collection<String> productions()
+            {
+                return productions.values().stream().map( node -> node.name ).collect( Collectors.toSet() );
+            }
+        } );
+    }
+
+    private static class ExceptionVector extends Error
+    {
+        ExceptionVector( Exception exception )
+        {
+            super( exception );
+        }
+
+        @Override
+        public Throwable fillInStackTrace()
+        {
+            return this;
+        }
     }
 
     private static final class Grammar implements org.opencypher.grammar.Grammar

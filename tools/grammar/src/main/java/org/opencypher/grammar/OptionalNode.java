@@ -44,6 +44,14 @@ final class OptionalNode extends Sequenced implements Optional
     }
 
     @Override
+    OptionalNode copy()
+    {
+        OptionalNode optional = new OptionalNode();
+        optional.probability = this.probability;
+        return optional;
+    }
+
+    @Override
     public double probability()
     {
         return probability;

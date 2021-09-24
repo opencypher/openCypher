@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022 "Neo Technology,"
+ * Copyright (c) 2015-2021 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,44 +27,36 @@
  */
 package org.opencypher.grammar;
 
-public interface NonTerminal
+class WG3Reference extends ForeignReference
 {
-    Production production();
+    private final String standard, part, name;
 
-    default String productionName()
+    WG3Reference( String standard, String part, String name )
     {
-        return production().name();
+        this.standard = standard;
+        this.part = part;
+        this.name = name;
     }
 
-    default Grammar.Term productionDefinition()
+    @Override
+    public <T> T resolve( NonTerminalNode nonTerminal, NonTerminal.ReferenceResolver<T> resolver )
     {
-        return production().definition();
-    }
-
-    default <Scope> Scope productionScope( Scope scope, ScopeRule.Transformation<Scope> transition )
-    {
-        return production().scope( scope, transition );
-    }
-
-    boolean skip();
-
-    boolean inline();
-
-    Production declaringProduction();
-
-    String title();
-
-    interface ReferenceResolver<T>
-    {
-        T resolveProduction( Production production );
-
-        T unknownReference( NonTerminal nonTerminal );
-
-        interface WG3<T> extends ReferenceResolver<T>
+        if ( resolver instanceof NonTerminal.ReferenceResolver.WG3 )
         {
-            T resolveWG3Reference( String standard, String part, String production );
+            NonTerminal.ReferenceResolver.WG3<T> wg3 = (NonTerminal.ReferenceResolver.WG3<T>) resolver;
+            return wg3.resolveWG3Reference( standard, part, nonTerminal.ref );
         }
+        return resolver.unknownReference( nonTerminal );
     }
 
-    <T> T resolveReference( ReferenceResolver<T> resolver );
+    @Override
+    public Grammar.Unresolved.Production resolve( Grammar.Resolver resolver )
+    {
+        if ( resolver instanceof Grammar.Resolver.WG3 )
+        {
+            Grammar.Resolver.WG3 wg3 = (Grammar.Resolver.WG3) resolver;
+            return wg3.resolve( standard, part, name );
+        }
+        return null;
+    }
 }

@@ -29,16 +29,19 @@ package org.opencypher.tools.grammar;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.xml.stream.XMLStreamException;
 
 import org.opencypher.grammar.Alternatives;
@@ -48,6 +51,7 @@ import org.opencypher.grammar.Literal;
 import org.opencypher.grammar.NonTerminal;
 import org.opencypher.grammar.Optional;
 import org.opencypher.grammar.Production;
+import org.opencypher.grammar.ProductionTransformation;
 import org.opencypher.grammar.Repetition;
 import org.opencypher.grammar.Sequence;
 import org.opencypher.grammar.TermTransformation;
@@ -76,13 +80,43 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
 
         default BnfFlavour bnfFlavour()
         {
-            return ISO14977::html;
+            return new BnfFlavour()
+            {
+                @Override
+                public void bnf( HtmlTag parent, Production production, HtmlLinker linker )
+                {
+                    ISO14977.html( parent, production, linker );
+                }
+
+                @Override
+                public void bnf( Production production, Output output )
+                {
+                    ISO14977.string( new Output()
+                    {
+                        @Override
+                        public Output append( char x )
+                        {
+                            if ( x == '"' )
+                            {
+                                output.append( "\\\"" );
+                            }
+                            else
+                            {
+                                output.append( x );
+                            }
+                            return this;
+                        }
+                    }, production );
+                }
+            };
         }
     }
 
     public interface BnfFlavour
     {
         void bnf( HtmlTag parent, Production production, HtmlLinker linker );
+
+        void bnf( Production production, Output output );
 
         static BnfFlavour fromString( String value )
         {
@@ -110,14 +144,14 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
         main( RailRoadDiagramPages::new, RailRoadDiagramPages::generate, args );
     }
 
-    public static void generate( Grammar grammar, Output output, Map<String,?> properties ) throws IOException, XMLStreamException
+    public static void generate( Grammar grammar, Path workingDir, Output output, Map<String,?> properties ) throws IOException, XMLStreamException
     {
-        new RailRoadDiagramPages( properties ).generate( grammar, output );
+        new RailRoadDiagramPages( workingDir, properties ).generate( grammar, output );
     }
 
-    private RailRoadDiagramPages( Map<?, ?> properties )
+    private RailRoadDiagramPages( Path workingDir, Map<?, ?> properties )
     {
-        super( properties );
+        super( workingDir, properties );
         this.options = options( Options.class );
         this.bnfFlavour = options.bnfFlavour();
         this.detailsLinker = options.productionDetailsLink();
@@ -160,27 +194,115 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
             backlinks.println( "var backlinks = {" );
             grammar.accept( production ->
             {
-                backlinks.append( "  " ).append( '"' ).append( production.name() ).append( '"' ).append( ": [" );
+                backlinks.append( "  " ).append( '"' ).append( production.name() ).append( '"' )
+                        .append( ": {\"link\":\"" ).append( referenceLink( production.name() ) )
+                        .append( "\", \"bnf\":\"" ).append( production, bnfFlavour::bnf ).append( "\", \"references\": [" );
                 for ( Production source : production.referencedFrom() )
                 {
-                    backlinks.append( '"' ).append( source.name() ).append( '"' ).append( ", " );
+                    backlinks.append( '"' ).append( source.name() ).append( "\", " );
                 }
-                backlinks.println( "]," );
+                backlinks.println( "]}," );
             } );
             backlinks.println( "};" );
         }
+        try ( HtmlTag.Html html = html( outputDir.resolve( "index.html" ) ) )
+        {
+            html.head( head( "title", grammar.language() ), meta( "charset", "UTF-8" ) );
+            try ( HtmlTag body = html.body() )
+            {
+                if ( grammar.hasProduction( grammar.language() ) )
+                {
+                    body.textTag( "h2", "Root production" );
+                    body.a( referenceLink( grammar.language() ), grammar.language() );
+                }
+                body.textTag( "h2", "Productions without references" );
+                listProductions( body, grammar, production -> production.referencedFrom().isEmpty() );
+                if ( grammar.any( Production::isEmpty ) )
+                {
+                    body.textTag( "h2", "Empty productions" );
+                    listProductions( body, grammar, Production::isEmpty );
+                }
+                List<Recursive> recursives = Recursive.findLeftRecursive( grammar );
+                if ( !recursives.isEmpty() )
+                {
+                    body.textTag( "h2", "Left recursive productions" );
+                    try ( HtmlTag ul = body.tag( "ul" ) )
+                    {
+                        for ( Recursive recursive : recursives )
+                        {
+                            try ( HtmlTag li = ul.tag( "li" ) )
+                            {
+                                li.a( referenceLink( recursive.production.name() ), recursive.production.name() );
+                                try ( HtmlTag nul = li.tag( "ul" ) )
+                                {
+                                    recursive.accept( ( root, left, trace ) ->
+                                    {
+                                        try ( HtmlTag nli = nul.tag( "li" ) )
+                                        {
+                                            if ( left )
+                                            {
+                                                nli.text( "left recursive " );
+                                            }
+                                            nli.text( "through: " );
+                                            for ( Production production : trace )
+                                            {
+                                                nli.a( referenceLink( production.name() ), production.name() );
+                                                nli.text( " -> " );
+                                            }
+                                            nli.a( referenceLink( root.name() ), root.name() );
+                                        }
+                                    } );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         try
         {
-            Files.copy(
-                    Path.of( getClass().getResource( "/explore-backlinks.js" ).toURI() ),
-                    outputDir.resolve( "explore-backlinks.js" ),
-                    StandardCopyOption.REPLACE_EXISTING );
+            copyResource( outputDir, "explore-backlinks.js" );
+            copyResource( outputDir, "explore-backlinks.css" );
         }
         catch ( NullPointerException | URISyntaxException e )
         {
             throw new IOException( "Failed to copy 'explore-backlinks.js'", e );
         }
         output.append( "Rendered " ).append( diagrams ).println( " diagrams." );
+    }
+
+    private void listProductions( HtmlTag body, Grammar grammar, Predicate<Production> predicate )
+    {
+        try ( HtmlTag ul = body.tag( "ul" ) )
+        {
+            grammar.accept( production ->
+            {
+                if ( predicate.test( production ) )
+                {
+                    try ( HtmlTag li = ul.tag( "li" ) )
+                    {
+                        li.a( referenceLink( production.name() ), production.name() );
+                        if ( production.lexer() )
+                        {
+                            li.text( " (Lexer rule)" );
+                        }
+                        String description = production.description();
+                        if ( description != null )
+                        {
+                            li.text( " - " ).text( description );
+                        }
+                    }
+                }
+            } );
+        }
+    }
+
+    private void copyResource( Path outputDir, String name ) throws IOException, URISyntaxException
+    {
+        Files.copy(
+                Path.of( getClass().getResource( "/" + name ).toURI() ),
+                outputDir.resolve( name ),
+                StandardCopyOption.REPLACE_EXISTING );
     }
 
     @Override
@@ -201,7 +323,7 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
     @Override
     public String referenceLink( String reference )
     {
-        return reference + ".html";
+        return filename( reference ) + ".html";
     }
 
     @Override
@@ -212,13 +334,15 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
 
     private void writeHtml( Path dir, Production production )
     {
-        String svg = production.name() + ".svg";
-        try ( HtmlTag.Html html = html( dir.resolve( production.name() + ".html" ) ) )
+        String svg = filename( production.name() ) + ".svg";
+        try ( HtmlTag.Html html = html( dir.resolve( filename( production.name() ) + ".html" ) ) )
         {
             html.head(
                     head( "title", production.name() ), meta( "charset", "UTF-8" ),
                     head( "script", null, attr( "src", "backlinks.js" ) ),
-                    head( "script", null, attr( "src", "explore-backlinks.js" ) ) );
+                    head( "script", null, attr( "src", "explore-backlinks.js" ) ),
+                    head( "link", null, attr( "rel", "stylesheet" ), attr( "type", "text/css" ), attr( "media", "screen" ),
+                            attr( "href", "explore-backlinks.css" ) ) );
             try ( HtmlTag body = html.body() )
             {
                 String detailsLink = null;
@@ -233,12 +357,15 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
                 {
                     body.textTag( "h1", production.name() );
                 }
+                if ( production.lexer() )
+                {
+                    body.p( "Lexer rule" );
+                }
                 body.tag( "object", attr( "data", svg ), attr( "type", "image/svg+xml" ) ).close();
                 String description = production.description();
                 if ( description != null )
                 {
-                    body.p();
-                    body.text( description );
+                    body.p( description );
                 }
                 body.textTag( "h2", "EBNF" );
                 bnf( body, production );
@@ -263,7 +390,7 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
                 if ( !references.isEmpty() )
                 {
                     body.textTag( "h2", "Referenced from" );
-                    try ( HtmlTag ul = body.tag( "ul" ) )
+                    try ( HtmlTag ul = body.tag( "ul", attr( "class", "backlinks" ) ) )
                     {
                         for ( Production reference : references )
                         {
@@ -277,6 +404,11 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
                 }
             }
         }
+    }
+
+    private String filename( String productionName )
+    {
+        return productionName.replace( '/', ' ' );
     }
 
     private void bnf( HtmlTag body, Production production )

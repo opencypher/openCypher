@@ -119,7 +119,7 @@ public class Antlr4Test
                 "oC_bar",
                 "   :  LITER@L ;",
                 "",
-                "LITER@L : ( 'L' | 'l' ) ( 'I' | 'i' ) ( 'T' | 't' ) ( 'E' | 'e' ) ( 'R' | 'r' ) ( '@' | '@' ) ( 'L' | 'l' )  ;",
+                "LITER@L : ( 'L' | 'l' ) ( 'I' | 'i' ) ( 'T' | 't' ) ( 'E' | 'e' ) ( 'R' | 'r' ) '@' ( 'L' | 'l' ) ;",
                 "" );
     }
 

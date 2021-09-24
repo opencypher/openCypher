@@ -54,9 +54,9 @@ public final class RailRoadDiagrams extends Tool implements ShapeRenderer.Linker
         main( RailRoadDiagrams::new, RailRoadDiagrams::generate, args );
     }
 
-    private RailRoadDiagrams( Map<?, ?> properties )
+    private RailRoadDiagrams( Path workingDir, Map<?, ?> properties )
     {
-        super( properties );
+        super( workingDir, properties );
     }
 
     private void generate( Grammar grammar, Output output ) throws XMLStreamException, IOException
@@ -90,7 +90,8 @@ public final class RailRoadDiagrams extends Tool implements ShapeRenderer.Linker
     static Diagram.CanvasProvider<SVGShapes, XMLStreamException> canvas( Output log, Path dir )
     {
         return svgFile( name -> {
-            Path file = dir.resolve( name + ".svg" ).toAbsolutePath();
+            String filename = name.replace( '/', ' ' );
+            Path file = dir.resolve( filename + ".svg" ).toAbsolutePath();
             log.format( "Writing Railroad diagram for %s to %s%n", name, file );
             return output( file );
         } );

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022 "Neo Technology,"
+ * Copyright (c) 2015-2021 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,46 +25,33 @@
  * described as "implementation extensions to Cypher" or as "proposed changes to
  * Cypher that are not yet approved by the openCypher community".
  */
-package org.opencypher.grammar;
+package org.opencypher.tools.grammar;
 
-public interface NonTerminal
+import org.opencypher.grammar.Grammar;
+import org.opencypher.tools.io.Output;
+
+public interface Parser
 {
-    Production production();
-
-    default String productionName()
+    static Generator generator( String name )
     {
-        return production().name();
-    }
-
-    default Grammar.Term productionDefinition()
-    {
-        return production().definition();
-    }
-
-    default <Scope> Scope productionScope( Scope scope, ScopeRule.Transformation<Scope> transition )
-    {
-        return production().scope( scope, transition );
-    }
-
-    boolean skip();
-
-    boolean inline();
-
-    Production declaringProduction();
-
-    String title();
-
-    interface ReferenceResolver<T>
-    {
-        T resolveProduction( Production production );
-
-        T unknownReference( NonTerminal nonTerminal );
-
-        interface WG3<T> extends ReferenceResolver<T>
+        if ( "Antlr4".equalsIgnoreCase( name ) )
         {
-            T resolveWG3Reference( String standard, String part, String production );
+            return ( grammar, root, output ) -> Antlr4.generateParser( grammar, root, output );
+        }
+        else
+        {
+            throw new IllegalArgumentException( "Unknown parser generator: " + name );
         }
     }
 
-    <T> T resolveReference( ReferenceResolver<T> resolver );
+    interface Generator
+    {
+        Parser generateParser( Grammar grammar, String root, Output output );
+    }
+
+    ParseTree parse( String input );
+
+    interface ParseTree
+    {
+    }
 }

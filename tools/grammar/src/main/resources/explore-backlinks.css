@@ -1,0 +1,22 @@
+ul.backlinks
+{
+    list-style: none
+}
+
+ul.backlinks > li.unexplored::before
+{
+    content: '⊞';
+    color: black;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em
+}
+
+ul.backlinks > li::before
+{
+    content: "⊟";
+    color: black;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em
+}

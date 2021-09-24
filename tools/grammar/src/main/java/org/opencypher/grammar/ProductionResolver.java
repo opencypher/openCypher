@@ -32,16 +32,18 @@ import java.util.Set;
 
 class ProductionResolver
 {
+    private final Grammar.Resolver resolver;
     private final Map<String, ProductionNode> productions;
     private final Dependencies dependencies;
     private final Set<String> unused;
-    private final Set<Root.ResolutionOption> options;
+    private final Set<ProtoGrammar.ResolutionOption> options;
     private final Set<String> legacyProductions;
     private int nonTerminalIndex;
 
-    public ProductionResolver( Map<String,ProductionNode> productions, Dependencies dependencies, Set<String> unused,
-            Set<Root.ResolutionOption> options, Set<String> legacyProductions )
+    public ProductionResolver( Grammar.Resolver resolver, Map<String,ProductionNode> productions, Dependencies dependencies,
+            Set<String> unused, Set<ProtoGrammar.ResolutionOption> options, Set<String> legacyProductions )
     {
+        this.resolver = resolver;
         this.productions = productions;
         this.dependencies = dependencies;
         this.unused = unused;
@@ -52,7 +54,7 @@ class ProductionResolver
     public ProductionNode resolveProduction( ProductionNode origin, String name )
     {
         ProductionNode production = productions.get( name.toLowerCase() );
-        if ( production == null && !options.contains( Root.ResolutionOption.INCLUDE_LEGACY ) && !legacyProductions.contains( name.toLowerCase() ) )
+        if ( production == null && !options.contains( ProtoGrammar.ResolutionOption.INCLUDE_LEGACY ) && !legacyProductions.contains( name.toLowerCase() ) )
         {
             dependencies.missingProduction( name, origin );
         }
@@ -71,5 +73,10 @@ class ProductionResolver
     public int nextNonTerminalIndex()
     {
         return nonTerminalIndex++;
+    }
+
+    public Grammar.Unresolved.Production resolve( ForeignReference reference )
+    {
+        return resolver.resolve( reference );
     }
 }

@@ -98,6 +98,7 @@ abstract class Resolver
     static void initialize( Initializer init )
     {
         init.add( Resolver::file );
+        init.add( Resolver::path );
     }
 
     interface Initializer

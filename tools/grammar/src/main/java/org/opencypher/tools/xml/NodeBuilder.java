@@ -41,6 +41,45 @@ class NodeBuilder
         } );
     }
 
+    public static NodeBuilder choice( NodeBuilder... rootBuilders )
+    {
+        if ( rootBuilders.length == 1 )
+        {
+            return rootBuilders[0];
+        }
+        int size = rootBuilders.length;
+        // check if we have any combined NodeBuilders in the input already
+        for ( NodeBuilder builder : rootBuilders )
+        {
+            if ( builder.uri == null )
+            {
+                size = size - 1 + builder.children.length;
+            }
+        }
+        if ( size != rootBuilders.length )
+        {
+            // Unpack the combined NodeBuilders
+            NodeBuilder[] builders = new NodeBuilder[size];
+            for ( int i = 0, j = 0; i < rootBuilders.length; i++ )
+            {
+                NodeBuilder builder = rootBuilders[i];
+                if ( builder.uri == null )
+                {
+                    for ( int k = 0; k < builder.children.length; k++ )
+                    {
+                        builders[j++] = builder.children[k];
+                    }
+                }
+                else
+                {
+                    builders[j++] = builder;
+                }
+            }
+        }
+        // Create a combined NodeBuilder
+        return new NodeBuilder( rootBuilders );
+    }
+
     final String uri, name;
     private final AttributeHandler[] attributes;
     private final CharactersHandler characters, comments, headers;
@@ -62,6 +101,19 @@ class NodeBuilder
         this.children = children;
         this.factory = factory;
         this.handler = handler;
+    }
+
+    private NodeBuilder( NodeBuilder[] builders )
+    {
+        this.name = null;
+        this.uri = null;
+        this.attributes = null;
+        this.characters = null;
+        this.comments = null;
+        this.headers = null;
+        this.children = builders;
+        this.factory = null;
+        this.handler = null;
     }
 
     @Override
@@ -120,9 +172,16 @@ class NodeBuilder
                 return child;
             }
         }
-        throw new IllegalArgumentException(
-                "No such child: '" + name + "' in namespace " + uri +
-                " of '" + this.name + "' in namespace " + this.uri );
+        if ( this.name == null )
+        {
+            throw new IllegalArgumentException( "No such root: '" + name + "' in namespace " + uri );
+        }
+        else
+        {
+            throw new IllegalArgumentException(
+                    "No such child: '" + name + "' in namespace " + uri +
+                            " of '" + this.name + "' in namespace " + this.uri );
+        }
     }
 
     public boolean matches( String uri, String name )

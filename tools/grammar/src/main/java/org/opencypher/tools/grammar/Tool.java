@@ -68,9 +68,11 @@ abstract class Tool implements Function<Method, Object>
     private static final Method FX_FONT_METHOD;
     private final String prefix;
     private final Map<?, ?> properties;
+    private final Path workingDir;
 
-    Tool( Map<?, ?> properties )
+    Tool( Path workingDir, Map<?, ?> properties )
     {
+        this.workingDir = workingDir;
         this.prefix = getClass().getSimpleName() + ".";
         this.properties = properties;
     }
@@ -91,7 +93,7 @@ abstract class Tool implements Function<Method, Object>
 
     interface Constructor<T> extends Serializable
     {
-        T create( Map<?, ?> properties );
+        T create( Path workingDir, Map<?, ?> properties );
     }
 
     interface Entry<T>
@@ -105,9 +107,9 @@ abstract class Tool implements Function<Method, Object>
         execute( new Main()
         {
             @Override
-            public void write( Grammar grammar, OutputStream out ) throws Exception
+            public void write( Grammar grammar, Path workingDir, OutputStream out ) throws Exception
             {
-                entry.invoke( constructor.create( System.getProperties() ), grammar, Output.output( out ) );
+                entry.invoke( constructor.create( workingDir, System.getProperties() ), grammar, Output.output( out ) );
             }
 
             @Override
@@ -208,6 +210,8 @@ abstract class Tool implements Function<Method, Object>
                 return parseBoolean( param );
             case "java.awt.Font":
                 return awtFont( key, param );
+            case "java.nio.file.Path":
+                return path( param );
             case FX_FONT:
                 return fxFont( key, param );
             default:
@@ -231,6 +235,11 @@ abstract class Tool implements Function<Method, Object>
     protected <T> T transform( Class<T> type, String value )
     {
         return null;
+    }
+
+    private Path path( String path )
+    {
+        return workingDir.resolve( path );
     }
 
     private java.awt.Font awtFont( Method method, String font )

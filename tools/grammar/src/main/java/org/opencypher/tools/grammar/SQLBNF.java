@@ -32,6 +32,7 @@ import static org.opencypher.tools.io.Output.output;
 
 import java.io.OutputStream;
 import java.io.Writer;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -72,6 +73,11 @@ public class SQLBNF extends BnfWriter
         write( grammar, output( stream ) );
     }
 
+    public static void write( Grammar grammar, Path path, OutputStream stream )
+    {
+        write( grammar, stream );
+    }
+
     public static void write( Grammar grammar, Output output )
     {
         String header = grammar.header();
@@ -93,7 +99,7 @@ public class SQLBNF extends BnfWriter
 
     public static void main( String... args ) throws Exception
     {
-        Main.execute( SQLBNF::write, args );
+        Main.execute( ( grammar, workingDir, stream ) -> write( grammar, stream ), args );
     }
 
     public static void append( Grammar.Term term, Output output )

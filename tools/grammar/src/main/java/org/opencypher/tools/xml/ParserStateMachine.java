@@ -242,16 +242,25 @@ class ParserStateMachine extends DefaultHandler2
         @Override
         Node child( String uri, String name, Locator locator ) throws SAXException
         {
-            if ( !builder.uri.equalsIgnoreCase( uri ) || !builder.name.equalsIgnoreCase( name ) )
+            NodeBuilder root;
+            if ( builder.name == null )
+            {
+                root = builder.child( uri, name );
+            }
+            else
+            {
+                root = builder;
+            }
+            if ( !root.uri.equalsIgnoreCase( uri ) || !root.name.equalsIgnoreCase( name ) )
             {
                 throw new SAXException(
-                        "Root element must be '" + builder.name + "' in namespace '" + builder.uri +
+                        "Root element must be '" + root.name + "' in namespace '" + root.uri +
                         "', but was '" + name + "' in namespace '" + uri + "'" );
             }
-            Object value = builder.create( null );
+            Object value = root.create( null );
             if ( headers instanceof char[] )
             {
-                builder.header( value, (char[]) headers );
+                root.header( value, (char[]) headers );
             }
             else if ( headers instanceof List<?> )
             {
@@ -259,14 +268,14 @@ class ParserStateMachine extends DefaultHandler2
                 List<char[]> comments = (List<char[]>) headers;
                 for ( char[] comment : comments )
                 {
-                    builder.header( value, comment );
+                    root.header( value, comment );
                 }
             }
             if ( value instanceof LocationAware )
             {
                 ((LocationAware) value).location( locator.getSystemId(), locator.getLineNumber(), locator.getColumnNumber()  );
             }
-            return new RootNode( builder, value );
+            return new RootNode( root, value );
         }
 
         @Override

@@ -4,16 +4,16 @@ MATCH ()§
 OPTIONAL MATCH ()§
 START n = node(1)§
 WITH 1 AS a§
-UNWIND [] AS foo§
+UNWIND [] AS flags§
 LOAD CSV from $url AS list§
 //
 // invalid combinations of clauses
 RETURN 1 RETURN 2§
 RETURN 1 MATCH ()§
-RETURN 1 WITH 2 AS foo§
+RETURN 1 WITH 2 AS flags§
 CREATE () MATCH () RETURN 1§
-CREATE () UNWIND [] AS foo RETURN 1§
-MERGE () UNWIND [] AS foo RETURN 1§
+CREATE () UNWIND [] AS flags RETURN 1§
+MERGE () UNWIND [] AS flags RETURN 1§
 //
 // Miscellaneous errors
 //
@@ -23,7 +23,7 @@ CALL db.labels() YIELD -§
 CALL db.labels() YIELD -
 RETURN count(label) AS numLabels§
 CALL db.labels() YIELD -
-WHERE label CONTAINS 'User' AND foo + bar = foo
+WHERE label CONTAINS 'User' AND flags + bar = flags
 RETURN count(label) AS numLabels§
 RETURN +--+--++4§
 RETURN ----+-+-1§

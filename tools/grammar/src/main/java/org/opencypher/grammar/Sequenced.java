@@ -110,4 +110,17 @@ abstract class Sequenced extends Node
     void attributeString( StringBuilder result )
     {
     }
+
+    final Node replaceTerm( Node replacement )
+    {
+        if ( term != replacement && (term != null || !replacement.isEpsilon()) )
+        {
+            Sequenced copy = copy();
+            copy.term = replacement;
+            return copy;
+        }
+        return this;
+    }
+
+    abstract Sequenced copy();
 }

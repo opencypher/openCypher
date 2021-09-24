@@ -72,7 +72,7 @@ public class Xml extends XmlGenerator implements ProductionVisitor<SAXException>
 
     public static void main( String... args ) throws Exception
     {
-        Main.execute( Xml::write, args );
+        Main.execute( ( grammar1, workingDir, stream ) -> write( grammar1, stream ), args );
     }
 
     private final Grammar grammar;

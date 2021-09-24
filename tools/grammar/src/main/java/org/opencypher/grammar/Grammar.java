@@ -37,11 +37,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.opencypher.tools.xml.XmlFile;
 import org.opencypher.tools.xml.XmlParser;
 import org.xml.sax.SAXException;
 
@@ -54,26 +56,27 @@ public interface Grammar
     String GENERATOR_XML_NAMESPACE = "http://opencypher.org/stringgeneration";
     String RAILROAD_XML_NAMESPACE = "http://opencypher.org/railroad";
     String OPENCYPHER_XML_NAMESPACE = "http://opencypher.org/opencypher";
+    String ANNOTATION_XML_NAMESPACE = XML_NAMESPACE + "/annotation";
 
     static Grammar parseXML( Path input, ParserOption... options )
             throws ParserConfigurationException, SAXException, IOException
     {
-        return Root.XML.parse( input, ParserOption.xml( options ) )
-                       .resolve( ParserOption.resolve( options ) );
+        return ProtoGrammar.parse( input, ParserOption.xml( options ) )
+                       .resolve( ProtoGrammar.NO_RESOLVER, ParserOption.resolve( options ) );
     }
 
     static Grammar parseXML( Reader input, ParserOption... options )
             throws ParserConfigurationException, SAXException, IOException
     {
-        return Root.XML.parse( input, ParserOption.xml( options ) )
-                       .resolve( ParserOption.resolve( options ) );
+        return ProtoGrammar.parse( input, ParserOption.xml( options ) )
+                       .resolve( ProtoGrammar.NO_RESOLVER, ParserOption.resolve( options ) );
     }
 
     static Grammar parseXML( InputStream input, ParserOption... options )
             throws ParserConfigurationException, SAXException, IOException
     {
-        return Root.XML.parse( input, ParserOption.xml( options ) )
-                       .resolve( ParserOption.resolve( options ) );
+        return ProtoGrammar.parse( input, ParserOption.xml( options ) )
+                       .resolve( ProtoGrammar.NO_RESOLVER, ParserOption.resolve( options ) );
     }
 
     String language();
@@ -95,6 +98,14 @@ public interface Grammar
 
     <P, A, R, T, EX extends Exception> T transform(
             ProductionTransformation<P, R, EX> transformation, P param, Collector<R, A, T> collector ) throws EX;
+
+    default boolean any( Predicate<Production> predicate )
+    {
+        return transform(
+                (ProductionTransformation<Void,Boolean,RuntimeException>) ( param, production ) -> predicate.test( production ),
+                null,
+                Collectors.reducing( Boolean.FALSE, ( a, b ) -> a || b ) );
+    }
 
     default Production production( String name )
     {
@@ -231,11 +242,11 @@ public interface Grammar
     {
         public enum Option
         {
-            IGNORE_UNUSED_PRODUCTIONS( Root.ResolutionOption.IGNORE_UNUSED_PRODUCTIONS ),
-            ALLOW_ROOTLESS( ResolutionOption.ALLOW_ROOTLESS );
-            private final Root.ResolutionOption option;
+            IGNORE_UNUSED_PRODUCTIONS( ProtoGrammar.ResolutionOption.IGNORE_UNUSED_PRODUCTIONS ),
+            ALLOW_ROOTLESS( ProtoGrammar.ResolutionOption.ALLOW_ROOTLESS );
+            private final ProtoGrammar.ResolutionOption option;
 
-            Option( ResolutionOption option )
+            Option( ProtoGrammar.ResolutionOption option )
             {
                 this.option = option;
             }
@@ -265,9 +276,10 @@ public interface Grammar
 
         public Grammar build( Option... options )
         {
-            return resolve( (options == null ? Stream.<Option>empty() : Stream.of( options ))
-                                    .map( x -> x.option )
-                                    .toArray( ResolutionOption[]::new ) );
+            return resolve( ProtoGrammar.NO_RESOLVER,
+                    (options == null ? Stream.<Option>empty() : Stream.of( options ))
+                            .map( x -> x.option )
+                            .toArray( ProtoGrammar.ResolutionOption[]::new ) );
         }
     }
 
@@ -296,13 +308,13 @@ public interface Grammar
     enum ParserOption
     {
         FAIL_ON_UNKNOWN_XML_ATTRIBUTE( XmlParser.Option.FAIL_ON_UNKNOWN_ATTRIBUTE ),
-        SKIP_UNUSED_PRODUCTIONS( Root.ResolutionOption.SKIP_UNUSED_PRODUCTIONS ),
-        ALLOW_ROOTLESS_GRAMMAR( Root.ResolutionOption.ALLOW_ROOTLESS ),
-        INCLUDE_LEGACY( Root.ResolutionOption.INCLUDE_LEGACY );
+        SKIP_UNUSED_PRODUCTIONS( ProtoGrammar.ResolutionOption.SKIP_UNUSED_PRODUCTIONS ),
+        ALLOW_ROOTLESS_GRAMMAR( ProtoGrammar.ResolutionOption.ALLOW_ROOTLESS ),
+        INCLUDE_LEGACY( ProtoGrammar.ResolutionOption.INCLUDE_LEGACY );
 
         private final Object option;
 
-        ParserOption( Root.ResolutionOption option )
+        ParserOption( ProtoGrammar.ResolutionOption option )
         {
             this.option = option;
         }
@@ -330,9 +342,9 @@ public interface Grammar
             return options( XmlParser.Option.class, options );
         }
 
-        private static Root.ResolutionOption[] resolve( ParserOption[] options )
+        private static ProtoGrammar.ResolutionOption[] resolve( ParserOption[] options )
         {
-            return options( Root.ResolutionOption.class, options );
+            return options( ProtoGrammar.ResolutionOption.class, options );
         }
 
         private static <T> T[] options( Class<T> type, ParserOption... options )
@@ -349,6 +361,97 @@ public interface Grammar
             @SuppressWarnings("unchecked")
             T[] result = (T[]) Array.newInstance( type, collected.size() );
             return collected.toArray( result );
+        }
+    }
+
+    final class Unresolved
+    {
+        private volatile ProtoGrammar grammar;
+
+        public static Unresolved parseXML( XmlFile xml ) throws ParserConfigurationException, SAXException, IOException
+        {
+            return new Unresolved( ProtoGrammar.parse( xml ) );
+        }
+
+        public Grammar resolve( Resolver resolver )
+        {
+            ProtoGrammar grammar;
+            synchronized ( this )
+            {
+                grammar = grammar();
+//                this.grammar = null;
+            }
+            return grammar.resolve( resolver );
+        }
+
+        public synchronized Production production( String name )
+        {
+            return new Production( grammar().production( name ) );
+        }
+
+        private Unresolved( ProtoGrammar grammar )
+        {
+            this.grammar = grammar;
+        }
+
+        private ProtoGrammar grammar()
+        {
+            ProtoGrammar grammar = this.grammar;
+            if ( grammar == null )
+            {
+                throw new IllegalStateException( "Grammar has been resolved" );
+            }
+            return grammar;
+        }
+
+        public static final class Production
+        {
+            final ProductionNode node;
+
+            private Production( ProductionNode node )
+            {
+                this.node = node;
+            }
+        }
+    }
+
+    interface Resolver
+    {
+        Unresolved.Production resolve( ForeignReference reference );
+
+        static Resolver combine( Resolver... resolvers )
+        {
+            if ( resolvers == null )
+            {
+                return combine();
+            }
+            else if ( resolvers.length == 1 )
+            {
+                return resolvers[0];
+            }
+            return referece ->
+            {
+                for ( Resolver resolver : resolvers )
+                {
+                    Unresolved.Production result = referece.resolve( resolver );
+                    if ( result != null )
+                    {
+                        return result;
+                    }
+                }
+                return null;
+            };
+        }
+
+        interface WG3 extends Resolver
+        {
+            @Override
+            default Unresolved.Production resolve( ForeignReference referece )
+            {
+                return referece.resolve( this );
+            }
+
+            Unresolved.Production resolve( String standard, String part, String nonTerminal );
         }
     }
 }
