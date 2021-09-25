@@ -133,23 +133,35 @@ interface Main extends Serializable
             Grammar.ParserOption[] options = Grammar.ParserOption.from( System.getProperties() );
             Path grammarPath = null;
             String path = args[0];
-            if ( path.indexOf( '/' ) == -1 )
+            FileSystem fs = null;
+            try
             {
-                URL resource = program.getClass().getResource( "/" + path );
-                if ( resource != null )
+                if ( path.indexOf( '/' ) == -1 )
                 {
-                    URI uri = resource.toURI();
-                    try ( FileSystem ignored = "jar".equalsIgnoreCase( uri.getScheme() ) ? FileSystems.newFileSystem( uri, Collections.emptyMap() ) : null )
+                    URL resource = program.getClass().getResource( "/" + path );
+                    if ( resource != null )
                     {
+                        URI uri = resource.toURI();
+                        if ( "jar".equalsIgnoreCase( uri.getScheme() ) )
+                        {
+                            fs = FileSystems.newFileSystem( uri, Collections.emptyMap() );
+                        }
                         grammarPath = Paths.get( uri );
                     }
                 }
+                if ( grammarPath == null )
+                {
+                    grammarPath = Paths.get( path );
+                }
+                program.write( Grammar.parseXML( grammarPath, options ), grammarPath.getParent(), out );
             }
-            if ( grammarPath == null )
+            finally
             {
-                grammarPath = Paths.get( path );
+                if (fs != null)
+                {
+                    fs.close();
+                }
             }
-            program.write( Grammar.parseXML( grammarPath, options ), grammarPath.getParent(), out );
         }
         else
         {
