@@ -37,7 +37,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,7 +49,6 @@ import java.util.function.BiConsumer;
 
 import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.v4.Tool;
-import org.antlr.v4.misc.OrderedHashMap;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.LexerInterpreter;
@@ -148,41 +146,49 @@ public class Antlr4 extends BnfWriter {
 
     public static Parser generateParser( Grammar grammar, String root, Output output )
     {
-        Output.Readable source = Output.stringBuilder();
-        org.antlr.v4.Tool tool = new org.antlr.v4.Tool();
-        AntlrMessageLogger messages = new AntlrMessageLogger( tool, output );
-        try ( Antlr4 antlr = new Antlr4( messages, source ) )
+        return ParserGenerator.generateParser( grammar, root, output );
+    }
+
+    private static class ParserGenerator
+    {
+        static Parser generateParser( Grammar grammar, String root, Output output )
         {
-            antlr.write( grammar );
+            Output.Readable source = Output.stringBuilder();
+            org.antlr.v4.Tool tool = new org.antlr.v4.Tool();
+            AntlrMessageLogger messages = new AntlrMessageLogger( tool, output );
+            try ( Antlr4 antlr = new Antlr4( messages, source ) )
+            {
+                antlr.write( grammar );
+            }
+            ANTLRReaderStream generatorInput;
+            try
+            {
+                generatorInput = new ANTLRReaderStream( source.reader() );
+            }
+            catch ( IOException e )
+            {
+                throw new IllegalStateException( "Failed to create reader from buffer." );
+            }
+            GrammarRootAST ast = tool.parse( grammar.language(), generatorInput );
+            org.antlr.v4.tool.Grammar g = tool.createGrammar( ast );
+            tool.process( g, false );
+            messages.report( source, grammar );
+            String rootRuleName = ruleName( root );
+            Rule rootRule = g.getRule( rootRuleName );
+            if ( rootRule == null )
+            {
+                throw new IllegalArgumentException(
+                        "The generated parser does not define a rule for '" + root + "' (it should have been called '" + rootRuleName + "' by the parser)." );
+            }
+            int rootRuleIndex = rootRule.index;
+            return input ->
+            {
+                LexerInterpreter lexer = g.createLexerInterpreter( CharStreams.fromString( input ) );
+                ParserInterpreter parser = g.createParserInterpreter( new CommonTokenStream( lexer ) );
+                ParseTree tree = parser.parse( rootRuleIndex );
+                return new Antlr4Tree( tree );
+            };
         }
-        ANTLRReaderStream generatorInput;
-        try
-        {
-            generatorInput = new ANTLRReaderStream( source.reader() );
-        }
-        catch ( IOException e )
-        {
-            throw new IllegalStateException( "Failed to create reader from buffer." );
-        }
-        GrammarRootAST ast = tool.parse( grammar.language(), generatorInput );
-        org.antlr.v4.tool.Grammar g = tool.createGrammar( ast );
-        tool.process( g, false );
-        messages.report( source, grammar );
-        String rootRuleName = ruleName( root );
-        Rule rootRule = g.getRule( rootRuleName );
-        if ( rootRule == null )
-        {
-            throw new IllegalArgumentException(
-                    "The generated parser does not define a rule for '" + root + "' (it should have been called '" + rootRuleName + "' by the parser)." );
-        }
-        int rootRuleIndex = rootRule.index;
-        return input ->
-        {
-            LexerInterpreter lexer = g.createLexerInterpreter( CharStreams.fromString( input ) );
-            ParserInterpreter parser = g.createParserInterpreter( new CommonTokenStream( lexer ) );
-            ParseTree tree = parser.parse( rootRuleIndex );
-            return new Antlr4Tree( tree );
-        };
     }
 
     private static class AntlrMessageLogger implements ProductionMappingListener, ANTLRToolListener
