@@ -127,4 +127,6 @@ object SideEffectOps {
     }
 }
 
-case class MeasurementFailed(failed: ExecutionFailed) extends Throwable
+case class MeasurementFailed(failed: ExecutionFailed) extends Throwable {
+  failed.exception.foreach(initCause)
+}
