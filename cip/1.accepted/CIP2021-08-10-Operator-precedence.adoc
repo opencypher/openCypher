@@ -402,8 +402,8 @@ RETURN  5 * 4 * 3  AS a,
 |
 [options="header"]
 !====
-!a !b !c
-!60!60!60
+! a    ! b    ! c
+! `60` ! `60` ! `60`
 !====
 
 |
@@ -416,8 +416,8 @@ RETURN  4 ^ 3 ^ 2  AS a,
 |
 [options="header"]
 !====
-! a      ! b      ! c
-! 4096.0 ! 4096.0 ! 262144.0
+! a        ! b        ! c
+! `4096.0` ! `4096.0` ! `262144.0`
 !====
 
 |
@@ -430,8 +430,8 @@ RETURN  5 / 4 / 3  AS a,
 |
 [options="header"]
 !====
-! a ! b ! c
-! 0 ! 0 ! 5
+! a   ! b   ! c
+! `0` ! `0` ! `5`
 !====
 
 |
@@ -444,8 +444,8 @@ RETURN  5 % 4 % 3  AS a,
 |
 [options="header"]
 !====
-! a ! b ! c
-! 1 ! 1 ! 0
+! a   ! b   ! c
+! `1` ! `1` ! `0`
 !====
 
 |
@@ -458,8 +458,8 @@ RETURN  5 % 4 * 3  AS a,
 |
 [options="header"]
 !====
-! a ! b ! c
-! 3 ! 3 ! 5
+! a   ! b   ! c
+! `3` ! `3` ! `5`
 !====
 
 |
@@ -472,8 +472,8 @@ RETURN  5 - 4 - 3  AS a,
 |
 [options="header"]
 !====
-! a  ! b  ! c
-! -2 ! -2 ! 4
+! a    ! b    ! c
+! `-2` ! `-2` ! `4`
 !====
 
 |
@@ -486,8 +486,8 @@ RETURN  5 - 4 + 3  AS a,
 |
 [options="header"]
 !====
-! a ! b ! c
-! 4 ! 4 ! -2
+! a   ! b   ! c
+! `4` ! `4` ! `-2`
 !====
 
 |
@@ -500,58 +500,58 @@ RETURN  5 + 4 + 3  AS a,
 |
 [options="header"]
 !====
-!a !b !c
-!12!12!12
+! a    ! b    ! c
+! `12` ! `12` ! `12`
 !====
 
 |
 [source, cypher]
 ----
-RETURN  TRUE AND FALSE  AND TRUE  AS a,
-       (TRUE AND FALSE) AND TRUE  AS b,
-        TRUE AND (FALSE AND TRUE) AS c
+RETURN  true AND false  AND true  AS a,
+       (true AND false) AND true  AS b,
+        true AND (false AND true) AS c
 ----
 |
 [options="header"]
 !====
-!a    !b    !c
-!false!false!false
+! a       ! b       ! c
+! `false` ! `false` ! `false`
 !====
 
 |
 [source, cypher]
 ----
-RETURN  TRUE OR FALSE  OR TRUE  AS a,
-       (TRUE OR FALSE) OR TRUE  AS b,
-        TRUE OR (FALSE OR TRUE) AS c
+RETURN  true OR false  OR true  AS a,
+       (true OR false) OR true  AS b,
+        true OR (false OR true) AS c
 ----
 |
 [options="header"]
 !====
-!a   !b   !c
-!true!true!true
+! a      ! b      ! c
+! `true` ! `true` ! `true`
 !====
 
 |
 [source, cypher]
 ----
-RETURN  TRUE XOR FALSE  XOR TRUE  AS a,
-       (TRUE XOR FALSE) XOR TRUE  AS b,
-        TRUE XOR (FALSE XOR TRUE) AS c
+RETURN  true XOR false  XOR true  AS a,
+       (true XOR false) XOR true  AS b,
+        true XOR (false XOR true) AS c
 ----
 |
 [options="header"]
 !====
-!a    !b    !c
-!false!false!false
+! a       ! b       ! c
+! `false` ! `false` ! `false`
 !====
 
 |====
 
 ==== Chains with extra semantics
-Operators whose chaining gives extra semantics are
+Operators whose chaining gives extra semantics are:
 
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ComparisonExpression[Comparison operations]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ComparisonExpression[Comparison operations].
 
 Example expression are
 
@@ -592,8 +592,8 @@ RETURN  5 = 5 = 5  AS a,
 |
 [options="header"]
 !====
-! a    ! ax   ! b     ! c
-! true ! true ! false ! false
+! a      ! ax     ! b       ! c
+! `true` ! `true` ! `false` ! `false`
 !====
 
 |
@@ -607,8 +607,8 @@ RETURN  5 = 4 <> 3  AS a,
 |
 [options="header"]
 !====
-! a     ! ax    ! b    ! c
-! false ! false ! true ! false
+! a       ! ax      ! b      ! c
+! `false` ! `false` ! `true` ! `false`
 !====
 
 |
@@ -622,8 +622,8 @@ RETURN  5 <> 4 > 3  AS a,
 |
 [options="header"]
 !====
-! a    ! ax   ! b    ! c
-! true ! true ! null ! true
+! a      ! ax     ! b      ! c
+! `true` ! `true` ! `null` ! `true`
 !====
 
 |
@@ -637,8 +637,8 @@ RETURN  5 > 4 > 3  AS a,
 |
 [options="header"]
 !====
-! a    ! ax   ! b    ! c
-! true ! true ! null ! null
+! a      ! ax     ! b      ! c
+! `true` ! `true` ! `null` ! `null`
 !====
 
 |
@@ -652,8 +652,8 @@ RETURN  5 > 4 >= 3  AS a,
 |
 [options="header"]
 !====
-! a    ! ax   ! b    ! c
-! true ! true ! null ! null
+! a      ! ax     ! b      ! c
+! `true` ! `true` ! `null` ! `null`
 !====
 
 |
@@ -667,8 +667,8 @@ RETURN  5 <= 4 < 3  AS a,
 |
 [options="header"]
 !====
-! a     ! ax    ! b    ! c
-! false ! false ! null ! null
+! a       ! ax      ! b      ! c
+! `false` ! `false` ! `null` ! `null`
 !====
 
 |====
@@ -679,16 +679,16 @@ openCypher has grammatically all operators in one precedence level hierarchy.
 This is similar to how precedence is defined for more programming languages.
 For instance:
 
-* https://docs.oracle.com/javase/tutorial/java/nutsandbolts/operators.html[Java]
-* https://docs.python.org/3/reference/expressions.html#operator-precedence[Python]
-* https://en.cppreference.com/w/cpp/language/operator_precedence[C++]
-* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table[Javascript]
+* https://docs.oracle.com/javase/tutorial/java/nutsandbolts/operators.html[Java].
+* https://docs.python.org/3/reference/expressions.html#operator-precedence[Python].
+* https://en.cppreference.com/w/cpp/language/operator_precedence[C++].
+* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table[Javascript].
 
 The precedence is similar.
 Some minor difference:
 
-* Programming languages have extra operators openCypher does not have, e.g. increment/decrement, bitwise operators, ternary operator, and assignments
-* In Javascript exponentiation is right-to-left associative
+* Some programming languages have extra operators that openCypher does not have, e.g. increment/decrement, bitwise operators, ternary operator, and assignments.
+* For Javascript, the exponentiation is right-to-left associative.
 
 SQL encodes large parts of the type compatibility of expressions in the grammar.
 Hence, its precedence hierarchy is partition by type.
@@ -713,7 +713,7 @@ However, SQL directly encode that in the grammar, with left-recursive production
   [ <sign> ] <numeric primary>
 ----
 
-Most program and query language do not give chains of comparison operators extra semantics.
+The most popular programming languages and query languages, do not give chains of comparison operators extra semantics.
 Typically, comparison operators are left-to-right associative.
 
 == Benefits to this proposal
