@@ -27,7 +27,6 @@
  */
 package org.opencypher.tools.tck.api
 
-import java.nio.file.Path
 import org.opencypher.tools.tck.SideEffectOps
 import org.opencypher.tools.tck.SideEffectOps._
 import org.opencypher.tools.tck.api.Graph.Result
@@ -39,8 +38,10 @@ import org.opencypher.tools.tck.api.events.TCKEvents.setStepStarted
 import org.opencypher.tools.tck.constants.TCKErrorDetails
 import org.opencypher.tools.tck.constants.TCKErrorPhases
 import org.opencypher.tools.tck.constants.TCKErrorTypes
+import org.opencypher.tools.tck.values.CypherString
 import org.opencypher.tools.tck.values.CypherValue
 
+import java.nio.file.Path
 import scala.compat.Platform.EOL
 import scala.language.implicitConversions
 import scala.util.Failure
@@ -104,6 +105,16 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
             }
             Right(ctx)
 
+          case (ctx, CsvFile(urlParameter, table, _)) =>
+            ctx.graph match {
+              case csvFileCreationSupport: CsvFileCreationSupport =>
+                val fileUrl = csvFileCreationSupport.createCSVFile(table)
+                Right(ctx.addParameters(Map(urlParameter -> CypherString(fileUrl))))
+              case _ =>
+                Right(ctx)
+            }
+
+
           case (ctx, ExpectResult(expected, _, sorted)) =>
             ctx.lastResult match {
               case Right(records) =>
@@ -160,7 +171,7 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
             else Right(ctx)
 
           case (ctx, Parameters(ps, _)) =>
-            Right(ctx.copy(parameters = ps))
+            Right(ctx.addParameters(ps))
 
           case (ctx, _: Dummy) => Right(ctx)
           case (_, s) =>
@@ -204,6 +215,10 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
           val msg = s"Side effect measurement failed with $error"
           throw ScenarioFailedException(msg, error)
       }
+    }
+
+    def addParameters(additionalParameters: Map[String, CypherValue]): ScenarioExecutionContext = {
+      this.copy(parameters = this.parameters ++ additionalParameters)
     }
   }
 

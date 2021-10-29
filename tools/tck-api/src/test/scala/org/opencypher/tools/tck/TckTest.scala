@@ -36,8 +36,6 @@ import org.scalatest.Assertions
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 
-import scala.util.{Failure, Success, Try}
-
 class TckTest extends AnyFunSpec with Assertions with Matchers {
 
   private val scenarios = CypherTCK.parseFeatures(getClass.getResource("Foo.feature").toURI) match {
@@ -76,7 +74,10 @@ class TckTest extends AnyFunSpec with Assertions with Matchers {
     }
   }
 
-  private object FakeGraph extends Graph with ProcedureSupport {
+  private object FakeGraph extends Graph with ProcedureSupport with CsvFileCreationSupport {
+
+    var cvsData = CypherValueRecords.empty
+
     override def cypher(query: String, params: Map[String, CypherValue], queryType: QueryType): Result = {
       queryType match {
         case InitQuery =>
@@ -87,6 +88,9 @@ class TckTest extends AnyFunSpec with Assertions with Matchers {
           CypherValueRecords.empty
         case ExecQuery if query.contains("foo()") =>
           ExecutionFailed(SYNTAX_ERROR, COMPILE_TIME, UNKNOWN_FUNCTION)
+        // assert that csv path parameter is not overwritten by additional parameters
+        case ExecQuery if query.contains("LOAD CSV") && params.keySet.equals(Set("param", "list")) =>
+          StringRecords(List("res"), cvsData.rows.map(r => Map("res" -> r("txt").toString)))
         case ExecQuery =>
           StringRecords(List("1"), List(Map("1" -> "1")))
       }
@@ -94,6 +98,11 @@ class TckTest extends AnyFunSpec with Assertions with Matchers {
 
     override def registerProcedure(signature: String, values: CypherValueRecords): Unit =
       ()
+
+    override def createCSVFile(contents: CypherValueRecords): String = {
+      cvsData = contents
+      "dummy/path.csv"
+    }
   }
 
   private case class FailingGraph(base: Graph)(failureFor: PartialFunction[QueryType, Throwable]) extends Graph with ProcedureSupport {
