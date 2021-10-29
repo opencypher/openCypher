@@ -18,18 +18,20 @@ toc::[]
 == Background
 
 The expression sub-languages of openCypher (and most other query and programming languages) allow very liberal composition of different elementary expressions into complex expressions through nesting.
-Elementary expression the kinds of expressions the expression sub-languages provides and which for the building blocks of the sub-languages.
+Elementary expressions are the composable building blocks which the expression sub-languages provides.
+Elementary expressions are composed by nesting.
+If an expression _A_ is nested into another expression _B_, _A_ is said to be an operand of _B_.
 
 Some elementary expressions have zero operands, e.g. literals.
 Most elementary expressions have one or more operands.
-For instance,
+For instance:
 
-- An arithmetic negation has one operand,
-- A boolean conjunction has two operands,
-- A property access has two operands -- an element and a property key,
-- A function call has two operands -- a function name and an arguments list,
-- A list comprehension has three or four operands -- an element variable name, a list, a predicate, and optionally a projection expression
-- A case expression has multiple operands -- a value to test, for every case a test value/predicate and a result value, and a default value of the 'else' case
+- An arithmetic negation has one operand.
+- A boolean conjunction has two operands.
+- A property access has two operands -- an element and a property key.
+- A function call has two operands -- a function name and an arguments list.
+- A list comprehension has three or four operands -- an element variable name, a list, a predicate, and optionally a projection expression.
+- A case expression has multiple operands -- a value to test, for every case a test value/predicate and a result value, and a default value of the 'else' case.
 
 Some operands expect non-values, typically identifiers (variable names, function names, property keys, etc.).
 Such _non-value operands_ do not allow nesting of expressions because expression only result in values.
