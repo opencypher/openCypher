@@ -59,6 +59,9 @@ object TCKStepDefinitions {
   val INSTALLED_PROCEDURE = """^there exists a procedure (.+):$"""
   val installedProcedureR = INSTALLED_PROCEDURE.r
 
+  val CSV_FILE = "^there exists a CSV file with URL as \\$(.*), with rows:$"
+  val csvFileR = CSV_FILE.r
+
   // for When
   val EXECUTING_QUERY = "^executing query:$"
   val executingQueryR = EXECUTING_QUERY.r

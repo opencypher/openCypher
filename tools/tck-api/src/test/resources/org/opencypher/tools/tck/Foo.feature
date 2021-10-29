@@ -39,6 +39,26 @@ Feature: Foo
       | 1 |
     And no side effects
 
+  Scenario: Reading a CSV
+    Given an empty graph
+    And there exists a CSV file with URL as $param, with rows:
+      | i | txt |
+      | 1 | 'a' |
+      | 2 | 'b' |
+    And parameters are:
+      | list | [] |
+
+    When executing query:
+      """
+      LOAD CSV WITH HEADERS from '$param' AS row
+      RETURN row.txt AS res
+      """
+    Then the result should be, in any order:
+      | res   |
+      | 'a'   |
+      | 'b'   |
+    And no side effects
+
   Scenario: Fail
     Given an empty graph
     When executing query:

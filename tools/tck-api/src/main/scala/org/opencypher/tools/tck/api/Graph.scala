@@ -104,6 +104,20 @@ trait ProcedureSupport {
   def registerProcedure(signature: String, values: CypherValueRecords): Unit
 }
 
+/**
+ * Mix in this trait in your `Graph` implementation to opt in to running
+ * scenarios that create temporary CSV files.
+ */
+trait CsvFileCreationSupport {
+  self: Graph =>
+
+  /**
+   * Create a CSV file and return file URL as String.
+   * @return URL of the created CSV file
+   */
+  def createCSVFile(contents: CypherValueRecords): String
+}
+
 trait ResultCreation {
   implicit def resultFromValueRecords(records: CypherValueRecords): Graph.Result = Right(records)
   implicit def resultFromStringRecords(records: StringRecords): Graph.Result = Right(records.asValueRecords)
