@@ -327,7 +327,7 @@ Closed unary operators that allow chaining on the same precedence level are:
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ListOperatorExpression[List slicing].
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NullOperatorExpression[Null predicates].
 
-Example expressions are
+Example expressions are:
 
 * `--+-5`
 * `NOT NOT NOT false`
@@ -350,19 +350,19 @@ Nevertheless, the grammar allows only one unambiguous operator tree, in both cas
 
 
 ==== Chains of binary operators
-Binary operators that allow chaining with themselves of other operators of compatible result type on the same precedence level are
+Binary operators that allow chaining with themselves of other operators of compatible result type on the same precedence level are:
 
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PowerOfExpression[Exponentiation]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Multiplication]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Division]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Remainder (Modulo)]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AddOrSubtractExpression[Addition]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AddOrSubtractExpression[Substraction]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AndExpression[Boolean conjunction]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=OrExpression[Boolean inclusive disjunction]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=OrExpression[Boolean exclusive disjunction]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PowerOfExpression[Exponentiation].
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Multiplication].
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Division].
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Remainder (Modulo)].
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AddOrSubtractExpression[Addition].
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AddOrSubtractExpression[Substraction].
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AndExpression[Boolean conjunction].
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=OrExpression[Boolean inclusive disjunction].
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=OrExpression[Boolean exclusive disjunction].
 
-Example expressions are
+Example expressions are:
 
 * `5 * 4 * 3`
 * `5 ^ 4 ^ 3`
@@ -372,9 +372,9 @@ Example expressions are
 * `5 - 4 - 3`
 * `5 - 4 + 3`
 * `5 + 4 + 3`
-* `TRUE AND FALSE AND TRUE`
-* `TRUE OR FALSE OR TRUE`
-* `TRUE XOR FALSE XOR TRUE`
+* `true AND false AND true`
+* `true OR false OR true`
+* `true XOR false XOR true`
 
 [IMPORTANT]
 .Chains of binary operators
