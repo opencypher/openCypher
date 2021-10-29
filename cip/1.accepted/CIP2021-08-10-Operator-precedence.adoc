@@ -272,10 +272,10 @@ Associativity of the operators define the operator tree unambiguously for such e
 
 Chains of operators fall into four categories:
 
-* _Chains of type-incompatible operators_
-* _Chains of closed unary operators_
-* _Chains of binary operators_
-* _Chains with extra semantics_
+* _Chains of type-incompatible operators_.
+* _Chains of closed unary operators_.
+* _Chains of binary operators_.
+* _Chains with extra semantics_.
 
 Each is discussed in the following subsections, respectively.
 
