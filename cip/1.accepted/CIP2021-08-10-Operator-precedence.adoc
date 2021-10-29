@@ -320,12 +320,12 @@ Chains of (partly) type-incompatible operators either
 ====
 
 ==== Chains of closed unary operators
-Closed unary operators that allow chaining on the same precedence level are
+Closed unary operators that allow chaining on the same precedence level are:
 
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=UnaryAddOrSubtractExpression[Arithmetic additive inverse]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NotExpression[Boolean negation]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ListOperatorExpression[List slicing]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NullOperatorExpression[Null predicates]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=UnaryAddOrSubtractExpression[Arithmetic additive inverse].
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NotExpression[Boolean negation].
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ListOperatorExpression[List slicing].
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NullOperatorExpression[Null predicates].
 
 Example expressions are
 
