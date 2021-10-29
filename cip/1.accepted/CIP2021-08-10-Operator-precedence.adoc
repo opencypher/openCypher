@@ -295,11 +295,11 @@ respectively.
 For instance, grammatically allowed operator chains without a valid operator tree are:
 
 * `'string' STARTS WITH x [1..3]`
-** `('string' STARTS WITH x) [1..3]` is invalid because list slicing does not accept a boolean as first operand
-** `'string' STARTS WITH (x[1..3])` is invalid because the prefix predicate does not accept a list as second operand
+** `('string' STARTS WITH x) [1..3]` is invalid because list slicing does not accept a boolean as first operand.
+** `'string' STARTS WITH (x[1..3])` is invalid because the prefix predicate does not accept a list as second operand.
 * `foo CONTAINS 'bar' ENDS WITH x`
-** `(foo CONTAINS 'bar') ENDS WITH x` is invalid because the suffix predicate does not accept a boolean as first operand
-** `foo CONTAINS ('bar' ENDS WITH x)` is invalid because the containment predicate does not accept a boolean as second operand
+** `(foo CONTAINS 'bar') ENDS WITH x` is invalid because the suffix predicate does not accept a boolean as first operand.
+** `foo CONTAINS ('bar' ENDS WITH x)` is invalid because the containment predicate does not accept a boolean as second operand.
 
 For instance, grammatically allowed operator chains with only a single  valid operator tree are:
 
