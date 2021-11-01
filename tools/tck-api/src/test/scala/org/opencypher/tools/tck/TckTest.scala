@@ -34,10 +34,11 @@ import org.opencypher.tools.tck.constants.TCKErrorTypes.SYNTAX_ERROR
 import org.opencypher.tools.tck.values.CypherValue
 import org.scalatest.Assertions
 import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
 import scala.util.{Failure, Success, Try}
 
-class TckTest extends AnyFunSpec with Assertions {
+class TckTest extends AnyFunSpec with Assertions with Matchers {
 
   private val scenarios = CypherTCK.parseFeatures(getClass.getResource("Foo.feature").toURI) match {
     case feature :: Nil => feature.scenarios
@@ -61,12 +62,8 @@ class TckTest extends AnyFunSpec with Assertions {
         case SideEffectQuery => myException
       }
 
-      Try(scenarios.head(graph).run()) match {
-        case Success(_) =>
-          fail("Expected to throw")
-        case Failure(exception) =>
-          assert(causes(exception).contains(myException), "Expected to find original exception as cause")
-      }
+      val e = the[Throwable].thrownBy(scenarios.head(graph).run())
+      causes(e) should contain(myException)
     }
   }
 
