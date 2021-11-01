@@ -53,7 +53,7 @@ Feature: Foo
       """
       RETURN foo()
       """
-    Then a Error should be raised at compile time: UnknownFunction
+    Then an Error should be raised at compile time: UnknownFunction
 
   Scenario: Fail at any time
     Given an empty graph
@@ -77,7 +77,7 @@ Feature: Foo
       """
       RETURN foo()
       """
-    Then a Error should be raised at any time: *
+    Then an Error should be raised at any time: *
 
   @ignore
   Scenario: Ignored
