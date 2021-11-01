@@ -34,21 +34,45 @@ import org.opencypher.tools.tck.constants.TCKErrorTypes.SYNTAX_ERROR
 import org.opencypher.tools.tck.values.CypherValue
 import org.scalatest.Assertions
 import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class TckTest extends AnyFunSpec with Assertions {
+import scala.util.{Failure, Success, Try}
+
+class TckTest extends AnyFunSpec with Assertions with Matchers {
+
+  private val scenarios = CypherTCK.parseFeatures(getClass.getResource("Foo.feature").toURI) match {
+    case feature :: Nil => feature.scenarios
+    case _              => List[Scenario]()
+  }
 
   describe("Out of the scenarios in Foo.feature") {
-    val fooUri = getClass.getResource("Foo.feature").toURI
-    val scenarios = CypherTCK.parseFeatures(fooUri) match {
-      case feature :: Nil => feature.scenarios
-      case _ => List[Scenario]()
-    }
-
     scenarios.foreach { scenario =>
       it(s"${scenario.toString()} should run successfully") {
         scenario(FakeGraph).run()
         succeed
       }
+    }
+  }
+
+  describe("Error handling") {
+    it("should retain original exception from side effect queries") {
+      val myException = MyException("original")
+
+      val graph = FailingGraph(FakeGraph) {
+        case SideEffectQuery => myException
+      }
+
+      val e = the[Throwable].thrownBy(scenarios.head(graph).run())
+      causes(e) should contain(myException)
+    }
+  }
+
+  def causes(throwable: Throwable): Stream[Throwable] = {
+    val self = Stream(throwable)
+    Option(throwable.getCause) match {
+      case None              => self
+      case Some(`throwable`) => self
+      case Some(cause)       => self.append(causes(cause))
     }
   }
 
@@ -71,4 +95,18 @@ class TckTest extends AnyFunSpec with Assertions {
     override def registerProcedure(signature: String, values: CypherValueRecords): Unit =
       ()
   }
+
+  private case class FailingGraph(base: Graph)(failureFor: PartialFunction[QueryType, Throwable]) extends Graph with ProcedureSupport {
+    override def cypher(query: String, params: Map[String, CypherValue], queryType: QueryType): Result = {
+      failureFor.lift.apply(queryType) match {
+        case Some(e) => ExecutionFailed("dummyType", "dummyPhase", "dummyDetail", Some(e))
+        case None    => base.cypher(query, params, queryType)
+      }
+    }
+
+    override def registerProcedure(signature: String, values: CypherValueRecords): Unit =
+      ()
+  }
+
+  private case class MyException(msg: String) extends Exception(msg)
 }
