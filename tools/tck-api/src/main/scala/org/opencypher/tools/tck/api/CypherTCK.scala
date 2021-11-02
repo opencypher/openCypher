@@ -269,7 +269,7 @@ object CypherTCK {
     val (name, number) = parseNameAndNumber(nameAndNumber)
     val tagsInferred = tags ++ Set(TCKTags.NEGATIVE_TEST, TCKTags.WILDCARD_ERROR_DETAILS).filter {
       case TCKTags.NEGATIVE_TEST => steps.exists {
-        case ExpectError(_, _, _, _) => true
+        case _: ExpectError => true
         case _ => false
       }
       case TCKTags.WILDCARD_ERROR_DETAILS => steps.exists {
