@@ -29,11 +29,13 @@ package org.opencypher.tools.tck
 
 import io.cucumber.core.gherkin.StepType
 import org.opencypher.tools.tck.api.ControlQuery
+import org.opencypher.tools.tck.api.CsvFile
 import org.opencypher.tools.tck.api.ExecQuery
 import org.opencypher.tools.tck.api.Execute
 import org.opencypher.tools.tck.api.ExpectError
 import org.opencypher.tools.tck.api.ExpectResult
 import org.opencypher.tools.tck.api.InitQuery
+import org.opencypher.tools.tck.api.Parameters
 import org.opencypher.tools.tck.api.SideEffects
 import org.opencypher.tools.tck.api.Step
 import org.opencypher.tools.tck.constants.TCKErrorDetails
@@ -133,6 +135,20 @@ trait ValidateSteps extends AppendedClues with Matchers with OptionValues with V
           TCKErrorDetails.ALL should contain(ee.detail)
         }
       case _ => succeed
+    }
+
+    withClue("Scenario declares conflicting parameter ") {
+      val parameters: Seq[String] = steps.collect {
+        case Parameters(parameters, _) => parameters.keys.toList
+        case CsvFile(parameter, _, _) => List(parameter)
+      }.flatten
+      parameters.groupBy(identity).foreach {
+        case (parameter, group) =>
+          withClue(s"$$$parameter: ") {
+            group.size shouldBe 1
+          }
+        case _ =>
+      }
     }
 
     succeed
