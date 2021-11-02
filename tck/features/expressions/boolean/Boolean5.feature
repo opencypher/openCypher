@@ -159,7 +159,7 @@ Feature: Boolean5 - Interop of logical operations
       | false | false | false | true   |
     And no side effects
 
-  Scenario: [6] Conjunction is not distributive over exclusive disjunction on null
+  Scenario: [6] Conjunction is distributive over exclusive disjunction on null
     Given any graph
     When executing query:
       """
