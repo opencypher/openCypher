@@ -181,7 +181,7 @@ Feature: Boolean5 - Interop of logical operations
       | false | null  | true  | true   |
       | false | null  | false | true   |
       | false | null  | null  | true   |
-      | null  | true  | true  | false  |
+      | null  | true  | true  | true   |
       | null  | true  | false | true   |
       | null  | true  | null  | true   |
       | null  | false | true  | true   |
