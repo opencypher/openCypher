@@ -136,7 +136,6 @@ Feature: TypeConversion2 - To Integer
 
     Examples:
       | invalid | exampleName  |
-      | true    | boolean      |
       | []      | list         |
       | {}      | map          |
       | n       | node         |
