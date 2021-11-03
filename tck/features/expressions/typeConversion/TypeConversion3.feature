@@ -96,7 +96,7 @@ Feature: TypeConversion3 - To Float
       | 4.0   |
     And no side effects
 
-  Scenario Outline: [6] `toFloat()` failing on invalid arguments
+  Scenario Outline: [6] Fail `toFloat()` on invalid types #Example: <exampleName>
     Given an empty graph
     And having executed:
       """
@@ -110,10 +110,10 @@ Feature: TypeConversion3 - To Float
     Then a TypeError should be raised at runtime: InvalidArgumentValue
 
     Examples:
-      | invalid |
-      | true    |
-      | []      |
-      | {}      |
-      | n       |
-      | r       |
-      | p       |
+      | invalid | exampleName  |
+      | true    | boolean      |
+      | []      | list         |
+      | {}      | map          |
+      | n       | node         |
+      | r       | relationship |
+      | p       | path         |
