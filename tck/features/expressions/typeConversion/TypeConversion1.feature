@@ -82,18 +82,24 @@ Feature: TypeConversion1 - To Boolean
       | null |
     And no side effects
 
-  Scenario Outline: [5] `toBoolean()` on invalid types #Example: <exampleName>
-    Given any graph
+  Scenario Outline: [5] Fail `toBoolean()` on invalid types #Example: <exampleName>
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()-[:T]->()
+      """
     When executing query:
       """
-      WITH [true, <invalid>] AS list
-      RETURN toBoolean(list[1]) AS b
+      MATCH p = (n)-[r:T]->()
+      RETURN [x IN [true, <invalid>] | toInteger(x) ] AS list
       """
     Then a TypeError should be raised at runtime: InvalidArgumentValue
 
     Examples:
-      | invalid | exampleName |
-      | []      | list        |
-      | {}      | map         |
-      | 1       | integer     |
-      | 1.0     | float       |
+      | invalid | exampleName  |
+      | []      | list         |
+      | {}      | map          |
+      | 1.0     | float        |
+      | n       | node         |
+      | r       | relationship |
+      | p       | path         |
