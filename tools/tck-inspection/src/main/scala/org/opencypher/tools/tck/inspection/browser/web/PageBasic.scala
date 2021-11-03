@@ -31,6 +31,7 @@ import org.opencypher.tools.tck.api.CypherValueRecords
 import org.opencypher.tools.tck.api.Dummy
 import org.opencypher.tools.tck.api.ExecQuery
 import org.opencypher.tools.tck.api.ControlQuery
+import org.opencypher.tools.tck.api.CsvFile
 import org.opencypher.tools.tck.api.Execute
 import org.opencypher.tools.tck.api.ExpectError
 import org.opencypher.tools.tck.api.ExpectResult
@@ -164,6 +165,12 @@ trait PageBasic {
                 td()(code(v.toString))
               )
           ))
+        )
+      case CsvFile(urlParameter, values, _) =>
+        stepFrag(
+          "Create CSV file containing",
+          div(cypherValueRecordsFrag(values)),
+          div("URL to file available in parameter ", code(urlParameter))
         )
       case RegisterProcedure(signature, values, _) =>
         stepFrag(
