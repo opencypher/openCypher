@@ -121,7 +121,7 @@ Feature: TypeConversion2 - To Integer
       | 42   |
     And no side effects
 
-  Scenario Outline: [8] `toInteger()` failing on invalid arguments
+  Scenario Outline: [8] Fail `toInteger()` on invalid types #Example: <exampleName>
     Given an empty graph
     And having executed:
       """
@@ -135,10 +135,10 @@ Feature: TypeConversion2 - To Integer
     Then a TypeError should be raised at runtime: InvalidArgumentValue
 
     Examples:
-      | invalid |
-      | true    |
-      | []      |
-      | {}      |
-      | n       |
-      | r       |
-      | p       |
+      | invalid | exampleName  |
+      | true    | boolean      |
+      | []      | list         |
+      | {}      | map          |
+      | n       | node         |
+      | r       | relationship |
+      | p       | path         |
