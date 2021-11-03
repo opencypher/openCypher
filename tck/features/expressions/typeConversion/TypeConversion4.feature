@@ -148,7 +148,7 @@ Feature: TypeConversion4 - To String
       | 'x'      |
     And no side effects
 
-  Scenario Outline: [10] `toString()` failing on invalid arguments
+  Scenario Outline: [10] Fail `toString()` on invalid types #Example: <exampleName>
     Given an empty graph
     And having executed:
       """
@@ -162,9 +162,9 @@ Feature: TypeConversion4 - To String
     Then a TypeError should be raised at runtime: InvalidArgumentValue
 
     Examples:
-      | invalid |
-      | []      |
-      | {}      |
-      | n       |
-      | r       |
-      | p       |
+      | invalid | exampleName  |
+      | []      | list         |
+      | {}      | map          |
+      | n       | node         |
+      | r       | relationship |
+      | p       | path         |
