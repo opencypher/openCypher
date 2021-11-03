@@ -37,6 +37,7 @@ import org.opencypher.tools.tck.api.InitQuery
 import org.opencypher.tools.tck.api.SideEffects
 import org.opencypher.tools.tck.api.Step
 import org.opencypher.tools.tck.constants.TCKErrorDetails
+import org.opencypher.tools.tck.constants.TCKErrorPhases
 import org.opencypher.tools.tck.constants.TCKErrorTypes
 import org.scalatest.AppendedClues
 import org.scalatest.Assertion
@@ -127,7 +128,7 @@ trait ValidateSteps extends AppendedClues with Matchers with OptionValues with V
           TCKErrorTypes.ALL should contain(ee.errorType)
         }
         withClue(s"${ee.description} has valid phase") {
-          Set("runtime", "compile time") should contain(ee.phase)
+          TCKErrorPhases.ALL should contain(ee.phase)
         }
         withClue(s"${ee.description} has valid detail") {
           TCKErrorDetails.ALL should contain(ee.detail)
