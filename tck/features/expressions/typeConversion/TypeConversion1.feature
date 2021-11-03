@@ -91,7 +91,7 @@ Feature: TypeConversion1 - To Boolean
     When executing query:
       """
       MATCH p = (n)-[r:T]->()
-      RETURN [x IN [true, <invalid>] | toInteger(x) ] AS list
+      RETURN [x IN [true, <invalid>] | toBoolean(x) ] AS list
       """
     Then a TypeError should be raised at runtime: InvalidArgumentValue
 
