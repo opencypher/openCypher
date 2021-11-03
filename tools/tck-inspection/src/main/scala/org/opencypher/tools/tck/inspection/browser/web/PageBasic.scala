@@ -168,9 +168,10 @@ trait PageBasic {
         )
       case CsvFile(urlParameter, values, _) =>
         stepFrag(
-          "Create CSV file containing",
+          "Create CSV file",
+          div("containing"),
           div(cypherValueRecordsFrag(values)),
-          div("URL to file available in parameter ", code(urlParameter))
+          div("file URL available in parameter ", code("$", urlParameter))
         )
       case RegisterProcedure(signature, values, _) =>
         stepFrag(
