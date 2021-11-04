@@ -28,7 +28,7 @@
     </licenses>
 
     <modules>
-        <module>util</module>
+        <module>tck-compatibility-tests-util</module>
     </modules>
 
 </project>
