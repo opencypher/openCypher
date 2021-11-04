@@ -47,13 +47,13 @@ case class BrowserRoutes()(implicit val log: cask.Logger) extends cask.Routes wi
   }
 
   @cask.get("/browser/:pathEnc")
-  def browseReport(pathEnc: String): String = secureBrowserPage(
+  def browseReport(pathEnc: String): doctype = secureBrowserPage(
     pathEnc = pathEnc,
     pageFrag = _.browserReportPage(),
     refresh = true
   )
 
-  def secureBrowserPage(pathEnc: String, pageFrag: BrowserPages => Frag, refresh: Boolean = false): String = {
+  def secureBrowserPage(pathEnc: String, pageFrag: BrowserPages => doctype, refresh: Boolean = false): doctype = {
     val path = URLDecoder.decode(pathEnc, StandardCharsets.UTF_8.toString)
     val browserPages =
       if(refresh) {
@@ -63,7 +63,7 @@ case class BrowserRoutes()(implicit val log: cask.Logger) extends cask.Routes wi
       } else {
         path2browserPages.getOrElseUpdate(path, BrowserPages(BrowserModel(path), this))
       }
-    pageFrag(browserPages).toString
+    pageFrag(browserPages)
   }
 
   def listScenariosURL(browserPages: BrowserPages, group: Group): String = {
@@ -71,7 +71,7 @@ case class BrowserRoutes()(implicit val log: cask.Logger) extends cask.Routes wi
   }
 
   @cask.get("/browser/:pathEnc/list/:groupId")
-  def listScenarios(pathEnc: String, groupId: Int): String = secureBrowserPage(
+  def listScenarios(pathEnc: String, groupId: Int): doctype = secureBrowserPage(
     pathEnc = pathEnc,
     pageFrag = browserPages => securedGroupPage(browserPages, groupId, group => browserPages.listScenariosPage(
       scenarios = group => browserPages.browserModel.tckTree.groupedScenarios.get(group),
@@ -82,7 +82,7 @@ case class BrowserRoutes()(implicit val log: cask.Logger) extends cask.Routes wi
     ))
   )
 
-  private def securedGroupPage(browserPages: BrowserPages, groupId: Int, pageFrag: Group => Frag) = {
+  private def securedGroupPage(browserPages: BrowserPages, groupId: Int, pageFrag: Group => doctype): doctype = {
     if(browserPages.browserModel.groupId2Group.isDefinedAt(groupId)) {
       pageFrag(browserPages.browserModel.groupId2Group(groupId))
     } else error("Unknown group: " + groupId)
@@ -92,7 +92,7 @@ case class BrowserRoutes()(implicit val log: cask.Logger) extends cask.Routes wi
     s"${browserReportURL(browserPages)}/scenario/${browserPages.browserModel.scenario2ScenarioId(scenario) }"
 
   @cask.get("/browser/:pathEnc/scenario/:scenarioId")
-  def showSingleScenario(pathEnc: String, scenarioId: Int): String = secureBrowserPage(
+  def showSingleScenario(pathEnc: String, scenarioId: Int): doctype = secureBrowserPage(
     pathEnc = pathEnc,
     pageFrag = browserPages => securedScenarioPage(browserPages, scenarioId, scenario => browserPages.scenarioPage(scenario))
   )
@@ -101,15 +101,17 @@ case class BrowserRoutes()(implicit val log: cask.Logger) extends cask.Routes wi
     s"${browserReportURL(browserPages)}/open/${browserPages.browserModel.scenario2ScenarioId(scenario)}"
 
   @cask.get("/browser/:pathEnc/open/:scenarioId")
-  def openScenarioInEditor(pathEnc: String, scenarioId: Int): String = secureBrowserPage(
+  def openScenarioInEditor(pathEnc: String, scenarioId: Int): doctype = secureBrowserPage(
     pathEnc = pathEnc,
     pageFrag = tckDiffPages => securedScenarioPage(tckDiffPages, scenarioId, scenario => {
       CallingSystemProcesses.openScenarioInEditor(scenario) match {
         case ProcessReturn(0, _, _, _) =>
-          html(
-            head(
-              script(
-                "window.close();"
+          doctype("html")(
+            html(
+              head(
+                script(
+                  "window.close();"
+                )
               )
             )
           )
@@ -131,7 +133,7 @@ case class BrowserRoutes()(implicit val log: cask.Logger) extends cask.Routes wi
     })
   )
 
-  private def securedScenarioPage(browserPages: BrowserPages, scenarioId: Int, pageFrag: Scenario => Frag) = {
+  private def securedScenarioPage(browserPages: BrowserPages, scenarioId: Int, pageFrag: Scenario => doctype): doctype = {
     if(browserPages.browserModel.scenarioId2Scenario.isDefinedAt(scenarioId)) {
       pageFrag(browserPages.browserModel.scenarioId2Scenario(scenarioId))
     } else error("Unknown scenario: " + scenarioId)

@@ -48,14 +48,14 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   }
 
   @cask.get("/diff/:beforePathEnc/:afterPathEnc")
-  def diffReport(beforePathEnc: String, afterPathEnc: String): String = secureDiffPage(
+  def diffReport(beforePathEnc: String, afterPathEnc: String): doctype = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
     pageFrag = _.diffReportPage(),
     refresh = true
   )
 
-  def secureDiffPage(beforePathEnc: String, afterPathEnc: String, pageFrag: DiffPages => Frag, refresh: Boolean = false): String = {
+  def secureDiffPage(beforePathEnc: String, afterPathEnc: String, pageFrag: DiffPages => doctype, refresh: Boolean = false): doctype = {
     val beforePath = URLDecoder.decode(beforePathEnc, StandardCharsets.UTF_8.toString)
     val afterPath = URLDecoder.decode(afterPathEnc, StandardCharsets.UTF_8.toString)
     val diffPages =
@@ -66,7 +66,7 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
       } else {
         paths2DiffPages.getOrElseUpdate((beforePath, afterPath), DiffPages(DiffModel(beforePath, afterPath), this))
       }
-    pageFrag(diffPages).toString
+    pageFrag(diffPages)
   }
 
   def listBeforeScenariosURL(diffPages: DiffPages, group: Group): String = {
@@ -74,7 +74,7 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   }
 
   @cask.get("/diff/:beforePathEnc/:afterPathEnc/before/:groupId")
-  def listBeforeScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): String = secureDiffPage(
+  def listBeforeScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): doctype = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
     pageFrag = diffPages =>
@@ -94,7 +94,7 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   }
 
   @cask.get("/diff/:beforePathEnc/:afterPathEnc/after/:groupId")
-  def listAfterScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): String = secureDiffPage(
+  def listAfterScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): doctype = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
     pageFrag = diffPages =>
@@ -114,7 +114,7 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   }
 
   @cask.get("/diff/:beforePathEnc/:afterPathEnc/unchanged/:groupId")
-  def listUnchangedScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): String = secureDiffPage(
+  def listUnchangedScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): doctype = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
     pageFrag = diffPages =>
@@ -134,7 +134,7 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   }
 
   @cask.get("/diff/:beforePathEnc/:afterPathEnc/added/:groupId")
-  def listAddedScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): String = secureDiffPage(
+  def listAddedScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): doctype = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
     pageFrag = diffPages =>
@@ -154,7 +154,7 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   }
 
   @cask.get("/diff/:beforePathEnc/:afterPathEnc/removed/:groupId")
-  def listRemovedScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): String = secureDiffPage(
+  def listRemovedScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): doctype = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
     pageFrag = diffPages =>
@@ -174,7 +174,7 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   }
 
   @cask.get("/diff/:beforePathEnc/:afterPathEnc/moved/:groupId")
-  def listMovedScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): String = secureDiffPage(
+  def listMovedScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): doctype = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
     pageFrag = diffPages => securedGroupPage(diffPages, groupId, group => diffPages.listMovedScenarios(group))
@@ -185,13 +185,13 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
   }
 
   @cask.get("/diff/:beforePathEnc/:afterPathEnc/changed/:groupId")
-  def listChangedScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): String = secureDiffPage(
+  def listChangedScenarios(beforePathEnc: String, afterPathEnc: String, groupId: Int): doctype = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
     pageFrag = diffPages => securedGroupPage(diffPages, groupId, group => diffPages.listChangedScenarios(group))
   )
 
-  private def securedGroupPage(diffPages: DiffPages, groupId: Int, pageFrag: Group => Frag) = {
+  private def securedGroupPage(diffPages: DiffPages, groupId: Int, pageFrag: Group => doctype): doctype = {
     if(diffPages.diffModel.groupId2Group.isDefinedAt(groupId)) {
       pageFrag(diffPages.diffModel.groupId2Group(groupId))
     } else error("Unknown group: " + groupId)
@@ -201,7 +201,7 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     s"${diffReportURL(diffPages)}/scenario/${diffPages.diffModel.scenario2ScenarioId(scenario) }"
 
   @cask.get("/diff/:beforePathEnc/:afterPathEnc/scenario/:scenarioId")
-  def showSingleScenario(beforePathEnc: String, afterPathEnc: String, scenarioId: Int): String = secureDiffPage(
+  def showSingleScenario(beforePathEnc: String, afterPathEnc: String, scenarioId: Int): doctype = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
     pageFrag = diffPages => securedScenarioPage(diffPages, scenarioId, scenario => diffPages.scenarioPage(scenario))
@@ -211,16 +211,18 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     s"${diffReportURL(diffPages)}/open/${diffPages.diffModel.scenario2ScenarioId(scenario)}"
 
   @cask.get("/diff/:beforePathEnc/:afterPathEnc/open/:scenarioId")
-  def openScenarioInEditor(beforePathEnc: String, afterPathEnc: String, scenarioId: Int): String = secureDiffPage(
+  def openScenarioInEditor(beforePathEnc: String, afterPathEnc: String, scenarioId: Int): doctype = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
     pageFrag = diffPages => securedScenarioPage(diffPages, scenarioId, scenario => {
       CallingSystemProcesses.openScenarioInEditor(scenario) match {
         case ProcessReturn(0, _, _, _) =>
-          html(
-            head(
-              script(
-                "window.close();"
+          doctype("html")(
+            html(
+              head(
+                script(
+                  "window.close();"
+                )
               )
             )
           )
@@ -242,7 +244,7 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     })
   )
 
-  private def securedScenarioPage(diffPages: DiffPages, scenarioId: Int, pageFrag: Scenario => Frag) = {
+  private def securedScenarioPage(diffPages: DiffPages, scenarioId: Int, pageFrag: Scenario => doctype): doctype = {
     if(diffPages.diffModel.scenarioId2Scenario.isDefinedAt(scenarioId)) {
       pageFrag(diffPages.diffModel.scenarioId2Scenario(scenarioId))
     } else error("Unknown scenario: " + scenarioId)
@@ -252,7 +254,7 @@ case class DiffRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     s"${diffReportURL(diffPages)}/scenarioDiff/${diffPages.diffModel.scenario2ScenarioId(before)}/${diffPages.diffModel.scenario2ScenarioId(after)}"
 
   @cask.get("/diff/:beforePathEnc/:afterPathEnc/scenarioDiff/:beforeId/:afterId")
-  def showDetailedScenarioDiff(beforePathEnc: String, afterPathEnc: String, beforeId: Int, afterId: Int): String = secureDiffPage(
+  def showDetailedScenarioDiff(beforePathEnc: String, afterPathEnc: String, beforeId: Int, afterId: Int): doctype = secureDiffPage(
     beforePathEnc = beforePathEnc,
     afterPathEnc = afterPathEnc,
     pageFrag = diffPages => {

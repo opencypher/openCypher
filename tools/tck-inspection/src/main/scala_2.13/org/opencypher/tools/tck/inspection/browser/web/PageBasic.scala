@@ -53,6 +53,7 @@ import org.opencypher.tools.tck.constants.TCKSideEffects.DELETED_PROPERTIES
 import org.opencypher.tools.tck.constants.TCKSideEffects.DELETED_RELATIONSHIPS
 import org.opencypher.tools.tck.api.groups.Group
 import scalatags.Text
+import scalatags.Text
 import scalatags.Text.all._
 import scalatags.Text.tags2
 import scalatags.generic
@@ -78,17 +79,19 @@ trait PageBasic {
 
   def subSectionTitle(title: Frag*): Text.TypedTag[String] = h3(CSS.subSectionTitle)(title)
 
-  def error(msg: Frag*): Text.TypedTag[String] = page(div(color.red)(msg))
+  def error(msg: Frag*): Text.all.doctype = page(div(color.red)(msg))
 
-  def page(content: Frag*): Text.TypedTag[String] = html(
-    head(
-      meta(charset:="utf-8"),
-      tags2.style(CSS.styleSheetText)
-    ),
-    body(content)
+  def page(content: Frag*): Text.all.doctype = doctype("html")(
+    html(
+      head(
+        meta(charset:="utf-8"),
+        tags2.style(CSS.styleSheetText)
+      ),
+      body(content)
+    )
   )
 
-  def listScenariosPage(scenarios: Group => Option[Set[Scenario]], group: Group, kind: Option[Frag], showSingleScenarioURL: Scenario => String, openScenarioInEditorURL: Scenario => String ): Text.TypedTag[String] = {
+  def listScenariosPage(scenarios: Group => Option[Set[Scenario]], group: Group, kind: Option[Frag], showSingleScenarioURL: Scenario => String, openScenarioInEditorURL: Scenario => String ): Text.all.doctype = {
     val scenarioSeq = scenarios(group).map(_.toSeq.sortBy(s => (s.categories.mkString("/"), s.featureName, s.number, s.name, s.exampleIndex))).getOrElse(Seq.empty[Scenario])
     page(
       pageTitle(scenarioSeq.size, kind.mapToFrag(k => frag(" ", k)), " scenario(s) in group ", i(group.toString)),

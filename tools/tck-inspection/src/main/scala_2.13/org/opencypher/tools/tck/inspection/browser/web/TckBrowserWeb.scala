@@ -39,7 +39,7 @@ import scalatags.Text.all._
 case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with PageBasic {
 
   @cask.get("/")
-  def main(): String = {
+  def main(): doctype =
     page(
       pageTitle("TCK Browser"),
       sectionTitle("Browse"),
@@ -145,8 +145,7 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
           )
         )
       ),
-    ).toString()
-  }
+    )
 
   @cask.get("/diffRepositoryCommits")
   def diffRepositoryCommits(beforeRepo: String, beforeCommit: String, beforeSubPath: String, afterRepo: String, afterCommit: String, afterSubPath: String): Response[String] = {
@@ -257,10 +256,11 @@ case class MainRoutes()(implicit val log: cask.Logger) extends cask.Routes with 
     checkoutResult match {
       case None => redirect(s"/browser/$pathEnc")
       case Some(frag) => cask.Response(
-        error(
+        "" +
+          error(
           p("Cannot checkout repo"),
           p(frag)
-        ).toString()
+        )
       )
     }
   }
