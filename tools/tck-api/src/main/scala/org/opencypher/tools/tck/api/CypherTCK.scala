@@ -160,6 +160,7 @@ object CypherTCK {
                 }
             case (PickleGroupingKey("Scenario", _), pickles) =>
                 pickles.map(pickle => toScenario(categories, featureName, pickle.nameAndNumber, None, pickle.exampleName, pickle.pickle, featureFile))
+            case _ => Seq[Scenario]()
           }.toSeq
           TCKEvents.setFeature(FeatureRead(featureName, featureFile.toUri, featureString))
           Feature(scenarios)
