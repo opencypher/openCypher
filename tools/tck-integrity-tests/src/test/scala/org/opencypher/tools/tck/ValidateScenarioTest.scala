@@ -34,6 +34,7 @@ import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
 import scala.language.implicitConversions
+import scala.language.reflectiveCalls
 
 class ValidateScenarioTest extends AnyFunSpecLike with Matchers {
   private val correctScenario: Scenario = {
