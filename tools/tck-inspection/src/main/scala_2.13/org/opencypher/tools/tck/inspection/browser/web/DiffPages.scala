@@ -40,7 +40,7 @@ import scalatags.Text
 import scalatags.Text.all._
 
 case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageBasic {
-  def diffReportPage(): Text.TypedTag[String] = {
+  def diffReportPage(): Text.all.doctype = {
     page(
       pageTitle("Diff report"),
       div(display.flex, flexDirection.row)(
@@ -144,7 +144,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
     table(CSS.hoverTable)(header +: tableRows)
   }
 
-  def listMovedScenarios(group: Group): Text.TypedTag[String] = {
+  def listMovedScenarios(group: Group): Text.all.doctype = {
     val diffs = diffModel.tckTreeDiff.diffs(group).movedScenarios
     val byScenario = diffs.toSeq.sortBy(d => d.before.toString + d.after.toString)
     val byLocation = diffs.groupBy {
@@ -210,7 +210,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
     )
   }
 
-  def listChangedScenarios(group: Group): Text.TypedTag[String] = {
+  def listChangedScenarios(group: Group): Text.all.doctype = {
     val diffs = diffModel.tckTreeDiff.diffs(group).changedScenarios.toSeq.sortBy(d => d.before.toString + d.after.toString)
 
     page(
@@ -243,7 +243,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
   private def openScenarioInEditorLink(scenario: Scenario, linkContent: Frag*) =
     blankLink(diffRoutes.openScenarioInEditorURL(this, scenario), linkContent)
 
-  def scenarioPage(scenario: Scenario, withLocation: Boolean = true): Text.TypedTag[String] = {
+  def scenarioPage(scenario: Scenario, withLocation: Boolean = true): Text.all.doctype = {
     page(
       // location
       if(withLocation)
@@ -278,7 +278,7 @@ case class DiffPages(diffModel: DiffModel, diffRoutes: DiffRoutes) extends PageB
   private def showDetailedScenarioDiffLink(before: Scenario, after: Scenario, linkContent: Frag*) =
     link(diffRoutes.showDetailedScenarioDiffURL(this, before, after), linkContent)
 
-  def detailedScenarioDiffPage(before: Scenario, after: Scenario): Text.TypedTag[String] = {
+  def detailedScenarioDiffPage(before: Scenario, after: Scenario): Text.all.doctype = {
     val scenarioDiff = ScenarioDiff(before, after)
 
     def diffLineFrag[A](before: Frag, diff: Diff[A], after: Frag) =

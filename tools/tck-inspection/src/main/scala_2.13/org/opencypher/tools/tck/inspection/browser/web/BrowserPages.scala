@@ -39,7 +39,7 @@ import scalatags.Text.all._
 
 case class BrowserPages(browserModel: BrowserModel, browserRoutes: BrowserRoutes) extends PageBasic {
 
-  def browserReportPage(): Text.TypedTag[String] = {
+  def browserReportPage(): Text.all.doctype = {
     page(
       pageTitle("Browse"),
       div(code(browserModel.path)),
@@ -82,7 +82,7 @@ case class BrowserPages(browserModel: BrowserModel, browserRoutes: BrowserRoutes
     table(CSS.hoverTable)(header +: tableRows)
   }
 
-  def scenarioPage(scenario: Scenario, withLocation: Boolean = true): Text.TypedTag[String] = {
+  def scenarioPage(scenario: Scenario, withLocation: Boolean = true): Text.all.doctype = {
     page(
       // location
       if(withLocation)
