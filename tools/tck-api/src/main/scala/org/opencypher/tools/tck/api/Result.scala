@@ -29,8 +29,6 @@ package org.opencypher.tools.tck.api
 
 import org.opencypher.tools.tck.values.CypherValue
 
-import scala.compat.Platform.EOL
-
 /**
   * Convenience implementation for TCK implementers who prefer writing result
   * values in the same string format as the TCK expectations. This is then
@@ -62,7 +60,7 @@ case class CypherValueRecords(header: List[String], rows: List[Map[String, Cyphe
         val strings = values.map(_.toString)
         strings.mkString("| ", " | ", " |")
       })
-      s"${_header}$EOL${_rows.mkString(s"$EOL")}"
+      s"${_header}${java.lang.System.lineSeparator()}${_rows.mkString(java.lang.System.lineSeparator())}"
     }
   }
 }
