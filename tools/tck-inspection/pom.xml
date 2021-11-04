@@ -27,7 +27,27 @@
     </licenses>
 
     <build>
+        <sourceDirectory>src/main/scala</sourceDirectory>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/scala_${scala.binary.version}</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
@@ -56,6 +76,13 @@
         </dependency>
 
         <dependency>
+            <!-- dependency of tck-api listed here for intellij to get the scala version right -->
+            <groupId>com.lihaoyi</groupId>
+            <artifactId>fastparse_${scala.binary.version}</artifactId>
+            <version>${dep.fastparse.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-core</artifactId>
         </dependency>
@@ -69,7 +96,7 @@
         <dependency>
             <groupId>com.lihaoyi</groupId>
             <artifactId>scalatags_${scala.binary.version}</artifactId>
-            <version>0.7.0</version>
+            <version>${dep.scalatags.version}</version>
         </dependency>
 
         <!-- Test deps -->

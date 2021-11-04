@@ -82,6 +82,14 @@
         </dependency>
 
         <dependency>
+            <!-- dependency of tck-api listed here for intellij to get the scala version right -->
+            <groupId>com.lihaoyi</groupId>
+            <artifactId>fastparse_${scala.binary.version}</artifactId>
+            <version>${dep.fastparse.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.opencypher</groupId>
             <artifactId>grammar</artifactId>
             <version>${project.version}</version>
