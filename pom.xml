@@ -29,8 +29,10 @@
   <properties>
     <dep.antlr4.version>4.7.2</dep.antlr4.version>
     <dep.batik.version>1.13</dep.batik.version>
-    <dep.cask.version>0.2.9</dep.cask.version>
+    <!--dep.cask.version>0.2.9</dep.cask.version-->
+    <dep.scalatags.version>0.10.0</dep.scalatags.version>
     <dep.cucumber.version>5.7.0</dep.cucumber.version>
+    <dep.fastparse.version>2.3.3</dep.fastparse.version>
     <dep.hamcrest.version>2.2</dep.hamcrest.version>
     <dep.junit.platform.version>1.7.0</dep.junit.platform.version>
     <dep.junit.version>5.7.0</dep.junit.version>
@@ -52,8 +54,6 @@
     <maven.compiler.target>11</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.rootdir>${project.basedir}</project.rootdir>
-    <scala.binary.version>2.12</scala.binary.version>
-    <scala.version>2.12.13</scala.version>
     <test.runner.jvm/>
     <test.runner.jvm.settings.additional/>
     <test.runner.jvm.settings>
@@ -392,13 +392,18 @@
     <!-- This is all the defaults -->
     <profile>
       <id>scala-212</id>
+      <properties>
+        <dep.cask.version>0.2.9</dep.cask.version>
+        <scala.binary.version>2.12</scala.binary.version>
+        <scala.version>2.12.13</scala.version>
+      </properties>
     </profile>
     <profile>
       <id>scala-213</id>
       <properties>
-        <dep.cask.version>0.3.7</dep.cask.version>
+        <dep.cask.version>0.7.12</dep.cask.version>
         <scala.binary.version>2.13</scala.binary.version>
-        <scala.version>2.13.6</scala.version>
+        <scala.version>2.13.7</scala.version>
       </properties>
     </profile>
   </profiles>
