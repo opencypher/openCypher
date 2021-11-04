@@ -53,11 +53,12 @@ import org.opencypher.tools.tck.constants.TCKSideEffects.DELETED_PROPERTIES
 import org.opencypher.tools.tck.constants.TCKSideEffects.DELETED_RELATIONSHIPS
 import org.opencypher.tools.tck.api.groups.Group
 import scalatags.Text
-import scalatags.Text
 import scalatags.Text.all._
 import scalatags.Text.tags2
 import scalatags.generic
 import scalatags.text.Builder
+
+import scala.language.implicitConversions
 
 trait PageBasic {
   class FragOption[T](option: Option[T]) {
