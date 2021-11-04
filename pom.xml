@@ -231,6 +231,10 @@
           <configuration>
             <scalaVersion>${scala.version}</scalaVersion>
             <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
+            <args>
+              <arg>-deprecation</arg>
+              <arg>-feature</arg>
+            </args>
           </configuration>
         </plugin>
 
