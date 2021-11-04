@@ -41,7 +41,7 @@ import org.opencypher.tools.tck.api.groups.Tag
 import org.opencypher.tools.tck.api.groups.TckTree
 import org.opencypher.tools.tck.api.groups.Total
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait DynamicJunitTests {
 
