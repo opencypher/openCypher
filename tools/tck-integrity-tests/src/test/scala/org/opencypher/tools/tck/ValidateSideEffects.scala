@@ -35,7 +35,7 @@ import org.scalatest.Assertion
 import org.scalatest.enablers.Emptiness.emptinessOfGenTraversable
 import org.scalatest.matchers.should.Matchers
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait ValidateSideEffects extends AppendedClues with Matchers with DescribeStepHelper {
 
