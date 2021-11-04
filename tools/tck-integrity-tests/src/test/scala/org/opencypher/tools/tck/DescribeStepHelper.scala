@@ -29,6 +29,8 @@ package org.opencypher.tools.tck
 
 import org.opencypher.tools.tck.api.Step
 
+import scala.language.implicitConversions
+
 trait DescribeStepHelper {
   class DescribedStep(s: Step) {
     def description: String = s"step `${s.source.getKeyWord.trim} ${s.source.getText}` in line ${s.source.getLine}"

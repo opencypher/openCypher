@@ -33,6 +33,8 @@ import org.scalatest.exceptions.TestFailedException
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.language.implicitConversions
+
 class ValidateScenarioTest extends AnyFunSpecLike with Matchers {
   private val correctScenario: Scenario = {
     CypherTCK.allTckScenarios.filter(scenario => {

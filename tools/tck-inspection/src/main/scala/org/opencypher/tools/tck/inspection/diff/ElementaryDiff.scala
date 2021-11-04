@@ -31,6 +31,8 @@ import org.opencypher.tools.tck.inspection.diff.ElementaryDiffTag.Changed
 import org.opencypher.tools.tck.inspection.diff.ElementaryDiffTag.Different
 import org.opencypher.tools.tck.inspection.diff.ElementaryDiffTag.Unchanged
 
+import scala.language.implicitConversions
+
 sealed trait ElementaryDiffTag
 
 object ElementaryDiffTag {
