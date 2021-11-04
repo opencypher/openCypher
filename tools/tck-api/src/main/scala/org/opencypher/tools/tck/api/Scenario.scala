@@ -42,7 +42,6 @@ import org.opencypher.tools.tck.values.CypherString
 import org.opencypher.tools.tck.values.CypherValue
 
 import java.nio.file.Path
-import scala.compat.Platform.EOL
 import scala.language.implicitConversions
 import scala.util.Failure
 import scala.util.Success
@@ -126,7 +125,7 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
 
                 if (!correctResult) {
                   val detail = if (sorted) "ordered rows" else "in any order of rows"
-                  Left(ScenarioFailedException(s"${EOL}Expected ($detail):$EOL$expected${EOL}Actual:$EOL$records"))
+                  Left(ScenarioFailedException(s"${java.lang.System.lineSeparator()}Expected ($detail):${java.lang.System.lineSeparator()}$expected${java.lang.System.lineSeparator()}Actual:${java.lang.System.lineSeparator()}$records"))
                 } else {
                   Right(ctx)
                 }
@@ -167,7 +166,7 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
             if (diff != expected)
               Left(
                 ScenarioFailedException(
-                  s"${EOL}Expected side effects:$EOL$expected${EOL}Actual side effects:$EOL$diff"))
+                  s"${java.lang.System.lineSeparator()}Expected side effects:${java.lang.System.lineSeparator()}$expected${java.lang.System.lineSeparator()}Actual side effects:${java.lang.System.lineSeparator()}$diff"))
             else Right(ctx)
 
           case (ctx, Parameters(ps, _)) =>
