@@ -29,6 +29,8 @@ package org.opencypher.tools.tck.api.groups
 
 import org.opencypher.tools.tck.api.Scenario
 
+import scala.collection.compat._
+
 case class TckTree(scenarios: Seq[Scenario]) extends GroupTreeBasics {
   lazy val groups: Set[Group] = scenarios.flatMap(scenario => {
     // category
@@ -90,7 +92,7 @@ case class TckTree(scenarios: Seq[Scenario]) extends GroupTreeBasics {
     def scenarioAndTheirItems(groups: Set[Group]) =
       groups.collect {
         case i:Item => (i.scenario, i)
-      }.groupBy(_._1).transform((_, s) => s.map(_._2))
+      }.groupMap(_._1)(_._2)
 
     // get scenarios with their set of items from the original groups
     val scenariosFromGroups = scenarioAndTheirItems(groups)
