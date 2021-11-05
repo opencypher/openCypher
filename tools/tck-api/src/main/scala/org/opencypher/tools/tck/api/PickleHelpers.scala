@@ -30,7 +30,7 @@ package org.opencypher.tools.tck.api
 import io.cucumber.core.gherkin.{DataTableArgument, DocStringArgument}
 import io.cucumber.plugin.event.StepArgument
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 trait PickleArgument
 
