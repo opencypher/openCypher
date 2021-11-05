@@ -33,6 +33,7 @@ import org.opencypher.tools.tck.api.groups.TckTree
 import org.opencypher.tools.tck.api.groups.Total
 import org.opencypher.tools.tck.inspection.diff.TckTreeDiff
 
+import scala.collection.compat._
 import scala.util.matching.Regex
 
 sealed trait TckCollection
@@ -70,7 +71,7 @@ case class DiffModel(beforePath: String, afterPath: String) {
   }
 
   val (scenarioId2Scenario, scenario2ScenarioId) = {
-    val scenarioList = (scenariosBefore union scenariosAfter).toList.toIndexedSeq
+    val scenarioList = (scenariosBefore concat scenariosAfter).toList.toIndexedSeq
     (scenarioList, scenarioList.zipWithIndex.map(p => (p._1, p._2)).toMap)
   }
 }
