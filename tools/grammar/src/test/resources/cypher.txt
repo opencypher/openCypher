@@ -32,12 +32,10 @@ RETURN r§
 MATCH ()-[r:ACTED_IN*  ..  ]-()
 RETURN r§
 RETURN -1§
-RETURN ----+-+-1§
-RETURN -   -    + 1 - +2§
+RETURN 1 - 1 + +2§
 RETURN 1-+2§
 RETURN -1.0§
-RETURN ----+-+-1.0§
-RETURN -   -    + 1 - +2.0§
+RETURN 3 + 1 - +2.0§
 RETURN 0xd34db33f§
 RETURN 0777§
 RETURN 1e10§

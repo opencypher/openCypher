@@ -240,8 +240,10 @@
   </production>
 
   <production name="UnaryAddOrSubtractExpression" rr:inline="true">
-    <repeat><alt>+ -</alt> &WS; </repeat>
-    <non-terminal ref="StringListNullOperatorExpression"/>
+    <alt>
+      <non-terminal ref="StringListNullOperatorExpression"/>
+      <seq><alt>+ -</alt> &WS; <non-terminal ref="StringListNullOperatorExpression"/></seq>
+    </alt>
   </production>
 
   <production name="StringListNullOperatorExpression" rr:inline="true">

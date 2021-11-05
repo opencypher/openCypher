@@ -25,3 +25,8 @@ RETURN count(label) AS numLabels§
 CALL db.labels() YIELD -
 WHERE label CONTAINS 'User' AND foo + bar = foo
 RETURN count(label) AS numLabels§
+RETURN +--+--++4§
+RETURN ----+-+-1§
+RETURN ----+-+-1.0§
+RETURN -   -    + 1 - +2§
+RETURN -   -    + 1 - +2.0§
