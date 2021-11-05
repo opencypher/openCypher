@@ -401,6 +401,13 @@
         <scala.binary.version>2.12</scala.binary.version>
         <scala.version>2.12.13</scala.version>
       </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.scala-lang.modules</groupId>
+          <artifactId>scala-collection-compat_2.12</artifactId>
+          <version>2.2.0</version>
+        </dependency>
+      </dependencies>
     </profile>
     <profile>
       <id>scala-213</id>
@@ -409,6 +416,13 @@
         <scala.binary.version>2.13</scala.binary.version>
         <scala.version>2.13.7</scala.version>
       </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.scala-lang.modules</groupId>
+          <artifactId>scala-collection-compat_2.13</artifactId>
+          <version>2.2.0</version>
+        </dependency>
+      </dependencies>
     </profile>
   </profiles>
 
