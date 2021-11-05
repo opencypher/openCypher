@@ -43,14 +43,16 @@ import scala.util.Success
 import scala.util.Try
 
 trait ValidateQuery extends AppendedClues with Matchers with DescribeStepHelper {
+  private val parsedCache = new scala.collection.concurrent.TrieMap[String, Try[Unit]]()
+  private val normalizedCached = new scala.collection.concurrent.TrieMap[String, Boolean]()
 
   def validateQuery(execute: Execute, tags: Set[String] = Set.empty[String]): Assertion = {
     val query = execute.query
-    val normalized = normalize(query)
+    val normalized = normalizedCached.getOrElseUpdate(query, normalize(query) == query)
+    val parsed = parsedCache.getOrElseUpdate(query, parse(query))
     execute.qt match {
       case ExecQuery =>
         withClue(s"the query of ${execute.description} has either a syntax conforming to the grammar or the scenario has the ${TCKTags.SKIP_GRAMMAR_CHECK} tag") {
-          val parsed = parse(query)
           val hasSkipGrammarCheckTag = tags contains TCKTags.SKIP_GRAMMAR_CHECK
           (parsed, hasSkipGrammarCheckTag) should matchPattern {
             case (Failure(_), true) =>
@@ -59,20 +61,20 @@ trait ValidateQuery extends AppendedClues with Matchers with DescribeStepHelper 
         }
 
         withClue(s"the query of ${execute.description} has either a syntax conforming to the style requirements or the scenario has the ${TCKTags.SKIP_STYLE_CHECK} tag; expected style: $normalized") {
-          (query, tags contains TCKTags.SKIP_STYLE_CHECK) should matchPattern {
-            case (x, false) if normalized == x =>
+          (normalized, tags contains TCKTags.SKIP_STYLE_CHECK) should matchPattern {
+            case (true, false) =>
             case (_, true) =>
           }
         }
       case InitQuery | ControlQuery =>
         withClue(s"the query of ${execute.description} has a syntax conforming to the grammar") {
-          parse(query) should matchPattern {
+          parsed should matchPattern {
             case Success(_) =>
           }
         }
 
         withClue(s"the query of ${execute.description} has a syntax conforming to the style requirements; expected style: $normalized") {
-          query shouldBe normalized
+          normalized shouldBe true
         }
       case SideEffectQuery => succeed
     }
