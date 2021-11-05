@@ -50,9 +50,8 @@ trait ValidateSideEffects extends AppendedClues with Matchers with DescribeStepH
     if (step.source.getArgument != null) {
       withClue(s"the expectation of ${step.description} has only numbers greater than zero in step parameter (or no parameter)") {
         // note that this tests that principally valid zero side effects are not listed in the scenario's gherkin code
-        val dataTable = step.source.getArgument.asInstanceOf[DataTableArgument].cells().asScala.map(_.asScala.toList).toList
-        val map = dataTable.map { r => r.head -> r.tail.head.toInt }.toMap
-        all(map.values) should be > 0
+        val numbers = step.source.getArgument.asInstanceOf[DataTableArgument].cells().asScala.map(_.get(1).toInt).toList
+        all(numbers) should be > 0
       }
     }
 
