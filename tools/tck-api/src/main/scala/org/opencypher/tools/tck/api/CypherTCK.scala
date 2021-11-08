@@ -150,7 +150,9 @@ object CypherTCK {
 
           val includedWithExtractedName = included.map(parsePickleName)
           val includedGroupedByKeywordAndName = includedWithExtractedName.groupBy(formPickleGroupingKey)
-          val includedGroupedAndSorted = includedGroupedByKeywordAndName.mapValues(_.sortBy(_.pickle.getLocation.getLine))
+          val includedGroupedAndSorted = includedGroupedByKeywordAndName.transform {
+            case (_, included) => included.sortBy(_.pickle.getLocation.getLine)
+          }
 
           val featureName = feature.getName
           val scenarios = includedGroupedAndSorted.flatMap {
