@@ -104,7 +104,7 @@ class CypherValueParser(val orderedLists: Boolean) {
 
   private def string[_: P]: P[CypherString] =
     P("'" ~/ (stringChunk | backslash | escape).rep.!.map { s =>
-      val escaped = s.replaceAllLiterally("\\'", "'").replaceAllLiterally("\\\\", "\\")
+      val escaped = s.replace("\\'", "'").replace("\\\\", "\\")
       CypherString(escaped)
     } ~ "'")
 
