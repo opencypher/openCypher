@@ -76,13 +76,6 @@
         </dependency>
 
         <dependency>
-            <!-- dependency of tck-api listed here for intellij to get the scala version right -->
-            <groupId>com.lihaoyi</groupId>
-            <artifactId>fastparse_${scala.binary.version}</artifactId>
-            <version>${dep.fastparse.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-core</artifactId>
         </dependency>
@@ -90,13 +83,11 @@
         <dependency>
             <groupId>com.lihaoyi</groupId>
             <artifactId>cask_${scala.binary.version}</artifactId>
-            <version>${dep.cask.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.lihaoyi</groupId>
             <artifactId>scalatags_${scala.binary.version}</artifactId>
-            <version>${dep.scalatags.version}</version>
         </dependency>
 
         <!-- Test deps -->
