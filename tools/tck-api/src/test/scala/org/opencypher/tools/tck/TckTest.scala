@@ -36,6 +36,8 @@ import org.scalatest.Assertions
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.compat.immutable._
+
 class TckTest extends AnyFunSpec with Assertions with Matchers {
 
   private val scenarios = CypherTCK.parseFeatures(getClass.getResource("Foo.feature").toURI) match {
@@ -65,12 +67,12 @@ class TckTest extends AnyFunSpec with Assertions with Matchers {
     }
   }
 
-  def causes(throwable: Throwable): Stream[Throwable] = {
-    val self = Stream(throwable)
+  def causes(throwable: Throwable): LazyList[Throwable] = {
+    val self = LazyList(throwable)
     Option(throwable.getCause) match {
       case None              => self
       case Some(`throwable`) => self
-      case Some(cause)       => self.append(causes(cause))
+      case Some(cause)       => self.lazyAppendedAll(causes(cause))
     }
   }
 
