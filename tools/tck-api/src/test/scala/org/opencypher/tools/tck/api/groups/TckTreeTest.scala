@@ -48,7 +48,7 @@ class TckTreeTest extends AnyFunSpec with GroupTest with Inspectors with Inside 
     }
   }
 
-  def invariants(tckTree: TckTree, scenarios: Seq[Scenario]) {
+  def invariants(tckTree: TckTree, scenarios: Seq[Scenario]): Unit = {
     it("should provide a map that contains every of original scenarios at least once") {
       tckTree.groupedScenarios.values.flatten.toSet should equal(scenarios.toSet)
     }
