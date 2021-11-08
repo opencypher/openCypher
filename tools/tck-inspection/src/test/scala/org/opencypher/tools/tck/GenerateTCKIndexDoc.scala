@@ -63,7 +63,7 @@ class GenerateTCKIndexDocTest extends AnyFunSuite {
       val generated = GenerateTCKIndexDoc.generate
       val checkedIn = {
         val src = Source.fromFile(tmpFile.toString)
-        val content = src.getLines.mkString(System.lineSeparator)
+        val content = src.getLines().mkString(System.lineSeparator)
         src.close
         content
       }
