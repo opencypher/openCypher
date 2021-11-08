@@ -28,79 +28,86 @@
 package org.opencypher.tools.tck.api
 
 import org.opencypher.tools.tck.constants.TCKTags
+import org.scalatest.Inspectors
 
 import java.net.URI
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
-class TCKApiTest extends AnyFunSuite with Matchers {
+class TCKApiTest extends AnyFunSuite with Matchers with Inspectors {
   private val fooUri: URI = getClass.getResource("..").toURI
   private val scenarios: Seq[Scenario] = CypherTCK.parseFeatures(fooUri).flatMap(_.scenarios)
 
   test("category of top-level scenarios") {
     val topLevelScenarios = scenarios.filter(_.featureName == "Foo")
-    topLevelScenarios.foreach(_.categories should equal(List[String]()))
+    forAll (topLevelScenarios) { _.categories should equal(List[String]()) }
   }
 
   test("category of some-level scenarios") {
     val someLevelScenarios = scenarios.filter(_.featureName == "Test")
-    someLevelScenarios.foreach(_.categories should equal(List("foo", "bar", "boo")))
+    forAll (someLevelScenarios) { _.categories should equal(List("foo", "bar", "boo")) }
   }
 
   test("example index of non-outline scenarios") {
     val nonOutlineScenarios = scenarios.filterNot(s => s.featureName == "Outline" && s.name.startsWith("Outline Test"))
-    all (nonOutlineScenarios) should have ('exampleIndex (None))
+    forAll (nonOutlineScenarios) { _.exampleIndex should be (None) }
   }
 
   test("example index of outline scenarios") {
     val outlineScenarios = scenarios.filter(s => s.featureName == "Outline" && s.name == "Outline Test")
     outlineScenarios.map(_.exampleIndex) should equal(Seq(Some(0), Some(1), Some(2)))
-    outlineScenarios.foreach(s => {
-      outlineScenarios.filter(_.exampleIndex.get > s.exampleIndex.get).foreach(s2 => {
-        s2.source.getLocation.getLine > s.source.getLocation.getLine
-      })
-    })
+    forAll (outlineScenarios) { s1 =>
+      forAll (outlineScenarios.filter(_.exampleIndex.get > s1.exampleIndex.get)) { s2 =>
+        s2.source.getLocation.getLine should be > s1.source.getLocation.getLine
+      }
+    }
   }
 
   test("example name of non-outline scenarios should have not an example name") {
     val nonOutlineScenarios = scenarios.filterNot(s => s.featureName == "Outline" && s.name.startsWith("Outline Test"))
-    nonOutlineScenarios.foreach(s => s.exampleName should be (None))
+    forAll (nonOutlineScenarios) { _.exampleName should be (None) }
   }
 
   test("example name of outline scenarios with named examples should have an example name") {
     val namedOutlineScenarios = scenarios.filter(s => s.featureName == "Outline" && s.name.startsWith("Outline Test") && s.tags.contains("@fullyNamed"))
-    namedOutlineScenarios.foreach(s => s.exampleName should not be None)
+    forAll (namedOutlineScenarios) { _.exampleName should not be None }
   }
 
   test("scenarios with an example name should have an example index") {
     val scenariosWithExampleName = scenarios.filter(_.exampleName.nonEmpty)
-    scenariosWithExampleName.foreach(s => s.exampleIndex should not be None)
+    forAll (scenariosWithExampleName) { _.exampleIndex should not be None }
   }
 
   test("numbered scenarios have a number") {
     val numberedScenarios = scenarios.filter(s => s.tags.contains("@numbered"))
-    numberedScenarios.foreach(s => s.number should not be None)
+    forAll (numberedScenarios) { _.number should not be None }
   }
 
   test("sourceFile of top-level scenarios") {
     val someLevelScenarios = scenarios.filter(_.featureName == "Foo")
-    someLevelScenarios.foreach(_.sourceFile should
-      equal(java.nio.file.Paths.get(fooUri).resolve("Foo.feature")))
+    forAll (someLevelScenarios) {
+      _.sourceFile should equal(java.nio.file.Paths.get(fooUri).resolve("Foo.feature"))
+    }
   }
 
   test("sourceFile of some-level scenarios") {
     val someLevelScenarios = scenarios.filter(_.featureName == "Test")
-    someLevelScenarios.foreach(_.sourceFile should
-      equal(java.nio.file.Paths.get(fooUri).resolve("foo/bar/boo/Test.feature")))
+    forAll (someLevelScenarios) {
+      _.sourceFile should equal(java.nio.file.Paths.get(fooUri).resolve("foo/bar/boo/Test.feature"))
+    }
   }
 
   test("scenarios with an ExpectError step have the TCKTags.NEGATIVE_TEST tag") {
     val negativeTestScenarios = scenarios.filter(_.name == "Fail")
-    negativeTestScenarios.foreach(_.tags should contain (TCKTags.NEGATIVE_TEST))
+    forAll (negativeTestScenarios) {
+      _.tags should contain(TCKTags.NEGATIVE_TEST)
+    }
   }
 
   test("scenarios with an error wildcards in an ExpectError step have the TCKTags.WILDCARD_ERROR_DETAILS tag") {
     val negativeTestScenarios = scenarios.filter(s => s.featureName == "Foo" && s.name.matches("(any time|any type|any detail)"))
-    negativeTestScenarios.foreach(_.tags should contain (TCKTags.WILDCARD_ERROR_DETAILS))
+    forAll (negativeTestScenarios) {
+      _.tags should contain(TCKTags.WILDCARD_ERROR_DETAILS)
+    }
   }
 }
