@@ -56,10 +56,10 @@ class CypherValueParser(val orderedLists: Boolean) {
 
   // Entry-level parsers:
 
-  private def cypherValueFromEntireInput[_: P]: P[CypherValue] =
+  private def cypherValueFromEntireInput[X: P]: P[CypherValue] =
     Start ~ cypherValue ~ End
 
-  private def cypherValue[_: P]: P[CypherValue] =
+  private def cypherValue[X: P]: P[CypherValue] =
     node |
       relationship |
       path |
@@ -72,22 +72,22 @@ class CypherValueParser(val orderedLists: Boolean) {
       nullValue |
       nanValue
 
-  private def node[_: P]: P[CypherNode] =
+  private def node[X: P]: P[CypherNode] =
     P("(" ~~/ label.rep ~/ map.? ~/ ")").map { case (labels, properties) =>
       CypherNode(labels.toSet, properties)
     }
 
-  private def relationship[_: P]: P[CypherRelationship] =
+  private def relationship[X: P]: P[CypherRelationship] =
     P("[" ~~ label ~/ map.? ~/ "]").map { case (relType, props) =>
       CypherRelationship(relType, props)
     }
 
-  private def path[_: P]: P[CypherPath] =
+  private def path[X: P]: P[CypherPath] =
     P("<" ~~/ node ~~/ pathLink.rep ~~/ ">").map { case (node, links) =>
       CypherPath(node, links.toList)
     }
 
-  private def list[_: P]: P[CypherList] =
+  private def list[X: P]: P[CypherList] =
     P("[" ~~ cypherValue.rep(sep = ",") ~~/ "]").map { seq =>
       if (orderedLists) {
         CypherOrderedList(seq.toList)
@@ -97,82 +97,82 @@ class CypherValueParser(val orderedLists: Boolean) {
       }
     }
 
-  private def map[_: P]: P[CypherPropertyMap] =
+  private def map[X: P]: P[CypherPropertyMap] =
     P("{" ~~/ keyValuePair.rep(sep = ",") ~~/ "}").map { keyValuePairs =>
       CypherPropertyMap(keyValuePairs.toMap)
     }
 
-  private def string[_: P]: P[CypherString] =
+  private def string[X: P]: P[CypherString] =
     P("'" ~/ (stringChunk | backslash | escape).rep.!.map { s =>
       val escaped = s.replace("\\'", "'").replace("\\\\", "\\")
       CypherString(escaped)
     } ~ "'")
 
-  private def float[_: P]: P[CypherFloat] =
+  private def float[X: P]: P[CypherFloat] =
     P("-".? ~ floatRepr).!.map { s =>
       CypherFloat(s.toDouble)
     }
 
-  private def integer[_: P]: P[CypherInteger] =
+  private def integer[X: P]: P[CypherInteger] =
     P("-".? ~~ digits).!.map { s =>
       CypherInteger(s.toLong)
     }
 
-  private def boolean[_: P]: P[CypherBoolean] =
+  private def boolean[X: P]: P[CypherBoolean] =
     P("true" | "false").!.map { s =>
       CypherBoolean(s.toBoolean)
     }
 
-  private def nullValue[_: P]: P[CypherNull.type] =
+  private def nullValue[X: P]: P[CypherNull.type] =
     P("null").!.map { _ =>
       CypherNull
     }
 
-  private def nanValue[_: P]: P[CypherNaN.type] =
+  private def nanValue[X: P]: P[CypherNaN.type] =
     P("NaN").!.map { _ =>
       CypherNaN
     }
 
   // Sub-parsers:
 
-  private def label[_: P]: P[String] = ":" ~~ symbolicName.!
+  private def label[X: P]: P[String] = ":" ~~ symbolicName.!
 
-  private def keyValuePair[_: P]: P[(String, CypherValue)] = symbolicName ~~ ":" ~ cypherValue
+  private def keyValuePair[X: P]: P[(String, CypherValue)] = symbolicName ~~ ":" ~ cypherValue
 
-  private def pathLink[_: P]: P[Connection] = (forwardRel ~~ node).map(forward) | (backRel ~~ node).map(backward)
-  private def forwardRel[_: P]: P[CypherRelationship] = "-" ~~ relationship ~~ "->"
-  private def backRel[_: P]: P[CypherRelationship] = "<-" ~~ relationship ~~ "-"
+  private def pathLink[X: P]: P[Connection] = (forwardRel ~~ node).map(forward) | (backRel ~~ node).map(backward)
+  private def forwardRel[X: P]: P[CypherRelationship] = "-" ~~ relationship ~~ "->"
+  private def backRel[X: P]: P[CypherRelationship] = "<-" ~~ relationship ~~ "-"
 
-  private def symbolicName[_: P]: P[String] = CharsWhileIn("a-zA-Z0-9$_").!
+  private def symbolicName[X: P]: P[String] = CharsWhileIn("a-zA-Z0-9$_").!
 
   /**
     * A 'simple' string chunk; without apostrophes or backslash (escape sequence)
     */
-  private def stringChunk[_: P]: P[Unit] = {
+  private def stringChunk[X: P]: P[Unit] = {
     CharsWhile(c => c != '\'' && c != '\\')
   }
   /**
     * We escape apostrophes inside strings using a backslash
     */
-  private def escape[_: P]: P[Unit] = {
+  private def escape[X: P]: P[Unit] = {
     P("\\") ~/ P("'")
   }
   /**
     * Since backslash is used
     */
-  private def backslash[_: P]: P[Unit] = {
+  private def backslash[X: P]: P[Unit] = {
     P("\\\\")
   }
 
-  private def digits[_: P]: P[Unit] = CharsWhileIn("0-9")
-  private def floatRepr[_: P]: P[Unit] =
+  private def digits[X: P]: P[Unit] = CharsWhileIn("0-9")
+  private def floatRepr[X: P]: P[Unit] =
     (digits ~~ "." ~~ digits ~~ exponent.?) |
       ("." ~~ digits ~~ exponent.?) |
       (digits ~~ exponent)
-  private def exponent[_: P]: P[Unit] = IgnoreCase("e") ~~ "-".? ~~ digits
+  private def exponent[X: P]: P[Unit] = IgnoreCase("e") ~~ "-".? ~~ digits
 
-  private def newline[_: P]: P[Unit] = "\n" | "\r\n" | "\r" | "\f"
-  private def invisible[_: P]: P[Unit] = " " | "\t" | newline
+  private def newline[X: P]: P[Unit] = "\n" | "\r\n" | "\r" | "\f"
+  private def invisible[X: P]: P[Unit] = " " | "\t" | newline
 
   implicit val whitespace: P[_] => P[Unit] = { implicit ctx: ParsingRun[_] => invisible.rep }
 }
