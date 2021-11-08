@@ -76,7 +76,11 @@
     <dependency>
       <groupId>com.lihaoyi</groupId>
       <artifactId>fastparse_${scala.binary.version}</artifactId>
-      <version>${dep.fastparse.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.scala-lang.modules</groupId>
+      <artifactId>scala-collection-compat_${scala.binary.version}</artifactId>
     </dependency>
 
     <dependency>
