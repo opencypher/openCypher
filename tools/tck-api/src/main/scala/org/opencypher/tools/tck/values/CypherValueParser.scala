@@ -51,6 +51,7 @@ class CypherValueParser(val orderedLists: Boolean) {
               |
               |${extra.trace().msg}""".stripMargin
         throw CypherValueParseException(msg, expected)
+      case _ => throw new RuntimeException("Unexpected parser output")
     }
   }
 
