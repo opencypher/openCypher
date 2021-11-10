@@ -29,7 +29,6 @@
   <properties>
     <dep.antlr4.version>4.7.2</dep.antlr4.version>
     <dep.batik.version>1.13</dep.batik.version>
-    <!--dep.cask.version>0.2.9</dep.cask.version-->
     <dep.scalatags.version>0.10.0</dep.scalatags.version>
     <dep.cucumber.version>5.7.0</dep.cucumber.version>
     <dep.fastparse.version>2.3.3</dep.fastparse.version>
