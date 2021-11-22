@@ -76,11 +76,13 @@
     <dependency>
       <groupId>com.lihaoyi</groupId>
       <artifactId>fastparse_${scala.binary.version}</artifactId>
+      <version>${dep.fastparse.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.scala-lang.modules</groupId>
       <artifactId>scala-collection-compat_${scala.binary.version}</artifactId>
+      <version>${dep.scala.compat.version}</version>
     </dependency>
 
     <dependency>
@@ -97,8 +99,15 @@
     </dependency>
 
     <dependency>
-      <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_${scala.binary.version}</artifactId>
+        <groupId>org.scalatest</groupId>
+        <artifactId>scalatest_${scala.binary.version}</artifactId>
+        <version>${dep.scalatest.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+          </exclusion>
+        </exclusions>
       <scope>test</scope>
     </dependency>
 

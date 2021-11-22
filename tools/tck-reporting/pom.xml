@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>tck-reporting</artifactId>
+    <artifactId>tck-reporting_${scala.binary.version}</artifactId>
     <name>openCypher TCK Reporting</name>
     <url>http://opencypher.org</url>
     <description>Generate cucumber.json and use Cucumber plugins with openCypher TCK API</description>
@@ -27,6 +27,15 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0</url>
         </license>
     </licenses>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.spurint.maven.plugins</groupId>
+                <artifactId>scala-cross-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>

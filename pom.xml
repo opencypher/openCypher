@@ -115,13 +115,7 @@
         <scope>import</scope>
       </dependency>
 
-      <dependency>
-        <groupId>io.cucumber</groupId>
-        <artifactId>cucumber-scala_${scala.binary.version}</artifactId>
-        <version>${dep.cucumber.version}</version>
-      </dependency>
-
-      <dependency>
+       <dependency>
         <groupId>io.cucumber</groupId>
         <artifactId>cucumber-junit</artifactId>
         <version>${dep.cucumber.version}</version>
@@ -152,19 +146,6 @@
         <artifactId>xmlgraphics-commons</artifactId>
         <version>${dep.xmlgraphics-commons.version}</version>
         <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.scalatest</groupId>
-        <artifactId>scalatest_${scala.binary.version}</artifactId>
-        <version>${dep.scalatest.version}</version>
-        <!--scope>test</scope--> <!-- tck-api uses scalatest in compile scope-->
-        <exclusions>
-          <exclusion>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
 
       <dependency>
@@ -203,30 +184,6 @@
         <artifactId>hamcrest</artifactId>
         <version>${dep.hamcrest.version}</version>
         <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>com.lihaoyi</groupId>
-        <artifactId>fastparse_${scala.binary.version}</artifactId>
-        <version>${dep.fastparse.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.lihaoyi</groupId>
-        <artifactId>cask_${scala.binary.version}</artifactId>
-        <version>${dep.cask.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.lihaoyi</groupId>
-        <artifactId>scalatags_${scala.binary.version}</artifactId>
-        <version>${dep.scalatags.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.scala-lang.modules</groupId>
-        <artifactId>scala-collection-compat_${scala.binary.version}</artifactId>
-        <version>${dep.scala.compat.version}</version>
       </dependency>
 
     </dependencies>
@@ -420,7 +377,6 @@
     <profile>
       <id>scala-212</id>
       <properties>
-        <dep.cask.version>0.2.9</dep.cask.version>
         <scala.binary.version>2.12</scala.binary.version>
         <scala.version>2.12.13</scala.version>
       </properties>
@@ -428,7 +384,6 @@
     <profile>
       <id>scala-213</id>
       <properties>
-        <dep.cask.version>0.7.12</dep.cask.version>
         <scala.binary.version>2.13</scala.binary.version>
         <scala.version>2.13.7</scala.version>
       </properties>
