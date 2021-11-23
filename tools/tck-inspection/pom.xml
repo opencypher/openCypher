@@ -83,11 +83,13 @@
         <dependency>
             <groupId>com.lihaoyi</groupId>
             <artifactId>cask_${scala.binary.version}</artifactId>
+            <version>${dep.cask.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.lihaoyi</groupId>
             <artifactId>scalatags_${scala.binary.version}</artifactId>
+            <version>${dep.scalatags.version}</version>
         </dependency>
 
         <!-- Test deps -->
@@ -101,6 +103,13 @@
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.binary.version}</artifactId>
+            <version>${dep.scalatest.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-library</artifactId>
+                </exclusion>
+            </exclusions>
             <scope>test</scope>
         </dependency>
 
@@ -111,5 +120,20 @@
         </dependency>
 
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>scala-212</id>
+            <properties>
+                <dep.cask.version>0.2.9</dep.cask.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>scala-213</id>
+            <properties>
+                <dep.cask.version>0.7.12</dep.cask.version>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
