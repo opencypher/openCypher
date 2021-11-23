@@ -45,13 +45,6 @@
         </dependency>
 
         <dependency>
-            <!-- dependency of tck-api listed here for intellij to get the scala version right -->
-            <groupId>com.lihaoyi</groupId>
-            <artifactId>fastparse_${scala.binary.version}</artifactId>
-            <version>${dep.fastparse.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
