@@ -76,8 +76,21 @@
         </dependency>
 
         <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-collection-compat_${scala.binary.version}</artifactId>
+            <version>${dep.scala.compat.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <!-- For intellij to get runtime dependencies right -->
+            <groupId>com.lihaoyi</groupId>
+            <artifactId>fastparse_${scala.binary.version}</artifactId>
+            <version>${dep.fastparse.version}</version>
         </dependency>
 
         <dependency>
