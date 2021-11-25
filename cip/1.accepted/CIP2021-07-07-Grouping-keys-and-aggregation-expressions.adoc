@@ -31,7 +31,7 @@ The simple rewrite semantics lays the foundation for the rewrite semantics that 
 
 We briefly demonstrate the <<Limits of the simple rewrite semantics>> to motivate the proposed semantics.
 
-Further, we use following driving table in most of the CIP's examples:
+Further, we use the following driving table in most of the CIP's examples:
 
 .Example driving table
 |===
@@ -100,13 +100,13 @@ pass:q[γ<sub>_K_, _A_</sub>(_D_)] where
 
 * _K_ is a (possibly empty) set of pairs (_k_, _al_) where
 ** _k_ is a variable -- called a _grouping key_ -- in the driving table _D_,
-** _al_ is an _alias_ that different from all other aliases _x_ with (·, _x_) ∈ _K_., and
+** _al_ is an _alias_ that is different from all other aliases _x_ with (·, _x_) ∈ _K_., and
 * _A_ is a non-empty set of triple (_agg_, _x_, _al_) where
 ** _agg_ is an aggregation function and
 ** _x_ is a variable in the driving table _D_
 ** _al_ is an alias that is different from all other aliases _x_ with (·, ·, _x_) ∈ _A_ and _x_ with (·, _x_) ∈ _K_.
 
-Assuming _K_ = {(_k_~1~, _ka_~1~), (_k_~2~, _ka_~1~), ..., (_k~N~_, _ka~N~_)} and _A_ = {(_agg_~1~, _x_~1~, _al_~1~), (_agg_~2~, _x_~2~, _al_~2~), ..., (_agg~M~_, _x~M~_, _al~M~_)}, the Cypher equivalent of pass:q[γ<sub>_K_, _A_</sub>(_D_)] is
+Assuming _K_ = {(_k_~1~, _ka_~1~), (_k_~2~, _ka_~2~), ..., (_k~N~_, _ka~N~_)} and _A_ = {(_agg_~1~, _x_~1~, _al_~1~), (_agg_~2~, _x_~2~, _al_~2~), ..., (_agg~M~_, _x~M~_, _al~M~_)}, the Cypher equivalent of pass:q[γ<sub>_K_, _A_</sub>(_D_)] is
 
 [source, cypher, subs="quotes"]
 ----
@@ -149,7 +149,7 @@ groups the driving table by `a` and computes the sum of all `c` as `sumC` for ea
 Cypher's WITH and RETURN clause are syntactically more flexible than the two baseline semantics.
 In particular, they allow mixing aggregation and projection rather freely.
 
-Specifically, the WITH and the RETURN clause denoted the parameters for projection (_P_) and aggregation (_K_ and _A_) with a single nonempty duplicate-free list _L_ of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ProjectionItem[<ProjectionItem>]s `_ex_ AS _al_` where
+Specifically, the WITH and the RETURN clause denote the parameters for projection (_P_) and aggregation (_K_ and _A_) with a single nonempty duplicate-free list _L_ of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ProjectionItem[<ProjectionItem>]s `_ex_ AS _al_` where
 
 * _ex_ is an expression that is allowed to contain aggregation functions and
 * _al_ is an alias.
@@ -243,7 +243,7 @@ Cypher, however, also allows aggregation functions to appear as sub-expression o
 
 Such expressions can still be sensible and useful.
 
-.aggregation functions a sub-expressions
+.Aggregation functions as sub-expressions
 ====
 The RETURN clause
 
@@ -300,28 +300,35 @@ This proposal does not propose any net-new syntax.
 
 The proposed grouping and aggregation semantics is defined as a rewrite to the baseline semantics (similar to <<Simple rewrite semantics>> discussed above).
 The proposed semantics does not cover all syntactically possible queries and hence requires a syntax restriction to prohibit queries that are not covered.
-We discuss the <<Rewrite>> and the <<Syntax restriction>> in the follow two subsections.
+We discuss the <<Rewrite>> and the <<Syntax restriction>> in the following two subsections.
 We simplify this discussion by ignoring row ordering and pagination as well as omitted aliases.
 Subsequently, we give a separate and brief consideration of how to these aspects fit into the proposal, cf. <<Row ordering and pagination>> and <<Omitted aliases>>, respectively.
 
 ==== Rewrite
 
-For an expression _ex_, let _AGG_(_ex_) be the set of (sub-)expressions _aggex_ of the form _agg_(_preEx_).
+For an expression _ex_, let _AGG_(_ex_) be the set of aggregating (sub-)expressions, i.e. (sub-)expressions _aggex_ of the form _agg_(_preEx_).
 
-For a <ProjectionItem> _p_ = `_postEx_ AS _al_`, let _AGG_(_p_) be the set of (sub-)expressions _aggex_ of the form _agg_(_preEx_), i.e. _AGG_(_p_) = _AGG_(_postEx_).
+For a <ProjectionItem> _p_ = `_postEx_ AS _al_`, let _AGG_(_p_) be the set of aggregating (sub-)expressions, i.e. _AGG_(_p_) = _AGG_(_postEx_).
 
-The <ProjectionItem>s in _L_ is split according to _AGG_(_p_) in two cases
+.Set of aggregating (sub-)expressions
+====
+_AGG_( `(a + SUM(b*c) - MIN(c)) * 2 AS foo` ) +
+ = _AGG_( `(a + SUM(b*c) - MIN(c)) * 2` ) +
+ = { `SUM(b*c)`, `MIN(c)` }
+====
 
-* <ProjectionItem>s _p_ in _L_ is an aggregate if _AGG_(_p_) is non-empty
-* <ProjectionItem>s _p_ in _L_ is a grouping key if _AGG_(_p_) is empty
+The <ProjectionItem>s in _L_ are split according to _AGG_(_p_) in two cases
+
+* A <ProjectionItem> _p_ in _L_ is an aggregate if _AGG_(_p_) is non-empty
+* A <ProjectionItem> _p_ in _L_ is a grouping key if _AGG_(_p_) is empty
 
 For a <ProjectionItem> _p_ = `_ex_ AS _al_`,
 
-* If _AGG_(_p_) = ∅
+* If _AGG_(_p_) = ∅ (i.e. _p_ is a grouping key)
 ** Let `_PRE_PROJ_(_p_)` be `_ex_ AS _al_`,
 ** Let `_AGGR_(_p_)` be `_al_ AS _al_`, and
 ** Let `_POST_PROJ_(_p_)` be `_al_ AS _al_`
-* If _AGG_(_p_) = {`_agg_~1~(_preEx_~1~)`, `_agg_~2~(_preEx_~2~)`, ..., `_agg~N~_(_preEx~N~_)`} with _N_ > 0
+* If _AGG_(_p_) = {`_agg_~1~(_preEx_~1~)`, `_agg_~2~(_preEx_~2~)`, ..., `_agg~N~_(_preEx~N~_)`} with _N_ > 0 (i.e. _p_ is an aggregate)
 ** Let `_PRE_PROJ_(_p_)` be `_preEx_~1~ AS _al_+++_+++1, _preEx_~2~ AS _al_+++_+++2, ..., _preEx~N~_ AS _al_+++_+++_N_`,
 ** Let `_AGGR_(_p_)` be `_agg_~1~(_al_+++_+++1) AS _al_+++_+++1, _agg_~2~(_al_+++_+++2) AS _al_+++_+++2, ..., _agg~N~_(_al_+++_+++_N_) AS _al_+++_+++_N_`, and
 ** Let `_POST_PROJ_(_p_)` be `_postEx_ AS _al_` where _postEx_ is _ex_ with each `_agg~i~_(_preEx~i~_)` in _AGG_(_p_) being replaced by `_al_+++_+++_i_` for 1 ≤ _i_ ≤ _N_.
@@ -391,7 +398,7 @@ RETURN x AS x, sumBC_1 AS sumBC
 ==== Syntax restriction
 
 The rewrite does not cover all syntactically possible queries.
-Specifically, any <ProjectItems> containing
+Specifically, any <ProjectItem> containing
 
 * an aggregation function and
 * a sub-expression that is
@@ -425,8 +432,19 @@ In other words, the proposed rewrite produces an invalid query for <<Q5>>.
 ====
 
 To prevent such invalid rewrites, this proposal includes a syntax restriction to be imposed on RETURN and WITH clauses.
+The definition of the syntax restriction happens in three steps:
 
-Given a list of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ..., _p~N~_}, let _GROUPING_KEYS_(_L_) be the set of all expressions _ex_ for which there is a <ProjectionItem>s _p_ = `_ex_ AS _al_` in _L_ where _AGG_(_p_) is empty.
+. Definition of grouping keys that are recognized as constant sub-expressions
+. Definition of constant sub-expressions
+. Definition of the syntax restriction
+
+Given a list of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ..., _p~N~_}, let _RECOGNIZED_GROUPING_KEYS_(_L_) be the set of all expressions _ex_
+
+* For which there is a <ProjectionItem>s _p_ = `_ex_ AS _al_` in _L_ where _AGG_(_p_) is empty and
+* Which are either
+** A variable
+** Element property access on a variable
+** Static map access on a variable
 
 .Grouping keys
 ====
@@ -435,21 +453,48 @@ For the RETURN clause
 .[[Q6]]Q6
 [source, cypher]
 ----
-RETURN b-a AS x, c AS c, c + SUM(b) AS sumBC
+RETURN b-a AS x, c AS c, d.prop AS d, c + SUM(b) AS sum
 ----
 
-_GROUPING_KEYS_(_L_) is {`b-a`, `x`, `c`}.
+_RECOGNIZED_GROUPING_KEYS_( `b-a AS x, c AS c, d.prop AS d, c + SUM(b) AS sum` ) +
+ = { `c`, `d.prop` }.
 
+Note that `b-a` is grouping key since _AGG_(`b-a`) is empty. However, it is not a grouping key that needs to be recognized as such for propose of identifying constant sub-expressions. Hence, `b-a` is not in _RECOGNIZED_GROUPING_KEYS_( `b-a AS x, c AS c, d.prop AS d, c + SUM(b) AS sum` ).
 ====
 
 For an expression _ex_ and a projection list _L_, let _CONSTANT_(_ex_, _L_) hold
 
 * If _ex_ is either
-** A aggregation function, i.e. of the form `_agg_(_subEx_)`,
-** A grouping key, i.e. _ex_ ∈ _GROUPING_KEYS_(_L_),
-** A constant, or
+** A constant,
 ** A parameter,
-* or if _ex_ comprises of sub-expressions, it only comprises sub-expressions _subEx_ for which _CONSTANT_(_subEx_, _L_) holds.
+** An aggregation function, i.e. of the form `_agg_(_subEx_)`, or
+** A grouping key, i.e. _ex_ ∈ _RECOGNIZED_GROUPING_KEYS_(_L_),
+* or if _ex_ comprises sub-expressions, it only comprises sub-expressions _subEx_ for which _CONSTANT_(_subEx_, _L_) holds.
+
+.Constant expressions
+====
+For the RETURN clause
+
+.[[Q7]]Q7
+[source, cypher]
+----
+RETURN b-a AS x, c AS c, d.prop AS d, (2*c + SUM(b) + d.prop) / $pi AS val
+----
+
+_CONSTANT_( `(2*c + SUM(b) + d.prop) / $pi`, _L_) = { +
+  `2`, // a constant +
+  `c`, // a grouping key +
+  `2*c`, // only comprises constant sub-expressions +
+  `SUM(b)`, // an aggregation function +
+  `d.prop`, // a grouping key +
+  `(2*c + SUM(b) + d.prop)`, // only comprises constant sub-expressions +
+  `$pi`, // a parameter +
+  `(2*c + SUM(b) + d.prop) / $pi` // only comprises constant sub-expressions +
+}.
+
+====
+
+Based on the notion of constant expression, the syntax restriction is defined as:
 
 [IMPORTANT]
 .Syntax restriction
@@ -473,8 +518,8 @@ _CONSTANT_(`b`, _L_) does not hold.
 
 The WITH and the RETURN clause allow to
 
-* order the rows of the result table with the ORDER BY sub-clause and
-* paginate the result table with the SKIP and LIMIT sub-clauses.
+* Order the rows of the result table with the ORDER BY sub-clause and
+* Paginate the result table with the SKIP and LIMIT sub-clauses.
 
 Assuming the baseline semantics includes ORDER BY, SKIP, and LIMIT capabilities, the grouping and aggregation semantics extends as follows:
 
@@ -504,18 +549,16 @@ Since these expressions are effectively evaluate after all _POST_PROJ_(_p~i~_) e
 
 However, <SortItem>s can refer to aliases introduced by _POST_PROJ_(_p~i~_).
 
-Given a list of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ..., _p~N~_}, let _GROUPING_KEYS_AND_ALIASES_(_L_) be the set of
-
-* all expressions _ex_ for which there is a <ProjectionItem>s _p_ = `_ex_ AS _al_` in _L_ where _AGG_(_p_) is empty and
-* all aliases _al_ for which there is a <ProjectionItem>s _p_ = `_ex_ AS _al_` in _L_.
+Given a list of <ProjectionItem>s _L_ = {_p_~1~, _p_~2~, ..., _p~N~_}, let _RECOGNIZED_ALIASES_(_L_) be the set of all aliases _al_ for which there is a <ProjectionItem>s _p_ = `_ex_ AS _al_` in _L_.
 
 For an expression _ex_ and a projection list _L_, let _AVAILABLE_TO_ORDER_(_ex_, _L_) hold
 
 * If _ex_ is either
-** A grouping key or an alias, i.e. _ex_ ∈ _GROUPING_KEYS_AND_ALIASES_(_L_),
-** A constant, or
+** A constant,
 ** A parameter,
-* or if _ex_ comprises of sub-expressions, it only comprises sub-expressions _subEx_ for which _AVAILABLE_TO_ORDER_(_subEx_, _L_) holds.
+** A grouping key, i.e. _ex_ ∈ _RECOGNIZED_GROUPING_KEYS_(_L_), or
+** An alias, i.e. _ex_ ∈ _RECOGNIZED_ALIASES_(_L_),
+* or if _ex_ comprises sub-expressions, it only comprises sub-expressions _subEx_ for which _AVAILABLE_TO_ORDER_(_subEx_, _L_) holds.
 
 [IMPORTANT]
 ====
@@ -556,35 +599,37 @@ For each example we list why it is valid.
 * The sub-expression `1` is a constant.
 
 . `MATCH (a) RETURN a.x, a.x + count(a.x)`
-* The sub-expression `a.x` is a grouping key.
+* The sub-expression `a.x` is a recognized grouping key.
 
 . `MATCH (a) WITH a.x AS ax RETURN ax, ax + count(ax)`
-* The sub-expression `ax` is a grouping key.
+* The sub-expression `ax` is a recognized grouping key.
 
 . `MATCH (a)-[]->(b) RETURN a, a.x + count(b.y)`
-* The sub-expression `a` is a grouping key.
+* The sub-expression `a` is a recognized grouping key.
 
 . `MATCH (a)-[]->(b) RETURN a, size(keys(a)) + count(b.y)`
-* The sub-expression `a` is a grouping key.
+* The sub-expression `a` is a recognized grouping key.
 
 . `MATCH (x) RETURN x.a, x.b, x.c, x.a + x.b + count(x) + x.c`
-* The sub-expressions `x.a`, `x.b`, and `x.c` are grouping keys.
-
-. `MATCH (a) RETURN a.x + 1, a.x + 1 + count(a.x)`
-* The sub-expression `a.x + 1` is a grouping key.
+* The sub-expressions `x.a`, `x.b`, and `x.c` are recognized grouping keys.
 
 . `MATCH (a) WITH a.x + 1 as ax RETURN ax, ax - 1 + count(ax)`
-* The sub-expression `ax` is a grouping key.
+* The sub-expression `ax` is a recognized grouping key.
 * The sub-expression `1` is a constant.
 
 . `WITH {a:1, b:2} AS map RETURN map.a, map.a + count(map.b)`
-* The sub-expression `map.a` is a grouping key.
-
-. `MATCH (x) RETURN x.a + x.b + x.c, x.a + x.b + x.c + count(x)`
-* The sub-expression `x.a + x.b + x.c` is a grouping key.
+* The sub-expression `map.a` is a recognized grouping key.
 
 . `MATCH (x) WITH x.a + x.b + x.c AS sum RETURN sum, sum + count(*) + sum`
-* The sub-expression `sum` is a grouping key.
+* The sub-expression `sum` is a recognized grouping key.
+
+. `MATCH (x)-[]->(y) WITH x.a AS a, collect(y) AS b RETURN a, b, a.x[2] + sum(a.c) + -(b[3].x)*3`
+* The sub-expressions `a` and `b` are a recognized grouping key.
+* The sub-expressions `2` and `3` are a constant.
+
+. `MATCH (a)-[b]->(c) WITH x.a AS a, collect(y) AS b RETURN a, b.y, a.x + sum(c.z) + b.y*3`
+* The sub-expressions `a` and `b.y` are a recognized grouping key.
+* The sub-expression `3` is a constant.
 
 ==== Invalid aggregations
 
@@ -612,11 +657,20 @@ For each example we list why it is invalid.
 . `MATCH (a) RETURN a.x * a.x, a.x + collect(a.x)`
 * The sub-expression `a.x` is not a grouping key.
 
+. `MATCH (a) RETURN a.x + 1, a.x + 1 + count(a.x)`
+* The sub-expression `a.x + 1` is not a recognized grouping key.
+
+. `MATCH (x) RETURN x.a + x.b + x.c, x.a + x.b + x.c + count(x)`
+* The sub-expression `x.a + x.b + x.c` is not a recognized grouping key.
+
 . `MATCH (a)-[]->(b) RETURN a AS x, x.x + count(b.y)`
 * The sub-expression `x` is not a grouping key; it is the alias of a grouping key, which are not visible to <ProjectionItem>s within the same clause.
 
 . `MATCH (a)-[]->(b) RETURN a AS x, size(keys(x)) + count(b.y)`
 * The sub-expression `x` is not a grouping key; it is the alias of a grouping key, which are not visible to <ProjectionItem>s within the same clause.
+
+. `MATCH (a)-[c]->(b) WITH a, c, {dim: properties(b)} AS b RETURN a, b.dim.x, sum(c.p) + b.dim.x`
+* The sub-expression `b.dim.x` is not a recognized grouping key.
 
 === Valid orderings
 
@@ -624,7 +678,7 @@ The following clauses exhibit valid row orderings.
 For each example we list why it is valid.
 
 . `RETURN 1 + count(\*) AS x ORDER BY x`
-* The expression `x` is an alias.
+* The expression `x` is a recognized alias.
 
 . `RETURN 1, 1 + count(*) ORDER BY 2`
 * The expression `1` is a constant.
@@ -633,45 +687,39 @@ For each example we list why it is valid.
 * The expression `$x` is a parameter.
 
 . `MATCH (a) RETURN a.x, 1 + count(a.x) ORDER BY a.x % 2`
-* The sub-expression `a.x` is a grouping key.
+* The sub-expression `a.x` is a recognized grouping key.
 * The sub-expression `2` is a constant.
 
 . `MATCH (a) WITH a.x AS ax RETURN ax, ax + count(ax) ORDER BY ax`
-* The expression `ax` is a grouping key.
+* The expression `ax` is a recognized grouping key.
 
 . `MATCH (a)-[]->(b) RETURN a, a.x + count(b.y) ORDER BY a.y`
-* The sub-expression `a` is a grouping key.
+* The sub-expression `a` is a recognized grouping key.
 
 . `MATCH (a)-[]->(b) RETURN a, count(b.y) ORDER BY size(keys(a))`
-* The sub-expression `a` is a grouping key.
+* The sub-expression `a` is a recognized grouping key.
 
 . `MATCH (x) RETURN x.a, x.b, x.c, x.a + x.b + count(x) + x.c ORDER BY x.a + x.c`
-* The sub-expressions `x.a` and `x.c` are grouping keys.
+* The sub-expressions `x.a` and `x.c` are recognized grouping keys.
 
-. `MATCH (a) RETURN a.x + 1, a.x + 1 + count(a.x) ORDER BY a.x + 1`
-* The sub-expression `a.x + 1` is a grouping key.
-
-. `MATCH (a) WITH a.x + 1 as ax RETURN ax, ax - 1 + count(ax)`
-* The sub-expression `ax` is a grouping key.
+. `MATCH (a) WITH a.x + 1 as ax RETURN ax, ax - 1 + count(ax) ORDER BY ax - 1`
+* The sub-expression `ax` is a recognized grouping key.
 * The sub-expression `1` is a constant.
 
 . `MATCH (a) WITH a.x + 1 as ax RETURN ax, ax - 1 + count(ax) ORDER BY ax + 2`
-* The sub-expression `ax` is a grouping key.
+* The sub-expression `ax` is a recognized grouping key.
 * The sub-expression `2` is a constant.
 
 . `MATCH (a) WITH a.x + 1 as ax RETURN ax AS x, ax - 1 + count(ax) ORDER BY x + 2`
-* The sub-expression `x` is an alias.
+* The sub-expression `x` is an recognized alias.
 * The sub-expression `2` is a constant.
 
 . `MATCH (a) WITH a.x + 1 as ax RETURN ax AS x, ax - 1 + count(ax) AS y ORDER BY x + 2 - y`
-* The sub-expressions `x` and `y` are aliases.
+* The sub-expressions `x` and `y` are recognized aliases.
 * The sub-expression `2` is a constant.
 
 . `WITH {a:1, b:2} AS map RETURN map.a, map.a + count(map.b) ORDER BY map.a`
-* The expression `map.a` is a grouping key.
-
-. `MATCH (x) RETURN x.a + x.b + x.c, x.a + x.b + x.c + count(x) ORDER BY x.a + x.b + x.c`
-* The expression `x.a + x.b + x.c` is a grouping key.
+* The expression `map.a` is a recognized grouping key.
 
 === Invalid orderings
 
@@ -680,6 +728,9 @@ For each example we list why it is invalid.
 
 . `RETURN 1 + count(\*) ORDER BY 1 + count(*)`
 * The expression `1 + count(*)` is not a grouping key.
+
+. `MATCH (a) RETURN a.x + 1, a.x + 1 + count(a.x) ORDER BY a.x + 1`
+* The sub-expression `a.x + 1` is a recognized grouping key.
 
 . `MATCH (a) RETURN a.x + 1, a.x + 1 + count(a.x) ORDER BY a.x + 2`
 * The expression `a.x + 2` is not a grouping key.
@@ -692,9 +743,12 @@ For each example we list why it is invalid.
 * The expression `x.a + x.c` is not a grouping key.
 * The sub-expressions `x.a` and `x.c` and `x` are not grouping keys, either.
 
+. `MATCH (x) RETURN x.a + x.b + x.c, x.a + x.b + x.c + count(x) ORDER BY x.a + x.b + x.c`
+* The expression `x.a + x.b + x.c` is not a recognized grouping key.
+
 == What others do
 
-All other major query language explicitly delineate grouping key expressions.
+All other major query languages explicitly delineate grouping key expressions.
 
 For instance, SQL does so by requiring users to list all grouping key expressions in the GROUP BY clause.
 If the GROUP BY clause is present in a query, the projection in the SELECT clause have to fulfill a similar syntax restriction as defined by this CIP.
@@ -731,7 +785,7 @@ To this effect, the proposed rules of the syntax restriction are a heuristic, wh
 
 The RETURN clause
 
-.[[Q7]]Q7
+.[[Q8]]Q8
 [source, cypher]
 ----
 RETURN a AS a, (b - b) + SUM(c) AS foo
