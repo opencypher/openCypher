@@ -31,7 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.BitSet;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.LexerInterpreter;
 import org.antlr.v4.runtime.Parser;
@@ -126,7 +126,7 @@ public class Antlr4TestUtils
 
     private static void parseWithListeners( Grammar grammar, String query, ANTLRErrorListener lexerListener, ANTLRErrorListener parserListener )
     {
-        LexerInterpreter lexer = grammar.createLexerInterpreter( new ANTLRInputStream( query ) );
+        LexerInterpreter lexer = grammar.createLexerInterpreter( CharStreams.fromString( query ) );
         ParserInterpreter parser = grammar.createParserInterpreter( new CommonTokenStream( lexer ) );
         lexer.removeErrorListeners();
         parser.removeErrorListeners();
