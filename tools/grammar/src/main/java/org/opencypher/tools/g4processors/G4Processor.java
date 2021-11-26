@@ -32,8 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.antlr.v4.runtime.ANTLRFileStream;
-import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -54,7 +54,7 @@ public class G4Processor
     {
         try
             {
-            return processAntlrStream(new ANTLRInputStream(inStream));
+            return processAntlrStream( CharStreams.fromStream(inStream));
         } catch (IOException e)
         {
             throw new RuntimeException("Failed to read or convert java.io.InputStream", e);
@@ -66,7 +66,7 @@ public class G4Processor
         try
         {
             // when back on antlr 4.7.1, use CharStreams.fromFileName(scriptFile)
-            return processAntlrStream(new ANTLRFileStream(fileName));
+            return processAntlrStream(CharStreams.fromFileName(fileName));
         } catch (IOException e)
         {
             throw new RuntimeException("Failed to find or read " + fileName, e);
