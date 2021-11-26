@@ -43,8 +43,8 @@ import scala.util.Success
 import scala.util.Try
 
 trait ValidateQuery extends AppendedClues with Matchers with DescribeStepHelper {
-  private val parsedCache = new scala.collection.concurrent.TrieMap[String, Try[Unit]]()
-  private val normalizedCached = new scala.collection.concurrent.TrieMap[String, Boolean]()
+  private val parsedCache = new scala.collection.mutable.HashMap[String, Try[Unit]]()
+  private val normalizedCached = new scala.collection.mutable.HashMap[String, Boolean]()
 
   def validateQuery(execute: Execute, tags: Set[String] = Set.empty[String]): Assertion = {
     val query = execute.query
