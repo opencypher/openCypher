@@ -35,16 +35,12 @@ import org.opencypher.tools.tck.api.groups.Tag
 import org.opencypher.tools.tck.api.groups.TckTree
 import org.opencypher.tools.tck.api.groups.Total
 import org.scalatest.OptionValues
-import org.scalatest.ParallelTestExecution
-import org.scalatest.funspec.AsyncFunSpec
+import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 
-import scala.concurrent.Future
-
-trait ScenarioFormatChecker extends AsyncFunSpec with Matchers with OptionValues with ValidateScenario with ParallelTestExecution {
+trait ScenarioFormatChecker extends AnyFunSpec with Matchers with OptionValues with ValidateScenario {
 
   def create(scenarios: Seq[Scenario]): Unit = {
-
     implicit val tck: TckTree = TckTree(scenarios)
 
     def spawnTests(currentGroup: Group): Unit = {
@@ -58,9 +54,7 @@ trait ScenarioFormatChecker extends AsyncFunSpec with Matchers with OptionValues
           }
         case i: Item =>
           it(i.description) {
-            Future {
-              validateScenario(i.scenario)
-            }
+            validateScenario(i.scenario)
           }
         case _ => ()
       }
