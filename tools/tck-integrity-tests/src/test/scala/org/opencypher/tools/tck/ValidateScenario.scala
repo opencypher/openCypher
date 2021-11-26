@@ -37,7 +37,7 @@ import org.scalatest.matchers.should.Matchers
 
 trait ValidateScenario extends AppendedClues with Matchers with OptionValues with ValidateSteps {
 
-  private val scenarioNamesByFeature = scala.collection.concurrent.TrieMap[(List[String], String), List[(String, Option[Int])]]()
+  private val scenarioNamesByFeature = scala.collection.mutable.HashMap[(List[String], String), List[(String, Option[Int])]]()
 
   def validateScenario(scenario: Scenario): Assertion = {
     withClue("scenario has a number, greater than zero") {
