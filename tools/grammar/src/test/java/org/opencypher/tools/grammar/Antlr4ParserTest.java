@@ -31,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ import java.util.Scanner;
 import java.util.stream.Stream;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.LexerInterpreter;
 import org.antlr.v4.runtime.Parser;
@@ -101,7 +102,7 @@ public class Antlr4ParserTest
         org.antlr.v4.tool.Grammar g = tool.createGrammar( ast );
         tool.process( g, false );
 
-        LexerInterpreter lexer = g.createLexerInterpreter( new ANTLRInputStream( query ) );
+        LexerInterpreter lexer = g.createLexerInterpreter( CharStreams.fromString( query ) );
         CommonTokenStream tokenStream = new CommonTokenStream( lexer );
     }
 
@@ -112,7 +113,8 @@ public class Antlr4ParserTest
         // be CP1252. This will cause the scanner to split at SectionSign §, but leave the escape
         // octet (C2) in the extracted string (appearing as Â).
 //        Scanner scanner = new Scanner( new FileReader( Paths.get( resource.toURI() ).toFile() ) );
-        Scanner scanner = new Scanner( Paths.get( resource.toURI() ).toFile() , "UTF-8" );
+        assert resource != null;
+        Scanner scanner = new Scanner( Paths.get( resource.toURI() ).toFile(), StandardCharsets.UTF_8.name() );
         scanner.useDelimiter( "§\n(//.*\n)*" );
         ArrayList<String> queries = new ArrayList<>();
             while ( scanner.hasNext() )
