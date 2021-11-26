@@ -28,7 +28,7 @@
 package org.opencypher.demo.grammar;
 
 import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.InterpreterRuleContext;
 import org.antlr.v4.runtime.LexerInterpreter;
@@ -78,7 +78,7 @@ public class AntlrParserDemo
     public AntlrParserDemo( boolean useTreeListener, boolean createGrammarFromXML, String query, String indentStep)
     {
         org.antlr.v4.tool.Grammar grammar = createGrammarFromXML ? createGrammarFromXML( "/cypher.xml" ) : readGrammarFromG4( "/Cypher.g4" );
-        LexerInterpreter lexer = grammar.createLexerInterpreter( new ANTLRInputStream( query ) );
+        LexerInterpreter lexer = grammar.createLexerInterpreter( CharStreams.fromString( query ) );
         ParserInterpreter parser = grammar.createParserInterpreter( new CommonTokenStream( lexer ) );
         lexer.removeErrorListeners();
         parser.removeErrorListeners();
