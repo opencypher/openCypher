@@ -53,6 +53,7 @@
 
   <modules>
     <module>grammar</module>
+    <module>grammar-demo</module>
     <module>tck-api</module>
     <module>tck-compatibility-tests</module>
     <module>tck-inspection</module>
