@@ -82,6 +82,22 @@
         </dependency>
 
         <dependency>
+            <!-- For intellij to get runtime dependencies right -->
+            <groupId>com.lihaoyi</groupId>
+            <artifactId>fastparse_${scala.binary.version}</artifactId>
+            <version>${dep.fastparse.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <!-- For intellij to get runtime dependencies right -->
+            <groupId>org.opencypher</groupId>
+            <artifactId>tck</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.opencypher</groupId>
             <artifactId>grammar</artifactId>
             <version>${project.version}</version>
