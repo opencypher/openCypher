@@ -309,10 +309,7 @@
       <non-terminal ref="PatternComprehension"/>
       <non-terminal ref="LegacyListExpression"/>
       <non-terminal ref="Reduce"/>
-      <seq>ALL     &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
-      <seq>ANY     &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
-      <seq>NONE    &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
-      <seq>SINGLE  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <non-terminal ref="Quantifier"/>
       <non-terminal ref="ShortestPathPattern"/>
       <non-terminal ref="PatternPredicate"/>
       <non-terminal ref="ParenthesizedExpression"/>
@@ -359,17 +356,26 @@
     </alt>
   </production>
 
+  <production name="Quantifier">
+    <alt>
+      <seq>ALL     &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <seq>ANY     &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <seq>NONE    &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <seq>SINGLE  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+    </alt>
+  </production>
+
+  <production name="FilterExpression">
+    <non-terminal ref="IdInColl"/>
+    <opt>&WS;<non-terminal ref="Where"/></opt>
+  </production>
+
   <production name="PatternPredicate">
     <non-terminal ref="RelationshipsPattern"/>
   </production>
 
   <production name="ParenthesizedExpression" rr:inline="true">
     ( &WS; &expr; &WS; )
-  </production>
-
-  <production name="FilterExpression">
-    <non-terminal ref="IdInColl"/>
-    <opt>&WS;<non-terminal ref="Where"/></opt>
   </production>
 
   <production name="LegacyListExpression" rr:inline="true" oc:legacy="true">
