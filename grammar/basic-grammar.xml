@@ -193,6 +193,11 @@
 
   <!-- / EXPRESSIONS \ -->
 
+  <production name="PropertyExpression">
+    <non-terminal ref="Atom"/>
+    <repeat min="1">&WS;<non-terminal ref="PropertyLookup"/></repeat>
+  </production>
+
   <production name="Expression">
     <non-terminal ref="OrExpression"/>
   </production>
@@ -220,6 +225,17 @@
   <production name="ComparisonExpression" rr:inline="true">
     <non-terminal ref="AddOrSubtractExpression"/>
     <repeat>&WS;<non-terminal ref="PartialComparisonExpression"/></repeat>
+  </production>
+
+  <production name="PartialComparisonExpression" rr:inline="true">
+    <alt>
+      <seq> <literal value="="/>        &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
+      <seq> <literal value="&lt;&gt;"/> &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
+      <seq> <literal value="&lt;"/>     &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
+      <seq> <literal value="&gt;"/>     &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
+      <seq> <literal value="&lt;="/>    &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
+      <seq> <literal value="&gt;="/>    &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
+    </alt>
   </production>
 
   <production name="AddOrSubtractExpression" rr:inline="true">
@@ -298,6 +314,13 @@
     <opt>&WS; <non-terminal ref="NodeLabels"/></opt>
   </production>
 
+  <production name="PropertyLookup">
+    . &WS;
+    <alt>
+      <non-terminal ref="PropertyKeyName"/>
+    </alt>
+  </production>
+
   <production name="Atom">
     <alt>
       <non-terminal ref="Literal"/>
@@ -319,41 +342,44 @@
     </alt>
   </production>
 
-  <production name="Literal">
+  <production name="CaseExpression">
     <alt>
-      <non-terminal ref="NumberLiteral"/>
-      <non-terminal ref="StringLiteral"/>
-      <non-terminal ref="BooleanLiteral"/>
-      NULL
-      <non-terminal ref="MapLiteral"/>
-      <non-terminal ref="ListLiteral"/>
+      <seq>CASE <repeat min="1">&WS; <non-terminal ref="CaseAlternative"/></repeat></seq>
+      <seq>CASE &WS; &expr; <repeat min="1">&WS; <non-terminal ref="CaseAlternative"/></repeat></seq>
     </alt>
+    <opt>&WS; ELSE &WS; &expr;</opt>
+    &WS; END
   </production>
 
-  <production name="BooleanLiteral">
-    <alt>
-      TRUE
-      FALSE
-    </alt>
+  <production name="CaseAlternative" rr:inline="true">
+    WHEN &WS; &expr; &WS; THEN &WS; &expr;
   </production>
 
-  <production name="ListLiteral">
-    [ &WS; <opt> &expr; &WS; <repeat> , &WS; &expr; &WS; </repeat> </opt> ]
+  <production name="ListComprehension">
+    [ &WS;
+    <non-terminal ref="FilterExpression"/>
+    <opt>&WS; | &WS; &expr;</opt>
+    &WS; ]
+  </production>
+
+  <production name="PatternComprehension">
+    [ &WS;
+    <opt><non-terminal ref="Variable"/> &WS; = &WS;</opt>
+    <non-terminal ref="RelationshipsPattern"/> &WS;
+    <opt><non-terminal ref="Where"/> &WS;</opt>
+    | &WS; <non-terminal ref="Expression"/> &WS;
+    ]
+  </production>
+
+  <production name="LegacyListExpression" rr:inline="true" oc:legacy="true">
+    <alt>
+      <seq>FILTER  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
+      <seq>EXTRACT &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; <opt>&WS; | &expr;</opt> ) </seq>
+    </alt>
   </production>
 
   <production name="Reduce" rr:inline="true" oc:legacy="true">
     REDUCE &WS; ( &var; = &expr; , <non-terminal ref="IdInColl"/> | &expr; )
-  </production>
-
-  <production name="PartialComparisonExpression" rr:inline="true">
-    <alt>
-      <seq> <literal value="="/>        &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
-      <seq> <literal value="&lt;&gt;"/> &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
-      <seq> <literal value="&lt;"/>     &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
-      <seq> <literal value="&gt;"/>     &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
-      <seq> <literal value="&lt;="/>    &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
-      <seq> <literal value="&gt;="/>    &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
-    </alt>
   </production>
 
   <production name="Quantifier">
@@ -376,13 +402,6 @@
 
   <production name="ParenthesizedExpression" rr:inline="true">
     ( &WS; &expr; &WS; )
-  </production>
-
-  <production name="LegacyListExpression" rr:inline="true" oc:legacy="true">
-    <alt>
-      <seq>FILTER  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
-      <seq>EXTRACT &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; <opt>&WS; | &expr;</opt> ) </seq>
-    </alt>
   </production>
 
   <production name="IdInColl" rr:inline="true">
@@ -440,77 +459,25 @@
     </repeat>
   </production>
 
-  <production name="ListComprehension">
-    [ &WS;
-      <non-terminal ref="FilterExpression"/>
-      <opt>&WS; | &WS; &expr;</opt>
-    &WS; ]
-  </production>
-
-  <production name="PatternComprehension">
-    [ &WS;
-      <opt><non-terminal ref="Variable"/> &WS; = &WS;</opt>
-      <non-terminal ref="RelationshipsPattern"/> &WS;
-      <opt><non-terminal ref="Where"/> &WS;</opt>
-      | &WS; <non-terminal ref="Expression"/> &WS;
-    ]
-  </production>
-
-  <production name="PropertyLookup">
-    . &WS;
-    <alt>
-      <non-terminal ref="PropertyKeyName"/>
-    </alt>
-  </production>
-
-  <production name="CaseExpression">
-    <alt>
-      <seq>CASE <repeat min="1">&WS; <non-terminal ref="CaseAlternative"/></repeat></seq>
-      <seq>CASE &WS; &expr; <repeat min="1">&WS; <non-terminal ref="CaseAlternative"/></repeat></seq>
-    </alt>
-    <opt>&WS; ELSE &WS; &expr;</opt>
-    &WS; END
-  </production>
-
-  <production name="CaseAlternative" rr:inline="true">
-    WHEN &WS; &expr; &WS; THEN &WS; &expr;
-  </production>
-
   <production name="Variable" rr:inline="true">
     <non-terminal ref="SymbolicName" rr:title="variable"/>
   </production>
 
-  <production name="StringLiteral" oc:lexer="true">
+  <production name="Literal">
     <alt>
-      <seq>" <repeat><alt>
-        <character><except literal="\"/><except literal='"'/></character>
-        <non-terminal ref="EscapedChar"/>
-      </alt></repeat> "</seq>
-
-      <seq>' <repeat><alt>
-        <character><except literal="\"/><except literal="'"/></character>
-        <non-terminal ref="EscapedChar"/>
-      </alt></repeat> '</seq>
+      <non-terminal ref="BooleanLiteral"/>
+      NULL
+      <non-terminal ref="NumberLiteral"/>
+      <non-terminal ref="StringLiteral"/>
+      <non-terminal ref="ListLiteral"/>
+      <non-terminal ref="MapLiteral"/>
     </alt>
   </production>
 
-  <production name="EscapedChar" oc:lexer="true">
-    \
+  <production name="BooleanLiteral">
     <alt>
-      \  <!-- Encodes a backslash -->
-      '  <!-- Encodes a single quote -->
-      "  <!-- Encodes a double quote -->
-      b  <!-- Encodes backspace -->
-      f  <!-- Encodes page break of "form feed" -->
-      n  <!-- Encodes newline -->
-      r  <!-- Encodes Carriage return -->
-      t  <!-- Encodes a Tab character -->
-      <seq>  <!-- UTF16 -->
-        u <repeat min="4" max="4"><non-terminal ref="HexDigit"/></repeat>
-      </seq>
-      <seq>  <!-- UTF32 -->
-        U <repeat min="8" max="8"><non-terminal ref="HexDigit"/></repeat>
-      </seq>
+      TRUE
+      FALSE
     </alt>
   </production>
 
@@ -519,41 +486,6 @@
       <non-terminal ref="DoubleLiteral"/>
       <non-terminal ref="IntegerLiteral"/>
     </alt>
-  </production>
-
-  <production name="MapLiteral">
-    { &WS;
-    <opt>
-      <non-terminal ref="PropertyKeyName"/> &WS; : &WS; &expr; &WS;
-      <repeat>, &WS;<non-terminal ref="PropertyKeyName"/> &WS; : &WS; &expr; &WS;</repeat>
-    </opt>
-    }
-  </production>
-
-  <production name="LegacyParameter" oc:legacy="true">
-    { &WS;
-    <alt>
-      <non-terminal ref="SymbolicName"/>
-      <non-terminal ref="DecimalInteger"/>
-    </alt>
-    &WS; }
-  </production>
-
-  <production name="Parameter">
-    $
-    <alt>
-      <non-terminal ref="SymbolicName"/>
-      <non-terminal ref="DecimalInteger"/>
-    </alt>
-  </production>
-
-  <production name="PropertyExpression">
-    <non-terminal ref="Atom"/>
-    <repeat min="1">&WS;<non-terminal ref="PropertyLookup"/></repeat>
-  </production>
-
-  <production name="PropertyKeyName" rr:inline="true">
-    <non-terminal ref="SchemaName" rr:title="property key"/>
   </production>
 
   <production name="IntegerLiteral">
@@ -651,6 +583,74 @@
     <repeat><non-terminal ref="Digit"/></repeat>
     .
     <repeat min="1"><non-terminal ref="Digit"/></repeat>
+  </production>
+
+  <production name="StringLiteral" oc:lexer="true">
+    <alt>
+      <seq>" <repeat><alt>
+        <character><except literal="\"/><except literal='"'/></character>
+        <non-terminal ref="EscapedChar"/>
+      </alt></repeat> "</seq>
+
+      <seq>' <repeat><alt>
+        <character><except literal="\"/><except literal="'"/></character>
+        <non-terminal ref="EscapedChar"/>
+      </alt></repeat> '</seq>
+    </alt>
+  </production>
+
+  <production name="EscapedChar" oc:lexer="true">
+    \
+    <alt>
+      \  <!-- Encodes a backslash -->
+      '  <!-- Encodes a single quote -->
+      "  <!-- Encodes a double quote -->
+      b  <!-- Encodes backspace -->
+      f  <!-- Encodes page break of "form feed" -->
+      n  <!-- Encodes newline -->
+      r  <!-- Encodes Carriage return -->
+      t  <!-- Encodes a Tab character -->
+      <seq>  <!-- UTF16 -->
+        u <repeat min="4" max="4"><non-terminal ref="HexDigit"/></repeat>
+      </seq>
+      <seq>  <!-- UTF32 -->
+        U <repeat min="8" max="8"><non-terminal ref="HexDigit"/></repeat>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="ListLiteral">
+    [ &WS; <opt> &expr; &WS; <repeat> , &WS; &expr; &WS; </repeat> </opt> ]
+  </production>
+
+  <production name="MapLiteral">
+    { &WS;
+    <opt>
+      <non-terminal ref="PropertyKeyName"/> &WS; : &WS; &expr; &WS;
+      <repeat>, &WS;<non-terminal ref="PropertyKeyName"/> &WS; : &WS; &expr; &WS;</repeat>
+    </opt>
+    }
+  </production>
+
+  <production name="PropertyKeyName" rr:inline="true">
+    <non-terminal ref="SchemaName" rr:title="property key"/>
+  </production>
+
+  <production name="LegacyParameter" oc:legacy="true">
+    { &WS;
+    <alt>
+      <non-terminal ref="SymbolicName"/>
+      <non-terminal ref="DecimalInteger"/>
+    </alt>
+    &WS; }
+  </production>
+
+  <production name="Parameter">
+    $
+    <alt>
+      <non-terminal ref="SymbolicName"/>
+      <non-terminal ref="DecimalInteger"/>
+    </alt>
   </production>
 
   <!-- \ EXPRESSIONS / -->
