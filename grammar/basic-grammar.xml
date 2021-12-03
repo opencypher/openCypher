@@ -89,6 +89,11 @@
     </alt>
   </production>
 
+  <production name="RelationshipsPattern" rr:inline="true">
+    <non-terminal ref="NodePattern"/>
+    <repeat min="1">&WS;<non-terminal ref="PatternElementChain"/></repeat>
+  </production>
+
   <production name="NodePattern">
     ( &WS;
     <opt>&var; &WS;</opt>
@@ -309,7 +314,7 @@
       <seq>NONE    &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
       <seq>SINGLE  &WS; ( &WS; <non-terminal ref="FilterExpression"/> &WS; ) </seq>
       <non-terminal ref="ShortestPathPattern"/>
-      <non-terminal ref="RelationshipsPattern"/>
+      <non-terminal ref="PatternPredicate"/>
       <non-terminal ref="ParenthesizedExpression"/>
       <non-terminal ref="FunctionInvocation"/>
       <non-terminal ref="ExistentialSubquery"/>
@@ -354,13 +359,12 @@
     </alt>
   </production>
 
-  <production name="ParenthesizedExpression" rr:inline="true">
-    ( &WS; &expr; &WS; )
+  <production name="PatternPredicate">
+    <non-terminal ref="RelationshipsPattern"/>
   </production>
 
-  <production name="RelationshipsPattern" rr:inline="true">
-    <non-terminal ref="NodePattern"/>
-    <repeat min="1">&WS;<non-terminal ref="PatternElementChain"/></repeat>
+  <production name="ParenthesizedExpression" rr:inline="true">
+    ( &WS; &expr; &WS; )
   </production>
 
   <production name="FilterExpression">
