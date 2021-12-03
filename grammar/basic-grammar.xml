@@ -434,7 +434,7 @@
     </repeat>
   </production>
 
-  <production name="ListComprehension" rr:inline="true">
+  <production name="ListComprehension">
     [ &WS;
       <non-terminal ref="FilterExpression"/>
       <opt>&WS; | &WS; &expr;</opt>
