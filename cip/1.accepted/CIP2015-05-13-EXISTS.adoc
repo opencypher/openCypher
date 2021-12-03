@@ -37,7 +37,8 @@ Both developments and the issues around https://raw.githack.com/openCypher/openC
 
 This CIP proposes:
 
-* Restricting https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] to predicate contexts and boolean evaluation, when used in expression contexts
+* Refer to a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] appearing as an https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Atom[<Atom>] as a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternPredicate[<PatternPredicate>] for better distinguishing it from a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] appearing in a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternComprehension[<PatternComprehension>]
+* Restricting https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternPredicate[<PatternPredicate>] to predicate contexts and boolean evaluation, when used in expression contexts
 * Adding two forms of existential subqueries denoted with `EXISTS { ... }`:
 ** Full existential subquery based on a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RegularQuery[<RegularQuery>]
 ** Simple existential subquery based on a single https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Pattern[<Pattern>] and an optional https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Where[<Where>] clause
@@ -52,8 +53,11 @@ This CIP proposes:
 ----
 <Atom> ::=
     ...
-  | <RelationshipsPattern>
+  | <PatternPredicate>
   | <ExistentialSubquery>
+
+<PatternPredicate> ::=
+  <RelationshipsPattern>
 
 <ExistentialSubquery> ::=
     <SimpleExistentialSubquery>
@@ -73,13 +77,13 @@ Note that the openCypher grammar does not list <SimpleExistentialSubquery>, <Sim
 
 ==== Syntax Rules
 
-* A https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] shall only be contained in sites whose expected type is exactly boolean. To give the most frequent examples, a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] can be simply contained in
+* A https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternPredicate[<PatternPredicate>] shall only be contained in sites whose expected type is exactly boolean. To give the most frequent examples, a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternPredicate[<PatternPredicate>] can be simply contained in
 ** <Where>, used in
 *** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Match[<Match>]
 *** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=With[<With>]
 *** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=YieldItems[<YieldItems>]
 *** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=FilterExpression[<FilterExpression>], used in
-**** `ALL`, `ANY`, `NONE`, `SINGLE`
+**** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Quantifiers[<Quantifiers>]
 **** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ListComprehension[<ListComprehension>]
 *** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternComprehension[<PatternComprehension>]
 ** https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=CaseAlternative[<CaseAlternative>]
@@ -89,7 +93,7 @@ Note that the openCypher grammar does not list <SimpleExistentialSubquery>, <Sim
 
 === Semantics
 
-https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>], <SimpleExistentialSubquery>, and <FullExistentialSubquery> accomplish the same task: checking whether the result of a subquery is not empty.
+https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternPredicate[<PatternPredicate>], <SimpleExistentialSubquery>, and <FullExistentialSubquery> accomplish the same task: checking whether the result of a subquery is not empty.
 
 All three forms,
 
@@ -98,20 +102,20 @@ All three forms,
 * Are side effect-free, i.e. <FullExistentialSubquery> shall not contain any <UpdatingClause> or other sources of side effects
 * Can contain variables and parameters from the outer queries
 
-https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] shall not introduce new variables.
+https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternPredicate[<PatternPredicate>] shall not introduce new variables.
 
 Both forms of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ExistentialSubquery[<ExistentialSubquery>] (<SimpleExistentialSubquery> and <FullExistentialSubquery>) are allowed to introduce new variables.
 These variables necessarily shall have a name different from the names of all variables available from the outer queries.
 Any variables introduced in an <ExistentialSubquery> are not available outside the subquery context.
 
-https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] and <SimpleExistentialSubquery> are syntactically simpler and semantically less powerful forms of <FullExistentialSubquery>.
-The semantics of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] and <SimpleExistentialSubquery> can be defined as syntax transformations to <FullExistentialSubquery>.
+https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternPredicate[<PatternPredicate>] and <SimpleExistentialSubquery> are syntactically simpler and semantically less powerful forms of <FullExistentialSubquery>.
+The semantics of https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternPredicate[<PatternPredicate>] and <SimpleExistentialSubquery> can be defined as syntax transformations to <FullExistentialSubquery>.
 
 ==== <RelationshipsPattern>
 
-A https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[<RelationshipsPattern>] _RP_ is effectively replaced by the expression
+A https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PatternPredicate[<PatternPredicate>] _PP_ is effectively replaced by the expression
 
-`EXISTS { MATCH _RP_ RETURN 1 }`
+`EXISTS { MATCH _PP_ RETURN 1 }`
 
 ==== <SimpleExistentialSubquery>
 
