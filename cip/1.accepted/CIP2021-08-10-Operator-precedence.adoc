@@ -115,8 +115,8 @@ The following <<precedenceLevels,table>> lists the precedence levels in descendi
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Reduce[Reduce operator]
 * quantifiers
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RelationshipsPattern[Pattern predicates]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[Function invocations]
-* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[Existential subqueries]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=FunctionInvocation[Function invocations]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ExistentialSubquery[Existential subqueries]
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[Parenthesized expression]
 
 |11
