@@ -177,7 +177,7 @@ The higher the level number the higher the precedence.
 * Contains predicate (and right-hand operand)
 * Regular expression predicate
 
-|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ListOperatorExpression[List predicates] (left-hand operand)
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ListPredicateExpression[List predicates] (left-hand operand)
 |
 
 * List element containment predicate (and right-hand operand)
