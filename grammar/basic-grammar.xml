@@ -272,7 +272,7 @@
     <repeat><alt>
       <non-terminal ref="StringPredicateExpression"/>
       <non-terminal ref="ListOperatorExpression"/>
-      <non-terminal ref="NullOperatorExpression"/>
+      <non-terminal ref="NullPredicateExpression"/>
     </alt></repeat>
   </production>
 
@@ -295,7 +295,7 @@
     <non-terminal ref="PropertyOrLabelsExpression"/>
   </production>
 
-  <production name="NullOperatorExpression" rr:inline="true">
+  <production name="NullPredicateExpression" rr:inline="true">
     <alt>
       <seq> &SP; IS &SP; NULL </seq>
       <seq> &SP; IS &SP; NOT &SP; NULL </seq>
