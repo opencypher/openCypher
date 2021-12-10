@@ -270,7 +270,7 @@
   <production name="StringListNullOperatorExpression" rr:inline="true">
     <non-terminal ref="PropertyOrLabelsExpression"/>
     <repeat><alt>
-      <non-terminal ref="StringOperatorExpression"/>
+      <non-terminal ref="StringPredicateExpression"/>
       <non-terminal ref="ListOperatorExpression"/>
       <non-terminal ref="NullOperatorExpression"/>
     </alt></repeat>
@@ -284,7 +284,7 @@
     </alt>
   </production>
 
-  <production name="StringOperatorExpression" rr:inline="true">
+  <production name="StringPredicateExpression" rr:inline="true">
     <alt>
       <non-terminal ref="RegularExpression"/>
       <seq>&SP; STARTS &SP; WITH</seq>

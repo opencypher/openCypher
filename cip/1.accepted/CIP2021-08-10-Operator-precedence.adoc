@@ -169,7 +169,7 @@ The higher the level number the higher the precedence.
 
 .4+|Predicates
 .3+|6
-|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=StringOperatorExpression[String predicates] (left-hand operand)
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=StringPredicateExpression[String predicates] (left-hand operand)
 |
 
 * Prefix predicate (and right-hand operand)
