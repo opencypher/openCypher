@@ -8,7 +8,7 @@ Links to existing productions
 
 * link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=RegularQuery[RegularQuery]
 * link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Atom[Atom]
-* link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NullOperatorExpression[NullOperatorExpression]
+* link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NullPredicateExpression[NullPredicateExpression]
 * link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=UpdatingClause[UpdatingClause]
 * link:https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=CypherOption[CypherOption]
 
