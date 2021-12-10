@@ -223,19 +223,54 @@
   </production>
 
   <production name="ComparisonExpression" rr:inline="true">
-    <non-terminal ref="AddOrSubtractExpression"/>
+    <non-terminal ref="StringListNullPredicateExpression"/>
     <repeat>&WS;<non-terminal ref="PartialComparisonExpression"/></repeat>
   </production>
 
   <production name="PartialComparisonExpression" rr:inline="true">
     <alt>
-      <seq> <literal value="="/>        &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
-      <seq> <literal value="&lt;&gt;"/> &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
-      <seq> <literal value="&lt;"/>     &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
-      <seq> <literal value="&gt;"/>     &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
-      <seq> <literal value="&lt;="/>    &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
-      <seq> <literal value="&gt;="/>    &WS; <non-terminal ref="AddOrSubtractExpression"/> </seq>
+      <seq> <literal value="="/>        &WS; <non-terminal ref="StringListNullPredicateExpression"/> </seq>
+      <seq> <literal value="&lt;&gt;"/> &WS; <non-terminal ref="StringListNullPredicateExpression"/> </seq>
+      <seq> <literal value="&lt;"/>     &WS; <non-terminal ref="StringListNullPredicateExpression"/> </seq>
+      <seq> <literal value="&gt;"/>     &WS; <non-terminal ref="StringListNullPredicateExpression"/> </seq>
+      <seq> <literal value="&lt;="/>    &WS; <non-terminal ref="StringListNullPredicateExpression"/> </seq>
+      <seq> <literal value="&gt;="/>    &WS; <non-terminal ref="StringListNullPredicateExpression"/> </seq>
     </alt>
+  </production>
+
+  <production name="StringListNullPredicateExpression" rr:inline="true">
+    <non-terminal ref="AddOrSubtractExpression"/>
+    <repeat><alt>
+      <non-terminal ref="StringPredicateExpression"/>
+      <non-terminal ref="ListPredicateExpression"/>
+      <non-terminal ref="NullPredicateExpression"/>
+    </alt></repeat>
+  </production>
+
+  <production name="StringPredicateExpression" rr:inline="true">
+    <alt>
+      <non-terminal ref="RegularExpression"/>
+      <seq>&SP; STARTS &SP; WITH</seq>
+      <seq>&SP; ENDS &SP; WITH</seq>
+      <seq>&SP; CONTAINS</seq>
+    </alt>
+    &WS;
+    <non-terminal ref="AddOrSubtractExpression"/>
+  </production>
+
+  <production name="ListPredicateExpression" rr:inline="true">
+    &SP; IN &WS; <non-terminal ref="AddOrSubtractExpression"/>
+  </production>
+
+  <production name="NullPredicateExpression" rr:inline="true">
+    <alt>
+      <seq> &SP; IS &SP; NULL </seq>
+      <seq> &SP; IS &SP; NOT &SP; NULL </seq>
+    </alt>
+  </production>
+
+  <production name="RegularExpression" oc:legacy="true">
+    &WS; =~
   </production>
 
   <production name="AddOrSubtractExpression" rr:inline="true">
@@ -262,48 +297,17 @@
 
   <production name="UnaryAddOrSubtractExpression" rr:inline="true">
     <alt>
-      <non-terminal ref="StringListNullOperatorExpression"/>
-      <seq><alt>+ -</alt> &WS; <non-terminal ref="StringListNullOperatorExpression"/></seq>
-    </alt>
-  </production>
-
-  <production name="StringListNullOperatorExpression" rr:inline="true">
-    <non-terminal ref="PropertyOrLabelsExpression"/>
-    <repeat><alt>
-      <non-terminal ref="StringPredicateExpression"/>
       <non-terminal ref="ListOperatorExpression"/>
-      <non-terminal ref="NullPredicateExpression"/>
-    </alt></repeat>
+      <seq><alt>+ -</alt> &WS; <non-terminal ref="ListOperatorExpression"/></seq>
+    </alt>
   </production>
 
   <production name="ListOperatorExpression" rr:inline="true">
-    <alt>
-      <seq>&SP; IN &WS; <non-terminal ref="PropertyOrLabelsExpression"/> </seq>
+    <non-terminal ref="PropertyOrLabelsExpression"/>
+    <repeat><alt>
       <seq>&WS; [ &expr; ] </seq>
       <seq>&WS; [ <opt>&expr;</opt> .. <opt>&expr;</opt> ] </seq>
-    </alt>
-  </production>
-
-  <production name="StringPredicateExpression" rr:inline="true">
-    <alt>
-      <non-terminal ref="RegularExpression"/>
-      <seq>&SP; STARTS &SP; WITH</seq>
-      <seq>&SP; ENDS &SP; WITH</seq>
-      <seq>&SP; CONTAINS</seq>
-    </alt>
-    &WS;
-    <non-terminal ref="PropertyOrLabelsExpression"/>
-  </production>
-
-  <production name="NullPredicateExpression" rr:inline="true">
-    <alt>
-      <seq> &SP; IS &SP; NULL </seq>
-      <seq> &SP; IS &SP; NOT &SP; NULL </seq>
-    </alt>
-  </production>
-
-  <production name="RegularExpression" oc:legacy="true">
-    &WS; =~
+    </alt></repeat>
   </production>
 
   <production name="PropertyOrLabelsExpression" rr:inline="true">
