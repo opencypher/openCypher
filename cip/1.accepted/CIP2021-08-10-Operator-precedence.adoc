@@ -99,10 +99,14 @@ The following <<precedenceLevels,table>> lists the precedence levels in descendi
 The higher the level number the higher the precedence.
 
 .[[precedenceLevels]]Precedence levels
-[cols="<.<1a,<.<4a,<.<4a", options="header"]
+[cols="<.<4a,<.<1a,<.<5a,<.<5a", options="header"]
 |===
-|Level         |Group         |Operators
+|Level Group
+|Level
+|Operator Group
+|Operators
 
+|Atoms
 |12
 |Atoms
 |
@@ -120,49 +124,35 @@ The higher the level number the higher the precedence.
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ExistentialSubquery[Existential subqueries]
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[Parenthesized expression]
 
-|11
+.2+|Non-arithmetic operators
+.2+|11
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PropertyOrLabelsExpression[Graph element operators]
 |
 
 * property lookup
 * label expressions
 
-.3+|10
-|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=StringOperatorExpression[String operators] (left-hand operand)
-|
-
-* Prefix predicate (and right-hand operand)
-* Suffix predicate (and right-hand operand)
-* Contains predicate (and right-hand operand)
-* Regular expression predicate
-
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ListOperatorExpression[List operators] (left-hand operand)
 |
 
-* List element containment predicate (and right-hand operand)
 * List element access
 * List slicing
 
-|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NullOperatorExpression[Null predicates] (left-hand operand)
-|
-
-* Null predicate
-* Not-null predicate
-
-|9
+.4+|Arithmetic operators
+|10
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=UnaryAddOrSubtractExpression[Arithmetic additive inverse]
 |
 
 * Unary negative
 * Unary positive
 
-|8
+|9
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PowerOfExpression[Exponentiation] (left-hand and right-hand operand)
 |
 
 * Exponentiation
 
-|7
+|8
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Arithmetic multiplicative operators] (left-hand and right-hand operand)
 |
 
@@ -170,12 +160,34 @@ The higher the level number the higher the precedence.
 * Division
 * Remainder (Modulo)
 
-|6
+|7
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=AddOrSubtractExpression[Arithmetic additive operators] (left-hand and right-hand operand)
 |
 
 * Addition
 * Substraction
+
+.4+|Predicates
+.3+|6
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=StringOperatorExpression[String predicates] (left-hand operand)
+|
+
+* Prefix predicate (and right-hand operand)
+* Suffix predicate (and right-hand operand)
+* Contains predicate (and right-hand operand)
+* Regular expression predicate
+
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ListOperatorExpression[List predicates] (left-hand operand)
+|
+
+* List element containment predicate (and right-hand operand)
+
+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NullOperatorExpression[Null predicates] (left-hand operand)
+|
+
+* Null predicate
+* Not-null predicate
+
 
 |5
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ComparisonExpression[Comparison operators] (left-hand and right-hand operand)
@@ -188,6 +200,7 @@ The higher the level number the higher the precedence.
 * Less
 * Less or Equal
 
+.4+|Logical operators
 |4
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NotExpression[Boolean negation]
 |
