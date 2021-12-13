@@ -342,7 +342,7 @@ Closed unary operators that allow chaining on the same precedence level are:
 
 Example expressions are:
 
-* `--+-5`
+* `--5`
 * `NOT NOT NOT false`
 * `list[4..17][2..5]`
 * `x IS NOT NULL IS NOT NULL IS NULL`
