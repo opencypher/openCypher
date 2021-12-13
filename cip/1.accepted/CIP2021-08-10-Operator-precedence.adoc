@@ -273,7 +273,7 @@ On other levels, however, the grammar allows repetitions of such operators (chai
 
 For instance, all the following are valid expressions:
 
-* `--+-5`
+* `--5`
 * `5 + 4 + 3`
 * `5 - 4 - 3`
 * `5 - 4 + 3`
