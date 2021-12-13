@@ -363,7 +363,7 @@ Nevertheless, the grammar allows only one unambiguous operator tree, in both cas
 
 
 ==== Chains of binary operators
-Binary operators that allow chaining with themselves of other operators of compatible result type on the same precedence level are:
+Binary operators that allow chaining with themselves or other operators of compatible result type on the same precedence level are:
 
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PowerOfExpression[Exponentiation].
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=MultiplyDivideModuloExpression[Multiplication].
