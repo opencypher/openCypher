@@ -730,7 +730,7 @@ For each example we list why it is invalid.
 * The expression `1 + count(*)` is not a grouping key.
 
 . `MATCH (a) RETURN a.x + 1, a.x + 1 + count(a.x) ORDER BY a.x + 1`
-* The sub-expression `a.x + 1` is a recognized grouping key.
+* The sub-expression `a.x + 1` is not a recognized grouping key.
 
 . `MATCH (a) RETURN a.x + 1, a.x + 1 + count(a.x) ORDER BY a.x + 2`
 * The expression `a.x + 2` is not a grouping key.
