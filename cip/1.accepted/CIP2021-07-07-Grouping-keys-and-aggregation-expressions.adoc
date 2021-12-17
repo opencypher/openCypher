@@ -677,7 +677,7 @@ For each example we list why it is invalid.
 The following clauses exhibit valid row orderings.
 For each example we list why it is valid.
 
-. `RETURN 1 + count(\*) AS x ORDER BY x`
+. `RETURN 1 + count(*) AS x ORDER BY x`
 * The expression `x` is a recognized alias.
 
 . `RETURN 1, 1 + count(*) ORDER BY 2`
