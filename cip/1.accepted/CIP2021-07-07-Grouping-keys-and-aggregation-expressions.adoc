@@ -306,7 +306,7 @@ Subsequently, we give a separate and brief consideration of how to these aspects
 
 ==== Rewrite
 
-For an expression _ex_, let _AGG_(_ex_) be the set of aggregating (sub-)expressions, i.e. (sub-)expressions _aggex_ of the form _agg_(_preEx_).
+For an expression _ex_, let _AGG_(_ex_) be the set of aggregating (sub-)expressions, i.e. (sub-)expressions of the form _agg_(_preEx_).
 
 For a <ProjectionItem> _p_ = `_postEx_ AS _al_`, let _AGG_(_p_) be the set of aggregating (sub-)expressions, i.e. _AGG_(_p_) = _AGG_(_postEx_).
 
