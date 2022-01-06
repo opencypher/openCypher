@@ -166,23 +166,3 @@ Feature: List6 - List size
       | length |
       | 3      |
     And no side effects
-
-  Scenario: [10] Get node degree via size of pattern comprehension that specifies multiple relationship types
-    Given an empty graph
-    And having executed:
-      """
-      CREATE (x:X),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:OTHER]->()
-      """
-    When executing query:
-      """
-      MATCH (a:X)
-      RETURN size([(a)-[:T|OTHER]->() | 1]) AS length
-      """
-    Then the result should be, in any order:
-      | length |
-      | 4      |
-    And no side effects
