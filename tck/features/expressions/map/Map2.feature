@@ -130,15 +130,3 @@ Feature: Map2 - Dynamic Value Access
       RETURN expr[idx]
       """
     Then a TypeError should be raised at runtime: MapElementAccessByNonString
-
-  Scenario: [8] Fail at runtime when trying to index something which is not a map
-    Given any graph
-    And parameters are:
-      | expr | 100 |
-      | idx  | 0   |
-    When executing query:
-      """
-      WITH $expr AS expr, $idx AS idx
-      RETURN expr[idx]
-      """
-    Then a TypeError should be raised at runtime: InvalidArgumentType

@@ -52,6 +52,7 @@ Feature: List3 - List Equality
       | false |
     And no side effects
 
+  @SomeFunnyNewTag
   Scenario: [3] Equality between different lists with null should return false
     Given any graph
     When executing query:

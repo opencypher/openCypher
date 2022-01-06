@@ -110,10 +110,7 @@ Feature: Temporal6 - Render Temporal Values as a String
       | {seconds: 2, milliseconds: -1}                                                        | 'PT1.999S'                      | true    |
       | {seconds: -2, milliseconds: 1}                                                        | 'PT-1.999S'                     | true    |
       | {seconds: -2, milliseconds: -1}                                                       | 'PT-2.001S'                     | true    |
-      | {days: 1, milliseconds: 1}                                                            | 'P1DT0.001S'                    | true    |
-      | {days: 1, milliseconds: -1}                                                           | 'P1DT-0.001S'                   | true    |
-      | {seconds: 60, milliseconds: -1}                                                       | 'PT59.999S'                     | true    |
-      | {seconds: -60, milliseconds: 1}                                                       | 'PT-59.999S'                    | true    |
+      | {days: 1, milliseconds: 1}                                                            | 'PT-59.999S'                    | true    |
       | {seconds: -60, milliseconds: -1}                                                      | 'PT-1M-0.001S'                  | true    |
 
   Scenario: [7] Should serialize timezones correctly

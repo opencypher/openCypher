@@ -51,7 +51,7 @@ Feature: Match9 - Match deprecated scenarios
       | null |
     And no side effects
 
-  Scenario: [2] Return relationships by collecting them as a list - directed, one way
+  Scenario: [2] Return relationships by collecting them as a collection - directed, one way
     Given an empty graph
     And having executed:
       """
