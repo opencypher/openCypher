@@ -687,6 +687,10 @@ For each example we list why it is valid.
 . `RETURN $x + count($x) ORDER BY $x`
 * The expression `$x` is a parameter.
 
+. `RETURN 1 + count(\*) ORDER BY 1 + count(*)`
+* The expression `1` is a constant.
+* The expression `count(*)` is an aggregation function.
+
 . `MATCH (a) RETURN a.x, 1 + count(a.x) ORDER BY a.x % 2`
 * The sub-expression `a.x` is a recognized grouping key.
 * The sub-expression `2` is a constant.
@@ -711,9 +715,19 @@ For each example we list why it is valid.
 * The sub-expression `ax` is a recognized grouping key.
 * The sub-expression `2` is a constant.
 
+. `MATCH (a) WITH a.x + 1 as ax RETURN ax, ax - 1 + count(ax) ORDER BY ax + 2 - count(ax)`
+* The sub-expression `ax` is a recognized grouping key.
+* The sub-expression `2` is a constant.
+* The sub-expression `count(ax)` is an aggregation function.
+
 . `MATCH (a) WITH a.x + 1 as ax RETURN ax AS x, ax - 1 + count(ax) ORDER BY x + 2`
 * The sub-expression `x` is an recognized alias.
 * The sub-expression `2` is a constant.
+
+. `MATCH (a) WITH a.x + 1 as ax RETURN ax AS x, ax - 1 + count(ax) ORDER BY x + 2 - count(ax)`
+* The sub-expression `x` is an recognized alias.
+* The sub-expression `2` is a constant.
+* The sub-expression `count(ax)` is an aggregation function.
 
 . `MATCH (a) WITH a.x + 1 as ax RETURN ax AS x, ax - 1 + count(ax) AS y ORDER BY x + 2 - y`
 * The sub-expressions `x` and `y` are recognized aliases.
@@ -727,10 +741,10 @@ For each example we list why it is valid.
 The following clauses exhibit invalid row orderings.
 For each example we list why it is invalid.
 
-. `RETURN 1 + count(\*) ORDER BY 1 + count(*)`
-* The expression `1 + count(*)` is not a grouping key.
-
 . `MATCH (a) RETURN a.x + 1, a.x + 1 + count(a.x) ORDER BY a.x + 1`
+* The sub-expression `a.x + 1` is not a recognized grouping key.
+
+. `MATCH (a) RETURN a.x + 1, a.x + 1 + count(a.x) ORDER BY a.x + 1 + count(a.x)`
 * The sub-expression `a.x + 1` is not a recognized grouping key.
 
 . `MATCH (a) RETURN a.x + 1, a.x + 1 + count(a.x) ORDER BY a.x + 2`
