@@ -672,7 +672,7 @@ For each example we list why it is invalid.
 . `MATCH (a)-[c]->(b) WITH a, c, {dim: properties(b)} AS b RETURN a, b.dim.x, sum(c.p) + b.dim.x`
 * The sub-expression `b.dim.x` is not a recognized grouping key.
 
-=== Valid orderings
+==== Valid orderings
 
 The following clauses exhibit valid row orderings.
 For each example we list why it is valid.
@@ -721,7 +721,7 @@ For each example we list why it is valid.
 . `WITH {a:1, b:2} AS map RETURN map.a, map.a + count(map.b) ORDER BY map.a`
 * The expression `map.a` is a recognized grouping key.
 
-=== Invalid orderings
+==== Invalid orderings
 
 The following clauses exhibit invalid row orderings.
 For each example we list why it is invalid.
