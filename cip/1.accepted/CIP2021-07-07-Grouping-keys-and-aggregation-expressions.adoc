@@ -556,6 +556,7 @@ For an expression _ex_ and a projection list _L_, let _AVAILABLE_TO_ORDER_(_ex_,
 * If _ex_ is either
 ** A constant,
 ** A parameter,
+** An aggregation function, i.e. of the form `_agg_(_subEx_)`,
 ** A grouping key, i.e. _ex_ ∈ _RECOGNIZED_GROUPING_KEYS_(_L_), or
 ** An alias, i.e. _ex_ ∈ _RECOGNIZED_ALIASES_(_L_),
 * or if _ex_ comprises sub-expressions, it only comprises sub-expressions _subEx_ for which _AVAILABLE_TO_ORDER_(_subEx_, _L_) holds.
