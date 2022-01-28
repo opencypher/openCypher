@@ -573,6 +573,81 @@ Cypher allows to omit the aliases, particularly in the RETURN clause, though.
 However, the alias omission rules are based on the assumption that an implementation will infer a more or less reasonable alias if an alias is omitted by the user.
 Hence, it is safe for this proposal to assume that all <ProjectionItem>s have an alias.
 
+==== Project wildcard `*`
+
+Cypher support `*` as projection wildcard.
+The wildcard can appear before the list of <ProjectionItem>s _L_, i.e. `RETURN *`, `WITH *`, `RETURN *, _L_` and `WITH *, _L_` valid clauses, cf. https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ProjectionItems[<ProjectionItems>].
+The semantics of the wildcard is the projection of all columns of the driving table.
+
+This semantics can be defined by a rewrite to the baseline semantics, which removes the wildcard _before_ the actual projection and aggregation semantics, including the semantics discussed in Section "<<Rewrite>>".
+Likewise, the <<Syntax restriction>> applies _after_ the wildcard effectively been removed.
+
+Given a driving table _D_, let {_VAR~1~_(_D_), _VAR~2~_(_D_), ..., _VAR~N~_(_D_)} be the set of all variables in _D_.
+
+[IMPORTANT]
+====
+`RETURN _DISTINCT_ * _X_` with an incoming driving table _D_ is effectively equivalent to
+
+[source, cypher, subs="quotes"]
+----
+RETURN _DISTINCT_ _VAR~1~_(_D_), _VAR~2~_(_D_), ..., _VAR~N~_(_D_) _X_
+----
+
+Analogously, `WITH _DISTINCT_ * _X_` is effectively equivalent to
+
+[source, cypher, subs="quotes"]
+----
+WITH _DISTINCT_ _VAR~1~_(_D_), _VAR~2~_(_D_), ..., _VAR~N~_(_D_) _X_
+----
+====
+
+Note that _X_ is anything valid syntax in a https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Return[<Return>] or https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=With[<With>] after `*` specified by the query, respectively.
+_DISTINCT_ is the optional keyword `DISTINCT` if specified by the query or otherwise empty.
+
+.Semantics of projection wildcard `*`
+====
+
+Assume the following driving table:
+
+|===
+|a|b
+
+|1|2
+|1|2
+|2|3
+|===
+
+[source, cypher]
+----
+RETURN *, b * SUM(a) AS x ORDER BY x
+----
+is effectively equivalent to
+
+[source, cypher]
+----
+RETURN a, b, b * SUM(a) AS x ORDER BY x
+----
+
+and, hence, valid under the <<Syntax restriction>>.
+Further, it is effectively equivalent to
+
+[source, cypher]
+----
+WITH a, b, a AS x_1
+WITH a, b, SUM(x_1) AS x_1
+RETURN a, b, b * x_1 AS x ORDER BY x
+----
+
+by the <<Rewrite>> semantics, so that it results in:
+
+|===
+|a|b|x
+
+|1|2|4
+|2|3|6
+|===
+====
+
 === Examples
 
 ==== Valid aggregations
