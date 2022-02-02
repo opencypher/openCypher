@@ -58,3 +58,82 @@
 #encoding: utf-8
 
 Feature: WithSkipLimit3 - Skip and limit
+
+  Scenario: [1] Get rows in the middle
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({name: 'A'}),
+        ({name: 'B'}),
+        ({name: 'C'}),
+        ({name: 'D'}),
+        ({name: 'E'})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      WITH n
+      ORDER BY n.name ASC
+      SKIP 2
+      LIMIT 2
+      RETURN n
+      """
+    Then the result should be, in order:
+      | n             |
+      | ({name: 'C'}) |
+      | ({name: 'D'}) |
+    And no side effects
+
+  Scenario: [2] Get rows in the middle by param
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({name: 'A'}),
+        ({name: 'B'}),
+        ({name: 'C'}),
+        ({name: 'D'}),
+        ({name: 'E'})
+      """
+    And parameters are:
+      | s | 2 |
+      | l | 2 |
+    When executing query:
+      """
+      MATCH (n)
+      WITH n
+      ORDER BY n.name ASC
+      SKIP $s
+      LIMIT $l
+      RETURN n
+      """
+    Then the result should be, in order:
+      | n             |
+      | ({name: 'C'}) |
+      | ({name: 'D'}) |
+    And no side effects
+
+  Scenario: [3] Limiting amount of rows when there are fewer left than the LIMIT argument
+    Given an empty graph
+    And having executed:
+      """
+      UNWIND range(0, 15) AS i
+      CREATE ({count: i})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a.count as count
+        ORDER BY a.count
+        SKIP 10
+        LIMIT 10
+      RETURN count
+      """
+    Then the result should be, in order:
+      | a.count |
+      | 10      |
+      | 11      |
+      | 12      |
+      | 13      |
+      | 14      |
+      | 15      |
+    And no side effects
