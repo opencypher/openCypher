@@ -43,7 +43,7 @@
     <dep.scalatest.version>3.2.2</dep.scalatest.version>
     <dep.scalatest.runner.version>0.1.8</dep.scalatest.runner.version>
     <dep.scala.compat.version>2.2.0</dep.scala.compat.version>
-    <dep.xmlgraphics-commons.version>2.4</dep.xmlgraphics-commons.version>
+    <dep.xmlgraphics-commons.version>2.6</dep.xmlgraphics-commons.version>
     <dep.commons-csv.version>1.8</dep.commons-csv.version>
     <dep.commons-cli.version>1.4</dep.commons-cli.version>
     <dep.freemarker.version>2.3.30</dep.freemarker.version>
