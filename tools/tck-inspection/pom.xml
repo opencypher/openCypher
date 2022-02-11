@@ -147,6 +147,12 @@
                 <dep.cask.version>0.7.12</dep.cask.version>
             </properties>
         </profile>
+        <profile>
+            <id>scala-3</id>
+            <properties>
+                <dep.cask.version>0.7.12</dep.cask.version>
+            </properties>
+        </profile>
     </profiles>
 
 </project>
