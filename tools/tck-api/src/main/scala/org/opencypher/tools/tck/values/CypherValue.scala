@@ -27,8 +27,6 @@
  */
 package org.opencypher.tools.tck.values
 
-import scala.util.hashing.MurmurHash3
-
 object CypherValue {
   def apply(s: String, orderedLists: Boolean = true): CypherValue = {
     val parser = new CypherValueParser(orderedLists)
@@ -114,7 +112,9 @@ case class CypherOrderedList(elements: List[CypherValue] = List.empty) extends C
   override def equals(obj: scala.Any): Boolean = obj match {
     case null => false
     case other: CypherOrderedList => elements == other.elements
-    case o: CypherUnorderedList => o == this
+    case o: CypherUnorderedList =>
+      // Delegate to CypherUnorderedList.equals which will sort the lists before comparing
+      o == this
     case _ => false
   }
 
