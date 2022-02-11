@@ -118,7 +118,7 @@ case class CypherOrderedList(elements: List[CypherValue] = List.empty) extends C
     case _ => false
   }
 
-  override def hashCode(): Int = MurmurHash3.productHash(this)
+  override def hashCode(): Int = Hashing.productHash(this)
 }
 
 /**
@@ -138,7 +138,7 @@ private[tck] case class CypherUnorderedList(elements: List[CypherValue] = List.e
     case _ => false
   }
 
-  override def hashCode(): Int = MurmurHash3.productHash(this)
+  override def hashCode(): Int = Hashing.productHash(this)
 }
 
 case object CypherNull extends CypherValue {

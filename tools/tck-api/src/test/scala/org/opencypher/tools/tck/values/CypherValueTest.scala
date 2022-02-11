@@ -90,6 +90,14 @@ class CypherValueTest extends AnyFunSuite with Matchers {
     uList1 should equal(uList2)
   }
 
+  test("lists that are equal should have the same hashCode") {
+    val oList = CypherOrderedList(List(CypherString("Foo")))
+    val uList = CypherUnorderedList(List(CypherString("Foo")))
+
+    oList should equal(uList)
+    oList.hashCode() should equal(uList.hashCode())
+  }
+
   test("list comparisons simple example") {
     val orderedItems1 = List(CypherString("name"), CypherString("age"), CypherString("address"))
     val orderedItems2 = List(CypherString("age"), CypherString("name"), CypherString("address"))
