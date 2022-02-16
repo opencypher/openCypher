@@ -129,7 +129,7 @@ Feature: WithSkipLimit3 - Skip and limit
       RETURN count
       """
     Then the result should be, in order:
-      | count |
+      | count   |
       | 10      |
       | 11      |
       | 12      |
