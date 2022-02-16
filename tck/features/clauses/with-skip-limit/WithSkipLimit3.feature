@@ -122,7 +122,7 @@ Feature: WithSkipLimit3 - Skip and limit
     When executing query:
       """
       MATCH (a)
-      WITH a.count as count
+      WITH a.count AS count
         ORDER BY a.count
         SKIP 10
         LIMIT 10
