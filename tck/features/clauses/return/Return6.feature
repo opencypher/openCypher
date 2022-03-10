@@ -118,10 +118,10 @@ Feature: Return6 - Implicit grouping with aggregates
     When executing query:
       """
       MATCH (a {name: 'Andres'})<-[:FATHER]-(child)
-      RETURN {foo: a.name='Andres', kids: collect(child.name)}
+      RETURN a.name, {foo: a.name='Andres', kids: collect(child.name)}
       """
     Then the result should be, in any order:
-      | {foo: a.name='Andres', kids: collect(child.name)} |
+      | a.name | {foo: a.name='Andres', kids: collect(child.name)} |
     And no side effects
 
   Scenario: [7] Aggregate on property

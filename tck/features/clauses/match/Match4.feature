@@ -98,7 +98,7 @@ Feature: Match4 - Match variable length patterns scenarios
       WITH *
       UNWIND range(1, 20) AS i
       CREATE (n {var: i})
-      WITH [a] + collect(n) + [b] AS nodeList
+      WITH a, b, [a] + collect(n) + [b] AS nodeList
       UNWIND range(0, size(nodeList) - 2, 1) AS i
       WITH nodeList[i] AS n1, nodeList[i+1] AS n2
       CREATE (n1)-[:T]->(n2)
