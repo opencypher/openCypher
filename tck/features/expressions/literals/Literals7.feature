@@ -89,7 +89,7 @@ Feature: Literals7 - List
     Given any graph
     When executing query:
       """
-      RETURN [02613152366] AS literal
+      RETURN [0o2613152366] AS literal
       """
     Then the result should be, in any order:
       | literal     |
@@ -177,7 +177,7 @@ Feature: Literals7 - List
     Given any graph
     When executing query:
       """
-      RETURN [1, -2, 00, 71034856] AS literal
+      RETURN [1, -2, 0o0, 71034856] AS literal
       """
     Then the result should be, in any order:
       | literal              |
