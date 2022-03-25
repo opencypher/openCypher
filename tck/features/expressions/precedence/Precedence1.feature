@@ -456,7 +456,7 @@ Feature: Precedence1 - On boolean values
       | true   |
     And no side effects
 
-  Scenario Outline: [26] List predicate takes precedence over comparison operators in every combination of truth values
+  Scenario Outline: [26] List predicate takes precedence over binary boolean operators in every combination of truth values
     Given an empty graph
     When executing query:
       """
