@@ -83,7 +83,7 @@ Feature: Precedence2 - On numeric values
       | /    | 8.0   | 64.0          |
       | %    | 0.0   | 64.0          |
 
-  Scenario Outline: [3] Exponentiation takes precedence over numeric multiplicative operations
+  Scenario Outline: [3] Exponentiation takes precedence over numeric additive operations
     Given an empty graph
     When executing query:
       """
