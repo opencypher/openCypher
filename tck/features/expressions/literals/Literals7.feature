@@ -177,7 +177,7 @@ Feature: Literals7 - List
     Given any graph
     When executing query:
       """
-      RETURN [1, -2, 0o0, 71034856] AS literal
+      RETURN [1, -2, 0o77, 0xA4C, 71034856] AS literal
       """
     Then the result should be, in any order:
       | literal              |
