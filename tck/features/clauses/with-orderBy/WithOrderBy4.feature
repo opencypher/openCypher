@@ -397,3 +397,67 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | [:T1 {id: 0}] |
       | [:T2 {id: 1}] |
     And no side effects
+
+  Scenario: [16] Handle constants and parameters inside an order by item which contains an aggregation expression
+    Given an empty graph
+    And parameters are:
+      | age | 38 |
+    When executing query:
+      """
+      MATCH (person)
+      WITH avg(person.age) AS avgAge
+      ORDER BY $age + avg(person.age) - 1000
+      RETURN avgAge
+      """
+    Then the result should be, in any order:
+      | avgAge |
+      | null |
+    And no side effects
+
+  Scenario: [17] Handle variables, which are also return items themselves, inside an order by item which contains an aggregation expression
+    Given an empty graph
+    When executing query:
+      """
+      MATCH (me: Person)--(you: Person)
+      WITH me.age AS age, count(you.age) AS cnt
+      ORDER BY age, age + count(you.age)
+      RETURN age
+      """
+    Then the result should be, in any order:
+      | age |
+    And no side effects
+
+  Scenario: [18] Handle property accesses, which are also return items themselves, inside an order by item which contains an aggregation expression
+    Given an empty graph
+    When executing query:
+      """
+      MATCH (me: Person)--(you: Person)
+      WITH me.age AS age, count(you.age) AS cnt
+      ORDER BY me.age + count(you.age)
+      RETURN age
+      """
+    Then the result should be, in any order:
+      | age |
+    And no side effects
+
+  Scenario: [19] Throw if a variable is used inside an order by item which contains an aggregation expression
+    Given an empty graph
+    When executing query:
+      """
+      MATCH (me: Person)--(you: Person)
+      WITH count(you.age) AS agg
+      ORDER BY me.age + count(you.age)
+      RETURN *
+      """
+    Then a SyntaxError should be raised at compile time: AmbiguousAggregationExpression
+
+  Scenario: [20] Throw if more complex expression, even though it is also a return item on its own, is used inside an order by item which contains an aggregation expression
+    Given an empty graph
+    When executing query:
+      """
+      MATCH (me: Person)--(you: Person)
+      WITH me.age + you.age, count(*) AS cnt
+      ORDER BY me.age + you.age + count(*)
+      RETURN *
+      """
+    Then a SyntaxError should be raised at compile time: AmbiguousAggregationExpression

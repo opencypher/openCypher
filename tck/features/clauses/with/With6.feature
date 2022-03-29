@@ -112,3 +112,63 @@ Feature: With6 - Implicit grouping with aggregates
       | [({num: 1}), ({num: 2})] |
       | [({num: 3}), ({num: 4})] |
     And no side effects
+
+  Scenario: [5] Handle constants and parameters inside an expression which contains an aggregation expression
+    Given an empty graph
+    And parameters are:
+      | age | 38 |
+    When executing query:
+      """
+      MATCH (person)
+      WITH $age + avg(person.age) - 1000 AS agg
+      RETURN *
+      """
+    Then the result should be, in any order:
+      | agg |
+      | null |
+    And no side effects
+
+  Scenario: [6] Handle variables, which are also return items themselves, inside an expression which contains an aggregation expression
+    Given an empty graph
+    When executing query:
+      """
+      MATCH (me: Person)--(you: Person)
+      WITH me.age AS age, you
+      WITH age, age + count(you.age) AS agg
+      RETURN *
+      """
+    Then the result should be, in any order:
+      | age | agg |
+    And no side effects
+
+  Scenario: [7] Handle property accesses, which are also return items themselves, inside an expression which contains an aggregation expression
+    Given an empty graph
+    When executing query:
+      """
+      MATCH (me: Person)--(you: Person)
+      WITH me.age AS age, me.age + count(you.age) AS agg
+      RETURN *
+      """
+    Then the result should be, in any order:
+      | age | agg |
+    And no side effects
+
+  Scenario: [8] Throw if a variable is used inside an expression which contains an aggregation expression
+    Given an empty graph
+    When executing query:
+      """
+      MATCH (me: Person)--(you: Person)
+      WITH me.age + count(you.age) AS agg
+      RETURN *
+      """
+    Then a SyntaxError should be raised at compile time: AmbiguousAggregationExpression
+
+  Scenario: [9] Throw if more complex expression, even though it is also a return item on its own, is used inside expression which contains an aggregation expression
+    Given an empty graph
+    When executing query:
+      """
+      MATCH (me: Person)--(you: Person)
+      WITH me.age + you.age AS grp, me.age + you.age + count(*) AS agg
+      RETURN *
+      """
+    Then a SyntaxError should be raised at compile time: AmbiguousAggregationExpression
