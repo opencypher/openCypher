@@ -54,6 +54,32 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import static org.opencypher.tools.Reflection.pathOf;
 
+/**
+ * Used for specifying a "project" in xml, to define a set of tools to run on a (set of) grammar(s).
+ *
+ * Example:
+ * <code><pre>
+ * &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+ * &lt;project xmlns="http://opencypher.org/grammar/project"&gt;
+ *   &lt;grammar id="g1" path="grammars/my-grammar.xml"/&gt;
+ *   &lt;grammar id="g-two" path="grammars/another-grammar.xml"/&gt;
+ *
+ *   &lt;output tool="{@linkplain RailRoadDiagramPages RAIL_ROAD_DIAGRAM_PAGES}" grammar="g1" path="out-dir/rr"&gt;
+ *     &lt;option key="{@linkplain RailRoadDiagramPages.Options#productionDetailsLink() productionDetailsLink}" value="my-language.pdf#{1}"/&gt;
+ *   &lt;/output&gt;
+ *
+ *   &lt;output tool="{@linkplain SQLBNF WG3BNF}" grammar="g1" path="out-dir/g1.bnf"/&gt;
+ *   &lt;output tool="{@linkplain ISO14977 ISO14977}" grammar="g-two" path="out-dir/g-two.bnf"/&gt;
+ *   &lt;output tool="{@linkplain Antlr4 ANTLR4}" grammar="g-two" path="out-dir/g-two.g"/&gt;
+ *
+ *   &lt;output tool="{@linkplain ParseTrees PARSE_TREE}" grammar="g-two" path="out-dir/parse-trees"&gt;
+ *     &lt;option key="{@linkplain Project.Tool#log(Map) log}" value="out-dir/parse-tree-gen.log"/&gt;
+ *     &lt;option key="{@linkplain ParseTrees.Options#sources() sources}" value="source-samples/g-two/"/&gt;
+ *     &lt;option key="{@linkplain ParseTrees.Options#rootProduction() rootProduction}" value="grammar root"/&gt;
+ *   &lt;/output&gt;
+ * &lt;/project&gt;
+ * </pre></code>
+ */
 @Element( uri = Project.NAMESPACE, name = "project" )
 class Project
 {
