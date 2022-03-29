@@ -103,6 +103,7 @@ object TCKErrorDetails {
   val PROCEDURE_NOT_FOUND = "ProcedureNotFound"
   val UNEXPECTED_SYNTAX = "UnexpectedSyntax"
   val INTEGER_OVERFLOW = "IntegerOverflow"
+  val AMBIGUOUS_AGGREGATION_EXPRESSION = "AmbiguousAggregationExpression"
   // wildcard error detail
   val ANY = "*"
 
@@ -148,5 +149,6 @@ object TCKErrorDetails {
                 DELETED_ENTITY_ACCESS,
                 UNEXPECTED_SYNTAX,
                 INTEGER_OVERFLOW,
+                AMBIGUOUS_AGGREGATION_EXPRESSION,
                 ANY)
 }
