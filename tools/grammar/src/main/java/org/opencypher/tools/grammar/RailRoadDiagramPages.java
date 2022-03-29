@@ -73,6 +73,20 @@ public final class RailRoadDiagramPages extends Tool implements ShapeRenderer.Li
 {
     interface Options extends Diagram.BuilderOptions
     {
+        /**
+         * Specified in {@linkplain Project project xml files} as:
+         * <code><pre>
+         * &lt;output tool="RAIL_ROAD_DIAGRAM_PAGES" grammar="..." path="..."&gt;
+         *   &lt;option key="productionDetailsLink" value="!!! VALUE GOES HERE !!!"/&gt;
+         * &lt;/output&gt;
+         * </pre></code>
+         * <p>
+         * For links into one of the SQL or GQL standard PDFs, this option value should be something like:
+         * <code>value="path/to/some-file.pdf#''BNF_{0}''"</code>.
+         * Where the double single quotes (<code>''</code>) is an escaped single quote (the string formatting logic
+         * needs this to be escaped), and the <code>{0}</code> is a placeholder for where the name of the non-terminal
+         * will be inserted.
+         */
         default ProductionDetailsLinker productionDetailsLink()
         {
             return null;
