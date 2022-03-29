@@ -140,6 +140,7 @@ Within each member, there are additional categories.
 
 * WithSkipLimit1 - Skip
 * WithSkipLimit2 - Limit
+* WithSkipLimit3 - Skip and limit
 
 === With-where
 
