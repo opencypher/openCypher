@@ -181,7 +181,7 @@ Feature: Literals7 - List
       """
     Then the result should be, in any order:
       | literal              |
-      | [1, -2, 0, 71034856] |
+      | [1, -2, 63, 2636, 71034856] |
     And no side effects
 
 ### Needs more capable tck-api
