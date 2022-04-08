@@ -570,7 +570,7 @@
   </production>
 
   <production name="OctalInteger" oc:lexer="true">
-    <non-terminal ref="ZeroDigit"/>
+    <literal value="0o"/>
     <repeat min="1"><non-terminal ref="OctDigit"/></repeat>
   </production>
 

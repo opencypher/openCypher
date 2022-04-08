@@ -34,7 +34,7 @@ Feature: Literals4 - Octal integer
     Given any graph
     When executing query:
       """
-      RETURN 01 AS literal
+      RETURN 0o1 AS literal
       """
     Then the result should be, in any order:
       | literal |
@@ -45,7 +45,7 @@ Feature: Literals4 - Octal integer
     Given any graph
     When executing query:
       """
-      RETURN 02613152366 AS literal
+      RETURN 0o2613152366 AS literal
       """
     Then the result should be, in any order:
       | literal    |
@@ -56,7 +56,7 @@ Feature: Literals4 - Octal integer
     Given any graph
     When executing query:
       """
-      RETURN 0777777777777777777777 AS literal
+      RETURN 0o777777777777777777777 AS literal
       """
     Then the result should be, in any order:
       | literal              |
@@ -67,7 +67,7 @@ Feature: Literals4 - Octal integer
     Given any graph
     When executing query:
       """
-      RETURN 00 AS literal
+      RETURN 0o0 AS literal
       """
     Then the result should be, in any order:
       | literal |
@@ -78,7 +78,7 @@ Feature: Literals4 - Octal integer
     Given any graph
     When executing query:
       """
-      RETURN -00 AS literal
+      RETURN -0o0 AS literal
       """
     Then the result should be, in any order:
       | literal |
@@ -89,7 +89,7 @@ Feature: Literals4 - Octal integer
     Given any graph
     When executing query:
       """
-      RETURN -01 AS literal
+      RETURN -0o1 AS literal
       """
     Then the result should be, in any order:
       | literal |
@@ -100,7 +100,7 @@ Feature: Literals4 - Octal integer
     Given any graph
     When executing query:
       """
-      RETURN -02613152366 AS literal
+      RETURN -0o2613152366 AS literal
       """
     Then the result should be, in any order:
       | literal    |
@@ -111,7 +111,7 @@ Feature: Literals4 - Octal integer
     Given any graph
     When executing query:
       """
-      RETURN -01000000000000000000000 AS literal
+      RETURN -0o1000000000000000000000 AS literal
       """
     Then the result should be, in any order:
       | literal              |
@@ -122,7 +122,7 @@ Feature: Literals4 - Octal integer
     Given any graph
     When executing query:
       """
-      RETURN 01000000000000000000000 AS literal
+      RETURN 0o1000000000000000000000 AS literal
       """
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
@@ -130,6 +130,6 @@ Feature: Literals4 - Octal integer
     Given any graph
     When executing query:
       """
-      RETURN -01000000000000000000001 AS literal
+      RETURN -0o1000000000000000000001 AS literal
       """
     Then a SyntaxError should be raised at compile time: IntegerOverflow

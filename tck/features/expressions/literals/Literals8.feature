@@ -133,7 +133,7 @@ Feature: Literals8 - Maps
     Given any graph
     When executing query:
       """
-      RETURN {k: 02613152366} AS literal
+      RETURN {k: 0o2613152366} AS literal
       """
     Then the result should be, in any order:
       | literal       |
