@@ -34,9 +34,9 @@ Feature: Precedence3 - On list values
     Given an empty graph
     When executing query:
       """
-      RETURN [[1],[2,3],[4,5]] + [5,[6,7],[8,9],10][3] AS a,
-             [[1],[2,3],[4,5]] + ([5,[6,7],[8,9],10][3]) AS b,
-             ([[1],[2,3],[4,5]] + [5,[6,7],[8,9],10])[3] AS c
+      RETURN [[1], [2, 3], [4, 5]] + [5, [6, 7], [8, 9], 10][3] AS a,
+             [[1], [2, 3], [4, 5]] + ([5, [6, 7], [8, 9], 10][3]) AS b,
+             ([[1], [2, 3], [4, 5]] + [5, [6, 7], [8, 9], 10])[3] AS c
       """
     Then the result should be, in any order:
       | a                         | b                         | c   |
@@ -47,9 +47,9 @@ Feature: Precedence3 - On list values
     Given an empty graph
     When executing query:
       """
-      RETURN [[1],[2,3],[4,5]] + [5,[6,7],[8,9],10][2] AS a,
-             [[1],[2,3],[4,5]] + ([5,[6,7],[8,9],10][2]) AS b,
-             ([[1],[2,3],[4,5]] + [5,[6,7],[8,9],10])[2] AS c
+      RETURN [[1], [2, 3], [4, 5]] + [5, [6, 7], [8, 9], 10][2] AS a,
+             [[1], [2, 3], [4, 5]] + ([5, [6, 7], [8, 9], 10][2]) AS b,
+             ([[1], [2, 3], [4, 5]] + [5, [6, 7], [8, 9], 10])[2] AS c
       """
     Then the result should be, in any order:
       | a                           | b                           | c      |
@@ -60,9 +60,9 @@ Feature: Precedence3 - On list values
     Given an empty graph
     When executing query:
       """
-      RETURN [[1],[2,3],[4,5]] + [5,[6,7],[8,9],10][1..3] AS a,
-             [[1],[2,3],[4,5]] + ([5,[6,7],[8,9],10][1..3]) AS b,
-             ([[1],[2,3],[4,5]] + [5,[6,7],[8,9],10])[1..3] AS c
+      RETURN [[1], [2, 3], [4, 5]] + [5, [6, 7], [8, 9], 10][1..3] AS a,
+             [[1], [2, 3], [4, 5]] + ([5, [6, 7], [8, 9], 10][1..3]) AS b,
+             ([[1], [2, 3], [4, 5]] + [5, [6, 7], [8, 9], 10])[1..3] AS c
       """
     Then the result should be, in any order:
       | a                                     | b                                     | c                |
@@ -100,9 +100,9 @@ Feature: Precedence3 - On list values
     Given an empty graph
     When executing query:
       """
-      RETURN [1,2] <comp> [3,4] IN [[3,4], false] AS a,
-             [1,2] <comp> ([3,4] IN [[3,4], false] AS b,
-             ([1,2] <comp> [3,4]) IN [[3,4], false] AS c
+      RETURN [1, 2] <comp> [3, 4] IN [[3, 4], false] AS a,
+             [1, 2] <comp> ([3, 4] IN [[3, 4], false]) AS b,
+             ([1, 2] <comp> [3, 4]) IN [[3, 4], false] AS c
       """
     Then the result should be, in any order:
       | a       | b       | c       |
