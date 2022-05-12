@@ -124,11 +124,11 @@ Feature: With6 - Implicit grouping with aggregates
       RETURN *
       """
     Then the result should be, in any order:
-      | agg |
+      | agg  |
       | null |
     And no side effects
 
-  Scenario: [6] Handle variables, which are also return items themselves, inside an expression which contains an aggregation expression
+  Scenario: [6] Handle projected variables inside an expression which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
@@ -141,7 +141,7 @@ Feature: With6 - Implicit grouping with aggregates
       | age | agg |
     And no side effects
 
-  Scenario: [7] Handle property accesses, which are also return items themselves, inside an expression which contains an aggregation expression
+  Scenario: [7] Handle projected property accesses inside an expression which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
@@ -153,7 +153,7 @@ Feature: With6 - Implicit grouping with aggregates
       | age | agg |
     And no side effects
 
-  Scenario: [8] Throw if a variable is used inside an expression which contains an aggregation expression
+  Scenario: [8] Fail if not projected variables are used inside an expression which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
@@ -163,7 +163,7 @@ Feature: With6 - Implicit grouping with aggregates
       """
     Then a SyntaxError should be raised at compile time: AmbiguousAggregationExpression
 
-  Scenario: [9] Throw if more complex expression, even though it is also a return item on its own, is used inside expression which contains an aggregation expression
+  Scenario: [9] Fail if more complex expression, even if projected, are used inside expression which contains an aggregation expression
     Given an empty graph
     When executing query:
       """

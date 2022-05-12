@@ -308,10 +308,10 @@ Feature: Return6 - Implicit grouping with aggregates
       """
     Then the result should be, in any order:
       | $age + avg(person.age) - 1000 |
-      | null |
+      | null                          |
     And no side effects
 
-  Scenario: [18] Handle variables, which are also return items themselves, inside an expression which contains an aggregation expression
+  Scenario: [18] Handle returned variables inside an expression which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
@@ -323,7 +323,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | age | age + count(you.age) |
     And no side effects
 
-  Scenario: [19] Handle property accesses, which are also return items themselves, inside an expression which contains an aggregation expression
+  Scenario: [19] Handle returned property accesses inside an expression which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
@@ -334,7 +334,7 @@ Feature: Return6 - Implicit grouping with aggregates
       | me.age | me.age + count(you.age) |
     And no side effects
 
-  Scenario: [20] Throw if a variable is used inside an expression which contains an aggregation expression
+  Scenario: [20] Fail if not returned variables are used inside an expression which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
@@ -343,7 +343,7 @@ Feature: Return6 - Implicit grouping with aggregates
       """
     Then a SyntaxError should be raised at compile time: AmbiguousAggregationExpression
 
-  Scenario: [21] Throw if more complex expression, even though it is also a return item on its own, is used inside expression which contains an aggregation expression
+  Scenario: [21] Fail if more complex expressions, even if returned, are used inside expression which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
