@@ -42,10 +42,10 @@ Feature: ReturnOrderBy6 - Aggregation expressions in order by
       """
     Then the result should be, in any order:
       | avgAge |
-      | null |
+      | null   |
     And no side effects
 
-  Scenario: [2] Handle variables, which are also return items themselves, inside an order by item which contains an aggregation expression
+  Scenario: [2] Handle returned aliases inside an order by item which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
@@ -57,7 +57,7 @@ Feature: ReturnOrderBy6 - Aggregation expressions in order by
       | age | cnt |
     And no side effects
 
-  Scenario: [3] Handle property accesses, which are also return items themselves, inside an order by item which contains an aggregation expression
+  Scenario: [3] Handle returned property accesses inside an order by item which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
@@ -69,7 +69,7 @@ Feature: ReturnOrderBy6 - Aggregation expressions in order by
       | age | cnt |
     And no side effects
 
-  Scenario: [4] Throw if a variable is used inside an order by item which contains an aggregation expression
+  Scenario: [4] Fail if not returned variables are used inside an order by item which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
@@ -79,7 +79,7 @@ Feature: ReturnOrderBy6 - Aggregation expressions in order by
       """
     Then a SyntaxError should be raised at compile time: AmbiguousAggregationExpression
 
-  Scenario: [5] Throw if more complex expression, even though it is also a return item on its own, is used inside an order by item which contains an aggregation expression
+  Scenario: [5] Fail if more complex expressions, even if returned, are used inside an order by item which contains an aggregation expression
     Given an empty graph
     When executing query:
       """

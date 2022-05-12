@@ -411,10 +411,10 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       """
     Then the result should be, in any order:
       | avgAge |
-      | null |
+      | null   |
     And no side effects
 
-  Scenario: [17] Handle variables, which are also return items themselves, inside an order by item which contains an aggregation expression
+  Scenario: [17] Handle projected variables inside an order by item which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
@@ -427,7 +427,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | age |
     And no side effects
 
-  Scenario: [18] Handle property accesses, which are also return items themselves, inside an order by item which contains an aggregation expression
+  Scenario: [18]  Handle projected property accesses inside an order by item which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
@@ -440,7 +440,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | age |
     And no side effects
 
-  Scenario: [19] Throw if a variable is used inside an order by item which contains an aggregation expression
+  Scenario: [19] Fail if not projected variables are used inside an order by item which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
@@ -451,7 +451,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       """
     Then a SyntaxError should be raised at compile time: AmbiguousAggregationExpression
 
-  Scenario: [20] Throw if more complex expression, even though it is also a return item on its own, is used inside an order by item which contains an aggregation expression
+  Scenario: [20] Fail if more complex expressions, even if projected, are used inside an order by item which contains an aggregation expression
     Given an empty graph
     When executing query:
       """
