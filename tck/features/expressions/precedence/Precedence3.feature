@@ -39,8 +39,8 @@ Feature: Precedence3 - On list values
              ([[1], [2, 3], [4, 5]] + [5, [6, 7], [8, 9], 10])[3] AS c
       """
     Then the result should be, in any order:
-      | a                         | b                         | c   |
-      | [[1], [2, 3], [4, 5], 10] | [[1], [2, 3], [4, 5], 10] | [5] |
+      | a                         | b                         | c |
+      | [[1], [2, 3], [4, 5], 10] | [[1], [2, 3], [4, 5], 10] | 5 |
     And no side effects
 
   Scenario: [2] List element access takes precedence over list concatenation
