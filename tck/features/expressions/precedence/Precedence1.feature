@@ -281,7 +281,7 @@ Feature: Precedence1 - On boolean values
       | true   |
     And no side effects
 
-  Scenario Outline: [19] Comparison operator takes precedence over boolean negation
+  Scenario Outline: [19] Comparison operators takes precedence over boolean negation in every combination of truth values
     Given an empty graph
     When executing query:
       """
@@ -305,7 +305,26 @@ Feature: Precedence1 - On boolean values
       | >    |
       #| <>   | # Negated equality and negation are associative over truth values
 
-  Scenario Outline: [20] Comparison operators take precedence over binary boolean operators in every combination of truth values
+  Scenario Outline: [20] Pairs of comparison operators and boolean negation that are associative in every combination of truth values
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [true, false, null] AS a
+      UNWIND [true, false, null] AS b
+      WITH collect((NOT (a <comp> b)) = ((NOT a) <comp> b)) AS eq
+      RETURN all(x IN eq WHERE x) AS result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+    Examples:
+      | comp |
+      | =    |
+      | <>   |
+
+  Scenario Outline: [21] Comparison operators take precedence over binary boolean operators in every combination of truth values
     Given an empty graph
     When executing query:
       """
@@ -324,12 +343,12 @@ Feature: Precedence1 - On boolean values
     Examples:
       | pred | boolop |
       | =    | OR     |
-      | =    | XOR    |
+      #| =    | XOR    | # Equality and exclusive disjunction are associative over truth values
       | =    | AND    |
       | <=   | OR     |
       | <=   | XOR    |
       | <=   | AND    |
-      | >=   | OR     |
+      #| >=   | OR     | # Greater or equal and disjunction are associative over truth values
       | >=   | XOR    |
       | >=   | AND    |
       | <    | OR     |
@@ -337,12 +356,34 @@ Feature: Precedence1 - On boolean values
       | <    | AND    |
       | >    | OR     |
       | >    | XOR    |
-      | >    | AND    |
+      #| >    | AND    | # Greater and conjunction are associative over truth values
       | <>   | OR     |
-      | <>   | XOR    |
+      #| <>   | XOR    | # Inequality and exclusive disjunction are associative over truth values; inequality and exclusive disjunction are the same operation over truth values; exclusive disjunction is associative
       | <>   | AND    |
 
-  Scenario Outline: [21] Null predicates take precedence over comparison operators in every combination of truth values
+  Scenario Outline: [22] Pairs of comparison operators and binary boolean operators that are associative in every combination of truth values
+    Given an empty graph
+    When executing query:
+      """
+      UNWIND [true, false, null] AS a
+      UNWIND [true, false, null] AS b
+      UNWIND [true, false, null] AS c
+      WITH collect((a <boolop> (b <pred> c)) = ((a <boolop> b) <pred> c)) AS eq
+      RETURN all(x IN eq WHERE x) AS result
+      """
+    Then the result should be, in any order:
+      | result |
+      | true   |
+    And no side effects
+
+    Examples:
+      | pred | boolop |
+      | =    | XOR    |
+      | >=   | OR     |
+      | >    | AND    |
+      | <>   | XOR    |
+
+  Scenario Outline: [23] Null predicates take precedence over comparison operators in every combination of truth values
     Given an empty graph
     When executing query:
       """
@@ -372,7 +413,7 @@ Feature: Precedence1 - On boolean values
       | <>   | IS NULL     |
       | <>   | IS NOT NULL |
 
-  Scenario Outline: [22] Null predicates take precedence over boolean negation on every truth values
+  Scenario Outline: [24] Null predicates take precedence over boolean negation on every truth values
     Given an empty graph
     When executing query:
       """
@@ -392,7 +433,7 @@ Feature: Precedence1 - On boolean values
       | IS NULL     |
       | IS NOT NULL |
 
-  Scenario Outline: [23] Null predicates take precedence over binary boolean operators in every combination of truth values
+  Scenario Outline: [25] Null predicates take precedence over binary boolean operators in every combination of truth values
     Given an empty graph
     When executing query:
       """
@@ -416,7 +457,7 @@ Feature: Precedence1 - On boolean values
       | AND    | IS NULL     |
       | AND    | IS NOT NULL |
 
-  Scenario Outline: [24] List predicate takes precedence over comparison operators in every combination of truth values
+  Scenario Outline: [26] List predicate takes precedence over comparison operators in every combination of truth values
     Given an empty graph
     When executing query:
       """
@@ -441,7 +482,7 @@ Feature: Precedence1 - On boolean values
       | >    |
       | <>   |
 
-  Scenario: [25] List predicate takes precedence over negation in every combination of truth values
+  Scenario: [27] List predicate takes precedence over negation in every combination of truth values
     Given an empty graph
     When executing query:
       """
@@ -456,7 +497,7 @@ Feature: Precedence1 - On boolean values
       | true   |
     And no side effects
 
-  Scenario Outline: [26] List predicate takes precedence over binary boolean operators in every combination of truth values
+  Scenario Outline: [28] List predicate takes precedence over binary boolean operators in every combination of truth values
     Given an empty graph
     When executing query:
       """
