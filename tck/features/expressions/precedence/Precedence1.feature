@@ -210,7 +210,7 @@ Feature: Precedence1 - On boolean values
       UNWIND [true, false, null] AS c
       WITH collect((a OR b XOR c) = (a OR (b XOR c))) AS eq,
            collect((a OR b XOR c) <> ((a OR b) XOR c)) AS neq
-      RETURN none(x IN eq WHERE NOT x) AND any(x IN neq WHERE x) AS result
+      RETURN all(x IN eq WHERE x) AND any(x IN neq WHERE x) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -226,7 +226,7 @@ Feature: Precedence1 - On boolean values
       UNWIND [true, false, null] AS c
       WITH collect((a XOR b AND c) = (a XOR (b AND c))) AS eq,
            collect((a XOR b AND c) <> ((a XOR b) AND c)) AS neq
-      RETURN none(x IN eq WHERE NOT x) AND any(x IN neq WHERE x) AS result
+      RETURN all(x IN eq WHERE x) AND any(x IN neq WHERE x) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -242,7 +242,7 @@ Feature: Precedence1 - On boolean values
       UNWIND [true, false, null] AS c
       WITH collect((a OR b AND c) = (a OR (b AND c))) AS eq,
            collect((a OR b AND c) <> ((a OR b) AND c)) AS neq
-      RETURN none(x IN eq WHERE NOT x) AND any(x IN neq WHERE x) AS result
+      RETURN all(x IN eq WHERE x) AND any(x IN neq WHERE x) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -257,7 +257,7 @@ Feature: Precedence1 - On boolean values
       UNWIND [true, false, null] AS b
       WITH collect((NOT a AND b) = ((NOT a) AND b)) AS eq,
            collect((NOT a AND b) <> (NOT (a AND b))) AS neq
-      RETURN none(x IN eq WHERE NOT x) AND any(x IN neq WHERE x) AS result
+      RETURN all(x IN eq WHERE x) AND any(x IN neq WHERE x) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -274,7 +274,7 @@ Feature: Precedence1 - On boolean values
       UNWIND [true, false, null] AS b
       WITH collect((NOT a OR b) = ((NOT a) OR b)) AS eq,
            collect((NOT a OR b) <> (NOT (a OR b))) AS neq
-      RETURN none(x IN eq WHERE NOT x) AND any(x IN neq WHERE x) AS result
+      RETURN all(x IN eq WHERE x) AND any(x IN neq WHERE x) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -289,7 +289,7 @@ Feature: Precedence1 - On boolean values
       UNWIND [true, false, null] AS b
       WITH collect((NOT a <comp> b) = (NOT (a <comp> b))) AS eq,
            collect((NOT a <comp> b) <> ((NOT a) <comp> b)) AS neq
-      RETURN none(x IN eq WHERE NOT x) AND any(x IN neq WHERE x) AS result
+      RETURN all(x IN eq WHERE x) AND any(x IN neq WHERE x) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -314,7 +314,7 @@ Feature: Precedence1 - On boolean values
       UNWIND [true, false, null] AS c
       WITH collect((a <boolop> b <pred> c) = (a <boolop> (b <pred> c))) AS eq,
            collect((a <boolop> b <pred> c) <> ((a <boolop> b) <pred> c)) AS neq
-      RETURN none(x IN eq WHERE NOT x) AND any(x IN neq WHERE x) AS result
+      RETURN all(x IN eq WHERE x) AND any(x IN neq WHERE x) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -350,7 +350,7 @@ Feature: Precedence1 - On boolean values
       UNWIND [true, false, null] AS b
       WITH collect((a <comp> b <nullpred>) = (a <comp> (b <nullpred>))) AS eq,
            collect((a <comp> b <nullpred>) <> ((a <comp> b) <nullpred>)) AS neq
-      RETURN none(x IN eq WHERE NOT x) AND any(x IN neq WHERE x) AS result
+      RETURN all(x IN eq WHERE x) AND any(x IN neq WHERE x) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -380,7 +380,7 @@ Feature: Precedence1 - On boolean values
       UNWIND [true, false, null] AS b
       WITH collect((NOT a <nullpred>) = (NOT (a <nullpred>))) AS eq,
            collect((NOT a <nullpred>) <> ((NOT a) <nullpred>)) AS neq
-      RETURN none(x IN eq WHERE NOT x) AND any(x IN neq WHERE x) AS result
+      RETURN all(x IN eq WHERE x) AND any(x IN neq WHERE x) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -400,7 +400,7 @@ Feature: Precedence1 - On boolean values
       UNWIND [true, false, null] AS b
       WITH collect((a <boolop> b <nullpred>) = (a <boolop> (b <nullpred>))) AS eq,
            collect((a <boolop> b <nullpred>) <> ((a <boolop> b) <nullpred>)) AS neq
-      RETURN none(x IN eq WHERE NOT x) AND any(x IN neq WHERE x) AS result
+      RETURN all(x IN eq WHERE x) AND any(x IN neq WHERE x) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -425,7 +425,7 @@ Feature: Precedence1 - On boolean values
       UNWIND [[], [true], [false], [null], [true, false], [true, false, null]] AS c
       WITH collect((a <comp> b IN c) = (a <comp> (b IN c))) AS eq,
            collect((a <comp> b IN c) <> ((a <comp> b) IN c)) AS neq
-      RETURN none(x IN eq WHERE NOT x) AND any(x IN neq WHERE x) AS result
+      RETURN all(x IN eq WHERE x) AND any(x IN neq WHERE x) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -449,7 +449,7 @@ Feature: Precedence1 - On boolean values
       UNWIND [[], [true], [false], [null], [true, false], [true, false, null]] AS b
       WITH collect((NOT a IN b) = (NOT (a IN b))) AS eq,
            collect((NOT a IN b) <> ((NOT a) IN b)) AS neq
-      RETURN none(x IN eq WHERE NOT x) AND any(x IN neq WHERE x) AS result
+      RETURN all(x IN eq WHERE x) AND any(x IN neq WHERE x) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -465,7 +465,7 @@ Feature: Precedence1 - On boolean values
       UNWIND [[], [true], [false], [null], [true, false], [true, false, null]] AS c
       WITH collect((a <boolop> b IN c) = (a <boolop> (b IN c))) AS eq,
            collect((a <boolop> b IN c) <> ((a <boolop> b) IN c)) AS neq
-      RETURN none(x IN eq WHERE NOT x) AND any(x IN neq WHERE x) AS result
+      RETURN all(x IN eq WHERE x) AND any(x IN neq WHERE x) AS result
       """
     Then the result should be, in any order:
       | result |
