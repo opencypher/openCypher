@@ -131,41 +131,47 @@ A deleted element is replaced with a `NULL` value when returned at the end of a 
 
 === Examples
 
-//For each aspect of the proposed feature(s), provide at least one Cypher example query to show how the feature is envisaged to work, along with explanatory text.
-//
-//_An example of this is shown below._
-//
-//Find all persons whose name starts with "And":
-//[source, cypher]
-//----
-//MATCH (a:Person)
-//WHERE a.name STARTS WITH “And”
-//RETURN a
-//----
-//
-//Find all persons whose name starts with the parameter prefix:
-//[source, cypher]
-//----
-//MATCH (a:Person)
-//WHERE a.name STARTS WITH {prefix}
-//RETURN a
-//----
-//
-//Find all persons whose name ends with "fan":
-//[source, cypher]
-//----
-//MATCH (a:Person)
-//WHERE a.name ENDS WITH "fan"
-//RETURN a
-//----
-//
-//Find all books whose isbn in string form contains "007":
-//[source, cypher]
-//----
-//MATCH (b:Book)
-//WHERE toString(b.isbn) CONTAINS "007"
-//RETURN a
-//----
+.Returning a deleted node, a label expression using it, its labels, and a previously projected property; compared to a non-deleted node:
+[source,cypher]
+----
+CREATE (n:L {x: 1, y: 2}), (m:L {x: 3, y: 4})
+WITH *, n.x AS projectedWhenAlive
+DELETE n
+RETURN
+  n, // null
+  projectedWhenAlive, // 1
+  n.x, // null
+  n.y, // null
+  properties(n), // null
+  n:L, // null
+  labels(n), // null
+  m, // the node as described above
+  m.x, // 3
+  labels(m) // ['L']
+----
+
+
+.Deleting a node which is accessed across different rows:
+[source,cypher]
+----
+CREATE (x:X {x: 1})
+WITH [x, x] AS list
+UNWIND list AS xComesTwiceHere
+WITH xComesTwiceHere, x.x AS readBeforeDelete
+DELETE xComesTwiceHere
+RETURN readBeforeDelete
+----
+
+.Result:
+[opts="header",cols=m]
+|===
+|readBeforeDelete
+|1
+|1
+|===
+
+Note that the second row returns `1` and not `null`.
+
 
 === Interaction with existing features
 
