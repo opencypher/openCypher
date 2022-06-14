@@ -55,23 +55,46 @@ For reference, we include the syntax of the clauses that are able to cause a del
 
 === Semantics
 
+The semantics of a deleted element are exactly the same as if the element variable was mapped to a `NULL` value.
+In this section, we will describe detailed semantics for the access of particularly interesting aspects of elements.
 
-=== Accessing properties of deleted Elements
+
+==== Properties
 
 Accessing properties of deleted elements produces a `NULL` value, just like accessing a property from a `NULL` value would.
+This includes both a direct property access operator (`.`) and the `properties()` function.
 
-=== Pattern matching on deleted Elements
 
-Pattern matching on deleted elements produces a single row containing only `NULL` bindings, in the same way as `OPTIONAL MATCH` would.
+==== Node labels
 
-=== Deleting deleted Elements
+A node label expression using the colon operator (`:`) on a deleted node evaluates to `NULL`.
+The `labels()` function on a deleted node evaluates to `NULL`.
 
-Deleting a deleted element (or any `NULL` value) is a no-op.
 
-=== Equality of deleted Elements
+==== Relationship type
+
+A relationship type expression using the colon operator (`:`) on a deleted relationship evaluates to `NULL`.
+The `type()` function on a deleted relationship evaluates to `NULL`.
+
+
+==== Pattern matching using deleted elements
+
+When a pattern used for matching in the graph contains an already-bound variable that refers to a deleted element, this results in the same predicate as otherwise, but with semantics that are identical to the case when a `NULL` value would be held by that variable.
+
+For example, consider the pattern `(a)-[r]->()` where the binding table contains bindings for `a` and `r`.
+There is an implicit predicate for the pattern matching allowing only elements `n` and `m` in the `a` and `r` positions for which `a = n AND r = m` is `TRUE`.
+If `a` and `b` refer to deleted elements, this predicate will not be true for any elements in the database, as the predicate is supposed to evaluate to the same value as `a = NULL AND r = NULL` which is `NULL` and not `TRUE`.
+
+
+==== Deleting deleted Elements
+
+Deleting a deleted element (like any `NULL` value) is a no-op.
+
+
+==== Equality of deleted Elements
 
 The normal semantics is that two `NULL` values are never considered equal.
-This extends to deleted elements, since they are equivalent to `NULL` for _all_ intents and purposes.
+This extends to deleted elements, since they are equivalent to `NULL` for all intents and purposes.
 
 [source, cypher]
 .This query returns `same1: *true*; same2: *false*` for all rows
@@ -83,7 +106,7 @@ DELETE n
 RETURN same1, n = m AS same2
 ----
 
-=== Deleted elements in paths
+==== Deleted elements in paths
 
 If an element is deleted that is part of a path value, such a path can no longer exist, therefore the path value is to be treated as _effectively_ `NULL` (in the same way that the deleted element that is part of it would).
 
@@ -95,7 +118,13 @@ DELETE r
 RETURN p AS a, nodes(p) AS b, relationships(p) AS c
 ----
 
-=== Effects of DELETE on the nullability of types
+
+==== Deleted elements in nested structures
+
+If an element exists within a list or map or another nested structure, the semantics still apply.
+
+
+==== Effects of DELETE on the nullability of types
 
 In the part of a query following a `DELETE` statement that deletes elements of type node, all elements of type node may now be nullable.
 In the part of a query following a `DELETE` statement that deletes elements of type relationship, all elements of type relationship may now be nullable.
@@ -104,33 +133,6 @@ In the part of a query following a `DELETE` statement, all elements of type path
 
 An implementation that tracks the types of nodes and relationships more closely, such as by which labels they have, it is allowed to not treat elements as nullable in the part of the query following `DELETE` iff it can be proven that those elements are unaffected by the `DELETE`.
 
-
-//Provide a description of the expected semantics of the new feature(s).
-//Use subheadings to structure the content.
-//
-//_Examples are shown below in sections 3.3.1–3.3.3:_
-//
-//==== STARTS WITH
-//
-//Using `lhs STARTS WITH rhs` requires both `lhs` and `rhs` to be strings.
-//This new expression evaluates to true if `lhs` textually starts with `rhs`.
-//Otherwise, it is false.
-//
-//==== ENDS WITH
-//
-//Using `lhs ENDS WITH rhs` requires both `lhs` and `rhs` to be strings.
-//This new expression evaluates to true if `lhs` textually ends with `rhs`.
-//Otherwise, it is false.
-//
-//==== CONTAINS
-//
-//Using `lhs CONTAINS rhs` requires both `lhs` and `rhs` to be strings.
-//This new expression evaluates to true if `lhs` textually contains `rhs`.
-//Otherwise, it is false.
-//
-//If any argument to `STARTS WITH`, `ENDS WITH`, or `CONTAINS` is `NULL`, then the result of evaluating the whole predicate is `NULL`.
-//
-//It is a type error to use `STARTS WITH`, `ENDS WITH`, or `CONTAINS` with a value that is not a string.
 
 === Examples
 
