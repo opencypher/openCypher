@@ -4,21 +4,59 @@
 :toc-placement: macro
 :source-highlighter: codemirror
 
-*Author:* Tobias Lindaaker <tobias.lindaaker@neotechnology.com>
+*Authors:* Tobias Lindaaker <tobias.lindaaker@neotechnology.com>, Mats Rydberg <mats@neo4j.org>
+
+[abstract]
+.Abstract
+--
+This is a high-level summary of the aim and description of the CIP.
+--
 
 toc::[]
 
-== Semantics of Deleted Elements
+
+== Motivation
 
 Cypher allows read statements to occur after update statements.
 This includes reading statements after statements that delete elements.
-Since the driving table of the preceding query is retained into the succeeding reading statements, this means that entries in the driving table that previously contained elements might now contain elements that have been deleted.
+Since the driving table of the preceding query (parts) is retained into the succeeding reading statements, this means that entries in the driving table that previously contained elements might now contain elements that have been deleted.
+
+//add more
+
+== Background
+
+
+
+
+== Proposal
 
 The semantics of accessing such elements is the same as accessing `NULL` values.
 
 This can be thought of as replacing all occurrences of the deleted elements (anywhere) in the driving table (including in nested values) with `NULL`, or as treating the deleted elements as _effectively_ `NULL`.
 
 These semantics effect the `DELETE` statement itself, even if not succeeded by further read statements, since the same element can occur in multiple rows in the driving table.
+
+
+=== Syntax
+
+//Provide the full range of syntactic additions and modifications in https://en.wikipedia.org/wiki/Extended_Backus-Naur_Form[EBNF] format and refer back to constructs defined https://github.com/opencypher/openCypher/tree/master/grammar[here].
+//
+//_An example of this is shown below._
+//
+//Extend expressions to support string search operators:
+//[source, ebnf]
+//----
+//expression    = current definition of expression
+//              | string-search
+//              ;
+//
+//string-search = starts with | ends with | contains ;
+//starts-with   = expression, "STARTS", "WITH", expression ;
+//ends-with     = expression, "ENDS", "WITH", expression ;
+//contains      = expression, "CONTAINS" expression ;
+//----
+
+=== Semantics
 
 
 === Accessing properties of deleted Elements
@@ -68,3 +106,97 @@ In the part of a query following a `DETACH DELETE` statement, all elements of ty
 In the part of a query following a `DELETE` statement, all elements of type path may now be nullable.
 
 An implementation that tracks the types of nodes and relationships more closely, such as by which labels they have, it is allowed to not treat elements as nullable in the part of the query following `DELETE` iff it can be proven that those elements are unaffected by the `DELETE`.
+
+
+//Provide a description of the expected semantics of the new feature(s).
+//Use subheadings to structure the content.
+//
+//_Examples are shown below in sections 3.3.1–3.3.3:_
+//
+//==== STARTS WITH
+//
+//Using `lhs STARTS WITH rhs` requires both `lhs` and `rhs` to be strings.
+//This new expression evaluates to true if `lhs` textually starts with `rhs`.
+//Otherwise, it is false.
+//
+//==== ENDS WITH
+//
+//Using `lhs ENDS WITH rhs` requires both `lhs` and `rhs` to be strings.
+//This new expression evaluates to true if `lhs` textually ends with `rhs`.
+//Otherwise, it is false.
+//
+//==== CONTAINS
+//
+//Using `lhs CONTAINS rhs` requires both `lhs` and `rhs` to be strings.
+//This new expression evaluates to true if `lhs` textually contains `rhs`.
+//Otherwise, it is false.
+//
+//If any argument to `STARTS WITH`, `ENDS WITH`, or `CONTAINS` is `NULL`, then the result of evaluating the whole predicate is `NULL`.
+//
+//It is a type error to use `STARTS WITH`, `ENDS WITH`, or `CONTAINS` with a value that is not a string.
+
+=== Examples
+
+//For each aspect of the proposed feature(s), provide at least one Cypher example query to show how the feature is envisaged to work, along with explanatory text.
+//
+//_An example of this is shown below._
+//
+//Find all persons whose name starts with "And":
+//[source, cypher]
+//----
+//MATCH (a:Person)
+//WHERE a.name STARTS WITH “And”
+//RETURN a
+//----
+//
+//Find all persons whose name starts with the parameter prefix:
+//[source, cypher]
+//----
+//MATCH (a:Person)
+//WHERE a.name STARTS WITH {prefix}
+//RETURN a
+//----
+//
+//Find all persons whose name ends with "fan":
+//[source, cypher]
+//----
+//MATCH (a:Person)
+//WHERE a.name ENDS WITH "fan"
+//RETURN a
+//----
+//
+//Find all books whose isbn in string form contains "007":
+//[source, cypher]
+//----
+//MATCH (b:Book)
+//WHERE toString(b.isbn) CONTAINS "007"
+//RETURN a
+//----
+
+=== Interaction with existing features
+
+//Provide details on any interactions that need to be considered.
+
+=== Alternatives
+
+//List any alternatives here; e.g. new keywords, a smaller feature set etc.
+
+== What others do
+
+//If applicable, include a feature comparison table, along with any useful links.
+//
+//To provide a well-rounded comparison, please ensure the inclusion of at least one SQL-based implementation -- such as DB2 or Postgres -- as well as SPARQL.
+//If you require any assistance or pointers to the latter, please contact petra.selmer@neotechnology.com.
+
+== Benefits to this proposal
+
+//List the benefits here.
+
+== Caveats to this proposal
+
+//List any caveats here.
+//These may include omissions, reasons for non-conformance with other features and so on.
+
+== Appendix
+
+//Put any supplementary information here.
