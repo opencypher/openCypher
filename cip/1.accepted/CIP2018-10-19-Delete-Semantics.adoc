@@ -164,28 +164,23 @@ If an element exists within a list or map or another nested structure, the seman
 
 === Interaction with existing features
 
-//Provide details on any interactions that need to be considered.
+The semantics of this proposal interact with any and all functionality in Cypher that operates over elements.
+This is a substantial part of the language, which motivates the consistent semantics described in this CIP.
+
+One particular relation that can be repeated is that to the `OPTIONAL MATCH` clause.
+It is the intention that an element matched using a non-matching `OPTIONAL MATCH` will behave identical to a deleted element.
+
 
 === Alternatives
 
-//List any alternatives here; e.g. new keywords, a smaller feature set etc.
+An alternative model is the Tombstone semantics described briefly in `CIR-2017-263`, which allows reading (some) parts of deleted elements.
 
-== What others do
-
-//If applicable, include a feature comparison table, along with any useful links.
-//
-//To provide a well-rounded comparison, please ensure the inclusion of at least one SQL-based implementation -- such as DB2 or Postgres -- as well as SPARQL.
-//If you require any assistance or pointers to the latter, please contact petra.selmer@neotechnology.com.
 
 == Benefits to this proposal
 
-//List the benefits here.
+A consistent specification for how deleted elements work within Cypher.
+
 
 == Caveats to this proposal
 
-//List any caveats here.
-//These may include omissions, reasons for non-conformance with other features and so on.
-
-== Appendix
-
-//Put any supplementary information here.
+Query authors have to keep in mind to project properties or other data from elements before they are deleted in order to return data from elements deleted in the same query.
