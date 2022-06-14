@@ -17,15 +17,14 @@ toc::[]
 
 == Motivation
 
-Cypher allows read statements to occur after update statements.
-This includes reading statements after statements that delete elements.
-Since the driving table of the preceding query (parts) is retained into the succeeding reading statements, this means that entries in the driving table that previously contained elements might now contain elements that have been deleted.
+Cypher allows reading clauses to occur after updating clauses.
+This includes reading clauses after clauses that delete elements.
+Since the driving table of the preceding query (parts) is retained into the succeeding reading query (parts), this means that entries in the driving table that previously contained elements might now contain elements that have been deleted.
 
-//add more
-
-== Background
-
-
+The semantics of such deleted elements are not obvious.
+In fact, implementations have dealt with these in inconsistent ways, sometimes allowing access to the element id, or its properties, or allowing `MATCH` clauses to find deleted elements, and sometimes none of those things.
+The need for consistent semantics for such deleted elements is expressed in part by `CIR-2017-263`.
+This CIP specifies consistent and clear semantics for such deleted elements.
 
 
 == Proposal
