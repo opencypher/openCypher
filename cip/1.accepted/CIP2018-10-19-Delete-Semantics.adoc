@@ -29,31 +29,29 @@ This CIP specifies consistent and clear semantics for such deleted elements.
 
 == Proposal
 
-The semantics of accessing such elements is the same as accessing `NULL` values.
-
+This CIP specifies that the semantics of accessing deleted elements is the same as accessing `NULL` values.
 This can be thought of as replacing all occurrences of the deleted elements (anywhere) in the driving table (including in nested values) with `NULL`, or as treating the deleted elements as _effectively_ `NULL`.
 
-These semantics effect the `DELETE` statement itself, even if not succeeded by further read statements, since the same element can occur in multiple rows in the driving table.
+`CIP-2015-10-27` defines that visibility between clauses follow a linear model.
+That is, the effects of a clause are visible to the clause itself and all subsequent clauses, but never to a preceding clause.
+That applies also to deleted elements.
+These semantics effect the `DELETE` clause itself, even if not succeeded by further reading clauses, since the same element can occur in multiple rows in the driving table.
+
+These semantics are consistent with the `OPTIONAL MATCH` clause, through the behaviour of that clause when no match is found.
+In that case, the pattern variables will be projected with a `NULL` value and subsequent operations using these variables are well-defined.
+This CIP builds on these well-established semantics.
 
 
 === Syntax
 
-//Provide the full range of syntactic additions and modifications in https://en.wikipedia.org/wiki/Extended_Backus-Naur_Form[EBNF] format and refer back to constructs defined https://github.com/opencypher/openCypher/tree/master/grammar[here].
-//
-//_An example of this is shown below._
-//
-//Extend expressions to support string search operators:
-//[source, ebnf]
-//----
-//expression    = current definition of expression
-//              | string-search
-//              ;
-//
-//string-search = starts with | ends with | contains ;
-//starts-with   = expression, "STARTS", "WITH", expression ;
-//ends-with     = expression, "ENDS", "WITH", expression ;
-//contains      = expression, "CONTAINS" expression ;
-//----
+There is no syntactic element to this CIP.
+For reference, we include the syntax of the clauses that are able to cause a deleting effect.
+
+[source, ebnf]
+----
+<delete> = ["DETACH"], "DELETE", <expression> ;
+----
+
 
 === Semantics
 
