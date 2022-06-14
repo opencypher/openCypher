@@ -124,6 +124,11 @@ RETURN p AS a, nodes(p) AS b, relationships(p) AS c
 If an element exists within a list or map or another nested structure, the semantics still apply.
 
 
+==== Returning deleted elements
+
+A deleted element is replaced with a `NULL` value when returned at the end of a query.
+
+
 === Examples
 
 //For each aspect of the proposed feature(s), provide at least one Cypher example query to show how the feature is envisaged to work, along with explanatory text.
