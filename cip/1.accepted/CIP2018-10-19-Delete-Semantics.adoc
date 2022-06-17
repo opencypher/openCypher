@@ -184,7 +184,11 @@ It is the intention that an element matched using a non-matching `OPTIONAL MATCH
 
 === Alternatives
 
-An alternative model is the Tombstone semantics described briefly in `CIR-2017-263`, which allows reading (some) parts of deleted elements.
+Several alternative models have been discussed:
+
+* Tombstone semantics, described briefly in `CIR-2017-263`, which allows reading parts of deleted elements.
+* Variable-out-of-scope, meaning any operation using a deleted element is an error, as the variable is considered out of scope and removed from the graph following the deletion.
+* A mix of the above, where some parts are allowed to be read, and others cause errors.
 
 
 == Benefits to this proposal
