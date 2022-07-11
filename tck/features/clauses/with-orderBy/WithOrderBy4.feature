@@ -353,7 +353,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
         LIMIT 2
       RETURN mod, min
       """
-    Then a SyntaxError should be raised at compile time: UndefinedVariable
+    Then a SyntaxError should be raised at compile time: AmbiguousAggregationExpression
 
   Scenario: [14] Fail on sorting by a non-projected aggregation on an expression
     Given an empty graph
@@ -373,7 +373,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
         LIMIT 2
       RETURN mod, min
       """
-    Then a SyntaxError should be raised at compile time: UndefinedVariable
+    Then a SyntaxError should be raised at compile time: AmbiguousAggregationExpression
 
   Scenario: [15] Sort by an aliased aggregate projection does allow subsequent matching
     Given an empty graph
