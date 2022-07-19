@@ -95,6 +95,7 @@ Feature: List6 - List size
     Given any graph
     When executing query:
       """
+      MATCH (a), (b), (c)
       RETURN size(<pattern>)
       """
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
@@ -106,9 +107,9 @@ Feature: List6 - List size
       | (a)-->()                                   |
       | (a)<--(a {})                               |
       | (a)-[:REL]->(b)                            |
-      | (a)-[r:REL]->(b)                           |
-      | (a)-[r:REL]->(:C)<-[s:REL]-(a {num: 5})    |
-      | ()-[r:REL*0..2]->()<-[s:REL]-(:A {num: 5}) |
+      | (a)-[:REL]->(b)                            |
+      | (a)-[:REL]->(:C)<-[:REL]-(a {num: 5})      |
+      | ()-[:REL*0..2]->()<-[:REL]-(:A {num: 5})   |
 
   Scenario: [7] Using size of pattern comprehension to test existence
     Given an empty graph
