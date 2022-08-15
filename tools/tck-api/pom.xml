@@ -71,7 +71,7 @@
 
     <dependency>
       <groupId>com.lihaoyi</groupId>
-      <artifactId>fastparse_${scala2.binary.version}</artifactId>
+      <artifactId>fastparse_${scala.binary.version}</artifactId>
       <version>${dep.fastparse.version}</version>
     </dependency>
 
