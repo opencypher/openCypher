@@ -93,6 +93,7 @@ Within each member, there are additional categories.
 * ReturnOrderBy3 - Order by multiple expressions (order obey priority of expressions)
 * ReturnOrderBy4 - Order by in combination with projection
 * ReturnOrderBy5 - Order by in combination with column renaming
+* ReturnOrderBy6 - Aggregation expressions in order by
 
 === Return-skip-limit
 
@@ -253,6 +254,13 @@ Within each member, there are additional categories.
 
 * Pattern1 - Pattern predicate
 * Pattern2 - Pattern Comprehension
+
+=== Precedence
+
+* Precedence1 - On boolean values
+* Precedence2 - On numeric values
+* Precedence3 - On list values
+* Precedence4 - On null value
 
 === Quantifier
 
