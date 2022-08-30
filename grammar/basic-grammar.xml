@@ -297,25 +297,25 @@
 
   <production name="UnaryAddOrSubtractExpression" rr:inline="true">
     <alt>
-      <non-terminal ref="ListOperatorExpression"/>
-      <seq><alt>+ -</alt> &WS; <non-terminal ref="ListOperatorExpression"/></seq>
+      <non-terminal ref="NonArithmeticOperatorExpression"/>
+      <seq><alt>+ -</alt> &WS; <non-terminal ref="NonArithmeticOperatorExpression"/></seq>
     </alt>
   </production>
 
-  <production name="ListOperatorExpression" rr:inline="true">
-    <non-terminal ref="PropertyOrLabelsExpression"/>
+  <production name="NonArithmeticOperatorExpression" rr:inline="true">
+    <non-terminal ref="Atom"/>
     <repeat><alt>
-      <seq>&WS; [ &expr; ] </seq>
-      <seq>&WS; [ <opt>&expr;</opt> .. <opt>&expr;</opt> ] </seq>
+      <seq>&WS; <non-terminal ref="ListOperatorExpression"/></seq>
+      <seq>&WS; <non-terminal ref="PropertyLookup"/></seq>
     </alt></repeat>
+    <opt>&WS; <non-terminal ref="NodeLabels"/></opt>
   </production>
 
-  <production name="PropertyOrLabelsExpression" rr:inline="true">
-    <non-terminal ref="Atom"/>
-    <repeat>
-      &WS; <non-terminal ref="PropertyLookup"/>
-    </repeat>
-    <opt>&WS; <non-terminal ref="NodeLabels"/></opt>
+  <production name="ListOperatorExpression" rr:inline="true">
+    <alt>
+      <seq>[ &expr; ] </seq>
+      <seq>[ <opt>&expr;</opt> .. <opt>&expr;</opt> ] </seq>
+    </alt>
   </production>
 
   <production name="PropertyLookup">
