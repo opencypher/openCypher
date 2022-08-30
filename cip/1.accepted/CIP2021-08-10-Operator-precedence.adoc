@@ -124,13 +124,13 @@ The higher the level number the higher the precedence.
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ExistentialSubquery[Existential subqueries]
 * https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ParenthesizedExpression[Parenthesized expression]
 
-.2+|Non-arithmetic operators
+.2+|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NonArithmeticOperatorExpression[Non-arithmetic operators]
 .2+|11
-|https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PropertyOrLabelsExpression[Graph element operators]
+|Graph element operators
 |
 
-* property lookup
-* label expressions
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PropertyLookup[property lookup] (left-hand operand)
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NodeLabels[label expressions] (only as last operator in chain)
 
 |https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ListOperatorExpression[List operators] (left-hand operand)
 |
