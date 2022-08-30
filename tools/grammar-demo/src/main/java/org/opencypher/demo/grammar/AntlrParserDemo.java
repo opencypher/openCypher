@@ -189,7 +189,7 @@ public class AntlrParserDemo
         }
         catch ( Throwable t )
         {
-            fail( "Unexpected error while writing antlr grammar: " + t.getMessage() );
+            fail( "Unexpected error while reading g4 grammar: " + t.getMessage() );
         }
         return null;
     }
