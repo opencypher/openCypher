@@ -158,7 +158,7 @@ Feature: Temporal2 - Create Temporal Values from a String
       | '2015-07-21T21:40:32.142+0845[Australia/Eucla]'   | '2015-07-21T21:40:32.142+08:45[Australia/Eucla]'     |
       | '2015-07-21T21:40:32.142-04[America/New_York]'    | '2015-07-21T21:40:32.142-04:00[America/New_York]'    |
       | '2015-07-21T21:40:32.142[Europe/London]'          | '2015-07-21T21:40:32.142+01:00[Europe/London]'       |
-      | '1818-07-21T21:40:32.142[Europe/Stockholm]'       | '1818-07-21T21:40:32.142+01:12:12[Europe/Stockholm]' |
+      | '1818-07-21T21:40:32.142[Europe/Stockholm]'       | '1818-07-21T21:40:32.142+00:53:28[Europe/Stockholm]' |
 
   Scenario Outline: [7] Should parse duration from string
     Given any graph
