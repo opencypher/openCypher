@@ -38,7 +38,7 @@ Feature: Merge2 - Merge node - on create
         ON CREATE SET a:Foo
       RETURN labels(a)
       """
-    Then the result should be, in any order:
+    Then the result should be (ignoring element order for lists):
       | labels(a)           |
       | ['TheLabel', 'Foo'] |
     And the side effects should be:

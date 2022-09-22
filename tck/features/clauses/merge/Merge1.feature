@@ -200,7 +200,7 @@ Feature: Merge1 - Merge node
       MERGE (test:L:B {num: 42})
       RETURN labels(test) AS labels
       """
-    Then the result should be, in any order:
+    Then the result should be (ignoring element order for lists):
       | labels     |
       | ['L', 'B'] |
     And the side effects should be:

@@ -132,7 +132,7 @@ Feature: Set3 - Set a Label
       SET n :Foo :Bar
       RETURN labels(n)
       """
-    Then the result should be, in any order:
+    Then the result should be (ignoring element order for lists):
       | labels(n)      |
       | ['Foo', 'Bar'] |
     And the side effects should be:
@@ -150,7 +150,7 @@ Feature: Set3 - Set a Label
       SET n :Foo:Bar
       RETURN labels(n)
       """
-    Then the result should be, in any order:
+    Then the result should be (ignoring element order for lists):
       | labels(n)      |
       | ['Foo', 'Bar'] |
     And the side effects should be:
