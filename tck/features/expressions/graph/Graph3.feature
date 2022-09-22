@@ -52,7 +52,7 @@ Feature: Graph3 - Node labels
       CREATE (node:Foo:Bar {name: 'Mattias'})
       RETURN labels(node)
       """
-    Then the result should be, in any order:
+    Then the result should be (ignoring element order for lists):
       | labels(node)   |
       | ['Foo', 'Bar'] |
     And the side effects should be:
@@ -68,7 +68,7 @@ Feature: Graph3 - Node labels
       CREATE (node :Foo:Bar)
       RETURN labels(node)
       """
-    Then the result should be, in any order:
+    Then the result should be (ignoring element order for lists):
       | labels(node)   |
       | ['Foo', 'Bar'] |
     And the side effects should be:
