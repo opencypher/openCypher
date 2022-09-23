@@ -244,6 +244,7 @@ object CypherTCK {
         case expectResultR()               => List(ExpectResult(parseTable(), step))
         case expectSortedResultR()         => List(ExpectResult(parseTable(), step, sorted = true))
         case expectResultUnorderedListsR() => List(ExpectResult(parseTable(orderedLists = false), step))
+        case expectSortedResultUnorderedListsR() => List(ExpectResult(parseTable(orderedLists = false), step, sorted = true))
         case expectErrorR(errorType, time, detail) =>
           val expectedError = ExpectError(errorType, time, detail, step)
           if (shouldValidate) {

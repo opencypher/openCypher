@@ -79,6 +79,9 @@ object TCKStepDefinitions {
   val EXPECT_RESULT_UNORDERED_LISTS = "^the result should be \\(ignoring element order for lists\\):$"
   val expectResultUnorderedListsR = EXPECT_RESULT_UNORDERED_LISTS.r
 
+  val EXPECT_SORTED_RESULT_UNORDERED_LISTS = "^the result should be, in order \\(ignoring element order for lists\\):$"
+  val expectSortedResultUnorderedListsR = EXPECT_SORTED_RESULT_UNORDERED_LISTS.r
+
   val EXPECT_EMPTY_RESULT = "^the result should be empty$"
   val expectEmptyResultR = EXPECT_EMPTY_RESULT.r
 
