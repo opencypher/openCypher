@@ -256,7 +256,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
       RETURN collect(nodes(p)) AS paths, length(p) AS l
       ORDER BY l
       """
-    Then the result should be, in order:
+    Then the result should be, in order (ignoring element order for lists):
       | paths                                                    | l |
       | [[(:A), (:B)], [(:C), (:D)], [(:D), (:E)], [(:E), (:F)]] | 1 |
       | [[(:C), (:D), (:E)], [(:D), (:E), (:F)]]                 | 2 |
