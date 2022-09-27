@@ -27,6 +27,9 @@
  */
 package org.opencypher.tools.tck.values
 
+import scala.annotation.tailrec
+import org.opencypher.tools.tck.values.OrderingCompatibility.Implicits.seqOrdering
+
 object CypherValue {
   def apply(s: String, orderedLists: Boolean = true): CypherValue = {
     val parser = new CypherValueParser(orderedLists)
@@ -34,9 +37,16 @@ object CypherValue {
   }
 
   implicit val ordering: Ordering[CypherValue] = new Ordering[CypherValue] {
+    private val stringSetOrdering: Ordering[Set[String]] = Ordering.by(set => set.toSeq.sorted)
+
+    @tailrec
     override def compare(x: CypherValue, y: CypherValue): Int = {
-      val stringOrdering = implicitly[Ordering[String]]
-      stringOrdering.compare(x.toString, y.toString)
+      (x, y) match {
+        case (CypherNode(lsA, psA), CypherNode(lsB, psB)) =>
+          val labelOrder = stringSetOrdering.compare(lsA, lsB)
+          if (labelOrder != 0) labelOrder else compare(psA, psB)
+        case (a, b) => a.toString.compareTo(b.toString)
+      }
     }
   }
 }

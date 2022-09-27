@@ -30,6 +30,8 @@ package org.opencypher.tools.tck.values
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.SortedSet
+
 class CypherValueTest extends AnyFunSuite with Matchers {
 
   test("list comparisons") {
@@ -107,4 +109,60 @@ class CypherValueTest extends AnyFunSuite with Matchers {
     l2 should equal(l1)
   }
 
+  test("node comparison with labelled nodes") {
+    CypherNode(Set("A", "B")) should equal(CypherNode(Set("B", "A")))
+    CypherNode(Set("A", "C")) should not equal(CypherNode(Set("A", "B")))
+  }
+
+  test("list comparison with labelled nodes") {
+    val nodeList1 = List(
+      CypherNode(scala.collection.immutable.SortedSet("A", "D")),
+      CypherNode(scala.collection.immutable.SortedSet("B", "C"))
+    )
+    val nodeList2 = List(
+      CypherNode(scala.collection.immutable.SortedSet("D", "A")(Ordering.String.reverse)),
+      CypherNode(scala.collection.immutable.SortedSet("C", "B")(Ordering.String.reverse))
+    )
+
+    CypherOrderedList(nodeList1) should equal(CypherOrderedList(nodeList2))
+    CypherOrderedList(nodeList2) should equal(CypherOrderedList(nodeList1))
+    CypherOrderedList(nodeList1) should equal(CypherUnorderedList(nodeList2))
+    CypherOrderedList(nodeList2) should equal(CypherUnorderedList(nodeList1))
+    CypherOrderedList(nodeList1.reverse) should equal(CypherUnorderedList(nodeList2))
+    CypherOrderedList(nodeList1) should equal(CypherUnorderedList(nodeList2.reverse))
+    CypherOrderedList(nodeList1.reverse) should equal(CypherUnorderedList(nodeList1))
+    CypherOrderedList(nodeList1) should equal(CypherUnorderedList(nodeList1.reverse))
+
+    CypherOrderedList(nodeList1.reverse) should not equal(CypherOrderedList(nodeList2))
+    CypherOrderedList(nodeList1) should not equal(CypherOrderedList(nodeList2.reverse))
+    CypherOrderedList(nodeList1.reverse) should not equal(CypherOrderedList(nodeList1))
+    CypherOrderedList(nodeList1) should not equal(CypherOrderedList(nodeList1.reverse))
+
+    CypherUnorderedList(nodeList1) should equal(CypherUnorderedList(nodeList2))
+    CypherUnorderedList(nodeList2) should equal(CypherUnorderedList(nodeList1))
+    CypherUnorderedList(nodeList1) should equal(CypherOrderedList(nodeList2))
+    CypherUnorderedList(nodeList2) should equal(CypherOrderedList(nodeList1))
+    CypherUnorderedList(nodeList1.reverse) should equal(CypherUnorderedList(nodeList2))
+    CypherUnorderedList(nodeList1) should equal(CypherUnorderedList(nodeList2.reverse))
+    CypherUnorderedList(nodeList1.reverse) should equal(CypherOrderedList(nodeList2))
+    CypherUnorderedList(nodeList1) should equal(CypherOrderedList(nodeList2.reverse))
+    CypherUnorderedList(nodeList1.reverse) should equal(CypherUnorderedList(nodeList1))
+    CypherUnorderedList(nodeList1) should equal(CypherUnorderedList(nodeList1.reverse))
+    CypherUnorderedList(nodeList1.reverse) should equal(CypherOrderedList(nodeList1))
+    CypherUnorderedList(nodeList1) should equal(CypherOrderedList(nodeList1.reverse))
+  }
+
+  test("list of lists comparison with labelled nodes") {
+    CypherValue("[[(:A:D), (:B:C)], [(:AA:DD), (:BB:CC)]]", orderedLists = false) should
+      equal(CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = false))
+
+    CypherValue("[[(:A:D), (:B:C)], [(:AA:DD), (:BB:CC)]]", orderedLists = true) should
+      equal(CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = true))
+
+    CypherValue("[[(:AA:DD), (:BB:CC)], [(:A:D), (:B:C)]]", orderedLists = false) should
+      equal(CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = false))
+
+    CypherValue("[[(:AA:DD), (:BB:CC)], [(:A:D), (:B:C)]]", orderedLists = true) should
+      not equal(CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = true))
+  }
 }
