@@ -126,17 +126,30 @@ class CypherValueTest extends AnyFunSuite with Matchers {
 
     CypherOrderedList(nodeList1) should equal(CypherOrderedList(nodeList2))
     CypherOrderedList(nodeList2) should equal(CypherOrderedList(nodeList1))
-    CypherUnorderedList(nodeList1) should equal(CypherUnorderedList(nodeList2))
-    CypherUnorderedList(nodeList2) should equal(CypherUnorderedList(nodeList1))
     CypherOrderedList(nodeList1) should equal(CypherUnorderedList(nodeList2))
     CypherOrderedList(nodeList2) should equal(CypherUnorderedList(nodeList1))
-    CypherUnorderedList(nodeList1) should equal(CypherOrderedList(nodeList2))
-    CypherUnorderedList(nodeList2) should equal(CypherOrderedList(nodeList1))
+    CypherOrderedList(nodeList1.reverse) should equal(CypherUnorderedList(nodeList2))
+    CypherOrderedList(nodeList1) should equal(CypherUnorderedList(nodeList2.reverse))
+    CypherOrderedList(nodeList1.reverse) should equal(CypherUnorderedList(nodeList1))
+    CypherOrderedList(nodeList1) should equal(CypherUnorderedList(nodeList1.reverse))
 
-    CypherUnorderedList(nodeList1.reverse) should equal(CypherUnorderedList(nodeList2))
-    CypherUnorderedList(nodeList1) should equal(CypherUnorderedList(nodeList2.reverse))
     CypherOrderedList(nodeList1.reverse) should not equal(CypherOrderedList(nodeList2))
     CypherOrderedList(nodeList1) should not equal(CypherOrderedList(nodeList2.reverse))
+    CypherOrderedList(nodeList1.reverse) should not equal(CypherOrderedList(nodeList1))
+    CypherOrderedList(nodeList1) should not equal(CypherOrderedList(nodeList1.reverse))
+
+    CypherUnorderedList(nodeList1) should equal(CypherUnorderedList(nodeList2))
+    CypherUnorderedList(nodeList2) should equal(CypherUnorderedList(nodeList1))
+    CypherUnorderedList(nodeList1) should equal(CypherOrderedList(nodeList2))
+    CypherUnorderedList(nodeList2) should equal(CypherOrderedList(nodeList1))
+    CypherUnorderedList(nodeList1.reverse) should equal(CypherUnorderedList(nodeList2))
+    CypherUnorderedList(nodeList1) should equal(CypherUnorderedList(nodeList2.reverse))
+    CypherUnorderedList(nodeList1.reverse) should equal(CypherOrderedList(nodeList2))
+    CypherUnorderedList(nodeList1) should equal(CypherOrderedList(nodeList2.reverse))
+    CypherUnorderedList(nodeList1.reverse) should equal(CypherUnorderedList(nodeList1))
+    CypherUnorderedList(nodeList1) should equal(CypherUnorderedList(nodeList1.reverse))
+    CypherUnorderedList(nodeList1.reverse) should equal(CypherOrderedList(nodeList1))
+    CypherUnorderedList(nodeList1) should equal(CypherOrderedList(nodeList1.reverse))
   }
 
   test("list of lists comparison with labelled nodes") {
