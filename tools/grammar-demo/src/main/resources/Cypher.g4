@@ -383,13 +383,10 @@ FALSE : ( 'F' | 'f' ) ( 'A' | 'a' ) ( 'L' | 'l' ) ( 'S' | 's' ) ( 'E' | 'e' )  ;
 oC_ListLiteral
            :  '[' SP? ( oC_Expression SP? ( ',' SP? oC_Expression SP? )* )? ']' ;
 
+COMPARE : ('=' | '<>' | '<' | '>' | '<=' | '>=') ;
+
 oC_PartialComparisonExpression
-                           :  ( '=' SP? oC_AddOrSubtractExpression )
-                               | ( '<>' SP? oC_AddOrSubtractExpression )
-                               | ( '<' SP? oC_AddOrSubtractExpression )
-                               | ( '>' SP? oC_AddOrSubtractExpression )
-                               | ( '<=' SP? oC_AddOrSubtractExpression )
-                               | ( '>=' SP? oC_AddOrSubtractExpression )
+                           :  ( COMPARE SP? oC_AddOrSubtractExpression )
                                ;
 
 oC_ParenthesizedExpression
