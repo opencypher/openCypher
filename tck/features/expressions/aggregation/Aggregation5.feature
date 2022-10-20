@@ -61,7 +61,7 @@ Feature: Aggregation5 - Collect
       OPTIONAL MATCH (n:DoesNotExist)
       RETURN collect(DISTINCT n.num) AS a, collect(DISTINCT f.num) AS b
       """
-    Then the result should be, in any order:
+    Then the result should be (ignoring element order for lists):
       | a  | b            |
       | [] | [42, 43, 44] |
     And no side effects
