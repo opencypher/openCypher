@@ -46,6 +46,8 @@ import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.nio.file._
 import java.util
+import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters._
 import scala.util.Failure
 import scala.util.Success
@@ -257,7 +259,7 @@ object CypherTCK {
                     If this is a custom error, then disable this validation with tag "${TCKTags.ALLOW_CUSTOM_ERRORS}"""")
             }
           }
-          List(expectedError, SideEffects(source = step).fillInZeros)
+          List(expectedError)
 
         // And
         case noSideEffectsR() => List(SideEffects(source = step).fillInZeros)
@@ -270,13 +272,16 @@ object CypherTCK {
       }
       scenarioSteps
     }.toList
+
+    val transformedSteps = insertSideEffectsOnExpectError(steps)
+
     val (name, number) = parseNameAndNumber(nameAndNumber)
     val tagsInferred = tags ++ Set(TCKTags.NEGATIVE_TEST, TCKTags.WILDCARD_ERROR_DETAILS).filter {
-      case TCKTags.NEGATIVE_TEST => steps.exists {
+      case TCKTags.NEGATIVE_TEST => transformedSteps.exists {
         case _: ExpectError => true
         case _ => false
       }
-      case TCKTags.WILDCARD_ERROR_DETAILS => steps.exists {
+      case TCKTags.WILDCARD_ERROR_DETAILS => transformedSteps.exists {
         case ExpectError(TCKErrorTypes.ERROR, _, _, _) => true
         case ExpectError(_, TCKErrorPhases.ANY_TIME, _, _) => true
         case ExpectError(_, _, TCKErrorDetails.ANY, _) => true
@@ -284,11 +289,24 @@ object CypherTCK {
       }
       case _ => false
     }
-    Scenario(categories.toList, featureName, number, name, exampleIndex, exampleName, tagsInferred, steps, pickle, sourceFile)
+    Scenario(categories.toList, featureName, number, name, exampleIndex, exampleName, tagsInferred, transformedSteps, pickle, sourceFile)
   }
 
   private def tagNames(pickle: io.cucumber.core.gherkin.Pickle): Set[String] = pickle.getTags.asScala.toSet
 
+  private def insertSideEffectsOnExpectError(originalSteps: List[Step]): List[Step] = {
+    @tailrec
+    def recurse(steps: List[Step], done: ListBuffer[Step]): List[Step] = steps match {
+      case (_: ExpectError) :: (_: SideEffects) :: _ => originalSteps // We already have side effects
+      case (expectError: ExpectError) :: tail =>
+        // Insert empty side effects after expect error
+        val sideEffects = SideEffects(source = expectError.source).fillInZeros
+        (done ++= (expectError :: sideEffects :: tail)).toList
+      case head :: tail => recurse(tail, done += head)
+      case _ => originalSteps
+    }
+    recurse(originalSteps, ListBuffer.empty)
+  }
 }
 
 case class Feature(scenarios: Seq[Scenario])
