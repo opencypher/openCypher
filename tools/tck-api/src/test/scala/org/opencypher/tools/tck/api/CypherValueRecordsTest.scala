@@ -34,10 +34,11 @@ import org.scalatest.matchers.should.Matchers
 class CypherValueRecordsTest extends AnyFunSuite with Matchers {
 
   test("compare rows with equal hash code") {
-    val a = CypherValueRecords(List("a", "b"), List(Map("a" -> CypherString("Aa")), Map("a" -> CypherString("BB"))))
-    val b = CypherValueRecords(List("a", "b"), List(Map("a" -> CypherString("BB")), Map("a" -> CypherString("Aa"))))
+    val rows = List(Map("a" -> CypherString("Aa")), Map("a" -> CypherString("BB")))
+    val a = CypherValueRecords(List("a", "b"), rows)
+    val b = CypherValueRecords(List("a", "b"), rows.reverse)
 
-    a.hashCode() shouldBe b.hashCode() // If this fails, find another hash collision
+    rows.head.hashCode() shouldBe rows(1).hashCode() // If this fails, find another hash collision
 
     a.equalsUnordered(b) shouldBe true
   }
@@ -45,8 +46,6 @@ class CypherValueRecordsTest extends AnyFunSuite with Matchers {
   test("compare rows with equal hash code 2") {
     val a = CypherValueRecords(List("a", "b"), List(Map("a" -> CypherString("Aa")), Map("a" -> CypherString("BB"))))
     val b = CypherValueRecords(List("a", "b"), List(Map("a" -> CypherString("BB")), Map("a" -> CypherString("BB"))))
-
-    a.hashCode() shouldBe b.hashCode() // If this fails, find another hash collision
 
     a.equalsUnordered(b) shouldBe false
   }
