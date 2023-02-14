@@ -77,7 +77,7 @@ object CypherValueRecords {
 
   private def rowCounts[ROW <: Any](rows: Seq[ROW]): Map[ROW, Int] = {
     rows.foldLeft(Map.empty[ROW, Int]) {
-      case (acc, row) => acc.updatedWith(row)(_.map(count => count + 1).orElse(Some(1)))
+      case (acc, row) => acc + (row -> (acc.getOrElse(row, 0) + 1))
     }
   }
 }
