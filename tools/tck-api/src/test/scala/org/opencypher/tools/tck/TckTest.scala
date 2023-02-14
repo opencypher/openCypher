@@ -45,11 +45,20 @@ class TckTest extends AnyFunSpec with Assertions with Matchers {
     case _              => List[Scenario]()
   }
 
+  private val (invalidScenarios, validScenarios) = scenarios.partition(_.name.startsWith("Do not fail init queries silently"))
+
   describe("Out of the scenarios in Foo.feature") {
-    scenarios.foreach { scenario =>
+    validScenarios.foreach { scenario =>
       it(s"${scenario.toString()} should run successfully") {
         scenario(FakeGraph).run()
         succeed
+      }
+    }
+
+    invalidScenarios.foreach { scenario =>
+      it(s"${scenario.toString()} should fail") {
+        val e = the [scenario.ScenarioFailedException] thrownBy scenario(FakeGraph).run()
+        causes(e) should contain(FakeGraph.FAIL_EXCEPTION)
       }
     }
   }
@@ -62,7 +71,9 @@ class TckTest extends AnyFunSpec with Assertions with Matchers {
         case SideEffectQuery => myException
       }
 
-      val e = the[Throwable].thrownBy(scenarios.head(graph).run())
+      val scenario = validScenarios.head
+
+      val e = the [scenario.ScenarioFailedException] thrownBy scenario(graph).run()
       causes(e) should contain(myException)
     }
   }
@@ -78,11 +89,15 @@ class TckTest extends AnyFunSpec with Assertions with Matchers {
 
   private object FakeGraph extends Graph with ProcedureSupport with CsvFileCreationSupport {
 
-    var cvsData = CypherValueRecords.empty
+    var cvsData: CypherValueRecords = CypherValueRecords.empty
+
+    val FAIL_EXCEPTION: MyException = MyException("fail")
 
     override def cypher(query: String, params: Map[String, CypherValue], queryType: QueryType): Result = {
       queryType match {
-        case InitQuery =>
+        case InitQuery if query.contains("FAIL") =>
+          ExecutionFailed(SYNTAX_ERROR, COMPILE_TIME, "fail", Some(FAIL_EXCEPTION))
+        case InitQuery if !query.contains("FAIL") =>
           CypherValueRecords.empty
         case SideEffectQuery =>
           CypherValueRecords.empty
