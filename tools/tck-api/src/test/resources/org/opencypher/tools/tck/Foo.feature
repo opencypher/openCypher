@@ -106,3 +106,18 @@ Feature: Foo
       """
       not really a query
       """
+
+  Scenario: Do not fail init queries silently
+    Given an empty graph
+    And having executed:
+      """
+      FAIL
+      """
+    When executing query:
+      """
+      RETURN 1
+      """
+    Then the result should be, in any order:
+      | 1 |
+      | 1 |
+    And no side effects
