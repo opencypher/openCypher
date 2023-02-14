@@ -91,7 +91,15 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
         val stepResult: Either[ScenarioFailedException, ScenarioExecutionContext] = (context, step) match {
 
           case (ctx, Execute(query, qt, _)) =>
-            Right(ctx.execute(query, qt))
+            val execResult = ctx.execute(query, qt)
+            qt match {
+              case ExecQuery => Right(execResult)
+              case ControlQuery => Right(execResult)
+              case InitQuery => execResult.lastResult match {
+                case Right(_) => Right(execResult)
+                case Left(error) => Left(ScenarioFailedException(s"Got error $error", error.exception.orNull))
+              }
+            }
 
           case (ctx, Measure(_)) =>
             Right(ctx.measure)
