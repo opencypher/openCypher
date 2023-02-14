@@ -27,6 +27,7 @@
  */
 package org.opencypher.tools.tck.api
 
+import org.opencypher.tools.tck.api.CypherValueRecords.rowCounts
 import org.opencypher.tools.tck.values.CypherValue
 
 /**
@@ -46,7 +47,7 @@ case class CypherValueRecords(header: List[String], rows: List[Map[String, Cyphe
 
   def equalsUnordered(otherRecords: CypherValueRecords): Boolean = {
     def equalHeaders = header == otherRecords.header
-    def equalRows = rows.sortBy(_.hashCode()) == otherRecords.rows.sortBy(_.hashCode())
+    def equalRows = rowCounts(rows) == rowCounts(otherRecords.rows)
     equalHeaders && equalRows
   }
 
@@ -73,6 +74,12 @@ object CypherValueRecords {
 
   val empty = CypherValueRecords(List.empty, List.empty)
   def emptyWithHeader(header: List[String]) = CypherValueRecords(header, List.empty)
+
+  private def rowCounts[ROW <: Any](rows: Seq[ROW]): Map[ROW, Int] = {
+    rows.foldLeft(Map.empty[ROW, Int]) {
+      case (acc, row) => acc + (row -> (acc.getOrElse(row, 0) + 1))
+    }
+  }
 }
 
 case class ExecutionFailed(errorType: String, phase: String, detail: String, exception: Option[Throwable] = None)
