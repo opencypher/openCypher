@@ -77,7 +77,7 @@ Feature: ReturnOrderBy6 - Aggregation expressions in order by
       RETURN count(you.age) AS agg
       ORDER BY me.age + count(you.age)
       """
-    Then a SyntaxError should be raised at compile time: AmbiguousAggregationExpression
+    Then a SyntaxError should be raised at compile time: UndefinedVariable
 
   Scenario: [5] Fail if more complex expressions, even if returned, are used inside an order by item which contains an aggregation expression
     Given an empty graph
