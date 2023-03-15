@@ -31,7 +31,7 @@
     <dep.batik.version>1.13</dep.batik.version>
     <dep.scalatags.version>0.10.0</dep.scalatags.version>
     <dep.cucumber.version>5.7.0</dep.cucumber.version>
-    <dep.fastparse.version>3.0.0-SNAPSHOT</dep.fastparse.version>
+    <dep.fastparse.version>3.0.0</dep.fastparse.version>
     <dep.hamcrest.version>2.2</dep.hamcrest.version>
     <dep.junit.platform.version>1.7.0</dep.junit.platform.version>
     <dep.junit.version>5.7.0</dep.junit.version>
