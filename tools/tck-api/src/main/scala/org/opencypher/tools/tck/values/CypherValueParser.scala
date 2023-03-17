@@ -33,6 +33,15 @@ import org.opencypher.tools.tck.values.Connection.{backward, forward}
 case class CypherValueParseException(msg: String, expected: String) extends Exception(msg)
 
 class CypherValueParser(val orderedLists: Boolean) {
+
+  implicit object whitespace extends Whitespace {
+    override def apply(ctx: ParsingRun[_]): ParsingRun[Unit] = {
+      implicit val p: ParsingRun[_] = ctx
+      implicit val w: Whitespace = this
+      invisible.rep
+    }
+  }
+
   def parse(s: String): CypherValue = {
     fastparse.parse(s, cypherValueFromEntireInput(_), verboseFailures = true) match {
       case Success(value, _) => value
@@ -174,6 +183,4 @@ class CypherValueParser(val orderedLists: Boolean) {
 
   private def newline[X: P]: P[Unit] = "\n" | "\r\n" | "\r" | "\f"
   private def invisible[X: P]: P[Unit] = " " | "\t" | newline
-
-  implicit val whitespace: P[_] => P[Unit] = { implicit ctx: ParsingRun[_] => invisible.rep }
 }
