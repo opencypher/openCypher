@@ -40,27 +40,15 @@ class CypherValueTest extends AnyFunSuite with Matchers {
     val uList1 = CypherUnorderedList(List(CypherInteger(2), CypherInteger(1)).sorted(CypherValue.ordering))
     val uList2 = CypherUnorderedList(List(CypherInteger(1), CypherInteger(2)).sorted(CypherValue.ordering))
 
-    oList1 should equal(oList1)
-    oList2 should equal(oList2)
-    uList1 should equal(uList1)
-    uList2 should equal(uList2)
-
     oList1 should not equal oList2
     oList2 should not equal oList1
 
-    uList1 should equal(oList1)
-    uList1 should equal(oList2)
-    uList1 should equal(uList2)
-    uList2 should equal(oList1)
-    uList2 should equal(oList2)
-    uList2 should equal(uList1)
-
-    oList1 should equal(uList1)
-    oList2 should equal(uList1)
-    uList2 should equal(uList1)
-    oList1 should equal(uList2)
-    oList2 should equal(uList2)
-    uList1 should equal(uList2)
+    assertReallyEqual(uList1, oList1)
+    assertReallyEqual(uList1, oList2)
+    assertReallyEqual(uList1, uList2)
+    assertReallyEqual(uList2, oList1)
+    assertReallyEqual(uList2, oList2)
+    assertReallyEqual(uList2, uList1)
   }
 
   test("list comparisons with strings") {
@@ -69,35 +57,27 @@ class CypherValueTest extends AnyFunSuite with Matchers {
     val uList1 = CypherUnorderedList(List(CypherString("name"), CypherString("age")).sorted(CypherValue.ordering))
     val uList2 = CypherUnorderedList(List(CypherString("age"), CypherString("name")).sorted(CypherValue.ordering))
 
-    oList1 should equal(oList1)
-    oList2 should equal(oList2)
-    uList1 should equal(uList1)
-    uList2 should equal(uList2)
-
     oList1 should not equal oList2
     oList2 should not equal oList1
 
-    uList1 should equal(oList1)
-    uList1 should equal(oList2)
-    uList1 should equal(uList2)
-    uList2 should equal(oList1)
-    uList2 should equal(oList2)
-    uList2 should equal(uList1)
-
-    oList1 should equal(uList1)
-    oList2 should equal(uList1)
-    uList2 should equal(uList1)
-    oList1 should equal(uList2)
-    oList2 should equal(uList2)
-    uList1 should equal(uList2)
+    assertReallyEqual(uList1, oList1)
+    assertReallyEqual(uList1, oList2)
+    assertReallyEqual(uList1, uList2)
+    assertReallyEqual(uList2, oList1)
+    assertReallyEqual(uList2, oList2)
   }
 
   test("lists that are equal should have the same hashCode") {
     val oList = CypherOrderedList(List(CypherString("Foo")))
     val uList = CypherUnorderedList(List(CypherString("Foo")))
 
-    oList should equal(uList)
-    oList.hashCode() should equal(uList.hashCode())
+    assertReallyEqual(oList, uList)
+  }
+
+  test("lists that are equal should really have the same hashCode") {
+    val a = CypherValue("['Carl', 'Bob']", orderedLists = false)
+    val b = CypherValue("['Bob', 'Carl']")
+    assertReallyEqual(a, b)
   }
 
   test("list comparisons simple example") {
@@ -105,12 +85,11 @@ class CypherValueTest extends AnyFunSuite with Matchers {
     val orderedItems2 = List(CypherString("age"), CypherString("name"), CypherString("address"))
     val l1 = CypherUnorderedList(orderedItems1.sorted(CypherValue.ordering))
     val l2 = CypherOrderedList(orderedItems1)
-    l1 should equal(l2)
-    l2 should equal(l1)
+    assertReallyEqual(l1, l2)
   }
 
   test("node comparison with labelled nodes") {
-    CypherNode(Set("A", "B")) should equal(CypherNode(Set("B", "A")))
+    assertReallyEqual(CypherNode(Set("A", "B")), CypherNode(Set("B", "A")))
     CypherNode(Set("A", "C")) should not equal(CypherNode(Set("A", "B")))
   }
 
@@ -124,45 +103,61 @@ class CypherValueTest extends AnyFunSuite with Matchers {
       CypherNode(scala.collection.immutable.SortedSet("C", "B")(Ordering.String.reverse))
     )
 
-    CypherOrderedList(nodeList1) should equal(CypherOrderedList(nodeList2))
-    CypherOrderedList(nodeList2) should equal(CypherOrderedList(nodeList1))
-    CypherOrderedList(nodeList1) should equal(CypherUnorderedList(nodeList2))
-    CypherOrderedList(nodeList2) should equal(CypherUnorderedList(nodeList1))
-    CypherOrderedList(nodeList1.reverse) should equal(CypherUnorderedList(nodeList2))
-    CypherOrderedList(nodeList1) should equal(CypherUnorderedList(nodeList2.reverse))
-    CypherOrderedList(nodeList1.reverse) should equal(CypherUnorderedList(nodeList1))
-    CypherOrderedList(nodeList1) should equal(CypherUnorderedList(nodeList1.reverse))
+    assertReallyEqual(CypherOrderedList(nodeList1), CypherOrderedList(nodeList2))
+    assertReallyEqual(CypherOrderedList(nodeList1), CypherUnorderedList(nodeList2))
+    assertReallyEqual(CypherOrderedList(nodeList1.reverse), CypherUnorderedList(nodeList2))
+    assertReallyEqual(CypherOrderedList(nodeList1), CypherUnorderedList(nodeList2.reverse))
+    assertReallyEqual(CypherOrderedList(nodeList1.reverse), CypherUnorderedList(nodeList1))
+    assertReallyEqual(CypherOrderedList(nodeList1), CypherUnorderedList(nodeList1.reverse))
 
     CypherOrderedList(nodeList1.reverse) should not equal(CypherOrderedList(nodeList2))
     CypherOrderedList(nodeList1) should not equal(CypherOrderedList(nodeList2.reverse))
     CypherOrderedList(nodeList1.reverse) should not equal(CypherOrderedList(nodeList1))
     CypherOrderedList(nodeList1) should not equal(CypherOrderedList(nodeList1.reverse))
 
-    CypherUnorderedList(nodeList1) should equal(CypherUnorderedList(nodeList2))
-    CypherUnorderedList(nodeList2) should equal(CypherUnorderedList(nodeList1))
-    CypherUnorderedList(nodeList1) should equal(CypherOrderedList(nodeList2))
-    CypherUnorderedList(nodeList2) should equal(CypherOrderedList(nodeList1))
-    CypherUnorderedList(nodeList1.reverse) should equal(CypherUnorderedList(nodeList2))
-    CypherUnorderedList(nodeList1) should equal(CypherUnorderedList(nodeList2.reverse))
-    CypherUnorderedList(nodeList1.reverse) should equal(CypherOrderedList(nodeList2))
-    CypherUnorderedList(nodeList1) should equal(CypherOrderedList(nodeList2.reverse))
-    CypherUnorderedList(nodeList1.reverse) should equal(CypherUnorderedList(nodeList1))
-    CypherUnorderedList(nodeList1) should equal(CypherUnorderedList(nodeList1.reverse))
-    CypherUnorderedList(nodeList1.reverse) should equal(CypherOrderedList(nodeList1))
-    CypherUnorderedList(nodeList1) should equal(CypherOrderedList(nodeList1.reverse))
+    assertReallyEqual(CypherUnorderedList(nodeList1), CypherUnorderedList(nodeList2))
+    assertReallyEqual(CypherUnorderedList(nodeList1), CypherOrderedList(nodeList2))
+    assertReallyEqual(CypherUnorderedList(nodeList2), CypherOrderedList(nodeList1))
+    assertReallyEqual(CypherUnorderedList(nodeList1.reverse), CypherUnorderedList(nodeList2))
+    assertReallyEqual(CypherUnorderedList(nodeList1), CypherUnorderedList(nodeList2.reverse))
+    assertReallyEqual(CypherUnorderedList(nodeList1.reverse), CypherOrderedList(nodeList2))
+    assertReallyEqual(CypherUnorderedList(nodeList1), CypherOrderedList(nodeList2.reverse))
+    assertReallyEqual(CypherUnorderedList(nodeList1.reverse), CypherUnorderedList(nodeList1))
+    assertReallyEqual(CypherUnorderedList(nodeList1), CypherUnorderedList(nodeList1.reverse))
+    assertReallyEqual(CypherUnorderedList(nodeList1.reverse), CypherOrderedList(nodeList1))
+    assertReallyEqual(CypherUnorderedList(nodeList1), CypherOrderedList(nodeList1.reverse))
   }
 
   test("list of lists comparison with labelled nodes") {
-    CypherValue("[[(:A:D), (:B:C)], [(:AA:DD), (:BB:CC)]]", orderedLists = false) should
-      equal(CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = false))
-
-    CypherValue("[[(:A:D), (:B:C)], [(:AA:DD), (:BB:CC)]]", orderedLists = true) should
-      equal(CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = true))
-
-    CypherValue("[[(:AA:DD), (:BB:CC)], [(:A:D), (:B:C)]]", orderedLists = false) should
-      equal(CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = false))
-
+    assertReallyEqual(
+      CypherValue("[[(:A:D), (:B:C)], [(:AA:DD), (:BB:CC)]]", orderedLists = false),
+      CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = false)
+    )
+    assertReallyEqual(
+      CypherValue("[[(:A:D), (:B:C)], [(:AA:DD), (:BB:CC)]]", orderedLists = true),
+      CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = false)
+    )
+    assertReallyEqual(
+      CypherValue("[[(:A:D), (:B:C)], [(:AA:DD), (:BB:CC)]]", orderedLists = true),
+      CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = true)
+    )
+    assertReallyEqual(
+      CypherValue("[[(:AA:DD), (:BB:CC)], [(:A:D), (:B:C)]]", orderedLists = false),
+      CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = false)
+    )
+    assertReallyEqual(
+      CypherValue("[[(:AA:DD), (:BB:CC)], [(:A:D), (:B:C)]]", orderedLists = false),
+      CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = true)
+    )
     CypherValue("[[(:AA:DD), (:BB:CC)], [(:A:D), (:B:C)]]", orderedLists = true) should
       not equal(CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = true))
+  }
+
+  private def assertReallyEqual(a: CypherValue, b: CypherValue): Unit = {
+    a shouldBe a
+    b shouldBe b
+    a shouldBe b
+    b shouldBe a
+    a.hashCode() shouldBe b.hashCode()
   }
 }

@@ -28,6 +28,7 @@
 package org.opencypher.tools.tck.api
 
 import org.opencypher.tools.tck.values.CypherString
+import org.opencypher.tools.tck.values.CypherValue
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
@@ -48,5 +49,54 @@ class CypherValueRecordsTest extends AnyFunSuite with Matchers {
     val b = CypherValueRecords(List("a", "b"), List(Map("a" -> CypherString("BB")), Map("a" -> CypherString("BB"))))
 
     a.equalsUnordered(b) shouldBe false
+  }
+
+  test("compare unordered lists") {
+    val a = records(List(
+      Map("foo" -> CypherValue("['Ada', 'Danielle']", orderedLists = false)),
+      Map("foo" -> CypherValue("['Carl']", orderedLists = false)),
+      Map("foo" -> CypherValue("['Danielle']", orderedLists = false)),
+      Map("foo" -> CypherValue("[]", orderedLists = false)),
+      Map("foo" -> CypherValue("['Bob', 'Carl']", orderedLists = false))
+    ))
+    val b = records(List(
+      Map("foo" -> CypherValue("['Carl', 'Bob']")),
+      Map("foo" -> CypherValue("['Ada', 'Danielle']")),
+      Map("foo" -> CypherValue("['Danielle']")),
+      Map("foo" -> CypherValue("['Carl']")),
+      Map("foo" -> CypherValue("[]"))
+    ))
+
+    a.equalsUnordered(b) shouldBe true
+    b.equalsUnordered(a) shouldBe true
+    a should not equal(b)
+    b should not equal(a)
+  }
+
+  test("compare unordered lists 2") {
+    val a = records(List(
+      Map("foo" -> CypherValue("['Bob', 'Carl']", orderedLists = false)),
+      Map("foo" -> CypherValue("['Ada', 'Danielle']", orderedLists = false)),
+      Map("foo" -> CypherValue("['Danielle']", orderedLists = false)),
+      Map("foo" -> CypherValue("['Carl']", orderedLists = false)),
+      Map("foo" -> CypherValue("[]", orderedLists = false))
+    ))
+    val b = records(List(
+      Map("foo" -> CypherValue("['Carl', 'Bob']")),
+      Map("foo" -> CypherValue("['Ada', 'Danielle']")),
+      Map("foo" -> CypherValue("['Danielle']")),
+      Map("foo" -> CypherValue("['Carl']")),
+      Map("foo" -> CypherValue("[]"))
+    ))
+
+    a.equalsUnordered(b) shouldBe true
+    b.equalsUnordered(a) shouldBe true
+    a shouldBe (b)
+    b shouldBe (a)
+  }
+
+  private def records(columns: List[Map[String, CypherValue]]): CypherValueRecords = {
+    val header = columns.flatMap(_.keySet).distinct
+    CypherValueRecords(header, columns)
   }
 }
