@@ -111,6 +111,7 @@ case class CypherPropertyMap(properties: Map[String, CypherValue] = Map.empty)
 
 trait CypherList extends CypherValue {
   def elements: List[CypherValue]
+  protected[tck] lazy val sortedElements: List[CypherValue] = elements.sorted(CypherValue.ordering)
 }
 
 /**
@@ -128,7 +129,8 @@ case class CypherOrderedList(elements: List[CypherValue] = List.empty) extends C
     case _ => false
   }
 
-  override def hashCode(): Int = Hashing.productHash(this)
+  // Hash code needs to be on sorted elements for comparison with unordered lists to work
+  override def hashCode(): Int = sortedElements.hashCode()
 }
 
 /**
@@ -141,14 +143,11 @@ private[tck] case class CypherUnorderedList(elements: List[CypherValue] = List.e
 
   override def equals(obj: scala.Any): Boolean = obj match {
     case null => false
-    case other: CypherOrderedList =>
-      other.elements.sorted(CypherValue.ordering) == elements.sorted(CypherValue.ordering)
-    case other: CypherUnorderedList =>
-      other.elements.sorted(CypherValue.ordering) == elements.sorted(CypherValue.ordering)
+    case other: CypherList => other.sortedElements == sortedElements
     case _ => false
   }
 
-  override def hashCode(): Int = Hashing.productHash(this)
+  override def hashCode(): Int = sortedElements.hashCode()
 }
 
 case object CypherNull extends CypherValue {
