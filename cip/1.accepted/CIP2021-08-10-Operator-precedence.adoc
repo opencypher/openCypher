@@ -392,13 +392,13 @@ Example expressions are:
 [IMPORTANT]
 .Chains of binary operators
 ====
-In chains of binary operators, the operator have left-to-right associativity, i.e. for every two operators, the operator appearing earlier (more left) in the query string takes precedence and the operator tree is left-deep.
+In chains of binary operators, the operators have left-to-right associativity, i.e. for every two operators, the operator appearing earlier (more left) in the query string takes precedence and the operator tree is left-deep.
 ====
 
 [NOTE]
 .Associative binary operators
 ====
-Where the semantics of operator is associative (e.g. addition), a right-deep operator tree produces the same result as a left-deep operator tree.
+Where the semantics of an operator is associative (e.g. addition), a right-deep operator tree produces the same result as a left-deep operator tree.
 ====
 
 Consequently, the examples evaluate as follows:
