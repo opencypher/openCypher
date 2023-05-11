@@ -149,12 +149,12 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
                     ScenarioFailedException(
                       s"Wrong error type: expected $errorType, got ${error.errorType}",
                       error.exception.orNull))
-                if (error.phase != phase && error.phase != TCKErrorPhases.ANY_TIME && phase != TCKErrorPhases.ANY_TIME)
+                else if (error.phase != phase && error.phase != TCKErrorPhases.ANY_TIME && phase != TCKErrorPhases.ANY_TIME)
                   Left(
                     ScenarioFailedException(
                       s"Wrong error phase: expected $phase, got ${error.phase}",
                       error.exception.orNull))
-                if (error.detail != detail && error.detail != TCKErrorDetails.ANY && detail != TCKErrorDetails.ANY)
+                else if (error.detail != detail && error.detail != TCKErrorDetails.ANY && detail != TCKErrorDetails.ANY)
                   Left(
                     ScenarioFailedException(
                       s"Wrong error detail: expected $detail, got ${error.detail}",
