@@ -95,6 +95,101 @@ class CypherValueRecordsTest extends AnyFunSuite with Matchers {
     b shouldBe (a)
   }
 
+  test("compare lists of nodes with properties") {
+    val a = records(List(
+      Map(
+        "x" -> "(:Person {city: 'Paris', name: 'Chris', age: 30})",
+        "a" -> "[(:Person {city: 'Paris', name: 'Chris', age: 30})]",
+        "r" -> "[[:K {weight: 2, id: 7}]]",
+        "b" -> "[(:Person {city: 'Paris', name: 'Diana', age: 35})]",
+        "y" -> "(:Person {city: 'Paris', name: 'Diana', age: 35})"
+      ),
+      Map(
+        "x" -> "(:Person {city: 'Paris', name: 'Chris', age: 30})",
+        "a" -> "[(:Person {city: 'Paris', name: 'Chris', age: 30})]",
+        "r" -> "[[:E {weight: 3, id: 3}]]",
+        "b" -> "[(:Person {city: 'Paris', name: 'Diana', age: 35})]",
+        "y" -> "(:Person {city: 'Paris', name: 'Diana', age: 35})"
+      ),
+      Map(
+        "x" -> "(:Person {city: 'Paris', name: 'Chris', age: 30})",
+        "a" -> "[(:Person {city: 'Paris', name: 'Chris', age: 30}), (:Person {city: 'Paris', name: 'Diana', age: 35})]",
+        "r" -> "[[:E {weight: 3, id: 3}], [:E {weight: 1, id: 4}]]",
+        "b" -> "[(:Person {city: 'Paris', name: 'Diana', age: 35}), (:Person {city: 'London', name: 'Sue', age: 32})]",
+        "y" -> "(:Person {city: 'London', name: 'Sue', age: 32})"
+      ),
+      Map(
+        "x" -> "(:Person {city: 'Paris', name: 'Chris', age: 30})",
+        "a" -> "[(:Person {city: 'Paris', name: 'Chris', age: 30}), (:Person {city: 'Paris', name: 'Diana', age: 35})]",
+        "r" -> "[[:E {weight: 3, id: 3}], [:E {weight: 7, id: 5}]]",
+        "b" -> "[(:Person {city: 'Paris', name: 'Diana', age: 35}), (:Person {city: 'Oslo', name: 'Tony', age: 40})]",
+        "y" -> "(:Person {city: 'Oslo', name: 'Tony', age: 40})"
+      ),
+      Map(
+        "x" -> "(:Person {city: 'Paris', name: 'Chris', age: 30})",
+        "a" -> "[(:Person {city: 'Paris', name: 'Chris', age: 30}), (:Person {city: 'Paris', name: 'Diana', age: 35})]",
+        "r" -> "[[:K {weight: 2, id: 7}], [:E {weight: 1, id: 4}]]",
+        "b" -> "[(:Person {city: 'Paris', name: 'Diana', age: 35}), (:Person {city: 'London', name: 'Sue', age: 32})]",
+        "y" -> "(:Person {city: 'London', name: 'Sue', age: 32})"
+      ),
+      Map(
+        "x" -> "(:Person {city: 'Paris', name: 'Chris', age: 30})",
+        "a" -> "[(:Person {city: 'Paris', name: 'Chris', age: 30}), (:Person {city: 'Paris', name: 'Diana', age: 35})]",
+        "r" -> "[[:K {weight: 2, id: 7}], [:E {weight: 7, id: 5}]]",
+        "b" -> "[(:Person {city: 'Paris', name: 'Diana', age: 35}), (:Person {city: 'Oslo', name: 'Tony', age: 40})]",
+        "y" -> "(:Person {city: 'Oslo', name: 'Tony', age: 40})"
+      )
+    ).map(_.map { case (k, v) => k -> CypherValue(v)}))
+    
+    val b = records(List(
+      Map(
+        "x" -> "(:Person {name: 'Chris', city: 'Paris', age: 30})",
+        "a" -> "[(:Person {name: 'Chris', city: 'Paris', age: 30})]",
+        "r" -> "[[:K {weight: 2, id: 7}]]",
+        "b" -> "[(:Person {name: 'Diana', city: 'Paris', age: 35})]",
+        "y" -> "(:Person {name: 'Diana', city: 'Paris', age: 35})"
+      ),
+      Map(
+        "x" -> "(:Person {name: 'Chris', city: 'Paris', age: 30})",
+        "a" -> "[(:Person {name: 'Chris', city: 'Paris', age: 30})]",
+        "r" -> "[[:E {weight: 3, id: 3}]]",
+        "b" -> "[(:Person {name: 'Diana', city: 'Paris', age: 35})]",
+        "y" -> "(:Person {name: 'Diana', city: 'Paris', age: 35})"
+      ),
+      Map(
+        "x" -> "(:Person {name: 'Chris', city: 'Paris', age: 30})",
+        "a" -> "[(:Person {name: 'Chris', city: 'Paris', age: 30}), (:Person {name: 'Diana', city: 'Paris', age: 35})]",
+        "r" -> "[[:K {weight: 2, id: 7}], [:E {weight: 1, id: 4}]]",
+        "b" -> "[(:Person {name: 'Diana', city: 'Paris', age: 35}), (:Person {name: 'Sue', city: 'London', age: 32})]",
+        "y" -> "(:Person {name: 'Sue', city: 'London', age: 32})"
+      ),
+      Map(
+        "x" -> "(:Person {name: 'Chris', city: 'Paris', age: 30})",
+        "a" -> "[(:Person {name: 'Chris', city: 'Paris', age: 30}), (:Person {name: 'Diana', city: 'Paris', age: 35})]",
+        "r" -> "[[:K {id: 7, weight: 2}], [:E {weight: 7, id: 5}]]",
+        "b" -> "[(:Person {name: 'Diana', city: 'Paris', age: 35}), (:Person {name: 'Tony', city: 'Oslo', age: 40})]",
+        "y" -> "(:Person {name: 'Tony', city: 'Oslo', age: 40})"
+      ),
+      Map(
+        "x" -> "(:Person {name: 'Chris', city: 'Paris', age: 30})",
+        "a" -> "[(:Person {name: 'Chris', city: 'Paris', age: 30}), (:Person {name: 'Diana', city: 'Paris', age: 35})]",
+        "r" -> "[[:E {weight: 3, id: 3}], [:E {weight: 1, id: 4}]]",
+        "b" -> "[(:Person {name: 'Diana', city: 'Paris', age: 35}), (:Person {name: 'Sue', city: 'London', age: 32})]",
+        "y" -> "(:Person {name: 'Sue', city: 'London', age: 32})"
+      ),
+      Map(
+        "x" -> "(:Person {name: 'Chris', city: 'Paris', age: 30})",
+        "a" -> "[(:Person {name: 'Chris', city: 'Paris', age: 30}), (:Person {name: 'Diana', city: 'Paris', age: 35})]",
+        "r" -> "[[:E {weight: 3, id: 3}], [:E {id: 5, weight: 7}]]",
+        "b" -> "[(:Person {name: 'Diana', city: 'Paris', age: 35}), (:Person {name: 'Tony', city: 'Oslo', age: 40})]",
+        "y" -> "(:Person {name: 'Tony', city: 'Oslo', age: 40})"
+      )
+    ).map(_.map { case (k, v) => k -> CypherValue(v)}))
+
+    a.equalsUnordered(b) shouldBe true
+    b.equalsUnordered(a) shouldBe true
+  }
+
   private def records(columns: List[Map[String, CypherValue]]): CypherValueRecords = {
     val header = columns.flatMap(_.keySet).distinct
     CypherValueRecords(header, columns)
