@@ -42,6 +42,7 @@ object CypherValue {
     @tailrec
     override def compare(x: CypherValue, y: CypherValue): Int = {
       (x, y) match {
+        case (a, b) if a == b => 0
         case (CypherNode(lsA, psA), CypherNode(lsB, psB)) =>
           val labelOrder = stringSetOrdering.compare(lsA, lsB)
           if (labelOrder != 0) labelOrder else compare(psA, psB)
@@ -104,9 +105,15 @@ object CypherPropertyMap {
 
 case class CypherPropertyMap(properties: Map[String, CypherValue] = Map.empty)
   extends CypherValue {
-  override def toString: String = s"{${properties.map {
-    case (k, v) => s"$k: $v"
-  }.mkString(", ")}}"
+
+  override def toString: String = toStringSorted
+
+  // Hack to make ordering work :/
+  private lazy val toStringSorted: String =
+    properties.toSeq
+      .sortBy { case (k, _) => k }
+      .map { case (k, v) => s"$k: $v" }
+      .mkString("{", ", ", "}")
 }
 
 trait CypherList extends CypherValue {

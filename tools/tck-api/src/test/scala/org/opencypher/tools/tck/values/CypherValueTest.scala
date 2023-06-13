@@ -30,8 +30,6 @@ package org.opencypher.tools.tck.values
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
-import scala.collection.SortedSet
-
 class CypherValueTest extends AnyFunSuite with Matchers {
 
   test("list comparisons") {
@@ -151,6 +149,28 @@ class CypherValueTest extends AnyFunSuite with Matchers {
     )
     CypherValue("[[(:AA:DD), (:BB:CC)], [(:A:D), (:B:C)]]", orderedLists = true) should
       not equal(CypherValue("[[(:D:A), (:C:B)], [(:DD:AA), (:CC:BB)]]", orderedLists = true))
+  }
+
+  test("nodes with properties") {
+    assertReallyEqual(
+      CypherValue("[(:A {a: 1, b: 2}), (:A {b: 4, a: 3})]", orderedLists = true),
+      CypherValue("[(:A {b: 2, a: 1}), (:A {a: 3, b: 4})]", orderedLists = true),
+    )
+    assertReallyEqual(
+      CypherValue("[(:A {a: 1, b: 2}), (:A {b: 4, a: 3})]", orderedLists = false),
+      CypherValue("[(:A {a: 3, b: 4}), (:A {b: 2, a: 1})]", orderedLists = false),
+    )
+  }
+
+  test("relationships with properties") {
+    assertReallyEqual(
+      CypherValue("[[:A {a: 1, b: 2}], [:A {b: 4, a: 3}]]", orderedLists = true),
+      CypherValue("[[:A {b: 2, a: 1}], [:A {a: 3, b: 4}]]", orderedLists = true),
+    )
+    assertReallyEqual(
+      CypherValue("[[:A {a: 1, b: 2}], [:A {b: 4, a: 3}]]", orderedLists = false),
+      CypherValue("[[:A {a: 3, b: 4}], [:A {b: 2, a: 1}]]", orderedLists = false),
+    )
   }
 
   private def assertReallyEqual(a: CypherValue, b: CypherValue): Unit = {
