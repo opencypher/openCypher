@@ -173,6 +173,16 @@ class CypherValueTest extends AnyFunSuite with Matchers {
     )
   }
 
+  test("maps") {
+    assertReallyEqual(
+      CypherValue("[{a: 1, b: 2}, {b: 4, a: 3}]", orderedLists = true),
+      CypherValue("[{b: 2, a: 1}, {a: 3, b: 4}]", orderedLists = true),
+    )
+    assertReallyEqual(
+      CypherValue("[{a: 1, b: 2}, {b: 4, a: 3}]", orderedLists = false),
+      CypherValue("[{a: 3, b: 4}, {b: 2, a: 1}]", orderedLists = false),
+    )
+  }
   private def assertReallyEqual(a: CypherValue, b: CypherValue): Unit = {
     a shouldBe a
     b shouldBe b
