@@ -127,7 +127,7 @@ Feature: Delete1 - Deleting nodes
       MATCH (n:X)
       DELETE n
       """
-    Then a ConstraintVerificationFailed should be raised at runtime: DeleteConnectedNode
+    Then a ConstraintValidationFailed should be raised at runtime: DeleteConnectedNode
 
   Scenario: [8] Failing when deleting a label
     Given any graph
