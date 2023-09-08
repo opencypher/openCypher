@@ -200,7 +200,7 @@ Feature: ReturnSkipLimit2 - Limit
       RETURN p.name AS name
       LIMIT $_limit
       """
-    Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
+    Then a ArgumentError should be raised at runtime: NegativeIntegerArgument
 
   Scenario: [11] Negative parameter for LIMIT with ORDER BY should fail
     Given any graph
@@ -217,7 +217,7 @@ Feature: ReturnSkipLimit2 - Limit
       RETURN p.name AS name
       ORDER BY name LIMIT $_limit
       """
-    Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
+    Then a ArgumentError should be raised at runtime: NegativeIntegerArgument
 
   Scenario: [12] Fail when using negative value in LIMIT 1
     Given any graph
@@ -259,7 +259,7 @@ Feature: ReturnSkipLimit2 - Limit
       RETURN p.name AS name
       LIMIT $_limit
       """
-    Then a SyntaxError should be raised at runtime: InvalidArgumentType
+    Then a ArgumentError should be raised at runtime: InvalidArgumentType
 
   Scenario: [15] Floating point parameter for LIMIT with ORDER BY should fail
     Given any graph
@@ -276,7 +276,7 @@ Feature: ReturnSkipLimit2 - Limit
       RETURN p.name AS name
       ORDER BY name LIMIT $_limit
       """
-    Then a SyntaxError should be raised at runtime: InvalidArgumentType
+    Then a ArgumentError should be raised at runtime: InvalidArgumentType
 
   Scenario: [16] Fail when using floating point in LIMIT 1
     Given any graph
