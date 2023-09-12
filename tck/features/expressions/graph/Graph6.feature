@@ -160,7 +160,7 @@ Feature: Graph6 - Static property access
       WITH <exp> AS nonGraphElement
       RETURN nonGraphElement.num
       """
-    Then a TypeError should be raised at compile time: InvalidArgumentType
+    Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
     Examples:
       | exp         |
