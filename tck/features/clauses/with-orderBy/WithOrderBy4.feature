@@ -456,7 +456,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
-      WITH me.age + you.age, count(*) AS cnt
+      WITH me.age + you.age AS ages, count(*) AS cnt
       ORDER BY me.age + you.age + count(*)
       RETURN *
       """
