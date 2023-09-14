@@ -134,7 +134,7 @@ Feature: ReturnSkipLimit1 - Skip
       RETURN p.name AS name
       SKIP $_skip
       """
-    Then a SyntaxError should be raised at runtime: NegativeIntegerArgument
+    Then an ArgumentError should be raised at runtime: NegativeIntegerArgument
 
   Scenario: [7] Negative SKIP should fail
     Given any graph
@@ -166,7 +166,7 @@ Feature: ReturnSkipLimit1 - Skip
       RETURN p.name AS name
       SKIP $_limit
       """
-    Then a SyntaxError should be raised at runtime: InvalidArgumentType
+    Then a ArgumentError should be raised at runtime: InvalidArgumentType
 
   Scenario: [9] Floating point SKIP should fail
     Given any graph
