@@ -95,7 +95,7 @@ Feature: Aggregation6 - Percentiles
       MATCH (n)
       RETURN percentileCont(n.price, $param)
       """
-    Then a ArgumentError should be raised at runtime: NumberOutOfRange
+    Then an ArgumentError should be raised at runtime: NumberOutOfRange
 
     Examples:
       | percentile |
@@ -116,7 +116,7 @@ Feature: Aggregation6 - Percentiles
       MATCH (n)
       RETURN percentileDisc(n.price, $param)
       """
-    Then a ArgumentError should be raised at runtime: NumberOutOfRange
+    Then an ArgumentError should be raised at runtime: NumberOutOfRange
 
     Examples:
       | percentile |
@@ -143,4 +143,4 @@ Feature: Aggregation6 - Percentiles
       LIMIT 100
       RETURN percentileDisc(0.90, deg), deg
       """
-    Then a ArgumentError should be raised at runtime: NumberOutOfRange
+    Then an ArgumentError should be raised at runtime: NumberOutOfRange
