@@ -166,7 +166,7 @@ Feature: ReturnSkipLimit1 - Skip
       RETURN p.name AS name
       SKIP $_limit
       """
-    Then a ArgumentError should be raised at runtime: InvalidArgumentType
+    Then an ArgumentError should be raised at runtime: InvalidArgumentType
 
   Scenario: [9] Floating point SKIP should fail
     Given any graph

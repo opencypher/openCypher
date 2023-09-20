@@ -120,7 +120,7 @@ Feature: List11 - Create a list from a range
       """
       RETURN range(2, 8, 0)
       """
-    Then a ArgumentError should be raised at runtime: NumberOutOfRange
+    Then an ArgumentError should be raised at runtime: NumberOutOfRange
 
     Examples:
       | start | end  | step |
@@ -135,7 +135,7 @@ Feature: List11 - Create a list from a range
       """
       RETURN range(<start>, <end>, <step>)
       """
-    Then a ArgumentError should be raised at runtime: InvalidArgumentType
+    Then an ArgumentError should be raised at runtime: InvalidArgumentType
 
     Examples:
       | start      | end      | step      |
