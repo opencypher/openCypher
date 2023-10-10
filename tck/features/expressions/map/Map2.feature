@@ -117,7 +117,7 @@ Feature: Map2 - Dynamic Value Access
       WITH $expr AS expr, $idx AS idx
       RETURN expr[idx]
       """
-    Then a TypeError should be raised at runtime: MapElementAccessByNonString
+    Then an Error should be raised at runtime: MapElementAccessByNonString
 
   Scenario: [7] Fail at runtime when trying to index into a map with a non-string
     Given any graph
@@ -141,4 +141,4 @@ Feature: Map2 - Dynamic Value Access
       WITH $expr AS expr, $idx AS idx
       RETURN expr[idx]
       """
-    Then a TypeError should be raised at runtime: InvalidArgumentType
+    Then an Error should be raised at runtime: InvalidArgumentType

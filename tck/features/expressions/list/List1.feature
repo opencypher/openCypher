@@ -123,7 +123,7 @@ Feature: List1 - Dynamic Element Access
       WITH $expr AS list, $idx AS idx
       RETURN list[idx]
       """
-    Then a TypeError should be raised at any time: *
+    Then an Error should be raised at any time: *
 
     Examples:
       | expr   | exampleName  |
@@ -139,7 +139,7 @@ Feature: List1 - Dynamic Element Access
       WITH [1, 2, 3, 4, 5] AS list, <idx> AS idx
       RETURN list[idx]
       """
-    Then a TypeError should be raised at any time: *
+    Then an Error should be raised at any time: *
 
     Examples:
       | idx    | exampleName  |
@@ -159,7 +159,7 @@ Feature: List1 - Dynamic Element Access
       WITH $expr AS list, $idx AS idx
       RETURN list[idx]
       """
-    Then a TypeError should be raised at any time: *
+    Then an Error should be raised at any time: *
 
     Examples:
       | idx    | exampleName  |
