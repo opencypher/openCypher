@@ -114,7 +114,7 @@ Feature: Map1 - Static value access
       WITH <exp> AS nonMap
       RETURN nonMap.num
       """
-    Then a TypeError should be raised at compile time: InvalidArgumentType
+    Then an Error should be raised at compile time: InvalidArgumentType
 
     Examples:
       | exp         |

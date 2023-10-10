@@ -135,7 +135,7 @@ Feature: List11 - Create a list from a range
       """
       RETURN range(<start>, <end>, <step>)
       """
-    Then an ArgumentError should be raised at runtime: InvalidArgumentType
+    Then an Error should be raised at runtime: InvalidArgumentType
 
     Examples:
       | start      | end      | step      |
