@@ -109,7 +109,7 @@
 
         <dependency>
             <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-scala_${scala.binary.version}</artifactId>
+            <artifactId>cucumber-scala_${scala2.binary.version}</artifactId>
             <version>${dep.cucumber.version}</version>
             <scope>test</scope>
         </dependency>
