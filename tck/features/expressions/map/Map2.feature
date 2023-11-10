@@ -141,4 +141,4 @@ Feature: Map2 - Dynamic Value Access
       WITH $expr AS expr, $idx AS idx
       RETURN expr[idx]
       """
-    Then an Error should be raised at runtime: InvalidArgumentType
+    Then an Error should be raised at any time: InvalidArgumentType
