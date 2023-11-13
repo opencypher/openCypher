@@ -322,17 +322,17 @@ RETURN count(vehicle)
 .Bad
 [source, cypher]
 ----
-CREATE (a:End {prop: 42}),
-       (b:End {prop: 3}),
-       (c:Begin {prop: id(a)})
+MATCH (a:End {prop: 42}),
+      (b:End {prop: 3}),
+      (c:Begin {prop: id(a)})
 ----
 +
 .Good
 [source, cypher]
 ----
-CREATE (a:End {prop: 42}),
-       (:End {prop: 3}),
-       (:Begin {prop: id(a)})
+MATCH (a:End {prop: 42}),
+      (:End {prop: 3}),
+      (:Begin {prop: id(a)})
 ----
 
 . Chain patterns together to avoid repeating variables.
