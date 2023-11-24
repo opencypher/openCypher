@@ -1,0 +1,70 @@
+= CIP2018-10-19 Semantics of Deleted Elements
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Tobias Lindaaker <tobias.lindaaker@neotechnology.com>
+
+toc::[]
+
+== Semantics of Deleted Elements
+
+Cypher allows read statements to occur after update statements.
+This includes reading statements after statements that delete elements.
+Since the driving table of the preceding query is retained into the succeeding reading statements, this means that entries in the driving table that previously contained elements might now contain elements that have been deleted.
+
+The semantics of accessing such elements is the same as accessing `NULL` values.
+
+This can be thought of as replacing all occurrences of the deleted elements (anywhere) in the driving table (including in nested values) with `NULL`, or as treating the deleted elements as _effectively_ `NULL`.
+
+These semantics effect the `DELETE` statement itself, even if not succeeded by further read statements, since the same element can occur in multiple rows in the driving table.
+
+
+=== Accessing properties of deleted Elements
+
+Accessing properties of deleted elements produces a `NULL` value, just like accessing a property from a `NULL` value would.
+
+=== Pattern matching on deleted Elements
+
+Pattern matching on deleted elements produces a single row containing only `NULL` bindings, in the same way as `OPTIONAL MATCH` would.
+
+=== Deleting deleted Elements
+
+Deleting a deleted element (or any `NULL` value) is a no-op.
+
+=== Equality of deleted Elements
+
+The normal semantics is that two `NULL` values are never considered equal.
+This extends to deleted elements, since they are equivalent to `NULL` for _all_ intents and purposes.
+
+[source, cypher]
+.This query returns `same1: *true*; same2: *false*` for all rows
+----
+MATCH (n), (m)
+WHERE n = m AND NOT EXISTS { (n)-() }
+WITH n, m, n = m AS same1
+DELETE n
+RETURN same1, n = m AS same2
+----
+
+=== Deleted elements in paths
+
+If an element is deleted that is part of a path value, such a path can no longer exist, therefore the path value is to be treated as _effectively_ `NULL` (in the same way that the deleted element that is part of it would).
+
+[source, cypher]
+.This query returns `a: *null*; b: *null*; c: *null*` for all rows
+----
+MATCH p=()-[r]->()
+DELETE r
+RETURN p AS a, nodes(p) AS b, relationships(p) AS c
+----
+
+=== Effects of DELETE on the nullability of types
+
+In the part of a query following a `DELETE` statement that deletes elements of type node, all elements of type node may now be nullable.
+In the part of a query following a `DELETE` statement that deletes elements of type relationship, all elements of type relationship may now be nullable.
+In the part of a query following a `DETACH DELETE` statement, all elements of type node and of type relationship may now be nullable.
+In the part of a query following a `DELETE` statement, all elements of type path may now be nullable.
+
+An implementation that tracks the types of nodes and relationships more closely, such as by which labels they have, it is allowed to not treat elements as nullable in the part of the query following `DELETE` iff it can be proven that those elements are unaffected by the `DELETE`.
