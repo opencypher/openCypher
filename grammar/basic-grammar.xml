@@ -785,43 +785,11 @@
 
   <production name="whitespace" oc:lexer="true">
     <alt>
-      <!-- The code points accepted by Character.isWhitespace(int) in Java -->
-
-      <!-- ASCII whitespace characters -->
-      <character set="SPACE"/> <!-- SPACE -->
-      <character set="TAB"/> <!-- (Horisontal) Tab -->
-      <character set="LF"/> <!-- Line Feed -->
-      <character set="VT"/> <!-- Vertical Tab -->
-      <character set="FF"/> <!-- Form Feed -->
-      <character set="CR"/> <!-- Carriage Return -->
+      <character set="White_Space"/> <!-- Unicode whitespace characters -->
       <character set="FS"/> <!-- File Separator -->
       <character set="GS"/> <!-- Group Separator -->
       <character set="RS"/> <!-- Record Separator -->
       <character set="US"/> <!-- Unit Separator -->
-      <!-- Unicode whitespace characters -->
-      <literal value="&#x1680;"/> <!-- OGHAM SPACE MARK -->
-      <literal value="&#x180e;"/> <!-- MONGOLIAN VOWEL SEPARATOR -->
-      <literal value="&#x2000;"/> <!-- EN QUAD -->
-      <literal value="&#x2001;"/> <!-- EM QUAD -->
-      <literal value="&#x2002;"/> <!-- EN SPACE -->
-      <literal value="&#x2003;"/> <!-- EM SPACE -->
-      <literal value="&#x2004;"/> <!-- THREE-PER-EM SPACE -->
-      <literal value="&#x2005;"/> <!-- FOUR-PER-EM SPACE -->
-      <literal value="&#x2006;"/> <!-- SIX-PER-EM SPACE -->
-      <literal value="&#x2008;"/> <!-- PUNCTUATION SPACE -->
-      <literal value="&#x2009;"/> <!-- THIN SPACE -->
-      <literal value="&#x200a;"/> <!-- HAIR SPACE -->
-      <literal value="&#x2028;"/> <!-- LINE SEPARATOR -->
-      <literal value="&#x2029;"/> <!-- PARAGRAPH SEPARATOR -->
-      <literal value="&#x205f;"/> <!-- MEDIUM MATHEMATICAL SPACE -->
-      <literal value="&#x3000;"/> <!-- IDEOGRAPHIC SPACE -->
-
-      <!-- Other whitespace characters -->
-
-      <!-- Non-breaking space characters -->
-      <literal value="&#x00a0;"/> <!-- NO-BREAK SPACE -->
-      <literal value="&#x2007;"/> <!-- FIGURE SPACE -->
-      <literal value="&#x202f;"/> <!-- NARROW NO-BREAK SPACE -->
 
       <!-- Comments are parsed as whitespace -->
       <non-terminal ref="Comment"/>
