@@ -74,6 +74,11 @@
             <artifactId>tck-api_${scala.binary.version}</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.opencypher</groupId>
+            <artifactId>grammar</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.scala-lang.modules</groupId>
