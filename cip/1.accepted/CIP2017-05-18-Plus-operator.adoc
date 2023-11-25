@@ -1,0 +1,127 @@
+= CIP2017-05-18 Plus operators
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Mats Rydberg <mats@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+This CIP defines the two operators `+` and `++`.
+--
+
+toc::[]
+
+== Background
+
+This CIP is in response to https://github.com/opencypher/openCypher/issues/189[CIR-2017-189].
+
+== Proposal
+
+This CIP defines three operations: numeric addition, string concatenation, and list concatenation.
+Furthermore, two operators are defined: `+` and `++`.
+
+* `+` is used to express numeric addition and string concatenation.
+* `++` is used to express list concatenation.
+
+The operation used for a given invocation of `+` is chosen by the types of its operands (see <<semantics>>).
+
+Both operators are left-associative, in order for a series of invocations to be well-defined (see <<examples>>).
+
+=== Syntax
+
+.The operations are defined on the level of expressions:
+[source, ebnf]
+----
+plus-expr      = expression, "+", expression ;
+plus-plus-expr = expression, "++", expression ;
+----
+
+[[semantics]]
+=== Semantics
+
+There are many ways to syntactically construct expressions using the proposed operators that do not have well-defined semantic interpretations.
+These cases are detailed in each section below, where numeric addition acts as a fall-through to string concatenation for the `+` operator.
+In the cases where the operands are not valid, a semantic error should be raised.
+
+If any of the operands to any of the operations has the value `null`, the result will also be `null`.
+
+==== Numeric addition
+
+Numeric addition is only defined for numeric operands, of any numeric type.
+In the case where both operands are integers, the result of the operation will also be an integer.
+In all other cases, the result will be a floating-point number.
+
+==== String concatenation
+
+Unless both operands of a `plus-expr` are numbers, the operation is string concatenation.
+In order for the string concatenation to be valid, at least one operand must be a string.
+If the other operand is a non-null non-string scalar, an implicit call to `toString()` will be made, in order to convert the value to a string.
+
+The result of the operation is a string consisting of the characters of the first string followed by the characters of the second string, in order.
+
+==== List concatenation
+
+For a list concatenation to be valid, at least one of the operands must be a list.
+If one of the operands is a non-null non-list, it will be interpreted as a list of a single element.
+
+The result of the operation is the list consisting of the elements of the first list followed by the elements of the second list, in order.
+
+[[examples]]
+=== Examples
+
+.Adding two integers:
+[source, cypher]
+----
+RETURN 1 + 2 // = 3
+----
+
+.Adding three numbers:
+[source, cypher]
+----
+RETURN 3.14 + 1e10 + 0xff // = 10000000258.14
+----
+
+.Concatenating two strings:
+[source, cypher]
+----
+RETURN 'foo' + 'bar' // = 'foobar'
+----
+
+.Concatenating strings and other scalars:
+[source, cypher]
+----
+RETURN 'foo' + true + 2 + 'bar' // = 'footrue2bar'
+----
+
+.Left-associativity of `+`:
+[source, cypher]
+----
+RETURN 5 + 5 + 'foo' + 3 + (4 + 4) // = '10foo38'
+----
+
+.List concatenation:
+[source, cypher]
+----
+RETURN [3, 4] ++ [false, 1] // = [3, 4, false, 1]
+----
+
+.List concatenation with non-list:
+[source, cypher]
+----
+RETURN 'foo' ++ [false, 1] // = ['foo', false, 1]
+----
+
+.List concatenation with non-list:
+[source, cypher]
+----
+RETURN [false, 1] ++ {pi: 3.14} // = ['foo', false, {pi: 3.14}]
+----
+
+.Left-associativity of `++`:
+[source, cypher]
+----
+RETURN [false, 1] ++ {pi: 3.14} ++ 1 ++ true // = ['foo', false, {pi: 3.14}, 1, true]
+----
