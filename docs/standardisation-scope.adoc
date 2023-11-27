@@ -44,6 +44,10 @@ It is the goal of this project to create a good and feature-rich standard langua
 * `allShortestPaths()`
 * `shortestPath()`
 
+=== Commands
+
+* `CREATE CONSTRAINT`
+
 === Operators
 
 ==== General
@@ -210,7 +214,6 @@ It is the goal of this project to create a good and feature-rich standard langua
 
 === Commands
 
-* `CREATE CONSTRAINT`
 * `CREATE INDEX`
 
 === Operators

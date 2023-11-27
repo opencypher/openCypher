@@ -1,0 +1,467 @@
+= CIP2016-12-16 Constraints syntax
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Mats Rydberg <mats@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+This CIP describes syntax and semantics for Cypher constraints.
+These are language constructs that impose restrictions on the shape of the data graph, and how statements are allowed to change it.
+--
+
+toc::[]
+
+== Background
+
+Cypher has a loose notion of a schema, in which nodes and relationships may take very heterogeneous forms, both in terms of properties and in graph patterns.
+Constraints allow us to mould the heterogeneous nature of the property graph into a more regular form.
+
+
+== Proposal
+
+This CIP specifies the general syntax for constraint definition (and constraint removal), and provides several examples of possible use cases for constraints.
+However, the specification does not otherwise specify or limit the space of expressible constraints that the syntax and semantics allow.
+
+This specification also covers the return structure of constraint commands, see <<return-record>>.
+
+
+=== Syntax
+
+The constraint syntax is defined as follows:
+
+.Grammar definition for constraint syntax.
+[source, ebnf]
+----
+<ConstraintCommand> ::=
+    <CreateConstraint>
+  | <DropConstraint> ;
+
+<DropConstraint> ::=
+    "DROP", "CONSTRAINT", <SymbolicName> ;
+
+<CreateConstraint> ::=
+    "CREATE", "CONSTRAINT", [ <SymbolicName> ],
+    "FOR", <Pattern>,
+    "REQUIRE", <ConstraintPredicate>,
+    { "REQUIRE", <ConstraintPredicate> } ;
+
+<ConstraintPredicate> ::=
+    <Expression>
+  | <Unique>
+  | <NodeKey> ;
+
+<Unique> ::=
+    <GroupedPropertyExpression>, "IS", "UNIQUE" ;
+
+<NodeKey> ::=
+    <GroupedPropertyExpression>, "IS", "NODE", "KEY" ;
+
+<GroupedPropertyExpression> ::=
+    <PropertyExpression>
+  | "(", <PropertyExpression>, { ",", <PropertyExpression> }, ")" ;
+----
+
+References to existing grammar parts:
+
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=SymbolicName[<SymbolicName>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Pattern[<Pattern>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Expression[<Expression>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=PropertyExpression[<PropertyExpression>]
+
+References to new grammar parts:
+
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Command[<ConstraintCommand>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=CreateConstraint[<CreateConstraint>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=DropConstraint[<DropConstraint>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=ConstraintPredicate[<ConstraintPredicate>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=Unique[<Unique>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=NodeKey[<NodeKey>]
+* https://raw.githack.com/openCypher/openCypher/master/tools/grammar-production-links/grammarLink.html?p=GroupedPropertyExpression[<GroupedPropertyExpression>]
+
+The `REQUIRE` clause works exactly like the `WHERE` clause in a standard Cypher query, with the addition of also supporting the special constraint operators `IS UNIQUE`, `IS NODE KEY`, and the new `<GroupedExpression>` expression.
+This allows for complex concrete constraint definitions (using custom predicates) within the specified syntax.
+
+For details on `IS UNIQUE`, `IS NODE KEY`, and `<GroupedExpression>`, see the dedicated sections below: <<uniqueness>>, <<node-key>>, <<grouped-expression>>.
+
+The term 'constraint expression' is used in the following to describe the expressions that constitute the body of the constraint predicate.
+
+
+==== Constraint names
+
+All constraints provide the user the option to specify a nonempty _name_ at constraint creation time.
+This name is subsequently the handle with which a user may refer to the constraint, for example when dropping it.
+In the case where a name is not provided, the system will generate a unique name.
+
+
+==== Removing constraints
+
+A constraint is removed by referring to its name.
+
+.Example of dropping a constraint with name `foo`:
+[source, cypher]
+----
+DROP CONSTRAINT foo
+----
+
+
+=== Semantics
+
+The semantics for constraints follow these general rules:
+
+1. The constraint pattern define the constraint _domain_, where all elements that would be returned by a `MATCH` clause with the same pattern constitute the domain, with one notable exception (see <<domain-exception, 3.>>).
+
+2. The constraint expressions defined in the `REQUIRE` clauses of the constraint definition must all evaluate to `true`, at all times.
+
+3. [[domain-exception]]Elements for which a constraint expression evaluate to `null` under Cypher's ternary logic are _excluded_ from the constraint domain, even if they fit within the constraint pattern.
+
+4. The constraint expression must be deterministic and free of side effects (such as graph mutations).
+
+
+==== Errors
+
+The following list describes the situations in which an error will be raised:
+
+* Attempting to add a constraint on a graph where the data does not comply with a constraint predicate.
+* Attempting to add a constraint with a name that already exists.
+* Attempting to add a constraint that the underlying engine does not support enforcing.
+* Attempting to drop a constraint referencing a non-existent name.
+* Attempting to modify the graph in such a way that it would violate a constraint.
+
+
+==== Mutability
+
+Once a constraint has been added, it may not be amended.
+Should a user wish to change a constraint definition, the constraint has to be dropped and added anew with an updated structure.
+
+
+[[grouped-expression]]
+==== Grouped expression
+
+This CIP introduces the concept of a _grouped expression_, consisting of one or more property expressions.
+A grouped expression expresses a new value type in Cypher: a tuple type.
+This type exists only for the purposes of the `IS UNIQUE` and `IS NODE KEY` operators and this CIP does not further extend its applicability.
+
+The tuple type is composed of the types of the property expressions.
+These rules apply:
+
+. When one of the contained property expressions is `null`, the tuple type is also `null`.
+. When compared for equality to another tuple type, the comparison is equivalent to comparing the property expressions of the tuples respectively, in a conjunction.
+
+A wider definition is not necessary for this type to satisfy the requirements of the `IS UNIQUE` and `IS NODE KEY` operators.
+
+
+[[uniqueness]]
+==== Uniqueness
+
+The new operator `IS UNIQUE` is only valid as part of a constraint predicate.
+It takes as argument a <<grouped-expression, grouped expression>>, and asserts that it is unique across the domain of the constraint.
+Following on rule <<domain-exception,3.>> above, elements for which the grouped expression is `null` are not part of the constraint domain.
+In particular, in the case where the grouped expression is a single property expression, this means that the uniqueness constraint does not hinder the existence of multiple elements having a `null` value for the specified property.
+
+.Example of a constraint definition using `IS UNIQUE`, over the domain of nodes labeled with `:Person`:
+[source, cypher]
+----
+CREATE CONSTRAINT only_one_person_per_name
+FOR (p:Person)
+REQUIRE p.name IS UNIQUE
+----
+
+
+[[node-key]]
+==== Node key
+
+The new operator `IS NODE KEY` is only valid as part of a constraint predicate.
+It takes as argument a <<grouped-expression, grouped expression>>, and asserts that two conditions hold:
+
+. [[not-null]]Each property expression within the grouped expression cannot be `null`.
+. The grouped expression is unique across the domain of the constraint.
+
+By way of <<not-null, 1.>> the node key constraint avoids applicability of rule <<domain-exception, 3.>> above.
+The domain of a node key constraint is thus exactly defined as all elements which fit the constraint pattern.
+
+.Example of a constraint definition using `IS NODE KEY`, over the domain of nodes labeled with `:Person`:
+[source, cypher]
+----
+CREATE CONSTRAINT person_details
+FOR (p:Person)
+REQUIRE (p.name, p.email, p.address) IS NODE KEY
+----
+
+The node key constraint can be equivalently expressed using a combination of the `IS UNIQUE` and `IS NOT NULL` operators.
+The below example illustrates this.
+
+.Example of a constraint definition using `IS UNIQUE` and `IS NOT NULL`, over the domain of nodes labeled with `:Person`:
+[source, cypher]
+----
+CREATE CONSTRAINT person_details
+FOR (p:Person)
+REQUIRE (p.name, p.email, p.address) IS UNIQUE
+REQUIRE p.name IS NOT NULL
+REQUIRE p.email IS NOT NULL
+REQUIRE p.address IS NOT NULL
+----
+
+
+==== Compositionality
+
+It is possible to define multiple `REQUIRE` clauses within the scope of the same constraint.
+The semantics between these is that of a conjunction (under standard 2-valued boolean logic) between the constraint predicates of the clauses, such that the constraint is upheld if and only if for all `REQUIRE` clauses, the joint predicate evaluates to `true`.
+
+
+[[return-record]]
+==== Return record
+
+Since constraints always are named, but user-defined names are optional, the system must sometimes generate a constraint name.
+In order for a user to be able to drop such a constraint, the system-generated name is therefore returned in a standard Cypher result record.
+The result record has a fixed structure, with three string fields: `name`, `definition`, and `details`.
+
+A constraint command will always return exactly one record, if successful.
+Note that also `DROP CONSTRAINT` will return a record.
+
+
+===== Name
+
+This field contains the name of the constraint, either user- or system-defined.
+
+
+===== Definition
+
+This field contains the constraint definition, which is the contents of the constraint creation command following (and including) the `FOR` clause.
+
+
+===== Details
+
+The contents of this field are left unspecified, to be used for implementation-specific messages and/or details.
+
+
+===== Return record example
+
+.Consider the following constraint:
+[source, Cypher]
+----
+CREATE CONSTRAINT myConstraint
+FOR (n:Node)
+REQUIRE (n.prop1, n.prop2) IS NODE KEY
+----
+
+A correct result record for it could be:
+
+----
+name         | definition                                     | details
+-----------------------------------------------------------------------
+myConstraint | FOR (n:NODE)                                   | n/a
+             | REQUIRE (n.prop1, n.prop2) IS NODE KEY         |
+----
+
+
+=== Examples
+
+In this section we provide several examples of constraints that are possible to express in the specified syntax.
+
+[NOTE]
+The specification in this CIP is limited to the general syntax of constraints, and the following are simply examples of possible uses of the language defined by that syntax. None of the examples provided are to be viewed as mandatory for any Cypher implementation.
+
+Consider the graph added by the statement below.
+The graph contains nodes labeled with `:Color`.
+Each color is represented as an integer-type RGB value in a property `rgb`.
+Users may look up nodes labeled with `:Color` to extract their RGB values for application processing.
+Users may also add new `:Color`-labeled nodes to the graph.
+
+[source, cypher]
+----
+CREATE (:Color {name: 'white', rgb: 0xffffff})
+CREATE (:Color {name: 'black', rgb: 0x000000})
+CREATE (:Color {name: 'very, very dark grey', rgb: 0x000000}) // rounding error!
+----
+
+Owing to the duplication of the `rgb` property, the following attempt at adding a constraint will fail:
+
+[source, cypher]
+----
+CREATE CONSTRAINT only_one_color_per_rgb
+FOR (c:Color)
+REQUIRE c.rgb IS UNIQUE
+----
+
+Now, consider the following query which retrieves the RGB value of a color with a given `name`:
+
+[source, cypher]
+----
+MATCH (c:Color {name: $name})
+WHERE c.rgb IS NOT NULL
+RETURN c.rgb
+----
+
+The `WHERE` clause is here used to prevent an application from retrieving `null` values for user-defined colors where the RGB values have not been specified correctly.
+It may, however, be eliminated by the introduction of a constraint asserting the existence of that property:
+
+[source, cypher]
+----
+CREATE CONSTRAINT colors_must_have_rgb
+FOR (c:Color)
+REQUIRE c.rgb IS NOT NULL
+----
+
+Any updating statement that would create a `:Color` node without specifying an `rgb` property for it would now fail.
+
+If we instead want to make the _combination_ of the properties `name` and `rgb` unique, while simultaneously mandating their existence, we could use a `NODE KEY` operator to capture all these requirements in a single constraint:
+
+[source, cypher]
+----
+CREATE CONSTRAINT color_schema
+FOR (c:Color)
+REQUIRE (c.rgb, c.name) IS NODE KEY
+----
+
+This constraint will make sure that all `:Color` nodes has a value for their `rgb` and `name` properties, and that the combination is unique across all the nodes.
+This would allow several `:Color` nodes named `'grey'`, as long as their `rgb` values are distinct.
+
+More complex constraint definitions are considered below:
+
+.Multiple property existence using conjunction
+[source, cypher]
+----
+CREATE CONSTRAINT person_properties
+FOR (p:Person)
+REQUIRE p.name IS NOT NULL AND p.email IS NOT NULL
+----
+
+.Using larger pattern
+[source, cypher]
+----
+CREATE CONSTRAINT not_rating_own_posts
+FOR (u1:User)-[:RATED]->(:Post)<-[:POSTED_BY]-(u2:User)
+REQUIRE u.name <> u2.name
+----
+
+.Property value limitations
+[source, cypher]
+----
+CREATE CONSTRAINT road_width
+FOR ()-[r:ROAD]-()
+REQUIRE 5 < r.width < 50
+----
+
+.Cardinality
+[source, cypher]
+----
+CREATE CONSTRAINT spread_the_love
+FOR (p:Person)
+REQUIRE size((p)-[:LOVES]->()) > 3
+----
+
+.Endpoint requirements
+[source, cypher]
+----
+CREATE CONSTRAINT can_only_own_things
+FOR ()-[:OWNS]->(t)
+REQUIRE (t:Vehicle) OR (t:Building) OR (t:Object)
+----
+
+.Label coexistence
+[source, cypher]
+----
+CREATE CONSTRAINT programmers_are_people_too
+FOR (p:Programmer)
+REQUIRE p:Person
+----
+
+Assuming a function `acyclic()` that takes a path as argument and returns `true` if and only if the same node does not appear twice in the path, otherwise `false`, we may express:
+
+.Constraint example from CIR-2017-172
+[source, cypher]
+----
+CREATE CONSTRAINT enforce_dag_acyclic_for_R_links
+FOR p = ()-[:R*]-()
+REQUIRE acyclic(p)
+----
+
+
+=== Interaction with existing features
+
+The main interaction between the constraints and the rest of the language occurs during updating statements.
+Existing constraints will cause some updating statements to fail, thereby fulfilling the main purpose of this feature.
+
+
+=== Alternatives
+
+Alternative syntaxes have been discussed:
+
+* `GIVEN`, `CONSTRAIN`, `ASSERT` instead of `FOR`
+* `ASSERT`, `ENFORCE`, `IMPLIES` instead of `REQUIRE`
+* `ADD` instead of `CREATE`
+** It is desirable for verb pairs for modifying operations to be consistent in the language, and recent discussions are (so far informally) suggesting `INSERT`/`DELETE` to be used for data modification, thus making `CREATE` and `DROP` available for schema modification such as constraints.
+* Using a prefix model for uniqueness and node keys, alike `REQUIRE UNIQUE (n.a, n.b)`
+** This was discarded in favour of the suffix model due to similarity with already existing `IS NOT NULL`.
+   Prefix operators are uncommon in Cypher.
+
+The use of an existing expression to express uniqueness -- instead of using the operator `IS UNIQUE` -- becomes unwieldy for multiple properties, as exemplified by the following:
+----
+FOR (p:Person), (q:Person)
+REQUIRE p.email <> q.email AND p.name <> q.name AND p <> q
+----
+
+
+== What others do
+
+In SQL, the following constraints exist (inspired by http://www.w3schools.com/sql/sql_constraints.asp):
+
+* `NOT NULL` - Indicates that a column cannot store a null value.
+* `UNIQUE` - Ensures that each row for a column must have a unique value.
+* `PRIMARY KEY` - A combination of a `NOT NULL` and `UNIQUE`. Ensures that a column (or a combination of two or more columns) has a unique identity, reducing the resources required to locate a specific record in a table.
+* `FOREIGN KEY` - Ensures the referential integrity of the data in one table matches values in another table.
+* `CHECK` - Ensures that the value in a column meets a specific condition
+* `DEFAULT` - Specifies a default value for a column.
+
+The `NOT NULL` SQL constraint is expressible using an `exists()` constraint predicate.
+The `UNIQUE` SQL constraint is exactly as Cypher's `IS UNIQUE` constraint predicate.
+The `PRIMARY KEY` SQL constraint is exactly as Cypher's `IS NODE KEY` constraint predicate.
+
+SQL constraints may be introduced at table creation time in a `CREATE TABLE` statement, or in an `ALTER TABLE` statement:
+
+.Creating a `Person` table in SQL Server / Oracle / MS Access:
+[source, sql]
+----
+CREATE TABLE Person
+(
+   P_Id int NOT NULL UNIQUE,
+   LastName varchar(255) NOT NULL,
+   FirstName varchar(255)
+)
+----
+
+.Creating a `Person` table in MySQL:
+[source, sql]
+----
+CREATE TABLE Person
+(
+  P_Id int NOT NULL,
+  LastName varchar(255) NOT NULL,
+  FirstName varchar(255)
+  UNIQUE (P_Id)
+)
+----
+
+.Adding a named composite `UNIQUE` constraint in MySQL / SQL Server / Oracle / MS Access:
+[source, sql]
+----
+ALTER TABLE Person
+ADD CONSTRAINT uc_PersonID UNIQUE (P_Id,LastName)
+----
+
+
+== Benefits to this proposal
+
+Constraints make Cypher's notion of schema more well-defined, allowing users to maintain graphs in a more regular, easier-to-manage form.
+
+Additionally, this specification is deliberately defining a constraint _language_ within which a great deal of possible concrete constraints are made possible.
+This allows different implementers of Cypher to independently choose how to limit the scope of supported constraint expressions that fit their model and targeted use cases, while retaining a common and consistent semantic and syntactic model.
+
+
+== Caveats to this proposal
+
+Some constraints may prove challenging to enforce in a system seeking to implement the contents of this CIP, as these generally require scanning through large parts of the graph to locate conflicting elements.
