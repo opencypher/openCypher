@@ -1,0 +1,261 @@
+= CIP2020-07-31 Dynamic label creation
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Mats Rydberg, <mats@neo4j.org>
+
+[abstract]
+.Abstract
+--
+This CIP describes the syntax and semantics for creating nodes and relationships with labels and relationship types provided via dynamic expressions.
+--
+
+toc::[]
+
+
+== Motivation
+
+
+
+== Background
+
+Labels and relationship types in Cypher are static elements with dedicated literal syntax.
+The motivation to keep these static is the complexity of query planning when faced with important grouping elements which vary across the binding table.
+Such query plans would need to take different execution plans into account on a per-value basis, which is a complexity increase proportional to a product of the query cardinality.
+
+However, for purely creational operations, query planning is trivial.
+Thus, dynamically resolving labels and relationship types for the operation of adding a _new_ element to the graph seems achievable without dealing with the query planning complexity increase.
+
+Despite the above discussion, Cypher already offers dynamic label and relationship type predicates.
+This is surfaced using the `labels()` and `type()` functions, which return a list of strings and a single string, respectively.
+
+.Querying using dynamic functions:
+[source, cypher]
+----
+MATCH (n)-[r]->()
+WHERE 'Person' IN labels(n)
+  AND 'KNOWS' = type(r)
+RETURN n.name, r.since
+----
+
+which is equivalent to
+
+.Querying with static label and relationship type:
+[source, cypher]
+----
+MATCH (n:Person)-[r:KNOWS]->()
+RETURN n.name, r.since
+----
+
+Note that the example query here is deliberately simple, and trivially translatable by a query planner.
+If the expressions used in the predicates are not statically known, the problem becomes harder.
+
+.Querying using dynamic functions based on per-row data:
+[source, cypher]
+----
+MATCH (n)-[r]->()
+WHERE n.property IN labels(n)
+  AND r.property = type(r)
+RETURN n.name, r.since
+----
+
+As a result, using this syntax could result in drastically different experiences of performance which would be hard or impossible to overcome for a query planner.
+
+However, there is no equivalent way of specifying label or relationship type when using the `CREATE` or `MERGE` clauses.
+That is the central issue discussed in this CIP.
+
+
+== Proposal
+
+The proposal is based around the `labels()` and `type()` functions, and makes use of the `SET` clause to express the dynamic creation.
+
+
+=== Syntax
+
+.Syntax specification:
+[source, ebnf]
+----
+set               = // current definition of SET
+                  | "SET", dynamic-operation ;
+dynamic-operation = dynamic-label
+                  | dynamic-rel-type ;
+dynamic-label     = function, "=", expression ;
+                  | function, "+=", expression ;
+function          = // current definition of function
+expression        = // current definition of expression
+dynamic-rel-type  = function, "=", expression ;
+----
+
+.Full syntactic example:
+[source, cypher]
+----
+CREATE (s)-[r]->(t)
+SET labels(s) = ["Person"]
+SET labels(t) += ["Friend"]
+SET type(r) = "KNOWS"
+----
+
+
+==== Syntactic sugar
+
+
+=== Semantics
+
+
+==== Labels
+
+The syntax allows for a function and expression parameter.
+Semantic rules for these are as follows:
+
+* function
+** only the `labels()` function is valid
+* expression
+** must evaluate to a list of string (or parent type)
+** an empty list is valid
+
+The elements of the list are subject to standard rules for label names.
+
+The semantics for labels is divided into two categories: overwriting and extending.
+Labels are modified for a single node at a time, which is the node passed into the `labels()` function.
+
+
+===== Overwriting
+
+This is indicated by the use of the equality operator (`=`).
+When used, any existing labels for the node will be removed and replaced with labels created from the elements of the list expression.
+
+* When the list is empty, this means removing all labels from the node.
+
+
+===== Extending
+
+This is indicated by the use of the plus-equality operator (`+=`).
+When used, any existing labels for the node will be retained, and extended with labels created from the elements of the list expression.
+
+* When the list is empty, this is a no-op.
+* When the list is a subset of the labels already on the node, this is a no-op.
+* When the node has no labels, this is equivalent to the Overwriting semantics.
+
+
+==== Relationship types
+
+The syntax allows for a function and expression parameter.
+Semantic rules for these are as follows:
+
+* function
+** only the `type()` function is valid
+* expression
+** must evaluate to a string (or parent type)
+
+The string value of the expression is subject to standard rules for relationship type names.
+
+Since relationships in Cypher must always have a relationship type which can never change, this operation is only allowed under certain conditions:
+
+* The relationship variable must be defined by a `CREATE` clause
+* The `CREATE` clause must not specify a relationship type for the relationship variable in the pattern
+* A `SET` clause must succeed such a `CREATE` clause
+* Only one `SET` clause is allowed to reference the relationship variable
+* The relationship variable must not be referenced ahead of the `SET` clause
+** In particular, it must not be referenced by the `SET` expression
+* No projection clause is permitted between the `CREATE` and `SET` clauses
+
+When valid, the operation will be equivalent to that of specifying the relationship type directly in the pattern.
+
+
+=== Examples
+
+==== Labels
+
+.Creating a node with a dynamic label via parameter:
+[source, cypher]
+----
+CREATE (n)
+SET labels(n) = $parameter
+----
+
+.Creating a node with a dynamic label via parameter, syntax variant:
+[source, cypher]
+----
+CREATE (n)
+SET labels(n) += $parameter
+----
+
+.Creating a node with random labels:
+[source, cypher]
+----
+WITH range(0, $size) AS list
+CREATE (n)
+SET labels(n) = [l IN list WHERE rand() * $size > l | toString(l)]
+----
+
+.Replacing all labels of a node:
+[source, cypher]
+----
+MATCH (n)
+SET labels(n) = $parameter
+----
+
+.Extending the labels of a node:
+[source, cypher]
+----
+MATCH (n)
+SET labels(n) += $parameter
+----
+
+
+==== Relationship types
+
+.Creating a relationship with a dynamic relationship type via parameter:
+[source, cypher]
+----
+CREATE ()-[r]->()
+SET type(r) = $parameter
+----
+
+.Creating a relationship with a dynamic relationship type via expression:
+[source, cypher]
+----
+CREATE ()-[r]->()
+SET type(r) = reduce(type = 'MY_REL_TYPE', piece IN [(a:MyRelTypePieces) | a.piece] | type + piece)
+----
+
+===== Invalid
+
+.Changing relationship type:
+[source, cypher]
+----
+MATCH ()-[r]->()
+SET type(r) = $parameter
+----
+
+.Referencing relationship before setting its type:
+[source, cypher]
+----
+CREATE ()-[r]->()
+SET type(r) = r.property
+----
+
+.Projection clause between CREATE and SET:
+[source, cypher]
+----
+CREATE ()-[r]->()
+WITH 1 AS a
+SET type(r) = r.property
+----
+
+.Specifying relationship twice:
+[source, cypher]
+----
+CREATE ()-[r:MY_TYPE]->()
+SET type(r) = 'MY_TYPE'
+----
+
+
+=== Interaction with existing features
+
+
+
+=== Alternatives
+
