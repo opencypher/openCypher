@@ -1,0 +1,110 @@
+= CIP2017-04-13 Aggregations
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Tobias Lindaaker <tobias.lindaaker@neotechnology.com>
+
+toc::[]
+
+== Aggregations
+
+=== Syntax
+
+[source, ebnf]
+----
+Return = 'RETURN', ['DISTINCT'], ReturnBody, Filter ;
+With = 'WITH', ['DISTINCT'], ReturnBody, Filter ;
+SingleValueReturn = 'RETURN', (Expression | ProjectedMap | Aggregation), Filter ;
+
+ReturnBody = ('*' | ReturnItem), {',', ReturnItem} ;
+ReturnItem = (Expression, ['AS', Variable])
+           | (Aggregation, ['AS', Variable])
+           | (ProjectedMap, 'AS', Variable)
+           ;
+
+Filter = [Where], [Order], [Skip], [Limit] ;
+
+Aggregation = Aggregator, 'OF', Expression ;
+Aggregator = SymbolicName | ExtensionName ;
+ExtensionName = {SymbolicName, '.'}-, SymbolicName ;
+----
+
+=== Examples
+
+[source, cypher]
+.Aggregation using `avg`
+----
+MATCH (employee:Employee)
+RETURN avg OF employee.salary
+----
+
+[source, cypher]
+.Aggregation using `collect`
+----
+MATCH (person:Person)-[:FRIEND]-(friend)
+RETURN person.email, collect OF friend {.name,.email} AS friends
+----
+
+[source, cypher]
+.Aggregation using `count`
+----
+MATCH (nodes) RETURN count OF nodes
+----
+
+[source, cypher]
+.Aggregation using `max`
+----
+MATCH (person:Person)-[:LIVES_IN]->({country:$country})
+RETURN max OF person.age
+----
+
+[source, cypher]
+.Aggregation using `min`
+----
+MATCH (movie:Movie)
+RETURN min OF movie.duration
+----
+
+[source, cypher]
+.Aggregation using `percentileCont`
+----
+BREAKS DOWN IN THIS SYNTAX
+----
+
+[source, cypher]
+.Aggregation using `percentileDisc`
+----
+BREAKS DOWN IN THIS SYNTAX
+----
+
+[source, cypher]
+.Aggregation using `stDev`
+----
+MATCH (person:Person)
+RETURN stDev OF n.age
+----
+
+[source, cypher]
+.Aggregation using `stDevP`
+----
+MATCH (person:Person)
+WHERE person.name IN $names
+RETURN stDevP OF n.age
+----
+
+[source, cypher]
+.Aggregation using `sum`
+----
+MATCH (sale:Sale)
+WHERE date({quarterOf:date()}) = date({quarterOf:sale.date})
+RETURN sum OF sale.value AS `sales this quarter`
+----
+
+[source, cypher]
+.Aggregation using user-defined aggregator
+----
+MATCH (node)
+RETURN org.thobe.FancyComputation OF node
+----
