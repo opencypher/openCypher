@@ -1,0 +1,120 @@
+= CIP2017-02-07 Map Projection
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Tobias Lindaaker <tobias.lindaaker@neotechnology.com>
+
+toc::[]
+
+== Map Projection
+
+Map projection takes a map or entity (node or relationship) and creates a map based on selected properties from that map or entity.
+The map projection largely reuses the map syntax of curly braces and comma separated entries, with the exception that the projection entries only use a single identifier starting with a dot (`.`).
+The projected map entries use the same key in the projected map as in the source map.
+
+The following example:
+
+[source, cypher]
+----
+someMap {.alpha, .beta}
+----
+
+is thus equivalent to:
+
+[source, cypher]
+----
+{alpha: someMap.alpha, beta: someMap.beta}
+----
+
+In order to be further useful, map projections allow other types of selectors (see section on "Selectors" below) to augment the projected map.
+
+Projected maps are also allowed as a `ReturnItem` in the `RETURN` and `WITH` clauses, in this case the projected map occurs without a preceding variable and instead projects variables from the current scope into a map.
+While both _property selectors_ and _variable selectors_ are syntactically allowed in this case, the semantics of both of these selectors are equivalent.
+
+=== Selectors
+
+There are four different types of entries allowed in a map projection:
+
+• *Property selector* - includes a property from the original map into the projected map using the same key in the projected map as in the original map.
+  This selector optionally also allows further projection of a nested map, if the selected property is a map or entity.
+• *Variable selector* - includes an entry into the projected map based on a variable in the current scope.
+  The key for the entry in the projected map will be the same as the name of the variable.
+  This selector optionally also allows further projection of a nested map, if the selected variable is a map or entity.
+• *Literal entry* - includes a entry into the projected map using the regular map entry syntax, i.e. with the value being explicitly different from the key.
+  In this case the value can be any arbitrary expression, just like in a regular map literal.
+• *All properties selector* - includes all properties from the original map or entity into the projected map. +
+  The all properties selector also allows marking properties for exclusion that would otherwise have been included by the selector. +
+  If any properties explicitly stated in the map projection through another selector type conflicts with a property in the original map, the explicitly stated entry takes precedence and the value from that expression overrides the value from the original map.
+
+Note that while it is typically superfluous to use both an _all properties selector_ and explicit _property selectors_, this is syntactically allowed.
+Sometimes this might be the most convenient way to express the desired projection, since the explicit _property selector_ allows further projection of the nested property, and this value takes precedence over the _all properties selector_.
+
+=== Syntax
+
+The EBNF syntax of map projection takes the following place in the Cypher syntax:
+
+[source, ebnf]
+----
+Atom = ... | MapProjection | ... ;
+
+MapProjection = Variable, ProjectedMap ;
+
+ProjectedMap = '{', (AllPropertiesSelector | ProjectionEntry), {',', ProjectionEntry}, '}' ;
+
+ProjectionEntry = LiteralEntry
+                | PropertySelector
+                | VariableSelector
+                ;
+LiteralEntry = PropertyKeyName, ':', Expression ;
+PropertySelector = '.', PropertyKeyName, [ProjectedMap] ;
+VariableSelector = Variable, [ProjectedMap] ;
+AllPropertiesSelector = '*', {'-', PropertyKeyName} ;
+
+ReturnItem = Expression
+           | (Expression, 'AS', Variable)
+           | (ProjectedMap, 'AS', Variable)
+           ;
+----
+
+=== Examples
+
+[source, cypher]
+.Fetch name and address for a person
+----
+MATCH (person:Person {userId:$user})-[:ADDRESS]->(address)
+RETURN person {.firstName, .lastName, id: $user,
+               address {.streetAddress, .city, .postalCode} }
+----
+
+.Example result
+----
++----------------------------------------------------------------------------------------+
+| person                                                                                 |
++----------------------------------------------------------------------------------------+
+| {firstName: 'Sherlock', lastName: 'Holmes', id: '0099CC',                              |
+|  address: {streetAddress: '221B Baker Street', city: 'London', postalCode: 'NW1 6XE'}} |
++----------------------------------------------------------------------------------------+
+----
+
+[source, cypher]
+.Bind variables into a map
+----
+MATCH (group:Group {name: $groupName})<-[:MEMBER_OF]-(member)-[:KNOWS]-(friend)-[:ADDRESS]->(address)
+RETURN member.name, collect({friend{.name}, address{.city}}) AS friends
+----
+
+.Example result
+----
++-------------+------------------------------------------------------------------+
+| member.name | friends                                                          |
++-------------+------------------------------------------------------------------+
+| John Doe    | • {friend: {name: 'Heather Taylor'}, address: {city: 'Miami'}}   |
+|             | • {friend: {name: 'Leroy Jenkins'}, address: {city: 'New York'}} |
++-------------+------------------------------------------------------------------+
+| Eve Longman | • {friend: {name: 'Mickey Mouse'}, address: {city: 'Orlando'}}   |
+|             | • {friend: {name: 'Leroy Jenkins'}, address: {city: 'New York'}} |
+|             | • {friend: {name: 'Minnie Mouse'}, address: {city: 'Orlando'}}   |
++-------------+------------------------------------------------------------------+
+----
