@@ -1,4 +1,4 @@
-# arangodb_ersp
+# openCypher_ersp
 
 <!-- TABLE OF CONTENTS -->
 <details open="open">
@@ -38,8 +38,8 @@ FOR researcher IN ‘academics’
 ### For members of the team:
 1. Upon pull requesting, verify that the base fork is set to `wrcorcoran/openCypher_ersp`.
 2. Comment delicately (in order to distinguish code from openCypher codebase).
-3. Verify that your origin is set to proper branch using: ```git remote set-url origin https://github.com/wrcorcoran/openCypher_ersp.gitt```.
-4. Install ```Java openJDK``` and ```Maven```.
+3. Verify that your origin is set to proper branch using: ```git remote set-url origin https://github.com/wrcorcoran/openCypher_ersp.git```.
+
 
 ### For reproducibility:
 > Soon to come.
