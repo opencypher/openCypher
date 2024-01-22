@@ -33,7 +33,7 @@ FOR researcher IN ‘academics’
 
 	RETURN { researcherName: researcher.name, collaboratorName: collaborator.name }
 ```
-<!-- Summary -->
+<!-- Instructions -->
 ## Instructions
 ### For Reproduction:
 1. Begin on local machine (or CSIL). 
