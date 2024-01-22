@@ -37,12 +37,16 @@ FOR researcher IN ‘academics’
 ## Instructions
 1. Begin on local machine (or CSIL). 
 2. If Docker is installed, continue to step 2. If not, please install [Docker](https://www.docker.com/) locally.
-3. From the directory, use the command ```docker build -t oc .```
+3. If you have an ARM64 architecture:
+   1. From the directory, use the command ```docker build -t oc -f Dockerfile.arm64 .```
    - Do not be alarmed if this takes 2-3 minutes to initialize.
-4. Then, ```docker run -it oc```. You will open in an Ubuntu terminal in Linux.
-5. Next, we need to build the **maven** project. This is done using the command ```build```. Do not be surprised if this takes several minutes to run.
-6. Test the build using ```tests```.
-7. For more information, see [Neo4j](https://neo4j.com/developer/contributing-code/).
+4. If you have an Intel (x86_64) architecture:
+   1. From the directory, use the command ```docker build -t oc -f Dockerfile.x86_64```
+   - Do not be alarmed if this takes 2-3 minutes to initialize.
+5. Then, ```docker run -it oc```. You will open in an Ubuntu terminal in Linux.
+6. Next, we need to build the **maven** project. This is done using the command ```build```. Do not be surprised if this takes several minutes to run.
+7. Test the build using ```tests```.
+8. For more information, see [Neo4j](https://neo4j.com/developer/contributing-code/).
 
 
 <!-- Credits -->
