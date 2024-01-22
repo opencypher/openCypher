@@ -1,4 +1,4 @@
-# arangodb_ersp
+# openCypher_ersp
 
 <!-- TABLE OF CONTENTS -->
 <details open="open">
