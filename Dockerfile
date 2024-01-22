@@ -1,0 +1,33 @@
+# Use an official Ubuntu base image
+FROM ubuntu:20.04
+SHELL ["/bin/bash", "-c"]
+
+# Set the working directory to /app
+WORKDIR /app
+
+# Install OpenJDK and Maven
+RUN apt-get update && \
+    apt-get install -qq -y openjdk-11-jdk maven curl unzip zip
+
+# Install SDKMAN
+RUN curl -s "https://get.sdkman.io" | bash
+
+# Source SDKMAN initialization script and install Scala
+RUN /bin/bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk version && sdk install scala 2.13.8"
+
+# Set JAVA_HOME and update PATH - niyati would change arm to fit correct architecture (.x86_64/)
+ENV JAVA_HOME /usr/lib/jvm/java-1.11.0-openjdk-arm64
+RUN export JAVA_HOME
+
+RUN echo "alias build='mvn -U clean install -Dlicense.skip=true -P scala-213'" >> ~/.bashrc
+
+RUN echo "alias tests='mvn clean test -Dlicense.skip=true -P scala-213'" >> ~/.bashrc
+
+# Copy the current directory contents into the container at /app
+COPY . /app
+
+# Make port 8080 available to the world outside this container
+EXPOSE 8080
+
+# Define environment variable
+ENV NAME World
