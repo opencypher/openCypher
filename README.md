@@ -35,6 +35,7 @@ FOR researcher IN ‘academics’
 ```
 <!-- Summary -->
 ## Instructions
+### For Reproduction:
 1. Begin on local machine (or CSIL). 
 2. If Docker is installed, continue to step 2. If not, please install [Docker](https://www.docker.com/) locally.
 3. If you have an ARM64 architecture:
