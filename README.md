@@ -35,14 +35,14 @@ FOR researcher IN ‘academics’
 ```
 <!-- Summary -->
 ## Instructions
-### For members of the team:
-1. Upon pull requesting, verify that the base fork is set to `wrcorcoran/openCypher_ersp`.
-2. Comment delicately (in order to distinguish code from openCypher codebase).
-3. Verify that your origin is set to proper branch using: ```git remote set-url origin https://github.com/wrcorcoran/openCypher_ersp.gitt```.
-4. Install ```Java openJDK``` and ```Maven```.
-
-### For reproducibility:
-> Soon to come.
+1. Begin on local machine (or CSIL). 
+2. If Docker is installed, continue to step 2. If not, please install [Docker](https://www.docker.com/) locally.
+3. From the directory, use the command ```docker build -t oc .```
+   - Do not be alarmed if this takes 2-3 minutes to initialize.
+4. Then, ```docker run -it oc```. You will open in an Ubuntu terminal in Linux.
+5. Next, we need to build the **maven** project. This is done using the command ```build```. Do not be surprised if this takes several minutes to run.
+6. Test the build using ```tests```.
+7. For more information, see [Neo4j](https://neo4j.com/developer/contributing-code/).
 
 
 <!-- Credits -->
