@@ -26,8 +26,5 @@ RUN echo "alias tests='mvn clean test -Dlicense.skip=true -P scala-213'" >> ~/.b
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-# Make port 8080 available to the world outside this container
-EXPOSE 8080
-
 # Define environment variable
 ENV NAME World
