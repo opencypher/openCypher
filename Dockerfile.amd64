@@ -16,7 +16,7 @@ RUN curl -s "https://get.sdkman.io" | bash
 RUN /bin/bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk version && sdk install scala 2.13.8"
 
 # Set JAVA_HOME and update PATH - niyati would change arm to fit correct architecture (.x86_64/)
-ENV JAVA_HOME /usr/lib/jvm/java-1.11.0-openjdk-x86_64
+ENV JAVA_HOME /usr/lib/jvm/java-1.11.0-openjdk-amd64
 RUN export JAVA_HOME
 
 RUN echo "alias build='mvn -U clean install -Dlicense.skip=true -P scala-213'" >> ~/.bashrc

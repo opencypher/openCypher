@@ -42,7 +42,7 @@ FOR researcher IN ‘academics’
    1. From the directory, use the command ```docker build -t oc -f Dockerfile.arm64 .```
    - Do not be alarmed if this takes 2-3 minutes to initialize.
 4. If you have an Intel (x86_64) architecture:
-   1. From the directory, use the command ```docker build -t oc -f Dockerfile.x86_64 .```
+   1. From the directory, use the command ```docker build -t oc -f Dockerfile.amd64 .```
    - Do not be alarmed if this takes 2-3 minutes to initialize.
 5. Then, ```docker run -it oc```. You will open in an Ubuntu terminal in Linux.
 6. Next, we need to build the **maven** project. This is done using the command ```build```. Do not be surprised if this takes several minutes to run.
