@@ -1,0 +1,214 @@
+= CIP2017-03-29 Scalar Subqueries and List Subqueries
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Tobias Lindaaker <tobias.lindaaker@neotechnology.com>
+
+toc::[]
+
+== Scalar Subqueries and List Subqueries
+
+Scalar Subqueries are read-only subqueries that produce a single value in a single row.
+The result of a Scalar Subquery is the single value (in the single row) produced by the subquery.
+
+List Subqueries are read-only subqueries that produce a single value per row, and zero or more rows.
+The result of a List Subquery is the list formed by collecting all of the values of all rows produced by the subquery.
+
+=== Syntax
+
+[source, ebnf]
+----
+Atom = ... | ListSubquery | ScalarSubquery ;
+
+ListSubquery = '[', SingleValueSubquery, ']' ;
+
+ScalarSubquery = 'SCALAR', '(', SingleValueSubquery, ')' ;
+
+SingleValueSubquery = SingleValuePatternQuery
+                    | SingleValueUnwindQuery
+                    | SingleValueCallQuery
+                    | SingleValueQuery
+                    ;
+
+SingleValuePatternQuery = PatternPart, [Where], SingleValueReturn ;
+SingleValueUnwindQuery  = 'UNWIND', Expression,
+                          ['AS', Variable, [Where], Filter] ;
+SingleValueCallQuery    = 'CALL', ExplicitProcedureInvocation,
+                          'YIELD', YieldItem, [Where], Filter ;
+SingleValueQuery  = {{Match | Unwind | Call}-, {With}}-, SingleValueReturn ;
+SingleValueReturn = 'RETURN', (Expression | ProjectedMap | Aggregation), Filter ;
+
+Filter = [Order], [Skip], [Limit] ;
+----
+
+=== Scalar Subqueries
+
+Scalar Subqueries are read-only subqueries that produce a single value in a single row.
+The result of a Scalar Subquery is the single value (in the single row) produced by the subquery.
+
+If the subquery of a Scalar Subquery produces more than a single row an error value (or `NULL`) is produced as the result of the subquery.
+
+If the subquery of a Scalar Subquery produces no rows, an error value (or `NULL`) is produced as the result of the subquery.
+
+Note that this makes it difficult to distinguish between the cases of:
+
+* The Scalar Subquery produced more than a single row
+* The Scalar Subquery produced zero rows
+* The Scalar Subquery produced a single row, but the value of that row is an error value (or `NULL`)
+
+In order to allow the user to explicitly distinguish between these cases, we allow ways of asserting that there is exactly one row.
+
+* For ensuring that the Scalar Subquery produces at least a single row, the `MANDATORY` query modifies can be used, either by specifying the whole Scalar Subquery as a mandatory subquery, or if the subquery is a single `MATCH` subquery `MANDATORY MATCH` can be used.
+* For ensuring that the Scalar Subquery produces at most single rows, an asserting aggregation function called `single` is proposed.
+  This aggregation raises an error from the query if more than a single row is aggregated.
+
+
+=== List Subqueries
+
+List Subqueries are read-only subqueries that produce a single value per row, and zero or more rows.
+The result of a List Subquery is the list formed by collecting all of the values of all rows produced by the subquery.
+If the subquery of the List Subquery produces no rows, the result of the List Subquery is an empty list.
+
+A Scalar Subquery is equivalent to the corresponding Scalar Subquery where the projected value is collected into a list.
+As an example, the following query:
+
+[source, cypher]
+----
+MATCH (p:Person)
+RETURN p.name AS person, [
+   MATCH (p)-[:KNOWS]-(f)
+   RETURN f.name
+] AS friends
+----
+
+is equivalent to:
+
+[source, cypher]
+----
+MATCH (p:Person)
+RETURN p.name AS person, SCALAR (
+   MATCH (p)-[:KNOWS]-(f)
+   RETURN collect(f.name)
+) AS friends
+----
+
+=== Single Pattern Based Subqueries
+
+The subquery syntax defined by the `SingleValuePatternQuery` non-terminal is intended to replace the syntax that has been known as "Pattern Comprehension" and recast it as a kind of subquery.
+It is semantically equivalent to a `SingleValueQuery` with a `Match` preceding the single `PatternPart`, including the optional `Where`.
+
+It differs from `SingleValueQuery` in that:
+
+* it only allows a single `Match` with a single `PatternPart`.
+* it does not allow `Unwind`, `Call`, or `With`.
+
+It differs from "Pattern Comprehension" in that:
+
+* it uses `RETURN` for defining the projected value instead of `|`.
+
+A `SingleValuePatternQuery`, `α [WHERE ρ] RETURN σ` is canonicalized to a `SingleValueQuery` as `MATCH α [WHERE ρ] RETURN σ`.
+For example `[(kevin)-[:KNOWS]\->(friend) RETURN friend.name]` is canonicalized to `[MATCH (kevin)-[:KNOWS]\->(friend) RETURN friend.name]`.
+
+
+=== Examples
+
+[source, cypher]
+.Filter the contents of an existing list
+----
+...
+RETURN [
+    UNWIND existing_list_of_items AS item
+    WHERE item.size < 15
+    RETURN item
+] AS small_items
+----
+
+[source, cypher]
+.Sort an existing list
+----
+...
+RETURN [
+    UNWIND existing_list_of_items AS item
+    RETURN item
+    ORDER BY item.price
+] AS small_items
+----
+
+[source, cypher]
+.Collect separate lists of friends and enemies
+----
+MATCH (me:Person {name: $my_name})
+RETURN me.name, [
+    MATCH (me)-[:FRIEND]-(friend)
+    RETURN friend.name
+] AS friends, [
+    MATCH (me)-[:ENEMY]-(enemy)
+    RETURN enemy.name
+] AS enemies
+----
+
+[source, cypher]
+.Unpack the value of a singleton list (or fail if the list is not a singleton)
+----
+...
+RETURN SCALAR (UNWIND list_with_single_item) AS the_item
+----
+
+[source, cypher]
+.Unpack the single element matching a predicate from a list
+----
+...
+RETURN SCALAR (
+    UNWIND existing_list_of_items AS item
+    WHERE item.name = "Cabbage"
+    // RETURN is not needed from an UNWIND subquery
+) AS the_item
+----
+
+[source, cypher]
+.Unpack the _first_ element matching a predicate from a list
+----
+...
+RETURN SCALAR (
+    UNWIND existing_list_of_items AS item
+    WHERE item.name CONTAINS "Sweet"
+    // RETURN is not needed from an UNWIND subquery
+    LIMIT 1
+) AS first_item
+----
+
+[source, cypher]
+.Compute an aggregation of all items in a list
+----
+...
+RETURN SCALAR (
+    UNWIND existing_list_of_items AS item
+    RETURN avg(item.price)
+) AS avg_item_price
+----
+
+[source, cypher]
+.Compute an aggregation over a sub-pattern
+----
+MATCH (who:Employee)
+RETURN who.name, SCALAR (
+    MATCH (who)-[filing:FILED]->(receipt)
+    WHERE date.truncate('month', date() - duration('P1M'))
+          <= filing.date <
+          date.truncate('month', date() + duration('P1M'))
+    RETURN sum(receipt.amount)
+) AS total_expenses
+----
+
+
+[source, cypher]
+.Using the `SingleValueCallQuery` form to avoid redundant projection
+----
+RETURN [
+    CALL my.cool.Procedure() YIELD theValue
+    WHERE theValue.temperatureC < 4.0
+    // Return is not needed for CALL subquery with only a single YIELD field
+] AS all_cool_values
+----
