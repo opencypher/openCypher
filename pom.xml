@@ -39,7 +39,7 @@
     <dep.maven.javadoc.plugin.version>3.2.0</dep.maven.javadoc.plugin.version>
     <dep.maven.source.plugin.version>3.2.1</dep.maven.source.plugin.version>
     <dep.maven.surefire.plugin.version>2.22.2</dep.maven.surefire.plugin.version>
-    <dep.scala.maven.plugin.version>4.5.6</dep.scala.maven.plugin.version>
+    <dep.scala.maven.plugin.version>4.9.1</dep.scala.maven.plugin.version>
     <dep.scalatest.version>3.2.11</dep.scalatest.version>
     <dep.scalatest.runner.version>0.1.8</dep.scalatest.runner.version>
     <dep.scala.compat.version>2.6.0</dep.scala.compat.version>
@@ -413,7 +413,7 @@
       <properties>
         <scala.binary.version>3</scala.binary.version>
         <scala2.binary.version>2.13</scala2.binary.version>
-        <scala.version>3.2.2</scala.version>
+        <scala.version>3.3.3</scala.version>
       </properties>
       <dependencyManagement>
         <dependencies>
