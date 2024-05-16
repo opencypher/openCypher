@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023 "Neo Technology,"
+ * Copyright (c) 2015-2024 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
