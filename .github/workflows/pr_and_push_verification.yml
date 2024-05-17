@@ -24,6 +24,8 @@ jobs:
       run: mvn -P scala-212 clean verify --file pom.xml
     - name: Build for Scala 2.13 with Maven
       run: mvn -P scala-213 clean verify --file pom.xml
+    - name: Build for Scala 3 with Maven
+      run: mvn -P scala-3 clean verify --file pom.xml
     - name: Grammar scripts
       run: |
         ./tools/grammar/src/main/shell/launch.sh RailRoadDiagramPages -outputDir=grammar/generated/railroad cypher.xml
