@@ -101,7 +101,7 @@
 
         <dependency>
             <groupId>com.lihaoyi</groupId>
-            <artifactId>scalatags_${scala2.binary.version}</artifactId>
+            <artifactId>scalatags_${scala.binary.version}</artifactId>
             <version>${dep.scalatags.version}</version>
         </dependency>
 

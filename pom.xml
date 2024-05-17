@@ -29,7 +29,7 @@
   <properties>
     <dep.antlr4.version>4.7.2</dep.antlr4.version>
     <dep.batik.version>1.13</dep.batik.version>
-    <dep.scalatags.version>0.10.0</dep.scalatags.version>
+    <dep.scalatags.version>0.11.0</dep.scalatags.version>
     <dep.cucumber.version>5.7.0</dep.cucumber.version>
     <dep.fastparse.version>3.0.0</dep.fastparse.version>
     <dep.hamcrest.version>2.2</dep.hamcrest.version>
