@@ -84,3 +84,94 @@ Feature: Delete4 - Delete clause interoperation with other clauses
       """
     Then the result should be empty
     And no side effects
+
+  Scenario: [4] Returning a deleted node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ()
+      """
+    When executing query:
+      """
+      MATCH (n)
+      DELETE n
+      RETURN n
+      """
+    Then the result should be, in any order:
+      | n    |
+      | null |
+    And the side effects should be:
+      | -nodes         | 1 |
+
+  Scenario: [5] Returning a property of a deleted node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({x: 1})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      DELETE n
+      RETURN n.x AS x
+      """
+    Then the result should be, in any order:
+      | x    |
+      | null |
+    And the side effects should be:
+      | -nodes         | 1 |
+
+  Scenario: [6] Returning all properties of a deleted node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({x: 1})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      DELETE n
+      RETURN properties(n) AS properties
+      """
+    Then the result should be, in any order:
+      | properties |
+      | null       |
+    And the side effects should be:
+      | -nodes         | 1 |
+
+  Scenario: [7] Returning the labels of a deleted node
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A:B)
+      """
+    When executing query:
+      """
+      MATCH (n)
+      DELETE n
+      RETURN labels(n) AS l
+      """
+    Then the result should be, in any order:
+      | l    |
+      | null |
+    And the side effects should be:
+      | -nodes         | 1 |
+
+  Scenario: [8] Returning data projected from a node prior to deletion
+    Given an empty graph
+    And having executed:
+      """
+      CREATE (:A:B {x: 1})
+      """
+    When executing query:
+      """
+      MATCH (n)
+      WITH n, labels(n) AS labels, properties(n) AS props, n.x AS property
+      DELETE n
+      RETURN n, labels, props, property
+      """
+    Then the result should be, in any order:
+      | n             | labels     | props  | property |
+      | (:A:B {x: 1}) | ['A', 'B'] | {x: 1} | 1        |
+    And the side effects should be:
+      | -nodes         | 1 |
