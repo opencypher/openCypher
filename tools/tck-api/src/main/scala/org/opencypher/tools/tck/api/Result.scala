@@ -82,4 +82,4 @@ object CypherValueRecords {
   }
 }
 
-case class ExecutionFailed(errorType: String, phase: String, detail: String, exception: Option[Throwable] = None)
+case class ExecutionFailed(errorType: String, gqlCode: String, message: String, phase: String, detail: String, exception: Option[Throwable] = None)

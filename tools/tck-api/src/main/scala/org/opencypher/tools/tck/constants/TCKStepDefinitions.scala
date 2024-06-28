@@ -88,4 +88,9 @@ object TCKStepDefinitions {
   val EXPECT_ERROR = "^an? (.+) should be raised at (.+): (.+)$"
   val expectErrorR = EXPECT_ERROR.r
 
+  val EXPECT_ERROR_WITH_GQLCODE = "^an? error with GQL code (.+) should be raised$"
+  val expectErrorWithGQLCodeR = EXPECT_ERROR_WITH_GQLCODE.r
+
+  val EXPECT_ERROR_WITH_GQLCODE_AND_MESSAGE = "^an? error with GQL code (.+) should be raised with message (.+)$"
+  val expectErrorWithGQLCodeAndMessageR = EXPECT_ERROR_WITH_GQLCODE_AND_MESSAGE.r
 }
