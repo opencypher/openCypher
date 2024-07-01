@@ -91,7 +91,7 @@ class FailureWithSideEffectsTckTest extends AnyFunSuite with Assertions with Mat
           CypherValueRecords.empty
         case ExecQuery =>
           hasExecutedQuery = true
-          ExecutionFailed(ERROR, COMPILE_TIME, ANY)
+          ExecutionFailed(ERROR, null, null, COMPILE_TIME, ANY)
       }
     }
 

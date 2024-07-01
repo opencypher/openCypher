@@ -167,6 +167,50 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
                 Left(ScenarioFailedException(s"Expected: $e, got records $records"))
             }
 
+          case (ctx, e @ ExpectErrorWithGQLCode(gqlCode, _)) =>
+            ctx.lastResult match {
+              case Left(error) =>
+                if (error.gqlCode != gqlCode) {
+                  Left(
+                    ScenarioFailedException(
+                      s"Wrong error code: expected $gqlCode, got ${error.gqlCode}",
+                      error.exception.orNull))
+                } else {
+                  Right(ctx)
+                }
+              case Right(records) =>
+                Left(
+                  ScenarioFailedException(s"Expected: $e, got records $records"))
+            }
+
+          case (ctx, e @ ExpectErrorWithGQLCodeAndMessage(gqlCode, message, _)) =>
+            ctx.lastResult match {
+              case Left(error) =>
+                val isSameCode = error.gqlCode == gqlCode
+                val isSameMessage = error.message == message
+                (isSameCode, isSameMessage) match {
+                  case (false, false) =>
+                    Left(
+                      ScenarioFailedException(
+                        s"Wrong GQL error code and message: expected GQL code: $gqlCode, got ${error.gqlCode}, expected message: $message, got ${error.message}",
+                        error.exception.orNull))
+                  case (false, true) =>
+                    Left(
+                      ScenarioFailedException(
+                        s"Wrong GQL error code: expected GQL code: $gqlCode, got ${error.gqlCode}",
+                        error.exception.orNull))
+                  case (true, false) =>
+                    Left(
+                      ScenarioFailedException(
+                        s"Wrong error message: expected message: $message, got ${error.message}",
+                        error.exception.orNull))
+                  case (true, true) =>
+                    Right(ctx)
+                }
+              case Right(records) =>
+                Left(ScenarioFailedException(s"Expected: $e, got records $records"))
+            }
+
           case (ctx, SideEffects(expected, _)) =>
             val before = ctx.state
             val after = ctx.measure.state

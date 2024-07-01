@@ -81,7 +81,7 @@ public class CucumberReportAdapterTest {
         @Override
         public Either<ExecutionFailed, CypherValueRecords> cypher(String query, Map<String, CypherValue> params, QueryType meta) {
             if (query.contains("foo()")) {
-                return new Left<>(new ExecutionFailed("SyntaxError", "compile time", "UnknownFunction", null));
+                return new Left<>(new ExecutionFailed("SyntaxError", null, null,"compile time", "UnknownFunction", null));
             } else if (query.startsWith("RETURN ")) {
                 String result = query.replace("RETURN ", "");
                 System.out.println("Producing some output " + result);

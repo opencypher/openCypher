@@ -96,7 +96,7 @@ class TckTest extends AnyFunSpec with Assertions with Matchers {
     override def cypher(query: String, params: Map[String, CypherValue], queryType: QueryType): Result = {
       queryType match {
         case InitQuery if query.contains("FAIL") =>
-          ExecutionFailed(SYNTAX_ERROR, COMPILE_TIME, "fail", Some(FAIL_EXCEPTION))
+          ExecutionFailed(SYNTAX_ERROR, null, null, COMPILE_TIME, "fail", Some(FAIL_EXCEPTION))
         case InitQuery if !query.contains("FAIL") =>
           CypherValueRecords.empty
         case SideEffectQuery =>
@@ -104,7 +104,7 @@ class TckTest extends AnyFunSpec with Assertions with Matchers {
         case ControlQuery =>
           CypherValueRecords.empty
         case ExecQuery if query.contains("foo()") =>
-          ExecutionFailed(SYNTAX_ERROR, COMPILE_TIME, UNKNOWN_FUNCTION)
+          ExecutionFailed(SYNTAX_ERROR, "fooCode", "fooMessage", COMPILE_TIME, UNKNOWN_FUNCTION)
         // assert that csv path parameter is not overwritten by additional parameters
         case ExecQuery if query.contains("LOAD CSV") && params.keySet.equals(Set("param", "list")) =>
           StringRecords(List("res"), cvsData.rows.map(r => Map("res" -> r("txt").toString)))
@@ -125,7 +125,7 @@ class TckTest extends AnyFunSpec with Assertions with Matchers {
   private case class FailingGraph(base: Graph)(failureFor: PartialFunction[QueryType, Throwable]) extends Graph with ProcedureSupport {
     override def cypher(query: String, params: Map[String, CypherValue], queryType: QueryType): Result = {
       failureFor.lift.apply(queryType) match {
-        case Some(e) => ExecutionFailed("dummyType", "dummyPhase", "dummyDetail", Some(e))
+        case Some(e) => ExecutionFailed("dummyType", "dummyCode", "dummyMessage", "dummyPhase", "dummyDetail", Some(e))
         case None    => base.cypher(query, params, queryType)
       }
     }

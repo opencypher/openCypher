@@ -260,7 +260,8 @@ object CypherTCK {
             }
           }
           List(expectedError)
-
+        case expectErrorWithGQLCodeR(gqlCode) => List(ExpectErrorWithGQLCode(gqlCode, step))
+        case expectErrorWithGQLCodeAndMessageR(gqlCode, message) => List(ExpectErrorWithGQLCodeAndMessage(gqlCode, message, step))
         // And
         case noSideEffectsR() => List(SideEffects(source = step).fillInZeros)
         case sideEffectsR()   => List(SideEffects(parseSideEffectsTable, step).fillInZeros)
@@ -437,6 +438,12 @@ case class ExpectResult(expectedResult: CypherValueRecords, source: io.cucumber.
     val state = Seq(expectedResult, PickleStep(source), sorted)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+}
+
+case class ExpectErrorWithGQLCode(gqlCode: String, source: io.cucumber.core.gherkin.Step) extends Step {
+}
+
+case class ExpectErrorWithGQLCodeAndMessage(gqlCode: String, message: String, source: io.cucumber.core.gherkin.Step) extends Step {
 }
 
 case class ExpectError(errorType: String, phase: String, detail: String, source: io.cucumber.core.gherkin.Step) extends Step {
