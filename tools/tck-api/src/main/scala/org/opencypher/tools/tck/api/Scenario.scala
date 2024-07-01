@@ -179,7 +179,8 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
                   Right(ctx)
                 }
               case Right(records) =>
-                Left(ScenarioFailedException(s"Expected: $e, got records $records"))
+                Left(
+                  ScenarioFailedException(s"Expected: $e, got records $records"))
             }
 
           case (ctx, e @ ExpectErrorWithGQLCodeAndMessage(gqlCode, message, _)) =>
@@ -187,26 +188,24 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
               case Left(error) =>
                 val isSameCode = error.gqlCode == gqlCode
                 val isSameMessage = error.message == message
-                if (!isSameCode && !isSameMessage) {
-                  Left(
-                    ScenarioFailedException(
-                      s"Wrong GQL error code and message: expected GQL code: $gqlCode, got ${error.gqlCode}, expected message: $message, got ${error.message}"
-                    )
-                  )
-                } else if (!isSameCode) {
-                  Left(
-                    ScenarioFailedException(
-                      s"Wrong GQL error code: expected GQL code: $gqlCode, got ${error.gqlCode}"
-                    )
-                  )
-                } else if (!isSameMessage) {
-                  Left(
-                    ScenarioFailedException(
-                      s"Wrong error message: expected message: $message, got ${error.message}"
-                    )
-                  )
-                } else {
-                  Right(ctx)
+                (isSameCode, isSameMessage) match {
+                  case (false, false) =>
+                    Left(
+                      ScenarioFailedException(
+                        s"Wrong GQL error code and message: expected GQL code: $gqlCode, got ${error.gqlCode}, expected message: $message, got ${error.message}",
+                        error.exception.orNull))
+                  case (false, true) =>
+                    Left(
+                      ScenarioFailedException(
+                        s"Wrong GQL error code: expected GQL code: $gqlCode, got ${error.gqlCode}",
+                        error.exception.orNull))
+                  case (true, false) =>
+                    Left(
+                      ScenarioFailedException(
+                        s"Wrong error message: expected message: $message, got ${error.message}",
+                        error.exception.orNull))
+                  case (true, true) =>
+                    Right(ctx)
                 }
               case Right(records) =>
                 Left(ScenarioFailedException(s"Expected: $e, got records $records"))
