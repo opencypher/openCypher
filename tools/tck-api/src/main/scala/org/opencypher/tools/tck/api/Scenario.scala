@@ -183,7 +183,7 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
                 if (error.gqlCode != gqlCode) {
                   Left(
                     ScenarioFailedException(
-                      s"Wrong GQL error code: expected $gqlCode, got ${error.gqlCode}",
+                      s"Wrong GQL error code: expected GQL code $gqlCode, got ${error.gqlCode}",
                       error.exception.orNull))
                 } else {
                   Right(ctx)
