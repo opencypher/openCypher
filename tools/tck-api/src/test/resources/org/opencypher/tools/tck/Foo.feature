@@ -71,7 +71,7 @@ Feature: Foo
     Given an empty graph
     When executing query:
       """
-      RETURN foo()
+      RETURN fooo()
       """
     Then an error with GQL code fooCode should be raised
 
@@ -79,9 +79,9 @@ Feature: Foo
     Given an empty graph
     When executing query:
       """
-      return foo()
+      return fooo()
       """
-    Then an error with GQL code fooCode should be raised with message fooMessage
+    Then an error with GQL code fooCode should be raised with message matching: fooMessage
 
   Scenario: Fail with any type
     Given an empty graph

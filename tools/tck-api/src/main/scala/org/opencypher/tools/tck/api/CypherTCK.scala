@@ -247,8 +247,8 @@ object CypherTCK {
         case expectSortedResultR()         => List(ExpectResult(parseTable(), step, sorted = true))
         case expectResultUnorderedListsR() => List(ExpectResult(parseTable(orderedLists = false), step))
         case expectSortedResultUnorderedListsR() => List(ExpectResult(parseTable(orderedLists = false), step, sorted = true))
-        case expectErrorR(errorType, time, detail) =>
-          val expectedError = ExpectError(errorType, time, detail, step)
+        case expectErrorWithLegacyDetailR(errorType, time, detail) =>
+          val expectedError = ExpectErrorWithLegacyDetail(errorType, time, detail, step)
           if (shouldValidate) {
             expectedError.validate() match {
               case None => // No problem
@@ -279,13 +279,13 @@ object CypherTCK {
     val (name, number) = parseNameAndNumber(nameAndNumber)
     val tagsInferred = tags ++ Set(TCKTags.NEGATIVE_TEST, TCKTags.WILDCARD_ERROR_DETAILS).filter {
       case TCKTags.NEGATIVE_TEST => transformedSteps.exists {
-        case _: ExpectError => true
+        case _: ExpectErrorWithLegacyDetail => true
         case _ => false
       }
       case TCKTags.WILDCARD_ERROR_DETAILS => transformedSteps.exists {
-        case ExpectError(TCKErrorTypes.ERROR, _, _, _) => true
-        case ExpectError(_, TCKErrorPhases.ANY_TIME, _, _) => true
-        case ExpectError(_, _, TCKErrorDetails.ANY, _) => true
+        case ExpectErrorWithLegacyDetail(TCKErrorTypes.ERROR, _, _, _) => true
+        case ExpectErrorWithLegacyDetail(_, TCKErrorPhases.ANY_TIME, _, _) => true
+        case ExpectErrorWithLegacyDetail(_, _, TCKErrorDetails.ANY, _) => true
         case _ => false
       }
       case _ => false
@@ -298,8 +298,8 @@ object CypherTCK {
   private def insertSideEffectsOnExpectError(originalSteps: List[Step]): List[Step] = {
     @tailrec
     def recurse(steps: List[Step], done: ListBuffer[Step]): List[Step] = steps match {
-      case (_: ExpectError) :: (_: SideEffects) :: _ => originalSteps // We already have side effects
-      case (expectError: ExpectError) :: tail =>
+      case (_: ExpectErrorWithLegacyDetail) :: (_: SideEffects) :: _ => originalSteps // We already have side effects
+      case (expectError: ExpectErrorWithLegacyDetail) :: tail =>
         // Insert empty side effects after expect error
         val sideEffects = SideEffects(source = expectError.source).fillInZeros
         (done ++= (expectError :: sideEffects :: tail)).toList
@@ -446,7 +446,7 @@ case class ExpectErrorWithGQLCode(gqlCode: String, source: io.cucumber.core.gher
 case class ExpectErrorWithGQLCodeAndMessage(gqlCode: String, message: String, source: io.cucumber.core.gherkin.Step) extends Step {
 }
 
-case class ExpectError(errorType: String, phase: String, detail: String, source: io.cucumber.core.gherkin.Step) extends Step {
+case class ExpectErrorWithLegacyDetail(errorType: String, phase: String, detail: String, source: io.cucumber.core.gherkin.Step) extends Step {
   // Returns None if valid and Some("error message") otherwise.
   def validate(): Option[String] = {
     if (!TCKErrorTypes.ALL.contains(errorType)) {
@@ -462,7 +462,7 @@ case class ExpectError(errorType: String, phase: String, detail: String, source:
 
   override def equals(obj: Any): Boolean = {
     obj match {
-      case ExpectError(thatErrorType, thatPhase, thatDetail, thatSource) =>
+      case ExpectErrorWithLegacyDetail(thatErrorType, thatPhase, thatDetail, thatSource) =>
         thatErrorType == errorType &&
         thatPhase == phase &&
         thatDetail == detail &&

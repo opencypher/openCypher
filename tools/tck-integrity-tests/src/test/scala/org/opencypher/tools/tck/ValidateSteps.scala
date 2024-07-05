@@ -32,7 +32,7 @@ import org.opencypher.tools.tck.api.ControlQuery
 import org.opencypher.tools.tck.api.CsvFile
 import org.opencypher.tools.tck.api.ExecQuery
 import org.opencypher.tools.tck.api.Execute
-import org.opencypher.tools.tck.api.ExpectError
+import org.opencypher.tools.tck.api.ExpectErrorWithLegacyDetail
 import org.opencypher.tools.tck.api.ExpectResult
 import org.opencypher.tools.tck.api.InitQuery
 import org.opencypher.tools.tck.api.Parameters
@@ -63,7 +63,7 @@ trait ValidateSteps extends AppendedClues with Matchers with OptionValues with V
       case (Execute(_, ExecQuery, _), ix) => numberOfExecQuerySteps += 1
         positionFirstExecQuery = Math.min(positionFirstExecQuery, ix)
       case (Execute(_, ControlQuery, _), _) => numberOfControlQuerySteps += 1
-      case (_: ExpectError, _) => numberOfExpectErrorSteps += 1
+      case (_: ExpectErrorWithLegacyDetail, _) => numberOfExpectErrorSteps += 1
       case (_: ExpectResult, _) => numberOfExpectResultSteps += 1
       case (se: SideEffects, _) if se.source.getType == StepType.AND => numberOfExplicitSideEffectSteps += 1
       case (se: SideEffects, _) if se.source.getType == StepType.THEN => numberOfImplicitSideEffectSteps += 1
@@ -99,7 +99,7 @@ trait ValidateSteps extends AppendedClues with Matchers with OptionValues with V
         withClue(s"${er.description} is preceded by a `When executing query` or `When executing control query` step") {
           predecessor should matchPattern { case Execute(_, ExecQuery | ControlQuery, _) => }
         }
-      case (predecessor, ee: ExpectError) =>
+      case (predecessor, ee: ExpectErrorWithLegacyDetail) =>
         withClue(s"${ee.description} is preceded by a `When executing query` step") {
           predecessor should matchPattern { case Execute(_, ExecQuery, _) => }
         }
@@ -109,9 +109,9 @@ trait ValidateSteps extends AppendedClues with Matchers with OptionValues with V
         }
       case (predecessor, se: SideEffects) if se.source.getType == StepType.THEN =>
         withClue(s"${se.description} is preceded by a `Then expect error` step") {
-          predecessor should matchPattern { case _: ExpectError => }
+          predecessor should matchPattern { case _: ExpectErrorWithLegacyDetail => }
         }
-      case (ee: ExpectError, successor) =>
+      case (ee: ExpectErrorWithLegacyDetail, successor) =>
         withClue(s"${ee.description} is not succeeded by anything, i.e. is the last step") {
           fail(s"${ee.description} is succeeded by ${successor.description}")
         }
@@ -125,7 +125,7 @@ trait ValidateSteps extends AppendedClues with Matchers with OptionValues with V
     steps foreach {
       case e: Execute => validateQuery(e, tags)
       case se: SideEffects => validateSideEffects(se)
-      case ee: ExpectError =>
+      case ee: ExpectErrorWithLegacyDetail =>
         withClue(s"${ee.description} has valid type") {
           TCKErrorTypes.ALL should contain(ee.errorType)
         }
@@ -151,7 +151,6 @@ trait ValidateSteps extends AppendedClues with Matchers with OptionValues with V
         case _ =>
       }
     }
-
     succeed
   }
 }
