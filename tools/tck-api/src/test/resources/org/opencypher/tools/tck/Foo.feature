@@ -67,6 +67,22 @@ Feature: Foo
       """
     Then a SyntaxError should be raised at compile time: UnknownFunction
 
+  Scenario: Fail with code
+    Given an empty graph
+    When executing query:
+      """
+      RETURN fooo()
+      """
+    Then an error with GQL code fooCode should be raised
+
+  Scenario: Fail with code and message
+    Given an empty graph
+    When executing query:
+      """
+      return fooo()
+      """
+    Then an error with GQL code fooCode should be raised with message matching: fooMessage
+
   Scenario: Fail with any type
     Given an empty graph
     When executing query:

@@ -97,7 +97,8 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
               case ControlQuery => Right(execResult)
               case InitQuery => execResult.lastResult match {
                 case Right(_) => Right(execResult)
-                case Left(error) => Left(ScenarioFailedException(s"Got error $error", error.exception.orNull))
+                case Left(error : ExecutionFailed) =>
+                      Left(ScenarioFailedException(s"Got error $error", error.exception.orNull))
               }
             }
 
@@ -137,13 +138,13 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
                 } else {
                   Right(ctx)
                 }
-              case Left(error) =>
+              case Left(error : ExecutionFailed) =>
                 Left(ScenarioFailedException(s"Expected: $expected, got error $error", error.exception.orNull))
             }
 
-          case (ctx, e @ ExpectError(errorType, phase, detail, _)) =>
+          case (ctx, e @ ExpectErrorWithLegacyDetail(errorType, phase, detail, _)) =>
             ctx.lastResult match {
-              case Left(error) =>
+              case Left(error : ExecutionFailedWithLegacyDetail) =>
                 if (error.errorType != errorType && error.errorType != TCKErrorTypes.ERROR && errorType != TCKErrorTypes.ERROR)
                   Left(
                     ScenarioFailedException(
@@ -162,7 +163,78 @@ case class Scenario(categories: List[String], featureName: String, number: Optio
                 else {
                   Right(ctx)
                 }
+              case Left(error : ExecutionFailedWithGqlCode) =>
+                Left(
+                  ScenarioFailedException(
+                    s"""Expected legacy detail error with:
+                       |error type: $errorType,
+                       |error phase: $phase,
+                       |error detail: $detail
+                       |But got error with GQL code: ${error.gqlCode}""".stripMargin
+                  )
+                )
+              case Right(records) =>
+                Left(ScenarioFailedException(s"Expected: $e, got records $records"))
+            }
 
+          case (ctx, e @ ExpectErrorWithGQLCode(gqlCode, _)) =>
+            ctx.lastResult match {
+              case Left(error : ExecutionFailedWithGqlCode) =>
+                if (error.gqlCode != gqlCode) {
+                  Left(
+                    ScenarioFailedException(
+                      s"Wrong GQL error code: expected GQL code $gqlCode, got ${error.gqlCode}",
+                      error.exception.orNull))
+                } else {
+                  Right(ctx)
+                }
+              case Left(error : ExecutionFailedWithLegacyDetail) =>
+                Left(
+                  ScenarioFailedException(
+                    s"""Expected error with GQL code: $gqlCode
+                       |But got error with legacy detail
+                       |""".stripMargin
+                  )
+                )
+              case Right(records) =>
+                Left(
+                  ScenarioFailedException(s"Expected: $e, got records $records"))
+            }
+
+          case (ctx, e @ ExpectErrorWithGQLCodeAndMessage(gqlCode, message, _)) =>
+            ctx.lastResult match {
+              case Left(error : ExecutionFailedWithGqlCode) =>
+                val isSameCode = error.gqlCode == gqlCode
+                val isSameMessage = error.message == message
+                (isSameCode, isSameMessage) match {
+                  case (false, false) =>
+                    Left(
+                      ScenarioFailedException(
+                        s"""Wrong GQL error code and message:
+                           | expected GQL code: $gqlCode, got ${error.gqlCode},
+                           | expected message: $message, got ${error.message}""".stripMargin,
+                        error.exception.orNull))
+                  case (false, true) =>
+                    Left(
+                      ScenarioFailedException(
+                        s"Wrong GQL error code: expected GQL code: $gqlCode, got ${error.gqlCode}",
+                        error.exception.orNull))
+                  case (true, false) =>
+                    Left(
+                      ScenarioFailedException(
+                        s"Wrong error message: expected message: $message, got ${error.message}",
+                        error.exception.orNull))
+                  case (true, true) =>
+                    Right(ctx)
+                }
+              case Left(error : ExecutionFailedWithLegacyDetail) =>
+                Left(
+                  ScenarioFailedException(
+                    s"""Expected error with GQL code: $gqlCode and message: $message
+                       |But got error with legacy detail
+                       |""".stripMargin
+                  )
+                )
               case Right(records) =>
                 Left(ScenarioFailedException(s"Expected: $e, got records $records"))
             }

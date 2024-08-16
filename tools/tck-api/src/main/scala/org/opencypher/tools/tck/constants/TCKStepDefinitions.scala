@@ -85,7 +85,12 @@ object TCKStepDefinitions {
   val EXPECT_EMPTY_RESULT = "^the result should be empty$"
   val expectEmptyResultR = EXPECT_EMPTY_RESULT.r
 
-  val EXPECT_ERROR = "^an? (.+) should be raised at (.+): (.+)$"
-  val expectErrorR = EXPECT_ERROR.r
+  val EXPECT_ERROR_WITH_LEGACY_DETAIL = "^an? (.+) should be raised at (.+): (.+)$"
+  val expectErrorWithLegacyDetailR = EXPECT_ERROR_WITH_LEGACY_DETAIL.r
 
+  val EXPECT_ERROR_WITH_GQLCODE = "^an? error with GQL code (.+) should be raised$"
+  val expectErrorWithGQLCodeR = EXPECT_ERROR_WITH_GQLCODE.r
+
+  val EXPECT_ERROR_WITH_GQLCODE_AND_MESSAGE = "^an? error with GQL code (.+) should be raised with message matching: (.+)$"
+  val expectErrorWithGQLCodeAndMessageR = EXPECT_ERROR_WITH_GQLCODE_AND_MESSAGE.r
 }

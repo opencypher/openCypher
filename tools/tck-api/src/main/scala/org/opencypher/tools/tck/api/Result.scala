@@ -82,4 +82,8 @@ object CypherValueRecords {
   }
 }
 
-case class ExecutionFailed(errorType: String, phase: String, detail: String, exception: Option[Throwable] = None)
+sealed trait ExecutionFailed {
+  def exception: Option[Throwable]
+}
+case class ExecutionFailedWithLegacyDetail(errorType: String, phase: String, detail: String, exception: Option[Throwable] = None) extends ExecutionFailed
+case class ExecutionFailedWithGqlCode(gqlCode: String, message: String, exception: Option[Throwable] = None) extends ExecutionFailed
