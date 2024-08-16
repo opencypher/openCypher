@@ -21,3 +21,8 @@ A CIP enters this phase when it has received a sufficient set of TCK scenarios t
 
 As CIPs are consumed by standard version specifications, they enter the archive.
 Archived CIPs are historical records and do not have any bearing on current Cypher syntax or semantics.
+
+=== Abandoned
+
+Abandoned CIPs are CIPs that have been previously discussed somewhat prominently (e.g., in the context of oCIM meetings) but never got included in openCypher proper.
+They are retained here for the historical record.

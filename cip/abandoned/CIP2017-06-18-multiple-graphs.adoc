@@ -1,0 +1,984 @@
+= CIP2017-06-18 Querying and constructing multiple graphs
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Stefan Plantikow <stefan.plantikow@neo4j.com>, Andres Taylor <andres.taylor@neo4j.com>, Petra Selmer <petra.selmer@neo4j.com>
+
+This material is based on internal contributions from Alastair Green <alastair.green@neo4j.com>, Mats Rydberg <mats.rydberg@neo4j.com>, Martin Junghanns <martin.junghanns@neo4j.com>, Tobias Lindaaker <tobias.lindaaker@neo4j.com>
+
+[abstract]
+.Abstract
+--
+This CIP extends Cypher with support for working with multiple graphs.
+New graphs may be created in a global catalog or temporarily constructed during the course of a query.
+Different graphs may be queried in a single statement by selecting them by name from the catalog.
+Support for multiple graphs rests on a newly introduced multiple property graph model and a formalization of Cypher's clause structure and query execution model.
+
+Working with multiple graphs requires relating entities from otherwise disconnected datasets.
+This is supported by `CIP2018-05-04` for content-based comparison using new equivalence operators, copy patterns, and related auxiliary functions.
+--
+
+toc::[]
+
+
+
+== Introduction
+
+=== Overview and motivation
+
+Cypher today is a query language for property graphs that provides access to a single, global, implicit graph in order to extract, transform, and return tabular data that is derived from it.
+While such returned tabular data may include graph entities (such as nodes and relationships), in essence Cypher as a language is not closed under graphs and as a consequence, Cypher queries are not (graph) compositional.
+
+An important feature for a property graph query language -- alongside the ability to query and update a selected graph -- is the ability to construct and transform  multiple graphs.
+Ideally, this would be through the utilization of a mechanism for incremental query composition.
+
+Furthermore, adding multiple graph support has recently been identified as a frequently requested feature:
+
+* It enables the dynamic construction of graph views (e.g. for access control)
+* It allows reasoning over multiple versions of the same graph (e.g. comparing daily snapshots)
+* It provides an effective grouping mechanism for naturally-partitioned data (e.g. per-continent graph)
+* It is useful for combining data from disparate data sources in one system (e.g. in federation and data integration scenarios)
+* It fits the paradigm of prominent analytical big-data processing systems (e.g. Apache Spark)
+* It mirrors mathematical graph theory where working with multiple graphs is common
+
+
+=== Related work
+
+This CIP has been developed in tandem with the following CIPs; as such, it is recommended to read all four CIPs in conjunction with each other.
+
+ * `CIP2016-06-22`: Nested subqueries
+ * `CIP2018-05-04`: Equivalence operators, copy pattern, and related auxiliary functions
+ * `CIP2018-05-03`: Creating and administering graphs and views
+
+
+== The data model
+
+The data model underpinning Cypher today is the _property graph model_.
+We give a brief <<single-pgm, overview>> of the current property graph model, in effect, the _single property graph data model_, and then describe <<multiple-pgm, extensions>> to the model that will allow for the support of multiple graphs.
+
+
+[[single-pgm]]
+=== The single property graph data model (current)
+
+The property graph model today is predicated upon the notion of a single, implicit property graph (synonymously termed as 'graph'), which we show in <<img-single-pgm, Figure 1>>.
+We refer the reader to https://arxiv.org/pdf/1802.09984.pdf[this paper] for a more formal treatment of the property graph model.
+
+The concept of implicitness implies that:
+
+ * the graph is an unnamed or anonymous entity,
+ * the data model contains nothing apart from this single graph, and
+ * the graph is not able to be referred to by virtue of a name or identity or address within any context.
+
+
+[[img-single-pgm]]
+.Cypher today: the single property graph model
+image::single-property-graph-data-model.jpg[Graph,400,400]
+
+
+
+We define below terms which underpin the property graph data model:
+
+.Definition 1
+A _**property graph**_ consists of a set of nodes and a set of relationships that connect the nodes of the property graph.
+
+.Definition 2
+A _**property graph model instance**_ contains a single property graph.
+A property graph is contained in exactly one property graph model instance.
+
+.Definition 3
+A _**model element**_ is a constituent of a property graph model instance.
+These comprise nodes and relationships.
+
+.Definition 4
+A _**label**_ is a name used to classify a node.
+
+.Definition 5
+A _**relationship type**_ is a name used to classify a relationship.
+
+.Definition 6
+A _**value**_ is any value that is supported by the Cypher type system.
+A _**scalar value**_ is any opaque value that cannot be sub-divided into multiple constituent values.
+A _**nested value**_ is any value that is composed of multiple values.
+
+.Definition 7
+A _**property**_ is a tuple consisting of a name (called the _**property key**_) and a value (called the _**property value**_).
+
+.Definition 8
+An _**identity**_ is a value that is used to identify individual model elements and to distinguish between multiple model elements from a set of model elements in a given scope.
+
+Note:: An implementation may choose to use any value as an identity.
+This includes nested values (e.g. lists and maps).
+
+.Definition 9
+A _**node**_ has a _**node identity**_ which is an identity that uniquely identifies the node within a property graph.
+A node contains a set of zero or more labels and zero or more properties with mutually different property keys.
+
+.Definition 10
+A _**relationship**_ has a _**relationship identity**_ which is an identity that uniquely identifies the relationship within a property graph.
+A relationship contains a start node and an end node (both drawn from the same graph as the relationship), a single relationship type, and zero or more properties with mutually different property keys.
+We note that the start and end nodes may be the same node, hence denoting a https://en.wikipedia.org/wiki/Loop_(graph_theory)[self-loop] relationship.
+
+.Definition 11
+The _**contents**_ of a model element include its constituents but not its identity.
+For a node (respectively relationship) this comprises its labels, and properties (respectively, its relationship type, properties, as well as its start node and its end node, the latter defined recursively).
+The _**plain contents**_ of a model element is the same as the contents of the model element but excludes the identity of the start node and the end node of relationships. XXTODOXXX
+The _**shallow contenst**_ of a model element is the same as the contents of the model element but excludes the start node and the end node of relationships.
+
+
+.Definition 12
+Nodes and relationships are called _**entities**_.
+
+.Definition 13
+Node and relationship identities are called _**entity identities**_.
+
+.Definition 14
+A _**reference**_ is a handle -- an otherwise opaque value -- that is used to address model elements of a property graph model instance (i.e. a node or a relationship).
+
+
+[[multiple-pgm]]
+=== The multiple property graph data model (proposed)
+
+We now describe the extensions required to the property graph data model to enable multiple graph support; the multiple property graph model is illustrated in <<img-multiple-pgm, Figure 2>>.
+Unless otherwise specified, all previous attributes for the extended terms hold.
+
+[[img-multiple-pgm]]
+.The multiple property graph model
+image::multiple-property-graph-model.jpg[Graph,400,400]
+
+
+.Definition 15
+A _**multiple property graph model instance**_ is a set of zero or more property graphs.
+This extends the notion of a _property graph model instance_ in _Definition 2_.
+
+.Definition 16
+A _**property graph**_ has a _**graph identity**_ which is an identity that uniquely identifies the graph such that it is able to be distinguished from other graphs in the same multiple property graph model instance.
+A property graph is contained in exactly one multiple property graph model instance.
+This extends the notion of a _property graph_ in _Definition 1_.
+
+.Definition 17
+A _**model element**_ is a constituent of a multiple property graph model instance.
+These additionally comprise property graphs.
+
+.Definition 18
+The _**contents**_ of a property graph comprises its nodes and relationships.
+
+.Definition 19
+A _**node**_ is contained in exactly one property graph.
+This extends the notion of a _node_ in _Definition 9_.
+
+.Definition 20
+A _**relationship**_ is contained in exactly one property graph and its start node and end node are both contained in the same property graph as the relationship.
+This extends the notion of a _relationship_ in _Definition 10_.
+
+
+==== Valid model instance
+
+The set of *atoms* of an arbitrary value `v` is a list of all scalar values contained in `v` (cf. `CIP2018-05-04: Equivalence operators, copy pattern, and related auxiliary functions` for a full definition).
+
+A *valid* multiple property graph model instance adheres to the following restrictions:
+
+ * The atoms of an identity value of any model element must not contain `NULL`. XXWHERE-is-identity-value-defined???
+ * The atoms of an identity value of any model element must not contain a reference to a model element.
+ * Property values must not be `NULL`
+   (Note that this differs from an entity not having some property key `key`).
+ * The atoms of any property value of any entity must not contain a reference to a model element.
+
+Note:: Without these restrictions, nodes could be used to form part of graph identities, and relationships could be used as property values.
+
+
+== Query structure
+
+We begin this section by defining the constituents of statements and clauses, and then proceed onto describing a classification scheme for both.
+
+
+=== Statements and clauses
+
+.Definition 21
+An _**operator clause**_ is a clause that is used to connect multiple _simple clause chains_ (_Definition 21_) in an _operator clause chain_ (_Definition 22_).
+
+Note:: As per this and all accompanying proposals, the list of current and proposed operator clauses is `UNION`, `UNION ALL`, `INTERSECT`, `EXCEPT`, and `OTHERWISE`.
+`THEN` is not considered to be an operator clause.
+
+.Definition 22
+A _**simple clause chain**_ is a sequence of one or more non-operator clauses which may each be further qualified by clause arguments, sub-clauses and sub-clause arguments.
+
+.Definition 23
+An _**operator clause chain**_ comprises two or more simple clause chains that are separated by the same operator clause.
+
+.Definition 24
+A _**simple statement**_ is either an operator clause chain or a simple clause chain.
+
+.Definition 25
+A _**local declaration**_ is a clause that assigns a local name to a graph or a view.
+
+Note:: Syntax and semantics of local declarations are discussed in greater detail in `CIP2018-05-03`.
+
+.Definition 26
+A _**simple statement chain**_ is a simple statement that is optionally followed by the keyword `THEN` and another simple statement chain.
+The `THEN` keyword may be omitted if the simple statement ends with a `RETURN`, `RETURN GRAPH`, or `RETURN CALL` clause.
+
+.Definition 27
+A _**composite statement**_ is a possibly empty sequence of local declarations that are followed by a simple statement chain.
+
+Note:: Syntax and semantics of composite statements and simple statement chains are discussed in more detail in the accompanying `CIP2016-06-22` on nested subqueries.
+For the purposes of this CIP it is sufficient to only consider composite statements that are single simple statements.
+
+.Definition 28
+A _**statement chain**_ is a composite statement (suffixed with a semicolon) followed by another composite statement.
+
+.Definition 29
+A _**statement**_ is a source program that is a syntactically valid term according to the root production rule of the grammar of the Cypher property graph query language.
+A statement may either be a statement chain or a composite statement.
+
+.Definition 30
+A _**valid statement**_ is a statement that is valid according to the semantic rules of the Cypher property graph query language.
+
+.Definition 31
+A _**syntactic unit**_ is a string that is expected to contain a valid statement.
+
+
+=== Clause classification
+
+.Definition 32
+A clause is classified according to its side-effects as either
+
+ * a _**reading clause**_ that reads data, or
+ * an _**updating clause**_ that reads and updates data, or
+ * a _**schema clause**_ that only reads from and updates the schema.
+
+.Definition 33
+A clauses that is used for graph construction is called an _**constructing clause**_.
+A constructing clauses is considered to be a form of reading clause.
+
+
+=== Statement classification
+
+.Definition 34
+A (single) statement may be categorized as either:
+
+ * a _**reading query**_, which is a statement consisting of reading clauses that read and return data, or
+ * an _**updating query**_, which is a statement consisting of reading and updating clauses that read, update and return data, or
+ * an _**updating command**_, which is a statement consisting of reading and updating clauses that read and update data and do not return data, or
+ * a _**schema command**_, which is a statement consisting of schema clauses that only update the schema.
+
+Note:: An implementation may choose to limit the kinds of statements that can be combined in a statement chain; for example, to not allow updating and schema commands to be combined within a single chain.
+
+
+=== Structural principles
+
+The high-level syntactic structure of Cypher adheres to the following principles:
+
+1. The majority of clauses is given in a sequential order which is to be interpreted from top to bottom, thereby constructing a left-leaning clause tree.
+
+2. The end of a syntactic unit or a subquery that returns data is always marked explicitly using `RETURN` or `RETURN GRAPH` or `RETURN CALL`.
+
+3. The end of a syntactic unit or a subquery that returns no data is marked explicitly by choosing an updating clause as the final clause and the absence of `RETURN` or `RETURN GRAPH` or `RETURN CALL` as a final clause.
+
+4. Non-sequential operator clauses (such as `UNION`) are only allowed at the top level and may not be combined with other operator clauses.
+ We note that this can be achieved through the use of nested subqueries, cf. accompanying `CIP2018-05-03`.
+
+5. Updating clauses and following reading clauses must be separated by `WITH`.
+
+6. Not all clauses are allowed in all contexts.
+
+
+
+== Execution model
+
+.Definition 35
+A _**query processor**_ is a query processing service that executes a source program on behalf of a *client* and provides the client with the *execution result* that describes the outcome of executing the source program.
+A query processor maintains exactly one multiple property graph model instance, and exactly one catalog (_Definition 41_).
+
+
+=== Execution of client requests
+
+
+==== Query inputs and outputs
+
+
+.Definition 36
+A _**parameter**_ is a tuple which is comprised of a *name* and a *value*.
+
+.Definition 37
+_**Statement parameters**_ are a set of parameters containing pairwise different names.
+
+.Definition 38
+A source program together with statement parameters is called a _**client request**_.
+
+.Definition 39
+The result of executing a client request is called an _**execution result**_.
+An execution result is one of the following:
+
+* A _**tabular result**_: a collection of records where each record has exactly the same set of named fields.
+Tabular results may contain duplicate results and be optionally ordered.
+* A _**graph result**_: the contents of a graph as described by its set of nodes and relationships.
+* An _**execution error**_: a message describing the reason that prevented the query processor from executing the client request successfully.
+
+.Definition 40
+A _**void result**_ is a specially marked tabular result that consists of one and only one record with zero fields.
+
+.Definition 41
+An _**empty result**_ is either a tabular result or graph result which contains no data (for instance, when no matches have been found).
+An empty _tabular_ result consists of all the fields defined for the result, and zero records.
+An empty _graph_ result consists of a graph with zero nodes and zero relationships.
+
+.Definition 42
+Any tabular result that is provided as the single input to a clause is called the _**driving table**_ of that clause.
+
+
+==== Request execution
+
+Clients interact with the query processor by submitting a client request.
+The source program is then executed by the query processor and an execution result is returned to the client for consumption.
+
+.Definition 43
+_**Raising an error**_ refers to aborting the execution of a currently-executing client request and returning the error as the final execution result of the client request back to the client.
+
+An execution error is raised if the client request does not contain a semantically valid statement.
+
+
+==== Execution of statement chains
+
+Statement chains are executed by executing all contained composite statements in the order given.
+If the execution of any contained composite statement fails with an error, the execution of the whole statement fails with the same error.
+Otherwise, the query processor discards all intermediate results produced by a statement chain and only returns the execution result for the last composite statement.
+
+
+==== Identity validity during execution
+
+Identities are only guaranteed to be valid for the duration of the execution of a statement and the consumption of its result.
+
+Implementations may choose to guarantee the validity of identities across multiple client requests.
+
+Note:: As a consequence, the same identity value may refer to different model elements in results returned by different client requests, even within the same context (e.g. in the same graph).
+
+
+==== Returning graph model elements
+
+The client always receives the current contents of all returned model elements:
+
+1. If an execution result that is returned _to the client_ is a graph result, the contents of this graph is returned.XXXSLOPPY
+
+2. If an execution result that is returned _to the client_ is a tabular, the contents and identity of all contained entities is returned.
+
+Note:: Additionally, a result may contain implementation-specific metadata such as a summary of performed update activity (e.g. the number of nodes created) or a detailed query plan.
+
+
+=== The catalog
+
+.Definition 44
+A _**catalog**_ is a mapping from _**fully qualified graph names**_ to graph references.
+Multiple entries in the catalog may refer to the same graph.
+
+A fully qualified graph name should use the syntax for dotted variable identifiers.
+It consists of an optional *graph namespace*, and a mandatory *graph name*.
+
+Note:: In practice, a query processor may have a catalog shared by all users, or provide a different catalog for each user.
+This is not considered here based on the simplifying assumption that all client requests are made by the same user.
+
+
+=== The working graph
+
+Most Cypher clauses operate within the context of a _working graph_ (_Definition 43_) by reading or updating it.
+
+.Definition 45
+The _**working graph stack**_ is a stack of graph references that is maintained during statement execution.
+
+.Definition 46
+The _**working graph**_ is the topmost element of the current working graph stack.
+
+Note:: The working graph stack may be empty when a statement begins to execute.
+In this case, the working graph is considered to be unset.
+
+A query processor may choose to establish an *initial working graph* for each statement to be executed.
+The details are left to implementations.
+
+An error is raised if a query processor has not established an initial working graph -- i.e. the working graph is unset -- and the statement fails to set a working graph explicitly before attempting to operate on the working graph.
+
+
+
+== Basic graph operations
+
+The working graph may be operated on in the following ways:
+
+* The working graph can be changed by selecting a graph that is known by the catalog.
+* The working graph is implicitly used during pattern matching and during the course of graph creation.
+* The working graph may be returned as a query result.
+* The working graph can be retained while the binding table is discarded.
+* The identity of model elements in the context of the working graph may be obtained using <<functions-data-model-introspection, introspective functions>>.
+
+
+=== Selecting the working graph from the catalog: querying
+
+// TODO: Asciidoc circle references
+// TODO: Asciidoc line numbers
+The working graph may be changed for all subsequent querying clauses using one of the following two forms:
+
+[source, cypher]
+----
+[1] FROM < graph-name >
+[2] FROM GRAPH
+----
+
+`< graph-name >` is expected to be the name of a graph in the catalog.
+
+`FROM GRAPH` can be used to select the working graph for further read-only operations.
+
+An error is raised in these scenarios:
+
+* `< graph-name >` is not the name of a graph in the catalog.
+* Attempting to perform an updating operation on a working graph introduced using `FROM [GRAPH]`.
+
+Note:: A subquery form of `FROM` is proposed in the accompanying CIP `CIP2018-05-03: Nested subqueries`.
+
+
+=== Selecting the working graph from the catalog: updating
+
+The working graph may be changed for all subsequent querying and updating clauses using one of the following two forms:
+
+[source, cypher]
+----
+[1] UPDATE < graph-name >
+[2] UPDATE GRAPH
+----
+
+`< graph-name >` is expected to be the name of a graph in the catalog.
+
+`UPDATE GRAPH` may be used to select the working graph for further updating operations.
+
+An error is raised in these scenarios:
+
+* `< graph-name >` is not the name of a graph in the catalog.
+* If no updating operations are performed on a working graph that was introduced using `UPDATE [GRAPH]`.
+
+Note:: A subquery form of `UPDATE` is proposed in the accompanying CIP `CIP2018-05-03: Nested subqueries`.
+
+
+=== Using the working graph when interpreting a pattern
+
+All bound entities are matched against the working graph in both pattern matching and updating commands.
+
+If one of the bound variables in a pattern is an entity that is not contained in the working graph, the entire pattern will not match.
+
+Consider the following example:
+
+[source, cypher]
+----
+UPDATE graph1
+CREATE (a)
+WITH *
+FROM graph2
+MATCH (a), (b)
+RETURN count(*) AS count
+----
+
+This will always return a count of zero since the `MATCH` clause cannot possibly find any node in `graph2` that is identical to `(a)` even though `graph2` may very well contain nodes `(b)`.
+XXMORE-needs-to-be-said.What about WITH *xxxx
+
+An error is raised if a statement attempts to update an entity that is not contained in the working graph.
+
+
+=== Discarding the driving table
+
+The following syntax discards the current binding table whilst retaining the working graph:
+
+[source, cypher]
+----
+WITH GRAPH
+...
+----
+
+The remainder of the query after `WITH GRAPH` continues to operate on the same working graph with an empty driving table (no fields, single record).
+
+
+=== Returning a graph
+
+The working graph may be returned as an execution result using:
+
+[source, cypher]
+----
+RETURN GRAPH
+----
+
+Additionally, the following syntactic form is supported for both selecting the working graph from the catalog and returning it:
+
+[source, cypher]
+----
+RETURN GRAPH < graph-name >
+----
+
+Graphs are always returned by reference during execution within the query processor.
+This does not affect the rules on returning model elements together with their contents to the client; i.e. a graph result will be returned by value to the client.
+
+
+
+== Graph construction and composition
+
+*Graph construction and composition* dynamically create new graphs in order to query, update, store in the catalog, or return to the client.
+
+We begin this section by describing <<provenance-tracking, provenance tracking>> -- a means by which to replicate entities from other graphs -- and then proceed to detail the various forms of graph construction and composition (enumerated in the list below), and conclude with <<functions-data-model-introspection, functions>> used to introspect the various elements of the data model.
+
+The following forms of graph construction and composition are proposed in this section:
+
+* The working graph can be changed by <<graph-construction, constructing a new graph>>.
+* The working graph can be changed by composing a <<disjoint-graph-union, disjoint graph union>>.
+* The working graph can be changed by composing a <<common-graph-union, common graph union>>.
+* The working graph can be changed by composing a <<graph-intersection, graph intersection>>.
+* The working graph can be changed by composing a <<graph-difference, graph difference>>.
+
+
+[[provenance-tracking]]
+=== Provenance tracking
+
+Entities in dynamically constructed graphs may be _replicas_ (_Definition 46_) of existing entities in other graphs.
+The query processor tracks the provenance of these entities by maintaining a _provenance graph_ (_Definition 46_) during statement execution only.
+
+
+==== Provenance graph
+
+.Definition 46
+A _**provenance graph**_ is a directed acyclic graph whose vertices represent entities of a multiple property graph model instance.
+Vertices are connected with an edge in the provenance graph if the target vertex represents a _**replica**_ `e` of the entity that is represented by the source vertex.
+The entity represented by the source vertex is called the _**parent**_ of `e`.
+Multiple vertices may represent the same entity.
+However, all vertices that represent the same entity `e` must have a single shared vertex as their ancestor.
+The entity represented by this ultimate ancestor is called the _**root**_ of `e`.
+
+Note:: The provenance graph is _not_ a graph in the sense of the data model.
+The provenance graph is conceptually maintained by the query processor in order to track which entities are replicas of each other.
+
+
+[[graph-construction]]
+=== Graph construction
+
+Graph construction is the dual -- or inverse -- operation to graph matching: while graph matching extracts pattern instances into variable bindings from the working graph, graph construction builds a new working graph from variable bindings.
+This idea is illustrated in <<img-duality, Figure 3>>.
+
+
+[[img-duality]]
+.Duality within Cypher: `MATCH` and `CONSTRUCT`
+image::duality.png[Graph,2792,835]
+
+All newly-created nodes and relationships in the constructed graph have new entity identities and differ from any previously-matched entities.
+
+The basic form of graph construction is:
+
+[source, ebnf]
+----
+<graph-construction> :=
+  <construct-clause>
+  <update-command>*
+  [ WITH ... | WITH GRAPH | RETURN ... | RETURN GRAPH ]
+  ;
+
+<construct-clause> := CONSTRUCT [ ON GRAPH ] [ ON < graph-name-list > ] ;
+
+<graph-name-list> := < graph-name > [ ',' < graph-name > ]* ;
+
+<update-command> := ... | < replicate-clause > | < de-replicate-clause > ;
+
+<replicate-clause>    := MERGE ALL < expression-list > | '*' ;
+<de-replicate-clause> := [DETACH] DELETE ALL < expression-list > | '*' ;
+----
+
+Graph construction supports a subclause for the *replication of all entities of existing graphs* (using `CONSTRUCT ON`) and a clause for the *replication of specific existing entities* (using `MERGE ALL`).
+
+A simple clause chain may end with a `< graph-construction >` that ends with `RETURN GRAPH`.
+
+
+==== Replication
+
+We now describe the construct clauses: (i) `CONSTRUCT`, (ii) `ON GRAPH` and (iii) `ON <graph name list>`.
+
+(i) The `CONSTRUCT` clause supports the creation of replicated entities (i.e. replicas) in the new graph in order to reconstruct (in the new graph) subgraph structures from other graphs.
+
+.Definition 47
+_**Replication**_ ensures that exactly one new replica is created in a newly-constructed graph for a given source entity from some other graph.
+If the same entity is replicated multiple times in the constructed graph, this will still only create one replica in the constructed graph.
+If multiple entities with the same root in the provenance graph are replicated in the constructed graph, this will still only create one replica per distinct root in the constructed graph.
+Every replica has exactly the same labels/relationship type as well as the same properties as the source entity by virtue of update propagation (i.e. a replica can be seen as a "representative" of the source in the constructed graph); more information is detailed <<updating-constructed-graphs, here>>.
+Replicating a relationship implicitly replicates its start node and its end node and uses these replicated nodes as the start node and the end node of the relationship replica.
+
+Note:: It is possible to replicate an entity over multiple interations of graph construction.
+However, there will never be multiple replicas in one graph that have the same root in the provenance graph.
+
+(ii) The `ON GRAPH` subclause may be used to replicate all nodes and relationships from the working graph into the constructed graph.
+
+(iii) The `ON < graph-name-list >` subclause may be used to replicate all nodes and relationships from the given graphs in the catalog into the constructed graph.
+
+
+==== Building constructed graphs
+
+Constructed graphs are built by explicitly populating them with entities using the following clauses:
+
+ * `CREATE`
+ * `MERGE`
+ * `SET`
+ * `REMOVE`
+ * `[DETACH] DELETE`
+
+If an entity from another graph is referenced by a pattern in `CREATE`, an error is raised.
+
+If an entity from another graph is referenced by a pattern in `MERGE`, it is replicated.
+
+The `MERGE ALL < expression-list >` clause may be used to replicate entities that are contained in the atoms of the given values.
+
+Additionally, the `MERGE ALL *` clause may be used to replicate the atoms of all variables that are visible in the current scope.
+
+Note:: Replicating a nested value (such as a path) using `MERGE ALL` implicitly replicates _all_ contained nodes and relationships.
+
+If an entity from another graph is passed as an argument to `DELETE` or `DETACH DELETE`, any corresponding replicas are removed from the constructed graph.
+
+The `[DETACH] DELETE ALL < expression-list >` clause may be used to remove replicas that are contained in the atoms of the given values from the constructed graph.
+
+Additionally, the `[DETACH] DELETE ALL *` clause may be used to remove replicas that are contained in the atoms of all variables that are visible in the current scope from the constructed graph.
+
+An error is raised for any attempt to `SET` or `REMOVE` labels or properties of replicas during graph construction.
+
+
+[[updating-constructed-graphs]]
+==== Updating constructed graphs
+
+Constructed graphs may be updated using `UPDATE GRAPH`.
+Updating relies on information from provenance tracking of replicas in order to propagate updates to base data.
+
+A reference value (e.g. as obtained by pattern matching or expression evaluation) to an entity `e` always implicitly addresses all children of the root of `e` in the provenance graph.
+
+Updating a reference to an entity (setting and removing of properties and labels and deletion of the entity) updates all replicas and the base data in the same way.
+This is called *update propagation*.
+
+Constructed graphs may only be updated by
+
+ * setting and removing properties
+ * setting and removing labels
+ * deleting nodes and relationships
+
+An error is raised if an update to a constructed graph leads to a constraint violation in a source graph.
+
+
+[[disjoint-graph-union]]
+=== Disjoint graph union
+
+The *disjoint graph union* of two graphs may be computed using the following syntax:
+
+[source, cypher]
+----
+< query-1 >
+RETURN GRAPH
+UNION ALL
+< query-2 >
+RETURN GRAPH
+----
+
+The resulting union graph consists of copies of all entities from the two input graphs.
+
+Note:: If a replica of the same source node is contained in both graphs, two copies of that node are added to the result graph.
+
+
+[[common-graph-union]]
+=== Common graph union
+
+The *common graph union* of two graphs may be computed using the following syntax:
+
+[source, cypher]
+----
+< query-1 >
+RETURN GRAPH
+UNION
+< query-2 >
+RETURN GRAPH
+----
+
+The resulting union graph consists of replicas of all entities from the two input graphs.
+
+Note:: If a replica of the same source node is contained in both graphs, only one replica for that node is added to the result graph.
+
+
+[[graph-intersection]]
+=== Graph intersection
+
+The *common graph intersection* of two graphs may be computed using the following syntax:
+
+[source, cypher]
+----
+< query-1 >
+RETURN GRAPH
+INTERSECT
+< query-2 >
+RETURN GRAPH
+----
+
+The resulting intersection graph consists of replicas of all entities that are contained in both input graphs.
+
+
+[[graph-difference]]
+=== Graph difference
+
+The *common graph difference* of two graphs may be computed using the following syntax:
+
+[source, cypher]
+----
+< query-1 >
+RETURN GRAPH
+EXCEPT
+< query-2 >
+RETURN GRAPH
+----
+
+The resulting difference graph consists of replicas for all entities from the left (first) graph that are not contained in the second (last) graph.
+
+
+[[functions-data-model-introspection]]
+=== Functions for data model introspection
+
+The data model may be introspected using the following functions:
+
+The `graph()` function returns the *graph identity* of the working graph.
+
+The `graph(e)` function returns the *graph identity* of the base graph in which the root of `e` was created.
+
+The `exists(e)` function is overloaded for entities `e` such that it returns `true` if `e` has not been deleted in `graph(e)` and is also overloaded such that it returns `false` otherwise.
+
+The `replicated(e)` function is defined for entities `e` such that it returns `true` if `exists(e)` and either a replica of the given entity `e` or `e` itself is contained in the working graph and is also defined such that it returns `false` otherwise.
+
+The `id(n)` function returns the *node identity* of the root of `n` in `graph(n)`
+
+The `id(r)` function returns the *relationship identity* of root of `r` in `graph(r)`
+
+
+
+== Examples
+
+The following examples are intended to show how multiple graphs may be used, and focus on syntax.
+We show two fully worked-through examples <<data-integration-example, here>> and <<data-aggregation-example, here>>, describing and illustrating every step of the pipeline in detail.
+
+=== Creating and returning a new graph: a simple example
+
+This query returns a graph containing all the people living in Berlin in the `persons` graph and their `KNOWS` relationships.
+
+[source, cypher]
+----
+FROM persons
+MATCH (a:Person {city: "Berlin"})-[r:KNOWS]->(b:Person {city: "Berlin"})
+CONSTRUCT
+MERGE ALL a, b, r
+RETURN GRAPH
+----
+
+By specifying the same predicate "{city: "Berlin"}" on both nodes, we are saying we are only interested in the graph of people in Berlin.
+
+Another query we might want to do is to see all the people that live in Berlin, and also include all their known nodes, no matter where they live.
+
+[source, cypher]
+----
+FROM persons
+MATCH (a:Person {city: "Berlin"})-[r:KNOWS]-(b:Person)
+CONSTRUCT
+MERGE ALL a, b, r
+RETURN GRAPH
+----
+
+=== Constructing a new graph, switching contexts and returning a graph
+
+[source, cypher]
+----
+FROM social-network
+// .. and match some data
+MATCH (a:Person)-[:KNOWS]->(b:Person)-[:KNOWS]->(c:Person) WHERE NOT (a)--(c)
+CONSTRUCT
+CREATE (a)-[:POSSIBLE_FRIEND]->(c)
+// All cardinality and bindings are removed here
+MATCH (a:Person)-[e:POSSIBLE_FRIEND]->(b:Person)
+// Return tabular and graph output
+RETURN a.name, b.name, count(e) AS cnt ORDER BY cnt DESC
+----
+
+
+[[data-integration-example]]
+=== A complete example illustrating a data integration scenario
+
+Assume we have two graphs, *ActorsFilmsCities* and *Events*.
+This example will show how these two graphs can be integrated into a single graph.
+
+The *ActorsFilmsCities* graph models the following entities:
+
+* Actors and people fulfilling other roles in the film-industry.
+* Films in which they acted, or directed, or for which they wrote the soundtrack.
+* Cities in which they were born.
+* The relationships between family members and colleagues.
+
+Each node is labelled and contains one or two properties (where `YOB` stands for 'year of birth'), and each relationship of type `ACTED_IN` has a `characterName` property indicating the name of the character the relevant `Actor` played in the `Film`.
+
+image::opencypher-PersonActorCityFilm-graph.jpg[Graph,800,650]
+
+The other graph, *Events*, models information on events.
+Each event is linked to an event type by an `IS_A` relationship, to a year by an `IN_YEAR` relationship, and to a city by an `IN_CITY` relationship.
+For example, the _Battle of Britain_ event is classified as a _War Event_, occurred in the year _1940_, and took place in _London_.
+
+In contrast to the *ActorsFilmsCities* graph, *Events* contains no labels on any node, no properties on any relationship, and only a single `value` property on each node.
+*Events* can be considered to be a snapshot of data from an RDF graph, in the sense that every node has one and only one value; i.e. in contrast to a property graph, an RDF graph has properties on neither nodes nor relationships.
+(For easier visibility, we have coloured accordingly the cities and city-related relationships, event types and event-type relationships, and year and year-related relationships.)
+
+image::opencypher-Events-graph.jpg[Graph,800,600]
+
+The aims of the data integration exercise are twofold:
+
+* Create and persist to disk (for future use) a new graph, *PersonCityEvents*, containing an amalgamation of data from *ActorsFilmsCities* and *Events*.
+*PersonCityEvents* must contain all the event information from *Events*, and only `Person` nodes connected to `City` nodes from *ActorsFilmsCities*.
+
+* Return a graph containing a subset of the data from *PersonCityEvents*, consisting only of the criminal events, their associated `City` nodes, and `Person` nodes associated with the `City` nodes.
+
+
+==== Step 1
+
+The very first step is to create the graph in the catalog using syntax from `CIP2018-05-03`:
+
+[source, cypher]
+----
+CREATE GRAPH PersonCityEvents
+----
+
+This creates an empty graph in the catalog named `PersonCityEvents`.
+
+
+===== Step 2
+
+The next step is to copy over persons and cities from `ActorsFilmsCities`.
+
+[source, cypher]
+----
+[0] FROM ActorsFilmsCities
+[1] MATCH (p1:Person)-[:BORN_IN]->(c1:City)
+[2] UPDATE PersonCityEvents
+[3] MERGE (p2:Person {name: p1.name, YOB: p1.YOB})
+[4] MERGE (c2:City {name: c1.name})
+[5] MERGE (p2)-[:BORN_IN]->(c2)
+----
+
+Here, we are first setting the working graph to the ActorsFilmsCities [0], and then we are matching on this graph [1].
+That is all the input data we need, so we can now switch over to the output graph [2] and create nodes and relationships in it [3-5].
+// TODO Maybe talk about that we could have used CONSTRUCT instead.
+
+At this stage, *PersonCityEvents* is given by:
+
+image::opencypher-PersonCity-graph.jpg[Graph,600,400]
+
+==== Step 3
+
+The next stage in the pipeline is to add the events information from *Events* to *PersonCityEvents*.
+
+[source, cypher]
+----
+[ 0] FROM Events
+[ 1] MATCH (c)<-[:IN_CITY]-(e)-[:IN_YEAR]->(y),
+[ 2]       (e)-[:IS_A]->(et)
+[ 3] WITH *, CASE et.value
+[ 4]     WHEN 'Criminal Event' THEN 'criminal'
+[ 5]     WHEN 'Public Event' THEN 'public'
+[ 6]     WHEN 'War Event' THEN 'war'
+[ 7]     WHEN 'Royal Event' THEN 'royal'
+[ 8]   END as eventType
+[ 9] UPDATE PersonCityEvents
+[10] MERGE (c:City {name: c.value})
+[11] MERGE (e:Event {title: e.value, year: y.value, type: eventType})
+----
+
+First, we specify that we start reading from the Events graph [0].
+All the events information -- the event itself, its type, the year in which it occurred, and the city in which it took place -- is matched [1-2].
+
+Next, we create a string value for the type of event, and store it in the variable `eventType`[3-8]
+
+The target graph is set to the *PersonCityEvents* graph [9].
+
+Using the results from the `MATCH` clause, we create a subgraph with more intelligible semantics through the transformation of the events information into a less verbose form through greater use of node-level properties.
+
+*PersonCityEvents* now contains the following data:
+
+image::opencypher-PersonCityEvents-graph.jpg[Graph,800,700]
+
+==== Step 4
+
+The last step in the data integration pipeline is to return part of the newly created graph - only the criminal events and related information is returned from *PersonCityEvents*.
+
+[source, cypher]
+----
+[0] FROM PersonCityEvents
+[1] MATCH
+[2]  (ce:Event {type:'criminal'}),
+[3]  (ce)-[h:HAPPENED_IN]->(c:City)<-[b:BORN_IN]-(p:Person)
+[4] CONSTRUCT
+[5] MERGE ALL p, c, ce, h, b
+[6] RETURN GRAPH
+----
+
+Again, we start from `PersonCityEvents` [0].
+
+Next, obtain the subgraph of all criminal events -- i.e. nodes labelled with `Event` of type "criminal" [2] -- and their associated `City` nodes, and `Person` nodes associated with the `City` nodes [3].
+
+And, as the final step of the entire data integration pipeline, return *Temp-PersonCityCrimes*, which is comprised of the following data:
+
+This is the final step of the entire data integration pipeline, we return this graph [6].
+
+image::opencypher-PersonCityCriminalEvents-graph.jpg[Graph,700,550]
+
+
+
+== Considerations
+
+
+=== Interaction with existing features
+
+This proposal is far reaching as it updates both the property graph model and the execution model of the language.
+
+However, the change has been carefully designed to not change the semantics of existing queries.
+
+
+=== Alternatives
+
+A central design consideration has been wether entities should belong only to a single graph or should be shared arbitrarily between multiple graphs.
+This proposal advocates a middle ground: At the data model level, entities are contained in a single graph only.
+This establishes a 1:1 correspondence between entities and graphs and grants great implementation freedom in terms of id space management.
+At the language semantics level, replication tracks entities that are effectively shared across graphs and treats the root and all of its replicas as the same entity in terms of equality.
+This has been reflected in the re-definition of the `id` function that always returns the identity of the corresponding root in the base graph for any given entity.
+
+Instead of only returning either a table or a single graph, an earlier edition of this proposal explored to return table-graphs, i.e. both a single driving table and an associated set of multiple, named graphs.
+This felt overly complicated and made it difficult to distinguish between graphs in scope and variables in scope, created the need to occasionally create dummy values (like an empty graph or driving table), and led to a more complex execution result (with potentially difficult repercussions for the network protocol).
+
+Instead of only establishing a single working graph, an earlier edition of this proposal explored the idea of distinguishing between a graph for reading and a graph for writing.
+This led to a more complex execution result, made it necessary to manage those two graphs and complicated the users mental model, and was ultimately discarded based on a use-case analysis that indicated that in practice queries would typically first select graphs for reading and then switch to writing.
+
+Instead of referring to graphs by name, an earlier edition of this proposal introduced graph urls for addressing graphs.
+This seemed to unnecessarily tie the language to an addressing and locating scheme instead of delegating such a choice to implementations.
+
+Instead of introducing graphs as separate catalog objects, an earlier edition of this proposal considered graphs as values (called graphlets).
+While providing great flexibility, this approach becomes very difficult to plan and statically analyze.
+It also leads to intractable operations like joins between graphs.
+However it may still be worthwhile to explore this idea in the future for "tiny subgraphs".
+
+
+=== Syntax variations
+
+Below is a list of potential syntax variations under discussion:
+
+ * Listing multiple graphs as an argument to `FROM` and `UPDATE` etc. could be defined as a syntax shorthand for an implied graph union between these graphs
+
+
+=== What others do
+
+SPARQL only provides basic facilities for returning graphs using `CONSTRUCT`.
+
+SQL constructs derived tables using projection, aggregation, and filtering.
+
+Neither Gremlin nor PGQL have developed facilities for the direct construction and manipulation of graphs.
+
+
+=== Benefits to this proposal
+
+Cypher is evolved to become a query language that is properly closed under graphs and tables.
+
+
+=== Caveats to this proposal
+
+This is a fundamental and large change to the language whose long-term consequences are difficult to assess.
