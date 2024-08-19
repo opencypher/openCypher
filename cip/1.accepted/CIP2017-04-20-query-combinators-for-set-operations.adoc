@@ -1,0 +1,141 @@
+= CIP2017-04-20 Query combinators for set operations
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Stefan Plantikow <stefan.plantikow@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+This CIP codifies the pre-existing `UNION` and `UNION ALL` clauses, and proposes additional query combinators for set operations.
+--
+
+toc::[]
+
+== Motivation
+
+Query combinators for set operations are a common feature in other query languages.
+Adding more query combinators to Cypher will increase language expressivity and provide functionality that has been requested -- and expected to exist -- in the language by users.
+
+== Background
+
+The vast majority of Cypher clauses are underpinned by sequential composition; i.e. the records produced by the first clause act as an input to the next clause and so on.
+However, some operations require multiple streams of records as inputs.
+These are called _query combinators_ (CIP2016-06-22 Nested, updating, and chained subqueries).
+The most notable example of query combinators are _set operations_.
+
+== Proposal
+
+This CIP proposes the specification of pre-existing and the introduction of several new query combinators for set operations:
+
+* `UNION`
+* `UNION ALL`
+* `UNION MAX`
+* `INTERSECT`
+* `INTERSECT ALL`
+* `EXCEPT`
+* `EXCEPT ALL`
+* `EXCLUSIVE UNION`
+* `EXCLUSIVE UNION MAX`
+* `OTHERWISE`
+* `CROSS`
+
+Query combinators are used to construct a (compound) top-level query from two input query components.
+
+A query component is a sequence of clauses that either describes an updating query or a read-only that ends in a `RETURN` clause but does not contain any top-level query combinator clauses.
+Query components may however contain nested subqueries whose inner queries contain query combinator clauses.
+
+Query combinators are left-associative; that is, their operations are grouped from the left.
+
+For all proposed query combinators -- except for `CROSS` -- the variables returned are subject to the following standard rules:
+
+* Both input query components must return precisely the same set of variables
+* If both input query components specify the order of returned variables explicitly, they must both return those variables in exactly the same order
+* If one of the input query components does not specify the order of returned variables explicitly (e.g. by using `RETURN *`), then the other input query must specify the order of returned variables explicitly.
+This order will then be the order in which variables are returned by the query combinator
+* If both input query components do not specify the order of returned variables explicitly (e.g. by using `RETURN *`), variables are returned in the same order as map keys (i.e. sorted according to their UNICODE name)
+
+
+=== UNION
+
+`UNION` computes the logical set union between two sets of input records (i.e. any duplicates are discarded).
+
+`UNION ALL` computes the logical multiset sum between two bags of input records (i.e. all duplicates from both arms are retained).
+
+`UNION MAX` computes the logical max-bounded multiset union between two bags of input records (i.e. retains the largest number of duplicates from either arm).
+
+
+=== INTERSECT
+
+`INTERSECT` computes the logical set intersection between two sets of input records (i.e. any duplicates are discarded).
+
+`INTERSECT ALL` computes the logical multiset intersection between two bags of input records (i.e. shared duplicates are retained).
+
+
+=== EXCEPT
+
+`EXCEPT` computes the logical set difference between two sets of input records (i.e. any duplicates are discarded).
+
+`EXCEPT ALL` computes the logical multiset difference between two bags of input records (i.e. excess duplicates on the left-hand side are retained).
+
+=== EXCLUSIVE UNION
+
+`EXCLUSIVE UNION` computes the exclusive logical set union between two sets of input records (i.e. any duplicates in the final outcome are discarded).
+
+`EXCLUSIVE UNION MAX` computes the exclusive logical multiset union between two bags of input records (i.e. the largest remaining excess multiplicity of each record in any argument bag is returned).
+
+
+=== OTHERWISE
+
+`OTHERWISE` computes the logical choice between two bags of input records.
+It evaluates to all records from the left-hand side argument provided the bag of input records is non-empty; otherwise it evaluates to all records from the right-hand side argument.
+
+
+=== CROSS
+
+`CROSS` computes the cartesian product between the records produced by both input query components.
+Duplicates are preserved (i.e. `CROSS` does not imply `DISTINCT`).
+
+In contrast to the other query combinators, the standard rules regarding returned variables do not apply to `CROSS`.
+Instead, the set of variables returned from both input query components of a `CROSS` must be non-overlapping.
+The returned variables of a `CROSS` operation consist of all the variables returned by the left-hand side input query component (appearing in the order specified), followed by all the variables returned by the right-hand side input query component (appearing in the order specified).
+
+
+=== Handling of NULL values
+
+All query combinators perform record-level comparisons under equivalence (i.e. `null` is equivalent to `null`).
+
+=== Interaction with existing features
+
+This CIP codifies the pre-existing `UNION` and `UNION ALL` constructs.
+
+The suggested changes are expected to integrate well with the parallel CIP for nested subqueries.
+
+This CIP adds `INTERSECT`, `EXCLUSIVE`, and `OTHERWISE` as new keywords.
+
+=== Alternatives
+
+SQL does not provide `UNION MAX` (it has been suggested in the literature though).
+
+`EXCLUSIVE UNION` and `EXCLUSIVE UNION MAX` are not provided by SQL and could be omitted.
+
+`OTHERWISE` is not provided by SQL and could be omitted.
+
+SQL allows `MINUS` as an alias for `EXCEPT`.
+
+== What others do
+
+This proposal mainly follows SQL.
+
+== Benefits to this proposal
+
+Set operations are added to the language.
+
+== Caveats to this proposal
+
+Increase in language complexity; adopting controversial `null` handling issues from SQL.
+
+This does not consider aliasing of subqueries; henceforth set operations over the same argument queries need to repeat the argument subqueries.
+This could be addressed in a future CIP.
