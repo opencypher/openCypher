@@ -1,0 +1,201 @@
+= CIP2018-10-19 Semantics of Deleted Elements
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Authors:* Tobias Lindaaker <tobias.lindaaker@neotechnology.com>, Mats Rydberg <mats@neo4j.org>
+
+[abstract]
+.Abstract
+--
+This is a high-level summary of the aim and description of the CIP.
+--
+
+toc::[]
+
+
+== Motivation
+
+Cypher allows reading clauses to occur after updating clauses.
+This includes reading clauses after clauses that delete elements.
+Since the driving table of the preceding query (parts) is retained into the succeeding reading query (parts), this means that entries in the driving table that previously contained elements might now contain elements that have been deleted.
+
+The semantics of such deleted elements are not obvious.
+In fact, implementations have dealt with these in inconsistent ways, sometimes allowing access to the element id, or its properties, or allowing `MATCH` clauses to find deleted elements, and sometimes none of those things.
+The need for consistent semantics for such deleted elements is expressed in part by `CIR-2017-263`.
+This CIP specifies consistent and clear semantics for such deleted elements.
+
+
+== Proposal
+
+This CIP specifies that the semantics of accessing deleted elements is the same as accessing `NULL` values.
+This can be thought of as replacing all occurrences of the deleted elements (anywhere) in the driving table (including in nested values) with `NULL`, or as treating the deleted elements as _effectively_ `NULL`.
+
+`CIP-2015-10-27` defines that visibility between clauses follow a linear model.
+That is, the effects of a clause are visible to the clause itself and all subsequent clauses, but never to a preceding clause.
+That applies also to deleted elements.
+These semantics effect the `DELETE` clause itself, even if not succeeded by further reading clauses, since the same element can occur in multiple rows in the driving table.
+
+These semantics are consistent with the `OPTIONAL MATCH` clause, through the behaviour of that clause when no match is found.
+In that case, the pattern variables will be projected with a `NULL` value and subsequent operations using these variables are well-defined.
+This CIP builds on these well-established semantics.
+
+
+=== Syntax
+
+There is no syntactic element to this CIP.
+For reference, we include the syntax of the clauses that are able to cause a deleting effect.
+
+[source, ebnf]
+----
+<delete> = ["DETACH"], "DELETE", <expression> ;
+----
+
+
+=== Semantics
+
+The semantics of a deleted element are exactly the same as if the element variable was mapped to a `NULL` value.
+In this section, we will describe detailed semantics for the access of particularly interesting aspects of elements.
+
+
+==== Properties
+
+Accessing properties of deleted elements produces a `NULL` value, just like accessing a property from a `NULL` value would.
+This includes both a direct property access operator (`.`) and the `properties()` function.
+
+
+==== Node labels
+
+A node label expression using the colon operator (`:`) on a deleted node evaluates to `NULL`.
+The `labels()` function on a deleted node evaluates to `NULL`.
+
+
+==== Relationship type
+
+A relationship type expression using the colon operator (`:`) on a deleted relationship evaluates to `NULL`.
+The `type()` function on a deleted relationship evaluates to `NULL`.
+
+
+==== Pattern matching using deleted elements
+
+When a pattern used for matching in the graph contains an already-bound variable that refers to a deleted element, this results in the same predicate as otherwise, but with semantics that are identical to the case when a `NULL` value would be held by that variable.
+
+For example, consider the pattern `(a)-[r]->()` where the binding table contains bindings for `a` and `r`.
+There is an implicit predicate for the pattern matching allowing only elements `n` and `m` in the `a` and `r` positions for which `a = n AND r = m` is `TRUE`.
+If `a` and `b` refer to deleted elements, this predicate will not be true for any elements in the database, as the predicate is supposed to evaluate to the same value as `a = NULL AND r = NULL` which is `NULL` and not `TRUE`.
+
+
+==== Deleting deleted Elements
+
+Deleting a deleted element (like any `NULL` value) is a no-op.
+
+
+==== Equality of deleted Elements
+
+The normal semantics is that two `NULL` values are never considered equal.
+This extends to deleted elements, since they are equivalent to `NULL` for all intents and purposes.
+
+[source, cypher]
+.This query returns `same1: *true*; same2: *false*` for all rows
+----
+MATCH (n), (m)
+WHERE n = m AND NOT EXISTS { (n)-() }
+WITH n, m, n = m AS same1
+DELETE n
+RETURN same1, n = m AS same2
+----
+
+==== Deleted elements in paths
+
+If an element is deleted that is part of a path value, such a path can no longer exist, therefore the path value is to be treated as _effectively_ `NULL` (in the same way that the deleted element that is part of it would).
+
+[source, cypher]
+.This query returns `a: *null*; b: *null*; c: *null*` for all rows
+----
+MATCH p=()-[r]->()
+DELETE r
+RETURN p AS a, nodes(p) AS b, relationships(p) AS c
+----
+
+
+==== Deleted elements in nested structures
+
+If an element exists within a list or map or another nested structure, the semantics still apply.
+
+
+==== Returning deleted elements
+
+A deleted element is replaced with a `NULL` value when returned at the end of a query.
+
+
+=== Examples
+
+.Returning a deleted node, a label expression using it, its labels, and a previously projected property; compared to a non-deleted node:
+[source,cypher]
+----
+CREATE (n:L {x: 1, y: 2}), (m:L {x: 3, y: 4})
+WITH *, n.x AS projectedWhenAlive
+DELETE n
+RETURN
+  n, // null
+  projectedWhenAlive, // 1
+  n.x, // null
+  n.y, // null
+  properties(n), // null
+  n:L, // null
+  labels(n), // null
+  m, // the node as described above
+  m.x, // 3
+  labels(m) // ['L']
+----
+
+
+.Deleting a node which is accessed across different rows:
+[source,cypher]
+----
+CREATE (x:X {x: 1})
+WITH [x, x] AS list
+UNWIND list AS xComesTwiceHere
+WITH xComesTwiceHere, x.x AS readBeforeDelete
+DELETE xComesTwiceHere
+RETURN readBeforeDelete
+----
+
+.Result:
+[opts="header",cols=m]
+|===
+|readBeforeDelete
+|1
+|1
+|===
+
+Note that the second row returns `1` and not `null`.
+
+
+=== Interaction with existing features
+
+The semantics of this proposal interact with any and all functionality in Cypher that operates over elements.
+This is a substantial part of the language, which motivates the consistent semantics described in this CIP.
+
+One particular relation that can be repeated is that to the `OPTIONAL MATCH` clause.
+It is the intention that an element matched using a non-matching `OPTIONAL MATCH` will behave identical to a deleted element.
+
+
+=== Alternatives
+
+Several alternative models have been discussed:
+
+* Tombstone semantics, described briefly in `CIR-2017-263`, which allows reading parts of deleted elements.
+* Variable-out-of-scope, meaning any operation using a deleted element is an error, as the variable is considered out of scope and removed from the graph following the deletion.
+* A mix of the above, where some parts are allowed to be read, and others cause errors.
+
+
+== Benefits to this proposal
+
+A consistent specification for how deleted elements work within Cypher.
+
+
+== Caveats to this proposal
+
+Query authors have to keep in mind to project properties or other data from elements before they are deleted in order to return data from elements deleted in the same query.
