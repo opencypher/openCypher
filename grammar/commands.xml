@@ -47,7 +47,7 @@
   xsi:schemaLocation="http://opencypher.org/grammar xmlschemas/ocGrammar.xsd "
   >
 
-  <production name="Command" rr:inline="true" oc:legacy="true">
+  <production name="Command" rr:inline="true">
     <alt>
       <non-terminal ref="CreateIndex"/>
       <non-terminal ref="DropIndex"/>
@@ -60,10 +60,52 @@
 
       <non-terminal ref="CreateRelationshipPropertyExistenceConstraint"/>
       <non-terminal ref="DropRelationshipPropertyExistenceConstraint"/>
+
+      <non-terminal ref="CreateConstraint"/>
+      <non-terminal ref="DropConstraint"/>
     </alt>
   </production>
 
-  <!-- / COMMANDS \ -->
+  <!-- / NEW CONSTRAINT SYNTAX \ -->
+
+  <production name="DropConstraint">
+    DROP &SP; CONSTRAINT &SP; <non-terminal ref="SymbolicName"/>
+  </production>
+
+  <production name="CreateConstraint">
+    CREATE &SP; CONSTRAINT &SP; <non-terminal ref="SymbolicName"/> &SP;
+    FOR &SP; <non-terminal ref="Pattern"/> &SP;
+    REQUIRE &SP; <non-terminal ref="ConstraintPredicate"/>
+  </production>
+
+  <production name="ConstraintPredicate">
+    <alt>
+      <non-terminal ref="Expression"/>
+      <non-terminal ref="Unique"/>
+      <non-terminal ref="NodeKey"/>
+    </alt>
+  </production>
+
+  <production name="Unique">
+    <non-terminal ref="GroupedPropertyExpression"/> &SP; IS &SP; UNIQUE
+  </production>
+
+  <production name="NodeKey">
+    <non-terminal ref="GroupedPropertyExpression"/> &SP; IS &SP; NODE &SP; KEY
+  </production>
+
+  <production name="GroupedPropertyExpression">
+    <alt>
+      <non-terminal ref="PropertyExpression"/>
+      <seq>
+        ( &WS; <non-terminal ref="PropertyExpression"/>
+        <repeat>&WS; , &WS; <non-terminal ref="PropertyExpression"/></repeat>
+        &WS; )
+      </seq>
+    </alt>
+  </production>
+
+  <!-- / LEGACY COMMANDS \ -->
 
   <production name="CreateUniqueConstraint" rr:inline="true" oc:legacy="true">
     CREATE &SP; <non-terminal ref="UniqueConstraint"/>

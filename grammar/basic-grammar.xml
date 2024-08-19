@@ -724,6 +724,7 @@
       OF
       ADD
       DROP
+      UNIQUE
     </alt>
   </production>
 
@@ -738,6 +739,8 @@
       ANY
       NONE
       SINGLE
+      NODE
+      KEY
     </alt>
   </production>
 
