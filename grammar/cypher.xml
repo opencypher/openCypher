@@ -74,6 +74,8 @@
   </production>
 
   <production name="RegularQuery" rr:inline="true">
+    <!-- TODO: is this where we declare path predicates? -->
+    <repeat><non-terminal ref="DefinedPathPredicate"/></repeat>
     <non-terminal ref="SingleQuery"/>
     <repeat>&WS;<non-terminal ref="Union"/></repeat>
   </production>
@@ -185,6 +187,44 @@
     <non-terminal ref="Pattern"/>
     <repeat><non-terminal ref="Hint"/></repeat>
     <opt>&WS; <non-terminal ref="Where"/></opt>
+  </production>
+
+  <production name="DefinedPathPredicate">
+    PATH <non-terminal ref="PathPredicatePrototype"/>
+    IS <non-terminal ref="Pattern"/>
+    <opt><non-terminal ref="Where"/></opt>
+  </production>
+
+  <production name="PathPredicatePrototype">
+    ( <non-terminal ref="Variable"/> )
+    <non-terminal ref="RegularPathPrototype"/>
+    ( <non-terminal ref="Variable"/> )
+  </production>
+
+  <production name="RegularPathPrototype">
+    <alt>
+      <seq>
+        <non-terminal ref="LeftArrowHead" rr:title="&lt;"/>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        &WS; / &WS; <opt><non-terminal ref="DefinedPathName"/></opt> &WS; /
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+      </seq>
+      <seq>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        &WS; / &WS; <opt><non-terminal ref="DefinedPathName"/></opt> &WS; /
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        &WS; <non-terminal ref="RightArrowHead" rr:title="&gt;"/>
+      </seq>
+      <seq>
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+        &WS; / &WS; <opt><non-terminal ref="DefinedPathName"/></opt> &WS; /
+        &WS; <non-terminal ref="Dash" rr:title="-"/>
+      </seq>
+    </alt>
+  </production>
+
+  <production name="DefinedPathName">
+    <non-terminal ref="SymbolicName"/>
   </production>
 
   <production name="Unwind">

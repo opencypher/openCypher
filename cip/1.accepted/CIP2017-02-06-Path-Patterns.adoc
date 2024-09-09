@@ -1,0 +1,503 @@
+= CIP2017-02-06 Path Patterns
+:encoding: UTF-8
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Authors:* Tobias Lindaaker <tobias.lindaaker@neotechnology.com>
+
+toc::[]
+
+== Path Patterns
+
+Above and beyond the types of patterns that can be expressed in Cypher using the normal path syntax, Cypher also supports what amounts to regular expressions over paths.
+Queries of this type are typically referred to as Regular Path Queries (RPQs).
+In Cypher Regular Path Queries can be expressed through the use of _Path Patterns_.
+The _Path Patterns_ supported by Cypher are capable of supporting more than just regular expressions though.
+
+A Path Pattern is defined as:
+
+• A simple relationship type +
+  `()-/:X/-()` denotes a Path Pattern matching relationships of type `X`.
+• A predicate on the labels of a node +
+  `()-/(:Z)/-()` denotes a Path Pattern matching nodes with label `Z`.
+• A predicate on the properties of a node +
+  `()-/({foo: bar})/-()` denotes a Path Pattern matching nodes where the `foo` property has the value of _bar_.
+• A sequence of Path Patterns +
+  `()-/𝜶 𝛽/-()` denotes a Path Pattern matching first the pattern defined by `𝜶`, then the pattern defined by `𝛽` (in order left to right).
+• An alternative between Path Patterns +
+  `()-/𝜶 | 𝛽/-()` denotes a Path Pattern matching either the pattern defined by `𝜶` or the pattern defined by `𝛽`.
+• A repetition of a Path Pattern +
+  `()-/𝜶*/-()` denotes a Path Pattern matching the pattern defined by `𝜶` zero or more times. +
+  `()-/𝜶+/-()` denotes a Path Pattern matching the pattern defined by `𝜶` one or more times. +
+  `()-/𝜶*_x_../-()` denotes a Path Pattern matching the pattern defined by `𝜶` `_x_` or more times. +
+  `()-/𝜶*_x_.._y_/-()` denotes a Path Pattern matching the pattern defined by `𝜶` at least `_x_` times and at most `_y_` times.
+• A grouping of a Path Pattern +
+  `()-/[𝜶]/-()` denotes a grouping of the pattern `𝜶`.
+• A predicate on the properties of the edges in a path +
+  `()-/[𝜶 {foo: bar}]/-()` denotes a Path Pattern where all the edges in the group that match `𝜶` must have a `foo` property with the value of _bar_.
+• A specification of direction for a Path Pattern +
+  `()-/  𝜶 >/-()` denotes that the Path Pattern `𝜶` should be interpreted in a left-to-right direction. +
+  `()-/< 𝜶  /-()` denotes that the Path Pattern `𝜶` should be interpreted in a right-to-left direction. +
+  `()-/< 𝜶 >/-()` denotes that the Path Pattern `𝜶` should be interpreted in any direction.
+• A reference to a Named Path Predicate +
+  `()-/~alpha/-()` denotes a reference to a Named Path Predicate `alpha`.
+
+Binding of a relationship to a variable is only allowed in the most simple case of a Path Pattern, where only a single relationship is matched by the pattern.
+For binding a whole path to a variable, Path Assignment should be used, by preceding the path with an identifier and an equals sign (`=`).
+This avoids a problem that existed in the past with repetition of relationships (a syntax that is unsupported as of the introduction of Path Patterns), where a relationship variable would bind to a list, making it hard to express predicates over the actual relationships.
+Predicates on parts of a Path Pattern are instead expressed through the use of explicitly Named Path Predicates.
+
+=== Syntax
+
+Path Patterns are part of the Pattern syntax of Cypher.
+
+[source, ebnf]
+----
+Pattern = PatternPart, {',', PatternPart} ;
+PatternPart = [Variable, '='], NodePattern, {(EdgePattern | PathPattern), NodePattern} ;
+
+NodePattern = '(', [Variable], [NodeLabels], [Properties], ')' ;
+
+EdgePattern = (LeftArrowHead, Dash, [EdgeBody], Dash, RightArrowHead)
+            | (LeftArrowHead, Dash, [EdgeBody], Dash)
+            |                (Dash, [EdgeBody], Dash, RightArrowHead)
+            |                (Dash, [EdgeBody], Dash)
+            ;
+EdgeBody = '[', [Variable], [EdgeLabels], [Properties], ']' ;
+
+PathPattern = (LeftArrowHead, Dash, '/', PathExpression, '/', Dash, RightArrowHead)
+            | (LeftArrowHead, Dash, '/', PathExpression, '/', Dash)
+            |                (Dash, '/', PathExpression, '/', Dash, RightArrowHead)
+            |                (Dash, '/', PathExpression, '/', Dash)
+            ;
+
+PathExpression  = {PathAlternative} ;
+PathAlternative = PathRepetition, {'|', PathRepetition} ;
+PathRepetition  = PathDirection, [('*', [RangeDetail]) | '+' | '?'] ;
+PathDirection   = ['<'], PathBase, ['>'] ;
+PathBase = PathEdge
+         | PathAny
+         | PathNode
+         | PathReference
+         | PathGroup
+         ;
+PathEdge      = ':', LabelName ;
+PathAny       = '-' ;
+PathNode      = '(', [NodeLabels], [Properties], ')' ;
+PathReference = '~', SymbolicName ;
+PathGroup     = '[', PathExpression, [Properties], ']' ;
+
+EdgeLabel  = ':', LabelName ;
+EdgeLabels = ':', LabelName, {'|', [':'], LabelName} ;
+NodeLabels = ':', LabelName, ({':', LabelName} | {'|', LabelName}) ;
+LabelName  = SymbolicName ;
+
+RangeDetail = [IntegerLiteral | Parameter], '..', [IntegerLiteral | Parameter] ;
+----
+
+The `PathReference` is a reference to a Named Path Predicate.
+These are defined using the following syntax:
+
+[source, ebnf]
+----
+NamedPathPredicate   = 'PATH', 'PATTERN', NamedPathName, '=', PathPattern, [Where] ;
+NamedPathName = SymbolicName ;
+----
+
+
+//=== Named Path Predicates
+
+[[directions]]
+=== Directions
+
+The direction of relationships matched by a Path Pattern is primarily decided by the directional arrow surrounding the pattern.
+If the arrow points from left to right (i.e. `(left)-/~_pattern_/\->(right)`), the paths described by the pattern are paths in the left-to-right direction, i.e. paths that are _outgoing_ from the node to the left of the pattern, and _incoming_ to the node to the right of the pattern.
+If the arrow points from right to left (i.e. `(left)\<-/~_pattern_/-(right)`), the paths described by the pattern are paths in the right-to-left paths direction, i.e. paths that are _incoming_ to the node to the left of the pattern, and _outgoing_ from the node to the right of the pattern.
+If there are no arrowheads (i.e. `(left)-/~_pattern_/-(right)`), or if both arrowheads are present (i.e. `(left)\<-/~_pattern_/\->(right)`), the paths described by the pattern are paths in either the left-to-right or the right-to-left direction.
+
+All parts of a Path Pattern will assume the direction of the surrounding arrow, unless the direction is explicitly overridden for that particular part of the pattern.
+A prefix of `<` to part of a pattern overrides the direction of that part to be right-to-left.
+A suffix of `>` to part of a pattern overrides the direction of that part to be left-to-right.
+Both a `<` prefix and a `>` suffix can be used on the same part of the pattern to override the direction of that part to be _either direction_.
+Direction overrides only apply to a single pattern part.
+In order to apply the direction override to multiple parts of the pattern, those parts should be grouped.
+
+Using both a `<` prefix and a `>` suffix on the same pattern is always the same thing as a disjunction between that pattern with a `<` prefix and that pattern with a `>` suffix.
+This means that `()-/< 𝜶 >/-()` is the same as `()-/[< 𝜶] | [𝜶 >]/-()`.
+
+==== Directions and Named Path Predicates
+
+When a Named Path Predicate is referenced the direction of reference is matched with the direction in the declaration of the Named Path Predicate.
+If the declaration of the Named Path Predicate is defined left-to-right, but the direction of the reference is right-to-left, the direction of definition of the the Named Path Predicate is reversed to match that of the reference.
+The same reversal applies if the Named Path Predicate is defined right-to-left but the direction of the reference is left-to-right.
+If the direction of the reference is _either direction_, the Named Path Predicate is matched both in its declared direction and its reversed direction.
+If a Named Path Predicate is declared without a direction, the direction of the reference does not matter, since the direction of the Named Path Predicate is inherently _any direction_.
+A Named Path Predicate declared without a direction must have a definition that is equivalent if reversed.
+
+==== Direction examples
+
+• `()-/a <[b c] d/\->()` is the same as `()-/a/\->()\<-/b c/-()-/d/\->(d)`, i.e. the direction of the group `b c` has been overridden to be right-to-left in a pattern where the overall direction is left-to-right.
+• `()-/a <b> c/\->()` is the same as `()-/a/\->()-/b/-()-/c/\->()`, i.e. the direction of `b` has been overridden to be _either direction_.
+• `()-/a/-()`, `()-/<a>/-()`, `()-/<a>/\->()`, `()\<-/<a>/-()`, `()\<-/<a>/\->()`, and `()\<-/a/\->()` all mean the same thing: matching `a` in _either direction_.
+
+Given these Named Path Predicates:
+
+[source, cypher]
+----
+PATH PATTERN alpha = ()-[:X]->()-[:Y]->()
+PATH PATTERN beta  = ()<-[:Y]-()<-[:X]-()
+PATH PATTERN gamma = ()-/[:X :Y]> | <[:Y :X]/-()
+----
+
+• `()-/~alpha/\->()` is equivalent to `()\<-/~beta/-()`
+• `()\<-/~alpha/-()` is equivalent to `()-/~beta/\->()`
+• `()-/~gamma/\->()` is equivalent to `()\<-/~gamma/-()`, since both are equivalent to `()-/~gamma/-()`
+• `()-/~gamma/-()` is equivalent to `()-/~alpha/-()`, since `()-/~alpha/-()` is the same as `()-/~alpha> | <~alpha/-()`, which is equivalent to the declaration of `gamma`. +
+  It is also equivalent to `()-/<~beta | ~beta>/-()` which is the same as `()-/~beta/-()`.
+
+=== Path Pattern Examples
+
+The astute reader of the syntax will have noticed that it is possible to express a Path Pattern with an empty path expression:
+
+[source, cypher]
+----
+MATCH (a)-//-(b)
+----
+
+The semantics of this query is to match any single relationship between `a` and `b`.
+It is thus equivalent to `(a)-/-/-(b)` or `(a)--(b)`.
+
+The same rule applies to groupings within a pattern, an empty group matches a single edge.
+
+It is possible to express a completely empty pattern, a pattern that matches `a` and `b` to the same node.
+This is done by using only a single node predicate in the path pattern:
+
+[source, cypher]
+.A pattern matching a path of length 0
+----
+MATCH (a)-/()/-(b)
+----
+
+This pattern states that `a` and `b` must be the same node, by virtue of stating a pattern that matches any node.
+It is thus the same as:
+
+[source, cypher]
+----
+MATCH (a), (b) WHERE a = b
+----
+
+The Path Patterns start becoming interesting when larger expressions are put together:
+
+[source, cypher]
+.Finding someone loved by someone hated by someone you know, transitively
+----
+MATCH (you)-/[:KNOWS :HATES]+ :LOVES/->(someone)
+----
+
+Note the `+` expressing one or more occurrences of the sequence `KNOWS` followed by `HATES`.
+
+Using the arrowhead syntax introduced in <<directions>>, consider the following query:
+
+[source, cypher]
+.Specifying the direction for different parts of the pattern
+----
+MATCH (you)-/[:KNOWS <:HATES]+ :LOVES/->(someone)
+----
+
+In the example above we say that the `HATES` relationships should have the opposite direction to the other relationships in the path.
+
+Through the use of Named Path Predicates we can express even more predicates over a path:
+
+[source, cypher]
+.Find a chain of unreciprocated lovers
+----
+PATH PATTERN unreciprocated_love = (a)-[:LOVES]->(b)
+     WHERE NOT EXISTS { (b)-[:LOVES]->(a) }
+MATCH (you)-/~unreciprocated_love*/->(someone)
+----
+
+Note how there is no colon used for referencing the Named Path Predicate, the colon is used in Path Patterns only for referencing actual relationship types.
+
+Sometimes it will be interesting to express a predicate on a node in a Path Pattern.
+This can be achieved by using a Named Path Predicate where the nodes on both ends are the same:
+
+[source, cypher]
+.Find friends of friends that are not haters
+----
+PATH PATTERN not_a_hater = (x)
+     WHERE NOT EXISTS { (x)-[:HATES]->() }
+MATCH (you)-/:KNOWS ~not_a_hater :KNOWS/-(friend_of_friendly_friend)
+----
+
+When the pattern of a Named Path Predicate is reflexive, the direction in which the predicate is used is irrelevant.
+A pattern is reflexive if it consists of a single node, if the first and last node of the pattern are the same, or if the pattern is symmetrical as in this example:
+
+[source, cypher]
+.Find chains of co-authorship
+----
+PATH PATTERN co_author = (a)-[:AUTHORED]->(:Book)<-[:AUTHORED]-(b)
+MATCH (you)-/~co_author*/-(someone)
+----
+
+[source, cypher]
+.All pairs of directly connected nodes `(a,b)` where every second node in the path has label `A`
+----
+PATH PATTERN a_and_other = (:A)--()
+MATCH (a)-/ [~a_and_other -]* | [- ~a_and_other]* /-(b)
+RETURN a, b
+----
+
+[source, cypher]
+.All pairs of directly connected nodes `(a,b)` where there are at least 2 instances of a node labelled `X` linked to a node labelled `Y` in the path
+----
+MATCH (a)-/-* (:X)-(:Y) -* (:X)-(:Y) -*/-(b)
+RETURN a, b
+----
+
+=== Limitations
+
+Some things are _not_ possible to express using the Path Pattern syntax, a few of these things are worth highlighting.
+
+==== Negations
+
+It is not possible to denote a pattern that matches a pair of nodes that _does not_ have a path matching a certain Path Pattern between them.
+The reason why it is not possible to match such a pattern using the Path Pattern syntax is because a matching instance would not be a path.
+There would be a discontinuity of a pair of nodes in the result of that pattern that has no edges in between them, and such a result is not a path.
+Path Patterns always match paths, so therefore it is not possible to express such a pattern.
+
+It is however possible to match a pair of nodes (`a` and `b`) that does not have a path matching a given Path Pattern (`𝜶`) between them, it is just not possible to express that as a path:
+
+[source, cypher]
+----
+MATCH (a), (b)
+WHERE NOT EXISTS { (a)-/𝜶/-(b) }
+----
+
+Queries like this are generally not tractable, so arguably it is a good thing that they are not easy to express.
+
+==== Differing property values along a path
+
+While it is possible to express that a certain property should have the same value for all nodes in a path (by saying that each pair of nodes should have the same property value), it is not possible to express that all nodes should have a _different_ property value.
+It has been shown that computing such paths would not be tractable in the general case, so perhaps it is a good thing to not be able to express this.
+
+There is also no convenient way to express that the value of a certain property should in all nodes of the path be different from the value of that property in the first node of the path.
+Having a different value from the property in the first node is a tractable simplification of the problem of differing property values that can be solved by Regular Expressions with Memory (REMs).
+Since Cypher uses lexical scoping of the variables in a path pattern, Cypher is closer to the Regular Queries with Binding variant of REMs, which has been shown not to be able to express such queries.
+
+It is however possible to express this type of path by venturing outside of the Path Pattern syntax and use a predicate over the entire path:
+
+[source, cypher]
+.A path where all nodes have a different value for the `foo` property from the first node
+----
+PATH PATTERN different_from_first = (first)-/~some_pattern/-()
+     WHERE all( n IN nodes(different_from_first)
+                WHERE n = first OR n.foo <> first.foo )
+----
+
+
+=== Expressive power
+
+==== Compared to GXPath
+
+===== Path expressions
+
+[options="header"]
+|=================
+|| GXPath | Cypher
+
+| The empty pattern, from a node to itself, via nothing
+| `⟦ε⟧^G^ = {(v,v) \| v ∈ V}`
+| `(v)-/()/-(v)`
+
+| Match an edge with any label
+| `⟦_⟧^G^ = {(v,w) \| ∃ a : (v,a,w) ∈ E}`
+| `(v)-/-/\->(w)`
+
+| Match edge with a given label
+| `⟦a⟧^G^ - {(v,w) \| (v,a,w) ∈ E}`
+| `(v)-/:a/\->(w)`
+
+| Inverted direction of an edge
+| `⟦a-⟧^G^ = {(v,w) \| (w,a,v) ∈ E}`
+| `(v)-/<:a/\->(w)`
+
+| Match 𝜶 0 or more times
+| `⟦𝜶*⟧^G^ =` reflexive transitive closure of `𝜶`
+| `()-/𝜶*/\->()`
+
+| Match 𝜶 followed by 𝛽
+| `⟦𝜶 · 𝛽⟧^G^ = ⟦𝜶⟧^G^ ⸰ ⟦𝛽⟧^G^`
+| `()-/𝜶 𝛽/\->()`
+
+| Disjunction: Either match 𝜶 or match 𝛽
+| `⟦𝜶 ∪ 𝛽⟧^G^ = ⟦𝜶⟧^G^ ∪ ⟦𝛽⟧^G^`
+| `()-/𝜶\|𝛽/\->()`
+
+| Any pair of nodes _not_ reachable via 𝜶
+| `⟦¬𝜶⟧^G^ = V ⨯ V - ⟦𝜶⟧^G^`
+| *_not supported_* +
+  _Path Patterns have to match a continuous path in the graph._
+
+| Node matching a given Node Predicate
+| `⟦[𝝋]⟧^G^ = {(v,v) \| v ∈ ⟦𝝋⟧^G^}`
+| `PATH PATTERN phi = (v) WHERE 𝝋 +
+   MATCH ()-/~phi/\->()`
+
+| Repeat pattern 𝜶 between `n` and `m` times
+| `⟦𝜶^n,m^⟧^G^ = ⋃~k=n~^m^(⟦𝜶⟧^G^)k`
+| `()-/𝜶*n..m/\->()`
+
+| Path through 𝜶, where data value of origin node is equal to value at destination node
+| `⟦𝜶=⟧^G^ = {(v,w) ∈ ⟦𝜶⟧^G^ \| 𝜌(v)=𝜌(w)}`
+| `PATH PATTERN alpha_eq = (v)-/𝜶/\->(w) WHERE v.𝜌 = w.𝜌 +
+   MATCH ()-/~alpha_eq/\->()`
+
+| Path through 𝜶, where data value of origin node differs from value at destination node
+| `⟦𝜶≠⟧^G^ = {(v,w) ∈ ⟦𝜶⟧^G^ \| 𝜌(v)≠𝜌(w)}`
+| `PATH PATTERN alpha_not_eq = (v)-/𝜶/\->(w) WHERE v.𝜌 <> w.𝜌 +
+   MATCH ()-/~alpha_not_eq/\->()`
+
+| Conjunctions (not in _GXPath_, allows CRPQs)
+
+  Note that in this case Cypher requires one of the patterns needs to be chosen as the _main_ pattern, this is the pattern that will be seen when binding the matched path
+| `⟦𝜶 ∩ 𝛽⟧^G^ = ⟦𝜶⟧^G^ ∩ ⟦𝛽⟧^G^`
+| `PATH PATTERN alpha_and_beta = (v)-/𝜶/\->(w) WHERE EXISTS { (v)-/𝛽/\->(w) } +
+   MATCH ()-/~alpha_and_beta/\->()`
+|=================
+
+===== Node Predicates
+
+[options="header"]
+|=================
+|| GXPath | Cypher
+
+| Node has a path matching a path expression
+| `⟦⟨𝜶⟩⟧G = {v \| ∃ w : (v,w) ∈ ⟦𝜶⟧^G^}`
+| `PATH PATTERN has_alpha = (v) WHERE EXISTS { (v)-/𝜶/\->() }`
+
+| Negation of predicate
+| `⟦¬𝝋⟧^G^ = V - ⟦𝝋⟧^G^`
+| `PATH PATTERN not_phi = (v) WHERE NOT 𝝋`
+
+| Conjunction of predicates
+| `⟦𝝋 ∧ 𝜓⟧^G^ = ⟦𝝋⟧^G^ ∩ ⟦𝜓⟧^G^`
+| `PATH PATTERN phi_and_psi = (v) WHERE 𝝋 AND 𝜓`
+
+| Disjunction of predicates
+| `⟦𝝋 ∨ 𝜓⟧^G^ = ⟦𝝋⟧^G^ ∪ ⟦𝜓⟧^G^`
+| `PATH PATTERN phi_or_psi = (v) WHERE 𝝋 OR 𝜓`
+
+| Value equal to constant
+| `⟦c=⟧^G^ = {v ∈ V \| 𝜌(v) = c}`
+| `PATH PATTERN rho_is_c = (v) WHERE v.𝜌 = c`
+
+| Value not equal to constant
+| `⟦c≠⟧^G^ = {v ∈ V \| 𝜌(v) ≠ c}`
+| `PATH PATTERN rho_is_not_c = (v) WHERE v.𝜌 <> c`
+
+| Value reachable from node by path 𝜶 equal to value reachable by path 𝛽
+| `⟦⟨𝜶 = 𝛽⟩⟧^G^ = {v ∈ V \| ∃ w, y : (v, w) ∈ ⟦𝜶⟧^G^, (v, y) ∈ ⟦𝛽⟧^G^, 𝜌(w)=𝜌(y)}`
+| `PATH PATTERN alpha_eq_beta = (v) WHERE EXISTS { (v)-/𝜶/\->(w), (v)-/𝛽/\->(y) WHERE w.𝜌 = y.𝜌 }`
+
+| Value reachable from node by path 𝜶 differs from value reachable by path 𝛽
+| `⟦⟨𝜶 ≠ 𝛽⟩⟧^G^ = {v ∈ V \| ∃ w, y : (v, w) ∈ ⟦𝜶⟧^G^, (v, y) ∈ ⟦𝛽⟧^G^, 𝜌(w)≠𝜌(y)}`
+| `PATH PATTERN alpha_not_eq_beta = (v) WHERE EXISTS { (v)-/𝜶/\->(w), (v)-/𝛽/\->(y) WHERE w.𝜌 <> y.𝜌 }`
+|=================
+
+==== Compared to Regular Expressions With Memory (REMs)
+
+// page 53 of Querying Graphs with Data (PhD) - 5.4 Regular queries with binding (RQBs)
+
+Regular Expressions with Memory does not have bounded scope for the memory of variables, since it is an algebra designed to model a register automata.
+An alternative that _does_ have lexical scoping is called _Regular Expressions with Binding_, and is proven to be a subset of Regular Expressions with Memory, fully translatable to Regular Expressions with Memory.
+Regular Expressions with Binding is thus more in line with what an actual language would express, and possible to map to Cypher.
+
+In the table below `𝑣` is partial function from a variable `x` to the memory domain `𝒟`.
+
+[options="header"]
+|=================
+|| Regular Expressions with Binding | Cypher
+
+| Empty path
+| `⟦ε, 𝑣⟧^G^ = {(v, v) \| v ∈ V }`
+| `(v)-/()/-(v)`
+
+| Single edge
+| `⟦a, 𝑣⟧^G^ = {(v, w) \| (v, a, w) ∈ E }`
+| `(v)-/:a/\->(w)`
+
+| Inversion of single edge
+| `⟦a^-^, 𝑣⟧^G^ = {(v, w) \| (w, a, v) ∈ E }`
+| `(v)-/<:a/\->(w)`
+
+| Concatenation
+| `⟦𝜶 · 𝛽, 𝑣⟧^G^ = ⟦𝜶, 𝑣⟧^G^ ⸰ ⟦𝛽, 𝑣⟧^G^`
+| `(v)-/𝜶 𝛽/\->(w)`
+
+| Disjunction
+| `⟦𝜶 ∪ 𝛽, 𝑣⟧^G^ = ⟦𝜶, 𝑣⟧^G^ ∪ ⟦𝛽, 𝑣⟧^G^`
+| `(v)-/𝜶 \| 𝛽/\->(w)`
+
+| Transitive closure
+| `⟦𝜶^+^, 𝑣⟧^G^ =` transitive closure of `⟦𝜶, 𝑣⟧^G^`
+| `(v)-/𝜶+/\->(w)`
+
+| Data value (and memory state 𝑣) matching condition `c`
+| `⟦𝜶[c], 𝑣⟧^G^ = {(v, w) \| (v, w) ∈ ⟦𝜶, 𝑣⟧^G^, (𝜌(w),𝑣)⊨c }`
+| `(v)-/𝜶/\->(w) WHERE c`
+
+| Assignment of variable
+| `⟦↓[overline]#x#.{𝜶}, 𝑣⟧^G^ = {(v,w ) \| (v, w) ∈ ⟦𝜶, 𝑣［[overline]#x# = 𝜌(v)］⟧^G^}`
+| `PATH PATTERN alpha_scope = (v)-/𝜶/\->(w)`
+|=================
+
+Note that in the assignment case in Cypher, the scope of the variables is within a single Named Path Predicate.
+Internal references to other Named Path Predicates will not have those variables in scope.
+It is thus important for the expressive power that the other composition rules above do not need to be expressed through Named Path Predicates.
+Even so the expressive power in terms of variable scope is less in Cypher than it is in Regular Expressions with Binding, since there are no nested scopes in Cyphers Named Path Predicates.
+
+
+==== Compared to Context Free Languages
+
+The Named Path Predicates of the Cypher Path Patterns allow the definition of what amounts to a context free language over paths in the graph.
+Here we will show that type of compositions possible in a context free grammar, have corresponding constructs in Cypher.
+
+In the Context Free Grammar column below, upper case latin characters are used to denote non-terminal symbols, lower case latin characters denote terminal symbols, and greek characters are used to denote strings of non-terminal or terminal symbols.
+
+[options="header"]
+|=================
+|| Context Free Grammar | Cypher
+
+| Empty production
+| `A -> ε`
+| `PATH PATTERN A = ()-/()/\->()`
+
+| Terminal productions
+| `A -> a`
+| `PATH PATTERN A = ()-/:a/\->()`
+
+| Disjunctions, i.e. Alternatives
+| `A -> 𝜶 \| 𝛽`
+| `PATH PATTERN A = ()-/𝜶 \| 𝛽/\->()`
+
+| Concatenation
+| `A -> 𝜶 𝛽`
+| `PATH PATTERN A = ()-/𝜶 𝛽/\->()`
+
+| Transitive closure
+| `A -> 𝜶*`
+| `PATH PATTERN A = ()-/𝜶*/\->()`
+|=================
+
+This allows path patterns that match paths that are typically considered context free, such as balanced pairs:
+
+[source, cypher]
+.Find cousins at any distance (where siblings are zeroth cousins)
+----
+PATH PATTERN cousin = ()-/:PARENT> [ ~cousin | ()] <:PARENT/-()
+MATCH (me)-/~cousin/-(my_cousin)
+RETURN me, collect(my_cousin) AS cousins
+// now all we need is you and your cousins, and we have a song by Vampire Weekend
+----
