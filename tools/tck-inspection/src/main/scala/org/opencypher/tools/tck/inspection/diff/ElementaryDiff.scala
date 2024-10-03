@@ -167,7 +167,7 @@ case class LCSbasedListDiff[A](before: List[A], after: List[A]) extends ListDiff
     case class Memo[I, K, O](f: I => O)(implicit ev: I => K) extends (I => O) {
       import scala.collection.mutable
       val cache: mutable.Map[K, O] = mutable.Map.empty[K, O]
-      override def apply(x: I): O = cache.getOrElseUpdate(x, f(x))
+      override def apply(x: I): O = cache.getOrElseUpdate(ev(x), f(x))
     }
 
     def lcs[A](a: List[(A, Int)], b: List[(A, Int)], eq: (A, A) => Boolean): List[(Int, Int)] = {

@@ -45,7 +45,7 @@ class ValidateScenarioTest extends AnyFunSpecLike with Matchers {
     }).head
   }
 
-  private def fixture =
+  private def fixture: { val validator: ValidateScenario }  =
     new {
       val validator: ValidateScenario = new ValidateScenario() {}
     }

@@ -45,12 +45,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-core</artifactId>
         </dependency>
@@ -74,5 +68,35 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>scala-212</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-library</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>scala-213</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala-library</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>scala-3</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.scala-lang</groupId>
+                    <artifactId>scala3-library_${scala.binary.version}</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
 </project>

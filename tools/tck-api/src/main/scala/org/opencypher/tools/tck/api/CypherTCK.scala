@@ -98,7 +98,7 @@ object CypherTCK {
     val directoryPath: Path = Paths.get(resource)
     try {
       val featurePaths = Files.walk(directoryPath).filter {
-        t: Path => Files.isRegularFile(t) && t.toString.endsWith(featureSuffix)
+        (t: Path) => Files.isRegularFile(t) && t.toString.endsWith(featureSuffix)
       }
       // Note that converting to list is necessary to cut off lazy evaluation
       // otherwise evaluation of parsePathFeature will happen after the file system is already closed
