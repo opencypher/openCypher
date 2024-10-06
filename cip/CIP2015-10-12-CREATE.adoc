@@ -1,0 +1,136 @@
+= CIP2015-10-12 - CREATE
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Authors:* Pontus Melke pontus.melke@neotechnology.com, Mats Rydberg mats@neotechnology.com
+
+[abstract]
+.Abstract
+--
+This proposal formalizes `CREATE` which is used in Cypher to create nodes and relationships.
+Please note that `CREATE UNIQUE` and `CREATE CONSTRAINT` are _not_ considered in this CIP.
+--
+
+toc::[]
+
+== Motivation & Background
+`CREATE` is how nodes and relationships are created in Cypher.
+The syntax has been around since Cypher 1.7 but never properly formalized.
+
+== Proposal
+
+`CREATE` is used to add new nodes and relationships to the graph, as well as set initial labels, type, and properties on the new entities.
+The idea is to let each `CREATE` represent exactly one creation of either a node or a relationship, but allow a few variations on how to structure the query for convenience.
+`CREATE` will be allowed to both start and end a query, requiring an additional `WITH` clause to allow further `MATCH` reads after it, and producing an empty result if it ends the query.
+`MATCH` clauses that come after a `CREATE` clause must be able to see and possibly match _all_ entities created by the `CREATE`; not only those created for the same row.
+
+A `CREATE` will always succeed unless it specifically violates some constraint already present in the database.
+
+=== Examples
+
+[source, cypher]
+.Create a single node.
+----
+CREATE ()
+----
+
+[source, cypher]
+.Create a node and set two labels and one property on it.
+----
+CREATE (:Person:Administrator { email: 'mats@neotechnology.com' })
+----
+
+[source, cypher]
+.Create a relationship of type `KNOWS` between all `:Person` nodes.
+----
+MATCH (a:Person), (b:Person)
+CREATE (a)-[:KNOWS]->(b)
+----
+
+[source, cypher]
+.Create two nodes, one relationship between them, and sets one property on the relationship.
+----
+CREATE (me:Source), (you:Destination), (you)<-[:LOVES { dearly: true }]-(me)
+----
+
+[source, cypher]
+.Create multiple nodes with properties from a parameter list of maps.
+----
+UNWIND { mapList } AS map
+CREATE (n:Node)
+SET n = map
+----
+
+[source, cypher]
+.Create two nodes with properties from two parameter maps. Parameter keys and values will be the same as those of the map.
+----
+CREATE (:Cat {catProps})
+CREATE (:Dog {dogProps})
+----
+
+[source, cypher]
+.Create three nodes, connect them with two relationships and return the whole pattern as a path.
+----
+CREATE (andres { name: 'Andres' })
+CREATE (neo)
+CREATE (michael { name: 'Michael' })
+CREATE (andres)-[r1:WORKS_AT]->(neo)
+CREATE (michael)-[r2:WORKS_AT]->(neo)
+RETURN (andres)-[r1]->(neo)<-[r2]-(michael) AS p
+----
+
+=== Syntax
+[source, ebnf]
+----
+create       = "CREATE", {pattern}, [{",", pattern}] ;
+pattern      = node-pattern | rel-pattern ;
+node-pattern = "(", [identifier], [{label}], [property], ")" ;
+rel-pattern  = "(", identifier, ")", in-rel | out-rel, "(", identifier, ")" ;
+out-rel      = "-[", [identifier], type, [property], "]->" ;
+in-rel       = "<-[", [identifier], type, [property], "]-" ;
+label        = ":", identifier ;
+type         = label ;
+property     = "{", param | {identifier, ":", literal | param}, "}" ;
+param        = "{", identifier, "}" ;
+literal      = string | number ;
+----
+
+=== Semantics
+
+`CREATE` is used to create new nodes and relationships in the graph.
+Each `CREATE` will create exactly one node or one relationship between two pre-existing nodes per row.
+`CREATE` has no return value, and ending a query with a `CREATE` clause will yield an empty result.
+
+=== Interaction with existing features
+
+`CREATE` on a node pattern will cause the query to fail in the commit phase if the to-be-created node would violate a uniqueness constraint in the database.
+
+This proposal drops some functionality around how we handle creating nodes and relationships:
+
+- `CREATE (a {param})` where `{param}` is a list of maps where one node is created for each item in the list.
+See the example with `UNWIND` above for a way to achieve the same behavior.
+
+- `CREATE (a:L {prop: 42})-[:R]->(b:B)` where both nodes and relationships are created from the same pattern.
+With this proposal one would have to be more specific and write `CREATE (a:L {prop:42}), (b:B), (a)-[:R]->(b)`.
+
+- `CREATE p = (andres { name: 'Andres' })-[:WORKS_AT]->(neo)<-[:WORKS_AT]-(michael { name:'Michael' }) RETURN p`, where a full path is created and returned.
+See the final example above for how to achieve the same behaviour.
+
+We believe that the implicit creation of nodes when specifying a relationship pattern is causing more complexity than any benefit provided to the user, and thus forcing the user to be specific about what to create will benefit both users and implementors of Cypher.
+
+=== Alternatives
+This is a retroactive CIP.
+`CREATE` already exists in the language.
+
+== What others do
+
+- SQL has `CREATE TABLE` for creating tables and `INSERT` for creating new records in a table.
+- MongoDB has `create: <collection_name>` for creating documents.
+- In SPARQL, you use `INSERT DATA` to add triples.
+
+== Benefits to this proposal
+
+This is a retroactive CIP, and proposes no new features.
+The purpose of this proposal is this very CIP, formalizing what we want `CREATE` to be.
