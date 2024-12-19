@@ -60,7 +60,7 @@ case object PickleStep {
 case class PickleLocation(line: Int, column: Int)
 
 case object PickleLocation {
-  def apply(location: io.cucumber.core.gherkin.Location): PickleLocation = {
+  def apply(location: io.cucumber.plugin.event.Location): PickleLocation = {
     PickleLocation(location.getLine, location.getColumn)
   }
 }

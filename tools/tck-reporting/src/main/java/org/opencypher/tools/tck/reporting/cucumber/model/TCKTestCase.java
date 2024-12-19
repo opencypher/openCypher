@@ -86,4 +86,9 @@ public class TCKTestCase implements TestCase {
     public UUID getId() {
         return UUID.nameUUIDFromBytes(pickle.getId().getBytes());
     }
+
+    @Override
+    public io.cucumber.plugin.event.Location getLocation() {
+        return pickle.getLocation();
+    }
 }

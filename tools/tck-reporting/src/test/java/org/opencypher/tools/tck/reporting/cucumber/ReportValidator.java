@@ -28,7 +28,7 @@
 package org.opencypher.tools.tck.reporting.cucumber;
 
 import static java.nio.file.Files.readAllBytes;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,17 +51,6 @@ public class ReportValidator implements BeforeAllCallback, AfterAllCallback {
         String expected = CucumberReportAdapterTest.getResource("expected.json");
         String actual = new String(readAllBytes(cucumberReport));
 
-        assertEquals(
-            ignoreTimeAndDuration(expected),
-            ignoreTimeAndDuration(actual));
-    }
-
-    /**
-     * duration 0 == no duration. See `cucumber.runtime.formatter.JSONFormatter`
-     */
-    private String ignoreTimeAndDuration(String report) {
-        return report.
-                replaceAll("\n\\s*\"duration\":\\s*\\d+\\s*,", "").
-                replaceAll("\n\\s*\"start_timestamp\":\\s*\"[\\w:.-]*\"\\s*,", "");
+        assertThatJson(actual).isEqualTo(expected);
     }
 }

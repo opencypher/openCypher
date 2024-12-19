@@ -37,11 +37,9 @@ import org.opencypher.tools.tck.api.Step
 import org.opencypher.tools.tck.api.groups.Feature
 import org.opencypher.tools.tck.api.groups.Group
 import org.opencypher.tools.tck.api.groups.ScenarioCategory
-import org.opencypher.tools.tck.api.groups.ScenarioOutline
 import org.opencypher.tools.tck.api.groups.Tag
 import org.opencypher.tools.tck.api.groups.TckTree
 import org.opencypher.tools.tck.api.groups.Total
-import org.opencypher.tools.tck.inspection.diff
 import org.opencypher.tools.tck.inspection.diff.ScenarioDiffTag._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
@@ -54,17 +52,9 @@ class TckTreeDiffTest extends AnyFunSuite with Matchers {
 
     override def getName: String = "name"
 
-    override def getLocation: io.cucumber.core.gherkin.Location = new io.cucumber.core.gherkin.Location() {
-      override def getLine: Int = 1
+    override def getLocation: io.cucumber.plugin.event.Location = new io.cucumber.plugin.event.Location(1,1)
 
-      override def getColumn: Int = 1
-    }
-
-    override def getScenarioLocation: io.cucumber.core.gherkin.Location = new io.cucumber.core.gherkin.Location() {
-      override def getLine: Int = 1
-
-      override def getColumn: Int = 1
-    }
+    override def getScenarioLocation: io.cucumber.plugin.event.Location = new io.cucumber.plugin.event.Location(1,1)
 
     override def getSteps: util.List[io.cucumber.core.gherkin.Step] = new util.ArrayList[io.cucumber.core.gherkin.Step]()
 
@@ -84,17 +74,21 @@ class TckTreeDiffTest extends AnyFunSuite with Matchers {
       override def getContentType: String = ""
 
       override def getLine: Int = 1
+
+      override def getMediaType: String = ""
     }
 
-    override def getKeyWord: String = "keyWord"
+    override def getKeyword: String = "keyWord"
 
     override def getType: io.cucumber.core.gherkin.StepType = io.cucumber.core.gherkin.StepType.GIVEN
 
-    override def getPreviousGivenWhenThenKeyWord: String = ""
+    override def getPreviousGivenWhenThenKeyword: String = ""
 
     override def getText: String = name
 
     override def getId: String = "id"
+
+    override def getLocation: io.cucumber.plugin.event.Location = new io.cucumber.plugin.event.Location(1,1)
   }
 
   private val dummyPickleStep = namedDummyPickleStep("")

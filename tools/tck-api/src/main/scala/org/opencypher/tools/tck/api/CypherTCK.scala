@@ -29,8 +29,8 @@ package org.opencypher.tools.tck.api
 
 import io.cucumber.core.gherkin
 import io.cucumber.core.gherkin.DataTableArgument
-import io.cucumber.core.gherkin.DocStringArgument
-import io.cucumber.core.gherkin.vintage.GherkinVintageFeatureParser
+import io.cucumber.plugin.event.DocStringArgument
+import io.cucumber.core.gherkin.messages.GherkinMessagesFeatureParser
 import org.opencypher.tools.tck.SideEffectOps.Diff
 import org.opencypher.tools.tck._
 import org.opencypher.tools.tck.api.events.TCKEvents
@@ -46,6 +46,7 @@ import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.nio.file._
 import java.util
+import java.util.UUID
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters._
@@ -58,7 +59,7 @@ object CypherTCK {
   val featuresPath = "/features"
   val featureSuffix = ".feature"
 
-  private lazy val parser = new GherkinVintageFeatureParser()
+  private lazy val parser = new GherkinMessagesFeatureParser()
 
   /**
     * Provides all the scenarios in the openCypher TCK.
@@ -142,7 +143,7 @@ object CypherTCK {
       def apply(pickle: NameExtractedPickle): PickleGroupingKey = PickleGroupingKey(pickle.pickle.getKeyword, pickle.nameAndNumber)
     }
 
-    Try(parser.parse(featureFile.toUri, featureString, null)) match {
+    Try(parser.parse(featureFile.toUri, featureString, () => UUID.randomUUID)) match {
       case Success(featureOption) =>
         if(featureOption.isPresent) {
           val feature = featureOption.get()
@@ -156,7 +157,7 @@ object CypherTCK {
             case (_, included) => included.sortBy(_.pickle.getLocation.getLine)
           }
 
-          val featureName = feature.getName
+          val featureName = feature.getName.orElse("N/A")
           val scenarios = includedGroupedAndSorted.flatMap {
             case (PickleGroupingKey("Scenario Outline", _), pickles) =>
                 pickles.zipWithIndex.map {
@@ -171,7 +172,7 @@ object CypherTCK {
         }
         else Feature(Seq[Scenario]())
       case Failure(error) =>
-        throw InvalidFeatureFormatException(s"Could not parse feature from ${featureFile.toAbsolutePath.toString}: ${error.getMessage}")
+        throw InvalidFeatureFormatException(s"Could not parse feature from ${featureFile.toAbsolutePath.toString}: ${error.getMessage}", error)
     }
   }
 
@@ -470,7 +471,7 @@ case class ExpectError(errorType: String, phase: String, detail: String, source:
   }
 }
 
-case class InvalidFeatureFormatException(message: String) extends RuntimeException(message)
+case class InvalidFeatureFormatException(message: String, cause: Throwable = null) extends RuntimeException(message, cause)
 
 sealed trait QueryType
 
