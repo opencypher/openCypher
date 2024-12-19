@@ -9,9 +9,11 @@
         "id": "foo;return-literal",
         "type": "scenario",
         "keyword": "Scenario",
+        "start_timestamp": "${json-unit.any-string}",
         "steps": [
           {
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 32,
@@ -26,6 +28,7 @@
               "Producing some output 1\n"
             ],
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 33,
@@ -41,6 +44,7 @@
           },
           {
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 37,
@@ -67,6 +71,7 @@
               "+labels:        0\n-labels:        0\n+nodes:         0\n-nodes:         0\n+properties:    0\n-properties:    0\n+relationships: 0\n-relationships: 0"
             ],
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 40,
@@ -85,9 +90,11 @@
         "id": "foo;fail",
         "type": "scenario",
         "keyword": "Scenario",
+        "start_timestamp": "${json-unit.any-string}",
         "steps": [
           {
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 43,
@@ -99,6 +106,7 @@
           },
           {
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 44,
@@ -114,6 +122,7 @@
           },
           {
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 48,
@@ -128,6 +137,7 @@
               "+labels:        0\n-labels:        0\n+nodes:         0\n-nodes:         0\n+properties:    0\n-properties:    0\n+relationships: 0\n-relationships: 0"
             ],
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 48,
@@ -146,9 +156,11 @@
         "id": "foo;outline-test;;2",
         "type": "scenario",
         "keyword": "Scenario Outline",
+        "start_timestamp": "${json-unit.any-string}",
         "steps": [
           {
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 51,
@@ -163,6 +175,7 @@
               "Producing some output 1\n"
             ],
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 52,
@@ -178,6 +191,7 @@
           },
           {
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 56,
@@ -204,6 +218,7 @@
               "+labels:        0\n-labels:        0\n+nodes:         0\n-nodes:         0\n+properties:    0\n-properties:    0\n+relationships: 0\n-relationships: 0"
             ],
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 59,
@@ -222,9 +237,11 @@
         "id": "foo;outline-test;;3",
         "type": "scenario",
         "keyword": "Scenario Outline",
+        "start_timestamp": "${json-unit.any-string}",
         "steps": [
           {
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 51,
@@ -239,6 +256,7 @@
               "Producing some output 2\n"
             ],
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 52,
@@ -254,6 +272,7 @@
           },
           {
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 56,
@@ -280,6 +299,7 @@
               "+labels:        0\n-labels:        0\n+nodes:         0\n-nodes:         0\n+properties:    0\n-properties:    0\n+relationships: 0\n-relationships: 0"
             ],
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 59,
@@ -298,9 +318,11 @@
         "id": "foo;outline-test;;4",
         "type": "scenario",
         "keyword": "Scenario Outline",
+        "start_timestamp": "${json-unit.any-string}",
         "steps": [
           {
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 51,
@@ -315,6 +337,7 @@
               "Producing some output 3\n"
             ],
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 52,
@@ -330,6 +353,7 @@
           },
           {
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 56,
@@ -356,6 +380,7 @@
               "+labels:        0\n-labels:        0\n+nodes:         0\n-nodes:         0\n+properties:    0\n-properties:    0\n+relationships: 0\n-relationships: 0"
             ],
             "result": {
+              "duration": "${json-unit.any-number}",
               "status": "passed"
             },
             "line": 59,

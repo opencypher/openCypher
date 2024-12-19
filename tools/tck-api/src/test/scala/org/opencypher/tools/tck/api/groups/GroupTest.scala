@@ -46,17 +46,9 @@ trait GroupTest extends Matchers {
 
       override val getName: String = "name"
 
-      override val getLocation: io.cucumber.core.gherkin.Location = new io.cucumber.core.gherkin.Location() {
-        override val getLine: Int = 1
+      override val getLocation: io.cucumber.plugin.event.Location = new io.cucumber.plugin.event.Location(1,1)
 
-        override val getColumn: Int = 1
-      }
-
-      override val getScenarioLocation: io.cucumber.core.gherkin.Location = new io.cucumber.core.gherkin.Location() {
-        override val getLine: Int = 1
-
-        override val getColumn: Int = 1
-      }
+      override val getScenarioLocation: io.cucumber.plugin.event.Location = new io.cucumber.plugin.event.Location(1,1)
 
       override val getSteps: util.List[io.cucumber.core.gherkin.Step] = new util.ArrayList[io.cucumber.core.gherkin.Step]()
 
@@ -71,22 +63,26 @@ trait GroupTest extends Matchers {
       override val getLine: Int = 1
 
       override val getArgument: io.cucumber.core.gherkin.Argument = new io.cucumber.core.gherkin.DocStringArgument() {
-        override val getContent: String = "text"
+        override def getContent: String = "text"
 
-        override val getContentType: String = ""
+        override def getContentType: String = ""
 
-        override val getLine: Int = 1
+        override def getMediaType: String = ""
+
+        override def getLine: Int = 1
       }
 
-      override val getKeyWord: String = "keyWord"
+      override val getKeyword: String = "keyWord"
 
       override val getType: io.cucumber.core.gherkin.StepType = io.cucumber.core.gherkin.StepType.GIVEN
 
-      override val getPreviousGivenWhenThenKeyWord: String = ""
+      override val getPreviousGivenWhenThenKeyword: String = ""
 
       override val getText: String = "xyz"
 
       override val getId: String = "id"
+
+      override def getLocation: io.cucumber.plugin.event.Location = new io.cucumber.plugin.event.Location(1, 1)
     }
 
     val dummySteps: List[Step] = List[Step](Dummy(dummyPickleStep), Measure(dummyPickleStep))

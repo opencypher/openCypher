@@ -35,10 +35,12 @@ import io.cucumber.plugin.event.StepArgument;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class TCKTestStep implements PickleStepTestStep {
     private Step step;
     private URI uri;
+    private final UUID id = UUID.randomUUID();
 
     public TCKTestStep(Step step, URI uri) {
         this.step = step;
@@ -88,8 +90,8 @@ public class TCKTestStep implements PickleStepTestStep {
             }
 
             @Override
-            public String getKeyWord() {
-                return step.getKeyWord();
+            public String getKeyword() {
+                return step.getKeyword();
             }
 
             @Override
@@ -101,11 +103,21 @@ public class TCKTestStep implements PickleStepTestStep {
             public int getLine() {
                 return step.getLine();
             }
+
+            @Override
+            public io.cucumber.plugin.event.Location getLocation() {
+                return step.getLocation();
+            }
         };
     }
 
     @Override
     public String getCodeLocation() {
         return "";
+    }
+
+    @Override
+    public UUID getId() {
+        return id;
     }
 }

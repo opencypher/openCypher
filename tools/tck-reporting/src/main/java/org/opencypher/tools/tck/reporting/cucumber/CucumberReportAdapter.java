@@ -29,13 +29,14 @@ package org.opencypher.tools.tck.reporting.cucumber;
 
 import io.cucumber.core.options.CucumberPropertiesParser;
 import io.cucumber.core.options.PluginOption;
-import io.cucumber.core.plugin.JSONFormatter;
+import io.cucumber.core.plugin.JsonFormatter;
 import io.cucumber.plugin.EventListener;
 import io.cucumber.plugin.event.*;
 import io.cucumber.core.options.RuntimeOptions;
 
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
@@ -83,7 +84,7 @@ public class CucumberReportAdapter implements BeforeAllCallback, AfterAllCallbac
 
     @Override
     public void afterAll(ExtensionContext context) throws Exception {
-        bus.handle(new TestRunFinished(Instant.now()));
+        bus.handle(new TestRunFinished(Instant.now(), new Result(Status.UNDEFINED, Duration.ofSeconds(1), null)));
         output.close();
     }
 
@@ -91,19 +92,19 @@ public class CucumberReportAdapter implements BeforeAllCallback, AfterAllCallbac
         Map<String, String> properties = System.getProperties().entrySet().stream()
                 .collect(Collectors.toMap(e -> (String) e.getKey(), e -> (String) e.getValue()));
         RuntimeOptions options = new CucumberPropertiesParser().parse(properties).build();
-        Appendable appendable = options.plugins().stream()
+        final var appendable = options.plugins().stream()
             .filter(PluginOption.class::isInstance)
             .map(PluginOption.class::cast)
-            .filter(pluginOption -> pluginOption.pluginClass() == JSONFormatter.class)
+            .filter(pluginOption -> pluginOption.pluginClass() == JsonFormatter.class)
             .findFirst()
-            .map(pluginOption -> {
+            .<OutputStream>map( pluginOption -> {
                 try {
-                    return (Appendable) new FileWriter(pluginOption.argument());
+                    return new FileOutputStream(pluginOption.argument());
                 } catch (IOException e) {
                     throw new IllegalStateException("File " + pluginOption.argument() + " not found");
                 }
             }).orElse(System.out);
-        EventListener eventListener = new JSONFormatter(appendable);
+        EventListener eventListener = new JsonFormatter(appendable);
         eventListener.setEventPublisher(bus);
     }
 

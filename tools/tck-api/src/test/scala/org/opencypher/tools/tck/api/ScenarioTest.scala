@@ -39,12 +39,8 @@ class ScenarioTest extends AnyFunSuite with Matchers {
   val noPickleSteps = new util.ArrayList[io.cucumber.core.gherkin.Step]()
   val noPickleTags = new util.ArrayList[String]()
 
-  def location(line: Int, column: Int): io.cucumber.core.gherkin.Location = {
-    new io.cucumber.core.gherkin.Location() {
-      override def getLine: Int = line
-
-      override def getColumn: Int = column
-    }
+  def location(line: Int, column: Int): io.cucumber.plugin.event.Location = {
+    new io.cucumber.plugin.event.Location(line, column)
   }
 
   def stringArgument(text: String, line: Int): io.cucumber.core.gherkin.DocStringArgument = {
@@ -54,6 +50,8 @@ class ScenarioTest extends AnyFunSuite with Matchers {
       override def getContentType: String = ""
 
       override def getLine: Int = line
+
+      override def getMediaType: String = ""
     }
   }
 
@@ -63,15 +61,17 @@ class ScenarioTest extends AnyFunSuite with Matchers {
 
       override def getArgument: io.cucumber.core.gherkin.Argument = argument
 
-      override def getKeyWord: String = keyWord
+      override def getKeyword: String = keyWord
 
       override def getType: io.cucumber.core.gherkin.StepType = stepType
 
-      override def getPreviousGivenWhenThenKeyWord: String = ""
+      override def getPreviousGivenWhenThenKeyword: String = ""
 
       override def getText: String = text
 
       override def getId: String = id
+
+      override def getLocation: io.cucumber.plugin.event.Location = new io.cucumber.plugin.event.Location(0, 0)
     }
   }
 
@@ -94,9 +94,9 @@ class ScenarioTest extends AnyFunSuite with Matchers {
 
       override def getName: String = name
 
-      override def getLocation: io.cucumber.core.gherkin.Location = loc
+      override def getLocation: io.cucumber.plugin.event.Location = loc
 
-      override def getScenarioLocation: io.cucumber.core.gherkin.Location = loc
+      override def getScenarioLocation: io.cucumber.plugin.event.Location = loc
 
       override def getSteps: util.List[io.cucumber.core.gherkin.Step] = steps
 
