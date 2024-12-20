@@ -1,0 +1,36 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: openCypher PR and Push verification with Maven
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Build for Scala 2.12 with Maven
+      run: mvn -P scala-212 clean verify --file pom.xml
+    - name: Build for Scala 2.13 with Maven
+      run: mvn -P scala-213 clean verify --file pom.xml
+    - name: Grammar scripts
+      run: |
+        ./tools/grammar/src/main/shell/launch.sh RailRoadDiagramPages -outputDir=grammar/generated/railroad cypher.xml
+        ./tools/grammar/src/main/shell/launch.sh RailRoadDiagramPages --INCLUDE_LEGACY=true -outputDir=grammar/generated/legacy/railroad cypher.xml
+        ./tools/grammar/src/main/shell/launch.sh RailRoadDiagrams -DRailRoadDiagrams.inlineNone=true -outputDir=grammar/generated/railroad/raw cypher.xml
+        ./tools/grammar/src/main/shell/launch.sh RailRoadDiagrams --INCLUDE_LEGACY=true -DRailRoadDiagrams.inlineNone=true -outputDir=grammar/generated/legacy/railroad/raw cypher.xml
+        ./tools/grammar/src/main/shell/launch.sh ISO14977 cypher.xml > grammar/generated/cypher.ebnf
+        ./tools/grammar/src/main/shell/launch.sh ISO14977 --INCLUDE_LEGACY=true cypher.xml > grammar/generated/legacy/cypher.ebnf
+        ./tools/grammar/src/main/shell/launch.sh Antlr4 cypher.xml > grammar/generated/Cypher.g4
+        ./tools/grammar/src/main/shell/launch.sh Antlr4 --INCLUDE_LEGACY=true cypher.xml > grammar/generated/legacy/Cypher.g4  

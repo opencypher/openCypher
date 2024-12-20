@@ -1,0 +1,66 @@
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
+
+= The openCypher Property Graph Query Language
+
+This repository holds the specification of openCypher, a declarative property graph query language.
+Its purpose is to be central to the process of evolving the specification of openCypher towards https://www.iso.org/standard/76120.html[ISO/IEC 39075 GQL].
+
+The specification of openCypher includes:
+
+* link:/cip[openCypher Improvement Proposals] (CIPs)
+* link:/grammar[Grammar] (in ISO WG3 BNF notation)
+* link:/tck[Technology Compatibility Kit] (TCK)
+
+== Overview of the process
+
+With https://www.iso.org/standard/76120.html[ISO/IEC 39075 GQL], the purpose of openCypher is to https://neo4j.com/blog/opencypher-gql-cypher-implementation/[pave the road] to GQL for openCypher implementers.
+Changes to openCypher are made by adding GQL features to openCypher.
+
+Refer to the link:CIP-PROCESS.adoc[Cypher Improvement Process] document for more details on CIPs, CIRs, their structure and lifecycle.
+
+== The structure of this repository
+
+* Cypher Improvement Proposals (CIP), `/cip`
+* openCypher grammar, `/grammar`
+** Contains the openCypher grammar specification, in ISO WG3 BNF notation.
+* Cypher Technology Compatibility Kit (TCK), `/tck`
+** Contains a set of Cucumber features that define openCypher behaviour, and documentation on how to use it.
+* openCypher developer tools, `/tools`
+** Contains code that tests the integrity of the repository and aids implementers of openCypher.
+
+== Building
+
+This repository uses a Maven build and supports cross building for Scala 2.12 and Scala 2.13:
+
+* For Scala 2.12, use `mvn -U clean install -P scala-212`
+* For Scala 2.13 use `mvn -U clean install -P scala-213`
+
+== Contact us
+
+There are several ways to get in touch with the openCypher project and its participants:
+
+* Are you interested in implementing openCypher for your platform, but you have general questions and want to reach out to other community members with similar interests? Post to our https://groups.google.com/forum/#!forum/opencypher[Google Groups mailing list]
+* For specific feature requests or bug reports, please open an issue on this repository.
+* Do you have a particular contribution in mind, and concrete ideas on how to implement them? Open a pull request.
+
+== History
+
+Prior to ISO/IEC 39075 GQL, the purpose of openCypher was to define a common language for property graphs, and the evolution of the Cypher® language was driven by the openCypher Implementers Group.
+Documentation of that time can be found https://opencypher.org/oC9history[the website] and in https://github.com/opencypher/openCypher/tree/master[this branch of the repository].
+
+== Copyright
+
+© Copyright https://neo4j.com[Neo4j, Inc.]
+
+== Feedback
+
+Any feedback you provide to Neo4j, Inc. through this repository shall be deemed to be non-confidential.
+You grant Neo4j, Inc. a perpetual, irrevocable, worldwide, royalty-free license to use, reproduce, modify, publicly perform, publicly display and distribute such feedback on an unrestricted basis.
+
+== License
+
+The `openCypher` project is licensed under the http://www.apache.org/licenses/LICENSE-2.0[Apache license 2.0].
+
+== Trademark
+
+Neo4j's trademark policy is available at https://neo4j.com/trademark-policy/[our trademark policy page].

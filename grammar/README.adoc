@@ -1,0 +1,96 @@
+= The Cypher Grammar
+
+This directory contains the openCypher grammar, in ISO WG3 BNF format.
+
+== Structure and Naming
+
+Where possible naming of non-terminals and structure of grammar productions provided by the openCypher grammar aims to follow the https://www.iso.org/standard/76120.html[ISO/IEC 39075 GQL]  grammar.
+Hence, most non-terminals can serve as a pointer into the GQL specification.
+Nevertheless, openCypher and GQL have some differences and the integration of GQL features into the openCypher grammar may warrant some divergence from the GQL grammar.
+
+== Notation
+
+For grammar notation, openCypher uses the ISO WG3 BNF notation that is used by the https://www.iso.org/standard/76120.html[ISO/IEC 39075 GQL] (cf. Subclause 5.2, "Notation").
+
+The following table is quick summary:
+
+[cols="1,2"]
+|===
+|Symbol
+|Meaning
+
+|`# _title_`
+|Level 1 grammar section
+
+|`## _title_`
+|Level 2 grammar section
+
+|`\### _title_`
+|Level 3 grammar section
+
+|`\#### _title_`
+|Level 4 grammar section
+
+|`<name>`
+|Non-terminal named name
+
+|`<name> ::= _X_`
+|Definition (production rule) of <name>, defining that <name> can generate X
+
+|`[ _X_ ]`
+|Optional X, i.e. zero or one X
+
+|`{ _X_ }`
+|Group around X
+
+|`X \| Y`
+|Alternative, either X or Y
+
+|`_X_...`
+|Repetition of X, i.e. one or more X
+
+|`xyz`
+|Terminal with characters xyz
+
+|`_!! bla_`
+|Comment saying bla
+|===
+
+A grammar is a language generator. A character string that forms an instance of a non-terminal may be generated — may be derived — from the BNF definition of that non-terminal, i.e. the right-hand side to the respective production rule. Conversely, if a character cannot be derived for the non-terminal, then it does not form an instance of that non-terminal.
+
+The generation expands the left-most non-terminal first — left normal form derivation. One specific derivation of a character string from a non-terminal is captured by a derivation tree.
+
+Given the example grammar
+
+----
+<s> ::=
+  <a> [ <b>... ] .
+
+<a> ::=
+  a
+
+<b> ::=
+  [ <a> ] b
+----
+
+and the character string
+
+----
+aabb.
+----
+
+the derivation tree is as follows:
+
+* `aabb.` instance of `<s> derived from `<a> [ <b>... ] .`
+** `a` instance of `<a>` derived from `a`
+*** `a`
+** `ab` instance of `<b>` derived from `[ <a> ] b`
+*** `a` instance of `<a>` derived from `a`
+**** `a`
+*** `b`
+** `b` instance of `<b>` derived from `[ <a> ] b`
+*** `b`
+** `.`
+
+The nodes of the derivation tree can be thought of as character strings typed by the non-terminal from which they are derived.
+The leaves of the derivation tree are always terminals, i.e. character strings without an associated non-terminal.

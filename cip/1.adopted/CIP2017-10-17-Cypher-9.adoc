@@ -1,0 +1,126 @@
+= CIP2017-10-17 Cypher version 9
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Mats Rydberg <mats@neo4j.org>
+
+[abstract]
+.Abstract
+--
+Cypher 9, the first official standard version of Cypher as governed by the openCypher project is outlined in this proposal.
+--
+
+toc::[]
+
+== Background
+
+During the 5th openCypher Implementers Group call (oCIG 5), a proposal for versioning was presented, which included the specification of Cypher 9 as the first official standard version of Cypher.
+Cypher 9 is a draft baseline specification which references a number of sources to craft a distributed specification for Cypher.
+These sources are detailed in this document.
+
+== Proposal
+
+Cypher 9 does not have a unified single source of truth (such as a natural language specification), but is comprised of references to pieces of documentation that describe parts of the Cypher language.
+
+=== Neo4j and Standardisation Scope
+
+The most general and comprehensive such piece is the
+http://neo4j.com/docs/developer-manual/current/cypher/[Neo4j Cypher 3.2 Manual], which documents Neo4j's 3.2 version of Cypher.
+The Neo4j implementation is however not a strict subset of Cypher 9, but contains a number of features that _are not_ part of the standard.
+The link:../../docs/standardisation-scope.adoc[Standardisation Scope] document lists which parts of the Neo4j implementation that are included, and which are excluded.
+
+==== Included features
+
+Features included are specified to work as documented in the Neo4j manual.
+Additionally, user-defined functions are required to return values within the Cypher type system.
+
+The `shortestPath()` and `allShortestPaths()` special pattern syntax is kept, but we note that these constructs will be superseded by a better fitting Regular Path Query (RPQ)-inspired syntax in the future.
+
+==== Excluded features
+
+Most of the set of excluded features are old language constructs for which there are already replacements, or which are not envisioned to fit in Cypher as the language evolves.
+
+Some of the excluded features leverage syntax ideas that do not align with recent developments, but which still encode useful semantics.
+These features include the list containment predicates and `reduce()`, which leverage a function-like syntax:
+
+* `any()`
+* `all()`
+* `none()`
+* `single()`
+* `reduce()`
+
+New syntax for these constructs needs to be proposed to consider them applicable for the standard.
+
+The `exists()` function is defined in an accepted CIP, and does not need to rely on vendor documentation.
+
+===== Patterns
+
+For specifying simple patterns, the shorthand syntax  `()--()` is excluded, because `--` is used to denote a comment in standard SQL syntax.
+The functionality is still available by inserting an empty relationship bracket pair: `()-[]-()`.
+This extends to the directed variants as well: `()\<-[]-()`, `()-[]\->()`.
+
+The alternative syntax for undirected patterns `()\<-[]\->()` is dropped altogether.
+
+Binding of variables to a list of relationships in variable length patterns is excluded.
+Variable length patterns are envisioned to be superseded by a more expressive RPQ-based syntax in the long term.
+
+===== ON CREATE and ON MATCH
+
+These subclauses are dropped
+
+==== Features included with new definitions
+
+Some key constructs are included in Cypher 9 with modified definitions.
+This is caused by the lack of proper replacement for a useful feature, but where the full extent of the implemented feature is not desirable in the standard.
+
+Pattern expressions are included in Cypher 9, but only when used in predicate positions, where a boolean value is expected.
+Such predicate positions are top-level in `WHERE`, or as an argument to a boolean operator.
+Evaluating pattern expressions to a list of paths is dropped.
+
+The `id()` function is included, but defined as returning an arbitrary value that has to be unique among the node and relationship sets, respectively.
+This definition is envisioned to be nailed down specifically in an upcoming version.
+
+The regular expression operator `=~` is dropped, as the topic of regular expression syntax has not been properly raised within the oCIG.
+
+===== Aggregation
+
+At the time of writing, there is ongoing work in the oCIG Aggregation Task Force which this proposal would like to incorporate.
+
+=== CIPs
+
+Among the accepted CIPs, the following are included in their entirety:
+
+* CIP2015-02-17-dynamic-property-lookup
+* CIP2015-06-24-call-procedures.adoc
+* CIP2015-09-15-STARTS-WITH-and-ENDS-WITH
+* CIP2015-09-16-public-type-system-type-annotation
+* CIP2015-10-27-State-visibility-between-clauses
+* CIP2016-01-26-mandatory-match
+* CIP2016-06-14-Define-comparability-and-equality-as-well-as-orderability-and-equivalence
+* CIP2016-07-07-Parameter-syntax
+* CIP2016-07-07-Type-conversion-functions
+* CIP2016-12-19-Reserved-keywords
+
+Additionally, these CIPs are included under specific restrictions:
+
+* CIP2015-05-13-EXISTS.adoc
+** Without the existential subqueries, only `exists()`.
+* CIP2015-11-09-type-coercions.adoc
+** Without the list to boolean coercion, as pattern expressions are instead redefined.
+
+The remaining CIPs are identified as unuseful for Cypher standardisation, and are suggested for archiving.
+
+=== Additional specification
+
+Included in Cypher 9 is also a way of specifying standard versions from the query language itself.
+By starting the Cypher query string with `CYPHER <num>` where `<num>` is one of the standard Cypher versions (as of this document, only 9) the following query would be interpreted under the semantics of that specification.
+
+.Specifying Cypher version:
+[source,cypher]
+----
+CYPHER 9
+MATCH (a)-[]->(b)
+RETURN a, b
+----

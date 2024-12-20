@@ -1,0 +1,740 @@
+= CIP2021-08-10 Operator precedence
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Authors:* Hannes Voigt <hannes.voigt@neo4j.com>
+
+
+[abstract]
+.Abstract
+--
+This CIP defines the operator precedence rules of openCypher.
+--
+
+toc::[]
+
+== Background
+
+The expression sub-languages of openCypher (and most other query and programming languages) allow very liberal composition of different elementary expressions into complex expressions through nesting.
+Elementary expressions are the composable building blocks which the expression sub-languages provides.
+Elementary expressions are composed by nesting.
+If an expression _A_ is nested into another expression _B_, _A_ is said to be an operand of _B_.
+
+Some elementary expressions have zero operands, e.g. literals.
+Most elementary expressions have one or more operands.
+For instance:
+
+- An arithmetic negation has one operand.
+- A boolean conjunction has two operands.
+- A property access has two operands -- an element and a property key.
+- A function call has two operands -- a function name and an arguments list.
+- A list comprehension has three or four operands -- an element variable name, a list, a predicate, and optionally a projection expression.
+- A case expression has multiple operands -- a value to test, for every case a test value/predicate and a result value, and a default value of the 'else' case.
+
+Some operands expect non-values, typically identifiers (variable names, function names, property keys, etc.).
+Such _non-value operands_ do not allow nesting of expressions because expression only result in values.
+
+However, most operands expect values of some types.
+Such _value operands_ allow nesting of all expressions that result in a values of the expected type.
+The nested expressions form an _operator tree_ and which typically evaluated bottom-up, i.e. all expressions that provide an operand are evaluated before the expression is evaluated that take this operands.
+(Higher-order expression, e.g. list comprehensions, have operands which are exceptions to this bottom-up evaluation.)
+In other words, the operator tree encodes the evaluation order.
+For instance, the following operator tree
+----
+    *
+   / \
+  +   4
+ / \
+3   2
+----
+encodes that the numeric addition is evaluated before the numeric multiplication, so that the expression results in `20`.
+
+However, the query string is a sequence of characters and not a tree.
+The parser turns the query string into such an operator tree.
+In the query string, nesting can clearly be denoted by parentheses.
+For instance, the query string
+----
+((3+2)*4)
+----
+allows a parser to unambiguously construct the operator tree shown above.
+
+For user convenience, better readability, and familiarity with common conventions in mathematical notation, openCypher (and most other query and programming languages) allows omitting the parentheses.
+For instance,
+----
+3+2*4
+----
+is also a valid expression.
+
+Without additional rules, however, it is not possible to unambiguously construct a operator tree for such an expression.
+In the particular case, two operator trees are possible:
+
+- `((3+2)*4)`
+- `(3+(2*4))`
+
+To avoid this kind of ambiguity, openCypher (and most other query and programming languages) has _precedence rules_.
+
+Precedence rules (or _rules of operator precedence_) define the order in which the different operators, i.e. the different kinds of expressions, are evaluated.
+For instance, numeric multiplication is evaluated before numeric addition, such that expression
+----
+3+2*4
+----
+is effectively evaluated as
+----
+(3+(2*4))
+----
+and, hence, results in `11` (rather than `20`).
+
+This CIP states the precedence rules of openCypher.
+
+== Proposal
+
+The precedence in openCypher is defined by (1) _precedence levels_ and (2) _operator associativity_.
+Both are defined in the following two subsections.
+
+=== Precedence levels
+
+The following <<precedenceLevels,table>> lists the precedence levels in descending order.
+The higher the level number the higher the precedence.
+
+.[[precedenceLevels]]Precedence levels
+[cols="<.<4a,<.<1a,<.<5a,<.<5a", options="header"]
+|===
+|Level Group
+|Level
+|Operator Group
+|Operators
+
+|Atoms
+|12
+|Atoms
+|
+
+* Literals
+* Variables
+* Parameters
+* Case expressions
+* List comprehensions
+* Pattern comprehensions
+* Reduce operator
+* Quantifiers
+* Pattern predicates
+* Function invocations
+* Existential subqueries
+* Parenthesized expression
+
+.2+|Non-arithmetic operators
+.2+|11
+|Graph element operators
+|
+
+* property lookup (left-hand operand)
+* label expressions (only as last operator in chain)
+
+|List operators (left-hand operand)
+|
+
+* List element access
+* List slicing
+
+.4+|Arithmetic operators
+|10
+|Arithmetic additive inverse
+|
+
+* Unary negative
+* Unary positive
+
+|9
+|Exponentiation (left-hand and right-hand operand)
+|
+
+* Exponentiation
+
+|8
+|Arithmetic multiplicative operators (left-hand and right-hand operand)
+|
+
+* Multiplication
+* Division
+* Remainder (Modulo)
+
+|7
+|Arithmetic additive operators (left-hand and right-hand operand)
+|
+
+* Addition
+* Substraction
+
+.4+|Predicates
+.3+|6
+|String predicates (left-hand operand)
+|
+
+* Prefix predicate (and right-hand operand)
+* Suffix predicate (and right-hand operand)
+* Contains predicate (and right-hand operand)
+* Regular expression predicate
+
+|List predicates (left-hand operand)
+|
+
+* List element containment predicate (and right-hand operand)
+
+|Null predicates (left-hand operand)
+|
+
+* Null predicate
+* Not-null predicate
+
+|5
+|Comparison operators (left-hand and right-hand operand)
+|
+
+* Equal
+* Unequal
+* Greater
+* Greater or Equal
+* Less
+* Less or Equal
+
+.4+|Logical operators
+|4
+|Boolean negation
+|
+
+* Negation
+
+|3
+|Boolean conjunction (left-hand and right-hand operand)
+|
+
+* Conjunction
+
+|2
+|Boolean exclusive disjunction (left-hand and right-hand operand)
+|
+
+* Exclusive disjunction
+
+|1
+|Boolean inclusive disjunction (left-hand and right-hand operand)
+|
+
+* Inclusive disjunction
+
+|===
+
+[IMPORTANT]
+.Rule of precedence levels
+====
+Operators on level _X_ take precedence over any operator on level _Y_, when _X_ > _Y_, i.e. are of higher precedence.
+Operators can only directly accept operators of higher precedence as operands.
+====
+
+The rule of precedence levels is enforced by the grammar.
+
+The rule of precedence levels does not apply to all operands, though.
+The table points out to which operands (left-hand or left-hand and right-hand) the rule of precedence levels apply.
+
+If an operator has operands to which the precedence levels do not apply, these operands are syntactically delineate such that there is no ambiguity with regard to the operator tree.
+For instance, the syntax of the list element access clearly delineates the list element index operand by brackets, e.g. `myList[5]`.
+Such clearly delineated operands grammatically allow an expression of any precedence level, i.e. grammar encodes the operand as <Expression>.
+
+A prominent expression with a clearly delineated operand is the _parenthesized expression_.
+The parenthesized expression has a single operand delineated by parentheses, i.e. `( n.prop+6 )` where `n.prop+6` is the delineated operand.
+The parenthesized expression has no other purpose than grammatically allowing expressions as operands that do not meet the rule of precedence levels.
+For instance, an arithmetic addition cannot be directly an operand to an arithmetic multiplication by the rule of precedence levels, since addition is of lower precedence than multiplication.
+However, with the help of a parenthesized expression, the user can denote
+----
+(3+2)*4
+----
+as a valid expression.
+This achieves the desire operator tree
+----
+    *
+   / \
+ ( )  4
+  |
+  +
+ / \
+3   2
+----
+where the arithmetic addition is an operand to the arithmetic multiplication and, hence, results in `20` (rather than `11`).
+
+=== Operator associativity
+
+Most precedence level include multiple operators.
+
+On some levels these operators are grammatical alternatives, e.g. for <Atom>s, and, hence, have unambiguous precendence.
+
+On other levels, however, the grammar allows repetitions of such operators (chaining).
+
+For instance, all the following are valid expressions:
+
+* `--5`
+* `5 + 4 + 3`
+* `5 - 4 - 3`
+* `5 - 4 + 3`
+* `5 * 4 / 3`
+* `5 % 4 * 3`
+* `5 > 4 >= 3`
+
+Associativity of the operators define the operator tree unambiguously for such expressions.
+
+Chains of operators fall into four categories:
+
+* _Chains of type-incompatible operators_.
+* _Chains of closed unary operators_.
+* _Chains of binary operators_.
+* _Chains with extra semantics_.
+
+Each is discussed in the following subsections, respectively.
+
+==== Chains of type-incompatible operators
+The grammar allows chaining of some operators in String, list, and null operators, which are
+
+* not type compatible or
+* only type-compatible in one possible way,
+
+such that there is
+
+* no valid operator tree or
+* only one unambiguous operator tree,
+
+respectively.
+
+For instance, grammatically allowed operator chains without a valid operator tree are:
+
+* `'string' STARTS WITH x [1..3]`
+** `('string' STARTS WITH x) [1..3]` is invalid because list slicing does not accept a boolean as first operand.
+** `'string' STARTS WITH (x[1..3])` is invalid because the prefix predicate does not accept a list as second operand.
+* `foo CONTAINS 'bar' ENDS WITH x`
+** `(foo CONTAINS 'bar') ENDS WITH x` is invalid because the suffix predicate does not accept a boolean as first operand.
+** `foo CONTAINS ('bar' ENDS WITH x)` is invalid because the containment predicate does not accept a boolean as second operand.
+
+For instance, grammatically allowed operator chains with only a single  valid operator tree are:
+
+* `foo STARTS WITH x IS NOT NULL`
+** `(foo STARTS WITH x) IS NOT NULL` is valid because the not-null predicate accepts a boolean as first operand
+** `foo STARTS WITH (x IS NOT NULL)` is invalid because the prefix predicate does not accept a boolean as second operand
+* `foo CONTAINS 'bar' IN list`
+** `(foo CONTAINS 'bar') IN list` is valid because the list element containment predicate accepts a boolean as first operand
+** `foo CONTAINS ('bar' IN list)` is invalid because the containment predicate does not accept a boolean as second operand
+
+[IMPORTANT]
+.Chains of type-incompatible operators
+====
+Chains of (partly) type-incompatible operators either
+
+* do not have a valid operator tree at all, or
+* have only one valid operator tree.
+====
+
+==== Chains of closed unary operators
+Closed unary operators that allow chaining on the same precedence level are:
+
+* Arithmetic additive inverse.
+* Boolean negation.
+* List slicing.
+* Null predicates.
+
+Example expressions are:
+
+* `--5`
+* `NOT NOT NOT false`
+* `list[4..17][2..5]`
+* `x IS NOT NULL IS NOT NULL IS NULL`
+
+[IMPORTANT]
+.Chaining of closed unary operators
+====
+Chains of closed unary operators have an unambiguous operator tree.
+====
+
+[NOTE]
+.Associativity of unary operators
+====
+The grammar defines if the operand of an unary operator is on the left end or on the right end of the operator's syntax.
+This renders the operator left- or right associative, respectively.
+Nevertheless, the grammar allows only one unambiguous operator tree, in both case.
+====
+
+
+==== Chains of binary operators
+Binary operators that allow chaining with themselves or other operators of compatible result type on the same precedence level are:
+
+* Exponentiation.
+* Multiplication.
+* Division.
+* Remainder (Modulo).
+* Addition.
+* Substraction.
+* Boolean conjunction.
+* Boolean inclusive disjunction.
+* Boolean exclusive disjunction.
+
+Example expressions are:
+
+* `5 * 4 * 3`
+* `5 ^ 4 ^ 3`
+* `5 / 4 / 3`
+* `5 % 4 % 3`
+* `5 % 4 * 3`
+* `5 - 4 - 3`
+* `5 - 4 + 3`
+* `5 + 4 + 3`
+* `true AND false AND true`
+* `true OR false OR true`
+* `true XOR false XOR true`
+
+[IMPORTANT]
+.Chains of binary operators
+====
+In chains of binary operators, the operators have left-to-right associativity, i.e. for every two operators, the operator appearing earlier (more left) in the query string takes precedence and the operator tree is left-deep.
+====
+
+[NOTE]
+.Associative binary operators
+====
+Where the semantics of an operator is associative (e.g. addition), a right-deep operator tree produces the same result as a left-deep operator tree.
+====
+
+Consequently, the examples evaluate as follows:
+
+[cols="2a,1a"]
+|====
+|
+[source, cypher]
+----
+RETURN  5 * 4 * 3  AS a,
+       (5 * 4)* 3  AS b,
+        5 *(4 * 3) AS c
+----
+|
+[options="header"]
+!====
+! a    ! b    ! c
+! `60` ! `60` ! `60`
+!====
+
+|
+[source, cypher]
+----
+RETURN  4 ^ 3 ^ 2  AS a,
+       (4 ^ 3)^ 2  AS b,
+        4 ^(3 ^ 2) AS c
+----
+|
+[options="header"]
+!====
+! a        ! b        ! c
+! `4096.0` ! `4096.0` ! `262144.0`
+!====
+
+|
+[source, cypher]
+----
+RETURN  5 / 4 / 3  AS a,
+       (5 / 4)/ 3  AS b,
+        5 /(4 / 3) AS c
+----
+|
+[options="header"]
+!====
+! a   ! b   ! c
+! `0` ! `0` ! `5`
+!====
+
+|
+[source, cypher]
+----
+RETURN  5 % 4 % 3  AS a,
+       (5 % 4)% 3  AS b,
+        5 %(4 % 3) AS c
+----
+|
+[options="header"]
+!====
+! a   ! b   ! c
+! `1` ! `1` ! `0`
+!====
+
+|
+[source, cypher]
+----
+RETURN  5 % 4 * 3  AS a,
+       (5 % 4)* 3  AS b,
+        5 %(4 * 3) AS c
+----
+|
+[options="header"]
+!====
+! a   ! b   ! c
+! `3` ! `3` ! `5`
+!====
+
+|
+[source, cypher]
+----
+RETURN  5 - 4 - 3  AS a,
+       (5 - 4)- 3  AS b,
+        5 -(4 - 3) AS c
+----
+|
+[options="header"]
+!====
+! a    ! b    ! c
+! `-2` ! `-2` ! `4`
+!====
+
+|
+[source, cypher]
+----
+RETURN  5 - 4 + 3  AS a,
+       (5 - 4)+ 3  AS b,
+        5 -(4 + 3) AS c
+----
+|
+[options="header"]
+!====
+! a   ! b   ! c
+! `4` ! `4` ! `-2`
+!====
+
+|
+[source, cypher]
+----
+RETURN  5 + 4 + 3  AS a,
+       (5 + 4)+ 3  AS b,
+        5 +(4 + 3) AS c
+----
+|
+[options="header"]
+!====
+! a    ! b    ! c
+! `12` ! `12` ! `12`
+!====
+
+|
+[source, cypher]
+----
+RETURN  true AND false  AND true  AS a,
+       (true AND false) AND true  AS b,
+        true AND (false AND true) AS c
+----
+|
+[options="header"]
+!====
+! a       ! b       ! c
+! `false` ! `false` ! `false`
+!====
+
+|
+[source, cypher]
+----
+RETURN  true OR false  OR true  AS a,
+       (true OR false) OR true  AS b,
+        true OR (false OR true) AS c
+----
+|
+[options="header"]
+!====
+! a      ! b      ! c
+! `true` ! `true` ! `true`
+!====
+
+|
+[source, cypher]
+----
+RETURN  true XOR false  XOR true  AS a,
+       (true XOR false) XOR true  AS b,
+        true XOR (false XOR true) AS c
+----
+|
+[options="header"]
+!====
+! a       ! b       ! c
+! `false` ! `false` ! `false`
+!====
+
+|====
+
+==== Chains with extra semantics
+Operators whose chaining gives extra semantics are:
+
+* Comparison operations.
+
+Example expression are
+
+* `5 = 5 = 5`
+* `5 = 4 <> 3`
+* `5 <> 4 > 3`
+* `5 > 4 > 3`
+* `5 > 4 >= 3`
+* `5 >= 4 < 3`
+
+[IMPORTANT]
+.Chains with extra semantics
+====
+Chains with extra semantics, either
+
+a. form a flat operator tree of a single operator, or
+b. their semantics is defined by a syntax transformation to an expression that has an unambiguous operator tree based on the other precedence rules stated in this document.
+====
+
+[NOTE]
+.Associativity of comparison operators
+====
+Because of the extra semantics of a chain of comparison, the comparison operators do not have any observable associativity in openCypher.
+====
+
+Consequently, the examples evaluate as follows:
+
+[cols="2a,1a"]
+|====
+|
+[source, cypher]
+----
+RETURN  5 = 5 = 5  AS a,
+       (5 = 5) AND (5 = 5) AS ax,
+       (5 = 5)= 5  AS b,
+        5 =(5 = 5) AS c
+----
+|
+[options="header"]
+!====
+! a      ! ax     ! b       ! c
+! `true` ! `true` ! `false` ! `false`
+!====
+
+|
+[source, cypher]
+----
+RETURN  5 = 4 <> 3  AS a,
+       (5 = 4) AND (4 <> 3) AS ax,
+       (5 = 4)<> 3  AS b,
+        5 =(4 <> 3) AS c
+----
+|
+[options="header"]
+!====
+! a       ! ax      ! b      ! c
+! `false` ! `false` ! `true` ! `false`
+!====
+
+|
+[source, cypher]
+----
+RETURN  5 <> 4 > 3  AS a,
+       (5 <> 4) AND (4 > 3) AS ax,
+       (5 <> 4)> 3  AS b,
+        5 <>(4 > 3) AS c
+----
+|
+[options="header"]
+!====
+! a      ! ax     ! b      ! c
+! `true` ! `true` ! `null` ! `true`
+!====
+
+|
+[source, cypher]
+----
+RETURN  5 > 4 > 3  AS a,
+       (5 > 4) AND (4 > 3) AS ax,
+       (5 > 4)> 3  AS b,
+        5 >(4 > 3) AS c
+----
+|
+[options="header"]
+!====
+! a      ! ax     ! b      ! c
+! `true` ! `true` ! `null` ! `null`
+!====
+
+|
+[source, cypher]
+----
+RETURN  5 > 4 >= 3  AS a,
+       (5 > 4) AND (4 >= 3) AS ax,
+       (5 > 4)>= 3  AS b,
+        5 >(4 >= 3) AS c
+----
+|
+[options="header"]
+!====
+! a      ! ax     ! b      ! c
+! `true` ! `true` ! `null` ! `null`
+!====
+
+|
+[source, cypher]
+----
+RETURN  5 <= 4 < 3  AS a,
+       (5 <= 4) AND (4 < 3) AS ax,
+       (5 <= 4)< 3  AS b,
+        5 <=(4 < 3) AS c
+----
+|
+[options="header"]
+!====
+! a       ! ax      ! b      ! c
+! `false` ! `false` ! `null` ! `null`
+!====
+
+|====
+
+== What others do
+
+openCypher has grammatically all operators in one precedence level hierarchy.
+This is similar to how precedence is defined for more programming languages.
+For instance:
+
+* https://docs.oracle.com/javase/tutorial/java/nutsandbolts/operators.html[Java].
+* https://docs.python.org/3/reference/expressions.html#operator-precedence[Python].
+* https://en.cppreference.com/w/cpp/language/operator_precedence[C++].
+* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence#table[Javascript].
+
+The precedence is similar.
+Some minor difference:
+
+* Some programming languages have extra operators that openCypher does not have, e.g. increment/decrement, bitwise operators, ternary operator, and assignments.
+* For Javascript, the exponentiation is right-to-left associative.
+
+SQL encodes large parts of the type compatibility of expressions in the grammar.
+Hence, its precedence hierarchy is partition by type.
+Within one type, SQL's precedence hierarchy is similar.
+
+Chainable operators, such as addition, multiplication, etc. are left-to-right associative in SQL as well.
+However, SQL directly encode that in the grammar, with left-recursive production rules, e.g.
+
+[source, ebnf]
+----
+<numeric value expression> ::=
+    <term>
+  | <numeric value expression> <plus sign> <term>
+  | <numeric value expression> <minus sign> <term>
+
+<term> ::=
+    <factor>
+  | <term> <asterisk> <factor>
+  | <term> <solidus> <factor>
+
+<factor> ::=
+  [ <sign> ] <numeric primary>
+----
+
+The most popular programming languages and query languages, do not give chains of comparison operators extra semantics.
+Typically, comparison operators are left-to-right associative.
+
+== Benefits to this proposal
+
+This CIP clarifies the precedence rules of openCypher.
+
+== Caveats to this proposal
+
+None known.
+
+

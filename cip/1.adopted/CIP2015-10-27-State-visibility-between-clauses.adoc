@@ -1,0 +1,101 @@
+= CIP2015-10-27 State visibility between clauses
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Authors:* Andrés Taylor <andres@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+This CIP formalises the behaviour of state changes within a Cypher query.
+--
+
+toc::[]
+
+=== Background
+
+Cypher allows clauses that read from the graph to be interleaved with clauses that write to the graph.
+Some clauses can also do both - read the graph and write to it at the same time.
+
+To allow the user to understand what the outcome will be at an abstract, logical level, semantics for the visibility of these changes should be clear.
+
+Note:
+This is not about concurrency - even in a single user system this would need to be thought through and defined explicitly.
+
+===== Definition
+
+We call the concept discussed in this CIP _eagerness_.
+This means that each clause logically consumes  _all_ incoming rows _eagerly_, and only produces output when the input is exhausted.
+This concept is in contrast to link:https://en.wikipedia.org/wiki/Lazy_evaluation[_lazy evaluation_], which, when applied to Cypher, means that each clause only processes as much input as is necessary for the first record of output to be sent to the subsequent clause.
+
+=== Proposal
+
+Each clause lives in its own state, which includes all the changes of clauses coming before it, including changes performed by itself,
+*but none of the changes made by clauses listed later in the query.*
+
+The semantical data flow here is such that each clause operates on the entire result set before passing control to any subsequent clause.
+
+Updates between `UNION` subqueries are also treated in a sequential manner.
+Therefore subqueries coming later will see updates from subqueries before, but not the other way around.
+
+==== Examples
+
+.Example query 1:
+The following query would lead to a never-ending loop, if a lazy `MATCH` clause is not isolated from the new nodes created by `CREATE`.
+
+_Query_
+[source,cypher]
+----
+MATCH (a)
+CREATE ()
+----
+
+.Example query 2:
+
+Given a database containing two nodes, we illustrate the subtleties of query execution with the following query.
+
+[source,cypher]
+----
+MATCH ()
+CREATE ()
+WITH *
+MATCH ()
+CREATE ()
+----
+
+|===
+| Query       | Pre-existing nodes  | Rows in  | Nodes created  | Rows out
+| `MATCH ()`  | 2                   | 1        | 0              | 2 (N)
+| `CREATE ()` | 2                   | 2        | 2 \(R)         | 2
+| `WITH *`    | 4                   | 2        | 0              | 2
+| `MATCH ()`  | 4                   | 2        | 0              | 8 (N * R)
+| `CREATE ()` | 4                   | 8        | 8              | 8
+| _Outcome_   | *12 (2 + 2 + 8)*    | -        | *10*           | *8*
+|===
+
+.Example query 3:
+In the following query, the `MATCH` following the `UNION` will find the nodes created before the `UNION`.
+
+[source,cypher]
+----
+CREATE (a:X)
+RETURN a AS column
+UNION
+MATCH (x:X)
+CREATE ()
+RETURN x as column
+----
+
+=== Benefits to this proposal
+
+Explicit state change visibility makes it possible to understand queries without having to worry about ordering of updates and reads.
+
+From an implementation perspective, these semantics also allow us to make some queries more performant than they can be today, by ignoring statement state for a lot of graph reading, and saving us from eagerly producing matching results before updates can be applied.
+
+This replaces the past definition in CIP20140109.
+
+=== Caveats to this proposal
+
+None known at the moment.

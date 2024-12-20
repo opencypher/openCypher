@@ -1,0 +1,26 @@
+= Cypher Improvement Proposals
+
+This is the home for all openCypher Improvement Proposal (CIP) documents.
+CIPs are documents that outline the syntax and semantics of openCypher.
+
+NOTE: Features coming from https://www.iso.org/standard/76120.html[ISO/IEC 39075 GQL] are normatively specified by GQL.
+For such features, a CIP may not be needed and is informational only.
+
+== The CIP Lifecycle
+
+CIPs normally pass through a number of phases before and after ending up in this repository.
+Refer to the link:../CIP-PROCESS.adoc[Cypher Improvement Process] document for more details.
+
+=== Adopted
+
+This folder contains CIP that have been adopted to openCypher and represented languages features of openCypher.
+The focus is on adopting language features of https://www.iso.org/standard/76120.html[ISO/IEC 39075 GQL].
+
+=== Testable
+
+A CIP enters this phase when it has received a sufficient set of TCK scenarios that outline the use of its suggested features.
+
+== Baseline
+
+Part of the specification, but not part of the CIP process, are the documents under link:0.baseline/[baseline].
+This includes primarily link:0.baseline/openCypher9.pdf[Cypher Query Language Reference, Version 9].

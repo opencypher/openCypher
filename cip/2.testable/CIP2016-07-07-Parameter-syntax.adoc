@@ -1,0 +1,100 @@
+= CIP2016-07-07 Parameter syntax
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Mats Rydberg <mats@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+This CIP suggests changing syntax for parameter usage, by replacing the curly braces notation (`{}`) with the dollar sign (`$`).
+As curly braces are used by the language for literal maps (in expressions and patterns) and has been suggested for upcoming subquery syntax, their usage as parameter delimiters may lead to confusion when writing or reading queries.
+A single, unique and hitherto unused character used as a prefix increases the readability of parameters when compared with delimiting parameters using overloaded characters. Moreover, this allows for cleaner syntax.
+--
+
+toc::[]
+
+== Motivation
+
+The clause `MATCH (a {prop: {param}})` uses a nested curly brace structure which is not easily readable.
+The alternative `MATCH (a {prop: $param})` does a much better job at signalling the parameter usage to the reader.
+Using a single leading character is a very common way of referencing variables in general programming languages.
+Specifically, the following list of languages use the dollar sign:
+
+- Scala (string interpolation)
+- PHP (variable definition)
+- AutoIt (variable definition)
+- Perl (scalar variables)
+- Ruby (global variables)
+- BASIC (trailing character for variables)
+
+== Proposal
+
+The concrete suggestion made by this CIP is to define the parameter syntax to use a dollar sign.
+This conflicts with the current use of wrapping curly braces, which this CIP suggests removing.
+Additionally, it is noted that the dollar sign is an allowed `IdentifierStart`, meaning it may be used as a leading character for symbolic names.
+To reduce conflict, this CIP suggests changing that by, for simplicity, removing the full set of currency symbols from being allowed as `IdentifierStart` characters.
+
+=== Syntax
+
+.Parameter expression:
+[source, ebnf]
+----
+parameter = "$", variable ;
+----
+
+=== Semantics
+
+The semantics are unchanged.
+
+=== Examples
+
+.Using a parameter in a property predicate.
+[source, cypher]
+----
+MATCH (a {prop: $param})
+RETURN count(a)
+----
+
+.Using a parameter in a `WITH` clause.
+[source, cypher]
+----
+WITH $param AS p
+RETURN toString(p)
+----
+
+.Using a parameter with an escaped name in a `WITH` clause.
+[source, cypher]
+----
+WITH $`Der Parameter` AS p
+RETURN toString(p)
+----
+
+.Using a map parameter as a property predicate.
+[source, cypher]
+----
+MATCH (n $param)  // space is required here, lest 'n$param' will become a variable
+RETURN count(*)
+----
+
+=== Interaction with existing features
+
+The one suggested change in functionality is the removal of currency symbols as leading symbolic name characters.
+
+== What others do
+
+Postgres uses dollar signs for variables to prepared queries.
+SQL Server uses the at sign (`@`) for referencing parameters.
+Oracle DB uses colon (`:`) for dereferencing SQL parameters.
+
+== Benefits to this proposal
+
+Using a dedicated piece of syntax increases visibility of parameters, and reduces overloading of the previously used syntax.
+This has the added benefit of making literal maps clearer, as they may no longer be misinterpreted for parameters.
+Furthermore, we expect future work on subqueries to make use of the curly braces, and this frees up some space to do so.
+
+== Caveats to this proposal
+
+This is a breaking change, which will require users to rewrite their queries.

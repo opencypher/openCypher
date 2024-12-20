@@ -1,0 +1,269 @@
+= CIP2015-05-13 Existential subqueries
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Authors:* Andrés Taylor <andres@neotechnology.com>, Hannes Voigt <hannes.voigt@neo4j.com>
+
+
+[abstract]
+.Abstract
+--
+This CIP introduces existential subqueries and cleans up previously existing language constructs for existence testing.
+--
+
+toc::[]
+
+== Background
+
+openCypher has two language constructs that allow testing of existence. 
+Namely
+
+* property existence predicate: `exists( n.prop )`, which is grammatically a <FunctionInvocation>
+* pattern predicates for the existence of subgraphs, which is grammatically a <RelationshipsPattern>
+
+Both are allowed as <Atom>s of expressions.
+
+Note that a <RelationshipsPattern> appearing in an expression is evaluated to a list of paths containing the matches of the pattern.
+In a predicate context this list gets coerced to a boolean (empty list -> [underline]#*_False_*#, non-empty list -> [underline]#*_True_*#), letting this <RelationshipsPattern> behave like a predicate although it actually is a list expression.
+As a result, <RelationshipsPattern>s appear to behave differently depending on the context in which they appear.
+Further, <PatternComprehension> offer a more powerful and syntactically better separated means to get lists of matches for a pattern within expressions.
+
+The understanding of subqueries in Cypher has evolved and Cypher gained a proper <NullPredicateExpression> (`IS [ NOT ] NULL`), cf. https://github.com/opencypher/openCypher/blob/master/cip/1.accepted/CIP2018-10-29-EXISTS-and-IS-NOT-NULL.adoc[CIP2018-10-29 EXISTS and IS NOT NULL].
+Both developments and the issues around <RelationshipsPattern>s suggest the need for a refinement of the language constructs that allow testing of existence.
+
+== Proposal
+
+This CIP proposes:
+
+* Refer to a <RelationshipsPattern> appearing as an <Atom> as a <PatternPredicate> for better distinguishing it from a <RelationshipsPattern> appearing in a <PatternComprehension>
+* Restricting <PatternPredicate> to predicate contexts and boolean evaluation, when used in expression contexts
+* Adding two forms of existential subqueries denoted with `EXISTS { ... }`:
+** Full existential subquery based on a <RegularQuery>
+** Simple existential subquery based on a single <Pattern> and an optional <Where> clause
+* Removing `exists( n.prop )` in favor of the <NullPredicateExpression>, which is a restatement of what has been accepted with https://github.com/opencypher/openCypher/blob/master/cip/1.accepted/CIP2018-10-29-EXISTS-and-IS-NOT-NULL.adoc[CIP2018-10-29 EXISTS and IS NOT NULL]
+
+=== Syntax
+
+==== Grammar
+
+.Grammar definition for existential subquery syntax.
+[source, ebnf]
+----
+<Atom> ::=
+    ...
+  | <PatternPredicate>
+  | <ExistentialSubquery>
+
+<PatternPredicate> ::=
+  <RelationshipsPattern>
+
+<ExistentialSubquery> ::=
+    <SimpleExistentialSubquery>
+  | <FullExistentialSubquery>
+
+<SimpleExistentialSubquery> ::=
+  "EXISTS", "{", <SimpleMatch>, "}"
+
+<FullExistentialSubquery> ::=
+  "EXISTS", "{", <RegularQuery>, "}"
+
+<SimpleMatch> ::=
+  <Pattern>, [ <Where> ]
+----
+
+Note that the openCypher grammar does not list <SimpleExistentialSubquery>, <SimpleMatch>, and <FullExistentialSubquery> as separate productions but represents them inline of <ExistentialSubquery>.
+
+==== Syntax Rules
+
+* A <PatternPredicate> shall only be contained in sites whose expected type is exactly boolean. To give the most frequent examples, a <PatternPredicate> can be simply contained in
+** <Where>, used in
+*** <Match>
+*** <With>
+*** <YieldItems>
+*** <FilterExpression>, used in
+**** <Quantifiers>
+**** <ListComprehension>
+*** <PatternComprehension>
+** <CaseAlternative>
+** Expression with boolean operands `NOT`, `AND`, `OR`, `XOR`
+** Arguments in function calls and procedure calls where the respective parameter type in the function/procedure signature is exactly boolean
+* The <RegularQuery> contained in a <FullExistentialSubquery> shall not contain any <UpdatingClause> nor procedure or function calls that are not known to be free of side effects.
+
+=== Semantics
+
+<PatternPredicate>, <SimpleExistentialSubquery>, and <FullExistentialSubquery> accomplish the same task: checking whether the result of a subquery is not empty.
+
+All three forms,
+
+* Are boolean expressions, i.e. return a single boolean value
+* Never return `null`
+* Are side effect-free, i.e. <FullExistentialSubquery> shall not contain any <UpdatingClause> or other sources of side effects
+* Can contain variables and parameters from the outer queries
+
+<PatternPredicate> shall not introduce new variables.
+
+Both forms of <ExistentialSubquery> (<SimpleExistentialSubquery> and <FullExistentialSubquery>) are allowed to introduce new variables.
+These variables necessarily shall have a name different from the names of all variables available from the outer queries.
+Any variables introduced in an <ExistentialSubquery> are not available outside the subquery context.
+
+<PatternPredicate> and <SimpleExistentialSubquery> are syntactically simpler and semantically less powerful forms of <FullExistentialSubquery>.
+The semantics of <PatternPredicate> and <SimpleExistentialSubquery> can be defined as syntax transformations to <FullExistentialSubquery>.
+
+==== <RelationshipsPattern>
+
+A <PatternPredicate> _PP_ is effectively replaced by the expression
+
+`EXISTS { MATCH _PP_ RETURN 1 }`
+
+==== <SimpleExistentialSubquery>
+
+A <SimpleExistentialSubquery> containing a <SimpleMatch> _SM_ is effectively replaced by the expression
+
+`EXISTS { MATCH _SM_ RETURN 1 }`
+
+==== <FullExistentialSubquery>
+
+A <FullExistentialSubquery> _FES_ is effectively evaluated as follows:
+
+* Let _OUTER_VARIABLES_ be the current working record for which the expression containing _FES_ is evaluated.
+* Let _NESTED_QUERY_ be the <RegularQuery> immediately contained in _FES_.
+* Let _RESULT_TABLE_ be the table resulting from evaluating _NESTED_QUERY_ on a driving table comprising _OUTER_VARIABLES_.
+* Case:
+** If _RESULT_TABLE_ is an empty table (cardinality is zero), then the result of _FES_ is [underline]#*_False_*#.
+** Otherwise, the result of _FES_ is [underline]#*_True_*#.
+
+Note that all fields in _RESULT_TABLE_ are ignored and only the number of rows in _RESULT_TABLE_ is relevant for the result of _FES_.
+
+=== Examples
+
+==== Property existence test
+
+_Example 1:_
+
+Return all nodes that have a property named `slogan`.
+[source, cypher]
+----
+MATCH (actor)
+WHERE actor.slogan IS NOT NULL
+RETURN actor
+----
+
+==== Pattern predicates in boolean expression context
+
+_Example 2A:_
+
+Find all actors who won an award.
+
+[source, cypher]
+----
+MATCH (actor:Actor) WHERE (actor)-[:WON]->(:Award)
+RETURN actor
+----
+
+_Example 2B:_
+
+Find all actors with their major accolade.
+
+[source, cypher]
+----
+MATCH (actor:Actor)
+RETURN actor,
+  CASE
+    WHEN (actor)-[:WON]->(:Oscar) THEN 'Oscar winner'
+    WHEN (actor)-[:WON]->(:GoldenGlobe) THEN 'Golden Globe winner'
+    ELSE 'None'
+  END AS accolade
+----
+
+_Example 2C:_
+
+Find all movies that have at least one award-winning actor in their cast.
+
+[source, cypher]
+----
+MATCH (movie:Movie)<-[:ACTED_IN]-(actor:Actor)
+WITH movie, collect(actor) AS cast
+WHERE ANY(actor IN cast WHERE (actor)-[:WON]->(:Award))
+RETURN movie
+----
+
+==== Existential subqueries
+
+_Example 3A:_
+
+Find all actors who have acted together with another actor with the same name.
+
+[source, cypher]
+----
+MATCH (actor:Actor)
+WHERE EXISTS {
+  (other:Actor)-[:ACTED_IN]->(movie)<-[:ACTED_IN]-(actor)
+  WHERE other.name = actor.name
+}
+RETURN actor
+----
+
+_Example 3B:_
+
+Find all actors who have acted together with another actor with the same name on at least two movies.
+
+[source, cypher]
+----
+MATCH (actor:Actor)
+WHERE EXISTS {
+  MATCH (other:Actor)-[:ACTED_IN]->(movie)<-[:ACTED_IN]-(actor)
+  WHERE other.name = actor.name
+  WITH other, count(*) as c
+  WHERE c > 1
+  RETURN true
+}
+RETURN actor
+----
+
+== What others do
+
+This is very similar to what SQL does with its `EXISTS` functionality.
+
+This is also very similar in syntax to what SPARQL does with its `EXISTS` functionality; the rules regarding variables are identical, and the inner query also takes a subquery as input.
+
+== Benefits to this proposal
+
+The existing pattern predicate functionality is very useful, but does not cover all cases.
+Pattern predicates do not allow for introducing variables, which makes some queries - such as the one below - difficult to express succinctly:
+
+[source, cypher]
+----
+MATCH (person:Person)
+WHERE EXISTS {
+  (person)-[:HAS_DOG]->(dog:Dog)
+  WHERE person.name = dog.name
+}
+RETURN person
+----
+
+This proposal also allows for powerful subqueries, for example using aggregation inside the `EXISTS {}` query.
+
+Find all teams that have at least two members who have worked on successful projects.
+[source, cypher]
+----
+MATCH (team:Team)
+WHERE EXISTS {
+  MATCH (team)-[:HAS_MEMBER]->(member:Person)
+  WHERE EXISTS {
+	(member)-[:WORKED_ON]->(p:Project) WHERE p.successful
+  }
+  WITH team, count(*) AS numAPlayers
+  WHERE numAPlayers > 2
+  RETURN true
+}
+RETURN team
+----
+
+However, pattern predicates have a readability advantage in narrow cases.
+Hence, this proposal retains them while removing their confusing meaning outside boolean expression context.
+
+== Caveats to this proposal
+
+Subqueries are powerful constructs. As such they can be difficult to understand, and difficult for a query planner to get right.

@@ -1,0 +1,16 @@
+*~
+\#*
+*.bak
+*.html
+.idea/
+*.iml
+cip/*.html
+cip/*.pdf
+target/
+out/
+.DS_Store
+.DS_Store/
+.cache*
+.classpath
+.project
+.settings/

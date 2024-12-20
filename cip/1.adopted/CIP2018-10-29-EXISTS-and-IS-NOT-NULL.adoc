@@ -1,0 +1,142 @@
+= CIP2018-10-29 EXISTS and IS NOT NULL
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Satia Herfert satia.herfert@neo4j.com
+
+[abstract]
+.Abstract
+--
+This CIP limits the scope of `EXISTS` to existential subqueries and removes the syntax for property existence check.
+This check is enabled by `IS NOT NULL`.
+It changes the syntax of existence constraints to be aligned with that removal.
+--
+
+toc::[]
+
+
+== Motivation
+
+The current Cypher syntax allows two different ways to express a property existence check.
+This is redundant.
+Moreover, the syntax to check for property existence with `EXISTS` looks like a function call, while it really behaves like a special operator.
+This may lead to confusion with respect to behavior when it comes to `NULL` values.
+
+== Background
+
+<<CIP2015-05-13-EXISTS.adoc,CIP2015-05-13>> specifies that `exists(expr)` and `expr IS NOT NULL` behave the same.
+It also specified that `exists(expr)` should never return `NULL`.
+
+This definition is sound, but may lead to confusion given that the syntax looks like a function call, and function calls behave differently for `NULL` values.
+In Cypher, functions are generally `NULL`-in-`NULL`-out.
+That means, if any of the arguments to a function is `NULL`, the return value is also `NULL`.
+
+Consider this example:
+[source, cypher]
+----
+OPTIONAL MATCH (a:DoesNotExist)
+RETURN exists(a.name)
+----
+According to the specification, and assuming no nodes with the label `DoesNotExist` exist, this will return `false`.
+However, users could expect this to return `NULL` instead, given that one argument to the apparent function was null (`a`).
+
+To clear out this confusion, this CIP proposes to remove the syntax of `EXISTS` for property existence checks and use only `IS NOT NULL` for this purpose.
+`IS NOT NULL` does not look like a function call and therefore it is unlikely that someone would expect it to behave like one.
+
+In addition, this CIP proposes to change the syntax for creating and dropping node and relationship property existence constraints.
+To be aligned with using `IS NOT NULL` for existence checks, creating a node property existence constraint, for example, will look like this:
+[source, cypher]
+----
+CREATE CONSTRAINT ON (p:Person)
+       ASSERT p.name IS NOT NULL
+----
+
+== Proposal
+
+Firstly, this CIP proposes to redefine the syntax for `EXISTS`, previously defined in <<CIP2015-05-13-EXISTS.adoc,CIP2015-05-13>>.
+It removes  the syntax of `EXISTS` for property existence checks.
+
+Secondly, this CIP proposes to redefine the syntax for node and relationship property existence constraints.
+The current syntax is not specified in any CIP, but mentioned in the <<../../docs/,standardisation scope>>.
+It is also encoded in the <<../../grammar/commands.xml,grammar for commands>>.
+
+=== Syntax
+
+Syntax for `EXISTS`:
+[source, ebnf]
+----
+expression = <current definition of expression>
+           | subquery exists
+           | simple subquery exists
+           ;
+
+subquery exists = "EXISTS", "{", read only clause, { read only clause }, "}" ;
+
+simple subquery exists = "EXISTS", "{", simple match, "}" ;
+
+simple match = pattern, { ",", pattern }, [ "WHERE", predicate ] ;
+
+read only clause = match
+                 | unwind
+                 | with
+                 ;
+----
+
+Syntax for property existence constraints:
+[source, ebnf]
+----
+CreateNodePropertyExistenceConstraint = "CREATE", NodePropertyExistenceConstraint ;
+
+CreateRelPropertyExistenceConstraint = "CREATE", RelPropertyExistenceConstraint ;
+
+DropNodePropertyExistenceConstraint = "DROP", NodePropertyExistenceConstraint ;
+
+DropRelPropertyExistenceConstraint = "DROP", RelPropertyExistenceConstraint ;
+
+NodePropertyExistenceConstraint = "CONSTRAINT ON", "(", Variable, NodeLabel, ")",
+                                  "ASSERT", PropertyExpression, "IS NOT NULL" ;
+
+RelPropertyExistenceConstraint = "CONSTRAINT ON", "(", RelationshipPatternSyntax, ")",
+                                 "ASSERT", PropertyExpression, "IS NOT NULL" ;
+----
+
+The production rules for `Variable`, `NodeLabel`, `PropertyExpression`, and `RelationshipPatternSyntax` are unchanged.
+The definitions can be found in the <<../../grammar/commands.xml,grammar for commands>> and the <<../../grammar/basic-grammar.xml,basic grammar>>
+
+=== Semantics
+
+None of the semantics specified in <<CIP2015-05-13-EXISTS.adoc,CIP2015-05-13>> are changed by this proposal.
+
+=== Interaction with existing features
+
+Property existence checks can be achieved with `IS NOT NULL`.
+
+=== Alternatives
+
+One alternative would be to redefine `EXISTS` for property existence checks with a different, function unalike, syntax instead.
+This could allow keeping the idiomatic use of `EXISTS` for property existence, while avoiding the confusion with function call semantics.
+The syntax could be defined as follows. The semantics would be unchanged and equivalent to `IS NOT NULL`.
+
+[source, ebnf]
+----
+
+property exists = "EXISTS", expression;
+----
+
+== What others do
+
+In SQL the `EXISTS` predicate is binary.
+That means, just as in Cypher, it can never return `NULL` values.
+
+== Benefits to this proposal
+
+* The confusion that `EXISTS` could have function call semantics is lifted.
+* Redundant syntax for property existence checks is removed.
+
+
+== Caveats to this proposal
+
+* The idiomatic syntax for property existence checks is removed.
+* The syntax for creating and dropping node and relationship property existence constraints needs to be changed as well, to be aligned with the other syntax changes.

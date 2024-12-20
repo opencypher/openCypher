@@ -1,0 +1,1646 @@
+# openCypher program
+
+<program> ::= 
+    <program activity>
+  | <standalone procedure call>
+
+<program activity> ::= 
+  <procedure specification>
+
+<procedure specification> ::= 
+  <statement block>
+
+<statement block> ::= 
+  <statement>
+
+<statement> ::= 
+  <composite statement>
+
+<composite statement> ::= 
+  <linear statement> [ { <composite conjunction> <linear statement> }... ]
+
+<composite conjunction> ::= 
+  UNION [ DISTINCT ]
+
+<linear statement> ::= 
+  <simple statement chain>
+
+<simple statement chain> ::= 
+    <primitive statement chain> [ <with statement chain>... ] [ <primitive result statement> ]
+  | <with statement chain>... [ <primitive result statement> ]
+  | <primitive result statement>
+
+<primitive statement chain> ::= 
+  <primitive statement>...
+
+<with statement chain> ::= 
+  <with statement> [ <primitive statement>... ]
+
+<primitive statement> ::= 
+    <primitive query statement>
+  | <primitive data update statement>
+  | <call procedure statement>
+
+# Query statements
+
+<primitive query statement> ::= 
+    <match statement>
+  | <for or unwind statement>
+
+<match statement> ::= 
+    <optional match statement>
+  | <simple match statement>
+
+<optional match statement> ::= 
+  OPTIONAL <optional match operand> 
+
+<optional match operand> ::= 
+  <simple match statement>
+
+<simple match statement> ::= 
+  MATCH <graph pattern binding table>
+
+<for or unwind statement> ::= 
+  <unwind statement>
+
+<unwind statement> ::= 
+  UNWIND <value expression> AS <binding variable>
+
+# Data update statements
+
+## <primitive data update statement>
+
+<primitive data update statement> ::= 
+    <create statement>
+  | <merge statement>
+  | <set statement>
+  | <remove statement>
+  | <delete statement>
+
+<static property expression> ::= 
+  <value expression> <static property reference>
+
+<dynamic property expression> ::= 
+  <value expression> <dynamic element reference>
+
+## <create statement>
+
+<create statement> ::= 
+  CREATE <create graph pattern>
+
+## <merge statement>
+
+<merge statement> ::= 
+  MERGE <merge graph pattern> <merge action>
+
+<merge action> ::= 
+  ON { MATCH | CREATE } <set statement>
+
+## <set statement>
+
+<set statement> ::= 
+  SET <set item list>
+
+<set item list> ::= 
+  <set item> [ { <comma> <set item> }... ]
+
+<set item> ::= 
+    <set property item>
+  | <set dynamic property item>
+  | <set all properties item>
+  | <add all properties item>
+  | <set labels item>
+
+<set property item> ::= 
+  <static property expression> <equals operator> <value expression>
+
+<set dynamic property item> ::= 
+  <dynamic property expression> <equals operator> <value expression>
+
+<set all properties item> ::= 
+  <binding variable reference> <equals operator> <value expression>
+
+<add all properties item> ::= 
+  <binding variable reference> <plus equals> <value expression>
+
+<set labels item> ::= 
+  <binding variable reference> <node label set specification for set and remove>
+
+## <remove statement>
+
+<remove statement> ::= 
+  REMOVE <remove item list>
+
+<remove item list> ::= 
+  <remove item> [ { <comma> <remove item> }... ]
+
+<remove item> ::= 
+    <remove property item>
+  | <remove dynamic property item>
+  | <remove labels item>
+
+<remove property item> ::= 
+  <static property expression>
+
+<remove dynamic property item> ::= 
+  <dynamic property expression>
+
+<remove labels item> ::= 
+  <binding variable reference> <node label set specification for set and remove>
+
+## <delete statement>
+
+<delete statement> ::= 
+  [ DETACH ] DELETE <delete item list>
+
+<delete item list> ::= 
+  <delete item> [ { <comma> <delete item> }... ]
+
+<delete item> ::= 
+  <value expression>
+
+# Call procedure statement
+
+<call procedure statement> ::= 
+  CALL <procedure call>
+
+<procedure call> ::= 
+  <named procedure call>
+
+<named procedure call> ::= 
+  <procedure reference> <explicit procedure arguments> [ <yield clause> ]
+
+<standalone procedure call> ::= 
+  <procedure reference> [ <explicit procedure arguments> ] [ <standalone procedure call yield clause> ]
+
+<explicit procedure arguments> ::= 
+  <left paren> [ <procedure argument list> ] <right paren>
+
+<procedure argument list> ::= 
+  <procedure argument> [ { <comma> <procedure argument> }... ]
+
+<procedure argument> ::= 
+  <value expression>
+
+<yield clause> ::= 
+  YIELD <yield item list> [ <where clause> ]
+
+<standalone procedure call yield clause> ::= 
+  YIELD { <yield item list> | <asterisk> }
+
+<yield item list> ::= 
+  <yield item> [ { <comma> <yield item> }... ]
+
+<yield item> ::= 
+  <yield item name> [ <yield item alias> ]
+
+<yield item name> ::= 
+  <field name>
+
+<yield item alias> ::= 
+  AS <binding variable>
+
+# Result statements
+
+## <primitive result statement>
+
+<primitive result statement> ::= 
+  <return statement>
+
+## <return statement>
+
+<return statement> ::= 
+  RETURN <return statement body> [ <order by and page clause> ]
+
+<return statement body> ::= 
+  [ <set quantifier> ] <return item list>
+
+<return item list> ::= 
+  { <asterisk> | <return item> } [ { <comma> <return item> }... ]
+
+<return item> ::= 
+  <value expression> [ <return item alias> ]
+
+<return item alias> ::= 
+  AS <identifier>
+
+<set quantifier> ::= 
+  DISTINCT 
+
+## <with statement>
+
+<with statement> ::= 
+  WITH <return statement body> [ <order by and page clause> ] [ <where clause> ]
+
+## <order by and page clause>
+
+<order by and page clause> ::= 
+    <order by clause> [ <offset clause> ] [ <limit clause> ]
+  | <offset clause> [ <limit clause> ]
+  | <limit clause>
+
+<order by clause> ::= 
+  ORDER BY <sort specification list>
+
+<sort specification list> ::= 
+  <sort specification> [ { <comma> <sort specification> }... ]
+
+<sort specification> ::= 
+  <sort key> [ <ordering specification> ] 
+
+<sort key> ::= 
+  <value expression>
+
+<ordering specification> ::= 
+    <ascending order>
+  | <descending order>
+
+<ascending order> ::= 
+    ASC
+  | ASCENDING
+
+<descending order> ::= 
+    DESC
+  | DESCENDING
+
+<offset clause> ::= 
+  <offset synonym> <value expression>
+
+<offset synonym> ::= 
+  SKIP 
+
+<limit clause> ::= 
+  LIMIT <value expression>
+
+# Common elements
+
+## <graph pattern binding table>
+
+<graph pattern binding table> ::= 
+  <graph pattern> 
+
+## <where clause>
+
+<where clause> ::= 
+  WHERE <predicate>
+
+# Patterns
+
+## Query patterns
+
+### <graph pattern>
+
+<graph pattern> ::= 
+  <path pattern list> [ <graph pattern where clause> ]
+
+<path pattern list> ::= 
+  <path pattern> [ { <comma> <path pattern> }... ]
+
+<graph pattern where clause> ::= 
+  <where clause>
+
+<path pattern> ::= 
+  [ <path variable declaration> ] <path pattern expression>
+
+<path variable declaration> ::= 
+  <binding variable> <equals operator>
+
+### <path pattern expression>
+
+<simple path pattern> ::= 
+  <node pattern> { <relationship pattern> <node pattern> }...
+
+<path pattern expression> ::= 
+    <path term>
+  | <left paren> <path term> <right paren>
+  | <legacy shortest path pattern>
+
+<legacy shortest path pattern> ::= 
+  { SHORTESTPATH | ALLSHORTESTPATHS } <left paren> <path term> <right paren>
+
+<path term> ::= 
+    <path factor>
+  | <path term> <path factor> 
+
+<path factor> ::= 
+  <path primary>
+
+<path primary> ::= 
+  <element pattern>
+
+### <element pattern>
+
+<element pattern> ::= 
+    <node pattern>
+  | <relationship pattern>
+
+<node pattern> ::= 
+  <left paren> [ <node pattern filler> ] <right paren>
+
+<node pattern filler> ::= 
+    <binding variable> [ <is node label expression> ] [ <element pattern predicate> ]
+  | <is node label expression> [ <element pattern predicate> ]
+  | <element pattern predicate>
+
+<element pattern predicate> ::= 
+  <element property specification>
+
+<element property specification> ::= 
+  <left brace> <property key value pair list> <right brace>
+
+<property key value pair list> ::= 
+  <property key value pair> [ { <comma> <property key value pair> }... ]
+
+<property key value pair> ::= 
+  <property name> <colon> <value expression>
+
+<relationship pattern> ::= 
+  <full relationship pattern> 
+
+<full relationship pattern> ::= 
+    <full relationship pointing left>
+  | <full relationship pointing right>
+  | <full relationship left or right>
+  | <full relationship any direction>
+
+<full relationship pointing left> ::= 
+  <left arrowhead> <arrow line> [ <left bracket> [ <relationship pattern filler> ] <right bracket> ] <arrow line>
+
+<full relationship pointing right> ::= 
+  <arrow line> [ <left bracket> [ <relationship pattern filler> ] <right bracket> ] <arrow line> <right arrowhead>
+
+<full relationship left or right> ::= 
+  <left arrowhead> <arrow line> [ <left bracket> [ <relationship pattern filler> ] <right bracket> ] <arrow line> <right arrowhead>
+
+<full relationship any direction> ::= 
+  <arrow line> [ <left bracket> [ <relationship pattern filler> ] <right bracket> ] <arrow line>
+
+<left arrowhead> ::= 
+  <left angle bracket> 
+
+<arrow line> ::= 
+  <minus sign> 
+
+<right arrowhead> ::= 
+  <right angle bracket> 
+
+<relationship pattern filler> ::= 
+    <binding variable> [ <is relationship label expression> ] [ <path length> ] [ <element pattern predicate> ]
+  | <is relationship label expression> [ <path length> ] [ <element pattern predicate> ]
+  | <path length> [ <element pattern predicate> ]
+  | <element pattern predicate>
+
+<path length> ::= 
+  <asterisk> [ <lower and upper bound path length> | <fixed path length> ]
+
+<lower and upper bound path length> ::= 
+  [ <lower bound path length> ] <double period> [ <upper bound path length> ]
+
+### Path length bounds
+
+<lower bound path length> ::= 
+  <unsigned decimal integer>
+
+<upper bound path length> ::= 
+  <unsigned decimal integer>
+
+<fixed path length> ::= 
+  <unsigned decimal integer>
+
+## Data update patterns
+
+### <create graph pattern>
+
+<create graph pattern> ::= 
+  <create path pattern list>
+
+<create path pattern list> ::= 
+  <create path pattern> [ { <comma> <create path pattern> }... ]
+
+<create path pattern> ::= 
+  [ <path variable declaration> ] <create node pattern> [ { <create relationship pattern> <create node pattern> }... ]
+
+<create node pattern> ::= 
+  <left paren> [ <create node pattern filler> ] <right paren>
+
+<create relationship pattern> ::= 
+    <create relationship pointing left>
+  | <create relationship pointing right>
+
+<create relationship pointing left> ::= 
+  <left arrowhead> <arrow line> <left bracket> <create relationship pattern filler> <right bracket> <arrow line>
+
+<create relationship pointing right> ::= 
+  <arrow line> <left bracket> <create relationship pattern filler> <right bracket> <arrow line> <right arrowhead>
+
+<create node pattern filler> ::= 
+    <binding variable> [ <create node label and property set specification> ]
+  | [ <binding variable> ] <create node label and property set specification>
+
+<create relationship pattern filler> ::= 
+  [ <binding variable> ] <create relationship label and property set specification>
+
+<create node label and property set specification> ::= 
+    <create node label set specification> [ <create element property specification> ]
+  | [ <create node label set specification> ] <create element property specification>
+
+<create relationship label and property set specification> ::= 
+  <relationship label specification> [ <create element property specification> ]
+
+<create node label set specification> ::= 
+  <node label set specification for create and merge>
+
+<create element property specification> ::= 
+    <element property specification>
+  | <general parameter reference>
+
+### <merge graph pattern>
+
+<merge graph pattern> ::= 
+  <merge path pattern>
+
+<merge path pattern> ::= 
+  [ <path variable declaration> ] <merge node pattern> [ { <merge relationship pattern> <merge node pattern> }... ]
+
+<merge node pattern> ::= 
+  <left paren> [ <merge node pattern filler> ] <right paren>
+
+<merge relationship pattern> ::= 
+    <merge relationship pointing left>
+  | <merge relationship pointing right>
+
+<merge relationship pointing left> ::= 
+  <left arrowhead> <arrow line> <left bracket> <merge relationship pattern filler> <right bracket> <arrow line>
+
+<merge relationship pointing right> ::= 
+  <arrow line> <left bracket> <merge relationship pattern filler> <right bracket> <arrow line> <right arrowhead>
+
+<merge node pattern filler> ::= 
+    <binding variable> [ <merge node label and property set specification> ]
+  | [ <binding variable> ] <merge node label and property set specification>
+
+<merge relationship pattern filler> ::= 
+  [ <binding variable> ] <merge relationship label and property set specification>
+
+<merge node label and property set specification> ::= 
+    <merge node label set specification> [ <merge element property specification> ]
+  | [ <merge node label set specification> ] <merge element property specification>
+
+<merge relationship label and property set specification> ::= 
+  <relationship label specification> [ <merge element property specification> ]
+
+<merge node label set specification> ::= 
+  <node label set specification for create and merge>
+
+<merge element property specification> ::= 
+  <element property specification>
+
+# Label expressions
+
+## Prefixed label expression
+
+<is node label expression> ::= 
+  <colon> <label name> [ { <colon> <label name> }... ]
+
+<is relationship label expression> ::= 
+  <colon> <label name> [ { <vertical bar> [ <colon> ] <label name> }... ]
+
+<is label expression> ::= 
+  <is node label expression>
+
+## Node label set specifications
+
+<node label set specification for create and merge> ::= 
+  { <colon> <label name> }...
+
+<node label set specification for set and remove> ::= 
+  { <colon> <label name> }...
+
+## Relationship label specifications
+
+<relationship label specification> ::= 
+  <colon> <label name>
+
+# Catalog references
+
+<graph reference> ::= 
+  [ <catalog object parent reference> ] <graph name>
+
+<procedure reference> ::= 
+  [ <catalog object parent reference> ] <procedure name>
+
+<function reference> ::= 
+  [ <catalog object parent reference> ] <function name>
+
+<catalog object parent reference> ::= 
+  { <object name> <period> }...
+
+# Expressions
+
+## <value expression>
+
+<value expression> ::= 
+   <boolean value expression>
+
+## <boolean value expression>
+
+<boolean value expression> ::= 
+    <boolean term xor>
+  | <boolean value expression> OR <boolean term xor>
+
+<boolean term xor> ::= 
+    <boolean term>
+  | <boolean term xor> XOR <boolean term>
+
+<boolean term> ::= 
+    <boolean factor>
+  | <boolean term> AND <boolean factor>
+
+<boolean factor> ::= 
+  [ { NOT }... ] <boolean primary>
+
+<boolean primary> ::= 
+    <pattern expression>
+  | <predicate>
+
+## <predicate>
+
+<predicate> ::= 
+  <comparison predicate>
+
+<comparison predicate> ::= 
+  <simple comparison predicand> [ <simple comparison predicate part 2>... ] 
+
+<simple comparison predicand> ::= 
+  <advanced comparison predicand> [ <advanced comparison predicate part 2> ]
+
+<simple comparison predicate part 2> ::= 
+  <simple comp op> <advanced comparison predicand>
+
+<simple comp op> ::= 
+    <equals operator>
+  | <not equals operator>
+  | <less than operator>
+  | <greater than operator>
+  | <less than or equals operator>
+  | <greater than or equals operator>
+
+<advanced comparison predicand> ::= 
+  <arithmetic value expression>
+
+<advanced comparison predicate part 2> ::= 
+    <advanced comp op> <advanced comparison predicand>
+  | <value type predicate part 2>
+  | <null predicate part 2>
+  | <normalized predicate part 2>
+  | <is labeled predicate part 2>
+
+<advanced comp op> ::= 
+    <contains operator>
+  | <in operator>
+  | <regex equals operator>
+  | <start with operator>
+  | <end with operator>
+
+<null predicate part 2> ::= 
+  IS [ NOT ] NULL
+
+<value type predicate part 2> ::= 
+  { IS [ NOT ] { <double colon> | TYPED } | <double colon> } <value type>
+
+<string and list comparison> ::= 
+  <regex equals operator>
+
+<start with operator> ::= 
+  STARTS WITH
+
+<end with operator> ::= 
+  ENDS WITH
+
+<contains operator> ::= 
+  CONTAINS
+
+<in operator> ::= 
+  IN
+
+<is labeled predicate part 2> ::= 
+  <is label expression>
+
+## <arithmetic value expression>
+
+<arithmetic value expression> ::= 
+    <arithmetic term>
+  | <arithmetic value expression> <plus sign> <arithmetic term>
+  | <arithmetic value expression> <minus sign> <arithmetic term>
+
+<arithmetic term> ::= 
+    <arithmetic factor>
+  | <arithmetic term> <asterisk> <arithmetic factor>
+  | <arithmetic term> <solidus> <arithmetic factor>
+  | <arithmetic term> <percent> <arithmetic factor> 
+
+<arithmetic factor> ::= 
+    <arithmetic unary>
+  | <arithmetic factor> <circumflex> <arithmetic unary> 
+
+<arithmetic unary> ::= 
+  [ <sign> ] <postfix expression>
+
+## <postfix expression>
+
+<postfix expression> ::= 
+    <value expression primary>
+  | <postfix expression> <postfix operator>
+
+<postfix operator> ::= 
+    <static property reference>
+  | <dynamic element reference>
+  | <slicing>
+
+<static property reference> ::= 
+  <period> <property name>
+
+<dynamic element reference> ::= 
+  <left bracket> <value expression> <right bracket>
+
+<slicing> ::= 
+  <left bracket> [ <slicing from> ] <double period> [ <slicing to> ] <right bracket>
+
+<slicing from> ::= 
+  <value expression>
+
+<slicing to> ::= 
+  <value expression>
+
+## <value expression primary>
+
+<value expression primary> ::= 
+    <parenthesized value expression>
+  | <non-parenthesized value expression primary>
+
+<parenthesized value expression> ::= 
+  <left paren> <value expression> <right paren>
+
+<non-parenthesized value expression primary> ::= 
+    <general parameter reference>
+  | <case expression>
+  | <count star>
+  | <exists expression>
+  | <map projection>
+  | <list comprehension>
+  | <pattern comprehension>
+  | <reduce expression>
+  | <quantifier expression>
+  | <trim function>
+  | <shortest path expression>
+  | <function invocation>
+  | <value specification>
+  | <binding variable reference>
+
+## <value specification>
+
+<value specification> ::= 
+    <literal>
+  | <general parameter reference>
+  | <list value constructor>
+  | <map value constructor>
+
+<list value constructor> ::= 
+   <left bracket> [ <list element list> ] <right bracket>
+
+<list element list> ::= 
+  <value expression> [ { <comma> <value expression> }... ]
+
+<map value constructor> ::= 
+  <record value constructor>
+
+<record value constructor> ::= 
+   <fields specification>
+
+<fields specification> ::= 
+  <left brace> [ <field list> ] <right brace>
+
+<field list> ::= 
+  <field> [ { <comma> <field> }... ]
+
+<field> ::= 
+  <field name> <colon> <value expression>
+
+## <case expression>
+
+<case expression> ::= 
+    <simple case>
+  | <search case>
+
+<simple case> ::= 
+  CASE <case operand> <simple when clause>... [ <else clause> ] END
+
+<search case> ::= 
+  CASE <searched when clause>... [ <else clause> ] END
+
+<simple when clause> ::= 
+  WHEN <when operand list> THEN <value expression>
+
+<searched when clause> ::= 
+  WHEN <value expression> THEN <value expression>
+
+<case operand> ::= 
+  <value expression>
+
+<when operand list> ::= 
+  <when operand> [ { <comma> <when operand> }... ]
+
+<when operand> ::= 
+  <value expression>
+
+<else clause> ::= 
+  ELSE <value expression>
+
+## Subqueries
+
+<exists expression> ::= 
+  EXISTS <left brace> <subquery expression argument> <right brace>
+
+<subquery expression argument> ::= 
+    <procedure specification>
+  | <graph pattern>
+
+## Map projection, comprehensions, reduce, and quantifiers
+
+<map projection> ::= 
+  <binding variable> <left brace> [ <map projection element list> ] <right brace>
+
+<map projection element list> ::= 
+  <map projection element> [ { <comma> <map projection element> }... ]
+
+<map projection element> ::= 
+    <literal map field>
+  | <field selector>
+  | <variable selector>
+  | <all fields selector>
+
+<list comprehension> ::= 
+  <left bracket> <list element source> [ <list element filter and projection> ] <right bracket>
+
+<list element filter and projection> ::= 
+    [ <list element filter> ] <list element projection>
+  | <list element filter>
+
+<list element source> ::= 
+  <binding variable> IN <value expression>
+
+<list element filter> ::= 
+  WHERE <value expression>
+
+<list element projection> ::= 
+  <vertical bar> <value expression>
+
+<pattern comprehension> ::= 
+  <left bracket> <pattern source> <pattern filter and projection> <right bracket>
+
+<pattern source> ::= 
+  [ <binding variable> <equals operator> ] <simple path pattern>
+
+<pattern filter and projection> ::= 
+  [ <pattern filter> ] <pattern projection>
+
+<pattern filter> ::= 
+  WHERE <value expression>
+
+<pattern projection> ::= 
+  <vertical bar> <value expression>
+
+<reduce expression> ::= 
+  REDUCE <left paren> <reduce accumulator initialization> <comma> <reduce element source> <reduce step> <right paren>
+
+<reduce accumulator initialization> ::= 
+  <binding variable> <equals operator> <value expression>
+
+<reduce element source> ::= 
+  <binding variable> IN <value expression>
+
+<reduce step> ::= 
+  <vertical bar> <value expression>
+
+<literal map field> ::= 
+  <property name> <colon> <value expression>
+
+<field selector> ::= 
+  <static property reference>
+
+<variable selector> ::= 
+  <binding variable>
+
+<all fields selector> ::= 
+  <period> <asterisk>
+
+<quantifier expression> ::= 
+  <quantifier> <left paren> <quantifier element source> [ <quantifier element predicate> ] <right paren>
+
+<quantifier> ::= 
+    ALL
+  | ANY
+  | SINGLE
+  | NONE
+
+<quantifier element source> ::= 
+  <binding variable> IN <value expression>
+
+<quantifier element predicate> ::= 
+  WHERE <value expression>
+
+## <trim function>
+
+<trim function> ::= 
+  <single-character trim function> 
+
+<single-character trim function> ::= 
+  TRIM <left paren> <trim source> <right paren>
+
+<trim source> ::= 
+  <value expression>
+
+## <function invocation>
+
+<function invocation> ::= 
+  <function reference> <left paren> [ DISTINCT | ALL ] [ <function argument list> ] <right paren>
+
+<function argument list> ::= 
+  <function argument> [ { <comma> <function argument> }... ]
+
+<function argument> ::= 
+  <value expression>
+
+## Other expressions
+
+<count star> ::= 
+  COUNT <left paren> <asterisk> <right paren>
+
+<pattern expression> ::= 
+  <simple path pattern>
+
+<shortest path expression> ::= 
+  <legacy shortest path pattern>
+
+# Value specifications
+
+<map value or parameter specification> ::= 
+    <map value constructor>
+  | <general parameter reference>
+
+# Basics
+
+## Names and variables
+
+<parameter name> ::= 
+  <separated identifier>
+
+<label name> ::= 
+  <identifier>
+
+<property name> ::= 
+  <identifier>
+
+<field name> ::= 
+  <identifier>
+
+<binding variable reference> ::= 
+  <binding variable>
+
+<binding variable> ::= 
+  <identifier> 
+
+<object name> ::= 
+  <identifier>
+
+<graph name> ::= 
+  <identifier>
+
+<procedure name> ::= 
+  <identifier>
+
+<function name> ::= 
+  <identifier>
+
+<index name> ::= 
+  <identifier>
+
+<constraint name> ::= 
+  <identifier>
+
+## <literal>
+
+<literal> ::= 
+    <signed numeric literal>
+  | <general literal>
+
+<unsigned literal> ::= 
+     <unsigned numeric literal>
+  | <general literal>
+
+<general literal> ::= 
+    <boolean literal>
+  | <character string literal>  
+  | <null literal>
+  | <list literal>
+  | <map literal>
+
+<boolean literal> ::= 
+    TRUE
+  | FALSE 
+
+<character string literal> ::= 
+    <single quoted character sequence>
+  | <double quoted character sequence>
+
+<single quoted character sequence> ::= 
+   <unbroken single quoted character sequence>
+
+<double quoted character sequence> ::= 
+   <unbroken double quoted character sequence>
+
+<accent quoted character sequence> ::= 
+   <unbroken accent quoted character sequence>
+
+<unbroken single quoted character sequence> ::= 
+  <quote> [ <single quoted character representation>... ] <quote>
+
+<unbroken double quoted character sequence> ::= 
+  <double quote> [ <double quoted character representation>... ] <double quote>
+
+<unbroken accent quoted character sequence> ::= 
+  <grave accent> [ <accent quoted character representation>... ] <grave accent>
+
+<single quoted character representation> ::= 
+    any character but: \, '
+  | <double single quote>
+  | <escaped character>
+
+<double quoted character representation> ::= 
+    any character but: \, "
+  | <double double quote>
+  | <escaped character>
+
+<accent quoted character representation> ::= 
+    any character but: \, `
+  | <double grave accent>
+  | <escaped character>
+
+<double single quote> ::= 
+  <quote> <quote>
+
+<double double quote> ::= 
+  <double quote> <double quote>
+
+<double grave accent> ::= 
+  <grave accent> <grave accent>
+
+<escaped character> ::= 
+    <escaped reverse solidus>
+  | <escaped quote>
+  | <escaped double quote>
+  | <escaped grave accent>
+  | <escaped tab>
+  | <escaped backspace>
+  | <escaped newline>
+  | <escaped carriage return>
+  | <escaped form feed>
+  | <unicode escape value>
+
+<escaped reverse solidus> ::= 
+  <reverse solidus> <reverse solidus>
+
+<escaped quote> ::= 
+  <reverse solidus> <quote>
+
+<escaped double quote> ::= 
+  <reverse solidus> <double quote>
+
+<escaped grave accent> ::= 
+  <reverse solidus> <grave accent>
+
+<escaped tab> ::= 
+  <reverse solidus> t
+
+<escaped backspace> ::= 
+  <reverse solidus> b
+
+<escaped newline> ::= 
+  <reverse solidus> n
+
+<escaped carriage return> ::= 
+  <reverse solidus> r
+
+<escaped form feed> ::= 
+  <reverse solidus> f
+
+<unicode escape value> ::= 
+    <unicode 4 digit escape value>
+  | <unicode 6 digit escape value>
+
+<unicode 4 digit escape value> ::= 
+  <reverse solidus> u <hex digit> <hex digit> <hex digit> <hex digit>
+
+<unicode 6 digit escape value> ::= 
+  <reverse solidus> U <hex digit> <hex digit> <hex digit> <hex digit> <hex digit> <hex digit>
+
+<signed numeric literal> ::= 
+  [ <minus sign> ] <unsigned numeric literal>
+
+<sign> ::= 
+    <plus sign>
+  | <minus sign>
+
+<unsigned numeric literal> ::= 
+    <exact numeric literal>
+  | <approximate numeric literal>
+
+<exact numeric literal> ::= 
+  <unsigned integer>
+
+<unsigned decimal in scientific notation> ::= 
+  <mantissa> <exponent indicator> <exponent>
+
+<exponent indicator> ::= 
+    E
+  | e
+
+<mantissa> ::= 
+    <unsigned decimal in common notation>
+  | <unsigned decimal integer>
+
+<exponent> ::= 
+  <signed decimal integer>
+
+<unsigned decimal in common notation> ::= 
+    <unsigned decimal integer> <period> [ <unsigned decimal integer> ]
+  | <period> <unsigned decimal integer>
+
+<unsigned integer> ::= 
+    <unsigned decimal integer>
+  | <unsigned hexadecimal integer>
+  | <unsigned octal integer> 
+
+<signed decimal integer> ::= 
+  [ <sign> ] <unsigned decimal integer>
+
+<unsigned decimal integer> ::= 
+  <digit> [ { [ <underscore> ] <digit> }... ]
+
+<unsigned hexadecimal integer> ::= 
+  { 0x | 0X } { [ <underscore> ] <hex digit> }...
+
+<unsigned octal integer> ::= 
+  0o { [ <underscore> ] <octal digit> }...
+
+<approximate numeric literal> ::= 
+    <unsigned decimal in scientific notation> [ <approximate number suffix> ]
+  | <unsigned decimal in common notation> <approximate number suffix> 
+  | INF
+  | INFINITY
+  | NAN
+
+<approximate number suffix> ::= 
+    F
+  | D
+  | f
+  | d
+
+<null literal> ::= 
+  NULL
+
+<list literal> ::= 
+   <left bracket> [ <list element list literal> ] <right bracket>
+
+<list element list literal> ::= 
+  <literal> [ { <comma> <literal> }... ]
+
+<map literal> ::= 
+  <record literal>
+
+<record literal> ::= 
+   <fields literal>
+
+<fields literal> ::= 
+  <left brace> [ <field list literal> ] <right brace>
+
+<field list literal> ::= 
+  <field literal> [ { <comma> <field literal> }... ]
+
+<field literal> ::= 
+  <field name> <colon> <literal>
+
+## <token>, <separator>, and <identifier>
+
+<token> ::= 
+    <delimiter token>
+  | <non-delimiter token>
+
+<non-delimiter token> ::= 
+    <regular identifier> 
+  | <general parameter reference>
+  | <keyword>
+  | <unsigned numeric literal>  
+
+<identifier> ::= 
+    <regular identifier>
+  | <delimited identifier>
+  | <non-reserved word> 
+
+<separated identifier> ::= 
+    <extended identifier>
+  | <delimited identifier>
+
+<non-delimited identifier> ::= 
+    <regular identifier>
+  | <extended identifier>
+
+<regular identifier> ::= 
+  <identifier start> [ <identifier extend>... ]
+
+<extended identifier> ::= 
+  <identifier extend>...
+
+<general parameter reference> ::= 
+  <dollar sign> <parameter name>
+
+<delimited identifier> ::= 
+  <accent quoted character sequence> 
+
+<identifier start> ::= 
+  unicode: XID_START
+
+<identifier extend> ::= 
+  unicode: XID_CONTINUE
+
+<keyword> ::= 
+    <non-reserved word>
+
+<non-reserved word> ::= 
+    ACCESS
+  | ACTIVE
+  | ADMIN
+  | ADMINISTRATOR
+  | ALIAS
+  | ALIASES
+  | ALLSHORTESTPATHS
+  | ALL
+  | ALTER
+  | AND
+  | ANY
+  | ARRAY
+  | AS
+  | ASC
+  | ASCENDING
+  | ASSERT
+  | ASSIGN
+  | AT
+  | BINDINGS
+  | BOOL
+  | BOOLEAN
+  | BOOSTED
+  | BOTH
+  | BREAK
+  | BRIEF
+  | BTREE
+  | BUILT
+  | BY
+  | CALL
+  | CASE
+  | CHANGE
+  | CIDR
+  | COLLECT
+  | COMMAND
+  | COMMANDS
+  | COMMIT
+  | COMPOSITE
+  | CONCURRENT
+  | CONSTRAINT
+  | CONSTRAINTS
+  | CONTAINS
+  | CONTINUE
+  | COPY
+  | COUNT
+  | CREATE
+  | CSV
+  | CURRENT
+  | DATA
+  | DATABASE
+  | DATABASES
+  | DATE
+  | DATETIME
+  | DBMS
+  | DEALLOCATE
+  | DEFAULT
+  | DEFINED
+  | DELETE
+  | DENY
+  | DESC
+  | DESCENDING
+  | DESTROY
+  | DETACH
+  | DIFFERENT
+  | DISTINCT
+  | DRIVER
+  | DROP
+  | DRYRUN
+  | DUMP
+  | DURATION
+  | EACH
+  | EDGE
+  | ELEMENT
+  | ELEMENTS
+  | ELSE
+  | ENABLE
+  | ENCRYPTED
+  | END
+  | ENDS
+  | ERROR
+  | EXECUTABLE
+  | EXECUTE
+  | EXIST
+  | EXISTENCE
+  | EXISTS
+  | FAIL
+  | FALSE
+  | FIELDTERMINATOR
+  | FINISH
+  | FLOAT
+  | FOREACH
+  | FOR
+  | FROM
+  | FULLTEXT
+  | FUNCTION
+  | FUNCTIONS
+  | GRANT
+  | GRAPH
+  | GRAPHS
+  | GROUP
+  | GROUPS
+  | HEADERS
+  | HOME
+  | IF
+  | IMMUTABLE
+  | IMPERSONATE
+  | IN
+  | INDEX
+  | INDEXES
+  | INF
+  | INFINITY
+  | INSERT
+  | INT
+  | INTEGER
+  | IS
+  | JOIN
+  | KEY
+  | LABEL
+  | LABELS
+  | LEADING
+  | LIMITROWS
+  | LIST
+  | LOAD
+  | LOCAL
+  | LOOKUP
+  | MATCH
+  | MANAGEMENT
+  | MAP
+  | MERGE
+  | NAME
+  | NAMES
+  | NAN
+  | NEW
+  | NFC
+  | NFD
+  | NFKC
+  | NFKD
+  | NODE
+  | NODETACH
+  | NODES
+  | NONE
+  | NORMALIZE
+  | NORMALIZED
+  | NOT
+  | NOTHING
+  | NOWAIT
+  | NULL
+  | OF
+  | ON
+  | ONLY
+  | OPTIONAL
+  | OPTIONS
+  | OPTION
+  | OR
+  | ORDER
+  | OUTPUT
+  | PASSWORD
+  | PASSWORDS
+  | PATH
+  | PATHS
+  | PERIODIC
+  | PLAINTEXT
+  | POINT
+  | POPULATED
+  | PRIMARY
+  | PRIMARIES
+  | PRIVILEGE
+  | PRIVILEGES
+  | PROCEDURE
+  | PROCEDURES
+  | PROPERTIES
+  | PROPERTY
+  | RANGE
+  | READ
+  | REALLOCATE
+  | REDUCE
+  | REL
+  | RELATIONSHIP
+  | RELATIONSHIPS
+  | REMOVE
+  | RENAME
+  | REPEATABLE
+  | REPLACE
+  | REPORT
+  | REQUIRE
+  | REQUIRED
+  | RETURN
+  | REVOKE
+  | ROLE
+  | ROLES
+  | ROW
+  | ROWS
+  | SCAN
+  | SEC
+  | SECOND
+  | SECONDS
+  | SECONDARIES
+  | SECONDARY
+  | SEEK
+  | SERVER
+  | SERVERS
+  | SET
+  | SETTING
+  | SETTINGS
+  | SHORTEST
+  | SHORTESTPATH
+  | SHOW
+  | SIGNED
+  | SINGLE
+  | SKIPROWS
+  | START
+  | STARTS
+  | STATUS
+  | STOP
+  | STRING
+  | SUPPORTED
+  | SUSPENDED
+  | TARGET
+  | TERMINATE
+  | TEXT
+  | THEN
+  | TIME
+  | TIMESTAMP
+  | TIMEZONE
+  | TO
+  | TOPOLOGY
+  | TRAILING
+  | TRANSACTION
+  | TRANSACTIONS
+  | TRAVERSE
+  | TRIM
+  | TRUE
+  | TYPE
+  | TYPED
+  | TYPES
+  | UNION
+  | UNIQUE
+  | UNIQUENESS
+  | UNWIND
+  | URL
+  | USE
+  | USER
+  | USERS
+  | USING
+  | VALUE
+  | VARCHAR
+  | VECTOR
+  | VERBOSE
+  | VERTEX
+  | WAIT
+  | WHEN
+  | WHERE
+  | WITH
+  | WITHOUT
+  | WRITE
+  | XOR
+  | YIELD
+  | ZONED
+
+<delimiter token> ::= 
+    <special character>  
+  | <character string literal>
+  | <concatenation operator>  
+  | <delimited identifier>
+  | <double colon>
+  | <double period> 
+  | <greater than operator>
+  | <greater than or equals operator>       
+  | <less than operator>
+  | <less than or equals operator>  
+  | <not equals operator>   
+  | <right double arrow>        
+
+<concatenation operator> ::= 
+  || !! <U+007C, U+007C>
+
+<double colon> ::= 
+  :: !! <U+003A, U+003A>
+
+<double period> ::= 
+  .. !! <U+002E, U+002E>
+
+<regex equals operator> ::= 
+  =~ !! <U+003D, U+007E>
+
+<greater than operator> ::= 
+  <right angle bracket>
+
+<greater than or equals operator> ::= 
+  >= !! <U+003E, U+003D>
+
+<less than operator> ::= 
+  <left angle bracket>
+
+<less than or equals operator> ::= 
+  <= !! <U+003C, U+003D>
+
+<not equals operator> ::= 
+  <> !! <U+003C, U+003E>
+
+<plus equals> ::= 
+  += !! <U+002B, U+003D>
+
+<right double arrow> ::= 
+  => !! <U+003D, U+003E>
+
+<separator> ::= 
+  unicode: WHITESPACE
+
+<edges synonym> ::= 
+    EDGES
+  | RELATIONSHIPS
+
+## Terminal characters
+
+<special character> ::= 
+    <ampersand>
+  | <asterisk>
+  | <colon>
+  | <equals operator>
+  | <comma> 
+  | <dollar sign>
+  | <double quote>
+  | <exclamation mark>
+  | <grave accent>
+  | <right angle bracket>
+  | <left brace>
+  | <left bracket>
+  | <left paren>
+  | <left angle bracket>
+  | <minus sign>
+  | <period>
+  | <plus sign>
+  | <question mark>
+  | <quote>
+  | <reverse solidus>
+  | <right brace>
+  | <right bracket>
+  | <right paren>
+  | <semicolon>
+  | <solidus>
+  | <underscore>
+  | <vertical bar>
+  | <circumflex>
+  | <percent> 
+
+<ampersand> ::= 
+  & !! U+0026
+
+<asterisk> ::= 
+  * !! U+002A
+
+<colon> ::= 
+  : !! U+003A
+
+<comma> ::= 
+  , !! U+002C
+
+<dollar sign> ::= 
+  $ !! U+0024
+
+<double quote> ::= 
+  " !! U+0022
+
+<equals operator> ::= 
+  = !! U+003D
+
+<exclamation mark> ::= 
+  ! !! U+0021
+
+<right angle bracket> ::= 
+  > !! U+003E
+
+<grave accent> ::= 
+  ` !! U+0060
+
+<left brace> ::= 
+  { !! U+007B
+
+<left bracket> ::= 
+  [ !! U+005B
+
+<left paren> ::= 
+  ( !! U+0028
+
+<left angle bracket> ::= 
+  < !! U+003C
+
+<minus sign> ::= 
+  - !! U+002D
+
+<percent> ::= 
+  % !! U+0025
+
+<period> ::= 
+  . !! U+002E
+
+<plus sign> ::= 
+  + !! U+002B
+
+<question mark> ::= 
+  ? !! U+003F
+
+<quote> ::= 
+  ' !! U+0027
+
+<reverse solidus> ::= 
+  \ !! U+005C
+
+<right brace> ::= 
+  } !! U+007D
+
+<right bracket> ::= 
+  ] !! U+005D
+
+<right paren> ::= 
+  ) !! U+0029
+
+<semicolon> ::= 
+  ; !! U+003B
+
+<solidus> ::= 
+  / !! U+002F
+
+<underscore> ::= 
+  _ !! U+005F
+
+<vertical bar> ::= 
+  | !! U+007C
+
+<circumflex> ::= 
+  ^ !! U+005E
+
+<hex digit> ::= 
+    <standard digit>
+  | A
+  | B
+  | C
+  | D
+  | E
+  | F
+  | a
+  | b
+  | c
+  | d
+  | e
+  | f
+
+<digit> ::= 
+  <standard digit> 
+
+<standard digit> ::= 
+    <octal digit>
+  | 8
+  | 9
+
+<octal digit> ::= 
+    <binary digit>
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+
+<binary digit> ::= 
+    0
+  | 1

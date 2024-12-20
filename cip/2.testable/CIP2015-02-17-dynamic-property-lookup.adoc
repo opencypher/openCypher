@@ -1,0 +1,126 @@
+CIP2015-02-17 Dynamic Property Lookup
+=====================================
+:Title: CIP2015-02-17-dynamic-property-lookup
+:Status: Accepted
+:Author: Stefan Plantikow
+:Email: <stefan.plantikow@neotechnology.com>
+:source-highlighter: pygments
+:toc: manual
+:toc-placement: macro
+
+== Abstract
+
+It has been requested by users to be able to look up the key of any map or entity (either a node or a relationship)
+using a dynamically computed String value as the key.  Currently Cypher does not provide this.  This CIP suggests the
+introduction of new syntax (`n["key"]``) to enable this.  Additionally, this CIP proposes adding a new function,
+`keys()` for returning the keys of any map or entity.
+
+toc::[]
+
+== Examples
+
+Return all distinct sets of property keys set on nodes with a given label.
+
+[source, cypher]
+----
+MATCH (a:Thing)
+RETURN DISTINCT keys(a) AS properties;
+----
+
+Return a property value based using a property key computed from another property value.
+
+[source, cypher]
+----
+MATCH (a)-[:IS_IN]->(c:Category)
+RETURN a, a["score_" + c.name] AS score ORDER BY score LIMIT 10;
+----
+
+Return all `:Setting` nodes where all property keys whose name starts with `flag` are true.
+
+[source, cypher]
+----
+MATCH (n:Setting) WHERE all([ key in keys(n) WHERE key =~ 'flag.*' | n[key] ])
+RETURN n;
+----
+
+Use dynamic key lookup with a map provided as parameter.
+
+[source, cypher]
+----
+MATCH (a) RETURN {param}[a.key]
+----
+
+Use dynamic key lookup with a map constructed during query execution.
+
+[source, cypher]
+----
+MATCH (a:Person {id: 1})-->(friend)
+OPTIONAL MATCH (friend)-->(foaf) WHERE foaf.city = "Berlin"
+WITH a, collect(foaf) AS berliners
+OPTIONAL MATCH (friend)-->(foaf) WHERE foaf.city = "London"
+WITH a, berliners, collect(foaf) AS londoners
+RETURN { berliners: berliners, londoners: londoners }[a.city]
+----
+
+== Syntax Changes
+
+Extend expressions to include dynamic key expressions:
+
+[source, ebnf]
+----
+expression = dynamic key lookup
+           | ? ... ?
+           ;
+
+dynamic key lookup = expression, "[", expression, "]"
+                   ;
+----
+
+Also, support the function `keys` which takes a single map-like argument and returns a collection of strings.
+
+== Semantics
+
+=== Semantics of dynamic key expressions
+
+Using a dynamic key expression like `<mapExpr>[<keyExpr>]` requires that `<mapExpr>` evaluates to a map or an entity,
+and that `<keyExpr>` evaluates to a string.  If this is not the case, a type error is produced either at compile time or
+at runtime.
+
+If this is given, evaluating `<mapExpr>[<keyExpr>]` first evaluates `keyExpr` to a string value (the key), and then
+evaluates `<mapExpr>` to a map-like value (the map).  Finally the result of `<mapExpr>[<keyExpr>]` is computed by
+performing a lookup of the key in the map.  If the key is found, the associated value becomes the result. If the key is
+not found, `<mapExpr>[<keyExpr>]` evaluates to `NULL`.
+
+Thus the result of evaluating `<mapExpr>[<keyExpr>]` can be any value (including `NULL`).
+
+=== Semantics of `keys` function
+
+`keys(m)` where `m` is a map returns a string collection of all the keys of `m`.
+
+`keys(e)` where `e` is an entity returns a string collection of all the property keys of `e`.
+
+`keys(NULL)` evaluates to `NULL`.
+
+Evaluating `keys` on any other type of value is a type error that may be raised at compile time or at runtime.
+
+=== Interaction with existing features
+
+Planning is more difficult in the presence of dynamic key expressions. It may be worthwhile to generate warnings when
+dynamic key expressions are used in a query.
+
+== Caveats
+
+Dynamic property lookup might entice users to encode information in property key names. This is bad practice as it
+interferes with planning, leads to unnatural data models, and might lead to exhausting the available property key id
+space.  This is addressed by issuing a warning when a query uses a dynamic property lookup with a dynamic property key
+name.
+
+== Alternatives
+
+* Microsoft SQL server supports running dynamically
+http://stackoverflow.com/questions/5637983/sql-select-dynamic-column-name-based-on-variable[computed SQL statements] ('EXEC'). This could be used to access
+columns dynamically though it would suffer from similar performance problems as what is proposed by this CIP
+
+* Maria DB uses special functions for working with https://mariadb.com/kb/en/mariadb/dynamic-columns[dynamic columns]
+
+* Do not add dynamic key expressions

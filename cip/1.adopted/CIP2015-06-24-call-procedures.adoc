@@ -1,0 +1,338 @@
+= CIP2015-06-24 Calling Procedures
+:numbered:
+:toc:
+:toclevels: 3
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Stefan Plantikow <stefan.plantikow@neotechnology.com>
+*Author:* Nigel Small <nigel.small@neotechnology.com>
+*Author:* Tobias Lindaaker <tobias.lindaaker@neotechnology.com>
+*Author:* Rickard Öberg <rickard.öberg@neotechnology.com>
+
+[abstract]
+.Abstract
+
+This proposal introduces procedures as a new concept to Cypher and proposes a new facility for calling them.
+
+User-defined functions are a separate concern that might be addressed in a future CIP.
+
+toc::[]
+
+== Motivation & Background
+
+While Cypher is a very expressive graph query language, its declarative nature and scope is currently not sufficient for expressing certain classes of graph traversals, such as traversals relying on using specialized data structures or accessing third-party functionality.
+
+This CIP proposes adding procedures to Cypher in order to address these issues.
+
+== Proposal
+
+This proposal consists of two parts, introducing procedures conceptually, and describing how to call them in a system that supports Cypher.
+
+=== Procedures
+
+A procedure has a name and takes a fixed number of named and typed arguments in a fixed sequence.
+A procedure produces a stream of result records and may potentially cause a side effect.
+
+Each record produced contains values for the same fixed number of named and typed result fields in the same fixed sequence such that each field value in a yielded record matches its field's type.
+
+Each result field may optionally be marked as *deprecated*.
+
+The name of a procedure, its argument names, and if applicable any result field names follow the same rules as other symbolic names in Cypher (like variables, labels, relationship types, and property keys).
+
+
+==== Procedure signatures
+
+The arguments of a procedure, their types, and their order are called its *argument signature*.
+
+The result fields of returned records, their types, their order, and their deprecation status are called its *result signature*.
+
+Together, the argument signature and the result signature form the (full) *signature* of a procedure.
+
+According to this definition, a procedure may take zero arguments and/or may produce records with zero result fields.
+
+==== Procedure signature notation
+
+This CIP suggests a standard notation for printing procedure names together with their signatures.
+This notation may be used in system monitoring, documentation and error reporting, and perhaps more importantly is to be used in future CIPs.
+It is based on the syntax for type annotations as specified by the Cypher type system:
+
+- Procedures returning a stream of records: `<procName>(arguments) :: (results)`
+- Arguments and results are written as comma-separated lists of `<name> :: <type>`
+- Deprecated results are prefixed with the keyword `DEPRECATED` (i.e. written as `DEPRECATED <name> :: <type>`)
+
+An actual implementation may choose to support a notion of default value for procedure arguments.
+For such a case, this CIP proposes that arguments with default values are written as `<name> = <value> :: <type>`.
+
+==== Procedure implementations
+
+For this proposal, it is assumed that the underlying graph database or graph processing system provides a set of concrete procedure implementations that are understood in terms of their full signatures.
+
+Procedure implementations may be written in different programming languages and provided with APIs for accessing the underlying graph database or graph processing system as appropriate.
+The details of procedure implementation and provisioning are outside the scope of this proposal.
+
+=== Procedure calls and invocations
+
+This proposal defines _calling a procedure_ as part of a Cypher statement (external, user-facing semantics) in terms of _invoking a procedure implementation_ (internal semantics) in the underlying graph database or graph processing system.
+
+==== Invoking procedure implementations
+
+A procedure implementation is invoked by providing values for all required arguments and then produces arbitrarily many result records in accordance with its signature.
+
+==== Calling procedures as part of a statement
+
+A procedure is called as part of a statement for each input record produced by a preceding clause.
+Each call is executed by invoking the concrete procedure implementation for the given procedure name using arguments derived by evaluating expressions over the input record and statement parameters.
+
+A call yields one record for each result record returned by invoking the concrete procedure implementation in the underlying graph database or graph processing system.
+
+A yielded record is formed by extending the current input record with new variable bindings.
+These new bindings are derived by evaluating result field projections over a given result record, the current input record, and statement parameters.
+
+Additionally, a call may also filter yielded records by a predicate.
+
+We propose new syntax that introduces a new clause for calling procedures in a Cypher statement.
+This clause for calling procedures starts with the `CALL` keyword.
+Next follows the actual call (i.e. procedure name and arguments in signature order).
+Finally the clause may end with the `YIELD` keyword followed by at least one or more chosen result field projections, and may be terminated by the `WHERE` keyword and a predicate for filtering of yielded records.
+
+A procedure call constitutes either an entire Cypher statement (i.e. is a "standalone call"), or is called as part of a larger statement (i.e. is an "in-statement call").
+In standalone calls, arguments may either be passed implicitly or explicitly.
+Standalone calls may alternatively end in `YIELD *`.
+These different calling modes are detailed in the following subsections.
+
+==== In-statement calls
+
+Calling a procedure as part of a larger statement follows three basic rules:
+
+- All arguments are always passed explicitly in the order given by the signature.
+- Result fields are projected and appended as new variable bindings explicitly in the order given in the `YIELD` subclause of the procedure call.
+- New variable bindings projected from result fields are not allowed to shadow existing variable bindings that are already in scope.
+
+These rules ensure that looking at a procedure call provides enough information to ascertain its impact on the variable scope in its part of the statement without having to be aware of any other previously bound variables.
+
+As a basic example, consider a call to the procedure `myProc(name``::``STRING?``,``id``::``INTEGER?)``::`` (last``::``STRING?)`:
+
+.Calling a procedure inside a larger statement
+[source, cypher]
+----
+MATCH (n:Person)-[r:IN]->(g:Group)
+CALL myProc(n.name, g.id * 1000 + r.id) YIELD last AS lastLogin
+RETURN *
+----
+
+This calls `myProc` for each input record produced by the preceding `MATCH` clause with a `name` argument obtained by evaluating `n.name` and an `id` argument obtained by evaluating `g.id * 1000 + r.id`.
+Each call results in invoking the concrete procedure implementation which may produce multiple procedure result records with a single result field `last`.
+For each of them, a new record is yielded that contains the original variables already in scope (i.e. `n`, `r`, `g`) as well as the projected result field `last` renamed as `lastLogin`.
+Omitting the `YIELD` subclause means that no new variable bindings are introduced into the scope.
+The procedure call will still affect the cardinality.
+This means that if the procedure returns 5 rows, the incoming row will be repeated 5 times.
+
+The `YIELD` subclause is _always_ omitted if the procedure returns only records with no result fields (i.e. has result signature `()`).
+
+==== Standalone calls
+
+Procedures may also be called standalone, i.e. without taking arguments from or combining their results with other parts of a larger statement.
+In this case, the trailing `RETURN` clause is omitted and all projected fields are implicitly returned by the query.
+
+Procedures may be called standalone either using explicitly passed arguments or using implicitly passed arguments constructed from statement parameters.
+
+The `YIELD` subclause may be omitted in the standalone form of `CALL`. 
+In this case all result fields produced by the procedure implementation are returned by the statement.
+For a procedure that does not return any result fields, the query will return as many (empty) rows as produced by the called procedure.
+
+A special argument `*` (star) may be given to the `YIELD` subclause in the standalone form only.
+This denotes that all result fields produced by the procedure implementation are returned by the statement.
+For a procedure that does not return any result fields, the query will return as many (empty) rows as produced by the called procedure.
+
+Different forms of standalone calls are detailed next.
+
+===== Calling with implicitly passed arguments (parameters)
+
+Standalone calls may omit passing arguments explicitly.  In this case, all required procedure arguments are taken implicitly from statement parameters with the same name.
+
+Again consider a call to the procedure `myProc(name``::``STRING?``,``id``::``INTEGER?)``::`` (last``::``STRING?)`:
+
+.Standalone call to a procedure using implicitly passed arguments
+[source, cypher]
+----
+CALL myProc YIELD last AS lastLogin
+----
+
+This is the same as executing:
+
+.Standalone call to a procedure using explicitly passed arguments
+[source, cypher]
+----
+CALL myProc($name, $id) YIELD last AS lastLogin
+----
+
+Note that missing parameters are taken to be `null`.
+
+===== Calling without specifying the names of yielded result fields
+
+Standalone calls that omits the `YIELD` clause or use the `YIELD *` subclause will always project all result fields.
+
+Again consider a call to the procedure `myProc(name``::``STRING?``,``id``::``INTEGER?)``::`` (last``::``STRING?)`:
+
+.Standalone call to a procedure omitting `YIELD`
+[source, cypher]
+----
+CALL myProc("Donald", 12)
+----
+
+This is the same as executing:
+
+.Standalone call to a procedure using `YIELD *`
+[source, cypher]
+----
+CALL myProc("Donald", 12) YIELD *
+----
+
+Which in turn is the same as executing:
+
+.In-statement call to a procedure, explicitly yielding all columns:
+[source, cypher]
+----
+CALL myProc("Donald", 12) YIELD last
+RETURN *
+----
+
+===== Calling with implicitly passed arguments (parameters) and without specifying the names of yielded result fields
+
+Both simplifications above may be used in a single standalone procedure call, leading to a concise syntax for just executing a single procedure call:
+
+.Standalone procedure call with `YIELD *` and implicitly passed arguments
+[source, cypher]
+----
+CALL myProc YIELD *
+----
+
+Which is equivalent to executing the even more concise:
+
+.Standalone procedure call with omitted `YIELD` and implicitly passed arguments
+[source, cypher]
+----
+CALL myProc
+----
+
+==== Filtering yielded records
+
+Procedure calls may optionally filter all yielded records using a `WHERE` subclause followed by a predicate.
+
+As an example, consider the procedure `querySQL(dbURI``::``STRING?, query``::``STRING?)``::`` (row``::``MAP)`:
+
+.Filtering the result from a procedure
+[source, cypher]
+----
+CALL querySQL("jdbc:mysql://localhost:3306/foo", "SELECT bar FROM baz")
+YIELD row
+WHERE row.bar > "quux"
+RETURN row.bar
+----
+
+The example above would be equivalent to:
+
+.Filtering the result from a procedure
+[source, cypher]
+----
+CALL querySQL("jdbc:mysql://localhost:3306/foo", "SELECT bar FROM baz")
+YIELD row
+WITH *
+WHERE row.bar > "quux"
+RETURN row.bar
+----
+
+
+== Procedure names
+
+Procedure names consist of two parts:
+
+* The namespace which syntactically is a dot-separated list of variable names.
+* The actual name which syntactically is a variable name.
+
+Please consult the appendix regarding recommended procedure naming conventions.
+
+
+=== Semantics
+
+It is an error if invoking a procedure implementation fails to produce results in accordance with its declared result signature.
+
+If a procedure call fails to execute (i.e. it "throws an exception"), this error is propagated to the user in the same way as other runtime errors are propagated to the user by the implementation.
+
+If executing a procedure call causes any side effects (i.e. it "updates the graph"), all such changes should be executed before any results are returned to the user.
+An implementation may provide the user with a way to opt out of this behavior, however this must be done explicitly (e.g. via a configuration setting).
+
+==== Semantics of explicit argument passing
+
+Arguments are provided explicitly as a sequence of expressions as required by the procedure's signature.
+It is an error if the number of provided arguments differs from the number of arguments required by the procedure signature.
+
+To call the procedure, all argument expressions are evaluated to argument values in order.
+It is an error if the argument values are incompatible with the argument types required by the procedure signature.
+
+==== Semantics of implicit argument passing
+
+Arguments are provided implicitly via the parameters of the Cypher statement.
+
+To call the procedure, the argument values are obtained by using the parameter in scope with the same name as the procedure argument.
+If such a parameter does not exist, the argument value is taken to be `null`.
+It is an error, if the resulting argument values are incompatible with the argument types required by the procedure signature.
+
+== What others do
+
+The https://docs.google.com/document/d/1t_MqE9e8cCcvW3YoHuP-aX2XSub15ksbeu2psRCTozY/edit?usp=sharing[stored procedures survey] is extremely comprehensive, examining how procedures are
+implemented and deployed as well as their API access mechanisms and usage.
+Products surveyed include PostgreSQL, MS SQL Server, Oracle, MySQL, MongoDB, Aerospike and Virtuoso.
+
+== Benefits to this proposal
+
+The benefits of having user-defined procedures is so that users would be able to implement algorithms and functionality which Cypher either cannot express or which cannot be executed efficiently by current Cypher implementations.
+Additionally, users may find procedures to be a useful mechanism to achieve good system design and code abstraction.
+
+== Caveats to this proposal
+
+Procedures are a powerful extension mechanism.
+Their introduction opens up new ways of using Cypher which over time may lead to suboptimal usage patterns and hard to read queries.
+The introduction of procedures therefore carries a risk of influencing the long term evolution of the language in a negative way.
+
+
+== Appendix: Procedure naming conventions
+
+It is recommended that procedure namespaces are chosen in accordance with the following conventions:
+
+* `dbms.` Top-level namespace for procedures that operate on the underlying database management system.
+* `db.` Top-level namespace for procedures that operate on the currently selected database.
+* User-defined procedures are recommended to use a namespace that starts with a reverse domain name and may optionally by followed by custom sub-namespaces (e.g. like the namespace `com.my-company.myModule` being used by the procedure `com.my-company.myModule.myProc()`)
+
+Similar to variable names, it is recommended that sub-namespaces and procedure names start with a lower-case character and combine multiple words using camel-case.
+
+
+== Appendix: Procedure call patterns
+
+.Procedure call patterns
+[frame="topbot",cols="3l,1m,2a,1m", options="header,footer"]
+|==================================================================================
+|Statement template        |Mode        |Argument Passing|New Bindings
+|.. CALL proc(..)          |In-Statement|Explicit        |None
+|.. CALL proc(..) YIELD .. |In-Statement|Explicit        |Given
+|CALL proc(..) YIELD ..    |Standalone  |Explicit        |Given
+|CALL proc YIELD ..        |Standalone  |Implicit        |Given
+|CALL proc(..) YIELD *     |Standalone  |Explicit        |All
+|CALL proc YIELD *         |Standalone  |Implicit        |All
+|CALL proc                 |Standalone  |Implicit        |All
+|CALL proc(..)             |Standalone  |Explicit        |All
+|==================================================================================
+
+Legend:
+
+* Mode
+** `In-Statement`: The procedure call is part of a larger statement (or query)
+** `Standalone`: The procedure call forms the whole statement (or query)
+* Argument passing
+** `Explicit`: Arguments are passed explicitly directly after the procedure name
+** `Implicit`: Arguments are passed implicitly via the statement parameters
+* New (variable) bindings
+** `None`: The call yields no new variables
+** `Given`: The call yields the given new variables in the order specified
+** `All`: The call yields all result fields as new variables in the order specified by the procedure's result signature

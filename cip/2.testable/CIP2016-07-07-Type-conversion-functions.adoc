@@ -1,0 +1,87 @@
+= CIP2016-07-07 Type conversion functions
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Mats Rydberg <mats@neotechnology.com>
+
+[abstract]
+.Abstract
+--
+Cypher contains three type conversion functions: `toString()`, `toInt()`, and `toFloat()`.
+This CIP suggests introducing a more comprehensive rule for specifying the existence of these functions, following a simple `toX()` pattern, where `X` is the name of the type.
+Additionally, this CIP suggests expanding this rule to encompass all scalar types.
+--
+
+toc::[]
+
+
+== Motivation
+
+The `toInt()` function indicates conversion to `Int`, which is neither a type nor any other known Cypher construct.
+In many programming languages, `int` is used as a short form of `integer`, but we cannot rely on this being known to any Cypher developer.
+Following Cypher's guiding principles, explicit is better than implicit, and this CIP argues that `toInteger()` is a more explicit and better name.
+
+Furthermore, there is an opportunity to create a very simple and consistent rule that all scalar types should come with a type conversion function on the pattern `toX()` where `X` is the name of the type.
+Refer to the https://github.com/opencypher/openCypher/blob/master/cip/CIP2015-09-16-public-type-system-type-annotation.adoc#213-scalar-types[type system CIP] to learn more about Cypher scalar types.
+This has the consequence of adding a `toBoolean()` function to the language, creating a full set of conversion functions.
+
+== Proposal
+
+In concrete terms, this CIP suggests two things:
+
+- The function `toInt()` should be renamed to `toInteger()`.
+- The function `toBoolean()` should be added to the language.
+
+=== Syntax
+
+Apart from adding a new function and changing the name of a function, no syntactical changes are suggested.
+
+=== Semantics
+
+==== `toInteger()`
+
+The renamed `toInteger()` function would behave exactly the way `toInt()` behaves.
+
+==== `toBoolean()`
+
+The new `toBoolean()` function would only accept the two strings `'true'` and `'false'`, with any case variants, as valid inputs, and would return `null` on any other input, similarly to how `toFloat()` and `toInt()` behave at the time of writing.
+
+=== Examples
+
+.Convert a string to an integer.
+[source, cypher]
+----
+RETURN toInteger('1')
+----
+
+.Convert a float to an integer.
+[source, cypher]
+----
+RETURN toInteger(1.5)
+----
+
+.Convert strings to booleans.
+[source, cypher]
+----
+UNWIND ['true', 'FALSE', 'foo'] AS s
+RETURN toBoolean(s) // yields two booleans and one null
+----
+
+.Round-trip a boolean to a string and back.
+[source, cypher]
+----
+WITH toString(true) as boolString // lower-cased 'true'
+RETURN toBoolean(boolString)
+----
+
+=== Interaction with existing features
+
+With the addition of `toBoolean()`, it is now possible to do a round-trip conversion of booleans to strings (using `toString()`) and back again.
+
+== Benefits to this proposal
+
+- A simple, general rule for type conversion functions for all scalar types.
+- Removes possible confusion where `int` and `integer` may be misinterpreted for different things.
+- Addition of a cheap, useful function with functionality that could be expected given the other type conversion functions.

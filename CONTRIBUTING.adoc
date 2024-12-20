@@ -1,0 +1,28 @@
+= How to contribute
+
+Before submitting a code contribution please discuss it with the community by creating a new issue.
+Please raise language change proposals as a Cypher Improvement Request (CIR) issue or a Cypher Improvement Proposal (CIP), or as presentations or notes for discussion at openCypher implementers meetings, which are open to anyone interested in the evolution of the Cypher language, cf. link:CIP-PROCESS.adoc[Cypher Improvement Process].
+
+Please note that CIRs, CIPs and any other contribution to the openCypher projects hosted in the openCypher Github organization repositories, as well as the Cypher Frontend (currently hosted in the neo4j/neo4j Github repository), as well as any content that you agree to share with the community through display on the openCypher website, can only be accepted if you have agreed to the link:oCCA.adoc[openCypher Contributor Agreement (oCCA)].
+
+Before raising issues, making language change proposals, or submitting a code contribution, please confirm your agreement to the terms of the oCCA by sending an e-mail to occa@opencypher.org.
+Include your full name, e-mail and attach a copy of the agreement.
+You don’t have to sign it or scan it, but you do need to fill in the name of your organization if you’re contributing as an employee or representative of a company or institution.
+
+Once you’ve done this your name will be on the list of oCCA signatories, and you’ll be able to contribute to any project under the umbrella of the openCypher initiative.
+
+The contributions of all Neo4j employees or agents (people who have email addresses in either of the neo4j.com or neotechnology.com domains) are and will be https://www.opencypher.org/contributions#neo4j-license-grant[licensed to the community] on the same terms as the contributions of others, and that’s part of the oCCA.
+
+For pull requests to be accepted into an openCypher project, the bottom of your commit message must have the following line using your name and e-mail address as it appears in the list of oCCA signatories:
+
+    Signed-off-by: Your Name you@example.org
+
+This can be automatically added to pull requests by committing with:
+
+    git commit --signoff
+
+Only pull requests from committers that can be verified as having signed the oCCA can be accepted.
+
+The oCCA ensures that all implementers and all contributors to language design can work freely in any context (commercial, academic or other not-for-profit), using the contributions of all others, with the best possible protection against the danger of infringing the intellectual property rights of other people or organizations.
+
+These contribution guidelines are also available on our https://www.opencypher.org/contributions[website].

@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.opencypher</groupId>
+    <artifactId>openCypher</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>cip</artifactId>
+  <name>openCypher CIPs</name>
+  <url>http://opencypher.org</url>
+  <description>
+    openCypher specification documents.
+  </description>
+
+  <properties>
+    <project.rootdir>${project.basedir}/..</project.rootdir>
+  </properties>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>0.baseline</directory>
+        <targetPath>0.baseline</targetPath>
+      </resource>
+      <resource>
+        <directory>1.adopted</directory>
+        <targetPath>1.adopted</targetPath>
+      </resource>
+      <resource>
+        <directory>2.testable</directory>
+        <targetPath>2.testable</targetPath>
+      </resource>
+    </resources>
+  </build>
+
+</project>

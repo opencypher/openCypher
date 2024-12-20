@@ -1,0 +1,81 @@
+= CIP2015-11-09 Type coercions
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Authors:* Henrik Nyman henrik.nyman@neotechnology.com, Mats Rydberg mats@neotechnology.com
+
+[abstract]
+.Abstract
+--
+This CIP describes how type coercions work in Cypher.
+--
+
+toc::[]
+
+== Motivation
+
+It is useful for a user to know what kinds of coercions Cypher will perform, and what explicit casting they will need to do themselves.
+
+== Proposal
+
+The three type coercions are as follows:
+
+* `LIST OF T` to `BOOLEAN`
+* `LIST OF NUMBER` to `LIST OF FLOAT`
+* `INTEGER` to `FLOAT`
+
+=== Examples
+
+The following queries exemplify type coercions.
+
+.Check if a list is empty, and if it is not, return the first element:
+[source, cypher]
+----
+WITH [] AS coll
+WHERE coll // coerced to a boolean
+RETURN coll[0]
+----
+
+.Return the size of a non-empty list:
+[source, cypher]
+----
+WITH [1, 2, 3.5] AS coll
+WHERE coll // coerced to a boolean
+RETURN size(coll)
+----
+
+.Calculate the cosine of a value:
+[source, cypher]
+----
+WITH 1 AS int
+RETURN cos(int) // coerced to a float
+----
+
+.Store a list of numbers as a node property:
+[source, cypher]
+----
+WITH [1, 1.0] AS list
+CREATE ({l: list})) // coerced to a list of floats
+----
+
+.Extract a specific element from a list by index:
+[source, cypher]
+----
+WITH ['a', 'b', 'c'] AS list, 1.5 AS float
+RETURN list[toInteger(float)] // explicit conversion required
+----
+
+=== Syntax
+
+No syntax changes are proposed.
+
+=== Semantics
+
+There are no new semantics to consider.
+
+== What others do
+
+PostgreSQL link:http://www.postgresql.org/docs/9.0/static/typeconv-overview.html[states three principles] that guide their handling of type conversions.
+link:https://msdn.microsoft.com/en-us/library/ms191530.aspx[SQL Server] and link:http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements002.htm#i163326[Oracle DB] have larger type sets and define many implicit conversions between the types.

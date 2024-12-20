@@ -1,0 +1,150 @@
+= CIP2015-09-15 STARTS WITH and ENDS WITH
+:numbered:
+:toc:
+:toc-placement: macro
+:source-highlighter: codemirror
+
+*Author:* Stefan Plantikow stefan.plantikow@neotechnology.com
+
+[abstract]
+.Abstract
+--
+String search is a feature that is continuously being requested by customers. Being able to describe and execute string searches efficiently (e.g. using index lookups) adds a lot of value to the language. To better support string search, this CIP proposes the introduction of new operators for string search (prefix search, suffix search and inclusion search).
+
+Case-insensitive string search (which requires specifying the correct locale or some default case folding rules) is out of scope for this CIP.
+--
+
+toc::[]
+
+[[motivation-and-background]]
+== Motivation & Background
+
+
+A previous (now rejected) CIP on link:https://docs.google.com/document/d/1eXhnAS2KmpiAhFTeWssf3s5LrLzUM59B39WJbXa1z_0/edit?usp=sharing[LIKE] has shown that supporting efficient, indexed string search using LIKE patterns leads to complications around escaping of parameters and literals in LIKE patterns. We drafted a CIP that proposed the introduction of link:https://docs.google.com/document/d/1hq-Pu7igb1aFdFZtVCnG59D1_QuqnzsBLPYm7dqpKwg/edit?usp=sharing[String interpolation] to address this issue but the overall solution was considered to be too complex and difficult to understand for users.
+
+This CIP follows a more focused approach by adding explicit operators for commonly requested types of string searches.
+
+== Proposal
+
+* Add the operator `STARTS WITH`
+* Add the operator `ENDS WITH`
+* Add the operator `CONTAINS`
+
+=== Examples
+
+[source, cypher]
+.Find all persons whose name starts with `'And'`
+----
+MATCH (a:Person)
+WHERE a.name STARTS WITH 'And'
+RETURN a
+----
+
+[source, cypher]
+.Find all persons whose name starts with the parameter `prefix`
+----
+MATCH (a:Person)
+WHERE a.name STARTS WITH $prefix
+RETURN a
+----
+
+[source, cypher]
+.Find all persons whose name ends with `'fan'`
+----
+MATCH (a:Person)
+WHERE a.name ENDS WITH 'fan'
+RETURN a
+----
+
+[source, cypher]
+.Find all books whose isbn in string form contains `'007'`
+----
+MATCH (b:Book)
+WHERE toString(b.isbn) CONTAINS '007'
+RETURN a
+----
+
+=== Syntax
+
+Syntactically this CIP proposes adding `STARTS WITH`, `ENDS WITH`, and `CONTAINS` as new keywords and adds new production rules to the expression nonterminal.
+
+[source, ebnf]
+----
+expression    = current definition of expression
+               | string-search
+               ;
+
+string-search = starts-with | ends-with | contains ;
+starts-with   = expression, “STARTS”, “WITH”, expression ;
+ends-with     = expression, “ENDS”, “WITH”, expression ;
+contains      = expression, “CONTAINS” expression ;
+----
+
+=== Semantics
+
+All three proposed operators are defined as _comparison operators_ on string operands.
+As such, behavioural semantics need to be in line with what is detailed by the link:https://github.com/opencypher/openCypher/blob/master/cip/1.accepted/CIP2016-06-14-Define-comparability-and-equality-as-well-as-orderability-and-equivalence.adoc[Comparability CIP].
+This has the following consequence:
+
+- If any argument to `STARTS WITH`, `ENDS WITH`, or `CONTAINS` is `null` or not a string, then the result of evaluating the whole predicate is `null`.
+
+==== STARTS WITH
+Using `lhs STARTS WITH rhs` requires both `lhs` and `rhs` to be strings. This new expression evaluates to true if `lhs` textually starts with `rhs`. Otherwise, it is false.
+
+==== ENDS WITH
+Using `lhs ENDS WITH rhs` requires both `lhs` and `rhs` to be strings. This new expression evaluates to true if `lhs` textually ends with `rhs`. Otherwise, it is false.
+
+==== CONTAINS
+Using `lhs CONTAINS rhs` requires both `lhs` and `rhs` to be strings. This new expression evaluates to true if `lhs` textually contains `rhs`. Otherwise, it is false.
+
+=== Alternatives
+
+* link:https://docs.google.com/document/d/1eXhnAS2KmpiAhFTeWssf3s5LrLzUM59B39WJbXa1z_0/edit?usp=sharing[LIKE] with link:https://docs.google.com/document/d/1hq-Pu7igb1aFdFZtVCnG59D1_QuqnzsBLPYm7dqpKwg/edit?usp=sharing[String interpolation] (rejected as described in the <<motivation-and-background>> section).
+* Rely on regular expressions only (difficult for the same reasons as LIKE).
+
+== What others do
+
+=== SQL
+
+SQL uses LIKE - please refer to the link:https://docs.google.com/document/d/1eXhnAS2KmpiAhFTeWssf3s5LrLzUM59B39WJbXa1z_0/edit?usp=sharing[LIKE CIP].
+
+=== SPARQL
+
+SPARQL uses regular expressions only.
+
+=== MongoDB
+
+* If a field is indexed with a text index, a search can be made for documents containing a given term in the field; see link:https://docs.mongodb.org/manual/reference/operator/query/text/[here] for more details.
+* Regex searching is also provided; see link:https://docs.mongodb.org/manual/reference/operator/query/regex/[here] for more details.
+
+=== Elastic (formerly known as Elasticsearch)
+
+* Simple prefix query: this is a low-level query working at the document term level and is not optimised. More details may be found link:https://www.elastic.co/guide/en/elasticsearch/guide/current/prefix-query.html[here].
+* Wildcard term query: this is a low-level, term-based query similar to the prefix query, but allowing for the specification of a pattern. It uses `?` to match any character and `*` to match zero or more characters and is also not optimised. More details may be found link:https://www.elastic.co/guide/en/elasticsearch/guide/current/_wildcard_and_regexp_queries.html[here].
+* Regex searching is also available and is also not optimised. Details may be found link:https://www.elastic.co/guide/en/elasticsearch/guide/current/_wildcard_and_regexp_queries.html[here].
+
+== Benefits to this proposal
+
+(Efficient) string search would be a very frequently-used and important operation that would be supported by implementing this CIP.
+
+== Caveats to this proposal
+
+ * More complex string searches must still use the regular expression search.
+ * Differs from SQL's approach.
+ * More keywords added to the language.
+
+== Appendix
+
+=== Background on case-insensitive search
+
+Case-insensitive string search requires specifying a case conversion function for converting the string operands as well as using a suitable equality predicate to compare them. Unicode itself defines three possible cases: lower case, upper case, and title case. Converting to these cases is inherently locale specific though in practice this is often ignored by using the default ("C" or "en") locale. To achieve good results, this is often combined with another locale independent normalization step. Furthermore notably Java defines a special equality predicate "equalsIgnoreCase" for case insensitive comparison that treats two strings identical if they have the same length and if all of their characters are pairwise equal either directly, or after upcasing both of them, or after downcasing both of them.
+
+_Further reading_
+
+* http://www.w3.org/International/wiki/Case_folding
+* https://www.elastic.co/guide/en/elasticsearch/guide/current/case-folding.html
+* http://srfi.schemers.org/srfi-13/mail-archive/msg00086.html
+
+=== Adding title case
+
+To be on par with Unicode, it may be desirable to add the `toTitle` function for case folding a string to the title case in the future.

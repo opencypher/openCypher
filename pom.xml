@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.opencypher</groupId>
+  <artifactId>openCypher</artifactId>
+  <packaging>pom</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>openCypher</name>
+  <url>http://openCypher.org</url>
+  <description>openCypher -- The graph query language specification based on Cypher</description>
+  <scm>
+    <url>https://github.com/opencypher/opencypher</url>
+  </scm>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+
+  <modules>
+    <module>cip</module>
+    <module>grammar</module>
+    <module>tck</module>
+    <module>tools</module>
+  </modules>
+
+  <properties>
+    <dep.cucumber.version>5.7.0</dep.cucumber.version>
+    <dep.fastparse.version>3.1.1</dep.fastparse.version>
+    <dep.junit.platform.version>1.10.3</dep.junit.platform.version>
+    <dep.junit.version>5.10.3</dep.junit.version>
+    <dep.maven.compiler.plugin.version>3.13.0</dep.maven.compiler.plugin.version>
+    <dep.maven.javadoc.plugin.version>3.8.0</dep.maven.javadoc.plugin.version>
+    <dep.maven.source.plugin.version>3.3.1</dep.maven.source.plugin.version>
+    <dep.maven.surefire.plugin.version>3.3.1</dep.maven.surefire.plugin.version>
+    <dep.scala.maven.plugin.version>3.4.4</dep.scala.maven.plugin.version>
+    <dep.scalatest.version>3.2.19</dep.scalatest.version>
+    <dep.scalatest.runner.version>0.2.0</dep.scalatest.runner.version>
+    <dep.scala.compat.version>2.12.0</dep.scala.compat.version>
+    <license.header>${project.rootdir}/ASL-2-header.txt</license.header>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.rootdir>${project.basedir}</project.rootdir>
+    <test.runner.jvm/>
+    <test.runner.jvm.settings.additional/>
+    <test.runner.jvm.settings>
+      -Xmx2G
+      -XX:+UseG1GC
+      -Djunit.jupiter.extensions.autodetection.enabled=true
+      -Djunit.jupiter.execution.parallel.enabled=true
+      -Djunit.jupiter.execution.timeout.default=${default.jupiter.test.timeout}
+      -Djunit.jupiter.execution.parallel.mode.default=${default.jupiter.test.mode}
+      -Djunit.jupiter.execution.parallel.mode.classes.default=${default.jupiter.classes.test.mode}
+      ${test.runner.jvm.settings.additional}
+    </test.runner.jvm.settings>
+    <default.jupiter.test.timeout>20m</default.jupiter.test.timeout>
+    <default.jupiter.test.mode>concurrent</default.jupiter.test.mode>
+    <default.jupiter.classes.test.mode>same_thread</default.jupiter.classes.test.mode>
+    <forkCounts>0</forkCounts>
+  </properties>
+
+  <developers>
+    <developer>
+      <id>openCypher</id>
+      <name>The openCypher team</name>
+      <email>opencypher@googlegroups.com</email>
+      <url>http://opencypher.org/</url>
+    </developer>
+  </developers>
+
+  <dependencyManagement>
+    <dependencies>
+
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-library</artifactId>
+        <version>${scala.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.opencypher</groupId>
+        <artifactId>tck</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!--dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-runtime</artifactId>
+        <version>${dep.antlr4.version}</version>
+      </dependency-->
+
+      <!--dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4</artifactId>
+        <version>${dep.antlr4.version}</version>
+      </dependency-->
+
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>${dep.junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+       <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>cucumber-junit</artifactId>
+        <version>${dep.cucumber.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>cucumber-core</artifactId>
+        <version>${dep.cucumber.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.cucumber</groupId>
+        <artifactId>cucumber-gherkin-vintage</artifactId>
+        <version>${dep.cucumber.version}</version>
+      </dependency>
+
+      <!--dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-svggen</artifactId>
+        <version>${dep.batik.version}</version>
+        <scope>test</scope>
+      </dependency-->
+
+      <!--dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-swing</artifactId>
+        <version>${dep.batik.version}</version>
+        <scope>test</scope>
+      </dependency-->
+
+      <!--dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>xmlgraphics-commons</artifactId>
+        <version>${dep.xmlgraphics-commons.version}</version>
+        <scope>test</scope>
+      </dependency-->
+
+      <dependency>
+        <groupId>co.helmethair</groupId>
+        <artifactId>scalatest-junit-runner</artifactId>
+        <version>${dep.scalatest.runner.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <!--dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-csv</artifactId>
+        <version>${dep.commons-csv.version}</version>
+      </dependency-->
+
+      <!--dependency>
+        <groupId>commons-cli</groupId>
+        <artifactId>commons-cli</artifactId>
+        <version>${dep.commons-cli.version}</version>
+      </dependency-->
+
+      <!--dependency>
+        <groupId>org.freemarker</groupId>
+        <artifactId>freemarker</artifactId>
+        <version>${dep.freemarker.version}</version>
+      </dependency-->
+
+      <!--dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-xml</artifactId>
+        <version>${dep.jackson-dataformat-xml.version}</version>
+      </dependency-->
+
+      <!--dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest</artifactId>
+        <version>${dep.hamcrest.version}</version>
+        <scope>test</scope>
+      </dependency-->
+
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+
+    <pluginManagement>
+      <plugins>
+
+        <plugin>
+          <groupId>net.alchim31.maven</groupId>
+          <artifactId>scala-maven-plugin</artifactId>
+          <version>${dep.scala.maven.plugin.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>compile</goal>
+                <goal>testCompile</goal>
+                <goal>add-source</goal>
+                <goal>doc-jar</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <scalaVersion>${scala.version}</scalaVersion>
+            <scalaCompatVersion>${scala.binary.version}</scalaCompatVersion>
+            <args>
+              <arg>-deprecation</arg>
+              <arg>-feature</arg>
+            </args>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${dep.maven.surefire.plugin.version}</version>
+          <configuration>
+            <forkCount>${forkCounts}</forkCount>
+            <trimStackTrace>false</trimStackTrace>
+            <reuseForks>true</reuseForks>
+            <argLine>${test.runner.jvm.settings}</argLine>
+            <runOrder>random</runOrder>
+            <jvm>${test.runner.jvm}</jvm>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.junit.platform</groupId>
+              <artifactId>junit-platform-launcher</artifactId>
+              <version>${dep.junit.platform.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.junit.jupiter</groupId>
+              <artifactId>junit-jupiter-engine</artifactId>
+              <version>${dep.junit.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.junit.vintage</groupId>
+              <artifactId>junit-vintage-engine</artifactId>
+              <version>${dep.junit.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+
+        <plugin>
+          <groupId>org.scalatest</groupId>
+          <artifactId>scalatest-maven-plugin</artifactId>
+          <version>2.0.2</version>
+          <configuration>
+            <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+            <junitxml>.</junitxml>
+            <filereports>WDF TestSuite.txt</filereports>
+          </configuration>
+          <executions>
+            <execution>
+              <id>test</id>
+              <goals>
+                <goal>test</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.neo4j.build.plugins</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>3</version>
+          <executions>
+            <execution>
+              <id>check-licenses</id>
+              <phase>initialize</phase>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <strictCheck>true</strictCheck>
+            <header>${license.header}</header>
+            <includes>
+              <include>src/**/*.java</include>
+              <include>src/**/*.scala</include>
+              <include>**/*.feature</include>
+              <include>grammar/*.bnf</include>
+            </includes>
+            <mapping>
+              <java>SLASHSTAR_STYLE</java>
+              <scala>SLASHSTAR_STYLE</scala>
+              <feature>SCRIPT_STYLE</feature>
+              <xml>XML_STYLE</xml>
+            </mapping>
+            <timestampPropertyName>currentYear</timestampPropertyName>
+            <properties>
+              <inceptionYear>2015</inceptionYear>
+            </properties>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${dep.maven.source.plugin.version}</version>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${dep.maven.javadoc.plugin.version}</version>
+          <executions>
+            <execution>
+              <id>attach-javadocs</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${dep.maven.compiler.plugin.version}</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.spurint.maven.plugins</groupId>
+          <artifactId>scala-cross-maven-plugin</artifactId>
+          <version>0.3.0</version>
+          <executions>
+            <execution>
+              <id>rewrite-pom</id>
+              <goals>
+                <goal>rewrite-pom</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.neo4j.build.plugins</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <!-- Disable parallel execution with "-DsequentialTests" -->
+    <profile>
+      <id>parallelTestExecution</id>
+      <activation>
+        <property>
+          <name>!sequentialTests</name>
+        </property>
+      </activation>
+      <properties>
+        <forkCounts>1C</forkCounts>
+      </properties>
+    </profile>
+    <!-- This is all the defaults -->
+    <profile>
+      <id>scala-212</id>
+      <properties>
+        <scala.binary.version>2.12</scala.binary.version>
+        <scala.version>2.12.19</scala.version>
+      </properties>
+    </profile>
+    <profile>
+      <id>scala-213</id>
+      <properties>
+        <scala.binary.version>2.13</scala.binary.version>
+        <scala.version>2.13.14</scala.version>
+      </properties>
+    </profile>
+  </profiles>
+
+</project>
