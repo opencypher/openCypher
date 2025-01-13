@@ -882,12 +882,6 @@
 <shortest path expression> ::= 
   <legacy shortest path pattern>
 
-# Value specifications
-
-<map value or parameter specification> ::= 
-    <map value constructor>
-  | <general parameter reference>
-
 # Basics
 
 ## Names and variables
@@ -920,12 +914,6 @@
   <identifier>
 
 <function name> ::= 
-  <identifier>
-
-<index name> ::= 
-  <identifier>
-
-<constraint name> ::= 
   <identifier>
 
 ## <literal>
