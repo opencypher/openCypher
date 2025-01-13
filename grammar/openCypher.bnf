@@ -282,7 +282,7 @@
 ## <where clause>
 
 <where clause> ::= 
-  WHERE <predicate>
+  WHERE <search condition>
 
 # Patterns
 
@@ -541,6 +541,9 @@
 
 <value expression> ::= 
    <boolean value expression>
+
+<search condition> ::= 
+  <boolean value expression>
 
 ## <boolean value expression>
 
