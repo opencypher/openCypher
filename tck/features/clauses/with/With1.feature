@@ -119,7 +119,7 @@ Feature: With1 - Forward single variable
       | a | b |
     And no side effects
 
-  Scenario: [6] Forwarind a node variable possibly null
+  Scenario: [6] Forwarding a node variable possibly null
     Given an empty graph
     And having executed:
       """
