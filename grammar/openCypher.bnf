@@ -1,17 +1,18 @@
 # openCypher program
 
 <program> ::= 
-    <program activity>
+    <procedure specification>
   | <standalone procedure call>
 
-<program activity> ::= 
-  <procedure specification>
+## Procedure specification
 
 <procedure specification> ::= 
   <statement block>
 
 <statement block> ::= 
   <statement>
+
+## <statement>
 
 <statement> ::= 
   <composite statement>
@@ -22,19 +23,10 @@
 <composite conjunction> ::= 
   UNION [ DISTINCT ]
 
+## <linear statement>
+
 <linear statement> ::= 
-  <simple statement chain>
-
-<simple statement chain> ::= 
-    <primitive statement chain> [ <with statement chain>... ] [ <primitive result statement> ]
-  | <with statement chain>... [ <primitive result statement> ]
-  | <primitive result statement>
-
-<primitive statement chain> ::= 
-  <primitive statement>...
-
-<with statement chain> ::= 
-  <with statement> [ <primitive statement>... ]
+  <primitive statement>... [ <primitive result statement> ]
 
 <primitive statement> ::= 
     <primitive query statement>
@@ -43,9 +35,14 @@
 
 # Query statements
 
+## <primitive query statement>
+
 <primitive query statement> ::= 
     <match statement>
-  | <for or unwind statement>
+  | <unwind statement>
+  | <with statement>
+
+## <match statement>
 
 <match statement> ::= 
     <optional match statement>
@@ -60,11 +57,15 @@
 <simple match statement> ::= 
   MATCH <graph pattern binding table>
 
-<for or unwind statement> ::= 
-  <unwind statement>
+## <unwind statement>
 
 <unwind statement> ::= 
   UNWIND <value expression> AS <binding variable>
+
+## <with statement>
+
+<with statement> ::= 
+  WITH <return statement body> [ <order by and page clause> ] [ <where clause> ]
 
 # Data update statements
 
@@ -162,16 +163,13 @@
 # Call procedure statement
 
 <call procedure statement> ::= 
-  CALL <procedure call>
+  CALL <named procedure call>
 
-<procedure call> ::= 
-  <named procedure call>
+<standalone procedure call> ::= 
+  CALL <procedure reference> [ <explicit procedure arguments> ] [ <standalone procedure call yield clause> ]
 
 <named procedure call> ::= 
   <procedure reference> <explicit procedure arguments> [ <yield clause> ]
-
-<standalone procedure call> ::= 
-  <procedure reference> [ <explicit procedure arguments> ] [ <standalone procedure call yield clause> ]
 
 <explicit procedure arguments> ::= 
   <left paren> [ <procedure argument list> ] <right paren>
@@ -213,7 +211,7 @@
   RETURN <return statement body> [ <order by and page clause> ]
 
 <return statement body> ::= 
-  [ <set quantifier> ] <return item list>
+  [ DISTINCT ] <return item list>
 
 <return item list> ::= 
   { <asterisk> | <return item> } [ { <comma> <return item> }... ]
@@ -223,14 +221,6 @@
 
 <return item alias> ::= 
   AS <identifier>
-
-<set quantifier> ::= 
-  DISTINCT 
-
-## <with statement>
-
-<with statement> ::= 
-  WITH <return statement body> [ <order by and page clause> ] [ <where clause> ]
 
 ## <order by and page clause>
 
@@ -445,10 +435,13 @@
   | [ <create node label set specification> ] <create element property specification>
 
 <create relationship label and property set specification> ::= 
-  <relationship label specification> [ <create element property specification> ]
+  <create relationship label specification> [ <create element property specification> ]
 
 <create node label set specification> ::= 
   <node label set specification for create and merge>
+
+<create relationship label specification> ::= 
+  <relationship label specification for create and merge>
 
 <create element property specification> ::= 
     <element property specification>
@@ -487,10 +480,13 @@
   | [ <merge node label set specification> ] <merge element property specification>
 
 <merge relationship label and property set specification> ::= 
-  <relationship label specification> [ <merge element property specification> ]
+  <merge relationship label specification> [ <merge element property specification> ]
 
 <merge node label set specification> ::= 
   <node label set specification for create and merge>
+
+<merge relationship label specification> ::= 
+  <relationship label specification for create and merge>
 
 <merge element property specification> ::= 
   <element property specification>
@@ -518,7 +514,7 @@
 
 ## Relationship label specifications
 
-<relationship label specification> ::= 
+<relationship label specification for create and merge> ::= 
   <colon> <label name>
 
 # Catalog references
@@ -593,9 +589,7 @@
 
 <advanced comparison predicate part 2> ::= 
     <advanced comp op> <advanced comparison predicand>
-  | <value type predicate part 2>
   | <null predicate part 2>
-  | <normalized predicate part 2>
   | <is labeled predicate part 2>
 
 <advanced comp op> ::= 
@@ -607,12 +601,6 @@
 
 <null predicate part 2> ::= 
   IS [ NOT ] NULL
-
-<value type predicate part 2> ::= 
-  { IS [ NOT ] { <double colon> | TYPED } | <double colon> } <value type>
-
-<string and list comparison> ::= 
-  <regex equals operator>
 
 <start with operator> ::= 
   STARTS WITH
@@ -745,7 +733,7 @@
   WHEN <when operand list> THEN <value expression>
 
 <searched when clause> ::= 
-  WHEN <value expression> THEN <value expression>
+  WHEN <search condition> THEN <value expression>
 
 <case operand> ::= 
   <value expression>
@@ -907,9 +895,6 @@
 <binding variable> ::= 
   <identifier> 
 
-<object name> ::= 
-  <identifier>
-
 <graph name> ::= 
   <identifier>
 
@@ -917,6 +902,9 @@
   <identifier>
 
 <function name> ::= 
+  <identifier>
+
+<object name> ::= 
   <identifier>
 
 ## <literal>
@@ -1121,6 +1109,16 @@
 <field literal> ::= 
   <field name> <colon> <literal>
 
+## Common keyword sets
+
+<privileges keywords> ::= 
+    PRIVILEGE
+  | PRIVILEGES
+
+<path keywords> ::= 
+    PATH
+  | PATHS
+
 ## <token>, <separator>, and <identifier>
 
 <token> ::= 
@@ -1186,6 +1184,7 @@
   | ASSERT
   | ASSIGN
   | AT
+  | AUTH
   | BINDINGS
   | BOOL
   | BOOLEAN
@@ -1197,6 +1196,7 @@
   | BUILT
   | BY
   | CALL
+  | CASCADE
   | CASE
   | CHANGE
   | CIDR
@@ -1214,6 +1214,7 @@
   | COUNT
   | CREATE
   | CSV
+  | CYPHER
   | CURRENT
   | DATA
   | DATABASE
@@ -1255,6 +1256,7 @@
   | FAIL
   | FALSE
   | FIELDTERMINATOR
+  | FILTER
   | FINISH
   | FLOAT
   | FOREACH
@@ -1270,6 +1272,7 @@
   | GROUPS
   | HEADERS
   | HOME
+  | ID
   | IF
   | IMMUTABLE
   | IMPERSONATE
@@ -1284,10 +1287,12 @@
   | IS
   | JOIN
   | KEY
+  | LANGUAGE
   | LABEL
   | LABELS
   | LEADING
-  | LIMITROWS
+  | LET
+  | LIMIT
   | LIST
   | LOAD
   | LOCAL
@@ -1339,6 +1344,8 @@
   | PROCEDURES
   | PROPERTIES
   | PROPERTY
+  | PROVIDER
+  | PROVIDERS
   | RANGE
   | READ
   | REALLOCATE
@@ -1353,6 +1360,7 @@
   | REPORT
   | REQUIRE
   | REQUIRED
+  | RESTRICT
   | RETURN
   | REVOKE
   | ROLE
@@ -1376,7 +1384,7 @@
   | SHOW
   | SIGNED
   | SINGLE
-  | SKIPROWS
+  | SKIP
   | START
   | STARTS
   | STATUS
@@ -1437,8 +1445,10 @@
   | <greater than or equals operator>       
   | <less than operator>
   | <less than or equals operator>  
-  | <not equals operator>   
-  | <right double arrow>        
+  | <not equals operator>
+  | <plus equals>   
+  | <right double arrow>
+  | <regex equals operator>        
 
 <concatenation operator> ::= 
   || !! <U+007C, U+007C>
@@ -1475,10 +1485,6 @@
 
 <separator> ::= 
   unicode: WHITESPACE
-
-<edges synonym> ::= 
-    EDGES
-  | RELATIONSHIPS
 
 ## Terminal characters
 
