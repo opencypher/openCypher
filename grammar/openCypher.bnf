@@ -21,7 +21,7 @@
   <linear statement> [ { <composite conjunction> <linear statement> }... ]
 
 <composite conjunction> ::= 
-  UNION [ DISTINCT ]
+  UNION [ <set quantifier> ]
 
 ## <linear statement>
 
@@ -49,7 +49,7 @@
   | <simple match statement>
 
 <optional match statement> ::= 
-  OPTIONAL <optional match operand> 
+  OPTIONAL <optional match operand>
 
 <optional match operand> ::= 
   <simple match statement>
@@ -162,11 +162,15 @@
 
 # Call procedure statement
 
+## <call procedure statement>
+
 <call procedure statement> ::= 
   CALL <named procedure call>
 
 <standalone procedure call> ::= 
   CALL <procedure reference> [ <explicit procedure arguments> ] [ <standalone procedure call yield clause> ]
+
+## <named procedure call>
 
 <named procedure call> ::= 
   <procedure reference> <explicit procedure arguments> [ <yield clause> ]
@@ -211,7 +215,7 @@
   RETURN <return statement body> [ <order by and page clause> ]
 
 <return statement body> ::= 
-  [ DISTINCT ] <return item list>
+  [ <set quantifier> ] <return item list>
 
 <return item list> ::= 
   { <asterisk> | <return item> } [ { <comma> <return item> }... ]
@@ -236,7 +240,7 @@
   <sort specification> [ { <comma> <sort specification> }... ]
 
 <sort specification> ::= 
-  <sort key> [ <ordering specification> ] 
+  <sort key> [ <ordering specification> ]
 
 <sort key> ::= 
   <value expression>
@@ -267,12 +271,18 @@
 ## <graph pattern binding table>
 
 <graph pattern binding table> ::= 
-  <graph pattern> 
+  <graph pattern>
 
 ## <where clause>
 
 <where clause> ::= 
   WHERE <search condition>
+
+## <set quantifier>
+
+<set quantifier> ::= 
+    ALL
+  | DISTINCT
 
 # Patterns
 
@@ -302,21 +312,34 @@
 
 <path pattern expression> ::= 
     <path term>
-  | <left paren> <path term> <right paren>
   | <legacy shortest path pattern>
 
 <legacy shortest path pattern> ::= 
-  { SHORTESTPATH | ALLSHORTESTPATHS } <left paren> <path term> <right paren>
+  { SHORTESTPATH | ALLSHORTESTPATHS } <left paren> <node pattern> <relationship pattern> <node pattern> <right paren>
 
 <path term> ::= 
     <path factor>
-  | <path term> <path factor> 
+  | <path term> <path factor>
 
 <path factor> ::= 
-  <path primary>
+    <path primary>
+  | <quantified path primary>
+
+<quantified path primary> ::= 
+  <path primary> <graph pattern quantifier>
 
 <path primary> ::= 
-  <element pattern>
+    <element pattern>
+  | <parenthesized path pattern expression>
+
+<parenthesized path pattern expression> ::= 
+  <left paren> [ <subpath variable declaration> ] <path pattern expression> [ <parenthesized path pattern where clause> ] <right paren>
+
+<subpath variable declaration> ::= 
+  <binding variable> <equals operator>
+
+<parenthesized path pattern where clause> ::= 
+  WHERE <value expression>
 
 ### <element pattern>
 
@@ -333,7 +356,11 @@
   | <element pattern predicate>
 
 <element pattern predicate> ::= 
-  <element property specification>
+    <element pattern where clause>
+  | <element property specification>
+
+<element pattern where clause> ::= 
+  WHERE <value expression>
 
 <element property specification> ::= 
   <left brace> <property key value pair list> <right brace>
@@ -345,7 +372,7 @@
   <property name> <colon> <value expression>
 
 <relationship pattern> ::= 
-  <full relationship pattern> 
+  <full relationship pattern>
 
 <full relationship pattern> ::= 
     <full relationship pointing left>
@@ -366,13 +393,13 @@
   <arrow line> [ <left bracket> [ <relationship pattern filler> ] <right bracket> ] <arrow line>
 
 <left arrowhead> ::= 
-  <left angle bracket> 
+  <left angle bracket>
 
 <arrow line> ::= 
-  <minus sign> 
+  <minus sign>
 
 <right arrowhead> ::= 
-  <right angle bracket> 
+  <right angle bracket>
 
 <relationship pattern filler> ::= 
     <binding variable> [ <is relationship label expression> ] [ <path length> ] [ <element pattern predicate> ]
@@ -385,6 +412,20 @@
 
 <lower and upper bound path length> ::= 
   [ <lower bound path length> ] <double period> [ <upper bound path length> ]
+
+### <graph pattern quantifier>
+
+<graph pattern quantifier> ::= 
+    <asterisk>
+  | <plus sign>
+  | <fixed quantifier>
+  | <general quantifier>
+
+<fixed quantifier> ::= 
+  <left brace> <unsigned decimal integer> <right brace>
+
+<general quantifier> ::= 
+  <left brace> [ <lower bound path length> ] <comma> [ <upper bound path length> ] <right brace>
 
 ### Path length bounds
 
@@ -496,13 +537,49 @@
 ## Prefixed label expression
 
 <is node label expression> ::= 
-  <colon> <label name> [ { <colon> <label name> }... ]
+    <colon> <node label expression legacy>
+  | <is label expression>
 
 <is relationship label expression> ::= 
-  <colon> <label name> [ { <vertical bar> [ <colon> ] <label name> }... ]
+    <colon> <relationship label expression legacy>
+  | <is label expression>
 
 <is label expression> ::= 
-  <is node label expression>
+  { <colon> | IS } <label expression>
+
+<node label expression legacy> ::= 
+  <label name> { <colon> <label name> }...
+
+<relationship label expression legacy> ::= 
+  <label name> { <vertical bar> <colon> <label name> }...
+
+<wildcard label> ::= 
+  <percent>
+
+## <label expression>
+
+<label expression> ::= 
+    <label term>
+  | <label expression> <vertical bar> <label term>
+
+<label term> ::= 
+    <label factor>
+  | <label term> <ampersand> <label factor>
+
+<label factor> ::= 
+    <label primary>
+  | <label negation>
+
+<label negation> ::= 
+  <exclamation mark> <label primary>
+
+<label primary> ::= 
+    <label name>
+  | <parenthesized label expression>
+  | <wildcard label>
+
+<parenthesized label expression> ::= 
+  <left paren> <label expression> <right paren>
 
 ## Node label set specifications
 
@@ -519,9 +596,6 @@
 
 # Catalog references
 
-<graph reference> ::= 
-  [ <catalog object parent reference> ] <graph name>
-
 <procedure reference> ::= 
   [ <catalog object parent reference> ] <procedure name>
 
@@ -536,7 +610,7 @@
 ## <value expression>
 
 <value expression> ::= 
-   <boolean value expression>
+  <boolean value expression>
 
 <search condition> ::= 
   <boolean value expression>
@@ -568,7 +642,7 @@
   <comparison predicate>
 
 <comparison predicate> ::= 
-  <simple comparison predicand> [ <simple comparison predicate part 2>... ] 
+  <simple comparison predicand> [ <simple comparison predicate part 2>... ]
 
 <simple comparison predicand> ::= 
   <advanced comparison predicand> [ <advanced comparison predicate part 2> ]
@@ -628,11 +702,11 @@
     <arithmetic factor>
   | <arithmetic term> <asterisk> <arithmetic factor>
   | <arithmetic term> <solidus> <arithmetic factor>
-  | <arithmetic term> <percent> <arithmetic factor> 
+  | <arithmetic term> <percent> <arithmetic factor>
 
 <arithmetic factor> ::= 
     <arithmetic unary>
-  | <arithmetic factor> <circumflex> <arithmetic unary> 
+  | <arithmetic factor> <circumflex> <arithmetic unary>
 
 <arithmetic unary> ::= 
   [ <sign> ] <postfix expression>
@@ -814,7 +888,7 @@
 ## <trim function>
 
 <trim function> ::= 
-  <single-character trim function> 
+  <single-character trim function>
 
 <single-character trim function> ::= 
   TRIM <left paren> <trim source> <right paren>
@@ -825,7 +899,7 @@
 ## <function invocation>
 
 <function invocation> ::= 
-  <function reference> <left paren> [ DISTINCT | ALL ] [ <function argument list> ] <right paren>
+  <function reference> <left paren> [ <set quantifier> ] [ <function argument list> ] <right paren>
 
 <function argument list> ::= 
   <function argument> [ { <comma> <function argument> }... ]
@@ -853,7 +927,7 @@
   | <map value constructor>
 
 <list value constructor> ::= 
-   <left bracket> [ <list element list> ] <right bracket>
+  <left bracket> [ <list element list> ] <right bracket>
 
 <list element list> ::= 
   <value expression> [ { <comma> <value expression> }... ]
@@ -862,7 +936,7 @@
   <record value constructor>
 
 <record value constructor> ::= 
-   <fields specification>
+  <fields specification>
 
 <fields specification> ::= 
   <left brace> [ <field list> ] <right brace>
@@ -893,9 +967,6 @@
   <binding variable>
 
 <binding variable> ::= 
-  <identifier> 
-
-<graph name> ::= 
   <identifier>
 
 <procedure name> ::= 
@@ -914,12 +985,12 @@
   | <general literal>
 
 <unsigned literal> ::= 
-     <unsigned numeric literal>
+    <unsigned numeric literal>
   | <general literal>
 
 <general literal> ::= 
     <boolean literal>
-  | <character string literal>  
+  | <character string literal>
   | <null literal>
   | <list literal>
   | <map literal>
@@ -933,13 +1004,13 @@
   | <double quoted character sequence>
 
 <single quoted character sequence> ::= 
-   <unbroken single quoted character sequence>
+  <unbroken single quoted character sequence>
 
 <double quoted character sequence> ::= 
-   <unbroken double quoted character sequence>
+  <unbroken double quoted character sequence>
 
 <accent quoted character sequence> ::= 
-   <unbroken accent quoted character sequence>
+  <unbroken accent quoted character sequence>
 
 <unbroken single quoted character sequence> ::= 
   <quote> [ <single quoted character representation>... ] <quote>
@@ -1059,7 +1130,7 @@
 <unsigned integer> ::= 
     <unsigned decimal integer>
   | <unsigned hexadecimal integer>
-  | <unsigned octal integer> 
+  | <unsigned octal integer>
 
 <signed decimal integer> ::= 
   [ <sign> ] <unsigned decimal integer>
@@ -1075,7 +1146,7 @@
 
 <approximate numeric literal> ::= 
     <unsigned decimal in scientific notation> [ <approximate number suffix> ]
-  | <unsigned decimal in common notation> [ <approximate number suffix> ] 
+  | <unsigned decimal in common notation> [ <approximate number suffix> ]
 
 <approximate number suffix> ::= 
     F
@@ -1087,7 +1158,7 @@
   NULL
 
 <list literal> ::= 
-   <left bracket> [ <list element list literal> ] <right bracket>
+  <left bracket> [ <list element list literal> ] <right bracket>
 
 <list element list literal> ::= 
   <literal> [ { <comma> <literal> }... ]
@@ -1096,7 +1167,7 @@
   <record literal>
 
 <record literal> ::= 
-   <fields literal>
+  <fields literal>
 
 <fields literal> ::= 
   <left brace> [ <field list literal> ] <right brace>
@@ -1114,15 +1185,15 @@
   | <non-delimiter token>
 
 <non-delimiter token> ::= 
-    <regular identifier> 
+    <regular identifier>
   | <general parameter reference>
   | <keyword>
-  | <unsigned numeric literal>  
+  | <unsigned numeric literal>
 
 <identifier> ::= 
     <regular identifier>
   | <delimited identifier>
-  | <non-reserved word> 
+  | <non-reserved word>
 
 <separated identifier> ::= 
     <extended identifier>
@@ -1142,7 +1213,7 @@
   <dollar sign> <parameter name>
 
 <delimited identifier> ::= 
-  <accent quoted character sequence> 
+    <accent quoted character sequence>
 
 <identifier start> ::= 
   unicode: XID_START
@@ -1151,7 +1222,7 @@
   unicode: XID_CONTINUE
 
 <keyword> ::= 
-    <non-reserved word>
+  <non-reserved word>
 
 <non-reserved word> ::= 
     ACCESS
@@ -1292,6 +1363,7 @@
   | NAMES
   | NAN
   | NEW
+  | NEXT
   | NFC
   | NFD
   | NFKC
@@ -1422,20 +1494,20 @@
   | ZONED
 
 <delimiter token> ::= 
-    <special character>  
+    <special character>
   | <character string literal>
-  | <concatenation operator>  
+  | <concatenation operator>
   | <delimited identifier>
   | <double colon>
-  | <double period> 
+  | <double period>
   | <greater than operator>
-  | <greater than or equals operator>       
+  | <greater than or equals operator>
   | <less than operator>
-  | <less than or equals operator>  
+  | <less than or equals operator>
   | <not equals operator>
-  | <plus equals>   
+  | <plus equals>
   | <right double arrow>
-  | <regex equals operator>        
+  | <regex equals operator>
 
 <concatenation operator> ::= 
   || !! <U+007C, U+007C>
@@ -1480,7 +1552,7 @@
   | <asterisk>
   | <colon>
   | <equals operator>
-  | <comma> 
+  | <comma>
   | <dollar sign>
   | <double quote>
   | <exclamation mark>
@@ -1504,7 +1576,7 @@
   | <underscore>
   | <vertical bar>
   | <circumflex>
-  | <percent> 
+  | <percent>
 
 <ampersand> ::= 
   & !! U+0026
@@ -1609,7 +1681,7 @@
   | f
 
 <digit> ::= 
-  <standard digit> 
+  <standard digit>
 
 <standard digit> ::= 
     <octal digit>
