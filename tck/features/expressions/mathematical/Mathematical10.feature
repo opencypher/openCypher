@@ -29,3 +29,13 @@
 #encoding: utf-8
 
 Feature: Mathematical10 - Random numbers
+  Scenario: [1] Random numbers
+    Given any graph
+    When executing query:
+      """
+      RETURN rand() >= 0.0 AS a, rand() <> rand() AS b, rand() < 1.0 AS c
+      """
+    Then the result should be, in any order:
+      | a    | b    | c    |
+      | true | true | true |
+    And no side effects

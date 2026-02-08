@@ -29,3 +29,25 @@
 #encoding: utf-8
 
 Feature: Mathematical12 - Rounding numbers
+  
+  Scenario: [1] Ceil function
+    Given any graph
+    When executing query:
+      """
+      RETURN ceil(-1.2), ceil(1.2)
+      """
+    Then the result should be, in any order:
+      | ceil(-1.2) | ceil(1.2) |
+      | -1.0       | 2.0       |
+    And no side effects
+  
+  Scenario: [2] Floor function
+    Given any graph
+    When executing query:
+      """
+      RETURN floor(-1.2), floor(1.2)
+      """
+    Then the result should be, in any order:
+      | floor(-1.2) | floor(1.2) |
+      | -2.0        | 1.0        |
+    And no side effects

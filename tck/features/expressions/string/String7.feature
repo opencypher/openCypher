@@ -29,3 +29,15 @@
 #encoding: utf-8
 
 Feature: String7 - String Length
+
+
+  Scenario: [1] `size()` returns the length of a string
+    Given any graph
+    When executing query:
+      """
+      RETURN size('Hello') AS s
+      """
+    Then the result should be, in any order:
+      | s |
+      | 5 |
+    And no side effects

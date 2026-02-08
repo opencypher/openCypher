@@ -29,3 +29,20 @@
 #encoding: utf-8
 
 Feature: Mathematical1 - Unary delimiter
+
+  Scenario: [1] Negation
+    Given an empty graph
+    And having executed:
+      """
+      CREATE ({id: 1337, version: 99})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WHERE a.id = 1337
+      RETURN -a.version
+      """
+    Then the result should be, in any order:
+      | -a.version |
+      | -99        |
+    And no side effects

@@ -29,3 +29,24 @@
 #encoding: utf-8
 
 Feature: Mathematical9 - Mathematical constants
+  Scenario: [1] Pi
+    Given any graph
+    When executing query:
+      """
+      RETURN pi()
+      """
+    Then the result should be, in any order:
+      | pi()              |
+      | 3.141592653589793 |
+    And no side effects
+
+  Scenario: [2] natural logarithm, `e`
+    Given any graph
+    When executing query:
+      """
+      RETURN e()
+      """
+    Then the result should be, in any order:
+      | e()               |
+      | 2.718281828459045 |
+    And no side effects
