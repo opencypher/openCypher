@@ -1,0 +1,479 @@
+= CIP2026-03-18: Temporal Graph Queries — AS OF Clause
+:numbered:
+:toc:
+:toc-placement: macro
+:author: Ashley Dunfield
+:email: ashley@digital-fabric.com
+
+[abstract]
+.Abstract
+This CIP proposes a `FOR VALID_TIME AS OF` clause (shorthand: `AS OF`) for Cypher
+`MATCH` patterns, enabling point-in-time queries over relationships annotated with
+valid time periods. The clause filters relationships to those whose declared valid
+time period contains the specified instant, eliminating the verbose manual predicate
+patterns currently required for temporal graph queries.
+
+toc::[]
+
+== Motivation
+
+Temporal data — relationships that are valid for a bounded or open-ended period
+of time — is ubiquitous in graph modelling. Ownership changes, organisational
+structures, regulatory assignments, contract periods, and employment histories are
+all naturally represented as time-bounded relationships.
+
+Cypher has no native syntax for querying a graph as it existed at a point in time.
+Today, developers encode valid time as relationship properties (`effective_date`,
+`valid_from`, `start_date`) and write manual predicates to filter them:
+
+[source,cypher]
+----
+MATCH (e:Employee)-[r:REPORTS_TO]->(m:Manager)
+WHERE (r.valid_from IS NULL OR r.valid_from <= date('2024-06-15'))
+  AND (r.valid_to   IS NULL OR r.valid_to   >= date('2024-06-15'))
+RETURN e.name, m.name
+----
+
+This pattern has three compounding problems:
+
+. *Verbosity at scale.* Every relationship hop in a multi-hop pattern requires
+  its own pair of temporal predicates. A three-hop pattern requires six predicates.
+  A five-hop regulatory traversal requires ten. The signal-to-noise ratio collapses.
+
+. *Error surface.* Developers routinely omit the `IS NULL OR` null guard,
+  use strict inequality (`<` instead of `\<=`) at period boundaries, or
+  apply predicates inconsistently across a multi-hop pattern. Each mistake
+  produces silently wrong results rather than an error.
+
+. *Optimiser opacity.* The query planner cannot identify these predicates as
+  temporal filters. It cannot use period-specific indexes, choose period overlap
+  join algorithms, or push temporal filters to the storage layer. It treats them
+  as arbitrary property comparisons.
+
+Temporal graph queries are sufficiently common, and the current patterns
+sufficiently costly, to warrant first-class language support.
+
+== Background
+
+SQL:2011 introduced `FOR VALID_TIME AS OF` and `FOR SYSTEM_TIME AS OF` for
+bitemporal table queries. These have been adopted by IBM Db2, Oracle, MariaDB,
+and others. The semantics are well-understood and standardised.
+
+Graph databases to date have not adopted equivalent constructs. This CIP adapts
+the SQL:2011 valid time semantics to the Cypher data model, where time-bounded
+facts are expressed as relationships rather than rows.
+
+A reference implementation demonstrating these semantics as Cypher procedures,
+validated against a production graph with over three million temporally-annotated
+relationships, is available at:
+https://github.com/DIGITAL-FABRIC-AI/neo4j-temporal-graph
+
+== Proposal
+
+=== Syntax
+
+A new optional clause, `FOR VALID_TIME AS OF`, is added to the `MATCH` statement.
+The shorthand form `AS OF` is the primary user-facing syntax.
+
+.EBNF (additions to existing grammar)
+[source,ebnf]
+----
+matchClause      ::= "MATCH" patternList [ whereClause ] [ validTimeClause ]
+validTimeClause  ::= ( "AS" "OF" | "FOR" "VALID_TIME" "AS" "OF" ) temporalExpression
+temporalExpression ::= expression  (* must evaluate to Date, LocalDateTime, or DateTime *)
+----
+
+The `AS OF` clause is a shorthand for `FOR VALID_TIME AS OF`. Both forms are
+equivalent. The `FOR VALID_TIME AS OF` form is provided for alignment with SQL:2011
+terminology and for clarity in documentation contexts.
+
+==== Keyword placement
+
+The `AS OF` clause follows the `MATCH` pattern (and optional `WHERE` clause)
+and applies to all relationships in the preceding pattern list:
+
+[source,cypher]
+----
+MATCH (a)-[r:REL_TYPE]->(b) AS OF $asOf
+MATCH (a)-[r:REL_TYPE]->(b) WHERE a.active = true AS OF $asOf
+MATCH (a)-[r1:TYPE_A]->(b)-[r2:TYPE_B]->(c) AS OF $asOf
+----
+
+When a query contains multiple `MATCH` clauses, each carries its own `AS OF`:
+
+[source,cypher]
+----
+MATCH (a)-[r1:OWNS]->(b) AS OF $asOf1
+MATCH (b)-[r2:LEASES]->(c) AS OF $asOf2
+RETURN a, b, c
+----
+
+=== Semantics
+
+==== Valid time period
+
+A relationship _r_ has a valid time period defined by two properties:
+
+|===
+| Property | Meaning | Null interpretation
+
+| `valid_from`
+| The earliest instant at which _r_ is valid
+| Beginning of time (always satisfied)
+
+| `valid_to`
+| The latest instant at which _r_ is valid
+| No end; open-ended (always satisfied)
+|===
+
+The Cypher specification does not mandate specific property names. Implementations
+may support configurable names or rely on schema declarations (see
+<<property-convention>>). For interoperability, `valid_from` and `valid_to` are the
+recommended defaults.
+
+==== Point-in-time predicate
+
+A relationship _r_ is _active at_ an instant `t` if and only if:
+
+----
+(r.valid_from IS NULL OR r.valid_from <= t)
+AND
+(r.valid_to   IS NULL OR r.valid_to   >= t)
+----
+
+The `AS OF t` clause filters every relationship in the MATCH pattern to those
+satisfying this predicate. Relationships that do not have either temporal property
+are considered always active and are never filtered out.
+
+This satisfies the two most common modelling patterns:
+
+* *Closed periods:* `valid_from = 2020-01-01`, `valid_to = 2022-12-31` — active
+  during that range only.
+* *Open-ended:* `valid_from = 2023-01-01`, `valid_to = null` — active from the
+  start date with no declared end.
+* *Always valid:* no temporal properties — active at all times; unaffected by
+  `AS OF`.
+
+==== Null propagation
+
+If the `AS OF` expression evaluates to `null`, the clause has no effect —
+all relationships are returned (as if `AS OF` were not present). This follows
+Cypher's general null propagation behaviour.
+
+==== Temporal expression type
+
+The `AS OF` expression must evaluate to a `Date`, `LocalDateTime`, or `DateTime`.
+If the value and the relationship property are of different but compatible types
+(e.g., `Date` vs `DateTime`), the comparison is performed at `Date` granularity
+by truncating the higher-precision value.
+
+If the types are incompatible, a type error is raised.
+
+==== Relationship uniqueness
+
+The `AS OF` clause does not change Cypher's existing semantics for relationship
+uniqueness within a pattern. A pattern that matches the same relationship twice
+continues to be rejected regardless of temporal filtering.
+
+==== Interaction with OPTIONAL MATCH
+
+`AS OF` applies to `OPTIONAL MATCH` in the same way as `MATCH`. Relationships that
+are not active at the given instant are treated as absent, and the optional match
+yields `null` for non-active relationship slots.
+
+[source,cypher]
+----
+MATCH (e:Employee {id: $id})
+OPTIONAL MATCH (e)-[r:MANAGED_BY]->(m:Manager) AS OF $asOf
+RETURN e.name, m.name AS manager  -- manager is null if no active MANAGED_BY at $asOf
+----
+
+=== Examples
+
+==== Example 1 — Point-in-time lookup
+
+Who managed this employee on a specific date?
+
+[source,cypher]
+----
+MATCH (e:Employee {id: $employeeId})-[r:MANAGED_BY]->(m:Manager)
+AS OF date('2024-06-15')
+RETURN m.name AS manager, r.valid_from AS since
+----
+
+Without `AS OF`, this requires:
+[source,cypher]
+----
+MATCH (e:Employee {id: $employeeId})-[r:MANAGED_BY]->(m:Manager)
+WHERE (r.valid_from IS NULL OR r.valid_from <= date('2024-06-15'))
+  AND (r.valid_to   IS NULL OR r.valid_to   >= date('2024-06-15'))
+RETURN m.name AS manager, r.valid_from AS since
+----
+
+==== Example 2 — Multi-hop temporal traversal
+
+Trace the complete authority chain as of a given date. Without `AS OF`, each hop
+requires its own pair of temporal predicates:
+
+[source,cypher]
+----
+MATCH (f:Facility {id: $facilityId})
+      -[:OWNED_BY]->(:Company)
+      -[:SUBJECT_TO]->(:Authority)
+      -[:GOVERNED_BY]->(:Jurisdiction)
+AS OF $asOf
+RETURN *
+----
+
+==== Example 3 — Parameterised date
+
+[source,cypher]
+----
+MATCH (c:Company {name: $company})-[r:OWNS]->(a:Asset)
+AS OF $asOf
+RETURN a.name, a.type, r.valid_from AS acquiredOn
+ORDER BY r.valid_from
+----
+
+==== Example 4 — Combined with WHERE
+
+`AS OF` and `WHERE` are independent. `WHERE` filters node and relationship
+properties; `AS OF` filters relationship temporal validity.
+
+[source,cypher]
+----
+MATCH (e:Employee)-[r:WORKS_IN]->(d:Department)
+WHERE d.region = 'EMEA'
+AS OF date('2023-01-01')
+RETURN e.name, d.name
+----
+
+==== Example 5 — OPTIONAL MATCH with temporal fallback
+
+[source,cypher]
+----
+MATCH (w:Well {id: $id})
+OPTIONAL MATCH (w)-[r:LICENSED_BY]->(a:Authority)
+AS OF $asOf
+RETURN w.name,
+       coalesce(a.name, 'No active licence') AS authority
+----
+
+==== Example 6 — Aggregation over a temporal snapshot
+
+How many employees were in each department on a given date?
+
+[source,cypher]
+----
+MATCH (e:Employee)-[:WORKS_IN]->(d:Department)
+AS OF date('2024-01-01')
+RETURN d.name AS department, count(e) AS headcount
+ORDER BY headcount DESC
+----
+
+=== Interaction with existing features
+
+==== Indexes
+
+Implementations may create specialised temporal indexes on relationship property
+pairs `(valid_from, valid_to)` to support efficient `AS OF` evaluation. Such
+indexes are not mandated by this CIP but are expected optimisation targets.
+
+Without temporal indexes, `AS OF` degrades gracefully to a filtered scan with
+the same correctness as the equivalent manual predicate.
+
+==== Schema constraints
+
+This CIP does not introduce new schema constraint types. Temporal property naming
+and type enforcement remain the application's responsibility, consistent with
+Cypher's current approach to relationship property schemas.
+
+==== Existing temporal functions
+
+Cypher's existing temporal functions (`date()`, `datetime()`, `duration()`,
+`date.truncate()` etc.) are fully composable with `AS OF`:
+
+[source,cypher]
+----
+MATCH (n)-[r:REL]->(m) AS OF date.truncate('month', datetime())
+RETURN n, m
+----
+
+[[property-convention]]
+==== Property name convention
+
+This CIP recommends `valid_from` and `valid_to` as the standard property names
+for valid time periods on relationships. Implementations may extend this with a
+schema-declaration syntax (outside the scope of this CIP) to support alternate
+naming conventions or enforce type correctness.
+
+=== Alternatives
+
+==== Relationship-level `AT` syntax
+
+An alternative syntax applies the temporal filter at the individual relationship
+level rather than the clause level:
+
+[source,cypher]
+----
+MATCH (a)-[r:REL AT date('2024-01-01')]->(b)
+RETURN a, b
+----
+
+This supports mixed-date traversals (different hops at different times) but is
+more verbose for the common case where all hops share the same instant. This CIP
+proposes both forms: clause-level `AS OF` as the primary, relationship-level `AT`
+as a follow-on.
+
+==== Temporal functions only (no new syntax)
+
+The status quo — temporal filtering via `WHERE` predicates — can be simplified
+by introducing helper functions:
+
+[source,cypher]
+----
+MATCH (a)-[r:REL]->(b)
+WHERE temporal.activeAt(r, $asOf)
+RETURN a, b
+----
+
+This approach requires no syntax change but places the temporal logic in the
+`WHERE` clause, outside the pattern itself. It does not enable planner-level
+optimisation of temporal filters, and it pushes the burden of correct temporal
+semantics onto library authors rather than the language.
+
+A function-based approach is provided as a reference implementation to demonstrate
+the semantics prior to native support. It is not a substitute for language-level
+support.
+
+== What others do
+
+[options="header"]
+|===
+| System | Temporal query mechanism
+
+| SQL:2011
+| `SELECT * FROM t FOR VALID_TIME AS OF DATE '2024-06-15'` +
+  Full bitemporal: `FOR VALID_TIME` and `FOR SYSTEM_TIME` independently
+
+| IBM Db2
+| `AS OF` for temporal tables; full SQL:2011 bitemporal support
+
+| MariaDB 10.3+
+| `FOR SYSTEM_TIME AS OF` (transaction time only); no valid time syntax
+
+| Oracle Workspace Manager
+| Version-based temporal workspaces; not SQL:2011 standard
+
+| SPARQL 1.1
+| No native temporal filter syntax; reification or named graphs used for temporal modelling
+
+| Apache AGE
+| No native temporal support
+
+| TypeDB
+| No native temporal support
+
+| Amazon Neptune
+| No native temporal support
+
+| Gremlin (TinkerPop)
+| No native temporal support; temporal filters expressed as property predicates
+|===
+
+SQL:2011 is the relevant standard. This CIP aligns with SQL:2011 valid time
+semantics (`FOR VALID_TIME AS OF`), adapted for Cypher's relationship-centric
+data model. The shorthand `AS OF` is common in SQL implementations and is
+adopted here for readability.
+
+== Benefits to this proposal
+
+. *Eliminates a common and error-prone boilerplate.* The manual `IS NULL OR`
+  temporal predicate is one of the most frequently written and most frequently
+  broken patterns in temporal graph code.
+
+. *Correct semantics by default.* The null guard (treating null `valid_from` as
+  "from the beginning of time" and null `valid_to` as "no end") is encoded in the
+  language, not left to each developer.
+
+. *Composable at any depth.* A single `AS OF` clause on a `MATCH` applies
+  consistently to every relationship in the pattern, regardless of depth.
+
+. *Optimisation surface.* Exposing temporal predicates as a named clause rather
+  than arbitrary `WHERE` conditions gives the planner the information needed to
+  use temporal indexes and period overlap join algorithms.
+
+. *Alignment with ISO standards.* SQL:2011 is a published international standard.
+  Aligning Cypher's temporal semantics with it reduces the cognitive overhead for
+  developers familiar with SQL temporal tables.
+
+. *Backward compatibility.* The `AS OF` clause is entirely optional. All existing
+  queries continue to work unchanged. Relationships without temporal properties
+  are unaffected.
+
+== Caveats to this proposal
+
+. *Valid time only.* This CIP addresses valid time (user-asserted, application-level
+  time). Transaction time (system-managed, database-recorded time) is a distinct
+  concept requiring immutable relationship versioning. Transaction time is out of
+  scope for this CIP and is proposed as a follow-on.
+
+. *Property naming is not standardised.* The CIP recommends `valid_from` / `valid_to`
+  but does not mandate them. Graphs using `effective_date` / `end_date`,
+  `start_date` / `end_date`, or other conventions require either migration or
+  implementation-specific configuration. A companion schema-declaration proposal
+  could address this.
+
+. *Relationship uniqueness under versioning.* Cypher currently allows at most one
+  relationship of a given type between any pair of nodes. Bitemporal modelling
+  often requires multiple co-existing relationships representing different time
+  periods (e.g., two `OWNS` relationships between the same nodes for different
+  date ranges). `AS OF` filtering cannot return the correct relationship if only
+  one of the two can exist in the graph. This is a data model limitation, not a
+  syntax limitation, but it constrains the practical applicability of this CIP
+  for some modelling patterns.
+
+. *No TCK scenarios in this CIP.* TCK (Technology Compatibility Kit) scenario
+  coverage will be added when this CIP moves from accepted to testable status.
+
+== Appendix A — Equivalent rewrite
+
+For implementations where `AS OF` is added as syntactic sugar at the parse stage,
+the following rewrite rule applies. Given:
+
+[source,cypher]
+----
+MATCH (a)-[r1:T1]->(b)-[r2:T2]->(c) AS OF t
+----
+
+The equivalent expanded form is:
+
+[source,cypher]
+----
+MATCH (a)-[r1:T1]->(b)-[r2:T2]->(c)
+WHERE (r1.valid_from IS NULL OR r1.valid_from <= t)
+  AND (r1.valid_to   IS NULL OR r1.valid_to   >= t)
+  AND (r2.valid_from IS NULL OR r2.valid_from <= t)
+  AND (r2.valid_to   IS NULL OR r2.valid_to   >= t)
+----
+
+This rewrite is semantically complete and allows Phase 1 implementation with no
+changes to the storage layer or query planner. Planner optimisation (using temporal
+indexes and period overlap joins) is a Phase 2 activity.
+
+== Appendix B — Reference implementation
+
+A reference implementation of the equivalent semantics using Cypher procedures
+and user functions is available at:
+
+https://github.com/DIGITAL-FABRIC-AI/neo4j-temporal-graph
+
+The implementation provides:
+
+* `temporal.activeAt(relationship, date)` — inline `AS OF` predicate
+* `temporal.asOf.relationships(node, types, date)` — relationship-level `AS OF`
+* `temporal.asOf.traverse(node, types, date, depth)` — multi-hop `AS OF` traversal
+* `temporal.changepoints(node, types)` — full temporal history of a node
+
+It has been validated on a production graph with 3.1M+ temporally-annotated
+relationships representing regulatory jurisdiction assignments and licence grants.
