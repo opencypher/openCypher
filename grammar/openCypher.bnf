@@ -78,12 +78,6 @@
   | <remove statement>
   | <delete statement>
 
-<static property expression> ::= 
-  <value expression> <static property reference>
-
-<dynamic property expression> ::= 
-  <value expression> <dynamic element reference>
-
 ## <create statement>
 
 <create statement> ::= 
@@ -106,17 +100,10 @@
   <set item> [ { <comma> <set item> }... ]
 
 <set item> ::= 
-    <set property item>
-  | <set dynamic property item>
-  | <set all properties item>
+    <set all properties item>
   | <add all properties item>
   | <set labels item>
-
-<set property item> ::= 
-  <static property expression> <equals operator> <value expression>
-
-<set dynamic property item> ::= 
-  <dynamic property expression> <equals operator> <value expression>
+  | <set property item>
 
 <set all properties item> ::= 
   <binding variable reference> <equals operator> <value expression>
@@ -127,6 +114,9 @@
 <set labels item> ::= 
   <binding variable reference> <node label set specification for set and remove>
 
+<set property item> ::= 
+  <postfix expression> <equals operator> <value expression>
+
 ## <remove statement>
 
 <remove statement> ::= 
@@ -136,18 +126,14 @@
   <remove item> [ { <comma> <remove item> }... ]
 
 <remove item> ::= 
-    <remove property item>
-  | <remove dynamic property item>
-  | <remove labels item>
-
-<remove property item> ::= 
-  <static property expression>
-
-<remove dynamic property item> ::= 
-  <dynamic property expression>
+    <remove labels item>
+  | <remove property item>
 
 <remove labels item> ::= 
   <binding variable reference> <node label set specification for set and remove>
+
+<remove property item> ::= 
+  <postfix expression>
 
 ## <delete statement>
 
@@ -261,7 +247,8 @@
   <offset synonym> <value expression>
 
 <offset synonym> ::= 
-  SKIP 
+    SKIP
+  | OFFSET
 
 <limit clause> ::= 
   LIMIT <value expression>
@@ -300,10 +287,50 @@
   <where clause>
 
 <path pattern> ::= 
-  [ <path variable declaration> ] <path pattern expression>
+  [ <path variable declaration> ] [ <path pattern prefix> ] <path pattern expression>
 
 <path variable declaration> ::= 
   <binding variable> <equals operator>
+
+### <path pattern prefix>
+
+<path pattern prefix> ::= 
+  <path search prefix>
+
+<path search prefix> ::= 
+    <all path search>
+  | <any path search>
+  | <shortest path search>
+
+<all path search> ::= 
+  ALL [ <path keywords> ]
+
+<any path search> ::= 
+  ANY [ <number of paths> ] [ <path keywords> ]
+
+<shortest path search> ::= 
+    <all shortest path search>
+  | <any shortest path search>
+  | <counted shortest path search>
+  | <counted shortest group search>
+
+<all shortest path search> ::= 
+  ALL SHORTEST [ <path keywords> ]
+
+<any shortest path search> ::= 
+  ANY SHORTEST [ <path keywords> ]
+
+<counted shortest path search> ::= 
+  SHORTEST <number of paths> [ <path keywords> ]
+
+<counted shortest group search> ::= 
+  SHORTEST [ <number of groups> ] [ <path keywords> ] { GROUP | GROUPS }
+
+<number of paths> ::= 
+  <unsigned decimal integer specification>
+
+<number of groups> ::= 
+  <unsigned decimal integer specification>
 
 ### <path pattern expression>
 
@@ -947,6 +974,10 @@
 <field> ::= 
   <field name> <colon> <value expression>
 
+<unsigned decimal integer specification> ::= 
+    <unsigned decimal integer>
+  | <general parameter reference>
+
 # Basics
 
 ## Names and variables
@@ -1178,6 +1209,12 @@
 <field literal> ::= 
   <field name> <colon> <literal>
 
+## Common keyword sets
+
+<path keywords> ::= 
+    PATH
+  | PATHS
+
 ## <token>, <separator>, and <identifier>
 
 <token> ::= 
@@ -1225,273 +1262,68 @@
   <non-reserved word>
 
 <non-reserved word> ::= 
-    ACCESS
-  | ACTIVE
-  | ADMIN
-  | ADMINISTRATOR
-  | ALIAS
-  | ALIASES
-  | ALLSHORTESTPATHS
+    ALLSHORTESTPATHS
   | ALL
-  | ALTER
   | AND
   | ANY
-  | ARRAY
   | AS
   | ASC
   | ASCENDING
-  | ASSERT
-  | ASSIGN
-  | AT
-  | AUTH
-  | BINDINGS
-  | BOOL
-  | BOOLEAN
-  | BOOSTED
-  | BOTH
-  | BREAK
-  | BRIEF
-  | BUILT
   | BY
   | CALL
-  | CASCADE
   | CASE
-  | CHANGE
-  | CIDR
-  | COLLECT
-  | COMMAND
-  | COMMANDS
-  | COMMIT
-  | COMPOSITE
-  | CONCURRENT
-  | CONSTRAINT
-  | CONSTRAINTS
   | CONTAINS
-  | CONTINUE
-  | COPY
   | COUNT
   | CREATE
-  | CSV
-  | CYPHER
-  | CURRENT
-  | DATA
-  | DATABASE
-  | DATABASES
-  | DATE
-  | DATETIME
-  | DBMS
-  | DEALLOCATE
-  | DEFAULT
-  | DEFINED
   | DELETE
-  | DENY
   | DESC
   | DESCENDING
-  | DESTROY
   | DETACH
-  | DIFFERENT
   | DISTINCT
-  | DRIVER
-  | DROP
-  | DRYRUN
-  | DUMP
-  | DURATION
-  | EACH
-  | EDGE
-  | ELEMENT
-  | ELEMENTS
   | ELSE
-  | ENABLE
-  | ENCRYPTED
   | END
   | ENDS
-  | ERROR
-  | EXECUTABLE
-  | EXECUTE
-  | EXIST
-  | EXISTENCE
   | EXISTS
-  | FAIL
   | FALSE
-  | FIELDTERMINATOR
-  | FILTER
-  | FINISH
-  | FLOAT
-  | FOREACH
-  | FOR
-  | FROM
-  | FULLTEXT
-  | FUNCTION
-  | FUNCTIONS
-  | GRANT
-  | GRAPH
-  | GRAPHS
   | GROUP
   | GROUPS
-  | HEADERS
-  | HOME
-  | ID
-  | IF
-  | IMMUTABLE
-  | IMPERSONATE
   | IN
-  | INDEX
-  | INDEXES
   | INF
   | INFINITY
-  | INSERT
-  | INT
-  | INTEGER
   | IS
-  | JOIN
-  | KEY
-  | LANGUAGE
-  | LABEL
-  | LABELS
-  | LEADING
-  | LET
   | LIMIT
-  | LIST
-  | LOAD
-  | LOCAL
-  | LOOKUP
   | MATCH
-  | MANAGEMENT
-  | MAP
   | MERGE
-  | NAME
-  | NAMES
   | NAN
-  | NEW
-  | NEXT
-  | NFC
-  | NFD
-  | NFKC
-  | NFKD
-  | NODE
-  | NODETACH
-  | NODES
   | NONE
-  | NORMALIZE
-  | NORMALIZED
   | NOT
-  | NOTHING
-  | NOWAIT
   | NULL
-  | OF
+  | OFFSET
   | ON
-  | ONLY
   | OPTIONAL
-  | OPTIONS
-  | OPTION
   | OR
   | ORDER
-  | OUTPUT
-  | PASSWORD
-  | PASSWORDS
   | PATH
   | PATHS
-  | PERIODIC
-  | PLAINTEXT
-  | POINT
-  | POPULATED
-  | PRIMARY
-  | PRIMARIES
-  | PRIVILEGE
-  | PRIVILEGES
-  | PROCEDURE
-  | PROCEDURES
-  | PROPERTIES
-  | PROPERTY
-  | PROVIDER
-  | PROVIDERS
-  | RANGE
-  | READ
-  | REALLOCATE
   | REDUCE
-  | REL
-  | RELATIONSHIP
-  | RELATIONSHIPS
   | REMOVE
-  | RENAME
-  | REPEATABLE
-  | REPLACE
-  | REPORT
-  | REQUIRE
-  | REQUIRED
-  | RESTRICT
   | RETURN
-  | REVOKE
-  | ROLE
-  | ROLES
-  | ROW
-  | ROWS
-  | SCAN
-  | SEC
-  | SECOND
-  | SECONDS
-  | SECONDARIES
-  | SECONDARY
-  | SEEK
-  | SERVER
-  | SERVERS
   | SET
-  | SETTING
-  | SETTINGS
   | SHORTEST
   | SHORTESTPATH
-  | SHOW
-  | SIGNED
   | SINGLE
   | SKIP
-  | START
   | STARTS
-  | STATUS
-  | STOP
-  | STRING
-  | SUPPORTED
-  | SUSPENDED
-  | TARGET
-  | TERMINATE
-  | TEXT
   | THEN
-  | TIME
-  | TIMESTAMP
-  | TIMEZONE
-  | TO
-  | TOPOLOGY
-  | TRAILING
-  | TRANSACTION
-  | TRANSACTIONS
-  | TRAVERSE
   | TRIM
   | TRUE
-  | TYPE
-  | TYPED
-  | TYPES
   | UNION
-  | UNIQUE
-  | UNIQUENESS
   | UNWIND
-  | URL
-  | USE
-  | USER
-  | USERS
-  | USING
-  | VALUE
-  | VARCHAR
-  | VECTOR
-  | VERBOSE
-  | VERTEX
-  | WAIT
   | WHEN
   | WHERE
   | WITH
-  | WITHOUT
-  | WRITE
   | XOR
   | YIELD
-  | ZONED
 
 <delimiter token> ::= 
     <special character>
