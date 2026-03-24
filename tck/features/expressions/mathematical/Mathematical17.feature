@@ -29,3 +29,36 @@
 #encoding: utf-8
 
 Feature: Mathematical17 - Inverse trigonometric functions
+
+  Scenario: [1] `acos()` function
+    Given any graph
+    When executing query:
+      """
+      RETURN acos(0.96)
+      """
+    Then the result should be, in any order:
+      | acos(0.96)        |
+      | 0.283794109208328 |
+    And no side effects
+
+  Scenario: [2] `asin()` function
+    Given any graph
+    When executing query:
+      """
+      RETURN asin(0.96)
+      """
+    Then the result should be, in any order:
+      | asin(0.96)         |
+      | 1.2870022175865687 |
+    And no side effects
+
+  Scenario: [3] `atan()` function
+    Given any graph
+    When executing query:
+      """
+      RETURN atan(0.96)
+      """
+    Then the result should be, in any order:
+      | atan(0.96)         |
+      | 0.7649928327109102 |
+    And no side effects

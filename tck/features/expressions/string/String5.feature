@@ -29,3 +29,25 @@
 #encoding: utf-8
 
 Feature: String5 - Manipulate Letter Casing
+
+  Scenario: [1] `toLower()` convert to lower case
+    Given any graph
+    When executing query:
+      """
+      RETURN toLower('HeLlo') AS s
+      """
+    Then the result should be, in any order:
+      | s       |
+      | 'hello' |
+    And no side effects
+
+  Scenario: [2] `toUpper()` convert to upper case
+    Given any graph
+    When executing query:
+      """
+      RETURN toUpper('HeLlo') AS s
+      """
+    Then the result should be, in any order:
+      | s       |
+      | 'HELLO' |
+    And no side effects

@@ -29,3 +29,36 @@
 #encoding: utf-8
 
 Feature: String2 - Whitespace Trimming
+
+  Scenario: [1] `lTrim()` remove spaces on the left
+    Given any graph
+    When executing query:
+      """
+      RETURN lTrim('   hello  ') AS s
+      """
+    Then the result should be, in any order:
+      | s         |
+      | 'hello  ' |
+    And no side effects
+
+  Scenario: [2] `rTrim()` remove spaces on the right
+    Given any graph
+    When executing query:
+      """
+      RETURN rTrim('  hello   ') AS s
+      """
+    Then the result should be, in any order:
+      | s         |
+      | '  hello' |
+    And no side effects
+
+  Scenario: [3] `trim()` remove spaces on the left and right
+    Given any graph
+    When executing query:
+      """
+      RETURN trim('  hello   ') AS s
+      """
+    Then the result should be, in any order:
+      | s       |
+      | 'hello' |
+    And no side effects

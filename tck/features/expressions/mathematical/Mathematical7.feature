@@ -29,3 +29,13 @@
 #encoding: utf-8
 
 Feature: Mathematical7 - Power
+  Scenario: [1] Power
+    Given any graph
+    When executing query:
+      """
+      RETURN 2 ^ 3
+      """
+    Then the result should be, in any order:
+      | 2 ^ 3 |
+      | 8     |
+    And no side effects

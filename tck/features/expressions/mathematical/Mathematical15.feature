@@ -29,3 +29,25 @@
 #encoding: utf-8
 
 Feature: Mathematical15 - Degrees and radians
+
+  Scenario: [1] `radians()` function
+    Given any graph
+    When executing query:
+      """
+      RETURN radians(2.96)
+      """
+    Then the result should be, in any order:
+      | radians(2.96)        |
+      | 0.05166174585903216  |
+    And no side effects
+
+  Scenario: [2] `degrees()` function
+    Given any graph
+    When executing query:
+      """
+      RETURN degrees(2.96)
+      """
+    Then the result should be, in any order:
+      | degrees(2.96)      |
+      | 169.59550735872367 |
+    And no side effects

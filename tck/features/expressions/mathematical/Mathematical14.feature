@@ -29,3 +29,36 @@
 #encoding: utf-8
 
 Feature: Mathematical14 - Logarithm
+
+  Scenario: [1] `exp()` function
+    Given any graph
+    When executing query:
+      """
+      RETURN exp(2.96)
+      """
+    Then the result should be, in any order:
+      | exp(2.96)           |
+      | 19.297971755502758  |
+    And no side effects
+
+  Scenario: [2] `log()` function
+    Given any graph
+    When executing query:
+      """
+      RETURN log(27)
+      """
+    Then the result should be, in any order:
+      | log(27)         |
+      | 3.295836866004329 |
+    And no side effects
+
+  Scenario: [3] `log10()` function
+    Given any graph
+    When executing query:
+      """
+      RETURN log10(2.96)
+      """
+    Then the result should be, in any order:
+      | log10(2.96)        |
+      | 0.4712917110589386 |
+    And no side effects

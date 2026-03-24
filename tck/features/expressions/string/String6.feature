@@ -29,3 +29,14 @@
 #encoding: utf-8
 
 Feature: String6 - String Concatenation
+
+  Scenario: [1] Concatenates strings with `+`
+    Given any graph
+    When executing query:
+      """
+      RETURN 'Hello' + 'World' AS s
+      """
+    Then the result should be, in any order:
+      | s            |
+      | 'HelloWorld' |
+    And no side effects

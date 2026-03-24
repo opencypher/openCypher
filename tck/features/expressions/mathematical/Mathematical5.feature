@@ -29,3 +29,13 @@
 #encoding: utf-8
 
 Feature: Mathematical5 - Division
+  Scenario: [1] Division
+    Given any graph
+    When executing query:
+      """
+      RETURN 1722 / 41
+      """
+    Then the result should be, in any order:
+      | 1722 / 41 |
+      | 42        |
+    And no side effects

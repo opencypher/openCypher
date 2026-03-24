@@ -29,3 +29,13 @@
 #encoding: utf-8
 
 Feature: Mathematical6 - Modulo division
+  Scenario: [1] Modulo
+    Given any graph
+    When executing query:
+      """
+      RETURN 1724 % 41
+      """
+    Then the result should be, in any order:
+      | 1724 % 41 |
+      | 2         |
+    And no side effects

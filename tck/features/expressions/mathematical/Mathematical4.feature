@@ -29,3 +29,14 @@
 #encoding: utf-8
 
 Feature: Mathematical4 - Multiplication
+
+  Scenario: [1] Multiplication
+    Given any graph
+    When executing query:
+      """
+      RETURN 42 * 41
+      """
+    Then the result should be, in any order:
+      | 42 * 41 |
+      | 1722    |
+    And no side effects

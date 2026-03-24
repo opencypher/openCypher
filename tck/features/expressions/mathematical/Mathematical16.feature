@@ -29,3 +29,58 @@
 #encoding: utf-8
 
 Feature: Mathematical16 - Trigonometric functions
+
+  Scenario: [1] `cot()` function
+    Given any graph
+    When executing query:
+      """
+      RETURN cot(0.5)
+      """
+    Then the result should be, in any order:
+      | cot(0.5)          |
+      | 1.830487721712452 |
+    And no side effects
+
+  Scenario: [2] `atan2()` function
+    Given any graph
+    When executing query:
+      """
+      RETURN atan2(0.96, 0.34)
+      """
+    Then the result should be, in any order:
+      | atan2(0.96, 0.34)  |
+      | 1.2304143881529896 |
+    And no side effects
+
+  Scenario: [3] `cos()` function
+    Given any graph
+    When executing query:
+      """
+      RETURN cos(0.96)
+      """
+    Then the result should be, in any order:
+      | cos(0.96)          |
+      | 0.5735199860724567 |
+    And no side effects
+
+  Scenario: [4] `sin()` function
+    Given any graph
+    When executing query:
+      """
+      RETURN sin(0.96)
+      """
+    Then the result should be, in any order:
+      | sin(0.96)          |
+      | 0.8191915683009983 |
+    And no side effects
+
+  Scenario: [5] `tan()` function
+    Given any graph
+    When executing query:
+      """
+      RETURN tan(0.96)
+      """
+    Then the result should be, in any order:
+      | tan(0.96)          |
+      | 1.4283574909236105 |
+    And no side effects
